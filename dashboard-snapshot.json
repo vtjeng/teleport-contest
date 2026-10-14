@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T17:20:47.006Z",
+  "capturedAt": "2026-10-14T17:41:31.855Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -121788,6 +121788,230 @@
         "type": "accepted",
         "at": "2026-10-14T17:15:55.768Z",
         "task": "B-investigation-v65-samurai-home-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v65-spell-practice-action2-20261014-4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "type": "published",
+        "at": "2026-10-14T17:21:00.869Z",
+        "task": "A2-investigation-v65-spell-practice-action2-20261014",
+        "commit": "4c1cd3405dda7e890fff016ad3f3828373c70201"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v58-artifact-light-buc-action2-20261013-4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T17:21:04.827Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "commit": "4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "knownBy": "2026-10-14T17:21:00.869Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v65-ordinary-giant-pit-drop-action2-20261014-4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T17:21:06.191Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "commit": "4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "knownBy": "2026-10-14T17:21:00.869Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v66-swallowed-nurse-cure-action7-20261014-4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T17:21:07.534Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "commit": "4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "knownBy": "2026-10-14T17:21:00.869Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v65-samurai-home-action3-20261014-4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T17:21:08.857Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "commit": "4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "knownBy": "2026-10-14T17:21:00.869Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v67-rogue-blind-probing-continuation-action8-20261014-4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T17:21:10.197Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "commit": "4c1cd3405dda7e890fff016ad3f3828373c70201",
+        "knownBy": "2026-10-14T17:21:00.869Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-dc1b00320cd49ef512b825de43ec66b66f0aad7b-4c505c74ea28ce475b88da63fe43c6ada898de5b9e4ff939ff5f584947e9ce94-C-investigation-v66-protected-bell-drop-action6-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:23:34.447Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b",
+        "validationGroup": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-dc1b00320cd49ef512b825de43ec66b66f0aad7b-4c505c74ea28ce475b88da63fe43c6ada898de5b9e4ff939ff5f584947e9ce94-B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:23:34.447Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b",
+        "validationGroup": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-dc1b00320cd49ef512b825de43ec66b66f0aad7b-4c505c74ea28ce475b88da63fe43c6ada898de5b9e4ff939ff5f584947e9ce94-B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:23:34.447Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b",
+        "validationGroup": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-next-three-release-for-coordinator-doc-095108659-C-investigation-v66-protected-bell-drop-action6-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T17:29:00.995Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-next-three-release-for-coordinator-doc-095108659-C-investigation-v66-protected-bell-drop-action6-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T17:29:00.995Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-next-three-release-for-coordinator-doc-095108659-B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T17:29:00.995Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-next-three-release-for-coordinator-doc-095108659-B-investigation-v67-angry-shop-settlement-action10-continuation-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T17:29:00.995Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-next-three-release-for-coordinator-doc-095108659-B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T17:29:00.995Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-next-three-release-for-coordinator-doc-095108659-B-investigation-v65-runtime-customcolors-reset-action1-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T17:29:00.995Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "integration": "dc1b00320cd49ef512b825de43ec66b66f0aad7b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-095108659186c34ffbff02f40aec70be90dd4e8e-4c505c74ea28ce475b88da63fe43c6ada898de5b9e4ff939ff5f584947e9ce94-C-investigation-v66-protected-bell-drop-action6-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:29:21.058Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "integration": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "validationGroup": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-095108659186c34ffbff02f40aec70be90dd4e8e-4c505c74ea28ce475b88da63fe43c6ada898de5b9e4ff939ff5f584947e9ce94-B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:29:21.058Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "integration": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "validationGroup": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-095108659186c34ffbff02f40aec70be90dd4e8e-4c505c74ea28ce475b88da63fe43c6ada898de5b9e4ff939ff5f584947e9ce94-B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:29:21.058Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "integration": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "validationGroup": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-protected-bell-drop-action6-20261014-095108659186c34ffbff02f40aec70be90dd4e8e-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:36:31.280Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-angry-shop-settlement-action10-continuation-20261014-095108659186c34ffbff02f40aec70be90dd4e8e-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:36:31.280Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v65-runtime-customcolors-reset-action1-20261014-095108659186c34ffbff02f40aec70be90dd4e8e-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:36:31.280Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-protected-bell-drop-action6-20261014-095108659186c34ffbff02f40aec70be90dd4e8e-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:37:01.005Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-angry-shop-settlement-action10-continuation-20261014-095108659186c34ffbff02f40aec70be90dd4e8e-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:37:01.005Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v65-runtime-customcolors-reset-action1-20261014-095108659186c34ffbff02f40aec70be90dd4e8e-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:37:01.005Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
       }
     ]
   },
@@ -121827,39 +122051,6 @@
         "status": "changes-required",
         "delivery": "8475c19ab61b35c07bf7eb2a2ada25f3b70d9773",
         "since": "2026-10-14T16:35:57.276Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
-        "worker": "C",
-        "goal": "fix-protected-object-drop-genocide-v66-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2edfa5ee49f500dddade7a6cb6e5fb271b9291b1",
-        "since": "2026-10-14T16:52:42.326Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
-        "worker": "B",
-        "goal": "fix-shk-hot-pursuit-rob-shop-v67-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ddcf7cf4bdf1218534dd68d7c2cb07426aa5809c",
-        "since": "2026-10-14T16:53:05.096Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
-        "worker": "B",
-        "goal": "fix-glyphs-reset-customcolors-options-v65-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "cc6f3c42e31cda941807d85ae28c66b3555ac167",
-        "since": "2026-10-14T17:07:46.644Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -123061,8 +123252,10 @@
           "source:shk.c:fix_shop_damage",
           "source:shk.c:shk_fixes_damage",
           "source:allmain.c:allmain",
+          "source:allmain.c:moveloop_preamble",
           "source:do.c:goto_level",
           "source:bones.c:getbones",
+          "source:bones.c:drop_upon_death",
           "source:mklev.c:mklev"
         ]
       },
@@ -123076,31 +123269,6 @@
           "source:dothrow.c:throwit"
         ]
       },
-      "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014": {
-        "id": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v67/v67-angry-shop-settlement-action10",
-        "reservations": [
-          "session:synthetic/v67/v67-angry-shop-settlement-action10",
-          "source:shk.c:rob_shop",
-          "source:shk.c:hot_pursuit"
-        ]
-      },
-      "C-investigation-v66-protected-bell-drop-action6-20261014": {
-        "id": "C-investigation-v66-protected-bell-drop-action6-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v66/v66-protected-bell-drop-action6",
-        "reservations": [
-          "session:synthetic/v66/v66-protected-bell-drop-action6",
-          "source:steal.c:mdrop_special_objs",
-          "source:mon.c:mongone",
-          "source:mon.c:migrate_mon",
-          "source:dog.c:keepdogs",
-          "source:steed.c:dismount_steed"
-        ]
-      },
       "C-investigation-v66-favourable-prayer-crown-action12-20261014": {
         "id": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
         "worker": "C",
@@ -123111,17 +123279,6 @@
           "source:pray.c:gcrownu",
           "source:pray.c:pleased",
           "source:topl.c:update_topl"
-        ]
-      },
-      "B-investigation-v65-runtime-customcolors-reset-action1-20261014": {
-        "id": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v65/v65-runtime-customcolors-reset-action1",
-        "reservations": [
-          "session:synthetic/v65/v65-runtime-customcolors-reset-action1",
-          "source:glyphs.c:reset_customcolors",
-          "source:options.c:reset_needed_visuals"
         ]
       },
       "B-investigation-v66-unpaid-food-action3-20261014": {
@@ -123146,7 +123303,83 @@
           "source:apply.c:use_cream_pie",
           "source:apply.c:do_break_wand",
           "source:invent.c:add_to_container",
-          "source:mon.c:extract_from_minvent"
+          "source:mon.c:extract_from_minvent",
+          "source:mkobj.c:place_object",
+          "source:mkobj.c:add_to_container",
+          "source:mkobj.c:mkobj_at",
+          "source:mkobj.c:mksobj_at",
+          "source:mkobj.c:mkbox_cnts",
+          "source:mkobj.c:mksobj_init",
+          "source:mkobj.c:recreate_pile_at",
+          "source:mkobj.c:hornoplenty",
+          "source:apply.c:use_whip",
+          "source:ball.c:placebc_core",
+          "source:ball.c:set_bc",
+          "source:ball.c:move_bc",
+          "source:bones.c:give_to_nearby_mon",
+          "source:dig.c:dig",
+          "source:dig.c:buried_ball_to_freedom",
+          "source:dig.c:unearth_objs",
+          "source:do.c:dropz",
+          "source:dog.c:tamedog",
+          "source:dokick.c:really_kick_object",
+          "source:dokick.c:obj_delivery",
+          "source:dothrow.c:throw_gold",
+          "source:end.c:done_in_by",
+          "source:explode.c:scatter",
+          "source:hack.c:moverock_core",
+          "source:hack.c:movobj",
+          "source:invent.c:hold_another_object",
+          "source:lock.c:breakchestlock",
+          "source:makemon.c:m_initinv",
+          "source:mklev.c:fill_ordinary_room",
+          "source:mklev.c:mineralize",
+          "source:mklev.c:mktrap_victim",
+          "source:mkmaze.c:mv_bubble",
+          "source:mkroom.c:fill_zoo",
+          "source:mon.c:meatbox",
+          "source:mon.c:monstone",
+          "source:mon.c:xkilled",
+          "source:mon.c:newcham",
+          "source:mthrowu.c:drop_throw",
+          "source:mthrowu.c:return_from_mtoss",
+          "source:muse.c:mloot_container",
+          "source:muse.c:use_misc",
+          "source:objnam.c:readobjnam",
+          "source:pickup.c:reverse_loot",
+          "source:pickup.c:in_container",
+          "source:pickup.c:tipcontainer",
+          "source:pray.c:give_spell",
+          "source:read.c:drop_boulder_on_player",
+          "source:read.c:drop_boulder_on_monster",
+          "source:restore.c:find_lev_obj",
+          "source:sp_lev.c:create_object",
+          "source:steal.c:mdrop_obj",
+          "source:teleport.c:rloco",
+          "source:trap.c:mk_trap_statue",
+          "source:trap.c:keep_saddle_with_steedcorpse",
+          "source:trap.c:trapeffect_arrow_trap",
+          "source:trap.c:trapeffect_dart_trap",
+          "source:trap.c:trapeffect_rocktrap",
+          "source:trap.c:force_launch_placement",
+          "source:trap.c:launch_obj",
+          "source:trap.c:mkroll_launch",
+          "source:trap.c:fire_damage",
+          "source:trap.c:cnv_trap_obj",
+          "source:uhitm.c:hmon_hitmon_misc_obj",
+          "source:vault.c:move_gold",
+          "source:vault.c:paygd",
+          "source:weapon.c:possibly_unwield",
+          "source:worn.c:m_lose_armor",
+          "source:worn.c:extract_from_minvent",
+          "source:zap.c:stone_to_flesh_obj",
+          "source:zap.c:fracture_rock",
+          "source:zap.c:break_statue",
+          "source:zap.c:bhito",
+          "source:uhitm.c:mhitm_ad_ench",
+          "source:uhitm.c:passive_obj",
+          "source:mhitu.c:passiveum",
+          "source:mhitm.c:passivemm"
         ]
       }
     },
@@ -123196,12 +123429,22 @@
           "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
         ]
       },
+      "source:allmain.c:moveloop_preamble": {
+        "tasks": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+        ]
+      },
       "source:do.c:goto_level": {
         "tasks": [
           "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
         ]
       },
       "source:bones.c:getbones": {
+        "tasks": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+        ]
+      },
+      "source:bones.c:drop_upon_death": {
         "tasks": [
           "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
         ]
@@ -123219,51 +123462,6 @@
       "source:dothrow.c:throwit": {
         "tasks": [
           "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014"
-        ]
-      },
-      "session:synthetic/v67/v67-angry-shop-settlement-action10": {
-        "tasks": [
-          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014"
-        ]
-      },
-      "source:shk.c:rob_shop": {
-        "tasks": [
-          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014"
-        ]
-      },
-      "source:shk.c:hot_pursuit": {
-        "tasks": [
-          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014"
-        ]
-      },
-      "session:synthetic/v66/v66-protected-bell-drop-action6": {
-        "tasks": [
-          "C-investigation-v66-protected-bell-drop-action6-20261014"
-        ]
-      },
-      "source:steal.c:mdrop_special_objs": {
-        "tasks": [
-          "C-investigation-v66-protected-bell-drop-action6-20261014"
-        ]
-      },
-      "source:mon.c:mongone": {
-        "tasks": [
-          "C-investigation-v66-protected-bell-drop-action6-20261014"
-        ]
-      },
-      "source:mon.c:migrate_mon": {
-        "tasks": [
-          "C-investigation-v66-protected-bell-drop-action6-20261014"
-        ]
-      },
-      "source:dog.c:keepdogs": {
-        "tasks": [
-          "C-investigation-v66-protected-bell-drop-action6-20261014"
-        ]
-      },
-      "source:steed.c:dismount_steed": {
-        "tasks": [
-          "C-investigation-v66-protected-bell-drop-action6-20261014"
         ]
       },
       "session:synthetic/v66/v66-favourable-prayer-crown-action12": {
@@ -123284,21 +123482,6 @@
       "source:topl.c:update_topl": {
         "tasks": [
           "C-investigation-v66-favourable-prayer-crown-action12-20261014"
-        ]
-      },
-      "session:synthetic/v65/v65-runtime-customcolors-reset-action1": {
-        "tasks": [
-          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
-        ]
-      },
-      "source:glyphs.c:reset_customcolors": {
-        "tasks": [
-          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
-        ]
-      },
-      "source:options.c:reset_needed_visuals": {
-        "tasks": [
-          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
         ]
       },
       "session:synthetic/v66/v66-unpaid-food-action3": {
@@ -123385,12 +123568,392 @@
         "tasks": [
           "B-investigation-v66-unpaid-food-action3-20261014"
         ]
+      },
+      "source:mkobj.c:place_object": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:add_to_container": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:mkobj_at": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:mksobj_at": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:mkbox_cnts": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:mksobj_init": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:recreate_pile_at": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:hornoplenty": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:apply.c:use_whip": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:ball.c:placebc_core": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:ball.c:set_bc": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:ball.c:move_bc": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:bones.c:give_to_nearby_mon": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dig.c:dig": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dig.c:buried_ball_to_freedom": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dig.c:unearth_objs": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:do.c:dropz": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dog.c:tamedog": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dokick.c:really_kick_object": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dokick.c:obj_delivery": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dothrow.c:throw_gold": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:end.c:done_in_by": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:explode.c:scatter": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:hack.c:moverock_core": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:hack.c:movobj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:invent.c:hold_another_object": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:lock.c:breakchestlock": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:makemon.c:m_initinv": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mklev.c:fill_ordinary_room": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mklev.c:mineralize": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mklev.c:mktrap_victim": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkmaze.c:mv_bubble": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkroom.c:fill_zoo": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mon.c:meatbox": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mon.c:monstone": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mon.c:xkilled": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mon.c:newcham": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mthrowu.c:drop_throw": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mthrowu.c:return_from_mtoss": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:muse.c:mloot_container": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:muse.c:use_misc": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:objnam.c:readobjnam": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:pickup.c:reverse_loot": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:pickup.c:in_container": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:pickup.c:tipcontainer": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:pray.c:give_spell": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:read.c:drop_boulder_on_player": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:read.c:drop_boulder_on_monster": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:restore.c:find_lev_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:sp_lev.c:create_object": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:steal.c:mdrop_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:teleport.c:rloco": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:mk_trap_statue": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:keep_saddle_with_steedcorpse": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:trapeffect_arrow_trap": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:trapeffect_dart_trap": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:trapeffect_rocktrap": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:force_launch_placement": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:launch_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:mkroll_launch": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:fire_damage": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:cnv_trap_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:uhitm.c:hmon_hitmon_misc_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:vault.c:move_gold": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:vault.c:paygd": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:weapon.c:possibly_unwield": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:worn.c:m_lose_armor": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:worn.c:extract_from_minvent": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:zap.c:stone_to_flesh_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:zap.c:fracture_rock": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:zap.c:break_statue": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:zap.c:bhito": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:uhitm.c:mhitm_ad_ench": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:uhitm.c:passive_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mhitu.c:passiveum": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mhitm.c:passivemm": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
-    "measuredAt": "2026-10-14T17:09:11.017Z",
+    "executionCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
+    "measuredAt": "2026-10-14T17:33:29.552Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

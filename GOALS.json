@@ -309287,7 +309287,7 @@
     {
       "id": "fix-protected-object-drop-genocide-v66-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mdrop_special_objs from steal.c",
       "cFile": "steal.c",
       "sessions": [
@@ -309297,15 +309297,96 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "095108659186c34ffbff02f40aec70be90dd4e8e",
       "delivered": null,
       "function": "mdrop_special_objs",
-      "session": "synthetic/v66/v66-protected-bell-drop-action6"
+      "session": "synthetic/v66/v66-protected-bell-drop-action6",
+      "closeStanding": {
+        "sha": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "target": "synthetic/v66/v66-protected-bell-drop-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/095108659186c34ffbff02f40aec70be90dd4e8e/run-hosted-as3erl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mdrop_special_objs",
+            "implementation": "js/steal.js",
+            "symbol": "mdrop_special_objs",
+            "sourceReview": "Read steal.c:852-873. Save obj->nobj before any transfer; call obj_resists(obj,0,0) for each item, then test is_quest_artifact only when resistance is false. On-map monsters call mdrop_obj(mon,obj,FALSE). Migrating monsters call extract_from_minvent(mon,obj,TRUE,TRUE) and then rloco(obj). The existing JS mdrop_obj is asynchronous, so return a promise only after a protected item is selected and continue the remaining inventory in source order. The implemented mongone, migrate_mon, and keepdogs callers await or propagate that transfer before disposal or migration. Dependencies reused: zap.c:obj_resists, questpgr.c:is_quest_artifact, steal.c:mdrop_obj, worn.c:extract_from_minvent, and teleport.c:rloco.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mongone",
+                "source": "mon.c:mongone -> steal.c:mdrop_special_objs before discard_minvent"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "migrate_mon",
+                "source": "mon.c:migrate_mon -> steal.c:mdrop_special_objs before migrate_to_level"
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "keepdogs",
+                "source": "dog.c:keepdogs -> steal.c:mdrop_special_objs before setting mx/my to migrating"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "do_class_genocide",
+                "source": "read.c:do_class_genocide -> mon.c:mongone -> steal.c:mdrop_special_objs"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-protected-bell-drop-action6",
+                "segment": 0,
+                "fromStep": 594,
+                "throughStep": 638,
+                "source": "read.c:do_class_genocide -> mon.c:mongone -> steal.c:mdrop_special_objs -> steal.c:mdrop_obj"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active selected path is wizard class genocide: read.c:do_class_genocide calls mongone for each live monster; mon.c:mongone drops protected objects before discard_minvent. The same helper is called from mon.c:migrate_mon and dog.c:keepdogs; their existing JS paths now preserve the helper completion order. C also calls it from shk.c:make_happy_shk and sp_lev.c:create_monster, whose corresponding caller paths are not implemented in this port and remain outside this bounded task. steed.c:dismount_steed has a call only in the disabled #else under #if 1; the recorder build does not execute it.",
+        "entryPoints": [
+          {
+            "name": "wizard all-monsters class genocide with a Bell of Opening carried by a selected monster",
+            "functions": [
+              {
+                "sourceFile": "steal.c",
+                "name": "mdrop_special_objs"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-protected-bell-drop-action6",
+                "segment": 0,
+                "fromStep": 594,
+                "throughStep": 638,
+                "source": "read.c:do_class_genocide -> mon.c:mongone -> steal.c:mdrop_special_objs -> steal.c:mdrop_obj"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-shk-hot-pursuit-rob-shop-v67-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement rob_shop from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -309315,15 +309396,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "095108659186c34ffbff02f40aec70be90dd4e8e",
       "delivered": null,
       "function": "rob_shop",
-      "session": "synthetic/v67/v67-angry-shop-settlement-action10"
+      "session": "synthetic/v67/v67-angry-shop-settlement-action10",
+      "closeStanding": {
+        "sha": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "target": "synthetic/v67/v67-angry-shop-settlement-action10",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/095108659186c34ffbff02f40aec70be90dd4e8e/run-hosted-as3erl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "rob_shop",
+            "implementation": "js/shk.js",
+            "symbol": "rob_shop",
+            "sourceReview": "Compared nethack-c/upstream/src/shk.c:687-719 with js/shk.js:1028-1069. C calls hot_pursuit(shkp) after a real unpaid theft, after applying alignment loss, then returns TRUE so the caller may call the Kops. JavaScript previously called note_unported('shk.c hot_pursuit') at that source point. It now awaits its existing hot_pursuit helper, preserving call order and completing rile_shk, customer/following updates, clear_no_charge, and clear_no_charge_pets. The credit-covered early return still skips hot_pursuit, as C does. The changed behavior consumes no random calls.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "u_left_shop",
+                "source": "shk.c:u_left_shop calls rob_shop(shkp) when an indebted debtor leaves the shop; the admitted v67 range reaches this caller after the movement commits."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "remote_burglary",
+                "source": "shk.c:remote_burglary calls rob_shop(shkp) for an unpaid remote shop theft; it shares this robbery result and its hot_pursuit side effects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-billing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 934,
+                "source": "shk.c:u_left_shop -> rob_shop -> hot_pursuit -> mon.c:movemon_singlemon -> monmove.c:dochugw -> muse.c:find_offensive/use_offensive"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected mismatch reaches rob_shop through shk.c:u_left_shop after the hero leaves a debtor shop. The admitted v67 range covers this complete call path through the keeper's wand action. shk.c:remote_burglary is the other production caller of rob_shop and shares the corrected implementation; this delivery makes no separate runtime-completion claim for its remote-burglary entry point.",
+        "entryPoints": [
+          {
+            "name": "unpaid shop departure",
+            "functions": [
+              "rob_shop"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 934,
+                "source": "shk.c:u_left_shop -> rob_shop -> hot_pursuit -> mon.c:movemon_singlemon -> monmove.c:dochugw -> muse.c:find_offensive/use_offensive"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-glyphs-reset-customcolors-options-v65-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement reset_customcolors from glyphs.c",
       "cFile": "glyphs.c",
       "sessions": [
@@ -309333,10 +309482,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "095108659186c34ffbff02f40aec70be90dd4e8e",
       "delivered": null,
       "function": "reset_customcolors",
-      "session": "synthetic/v65/v65-runtime-customcolors-reset-action1"
+      "session": "synthetic/v65/v65-runtime-customcolors-reset-action1",
+      "closeStanding": {
+        "sha": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "target": "synthetic/v65/v65-runtime-customcolors-reset-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/095108659186c34ffbff02f40aec70be90dd4e8e/run-hosted-as3erl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "reset_customcolors",
+            "implementation": "js/glyphs.js",
+            "symbol": "reset_customcolors",
+            "sourceReview": "Compared glyphs.c:1179-1183 with js/glyphs.js. C clears every glyphmap custom color then reapplies the current graphics set with do_custom_colors. JavaScript now calls clear_all_glyphmap_colors() and apply_customizations(currentgraphics, { symbols: false, colors: true }) in that order. options.c:reset_needed_visuals consumes the opt_reset_customcolors flag before repaint; js/options.js now calls the helper instead of refusing.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "reset_needed_visuals",
+                "source": "options.c:reset_needed_visuals calls reset_customcolors() before docrt(); doset() and doset_simple_menu() reach reset_needed_visuals after their option selections."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-toggle.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-customcolors-reset-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "options.c:doset -> reset_needed_visuals -> glyphs.c:reset_customcolors -> clear_all_glyphmap_colors/apply_customizations -> docrt"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The v65 options-menu recording reaches the customcolors entry on page two, toggles it off, and runs the reset before returning to the map. The complete recorded range exercises doset, reset_needed_visuals, reset_customcolors, and the map redraw. The test separately covers color overrides when the option is enabled and disabled.",
+        "entryPoints": [
+          {
+            "name": "options-menu customcolors reset",
+            "functions": [
+              "reset_customcolors"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-customcolors-reset-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "options.c:doset -> reset_needed_visuals -> glyphs.c:reset_customcolors -> clear_all_glyphmap_colors/apply_customizations -> docrt"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,0 +1,741 @@
+{
+  "version": 1,
+  "batch": "v45",
+  "manifestPath": "challenges/manifests/v45.json",
+  "sha": "095108659186c34ffbff02f40aec70be90dd4e8e",
+  "utc": "2026-10-14T17:30:54.516Z",
+  "status": "complete",
+  "manifestSha256": "c049636dc488b4a0fdbdceb588e854bffea3de08c408751d1752b845b9c84649",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "5bb272739c326c1cb3636807727b3b8b1561c5a893ac30c2aaba2188f9b21a0e",
+  "inputFiles": [
+    "challenges/cases/v45/v45-arc-filb-level-program-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-arc-filb-level-program-cfirst.session.json",
+    "challenges/cases/v45/v45-bar-fila-level-program-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-bar-fila-level-program-cfirst.session.json",
+    "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-camera-wielded-northwest-result-attempt9-cfirst.session.json",
+    "challenges/cases/v45/v45-discard-migrations-next-list-attempt8-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-discard-migrations-next-list-attempt8-cfirst.session.json",
+    "challenges/cases/v45/v45-healmon-tame-ogre-full-heal-reached-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-healmon-tame-ogre-full-heal-reached-cfirst.session.json",
+    "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst.session.json",
+    "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst.session.json",
+    "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.recipe.session.json",
+    "challenges/cases/v45/v45-leash-sleep-wand-strain-cfirst-corrected.session.json",
+    "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst.session.json",
+    "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-offer-real-amulet-sanctum-approach-attempt17-cfirst.session.json",
+    "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst.session.json",
+    "challenges/cases/v45/v45-pri-filb-level-program-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-pri-filb-level-program-cfirst.session.json",
+    "challenges/cases/v45/v45-punished-iron-ball-throw-high-strength-attempt11-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-punished-iron-ball-throw-high-strength-attempt11-cfirst.session.json",
+    "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-punished-iron-ball-throw-long-lane-attempt13-cfirst.session.json",
+    "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.recipe.session.json",
+    "challenges/cases/v45/v45-quest-finish-thrown-artifact-cfirst-corrected.session.json",
+    "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.recipe.session.json",
+    "challenges/cases/v45/v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture.session.json",
+    "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-stealamulet-wizard-demon-attempt10-cfirst.session.json",
+    "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst.session.json",
+    "challenges/cases/v45/v45-voluntary-quit-cfirst.recipe.session.json",
+    "challenges/cases/v45/v45-voluntary-quit-cfirst.session.json",
+    "challenges/manifests/v45.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/earth_level_data.js",
+    "js/earth_levels.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rnd.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_filb_level_data.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sam_strt_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topl.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wiz_goal_level_data.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v45-leash-sleep-wand-strain-cfirst-corrected",
+      "recordingSha256": "fddc4d223742ddabd445d937340883771f9175aa4bf9243d4ca8ef496900971d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 3932,
+          "total": 3932
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-quest-finish-thrown-artifact-cfirst-corrected",
+      "recordingSha256": "7d78dbdbcb2f002923618be436ab22115fd3401f18b3580d9a69538011b6eab5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 63,
+          "total": 63
+        },
+        "rng": {
+          "matched": 3303,
+          "total": 3303
+        },
+        "cursors": {
+          "matched": 63,
+          "total": 63
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-monster-cockatrice-petrifies-newt-reached-attempt3-cfirst",
+      "recordingSha256": "59057f8ed9fd49c9cc63660514cb38103dbdfcea13b246f30f11c018e4ac616e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 69,
+          "total": 69
+        },
+        "rng": {
+          "matched": 3187,
+          "total": 3187
+        },
+        "cursors": {
+          "matched": 69,
+          "total": 69
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-camera-wielded-northwest-result-attempt9-cfirst",
+      "recordingSha256": "9012243d2235a7461f9b360d0df220a1ebdd102ebd41afac8a9e00fa4d813bad",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 58,
+          "total": 58
+        },
+        "rng": {
+          "matched": 2960,
+          "total": 2960
+        },
+        "cursors": {
+          "matched": 58,
+          "total": 58
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-offer-real-amulet-sanctum-approach-attempt17-cfirst",
+      "recordingSha256": "6e8446ca8ab0088d0d332665b50608f95c6f1efb2fdd6746f329484b1a651fca",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 162,
+          "total": 162
+        },
+        "rng": {
+          "matched": 7856,
+          "total": 7856
+        },
+        "cursors": {
+          "matched": 162,
+          "total": 162
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-offer-real-amulet-sanctum-no-carry-teleport-attempt28-cfirst",
+      "recordingSha256": "92d018d0921a5b3592ee08a6289cec710449ff683ab937b9ddfe02021082d386",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 157,
+          "total": 157
+        },
+        "rng": {
+          "matched": 7512,
+          "total": 7512
+        },
+        "cursors": {
+          "matched": 157,
+          "total": 157
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-punished-iron-ball-throw-long-lane-attempt13-cfirst",
+      "recordingSha256": "f836d4e724b3a185e4c60cc82cdd7c7d3b8a63dcba66c6cb6a3f60d65a12391c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2900,
+          "total": 2900
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-vault-cursed-whistle-controlled-vault-attempt13-cfirst",
+      "recordingSha256": "684655663fd3e2adef1f4d6a7dbbb652c649504a539510affdcf08d29e78e1bf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 134,
+          "total": 134
+        },
+        "rng": {
+          "matched": 2876,
+          "total": 2876
+        },
+        "cursors": {
+          "matched": 134,
+          "total": 134
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-sink-gas-cloud-cfirst-attempt4-recreate-fixture",
+      "recordingSha256": "c74d0b24289928a6682a504634f97d7c6c11043aac89792ff63f76934f848782",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 145,
+          "total": 145
+        },
+        "rng": {
+          "matched": 3257,
+          "total": 3257
+        },
+        "cursors": {
+          "matched": 145,
+          "total": 145
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-stealamulet-wizard-demon-attempt10-cfirst",
+      "recordingSha256": "2e228e977c11b0b56d8419558bf9649e4b1a3fbec242ee88376e40f5a6e6a376",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 184,
+          "total": 184
+        },
+        "rng": {
+          "matched": 3047,
+          "total": 3047
+        },
+        "cursors": {
+          "matched": 184,
+          "total": 184
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-hmon-hit-lightobj-sunsword-gremlin-attempt7-cfirst",
+      "recordingSha256": "a2d7078ffd4e6e11384d0a9cdfe3e98ef236c962e34676290a625e02081a9f8a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 86,
+          "total": 86
+        },
+        "rng": {
+          "matched": 3965,
+          "total": 3965
+        },
+        "cursors": {
+          "matched": 86,
+          "total": 86
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-hmon-hit-nohandglow-confuse-scroll-newt-attempt12-cfirst",
+      "recordingSha256": "dae0f66c870c2d9344c866c4c106375eb47cda9c34b78e31b13f6de6fcc7b9cc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 87,
+          "total": 87
+        },
+        "rng": {
+          "matched": 2871,
+          "total": 2871
+        },
+        "cursors": {
+          "matched": 87,
+          "total": 87
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-healmon-tame-ogre-full-heal-reached-cfirst",
+      "recordingSha256": "6088ea713dfd93292106b3476eaefdf7dc77ae8fc7a2f8498eb668677e1bd037",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 70,
+          "total": 70
+        },
+        "rng": {
+          "matched": 2900,
+          "total": 2900
+        },
+        "cursors": {
+          "matched": 70,
+          "total": 70
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-punished-iron-ball-throw-high-strength-attempt11-cfirst",
+      "recordingSha256": "563ccb3ed5c7c3fc1a87fee05e104627f8b83a8910e266265cb37e2d00834a2b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2900,
+          "total": 2900
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-arc-filb-level-program-cfirst",
+      "recordingSha256": "b44ca1fd8b4ec86bb4a89bf73005d72c16e9f02da3d5370e573f4697b11f3404",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 6282,
+          "total": 6282
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-pri-filb-level-program-cfirst",
+      "recordingSha256": "8128498cd366f2085780ca6423a963c441e22ce5dd4be23315796e67756383ba",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 5295,
+          "total": 5295
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-bar-fila-level-program-cfirst",
+      "recordingSha256": "8168401963dea314f41ce59091e9731f9018ea71cf65ad978a07127a7779a0ee",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 5435,
+          "total": 5435
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-discard-migrations-next-list-attempt8-cfirst",
+      "recordingSha256": "b6e0ddf34c969388345f0d3ef87abff78c5c75beba5119213e5b8eaedea55212",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 95,
+          "total": 95
+        },
+        "rng": {
+          "matched": 3953,
+          "total": 3953
+        },
+        "cursors": {
+          "matched": 95,
+          "total": 95
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v45-voluntary-quit-cfirst",
+      "recordingSha256": "8d027347cf39ccaadb6a7ea3a1d75f64b0c03587cb94fc37305dabcc716eb8aa",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 9,
+          "total": 9
+        },
+        "rng": {
+          "matched": 2464,
+          "total": 2464
+        },
+        "cursors": {
+          "matched": 9,
+          "total": 9
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 19,
+      "total": 19
+    },
+    "screens": {
+      "matched": 1566,
+      "total": 1566
+    },
+    "rng": {
+      "matched": 76895,
+      "total": 76895
+    },
+    "cursors": {
+      "matched": 1566,
+      "total": 1566
+    }
+  }
+}
