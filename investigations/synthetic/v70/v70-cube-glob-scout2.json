@@ -11,8 +11,8 @@
   "recipeSha256": "875a6caa1aa1c7062fe14ea1d5f43a14e89b2c589b12799ea00d9d7e514d4a80",
   "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v70.json",
   "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
-  "status": "partial",
-  "summary": "The green-slime glob now reaches C m_consume_obj transformation, and get_count retains its C history-suppressed count echo. A C-derived You_hear gate now controls hidden cube slurping messages. The selected replay improves from 299/351 to 348/351 screens with all 3081 RNG calls matching, but three screens and one cursor still differ at steps 299-301. Two independent C recordings exercise floor-glob digestion and match all 112 steps, RNG calls, screens and cursors. The selected replay timing mismatch remains unresolved.",
+  "status": "complete",
+  "summary": "The remaining step 299-301 timing mismatch comes from the elapsed-turn planning scan calling newcham with planning:true while newchamEnv defaults its message operation to live ttyPline. The cloned cube transformation therefore waits for input on the live TTY before the live scan transforms its cube. Use a silent default message for planning calls; preserve the supplied message operation when callers provide one.",
   "mismatch": {
     "session": "synthetic/v70/v70-cube-glob-scout2",
     "remainingScreens": 52,
@@ -84,30 +84,14 @@
     "file": "mon.c",
     "functions": [
       "m_consume_obj",
-      "meatobj"
+      "newcham"
     ],
-    "lineRange": "1392-1453; 1533-1653",
-    "branch": "C mon.c:m_consume_obj sets slimer for GLOB_OF_GREEN_SLIME, deletes the consumed glob, and calls newcham with PM_GREEN_SLIME and NC_SHOW_MSG only when canseemon is true. C mon.c:meatobj scans floor objects, calls m_consume_obj for edible objects, and gates hidden slurping feedback through You_hear only when flags.verbose is true. The independent recordings execute this floor-object route and preserve the source visibility/message branches.",
-    "javascript": "js/mon.js:m_consume_obj deletes the glob and calls the existing newcham with PM_GREEN_SLIME. meatobj uses youHear() under the same verbose gate as C You_hear() for hidden eating and engulf messages, preserving acoustics and deafness filtering. The separate cmd.c:get_count fix uses ttyCustomPline(..., SUPPRESS_HISTORY).",
+    "branch": "When a gelatinous cube digests GLOB_OF_GREEN_SLIME, m_consume_obj calls newcham with NC_SHOW_MSG if the cube is visible. The planning pass propagates planning:true through dochug and gelcube_digests, but newchamEnv currently selects ttyPline when rawEnv.message is absent. That leaks the cloned shape-change message to the live TTY and waits on the pending engulf line before the live pass runs.",
     "callers": [
-      "monmove.c:m_move -> mon.c:meatobj -> mon.c:m_consume_obj; js/monmove.js:m_move -> js/mon.js:meatobj -> js/mon.js:m_consume_obj (exercised by both independent recordings).",
-      "monmove.c:dochug -> monmove.c:gelcube_digests -> mon.c:m_consume_obj; js/monmove.js:dochug -> gelcube_digests -> js/mon.js:m_consume_obj (existing inventory-digestion caller, not claimed as exercised by the new recordings)."
+      "C monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj -> newcham; JavaScript js/monmove.js:dochug -> gelcube_digests -> js/mon.js:m_consume_obj -> newcham.",
+      "The elapsed-turn planning caller is js/unported_monster_actions.js:planSimpleMonsterScan, which passes planning:true into movemon_singlemon; the live elapsed-turn caller then replays the monster scan against game state."
     ],
-    "dependencies": [],
-    "additionalSources": [
-      {
-        "file": "cmd.c",
-        "functions": [
-          "get_count"
-        ],
-        "lineRange": "5073-5078",
-        "branch": "C echoes count edits with custompline(SUPPRESS_HISTORY, ...); js/cmd.js now uses ttyCustomPline(..., SUPPRESS_HISTORY, state), preserving the visible boundary while keeping transient Count text out of history."
-      }
-    ],
-    "recordings": [
-      "recordings/mon.c/cube-green-glob-transform-wizard.session.json",
-      "recordings/mon.c/cube-green-glob-transform-quiet.session.json"
-    ]
+    "dependencies": []
   },
   "evidence": [
     "The report identity and remaining-screen count refer to the accepted baseline evaluation at bddad68fdb54a722e031c03e8efcb95d9518a34e (299/351 screens, 2809/3081 RNG calls, 299/351 cursors; 52 remaining screens). The local candidate result is reported separately below and must not be read as the saved baseline evaluation.",
@@ -119,7 +103,10 @@
     "Focused checks on the current source tree passed: bounded focused runs for scripts/mon-consumption.test.mjs and scripts/cmd.test.mjs, and npm run lint.",
     "Independent recipe wizard: recordings/mon.c/cube-green-glob-transform-wizard.session.json (SHA-256 af5b4c3b20e93c5385d16becf7699dd03a4f0db662ddd318da369e8c2051bc13) matches its C recording for all 112 screens, 112 cursors, 2983 RNG calls and 2 animation frames; fresh differential log /tmp/teleport-validation-1000/run-cQpfyp/stdout.log. It reaches monmove.c:m_move -> mon.c:meatobj -> mon.c:m_consume_obj after a cube eats a floor green-slime glob, and reaches cmd.c:get_count at the counted-command echo on step 97. The recipe uses a blindfold and permadeaf/no-acoustics options to exercise the hidden verbose You_hear suppression before vision returns.",
     "Cheap quiet variation: recordings/mon.c/cube-green-glob-transform-quiet.session.json (SHA-256 c105143cb910bf60e5c7ed106179c4258229de4eb98fd1cfbaf184a571ef5621) matches its C recording for all 112 screens, 112 cursors, 2983 RNG calls and 2 animation frames; fresh differential log /tmp/teleport-validation-1000/run-DddKrP/stdout.log. It keeps the same independently chosen seed, date, role, equipment and actions while enabling acoustics and disabling verbose, covering the source branch that skips the hidden sound message.",
-    "The focused meatobj test now asserts the C verbose You_hear gates and four verbose/acoustics/deaf combinations; scripts/mon-consumption.test.mjs passed before its final comment-only clarification. scripts/cmd.test.mjs and npm run lint also passed on this source tree."
+    "The focused meatobj test now asserts the C verbose You_hear gates and four verbose/acoustics/deaf combinations; scripts/mon-consumption.test.mjs passed before its final comment-only clarification. scripts/cmd.test.mjs and npm run lint also passed on this source tree.",
+    "The committed source order in js/unported_monster_actions.js:planSimpleMonsterTurn calls movemon with state: planned, then planSimpleMonsterScan passes planning:true to movemon_singlemon. js/monmove.js:dochug propagates that environment into gelcube_digests and m_consume_obj. js/mon.js:m_consume_obj forwards rawEnv into newcham; newchamEnv in js/mon.js currently sets message to rawEnv.message ?? ttyPline, without checking planning.",
+    "The bounded JavaScript trace run-afDJ2K captured zero-based boundary i=299 in the stack ttyPline -> m_consume_obj -> gelcube_digests -> dochug. At that boundary the real game monster remains a gelatinous cube holding the glob and the pending line is the earlier engulf message. After the input dismisses that line, the live monster data setter changes from PM_GELATINOUS_CUBE (8) to PM_GREEN_SLIME (208) at hook 300. This order identifies the preflight clone as the source of the earlier wait: planning runs before the live monster scan and must keep its messages off the TTY.",
+    "The instrumented C diagnostic replay remained byte-identical to the retained C recording across screens and cursors, with the same RNG function/value sequence. Its temporary source labels shifted from diagnostic line additions; no C gameplay behavior changed. The earlier bounded JavaScript replay remains 348/351 screens, 3081/3081 RNG calls and 350/351 cursors, with differences confined to steps 299-301 and cursor 300."
   ],
   "goalKind": "divergence-fix",
   "recordedSteps": 351,
