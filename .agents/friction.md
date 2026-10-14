@@ -815,3 +815,23 @@ triage decisions or fix references.
   original base and baseline, and fresh-checkpoint acceptance. Root exercised
   the split with Invocation, cancellation and rolling-trap deliveries; preflight
   passed. The failed branch and both corrections remain preserved.
+
+### 2026-10-14 — preparation publication requires local main
+
+- The v65–v67 preparation group passed hosted checkpoint 38531268459 at
+  `de6a2ef0`, and Admission run 38532374999 passed at `979a3f396`.
+- Publication from the retained Admission branch exited with
+  `publish from local main`. Root collected that terminal result, switched to
+  local `main`, fast-forwarded it to the verified Admission commit, and retried
+  the same publication. The retry published `061c6b63`; no validation was rerun.
+
+### 2026-10-14 — source-group history and preflight after admission
+
+- The next group preserves Castle and self-status corrections plus gremlin and
+  stone-to-flesh deliveries. Their report-only conflicts required keeping both
+  original report snapshots in Git history and restoring the newer gremlin
+  diagnosis before validation.
+- Preflight at `ff3f9105` failed with `spawnSync git ENOBUFS` for three deliveries.
+  The missing-patch fallback hashes all commits after a stale worker base,
+  including unrelated large preparation recordings. Root requested a focused
+  tooling correction; no hosted checkpoint or acceptance was started.
