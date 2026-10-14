@@ -112,20 +112,22 @@
     "line": 3909,
     "helper": null
   },
-  "summary": "The selected replay reaches trap.c:dotrap for the invocation square. The already ported trapeffect_vibrating_square() handles the hero by calling feeltrap(), but js/trap_effects.js:preflight_dotrap() refuses VIBRATING_SQUARE before that effect; this is the first missing screen at step 460.",
+  "summary": "The vibrating-square activation now passes the source-backed dotrap preflight and the run advances to a separate fail-closed boundary in hack.c:invocation_message() on the Invocation level. That function is in the same recorded teleds caller path and is required to emit the C clue and allow the selected target to improve.",
   "source": {
     "file": "trap.c",
-    "branch": "teleport.c:teleds() can land the hero on the invocation square, and hack.c:spoteffects() calls trap.c:dotrap(). C admits VIBRATING_SQUARE to the trap effect selector; that effect calls feeltrap() for the hero and does not refuse based on the trap type. JavaScript already ports trapeffect_vibrating_square(), but preflight_dotrap() omits the type from its supported hero traps. Because trap.h:undestroyable_trap() includes VIBRATING_SQUARE, the existing seen-trap escape check already preserves C behavior once admission is added. Mounted-hero preflight must also allow this trap, matching dotrap() which passes the hero to the same effect.",
+    "branch": "teleport.c:teleds() can land the hero on the invocation square, and hack.c:spoteffects() calls trap.c:dotrap(). C admits VIBRATING_SQUARE to the trap effect selector; that effect calls feeltrap() for the hero and does not refuse based on the trap type. JavaScript already ports trapeffect_vibrating_square(), but preflight_dotrap() omits the type from its supported hero traps. Because trap.h:undestroyable_trap() includes VIBRATING_SQUARE, the existing seen-trap escape check already preserves C behavior once admission is added. Mounted-hero preflight must also allow this trap, matching dotrap() which passes the hero to the same effect. After this trap guard is corrected, the same run reaches hack.c:invocation_message(), which C calls from teleport.c:teleds() on the Invocation level; JavaScript currently refuses that complete clue-producing branch, so it is included as the next source unit in this bounded entry-path task.",
     "functions": [
       "dotrap"
     ],
     "callers": [
       "teleport.c:teleds() -> hack.c:spoteffects() -> trap.c:dotrap() -> trap.c:trapeffect_selector() -> trap.c:trapeffect_vibrating_square().",
-      "js/teleport.js:teleds() -> js/hack.js:requireSimpleHeroDestination() -> js/trap_effects.js:preflight_dotrap(); then js/trap_effects.js:dotrap() -> trapeffect_selector() -> trapeffect_vibrating_square()."
+      "js/teleport.js:teleds() -> js/hack.js:requireSimpleHeroDestination() -> js/trap_effects.js:preflight_dotrap(); then js/trap_effects.js:dotrap() -> trapeffect_selector() -> trapeffect_vibrating_square().",
+      "teleport.c:teleds() -> hack.c:invocation_message() on the Invocation level; js/teleport.js:teleds() already calls js/hack.js:invocation_message()."
     ],
     "dependencies": [
       "trap.h:undestroyable_trap(VIBRATING_SQUARE) is already represented by js/trap_effects.js:undestroyable_trap().",
-      "trap.c:trapeffect_vibrating_square() is already ported in js/trap_effects.js and implements the hero feeltrap() arm."
+      "trap.c:trapeffect_vibrating_square() is already ported in js/trap_effects.js and implements the hero feeltrap() arm.",
+      "hack.c:invocation_message() is the next required C source function in this selected entry path and remains unreserved."
     ]
   },
   "goalKind": "divergence-fix",
@@ -133,7 +135,8 @@
     "The published v63 admission evaluation 3fc2021644e79e564fb762bc2038139c3241ff42 records 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors for this case; its manifest identifies step 460 as trap.c:dotrap hero VIBRATING_SQUARE admission.",
     "A single-case replay from 36d9515674347e9367c38905d076023a9b3bb873 reproduces 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors.",
     "Upstream trap.c:dotrap() calls trapeffect_selector() after its force/escape checks. trap.c:trapeffect_vibrating_square() calls feeltrap() for the hero; trap.h:undestroyable_trap() includes VIBRATING_SQUARE.",
-    "js/trap_effects.js:preflight_dotrap() rejects VIBRATING_SQUARE in the initial supported-type guard and in the mounted-hero guard. The selector and effect already handle this trap, so admitting it in both guards preserves the existing source behavior."
+    "js/trap_effects.js:preflight_dotrap() rejects VIBRATING_SQUARE in the initial supported-type guard and in the mounted-hero guard. The selector and effect already handle this trap, so admitting it in both guards preserves the existing source behavior.",
+    "After admitting VIBRATING_SQUARE in the local preflight, a direct single-segment run reaches the separate UnsupportedHeroMoveBoundaryError in js/hack.js:invocation_message() at the Invocation level, with 460 screens, 19,743 RNG calls, and 460 cursors captured. The manifest already identifies this later refusal; this task now includes the whole hack.c:invocation_message() function so the delivered target can improve."
   ],
   "provenance": {
     "corpus": "synthetic",
@@ -195,5 +198,18 @@
         "rng": 19743
       }
     }
+  },
+  "followupDiagnostic": {
+    "commit": "36d9515674347e9367c38905d076023a9b3bb873",
+    "boundary": {
+      "name": "UnsupportedHeroMoveBoundaryError",
+      "message": "invocation_message() on the Invocation level",
+      "file": "js/hack.js",
+      "function": "invocation_message",
+      "line": 5627
+    },
+    "screens": 460,
+    "rng": 19743,
+    "cursors": 460
   }
 }
