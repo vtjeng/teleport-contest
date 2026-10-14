@@ -1,0 +1,43 @@
+{
+  "session": "synthetic/v73/v73-quit-vanquished-q-action6",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-quit-vanquished-q-action6",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "b4405b6061ce6796c083e5d75c3e3f81582b0a9758841e291f83a185b57f0b2b",
+  "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+  "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+  "remainingScreens": 192,
+  "recordedSteps": 191,
+  "status": "complete",
+  "commit": "ee267b756bb7f2594648388866ea48e2114de2fa",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": ["synthetic/v73/v73-quit-vanquished-q-action6"],
+    "remainingScreens": 192,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v73-quit-vanquished-q-action6",
+    "batch": "v73",
+    "recordingPath": "challenges/cases/v73/v73-quit-vanquished-q-action6.session.json"
+  },
+  "summary": "After real vanquishing leaves at least one entry and the final disclosure prompt receives q, list_vanquished must increment program_state.stopprint so later disclosure prompts are suppressed. Its JavaScript branch calls the end.js-local name discloseStop, which is not defined in insight.js; insight.js already has the correctly named disclosureStop helper used by list_genocided.",
+  "source": {
+    "file": "insight.c",
+    "branch": "list_vanquished() receives q while ntypes is nonzero; the source macro done_stopprint expands to program_state.stopprint and increments it before later end-of-game disclosures.",
+    "functions": ["list_vanquished"],
+    "callers": ["end.c:disclose", "insight.c:dovanquished"],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v73 C recording reaches segment 0, step 191, key q after the lichen is killed and the vanquished prompt is shown. The exact saved baseline evaluation reports ReferenceError `discloseStop is not defined`; the saved prefix proof matches all 191 prior screens, cursors, and RNG calls through the prompt.",
+    "upstream nethack-c/upstream/src/insight.c:2780 defines done_stopprint as program_state.stopprint; lines 2848-2849 increment it when the answer is q. end.c:619-660 calls list_vanquished during disclosure, and end.c:1280 reaches disclose from really_done.",
+    "js/insight.js:2455-2457 calls discloseStop(state) in list_vanquished, but that symbol is not defined or imported in insight.js. js/end.js:913 defines a private function with that name in another module; js/insight.js:2581 defines disclosureStop(state), and list_genocided uses that helper for the same C macro behavior at js/insight.js:2621."
+  ]
+}
