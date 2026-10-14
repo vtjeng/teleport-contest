@@ -2657,6 +2657,10 @@ function newchamEnv(rawEnv = {}) {
     const normalized = normalizedDistressEnv(rawEnv);
     return {
         ...normalized,
+        // The C monster scan has no dry-run display. Keep a planned shape
+        // change silent unless its caller supplies a planning message owner.
+        message: rawEnv.message
+            ?? (rawEnv.planning ? async () => {} : ttyPline),
         hooks: rawEnv.hooks ?? {},
     };
 }
