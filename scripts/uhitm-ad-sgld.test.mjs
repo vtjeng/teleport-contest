@@ -201,7 +201,7 @@ test('incoming leprechaun prefers a larger floor-gold stack', async () => {
     assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
     assert.equal(findgold(attacker.minvent), floorGold);
     assert.equal(floorGold.quan, 100);
-    assert.deepEqual(randomCalls, [5], 'only the post-message flee check draws');
+    assert.deepEqual(randomCalls, [5], 'C draws rn2(5) only for the post-message flee check');
     assert.deepEqual(redraws, [[game.u.ux, game.u.uy]]);
     assert.ok(lines.some(line => /quickly snatches some gold from between your feet!/u.test(line)));
 });
@@ -213,7 +213,7 @@ test('mounted floor-gold theft uses the steed name before fleeing', async () => 
     steed.mtame = 10; // C checks the steed's tame ownership through y_monnam().
     game.u.usteed = steed;
     const purse = findgold(game.invent);
-    purse.quan = 50;
+    purse.quan = 50; // Smaller than the floor stack so C takes floor gold.
     const floorGold = mksobj_at(GOLD_PIECE, game.u.ux, game.u.uy, false, false, {
         state: game,
     });
@@ -222,7 +222,7 @@ test('mounted floor-gold theft uses the steed name before fleeing', async () => 
 
     await mhitm_adtyping(attacker, mattk, game.youmonst, mhm(), game, {
         ...env,
-        random: { rn2: bound => { randomCalls.push(bound); return bound - 1; } },
+        random: { rn2: bound => { randomCalls.push(bound); return bound - 1; } }, // Prevent the C flee branch.
         teleRestrict: async () => true,
         monflee: async () => {},
     });
