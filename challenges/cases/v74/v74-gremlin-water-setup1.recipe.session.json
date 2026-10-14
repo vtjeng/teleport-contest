@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed initial C setup for water potion hit geometry. Actual sleeping gremlin with Stealth; record own geometry/inventory before selecting real trap/pool path or potion direction. No target action/reachability claim from creation alone.",
+  "segments": [
+    {
+      "seed": 74105109,
+      "datetime": "20960114111900",
+      "nethackrc": "OPTIONS=name:v74-gremlin-water-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                                                                                          \u0017uncursed potion of water\n                        #wizintrinsic\n:stealth\n\n                        #wizgenesis\nhostile sleeping gremlin\n                        i                        "
+    }
+  ]
+}

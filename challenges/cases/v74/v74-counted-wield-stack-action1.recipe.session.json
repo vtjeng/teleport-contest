@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C wield.c:dowield GETOBJ_ALLOWCNT selects2 of actual5 unquivered daggers, finish_splitting then ready_weapon. No quiver or welded weapon; preserve exact count prompt and final quantities. Distinct source decision from current quiver-confirmation route; cannot count if same first cause. Independent source-designed count2 input.",
+  "segments": [
+    {
+      "seed": 74105119,
+      "datetime": "20960114112900",
+      "nethackrc": "OPTIONS=name:v74-counted-wield-stack-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00175 uncursed daggers\n                        w2a                        i                        "
+    }
+  ]
+}

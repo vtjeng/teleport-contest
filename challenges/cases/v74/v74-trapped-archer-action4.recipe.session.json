@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source monmove.c:dochug trapped non-nearby weapon-check gate. Own initial sleeping elf-lord geometry and inventory-generation trace. !autodescribe is a legal option avoiding separate known trapped pager lookup while wizard selector exits. No actual trap/ranged action claim yet. Actual C hero8,14 and sleeping elf-lord7,15. Create armed bear trap7,16 by j then b, leave lkk to8,14, hurtle elf south to7,16 before wall7,17. Source initial rn2(3)=2 gave spear/shield rather than bow; canonical target is select_rwep availability lookup (including absence), not guaranteed bow firing. After real trapping, take one turn at distance2 to reach trapped/non-nearby weapon gate. Action2 fully matches but initial weapon_check is zero NO_WEAPON_WANTED, so it does not establish select_rwep lookup. Source mhitu.c:mattacku894 sets NEED_HTH_WEAPON on first adjacent armed attack; weapon.c:mon_wield_item resets NEED_WEAPON. After trap is prepared and hero returns adjacent, force one bare-hand attack Fb to wake elf and permit actual initial weapon wield before no-turn wizard hurtle. Actual C wield must be observed. Actual barehand hit wakes elf, but no wield message before immediate hurtle; source first-attack weapon initialization still unproved. Add two ordinary adjacent waits before hurtle to allow actual weapon action, preserving all previous matching/target-miss inputs.",
+  "segments": [
+    {
+      "seed": 74105114,
+      "datetime": "20960114112400",
+      "nethackrc": "OPTIONS=name:v74-trapped-archer-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup,!autodescribe\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizintrinsic\n:stealth\n\n                        #wizgenesis\nhostile sleeping elf-lord\n                        i                        jb\u0017trapped bear trap\n                        lkkFb                        m. m.                         #wiztelekinesis\n                        m.j                        \u001bm.                        i                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source mhitu.c:gulpmu1357-1378 touch_petrifies hero, non-stone-resistant engulfer -> minstapetrify. Independently polymorph hero cockatrice, then hostile fog cloud (only AT_ENGL, no bite/claw before engulf). Need actual engulf and statue release, not ordinary passive retaliation or creation. Earlier hero gulpum vs cockatrice and dropped corpse digested by worm are distinct callers. Retain misses honestly. Source correction before recording: fog cloud MR_STONE makes this an unrecorded invalid source design. Corrected trapper has no MR_STONE and only AT_ENGL; new action2 retains both designs.",
+  "segments": [
+    {
+      "seed": 74105117,
+      "datetime": "20960114112700",
+      "nethackrc": "OPTIONS=name:v74-cockatrice-fog-engulf-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\ncockatrice\n                        #wizgenesis\nhostile fog cloud\n                        m. m. m. m.                         i                        "
+    }
+  ]
+}

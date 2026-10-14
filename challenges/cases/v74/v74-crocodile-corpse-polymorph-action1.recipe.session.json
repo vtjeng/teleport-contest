@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source zap.c:poly_obj1804-1816 crocodile corpse -> uncursed erosionproof low boots. Own seed/inputs. Actual wished corpse is dropped then zapped downward with real polymorph wand; actual conversion must be observed, resistance or wrong selector retained as miss. Prior generic dagger/rock polymorph, worn armor removal and timed egg poly cover different conditions.",
+  "segments": [
+    {
+      "seed": 74105103,
+      "datetime": "20960114111300",
+      "nethackrc": "OPTIONS=name:v74-crocodile-corpse-polymorph-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed crocodile corpse\n                        \u0017uncursed wand of polymorph (0:6)\n                        da                        zb>                        i                        :                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed initial C setup for fire landing geometry. Actual sleeping paper golem with Stealth; record own geometry/inventory before selecting real trap/pool path or potion direction. No target action/reachability claim from creation alone.",
+  "segments": [
+    {
+      "seed": 74105107,
+      "datetime": "20960114111700",
+      "nethackrc": "OPTIONS=name:v74-paper-fire-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizintrinsic\n:stealth\n\n                        #wizgenesis\nhostile sleeping paper golem\n                        i                        "
+    }
+  ]
+}

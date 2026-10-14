@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:check_leash breathing cursed-leash choke. Independent map/inventory first; actual leash attachment and sleep ray must be proved before source distance stretching. Earlier breathless leash snaps and teleport refusal differ. Actual hero8,6, tame dog8,5 north. Apply cursed leash a north, wand sleep b north, then three west steps to5,6 makes distance exceed3 while pet sleeps. Require actual attachment, sleep and C choke/damage message, not uncursed strain or breathless release.",
+  "segments": [
+    {
+      "seed": 74105113,
+      "datetime": "20960114112300",
+      "nethackrc": "OPTIONS=name:v74-cursed-leash-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed leash\n                        \u0017uncursed wand of sleep (0:6)\n                        #wizgenesis\ntame dog\n                        i                        aak                        zbk                        hhh                        i                        "
+    }
+  ]
+}

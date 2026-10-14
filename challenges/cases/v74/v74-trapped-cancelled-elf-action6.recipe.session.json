@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source monmove.c:dochug trapped non-nearby weapon-check gate. Own initial sleeping elf-lord geometry and inventory-generation trace. !autodescribe is a legal option avoiding separate known trapped pager lookup while wizard selector exits. No actual trap/ranged action claim yet. Actual C hero8,14 and sleeping elf-lord7,15. Create armed bear trap7,16 by j then b, leave lkk to8,14, hurtle elf south to7,16 before wall7,17. Source initial rn2(3)=2 gave spear/shield rather than bow; canonical target is select_rwep availability lookup (including absence), not guaranteed bow firing. After real trapping, take one turn at distance2 to reach trapped/non-nearby weapon gate. Source-supported correction after elf offensive wand and unarmed orc target misses: keep actual elf spear inventory but cancel its offensive wand before adjacent attack; wearable protection ring keeps preparation survivable. After trap is ready, wish/wear +20 protection ring a, wish cancellation wand b and zap elf southwest, then allow two adjacent turns for real spear wield before hurtle. This changes game state through legal C commands; actual cancellation/wield must be observed, not assumed. No additional seed or charge-gate probing.",
+  "segments": [
+    {
+      "seed": 74105114,
+      "datetime": "20960114112400",
+      "nethackrc": "OPTIONS=name:v74-trapped-archer-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup,!autodescribe\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizintrinsic\n:stealth\n\n                        #wizgenesis\nhostile sleeping elf-lord\n                        i                        jb\u0017trapped bear trap\n                        lkk\u0017uncursed +20 ring of protection\n                        Par                        \u0017uncursed wand of cancellation (0:6)\n                        zbb                        m. m.                         #wiztelekinesis\n                        m.j                        \u001bm.                        i                        "
+    }
+  ]
+}

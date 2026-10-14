@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source eat.c:start_tin no_opener+Glib. Own pauper hero has no opener or wielded blade; wish stack of tins, set real GLIB property from timeout.c name via wizard menu, eat actual tin. Actual slippery state/tin drop/stack split must be observed; unsupported selector or duration expiry is target miss.",
+  "segments": [
+    {
+      "seed": 74105104,
+      "datetime": "20960114111400",
+      "nethackrc": "OPTIONS=name:v74-glib-tin-stack-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00173 uncursed tins of spinach\n                        #wizintrinsic\n:slippery fingers\n\n                        ea                        i                        :                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source engrave.c:engrave_obj_selection TOOL_CLASS/TOWEL851-865. Create actual dust inscription on ordinary floor using fingers, then select wet towel for engraving. C must wipe message and dry towel, not normal apply face wipe. Existing writing/blocked floor/setup failure retained as miss. Action1 text was swallowed by initial fingertip-writing More; subsequent keys entered unfinished text prompt. Explicitly acknowledge before independent Trace inscription, preserving original prompt miss.",
+  "segments": [
+    {
+      "seed": 74105105,
+      "datetime": "20960114111500",
+      "nethackrc": "OPTIONS=name:v74-towel-dust-erase-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed wet towel\n                        l                        E-                        Trace\n                        Ea                        :                        "
+    }
+  ]
+}

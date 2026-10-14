@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C mhitu.c:gulpmu touch_petrifies hero and nonresistant engulfer -> minstapetrify. Actual cockatrice hero vs hostile trapper (only engulf, no MR_STONE monsters.h990-997). Disable ordinary autodescribe to avoid known trapped pager unrelated to target. Original fog-cloud unrecorded design rejected from MR_STONE source before C. Require actual engulf and stoning/release, not unrelated passive.",
+  "segments": [
+    {
+      "seed": 74105117,
+      "datetime": "20960114112700",
+      "nethackrc": "OPTIONS=name:v74-cockatrice-trapper-engulf-action2,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup,!autodescribe\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\ncockatrice\n                        #wizgenesis\nhostile trapper\n                        m. m. m. m.                         i                        "
+    }
+  ]
+}

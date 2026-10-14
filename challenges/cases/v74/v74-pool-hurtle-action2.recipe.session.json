@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed initial C setup for pool landing geometry. Actual sleeping hill orc with Stealth; record own geometry/inventory before selecting real trap/pool path or potion direction. No target action/reachability claim from creation alone. C own setup hero29,6 and sleeping hill orc28,6. Put pool at28,7, leave east29,7; hurtle south to pool landing before closed door28,8. Actual final minliquid drowning required; intermediate airborne location not proof.",
+  "segments": [
+    {
+      "seed": 74105108,
+      "datetime": "20960114111800",
+      "nethackrc": "OPTIONS=name:v74-pool-hurtle-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizintrinsic\n:stealth\n\n                        #wizgenesis\nhostile sleeping hill orc\n                        i                        b\u0017pool\n                        l#wiztelekinesis\n                        m.j                        \u001b"
+    }
+  ]
+}

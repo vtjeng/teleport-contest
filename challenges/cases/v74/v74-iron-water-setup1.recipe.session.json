@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed initial C setup for water potion hit geometry. Actual sleeping iron golem with Stealth; record own geometry/inventory before selecting real trap/pool path or potion direction. No target action/reachability claim from creation alone.",
+  "segments": [
+    {
+      "seed": 74105110,
+      "datetime": "20960114112000",
+      "nethackrc": "OPTIONS=name:v74-iron-water-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                                                                                          \u0017uncursed potion of water\n                        #wizintrinsic\n:stealth\n\n                        #wizgenesis\nhostile sleeping iron golem\n                        i                        "
+    }
+  ]
+}

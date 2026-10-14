@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source wield.c:dowield409-443 readied-ammo confirmation. Actual quiver stack5 ordinary arrows; select wield a and answer y to wield one, inspect1primary/4quivered. Prior quiver-adjust doorganize, excluded-main quiver selection and adjust_split count prompt are distinct callers. Independent source-designed no-count input.",
+  "segments": [
+    {
+      "seed": 74105118,
+      "datetime": "20960114112800",
+      "nethackrc": "OPTIONS=name:v74-wield-quiver-split-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00175 uncursed arrows\n                        Qa                        wa                        y                        i                        "
+    }
+  ]
+}
