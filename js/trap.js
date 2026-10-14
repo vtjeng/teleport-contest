@@ -293,7 +293,7 @@ import {
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { discover_object, observe_object } from './o_init.js';
-import { drag_ball, move_bc } from './ball.js';
+import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
 import {
     mksobj,
     carried,
@@ -1495,8 +1495,10 @@ export async function drown(state = game) {
             }
         }
         if (Punished(state)) {
-            note_unported('ball.c unplacebc');
-            note_unported('ball.c placebc');
+            // trap.c:drown unplaces and replaces the ball and chain before
+            // putting the hero underwater; placebc can run pool flooreffects.
+            unplacebc(state);
+            await placebc(state);
         }
         vision_recalc(2);
         await set_uinwater(true, state);

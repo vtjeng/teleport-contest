@@ -635,3 +635,37 @@ test('drown preserves emergency disrobe drop order',
         assert.doesNotMatch(jsTrap, /note_unported\('apply\.c unleash_all'\)/u);
         assert.doesNotMatch(jsTrap, /function numberLeashed\(/u);
     });
+
+test('drown moves a punished ball and chain before setting underwater state',
+    async () => {
+        const cTrap = await readFile(
+            new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+            'utf8',
+        );
+        const cBall = await readFile(
+            new URL('../nethack-c/upstream/src/ball.c', import.meta.url),
+            'utf8',
+        );
+        const jsTrap = await readFile(
+            new URL('../js/trap.js', import.meta.url),
+            'utf8',
+        );
+        const cDrown = cTrap.slice(
+            cTrap.indexOf('\ndrown(void)'),
+            cTrap.indexOf('\ndrain_en(', cTrap.indexOf('\ndrown(void)')),
+        );
+        const cPlacebcCore = cBall.slice(
+            cBall.indexOf('\nplacebc_core(void)'),
+            cBall.indexOf('\nunplacebc_core(void)', cBall.indexOf('\nplacebc_core(void)')),
+        );
+        assert.match(cDrown,
+            /if \(Punished\) \{\s*unplacebc\(\);\s*placebc\(\);\s*\}[\s\S]*?set_uinwater\(1\);/u);
+        assert.match(cPlacebcCore,
+            /flooreffects\(uchain, u\.ux, u\.uy, ""\);[\s\S]*?flooreffects\(uball, u\.ux, u\.uy, ""\);/u);
+        assert.match(jsTrap,
+            /if \(Punished\(state\)\) \{\s*\/\/ trap\.c:drown[\s\S]*?unplacebc\(state\);\s*await placebc\(state\);\s*\}/u);
+        assert.doesNotMatch(jsTrap,
+            /note_unported\('ball\.c (?:unplacebc|placebc)'\)/u);
+        assert.match(jsTrap,
+            /import \{ drag_ball, move_bc, placebc, unplacebc \} from '\.\/ball\.js';/u);
+    });
