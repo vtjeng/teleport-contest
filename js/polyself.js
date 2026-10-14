@@ -1634,7 +1634,7 @@ export async function newman(state = game, env = {}) {
         if (u.uprops[SICK].intrinsic)
             await make_sick(0, null, false, SICK_ALL, state);
         if (u.uprops[STONED].intrinsic)
-            note_unported('potion.c make_stoned');
+            await make_stoned(0, null, 0, null, state);
         if (u.uhp <= 0) {
             if (Polymorph_control(state)) { /* even when Stunned || Unaware */
                 if (u.uhp <= 0)

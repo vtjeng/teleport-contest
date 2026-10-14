@@ -40,8 +40,9 @@ import { set_mon_data } from '../js/makemon_create.js';
 import { make_glib } from '../js/potion.js';
 import { uwepgone, uswapwepgone } from '../js/wield.js';
 import { objects_globals_init } from '../js/objects.js';
-import { GLIB, W_WEP, W_SWAPWEP, SATIATED, NOT_HUNGRY } from '../js/const.js';
+import { GLIB, W_WEP, W_SWAPWEP, SATIATED, NOT_HUNGRY, STONED, TIMEOUT } from '../js/const.js';
 import { weight_cap } from '../js/hack.js';
+import { delayed_killer, find_delayed_killer } from '../js/end.js';
 
 // C role_init's Wizard row and neutral alignment let init_artifacts() build
 // the real per-game artifact table used by defended() and resists_drli().
@@ -529,13 +530,15 @@ test('dragon HP formula: 4*mlvl + d(mlvl,4) outside the endgame', () => {
 });
 
 // C newman:433,437 calls newuhs(FALSE) after assigning rn1(500,500)
-// hunger. These tests cover only the forwarded hunger callback contract;
-// other newman output still belongs to its existing source owners.
-test('newman preserves live and planning hunger callback overrides', async () => {
+// hunger. The caller test also pins the make_stoned(0) cleanup at C:417-418.
+test('newman refreshes hunger and clears stoning for live and planning calls', async () => {
     const c = readFileSync(new URL('../nethack-c/upstream/src/polyself.c', import.meta.url), 'utf8');
     const body = c.slice(c.indexOf('newman(void)\n{'), c.indexOf('\nvoid\npolyself'));
     assert.match(body, /u\.uhunger = rn1\(500, 500\)/u);
+    assert.match(body, /if \(Stoned\)\s*make_stoned\(0L, \(char \*\) 0, 0, \(char \*\) 0\)/u);
     assert.equal((body.match(/newuhs\(FALSE\)/gu) ?? []).length, 2);
+    const js = readFileSync(new URL('../js/polyself.js', import.meta.url), 'utf8');
+    assert.match(js, /if \(u\.uprops\[STONED\]\.intrinsic\)\s*await make_stoned\(0, null, 0, null, state\)/u);
     for (const planning of [false, true]) {
         await runSegment({ seed: 15129021, datetime: '20681223171100', moves: '',
             nethackrc: 'OPTIONS=name:HungerCallbacks,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n' });
@@ -544,6 +547,10 @@ test('newman preserves live and planning hunger callback overrides', async () =>
             uen: 100, uenmax: 100, uhunger: 1100, uhs: SATIATED });
         game.u.uhpinc.fill(0);
         game.u.ueninc.fill(0);
+        // A five-turn timeout models the active petrification reached by the
+        // v63 Newman recording; the delayed killer must clear with it.
+        game.u.uprops[STONED].intrinsic = 5;
+        delayed_killer(STONED, 0, 'cockatrice egg', game);
         game.nhDisplay.readKey = async () => 32;
         initRng(15129021);
         let refreshes = 0;
@@ -554,6 +561,8 @@ test('newman preserves live and planning hunger callback overrides', async () =>
         } });
         assert.equal(refreshes, 1);
         assert.ok(game.u.uhunger >= 500 && game.u.uhunger <= 999);
+        assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+        assert.equal(find_delayed_killer(STONED, game), null);
     }
 });
 
