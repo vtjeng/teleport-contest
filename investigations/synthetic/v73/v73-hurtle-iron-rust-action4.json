@@ -13,7 +13,7 @@
   "commit": "57f18ca81db7fabc1a3a95379e0befc7b6364234",
   "mismatch": {
     "session": "synthetic/v73/v73-hurtle-iron-rust-action4",
-    "remainingScreens": 0,
+    "remainingScreens": 268,
     "step": null,
     "kind": "stop",
     "firstMismatch": {
@@ -113,5 +113,5 @@
     "error": null,
     "replayCommit": "57f18ca81db7fabc1a3a95379e0befc7b6364234"
   },
-  "remainingScreens": 0
+  "remainingScreens": 268
 }
