@@ -1,0 +1,51 @@
+{
+  "session": "synthetic/v65/v65-tutorial-second-level-setup1",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-tutorial-second-level-setup1",
+  "remainingScreens": 29,
+  "recordedSteps": 70,
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingSha256": "630e740c3f1ede6f2185ebeb20a5a33bbf76a6c94ad7426810d2c3f2be789d0a",
+  "evaluationPath": "challenges/evaluations/accepted-f0581a7656691256c99c2e6deeebfdc57ff7e06c-v65.json",
+  "evaluationCommit": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+  "status": "complete",
+  "commit": "324fc1f15553d5bd54db4f53ad511b2a7bad70ea",
+  "mismatch": {
+    "session": "synthetic/v65/v65-tutorial-second-level-setup1",
+    "remainingScreens": 29,
+    "step": 41,
+    "kind": "stop",
+    "sourceFile": "tut-2.lua",
+    "function": null,
+    "line": null,
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"tut-2\""
+  },
+  "goalKind": "lua-port",
+  "summary": "The admitted v65 tutorial setup reaches The Tutorial level 2 at segment 0, step 41. C selects dat/tut-2.lua and builds its special level; JavaScript has no tut-2 loader, so makelevel() stops with the missing-loader error.",
+  "source": {
+    "file": "dat/tut-2.lua",
+    "functions": [
+      "tut-2.lua"
+    ],
+    "branch": "The Tutorial level 2 is selected as a special level by mklev.c:makelevel() and loaded through mkmaze.c:makemaz() and sp_lev.c:load_special(). dat/tut-2.lua initializes a solid-fill maze level, adds its fixed map, lit region, up stair, keybinding engraving, visible magic portal, and non-diggable boundary.",
+    "callers": [
+      "nethack-c/upstream/src/mklev.c:makelevel() selects the tutorial special-level prototype and calls makemaz().",
+      "nethack-c/upstream/src/mkmaze.c:makemaz() appends .lua and calls sp_lev.c:load_special().",
+      "nethack-c/upstream/src/sp_lev.c:load_special() loads dat/tut-2.lua in the special-level Lua state.",
+      "js/mklev.js:makelevel() resolves the special-level prototype and throws because SPECIAL_LEVEL_LOADERS lacks tut-2; js/tutorial_startup.js invokes the tutorial startup loader for tut-1 only."
+    ],
+    "dependencies": [
+      "Existing js/mklev.js descriptor API for level_init, level_flags, map, region, stair, engraving, trap, and non_diggable.",
+      "The special-level engraving calls nh.eckey(\"up\"); the port must derive the active extended-command key from command-binding state."
+    ]
+  },
+  "evidence": [
+    "The accepted v65 baseline reports 41/70 screens and cursors and 6310/6333 RNG calls before the step-41 unsupported-level-change stop. Manifest SHA-256 f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de; recording SHA-256 630e740c3f1ede6f2185ebeb20a5a33bbf76a6c94ad7426810d2c3f2be789d0a.",
+    "The recipe enters Wizard-mode level 2 with #wizlevelport, then invokes #wizmap. At step 41 C displays the arrival message and starts special-level generation; JavaScript raises UnsupportedLevelChangeError because the registry omits tut-2.",
+    "The complete dat/tut-2.lua program is 27 lines: solidfill initialization, maze-level flags, a fixed map, a lit region, an up stair, a burn engraving using nh.eckey(\"up\"), a seen magic portal, and non_diggable().",
+    "mklev.c:makelevel() dispatches Is_special() levels to makemaz(); mkmaze.c:makemaz() appends .lua and calls load_special(); sp_lev.c:load_special() executes the selected program and its generation post-processing.",
+    "js/mklev.js:makelevel() stops when SPECIAL_LEVEL_LOADERS lacks tut-2. The tutorial startup path imports loadTutorialLevel directly for tut-1, and ensureSpecialLevelLoaders() does not register a tut-2 loader."
+  ]
+}
