@@ -146,7 +146,7 @@ import {
 } from './monmove.js';
 import { stop_occupation } from './allmain.js';
 import { mwepgone } from './weapon.js';
-import { rloc, tele_restrict } from './teleport.js';
+import { rloc, rloco, tele_restrict } from './teleport.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
@@ -1116,31 +1116,47 @@ export async function maybe_absorb_item(mon, obj, ochance, achance, rawEnv = {})
 }
 
 // C ref: steal.c mdrop_special_objs() (852-873). Preserve its unconditional
-// obj_resists(obj, 0, 0) query for each inventory item. Protected and quest
-// objects need a floor drop (or extraction plus random relocation while the
-// monster is migrating); those source call branches remain gaps because their
-// completion requires awaiting the drop/relocation lifecycle at each caller.
+// obj_resists(obj, 0, 0) query for each inventory item and save nobj before
+// transferring an object. Ordinary inventory remains synchronous; a
+// protected object returns the async drop/relocation lifecycle so callers can
+// finish their source-ordered removal afterwards.
 export function mdrop_special_objs(mon, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
-    for (let obj = mon.minvent; obj;) {
-        const next = obj.nobj;
-        const resisted = obj_resists(obj, 0, 0, {
-            ...rawEnv,
-            state,
-            random,
-        });
-        const questArtifact = resisted
-            ? false : Boolean(obj.oartifact && is_quest_artifact(obj, state));
-        if (resisted || questArtifact) {
-            note_unported(
-                `steal.c mdrop_special_objs ${mon.mx
-                    ? 'protected-object floor drop'
-                    : 'protected-object migration drop'}`,
-            );
+    const env = {
+        ...rawEnv,
+        state,
+        random,
+        unsupported: rawEnv.unsupported ?? note_unported,
+    };
+    const dropNext = (obj) => {
+        for (; obj;) {
+            const next = obj.nobj;
+            const resisted = obj_resists(obj, 0, 0, {
+                ...rawEnv,
+                state,
+                random,
+            });
+            const questArtifact = resisted
+                ? false : Boolean(obj.oartifact && is_quest_artifact(obj, state));
+            if (resisted || questArtifact) {
+                if (mon.mx) {
+                    return mdrop_obj(mon, obj, false, {
+                        ...env,
+                    }).then(() => dropNext(next));
+                }
+                return extract_from_minvent(
+                    mon,
+                    obj,
+                    true,
+                    true,
+                    extractionEnv(env),
+                ).then(() => rloco(obj, env)).then(() => dropNext(next));
+            }
+            obj = next;
         }
-        obj = next;
-    }
+    };
+    return dropNext(mon.minvent);
 }
 
 // C ref: steal.c relobj() (873-899). Release the objects a creature carries.

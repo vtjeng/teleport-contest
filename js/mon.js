@@ -4894,7 +4894,8 @@ function monsterOnLevelChain(monster, state) {
 
 // C ref: mon.c mongone() (3267-3283). The vault guard must remain on the
 // monster chain until grddead() has removed its temporary corridor. Keep the
-// ordinary path synchronous; only the guard-specific corridor work is async.
+// ordinary path synchronous; protected-object transfer and guard work return
+// promises only on their corresponding source branches.
 export function mongone(monster, env = {}) {
     const state = env.state ?? game;
     if (!monster || typeof monster !== 'object')
@@ -4912,11 +4913,7 @@ export function mongone(monster, env = {}) {
     // rolls the holding cooldown. Keep the ordinary path synchronous, but
     // preserve C's order by continuing inventory and detach only after that
     // redraw/cooldown promise settles.
-    const finishRemoval = () => {
-        // C's void mdrop_special_objs() runs before ordinary inventory
-        // disposal. The helper keeps unconditional resistance calls;
-        // protected object transfers remain explicit source-call gaps.
-        mdrop_special_objs(monster, { ...env, state });
+    const finishAfterSpecialDrops = () => {
         discard_minvent(monster, false, { ...env, state });
 
         const unsupported = (branch) => {
@@ -4934,6 +4931,14 @@ export function mongone(monster, env = {}) {
             state,
             unsupported,
         });
+    };
+    const finishRemoval = () => {
+        // C drops protected objects before discard_minvent(). Await only when
+        // a protected object actually enters the async transfer lifecycle.
+        const dropping = mdrop_special_objs(monster, { ...env, state });
+        return dropping && typeof dropping.then === 'function'
+            ? dropping.then(finishAfterSpecialDrops)
+            : finishAfterSpecialDrops();
     };
     const releaseAndFinish = () => {
         const release = unstuck(monster, state, env);
@@ -6359,9 +6364,9 @@ export function m_into_limbo(mtmp, state = game, env = {}) {
     return migrate_mon(mtmp, targetLev, MIGR_APPROX_XY, state, env);
 }
 
-// C ref: mon.c migrate_mon() (3839-3863). The special-object helper preserves
-// C's resistance queries; protected-object transfer remains a recorded gap
-// until callers can await the drop or relocation lifecycle.
+// C ref: mon.c migrate_mon() (3839-3863). Preserve the helper's object order
+// before migrating the monster, awaiting only when a protected item enters
+// the drop or relocation lifecycle.
 export function migrate_mon(
     mtmp,
     target_lev,
@@ -6369,29 +6374,27 @@ export function migrate_mon(
     state = game,
     env = {},
 ) {
-    if (mtmp.mx) {
-        const release = unstuck(mtmp, state, env);
-        if (release && typeof release.then === 'function') {
-            return release.then(() => {
-                mdrop_special_objs(mtmp, { ...env, state });
-                return migrate_to_level(
-                    mtmp,
-                    target_lev,
-                    xyloc,
-                    null,
-                    { ...env, state },
-                );
-            });
-        }
-        mdrop_special_objs(mtmp, { ...env, state });
-    }
-    return migrate_to_level(
+    const finishMigration = () => migrate_to_level(
         mtmp,
         target_lev,
         xyloc,
         null,
         { ...env, state },
     );
+    const preserveSpecialObjects = () => {
+        const dropping = mdrop_special_objs(mtmp, { ...env, state });
+        return dropping && typeof dropping.then === 'function'
+            ? dropping.then(finishMigration)
+            : finishMigration();
+    };
+    if (mtmp.mx) {
+        const release = unstuck(mtmp, state, env);
+        if (release && typeof release.then === 'function') {
+            return release.then(preserveSpecialObjects);
+        }
+        return preserveSpecialObjects();
+    }
+    return finishMigration();
 }
 
 // C ref: mon.c ok_to_obliterate() (3864-3874). These monsters must survive

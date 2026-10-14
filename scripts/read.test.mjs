@@ -5,7 +5,8 @@ import test from 'node:test';
 import {
     CONFUSION, ECMD_TIME, GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE, GETOBJ_SUGGEST, G_GENOD, IN_SIGHT,
-    MM_NOMSG, MON_DETACH, ROOM, SPE_LIM, TOPLINE_EMPTY, W_RINGL,
+    MM_NOMSG, MON_DETACH, OBJ_FLOOR, OBJ_MINVENT, ROOM, SPE_LIM,
+    TOPLINE_EMPTY, W_RINGL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -38,6 +39,7 @@ import {
 } from '../js/objects.js';
 import { spelleffects } from '../js/spell.js';
 import { addinv } from '../js/invent.js';
+import { mpickobj } from '../js/steal.js';
 import { mksobj, objectType } from '../js/obj.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
@@ -795,6 +797,45 @@ test('read.c wizard class genocide synchronously removes a worm through mongone'
             assert.equal(game.level.monsters[x][y], null, `${x},${y}`);
         assert.match(game._pending_message, /Eliminated 1 monster\./u);
         assert.equal(game.unported?.has('mon.c mongone'), false);
+    });
+
+test('read.c wizard genocide drops a protected Bell before discarding inventory',
+    async () => {
+        await emptyTamingWorld(8080063);
+        const monster = await makemon_runtime(
+            game.mons[PM_NEWT],
+            game.u.ux + 1,
+            game.u.uy,
+            MM_NOMSG,
+            { state: game },
+        );
+        assert.ok(monster);
+        const x = monster.mx;
+        const y = monster.my;
+        // The unique Bell type takes mkobj.c's makeArtifact hook. Return the
+        // constructed object unchanged; this test pins obj_resists()'s
+        // invocation-tool branch, not artifact generation.
+        const bell = mksobj(BELL_OF_OPENING, true, false, {
+            state: game,
+            hooks: { makeArtifact: obj => obj },
+        });
+        mpickobj(monster, bell, { state: game });
+        assert.equal(bell.where, OBJ_MINVENT);
+
+        game.wizard = true;
+        game._pending_message = '';
+        game._ttyMessageStopped = false;
+        game.nhDisplay.toplin = TOPLINE_EMPTY;
+        game.nhDisplay.terminal._inputQueue.push('*'.charCodeAt(0), 10);
+        await do_class_genocide(game);
+
+        assert.equal(bell.where, OBJ_FLOOR);
+        assert.equal(game.level.objects[x][y], bell);
+        assert.equal(monster.minvent, null);
+        assert.ok(monster.mstate & MON_DETACH);
+        assert.equal(game.unported?.has(
+            'steal.c mdrop_special_objs protected-object floor drop',
+        ), false);
     });
 
 test('read.c wizard genocide waits for swallowed mongone before continuing',

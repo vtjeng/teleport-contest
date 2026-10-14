@@ -932,7 +932,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             if (mtmp === u.usteed) {
                 mtmp.mtrapped = false;
                 mtmp.meating = 0;
-                mdrop_special_objs(mtmp, env);
+                await mdrop_special_objs(mtmp, env);
             } else if (mtmp.meating || mtmp.mtrapped) {
                 if (canseemon(mtmp, state)) {
                     await pline_mon(
