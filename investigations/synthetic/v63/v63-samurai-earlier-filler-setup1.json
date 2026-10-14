@@ -1,0 +1,64 @@
+{
+  "session": "synthetic/v63/v63-samurai-earlier-filler-setup1",
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-samurai-earlier-filler-setup1",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "2c8a3d74803a79205cb16b7bd5073e21e5999d24e4bd63563b23120e027abbb7",
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+  "remainingScreens": 24,
+  "recordedSteps": 265,
+  "status": "complete",
+  "commit": "1485c912f75fe1a18477ab0ea16e02992a5e611f",
+  "goalKind": "lua-port",
+  "mismatch": {
+    "kind": "resolved",
+    "session": "synthetic/v63/v63-samurai-earlier-filler-setup1",
+    "remainingScreens": 24,
+    "firstMismatchBeforePort": {
+      "step": 241,
+      "owner": "dat/Sam-fila.lua whole-program loader/body",
+      "sourceProgramSha256": "94a9c1812bbaf41429e84c9cb81f5ae1d74f62483a05aeae0cd9de3c534c97e5",
+      "cause": "js/quest_levels.js had no Sam-fila registry entry, so mklev.js fell through to ordinary level generation."
+    }
+  },
+  "summary": "Ported and registered the complete Samurai quest earlier-filler program. The admitted v63 case now matches all 265 screens, 9599 RNG calls, and 265 cursors with no replay error.",
+  "source": {
+    "file": "Sam-fila.lua",
+    "functions": [
+      "Sam-fila.lua"
+    ],
+    "branch": "The Samurai quest filler level above Sam-loca is selected by makelevel and runs dat/Sam-fila.lua through makemaz and load_special.",
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special -> dat/Sam-fila.lua",
+      "js/mklev.js:makelevel -> QUEST_LEVEL_LOADERS['Sam-fila'] -> samFila"
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "The accepted evaluation at 02a098f2e3bf8dab3c52e27f90b3fd1adacc6260 matched 241/265 screens, 6532/9599 RNG calls, and 248/265 cursors; its first mismatch was at step 241.",
+    "The v63 Samurai case replay after 1485c912f matched 265/265 screens, 9599/9599 RNG calls, and 265/265 cursors; error was null.",
+    "synthetic-range-evidence verified segment 0 through step 264 through makelevel, makemaz, load_special, and the complete Sam-fila.lua program.",
+    "The implementation preserves both level initializers, maze flags, stairs, nine random objects, one d-class monster, five wolves, one stalker, and four random traps in source order."
+  ],
+  "postImplementationReplay": {
+    "commit": "1485c912f75fe1a18477ab0ea16e02992a5e611f",
+    "recordingSha256": "2c8a3d74803a79205cb16b7bd5073e21e5999d24e4bd63563b23120e027abbb7",
+    "baseline": {
+      "screens": "241/265",
+      "rng": "6532/9599",
+      "cursors": "248/265",
+      "error": null
+    },
+    "result": {
+      "screens": "265/265",
+      "rng": "9599/9599",
+      "cursors": "265/265",
+      "error": null
+    },
+    "targetImproved": true,
+    "firstRemainingMismatch": null
+  }
+}
