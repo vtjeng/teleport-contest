@@ -1953,13 +1953,19 @@ export function preflight_dropx(obj, env = {}) {
     // shk.c:sellobj() owns its shop checks after floor placement, including
     // the costly-spot test this preflight used to reject.
     // The remaining square effects are reached from dropz()'s flooreffects().
-    // do.c:dropx ships only at a down gate; flooreffects adds a trap arm
-    // for boulders or the hero standing at a seen pit/shaft edge. Other
-    // traps are inert for an ordinary object, including an occupied pit.
+    // do.c:dropx ships only at a down gate; flooreffects has a boulder arm for
+    // pits/holes and a separate arm for the hero at a seen pit/shaft edge.
+    // Other traps have no floor-effects arm for an ordinary drop.
     const trap = t_at(x, y, state);
-    if (trap && (obj.otyp === BOULDER || is_hole(trap.ttyp)
-        || uteetering_at_seen_pit(trap, state)
-        || uescaped_shaft(trap, state))) {
+    // do.c:flooreffects handles a boulder on a pit or hole before its later
+    // hero pit-edge/shaft arm. That branch consumes the boulder and removes
+    // the trap; other boulder traps are inert and reach ordinary placement.
+    const boulderFillsTrap = obj.otyp === BOULDER && trap
+        && (is_pit(trap.ttyp) || is_hole(trap.ttyp));
+    if (trap && !boulderFillsTrap
+        && (is_hole(trap.ttyp)
+            || uteetering_at_seen_pit(trap, state)
+            || uescaped_shaft(trap, state))) {
         throw new UnsupportedDropError('shipping or floor effects at a trap');
     }
     // do.c:flooreffects routes ordinary objects through trap.c:lava_damage or
