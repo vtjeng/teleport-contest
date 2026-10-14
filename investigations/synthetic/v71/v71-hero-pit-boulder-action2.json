@@ -1,0 +1,45 @@
+{
+  "session": "synthetic/v71/v71-hero-pit-boulder-action2",
+  "corpus": "synthetic",
+  "batch": "v71",
+  "caseId": "v71-hero-pit-boulder-action2",
+  "manifestPath": "challenges/manifests/v71.json",
+  "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+  "recordingPath": "challenges/cases/v71/v71-hero-pit-boulder-action2.session.json",
+  "recordingSha256": "7bb8bbe7b7c4d122320ef4a65c2dedecab34107c87776126f530ae29d9cdd5c7",
+  "recipePath": "challenges/cases/v71/v71-hero-pit-boulder-action2.recipe.session.json",
+  "recipeSha256": "85d8e89939553cab6242db84bb99f5c326343f4725e7c4e5bcfa1ec219bb0776",
+  "evaluationPath": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+  "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
+  "recordedSteps": 306,
+  "remainingScreens": 306,
+  "status": "complete",
+  "commit": "6212b32a84b5162bfe077fe802fd09564ccfcb53",
+  "summary": "A wizard wishes for a boulder while standing in a pit, and the boulder lands on the trapped hero. do.c:flooreffects calls losehp with NO_KILLER_PREFIX; js/do.js has the same branch but does not import that constant, so the replay stops before the case reaches its boulder resolution.",
+  "mismatch": {
+    "session": "synthetic/v71/v71-hero-pit-boulder-action2",
+    "remainingScreens": 306,
+    "kind": "stop",
+    "message": "ReferenceError: NO_KILLER_PREFIX is not defined",
+    "sourceFile": "do.c",
+    "function": "flooreffects"
+  },
+  "source": {
+    "file": "do.c",
+    "functions": [
+      "flooreffects"
+    ],
+    "branch": "When a boulder lands on a pit or hole containing the trapped hero, and the hero neither passes walls nor throws rocks, do.c:flooreffects calls losehp(Maybe_Half_Phys(rnd(15)), \"squished under a boulder\", NO_KILLER_PREFIX), then removes the trap and boulder. js/do.js:flooreffects has the matching branch and call but omits NO_KILLER_PREFIX from its const.js imports.",
+    "callers": [
+      "C wizcmds.c:wiz_wish -> zap.c:makewish -> invent.c:hold_another_object -> invent.c:dropx/dropy/dropz -> do.c:flooreffects. JS wizcmds.js:wiz_wish -> zap.js:makewish -> invent.js:hold_another_object/gotoDrop -> invent.js:dropx -> do.js:flooreffects."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v71 evaluation records zero of 306 screens and the stop ReferenceError: NO_KILLER_PREFIX is not defined.",
+    "A focused scan of the admitted recording reproduces the error at js/do.js:1065; the call stack is flooreffects -> dropzAdmitted -> dropx -> gotoDrop -> hold_another_object -> makewish -> wiz_wish.",
+    "Upstream do.c:flooreffects (161-357) passes NO_KILLER_PREFIX to losehp in the trapped-hero boulder branch. js/const.js exports the same constant; js/do.js references it without importing it.",
+    "The recorded recipe places the Healer in a pit and wishes for a boulder. The boulder lands on the trapped hero and reaches the source branch during hold_another_object drop handling."
+  ]
+}
