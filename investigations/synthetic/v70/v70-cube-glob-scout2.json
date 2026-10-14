@@ -12,38 +12,128 @@
   "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v70.json",
   "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
   "status": "partial",
-  "summary": "After the accepted meatobj slimeproof import, the replay passes the earlier boundary but stops at step 299. The cube has engulfed the green-slime glob; its next gelcube_digests action reaches m_consume_obj, whose prior JS implementation refused the green-slime transformation.",
+  "summary": "The green-slime glob now reaches C's m_consume_obj transformation, and get_count now uses cmd.c's history-suppressed custompline path. The replay improves from 299/351 to 348/351 screens with all 3081 RNG calls matching and no error, but three screens and one cursor remain different at steps 299-301. At step 299 C already displays the green slime with the engulf line; JS still displays the cube. JS has the green-slime state by step 300, but its transformation message appears at step 301, one boundary later than C. A fire-and-forget meatobj message experiment produced the same replay metrics and was reverted. The C/JS TTY source trace does not justify changing that call's wait behavior, so the remaining boundary is unresolved.",
   "mismatch": {
     "session": "synthetic/v70/v70-cube-glob-scout2",
-    "remainingScreens": 52,
-    "kind": "stop",
+    "remainingScreens": 3,
+    "kind": "screen",
     "step": 299,
-    "message": "simple monster action requires a non-slime food item",
+    "message": "C and JS differ at the final engulf/transformation message boundary: at step 299 the C map cell row 16, column 75 is green slime and JS is gelatinous cube; JS reaches green-slime state by the next boundary, and its transformation line trails C by one input.",
     "sourceFile": "mon.c",
-    "function": "m_consume_obj"
+    "function": "meatobj",
+    "corpus": "synthetic",
+    "batch": "v70",
+    "caseId": "v70-cube-glob-scout2",
+    "manifestPath": "challenges/manifests/v70.json",
+    "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+    "recording": "challenges/cases/v70/v70-cube-glob-scout2.session.json",
+    "recordingPath": "challenges/cases/v70/v70-cube-glob-scout2.session.json",
+    "recordingSha256": "f6a80847d5f4a0caf2840c00fe98bf85cc4b05e5af1b2e3e21df5a0c00025e79",
+    "recipe": "challenges/cases/v70/v70-cube-glob-scout2.recipe.session.json",
+    "recipeSha256": "875a6caa1aa1c7062fe14ea1d5f43a14e89b2c589b12799ea00d9d7e514d4a80",
+    "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v70.json",
+    "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+    "recordedSteps": 351,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 348,
+        "total": 351
+      },
+      "rng": {
+        "matched": 3081,
+        "total": 3081
+      },
+      "cursors": {
+        "matched": 350,
+        "total": 351
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 299,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 299,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 16,
+        "column": 75,
+        "cCell": {
+          "ch": "P",
+          "color": 2,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "b",
+          "color": 6,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 300,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 300,
+          "key": " "
+        },
+        "cCursor": [
+          76,
+          16,
+          1
+        ],
+        "jsCursor": [
+          64,
+          0,
+          1
+        ]
+      }
+    },
+    "cFile": "mon.c",
+    "luaFile": null,
+    "line": 1643
   },
   "source": {
     "file": "mon.c",
     "functions": [
-      "m_consume_obj"
+      "m_consume_obj",
+      "meatobj"
     ],
-    "lineRange": "1392-1453",
-    "branch": "C records slimer for GLOB_OF_GREEN_SLIME, deletes the consumed glob, and calls newcham with PM_GREEN_SLIME and NC_SHOW_MSG only when canseemon was true.",
-    "javascript": "Before this follow-up, js/mon.js:m_consume_obj refused this glob; the correction now deletes it and calls the already ported newcham with the explicit green-slime species.",
+    "lineRange": "1392-1453; 1533-1653",
+    "branch": "C mon.c:m_consume_obj sets slimer for GLOB_OF_GREEN_SLIME, deletes the consumed glob, and calls newcham with PM_GREEN_SLIME and NC_SHOW_MSG only when canseemon was true. mon.c:meatobj finishes the floor scan with synchronous pline1(buf); the following green-slime digestion and transformation message occur on the later gelcube_digests path.",
+    "javascript": "js/mon.js:m_consume_obj now deletes the glob and calls the existing newcham with the explicit green-slime species. meatobj retains its awaited monsterMessage call; the unawaited experiment was falsified and reverted. The remaining screen/input-boundary difference has no source-confirmed TTY correction yet.",
     "callers": [
       "monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj; js/monmove.js:dochug -> gelcube_digests -> js/mon.js:m_consume_obj"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "additionalSources": [
+      {
+        "file": "cmd.c",
+        "functions": [
+          "get_count"
+        ],
+        "lineRange": "5073-5078",
+        "branch": "C echoes count edits with custompline(SUPPRESS_HISTORY, ...); js/cmd.js now uses ttyCustomPline(..., SUPPRESS_HISTORY, state), preserving the visible boundary while keeping transient Count text out of history."
+      }
+    ]
   },
   "evidence": [
-    "The accepted v70 evaluation at bddad68f has unchanged manifest/recording identity and records 299/351 screens, 2809/3081 RNG calls, and 299/351 cursors; the first outstanding recorded-screen boundary is zero-based step 299.",
-    "Bounded single-case scan run-2HheWM exits at step 299 with `simple monster action requires a non-slime food item`; no recorded-screen divergence occurs before that stop. Its output is /tmp/teleport-validation-1000/run-2HheWM/stdout.log.",
-    "Upstream monmove.c:424-461 selects the newly inventoried organic glob in gelcube_digests and calls mon.c:m_consume_obj. Upstream mon.c:1392-1453 sets slimer before delobj and invokes newcham(PM_GREEN_SLIME, visible ? NC_SHOW_MSG : NO_NC_FLAGS). The existing JS m_consume_obj branch explicitly refuses this exact item at the corresponding post-delobj effect boundary."
+    "The accepted v70 evaluation at bddad68f has the same manifest and recording hashes and records 299/351 screens, 2809/3081 RNG calls, and 299/351 cursors. Fresh bounded replay run-jCr4eo improves this target to 348/351 screens, 3081/3081 RNG calls, and 350/351 cursors with error null.",
+    "Bounded boundary comparison run-Y9lEgm identifies the only screen differences at zero-based steps 299, 300, and 301; the only cursor difference is step 300. At step 299 C row 16, column 75 is green-slime glyph P (green) while JS is gelatinous-cube glyph b (cyan). Steps 302-350 match. The earlier prefix through step 298 matches.",
+    "C recording steps 299-301 show: step 299 key '.', green-slime map glyph and `The gelatinous cube engulfs a small glob of green slime.--More--`; step 300 key space and `The gelatinous cube turns into a green slime!`; step 301 key space and `Unknown command ' '.` JS bounded trace run-uUiBtF shows the cube and engulf line at input boundary 299, green-slime state with the prior engulf line at boundary 300, and the transformation line at boundary 301.",
+    "Upstream monmove.c:424-461 selects the newly inventoried organic glob in gelcube_digests and calls mon.c:m_consume_obj. Upstream mon.c:1392-1453 sets slimer before delobj and invokes newcham(PM_GREEN_SLIME, visible ? NC_SHOW_MSG : NO_NC_FLAGS). The JS branch now performs that change. Upstream cmd.c:get_count echoes count edits with custompline(SUPPRESS_HISTORY, ...) at 5073-5078; JS now uses ttyCustomPline with the same flag, and scripts/cmd.test.mjs verifies the message boundary and history behavior.",
+    "Source trace: C mon.c:meatobj calls pline1 after its object loop; pline.c:vpline synchronously reaches putmesg and topl.c:update_topl. That path waits only when replacing TOPLINE_NEED_MORE or for MSGTYP_STOP. JS meatobj retains awaited monsterMessage -> ttyPlineCore -> update_topl, whose corresponding wait branches are source-matched. A temporary fire-and-forget experiment in meatobj produced identical metrics (348/351 screens, 3081/3081 RNG calls, 350/351 cursors) and was reverted; it is not part of the submitted source.",
+    "Focused checks on the current source tree passed: scripts/mon-consumption.test.mjs (6/6), scripts/cmd.test.mjs (115/115), and npm run lint."
   ],
   "goalKind": "divergence-fix",
   "recordedSteps": 351,
-  "remainingScreens": 52,
-  "commit": "fa10f936670126ec9e0ab0f39432da1bc05f67b7",
+  "remainingScreens": 3,
+  "commit": "9c9dbc118",
   "priorAcceptedInvestigation": {
     "session": "synthetic/v70/v70-cube-glob-scout2",
     "corpus": "synthetic",
@@ -101,5 +191,6 @@
     "recordedSteps": 351,
     "remainingScreens": 351,
     "commit": "de8ee9a7dc26dc928ab17067fb39cea273d70409"
-  }
+  },
+  "implementationCommit": "9c9dbc118"
 }
