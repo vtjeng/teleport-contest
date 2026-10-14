@@ -3,13 +3,13 @@
   "corpus": "synthetic",
   "batch": "v67",
   "caseId": "v67-rogue-blind-probing-action7",
-  "remainingScreens": 28,
+  "remainingScreens": 1,
   "recordedSteps": 527,
   "manifestPath": "challenges/manifests/v67.json",
   "manifestSha256": "81ba9593c8fc99da2c548fe51197cb11d0674f386b21216d1bbfaaf27dfe3196",
   "recordingSha256": "48cacc0ea41f6582231fbf969f1a5a161203507c2c67179820217f8abe04e1ea",
-  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
-  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "evaluationPath": "challenges/evaluations/accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v67.json",
+  "evaluationCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
   "status": "complete",
   "commit": "0010f73db83ea96d098e3a36ab031ad4b7ccbd57",
   "priorCommit": "d8a47d06e0f459e6de886c1e7ad1277bc388afa5",
@@ -25,10 +25,10 @@
     "recordingSha256": "48cacc0ea41f6582231fbf969f1a5a161203507c2c67179820217f8abe04e1ea",
     "recipe": "challenges/cases/v67/v67-rogue-blind-probing-action7.recipe.session.json",
     "recipeSha256": "dd3f8588dca05c3824107cfaa42a56a7b51414fb8a6f61e668a055e243e97cac",
-    "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
-    "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
-    "evaluationArtifact": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
-    "remainingScreens": 28,
+    "evaluationPath": "challenges/evaluations/accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v67.json",
+    "evaluationCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
+    "evaluationArtifact": "challenges/evaluations/accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v67.json",
+    "remainingScreens": 1,
     "recordedSteps": 527,
     "firstMismatch": {
       "kind": "rng",
@@ -133,6 +133,57 @@
         "A separate temporary instrumented C recorder replayed the immutable original recipe and emitted a byte-identical recording. At x58,y10, it logged blind=1, rogue=1, ROOM typ=25, lit=0, waslit=0, glyph=3992 then 3993.",
         "display.c:newsym() lines 1041-1045 calls feel_location(u.ux,u.uy) whenever the hero square is not physically visible, then conditionally calls display_self(). JS display.js newsym() handles the hero square before the visible/not-visible chain and does not call feel_location.",
         "display.c:feel_location() lines 894-900 writes S_darkroom in the relevant ordinary tactile arm when the remembered glyph is S_room and dark_room/use_color are true. Rogue newsym() only darkens S_room to S_stone; it leaves S_darkroom unchanged, matching C output."
+      ]
+    },
+    {
+      "task": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
+      "goal": "fix-rogue-blind-probe-draft-message-v67-20261014",
+      "status": "diagnosed",
+      "observedAtBase": "de49d7d04083301dd9946aae8328580379e7e004",
+      "step": 506,
+      "segment": 0,
+      "kind": "screen",
+      "firstMismatch": {
+        "row": 0,
+        "column": 0,
+        "c": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0
+        },
+        "js": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0
+        },
+        "key": "j"
+      },
+      "summary": "The v67 remaining screen mismatch is the missing tactile draft message when a blind hero zaps a wand of probing at a secret door on a Rogue level. C zap.c:zap_map() converts the SDOOR, then calls dig.c:draft_message(FALSE) because the hero cannot see the result. JS zap_map() leaves a note_unported() placeholder even though js/dig.js already implements the source helper as a private async function.",
+      "source": {
+        "file": "zap.c",
+        "function": "zap_map",
+        "branch": "In the WAN_PROBING arm, if the target surface is SDOOR, zap_map converts it to DOOR and redraws. When cansee(x,y) is false on a Rogue level, C calls draft_message(FALSE), yielding “You feel a draft.” for a non-hallucinating hero.",
+        "callee": "dig.c:draft_message is already implemented in js/dig.js with its source RNG/message branches; export and await it from zap_map instead of retaining the note_unported placeholder."
+      },
+      "stateEvidence": {
+        "heroBlind": true,
+        "rogueLevel": true,
+        "action": "zap wand of probing south at a secret door",
+        "rngMatches": 3050,
+        "cursorMatches": 527,
+        "cMessage": "You feel a draft.",
+        "jsMessage": null
+      },
+      "ruledOut": [
+        "The earlier mklev.c:dosdoor RNG mismatch was resolved; RNG matches all 3050 entries.",
+        "The previous display.c:newsym tactile-memory mismatch at step 502 was resolved; this replay matches screens through step 505.",
+        "This is a missing output branch in zap_map, not a new RNG or cursor difference."
+      ],
+      "evidence": [
+        "The current saved queue entry is v67/v67-rogue-blind-probing-action7, 1 screen remaining at step 506; accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v67.json records 526/527 screens, 3050/3050 RNG calls, and 527/527 cursors.",
+        "A fresh JS replay from the immutable recording at the clean merged worker base de49d7d04083301dd9946aae8328580379e7e004 confirms the first mismatch at step 506, key j, C “You feel a draft.” versus no JS message, with equal RNG and cursor lengths.",
+        "Upstream nethack-c/upstream/src/zap.c:3628-3825 calls draft_message(FALSE) in zap_map() after a blind wand-of-probing reveal of a secret door on a Rogue level.",
+        "js/zap.js:3925-3960 has the same WAN_PROBING/SDOOR branch but calls note_unported(\"dig.c draft_message\"); js/dig.js:2214-2244 already implements draft_message() and its hallucination-dependent random message branch."
       ]
     }
   ]
