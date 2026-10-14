@@ -10,7 +10,7 @@
   "recordingSha256": "2219c56da8df9b54b2fd18606c1b0e2960ef21e91155b34c9e7870db5338b67d",
   "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
   "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
-  "status": "resolved",
+  "status": "complete",
   "commit": "a740bb1e441ab28bba17c21c4d769405ad78d429",
   "mismatch": {
     "kind": "synthetic",
@@ -28,7 +28,7 @@
     "batch": "v67",
     "recordingPath": "challenges/cases/v67/v67-shop-damage-repair-action11.session.json"
   },
-  "summary": "After restitution for a damaged shop door, shk.c:pay_for_damage calls home_shk to return Sneem to the shop door. C's home_shk calls mon.c:mnearto with RLOC_NOMSG before it reports the keeper's shift; js/shk.js:home_shk currently records note_unported('mon.c mnearto') and leaves the keeper at the damaged location. The absent relocation causes the step-1054 message and later movement/RNG stream to diverge. The queue's priest.c move_special annotation is downstream; shop repair at step 1151 is a separate later behavior.",
+  "summary": "The v67 case first diverged at step 1054 because shk.c:home_shk omitted mon.c:mnearto after restitution. The JavaScript path now awaits that relocation and the replay matches through step 1150; the next screen mismatch is step 1151 in the separate unported shk.c:repair_damage path.",
   "source": {
     "file": "shk.c",
     "branch": "A shopkeeper accepts full restitution while away from its home square; pay_for_damage calls home_shk before comparing old and new coordinates and reporting the move.",
@@ -50,12 +50,12 @@
     "The admitted v67 manifest source trace says the first cause at C step 1054 is shk.c:home_shk -> mon.c:mnearto after 400 gold restitution; the later shop-door repair at step 1151 is explicitly not the first mismatch.",
     "The recorded session at step 1054 reads 'Mollified, Sneem accepts your restitution. Sneem shifts location.' The scan at a740bb1e441ab28bba17c21c4d769405ad78d429 shows screen mismatch at segment 0 step 1054 and C rn2(1)=0 at move_special(priest.c:85) versus JS rn2(5)=0; this is downstream of the missing relocation.",
     "C nethack-c/upstream/src/shk.c:1317-1330 home_shk calls mnearto(shkp, homeX, homeY, TRUE, RLOC_NOMSG), sets has_shop, and then calls after_shk_move. C pay_for_damage calls home_shk before comparing the shopkeeper's old and new coordinates.",
-    "JS js/shk.js:4076-4085 home_shk currently calls note_unported('mon.c mnearto') and only updates has_shop/after_shk_move, so the shopkeeper coordinates do not change. js/mon.js:4675-4744 already implements mnearto and handles its possibly deferred rloc_to_flag result.",
+    "The original JS home_shk() skipped mon.c:mnearto. The implementation now awaits the existing js/mon.js:mnearto call before setting has_shop and awaits after_shk_move; the post-commit v67 replay matches the target step and continues through step 1150.",
     "The separate repair_damage note_unported is exercised later at step 1151 and is not the first cause for this case; do not bundle that source family into this fix."
   ],
   "implementation": {
     "goal": "fix-shk-home-shk-mnearto-v67-shop-damage-20261014",
-    "commit": "244bbf948",
+    "commit": "244bbf948b7a4f53a3ed7a1d95475da81c2dbeb3",
     "source": "js/shk.js:home_shk now awaits mon.js:mnearto before home_shk bookkeeping. Async completion now propagates through shk.js:inherits, shk.js:paybill, and end.js:really_done; pay_for_damage passes its environment into the relocation.",
     "callers": [
       "shk.c:pay_for_damage",
@@ -67,7 +67,8 @@
       "focusedTests": "node --test scripts/paybill-end-cleanup.test.mjs scripts/pay-for-damage.test.mjs scripts/hero-death.test.mjs passed.",
       "lint": "npm run lint passed.",
       "syntheticPrefix": "v67/v67-shop-damage-repair-action11 segment 0 through step 1150 matched via scripts/synthetic-range-evidence.mjs."
-    }
+    },
+    "postFixReplayCommit": "c646109a81f68bf880e0b4839c0ea881cf25ad26"
   },
   "after": {
     "scan": ".cache/v67-shop-damage-scan.json",
