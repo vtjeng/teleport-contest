@@ -49,6 +49,11 @@ test('swallowed corpse digestion keeps C deletion timer ownership', () => {
         /stopObjectTimers: normalized\.hooks\.stopObjectTimers\s*\?\?\s*\(\(item, hookEnv\) => obj_stop_timers\(/u,
     );
     assert.match(DO_JS, /await minstapetrify\(swallower, true, state, env\)/u);
+    assert.match(
+        DO_JS,
+        /healmon\(swallower, swallower\.mhpmax, 0\);\s*await mcureblindness\(swallower, false, state\);/u,
+    );
+    assert.doesNotMatch(DO_JS, /note_unported\(['"]mon\.c mcureblindness/u);
     assert.match(DO_JS, /delobj\(obj, \{ \.\.\.env, state \}\)/u);
 });
 

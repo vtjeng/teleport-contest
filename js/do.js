@@ -262,6 +262,7 @@ import {
 } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
+import { mcureblindness } from './muse.js';
 import {
     dmgtype, is_whirly, olfaction, passes_walls, sticks, touch_petrifies,
     throws_rocks, is_reviver, is_rider, is_displacer, locomotion,
@@ -2329,9 +2330,7 @@ async function engulfer_digests_food(obj, state = game, env = {}) {
         await grow_up(swallower, null, { ...env, state });
     } else if (couldHeal) {
         healmon(swallower, swallower.mhpmax, 0);
-        // C's source call is mcureblindness(mon, FALSE); it is void and the
-        // monster blindness helper is not yet ported.
-        note_unported('mon.c mcureblindness');
+        await mcureblindness(swallower, false, state);
     }
     delobj(obj, { ...env, state });
     return true;
