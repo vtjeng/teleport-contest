@@ -312605,7 +312605,7 @@
     {
       "id": "preserve-float-up-web-enum-mismatch-v69-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement float_up from undefined",
       "cFile": "trap.c",
       "sessions": [
@@ -312615,15 +312615,108 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
       "delivered": null,
       "function": "float_up",
-      "session": "synthetic/v69/v69-blocked-boots-action3"
+      "session": "synthetic/v69/v69-blocked-boots-action3",
+      "closeStanding": {
+        "sha": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "e39d754f994077858514ef103d1117a3949303b3",
+        "target": "synthetic/v69/v69-blocked-boots-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/bddad68fdb54a722e031c03e8efcb95d9518a34e/run-hosted-aThzuj/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "float_up",
+            "implementation": "js/trap.js",
+            "symbol": "float_up",
+            "sourceReview": "Complete trap.c:float_up 3937-4009. The branch after TT_BURIEDBALL compares `u.utraptype == WEB` rather than TT_WEB. Since web restraints store TT_WEB=3 and WEB=18, they fall through to the generic leg-still-stuck message. The JS correction uses WEB to preserve C's accidental enum comparison and retains the later float_vs_flight and encumbrance effects.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "switch_terrain",
+                "source": "hack.c:switch_terrain calls float_up when the hero becomes unblocked while levitation remains available."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:arti_invoke calls float_up when an artifact grants levitation."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory calls float_up when an eaten levitation ring restores the property."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "reset_utrap",
+                "source": "trap.c:reset_utrap calls float_up when releasing the hero resumes blocked levitation."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_levitation",
+                "source": "potion.c:peffect_levitation calls float_up when a levitation potion activates."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Boots_on",
+                "source": "do_wear.c:Boots_on calls float_up when levitation boots are worn."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_on",
+                "source": "do_wear.c:Ring_on calls float_up when a levitation ring is worn."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-bear-trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-blocked-boots-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 326,
+                "source": "do_wear.c:Boots_on -> trap.c:float_up WEB-versus-TT_WEB comparison -> trap.c:float_vs_flight"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is wearing levitation boots while the hero is caught in a web. do_wear.c:Boots_on calls float_up; the corrected source comparison prints C’s generic leg-still-stuck message. The recording matches through step 326, then differs at step 327 in the water nymph disarm message (“boots” in C, “shoes” in JS), which belongs to a separate source path.",
+        "entryPoints": [
+          {
+            "name": "levitation boots activate while hero is web-trapped",
+            "functions": [
+              "float_up"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-blocked-boots-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 326,
+                "source": "do_wear.c:Boots_on -> trap.c:float_up -> trap.c:float_vs_flight"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-meatobj-green-slimeproof-import-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement meatobj from undefined",
       "cFile": "mon.c",
       "sessions": [
@@ -312633,15 +312726,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
       "delivered": null,
       "function": "meatobj",
-      "session": "synthetic/v70/v70-cube-glob-scout2"
+      "session": "synthetic/v70/v70-cube-glob-scout2",
+      "closeStanding": {
+        "sha": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "e39d754f994077858514ef103d1117a3949303b3",
+        "target": "synthetic/v70/v70-cube-glob-scout2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/bddad68fdb54a722e031c03e8efcb95d9518a34e/run-hosted-aThzuj/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "meatobj",
+            "implementation": "js/mon.js",
+            "symbol": "meatobj",
+            "sourceReview": "Read complete upstream mon.c:meatobj (1533-1653), including the item loop, touch-sensitive and inedible branches, green-slime glob predicate, object extraction/pickup order, messages, and return value. In the inedible-item condition, C checks `(otmp->otyp == GLOB_OF_GREEN_SLIME && !slimeproof(mtmp->data))`; JavaScript already had this branch but omitted the existing slimeproof export from js/mondata.js, causing ReferenceError when a gelatinous cube encountered a green-slime glob. The fix imports that helper without changing branch order or behavior. monmove.c:postmov calls meatobj before mpickstuff; js/monmove.js:postmov follows that order. B delivery dc68d29191160d366551c333356564732926bec9 supplies the separately owned cube digestion/monster-consumption path needed for the admitted replay to reach a post-action boundary; it is an explicit dependency, not part of this task’s source scope.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:postmov (1671) invokes mon.c:meatobj for the gelatinous cube and then proceeds to mpickstuff; js/monmove.js:postmov calls js/mon.js:meatobj before select_postmove_object_action/mpickstuff."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-consumption.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-cube-glob-scout2",
+                "segment": 0,
+                "fromStep": 298,
+                "throughStep": 298,
+                "source": "monmove.c:postmov -> mon.c:meatobj green-slime resistance predicate -> engulf; JavaScript monmove.js:postmov -> mon.js:meatobj, with B’s dependency providing the following cube-digestion turn path."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is a gelatinous cube acting on a floor glob of green slime. C monmove.c:postmov reaches mon.c:meatobj, whose inedible-item predicate uses slimeproof(mtmp->data) to decide whether to engulf the glob; JS postmov already routes through meatobj and the missing named helper import was the mismatch. The admitted v70 recording now matches through step 298, including this branch. The scan continues to a later behavioral boundary after that action and does not match the complete segment; this task claims only the source-covered meatobj range. B’s exact cube-contents delivery is an explicit runtime dependency.",
+        "entryPoints": [
+          {
+            "name": "gelatinous-cube floor-object handling of green slime glob",
+            "functions": [
+              "meatobj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-cube-glob-scout2",
+                "segment": 0,
+                "fromStep": 298,
+                "throughStep": 298,
+                "source": "monmove.c:postmov -> mon.c:meatobj -> slimeproof green-slime test -> engulf; JS monmove.js:postmov -> mon.js:meatobj."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-tty-menu-text-window-line-attributes-v69-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement process_text_window, tty_putstr from wintty.c",
       "cFile": "wintty.c",
       "sessions": [
@@ -312651,10 +312807,113 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
       "delivered": null,
       "function": "process_text_window",
-      "session": "synthetic/v69/v69-vanq-sort-recovered4"
+      "session": "synthetic/v69/v69-vanq-sort-recovered4",
+      "closeStanding": {
+        "sha": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "e39d754f994077858514ef103d1117a3949303b3",
+        "target": "synthetic/v69/v69-vanq-sort-recovered4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/bddad68fdb54a722e031c03e8efcb95d9518a34e/run-hosted-aThzuj/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "tty_putstr",
+            "implementation": "js/tty_menu.js",
+            "symbol": "ttyTextWindowData",
+            "sourceReview": "Read the complete C definition in nethack-c/upstream/win/tty/wintty.c:2226-2422. tty_putstr() stores each NHW_MENU/NHW_TEXT row attribute as attr+1 alongside its text. JavaScript now preserves row objects through ttyTextWindowData() and the menu layout path. The function is impure because C changes the window's stored text data.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "list_vanquished",
+                "source": "insight.c:list_vanquished() passes iflags.menu_headings.attr for class headings when ask is false."
+              },
+              {
+                "path": "js/tty_menu.js",
+                "symbol": "ttyMenuTextLayout",
+                "source": "wintty.c:tty_display_nhwindow() routes NHW_MENU text rows through process_text_window()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-vanq-sort-recovered4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 287,
+                "source": "insight.c:list_vanquished -> wintty.c:tty_putstr -> wintty.c:process_text_window"
+              }
+            ]
+          },
+          {
+            "name": "process_text_window",
+            "implementation": "js/tty_menu.js",
+            "symbol": "writeRecorderTtyWindowLine",
+            "sourceReview": "Read the complete C definition in nethack-c/upstream/win/tty/wintty.c:1771-1851. process_text_window() decodes the stored attr+1 byte and applies the row style around the text output. JavaScript now applies each row's color and attribute to the printable recorder cells. The function is impure because it writes screen cells.",
+            "callers": [
+              {
+                "path": "js/tty_menu.js",
+                "symbol": "displayTtyMenuTextWindow",
+                "source": "wintty.c:tty_display_nhwindow() calls process_text_window() for NHW_MENU text rows."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-vanq-sort-recovered4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 287,
+                "source": "insight.c:list_vanquished -> wintty.c:tty_putstr -> wintty.c:process_text_window"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The v69 #vanquished command uses insight.c:list_vanquished() to add class heading rows with iflags.menu_headings.attr, then the TTY NHW_MENU display invokes wintty.c:tty_putstr() and process_text_window(). The admitted recording reaches this path at step 266. After the JS renderer preserves row styles, its replay matches all 288 screens, all 3110 RNG calls and all 288 cursor positions through segment 0.",
+        "entryPoints": [
+          {
+            "name": "#vanquished display of class heading rows",
+            "functions": [
+              {
+                "sourceFile": "wintty.c",
+                "name": "tty_putstr"
+              },
+              {
+                "sourceFile": "wintty.c",
+                "name": "process_text_window"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-vanq-sort-recovered4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 287,
+                "source": "insight.c:list_vanquished -> wintty.c:tty_putstr -> wintty.c:process_text_window"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
