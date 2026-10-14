@@ -300659,6 +300659,1191 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-steed-dismount-steed-v57-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete steed.c:dismount_steed with source-ordered bones, liquid, trapped-steed and no-room branches.",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v57/v57-flying-steed-pool-dismount-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v57-flying-steed-pool-dismount-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dismount_steed",
+          "line": 576,
+          "endLine": 826,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 576,
+        "to": 826
+      }
+    },
+    {
+      "id": "port-pager-do-look-whatis-synthetic-v57-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pager.c:do_look() menu and map lookup branches, including hallucinating and swallowed states and the lootabc menu layout.",
+      "cFile": "pager.c",
+      "sessions": [
+        "synthetic/v57/v57-hallucinatory-whatis-lookup-action4",
+        "synthetic/v57/v57-lootabc-whatis-menu-action2",
+        "synthetic/v56/v56-swallowed-whatis-menu-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v57-hallucinatory-whatis-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_look",
+          "line": 1673,
+          "endLine": 1965,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1673,
+        "to": 1965
+      }
+    },
+    {
+      "id": "port-pickup-explain-container-prompt-v56",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Display the source-defined container action help window.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v56/v56-sack-container-help-traditional-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v56-sack-container-help-traditional-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "explain_container_prompt",
+          "line": 2911,
+          "endLine": 2942,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 2911,
+        "to": 2942
+      }
+    },
+    {
+      "id": "port-pickup-traditional-loot-menu-on-request-v57-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pickup.c:traditional_loot()'s requested-menu path, using the existing menu_loot implementation when query_classes returns a negative menu_on_request.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v57/v57-traditional-container-menu-request-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v57-traditional-container-menu-request-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "traditional_loot",
+          "line": 3230,
+          "endLine": 3264,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 3230,
+        "to": 3264
+      }
+    },
+    {
+      "id": "fix-insight-ustatusline-held-monster-report-v60-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement the insight.c:ustatusline u.ustuck output branch in js/insight.js: compose the source swallowed, held, or holding phrase and append a_monnam(u.ustuck) before the status line.",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v60/v60-whirly-swallowed-stethoscope-interference-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "ustatusline",
+      "session": "synthetic/v60/v60-whirly-swallowed-stethoscope-interference-action2"
+    },
+    {
+      "id": "fix-do-wear-wielded-armor-removal-v58-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "The W command refuses valid armor that is still marked as wielded, although C releases its weapon-slot ownership before wearing it.",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v58/v58-wielded-boots-wear-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v58-wielded-boots-wear-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "accessory_or_armor_on",
+      "session": "synthetic/v58/v58-wielded-boots-wear-action2"
+    },
+    {
+      "id": "fix-monmove-bee-eat-jelly-floor-extraction-v61-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Killer bees stop when consuming floor royal jelly because the shared helper deletes it without the required floor extraction operation.",
+      "cFile": "monmove.c",
+      "sessions": [
+        "synthetic/v61/v61-pet-bee-eats-floor-jelly-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "bee_eat_jelly",
+      "session": "synthetic/v61/v61-pet-bee-eats-floor-jelly-action2"
+    },
+    {
+      "id": "fix-artifact-mbhit-hero-stun-property-binding-v58-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "NPC Magicbane attacks that stun the hero stop because artifacts.js omits the STUNNED property constant used to compute HStun.",
+      "cFile": "artifact.c",
+      "sessions": [
+        "synthetic/v58/v58-npc-magicbane-confusion-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "Mb_hit",
+      "session": "synthetic/v58/v58-npc-magicbane-confusion-action2"
+    },
+    {
+      "id": "fix-engulfer-wraith-grow-up-binding-v58-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Bind do.c:engulfer_digests_food to the existing makemon.c:grow_up implementation so swallowed wraith corpses are digested without a JavaScript ReferenceError.",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v58/v58-swallowed-wraith-growth-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "engulfer_digests_food",
+      "session": "synthetic/v58/v58-swallowed-wraith-growth-action2"
+    },
+    {
+      "id": "fix-hack-domove-core-passwall-pet-swap-v62-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement domove_core from hack.c",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v62/v62-closed-trapped-door-ghost-awake-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "domove_core",
+      "session": "synthetic/v62/v62-closed-trapped-door-ghost-awake-action6"
+    },
+    {
+      "id": "port-fountain-dowatersnakes-v58-blind-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port all fountain.c:dowatersnakes branches and preserve both drinkfountain and dipfountain routes; the selected blind-fountain case currently throws before RNG and snake effects.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v58/v58-blind-fountain-drink-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v58-blind-fountain-drink-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dowatersnakes",
+          "line": 38,
+          "endLine": 63,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 38,
+        "to": 63
+      }
+    },
+    {
+      "id": "fix-invent-currency-hallucination-rng-v60-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use the gameplay RNG for hallucinated currency selection, matching invent.c:currency() ROLL_FROM(currencies).",
+      "cFile": "invent.c",
+      "sessions": [
+        "synthetic/v60/v60-hallucinatory-magic-book-flip-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "currency",
+      "session": "synthetic/v60/v60-hallucinatory-magic-book-flip-action2"
+    },
+    {
+      "id": "port-cav-fila-v62-caveman-earlier-filler-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the Caveman quest filler program and register it so Home filler generation follows Cav-fila.lua instead of ordinary maze generation.",
+      "luaFile": "Cav-fila.lua",
+      "sessions": [
+        "synthetic/v62/v62-caveman-earlier-filler-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v62-caveman-earlier-filler-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Cav-fila.lua",
+          "line": 1,
+          "endLine": 35
+        }
+      ]
+    },
+    {
+      "id": "port-zap-maybe-explode-trap-v59-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port zap.c:maybe_explode_trap and wire it into zap_map before the remaining map effects.",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v59/v59-cancellation-magic-trap-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v59-cancellation-magic-trap-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "maybe_explode_trap",
+          "line": 3594,
+          "endLine": 3627,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 3594,
+        "to": 3627
+      }
+    },
+    {
+      "id": "port-hack-moverock-core-v62-sokoban-launch-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement moverock_core from hack.c",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v62/v62-sokoban-original-boulder-fill-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v62-sokoban-object-resists-action6-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "moverock_core",
+          "line": 348,
+          "endLine": 646,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 348,
+        "to": 646
+      },
+      "requiredFunctions": [
+        {
+          "name": "launch_obj",
+          "line": 3260,
+          "endLine": 3577,
+          "declared": true,
+          "sourceFile": "trap.c"
+        },
+        {
+          "name": "deltrap",
+          "line": 6531,
+          "endLine": 6551,
+          "declared": true,
+          "sourceFile": "trap.c"
+        },
+        {
+          "name": "maybe_finish_sokoban",
+          "line": 7059,
+          "endLine": 7099,
+          "declared": false,
+          "sourceFile": "trap.c"
+        }
+      ]
+    },
+    {
+      "id": "port-Hea-fila-lua-healer-quest-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Hea-fila.lua from Hea-fila.lua",
+      "luaFile": "Hea-fila.lua",
+      "sessions": [
+        "synthetic/v62/v62-healer-earlier-filler-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-healer-earlier-filler-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Hea-fila.lua",
+          "line": 1,
+          "endLine": 42
+        }
+      ]
+    },
+    {
+      "id": "port-Hea-filb-lua-healer-later-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Hea-filb.lua from Hea-filb.lua",
+      "luaFile": "Hea-filb.lua",
+      "sessions": [
+        "synthetic/v62/v62-healer-later-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-healer-later-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Hea-filb.lua",
+          "line": 1,
+          "endLine": 50
+        }
+      ]
+    },
+    {
+      "id": "fix-litroom-digest-message-synthetic-v58-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement litroom from read.c",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v58/v58-swallowed-light-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v58-swallowed-light-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "litroom",
+      "session": "synthetic/v58/v58-swallowed-light-action2"
+    },
+    {
+      "id": "port-Cav-filb-lua-caveman-later-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Cav-filb.lua from Cav-filb.lua",
+      "luaFile": "Cav-filb.lua",
+      "sessions": [
+        "synthetic/v62/v62-caveman-later-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-caveman-later-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Cav-filb.lua",
+          "line": 1,
+          "endLine": 41
+        }
+      ]
+    },
+    {
+      "id": "port-Mon-fila-lua-monk-earlier-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Mon-fila.lua from Mon-fila.lua",
+      "luaFile": "Mon-fila.lua",
+      "sessions": [
+        "synthetic/v62/v62-monk-earlier-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-monk-earlier-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Mon-fila.lua",
+          "line": 1,
+          "endLine": 61
+        }
+      ]
+    },
+    {
+      "id": "port-Mon-filb-lua-monk-later-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Mon-filb.lua from Mon-filb.lua",
+      "luaFile": "Mon-filb.lua",
+      "sessions": [
+        "synthetic/v62/v62-monk-later-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-monk-later-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Mon-filb.lua",
+          "line": 1,
+          "endLine": 60
+        }
+      ]
+    },
+    {
+      "id": "fix-fumbling-corpse-instapetrify-caller-v56-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement slip_or_trip from timeout.c",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v56/v56-fumbling-corpse-trip-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v56-fumbling-corpse-trip-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "slip_or_trip",
+      "session": "synthetic/v56/v56-fumbling-corpse-trip-action2"
+    },
+    {
+      "id": "port-Ran-fila-lua-ranger-earlier-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Ran-fila.lua from Ran-fila.lua",
+      "luaFile": "Ran-fila.lua",
+      "sessions": [
+        "synthetic/v62/v62-ranger-earlier-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-ranger-earlier-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Ran-fila.lua",
+          "line": 1,
+          "endLine": 35
+        }
+      ]
+    },
+    {
+      "id": "port-Ran-filb-lua-ranger-later-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Ran-filb.lua from Ran-filb.lua",
+      "luaFile": "Ran-filb.lua",
+      "sessions": [
+        "synthetic/v62/v62-ranger-later-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-ranger-later-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Ran-filb.lua",
+          "line": 1,
+          "endLine": 39
+        }
+      ]
+    },
+    {
+      "id": "port-Tou-fila-lua-tourist-earlier-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Tou-fila.lua from Tou-fila.lua",
+      "luaFile": "Tou-fila.lua",
+      "sessions": [
+        "synthetic/v62/v62-tourist-earlier-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v62-tourist-earlier-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Tou-fila.lua",
+          "line": 1,
+          "endLine": 35
+        }
+      ]
+    },
+    {
+      "id": "port-Tou-filb-lua-tourist-later-filler-v62-20261013",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Tou-filb.lua from Tou-filb.lua",
+      "luaFile": "Tou-filb.lua",
+      "sessions": [
+        "synthetic/v62/v62-tourist-later-filler-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v62-tourist-later-filler-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Tou-filb.lua",
+          "line": 1,
+          "endLine": 39
+        }
+      ]
+    },
+    {
+      "id": "port-polyself-rehumanize-corpse-touch-v60-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement rehumanize from polyself.c",
+      "cFile": "polyself.c",
+      "sessions": [
+        "synthetic/v60/v60-rust-rehumanize-corpse-touch-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rehumanize",
+          "line": 1367,
+          "endLine": 1420,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1367,
+        "to": 1420
+      }
+    },
+    {
+      "id": "fix-pickup-full-pack-preflight-v56-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement pickup from pickup.c",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v56/v56-full-pack-gem-lift-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v56-full-pack-gem-lift-action3-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "pickup",
+      "session": "synthetic/v56/v56-full-pack-gem-lift-action3"
+    },
+    {
+      "id": "div-fix-hold-another-object-dropx-v59-20261013",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement hold_another_object from invent.c",
+      "cFile": "invent.c",
+      "sessions": [
+        "synthetic/v59/v59-fumbling-magic-alchemy-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "hold_another_object",
+      "session": "synthetic/v59/v59-fumbling-magic-alchemy-action2"
+    },
+    {
+      "id": "port-version-doversion-v48-20261013",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement doversion from version.c",
+      "cFile": "version.c",
+      "sessions": [
+        "synthetic/v48/v48-short-version-command-attempt1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v48-short-version-command-attempt1-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doversion",
+          "line": 156,
+          "endLine": 168,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 156,
+        "to": 168
+      },
+      "requiredFunctions": [
+        {
+          "name": "getversionstring",
+          "line": 35,
+          "endLine": 88,
+          "declared": true,
+          "sourceFile": "version.c"
+        }
+      ]
+    },
+    {
+      "id": "a2-v64-worm-nomove",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port worm.c:worm_nomove() and replace its monmove.c:m_move caller gap for long worms that fail to move.",
+      "cFile": "worm.c",
+      "sessions": [
+        "synthetic/v64/v64-peaceful-worm-kicked-exit-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "worm_nomove",
+          "line": 288,
+          "endLine": 307,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 288,
+        "to": 307
+      }
+    },
+    {
+      "id": "fix-dotrap-vibrating-square-admission-v63-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dotrap from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v63/v63-successful-invocation-action9"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-successful-invocation-action9-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dotrap",
+      "session": "synthetic/v63/v63-successful-invocation-action9"
+    },
+    {
+      "id": "fix-newman-stoning-clear-v63-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement newman from polyself.c",
+      "cFile": "polyself.c",
+      "sessions": [
+        "synthetic/v63/v63-petrifying-newman-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v63-petrifying-newman-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "newman",
+      "session": "synthetic/v63/v63-petrifying-newman-action2"
+    },
+    {
+      "id": "fix-detect-find-trap-unseen-web-kick-v64-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire detect.c:find_trap into the dokick.c really_kick_object path for unseen webs and pits, reusing the source behavior already used by explicit searching.",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v64/v64-unseen-web-kick-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v64-unseen-web-kick-action5-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "find_trap",
+      "session": "synthetic/v64/v64-unseen-web-kick-action5"
+    },
+    {
+      "id": "port-music-do-pit-quake-monster-death-v63-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement do_pit from music.c",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v63/v63-quake-newt-death-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v63-quake-newt-death-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_pit",
+          "line": 221,
+          "endLine": 343,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 221,
+        "to": 343
+      }
+    },
+    {
+      "id": "port-kni-fila-v63-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Kni-fila.lua from Kni-fila.lua",
+      "luaFile": "Kni-fila.lua",
+      "sessions": [
+        "synthetic/v63/v63-knight-earlier-filler-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-knight-earlier-filler-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Kni-fila.lua",
+          "line": 1,
+          "endLine": 35
+        }
+      ]
+    },
+    {
+      "id": "port-sam-fila-v63-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Sam-fila.lua from Sam-fila.lua",
+      "luaFile": "Sam-fila.lua",
+      "sessions": [
+        "synthetic/v63/v63-samurai-earlier-filler-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-samurai-earlier-filler-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Sam-fila.lua",
+          "line": 1,
+          "endLine": 37
+        }
+      ]
+    },
+    {
+      "id": "port-zap-poly-obj-worn-accessory-v64-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement poly_obj from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v64/v64-worn-amulet-poly-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v64-worn-amulet-poly-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "poly_obj",
+          "line": 1702,
+          "endLine": 1992,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1702,
+        "to": 1992
+      },
+      "requiredFunctions": [
+        {
+          "name": "remove_worn_item",
+          "line": 213,
+          "endLine": 293,
+          "declared": true,
+          "sourceFile": "steal.c"
+        },
+        {
+          "name": "set_wear",
+          "line": 1539,
+          "endLine": 1573,
+          "declared": true,
+          "sourceFile": "do_wear.c"
+        }
+      ]
+    },
+    {
+      "id": "port-rog-fila-v63-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Rog-fila.lua from Rog-fila.lua",
+      "luaFile": "Rog-fila.lua",
+      "sessions": [
+        "synthetic/v63/v63-rogue-earlier-filler-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-rogue-earlier-filler-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Rog-fila.lua",
+          "line": 1,
+          "endLine": 64
+        }
+      ]
+    },
+    {
+      "id": "fix-trap-animate-statue-worn-removal-v64-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement animate_statue from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v64/v64-wielded-statue-animation-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v64-wielded-statue-animation-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "animate_statue",
+      "session": "synthetic/v64/v64-wielded-statue-animation-action4"
+    },
+    {
+      "id": "port-val-fila-v63-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Val-fila.lua from Val-fila.lua",
+      "luaFile": "Val-fila.lua",
+      "sessions": [
+        "synthetic/v63/v63-valkyrie-earlier-filler-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-valkyrie-earlier-filler-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Val-fila.lua",
+          "line": 1,
+          "endLine": 40
+        }
+      ]
+    },
+    {
+      "id": "port-val-filb-v63-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Val-filb.lua from Val-filb.lua",
+      "luaFile": "Val-filb.lua",
+      "sessions": [
+        "synthetic/v63/v63-valkyrie-later-filler-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-valkyrie-later-filler-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Val-filb.lua",
+          "line": 1,
+          "endLine": 42
+        }
+      ]
+    },
+    {
+      "id": "port-kni-filb-v63-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Kni-filb.lua from Kni-filb.lua",
+      "luaFile": "Kni-filb.lua",
+      "sessions": [
+        "synthetic/v63/v63-knight-later-filler-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-knight-later-filler-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Kni-filb.lua",
+          "line": 1,
+          "endLine": 40
+        }
+      ]
+    },
+    {
+      "id": "fix-unicorn-horn-trouble-shuffle-v64-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement use_unicorn_horn from apply.c",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v64/v64-multi-trouble-horn-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v64-multi-trouble-horn-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_unicorn_horn",
+      "session": "synthetic/v64/v64-multi-trouble-horn-action2"
+    },
+    {
+      "id": "port-sam-filb-v63-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Sam-filb.lua from Sam-filb.lua",
+      "luaFile": "Sam-filb.lua",
+      "sessions": [
+        "synthetic/v63/v63-samurai-later-filler-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v63-samurai-later-filler-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Sam-filb.lua",
+          "line": 1,
+          "endLine": 60
+        }
+      ]
+    },
+    {
+      "id": "fix-v64-broken-speed-wand-callback-action3-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement do_break_wand from apply.c",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v64/v64-broken-speed-wand-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v64-broken-speed-wand-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "do_break_wand",
+      "session": "synthetic/v64/v64-broken-speed-wand-action3"
+    },
+    {
+      "id": "port-steed-poly-steed-v64-mount-polymorph-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement poly_steed from steed.c",
+      "cFile": "steed.c",
+      "sessions": [
+        "synthetic/v64/v64-mounted-controlled-horse-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v64-mounted-controlled-horse-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "poly_steed",
+          "line": 852,
+          "endLine": 877,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 852,
+        "to": 877
+      }
+    },
+    {
+      "id": "port-dothrow-hurtle-step-v64-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement hurtle_step from dothrow.c",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v64/v64-grapple-cockatrice-body-collision-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hurtle_step",
+          "line": 773,
+          "endLine": 976,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 773,
+        "to": 976
+      }
+    },
+    {
+      "id": "fix-potion-dodrink-worn-item-v64-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dodrink from potion.c",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v64/v64-wielded-polymorph-potion-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v64-wielded-polymorph-potion-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dodrink",
+      "session": "synthetic/v64/v64-wielded-polymorph-potion-action3"
+    },
+    {
+      "id": "port-trap-drown-punished-underwater-v64-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement drown from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v64/v64-punished-submerge-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v64-punished-submerge-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "drown",
+          "line": 5059,
+          "endLine": 5201,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 5059,
+        "to": 5201
+      }
     }
   ]
 }
