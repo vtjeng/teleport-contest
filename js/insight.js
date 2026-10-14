@@ -2453,7 +2453,7 @@ export async function list_vanquished(
         answer = defquery.charCodeAt(0);
     }
     if (answer === 'q'.charCodeAt(0)) {
-        discloseStop(state);
+        disclosureStop(state);
         return;
     }
     if (answer !== 'y'.charCodeAt(0) && answer !== 'a'.charCodeAt(0)) return;

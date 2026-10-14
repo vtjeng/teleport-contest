@@ -1942,6 +1942,23 @@ test('list_vanquished handles both an empty list and source formatting', async (
     ]);
 });
 
+test('list_vanquished q increments the disclosure stopprint state', async () => {
+    const state = {
+        flags: { vanq_sortmode: VANQ_MLVL_MNDX },
+        mons: [{ pmidx: 0, mlevel: 1, difficulty: 1, mlet: 5, geno: 0,
+            pmnames: [null, null, 'newt'] }],
+        svm: { mvitals: [{ died: 1 }] },
+        program_state: { stopprint: 2 },
+    };
+    let displayed = false;
+    await list_vanquished('y', true, state, {
+        queryFunction: () => 'q'.charCodeAt(0),
+        displayTextWindow: () => { displayed = true; },
+    });
+    assert.equal(state.program_state.stopprint, 3);
+    assert.equal(displayed, false);
+});
+
 test('list_vanquished preserves C class-heading attributes', async () => {
     const state = monsterCatalog();
     state.svm = {
