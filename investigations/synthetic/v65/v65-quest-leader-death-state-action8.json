@@ -15,13 +15,20 @@
   "source": {
     "file": "mon.c",
     "branch": "In m_detach when due_to_death is true and mtmp->data->msound is MS_LEADER, C calls leaddead(), which sets quest_status.killed_leader. quest.c:ok_to_quest then allows descent independently of got_quest/got_thanks or purity. JS mondead() already sets leader_is_dead for the leader_m_id, but m_detach() records the missing leaddead call and JS ok_to_quest() reads killed_leader.",
-    "functions": ["m_detach"],
+    "functions": [
+      "m_detach"
+    ],
     "callers": [
       "The recorded hero kill follows mon.c xkilled() -> mondead() -> m_detach(); JavaScript mon.js xkilled() -> mondead() -> m_detach() awaits each stage.",
       "The subsequent do.c goto_level() calls ok_to_quest() before rejecting descent from the Quest start level; JavaScript do.js uses quest.js ok_to_quest() at the corresponding guard."
     ],
     "requiredFunctions": [
-      {"sourceFile":"quest.c","name":"leaddead","lineRange":"116-122","reason":"The source call mutates killed_leader; that field is the permission condition read by quest.c:ok_to_quest()."}
+      {
+        "sourceFile": "quest.c",
+        "name": "leaddead",
+        "lineRange": "116-122",
+        "reason": "The source call mutates killed_leader; that field is the permission condition read by quest.c:ok_to_quest()."
+      }
     ],
     "dependencies": []
   },
@@ -49,28 +56,61 @@
     "regression": false,
     "passed": false,
     "error": null,
-    "metrics": {"screens":{"matched":158,"total":182},"rng":{"matched":3996,"total":6697},"cursors":{"matched":165,"total":182}},
-    "firstMismatch": {"segmentIndex":0,"stepIndex":158,"key":"\n","sourceFile":"mon.c","function":"m_detach","message":"C calls quest.c:leaddead() for the dying quest leader and permits the descent; JavaScript leaves quest_status.killed_leader unset."}
+    "metrics": {
+      "screens": {
+        "matched": 158,
+        "total": 182
+      },
+      "rng": {
+        "matched": 3996,
+        "total": 6697
+      },
+      "cursors": {
+        "matched": 165,
+        "total": 182
+      }
+    },
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 158,
+      "key": "\n",
+      "sourceFile": "mon.c",
+      "function": "m_detach",
+      "message": "C calls quest.c:leaddead() for the dying quest leader and permits the descent; JavaScript leaves quest_status.killed_leader unset."
+    }
   },
   "observedReplay": {
-    "runId":"run-weI5Bs",
-    "command":["node","scripts/scan-sessions.mjs","--json","--synthetic","v65/v65-quest-leader-death-state-action8"],
-    "replayCommit":"bccd8eb5623756f1c0d95a007a179fa46200fb93",
-    "screensEmitted":182,
-    "recordedSteps":182,
-    "divergence":{"screenStep":158,"rngIndex":3996,"cursorStep":158},
-    "recordingMatched":false,
-    "inputBoundaryMatched":true,
-    "unported":["mon.c the quest leader's death"],
-    "receipt":"/tmp/teleport-validation-1000/run-weI5Bs/receipt.json"
+    "runId": "run-weI5Bs",
+    "command": [
+      "node",
+      "scripts/scan-sessions.mjs",
+      "--json",
+      "--synthetic",
+      "v65/v65-quest-leader-death-state-action8"
+    ],
+    "replayCommit": "bccd8eb5623756f1c0d95a007a179fa46200fb93",
+    "screensEmitted": 182,
+    "recordedSteps": 182,
+    "divergence": {
+      "screenStep": 158,
+      "rngIndex": 3996,
+      "cursorStep": 158
+    },
+    "recordingMatched": false,
+    "inputBoundaryMatched": true,
+    "unported": [
+      "mon.c the quest leader's death"
+    ],
+    "receipt": "/tmp/teleport-validation-1000/run-weI5Bs/receipt.json"
   },
   "selectionRationale": "The v65 manifest attributes the step-158 mismatch to the omitted leaddead state transition. The same leader-death branch and later level-permission consumer are independent of the currently reserved m_detach-adjacent source scopes.",
   "closestEarlierCases": "v44-wizgenesis-forced-neferet-leaddead-cfirst",
   "overlapCrosswalk": {
-    "scope":"The saved admitted queue and prior quest findings.",
-    "closestEarlierCases":"v44-wizgenesis-forced-neferet-leaddead-cfirst",
-    "causalDifference":"The earlier v44 case observes the leader-death pager path but does not continue to the quest-level descent guard. This v65 case distinguishes leader_is_dead from killed_leader by consuming killed_leader through ok_to_quest().",
-    "withinBatch":"The selected case is the only v65 candidate with this first source behavior."
+    "scope": "The saved admitted queue and prior quest findings.",
+    "closestEarlierCases": "v44-wizgenesis-forced-neferet-leaddead-cfirst",
+    "causalDifference": "The earlier v44 case observes the leader-death pager path but does not continue to the quest-level descent guard. This v65 case distinguishes leader_is_dead from killed_leader by consuming killed_leader through ok_to_quest().",
+    "withinBatch": "The selected case is the only v65 candidate with this first source behavior."
   },
-  "candidateDisposition":"included"
+  "candidateDisposition": "included",
+  "goalKind": "file-port"
 }
