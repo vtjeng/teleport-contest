@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 67102113,
+      "datetime": "20871119225110",
+      "nethackrc": "OPTIONS=name:ShkMigrationProbe,role:Wizard,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#wizlevelport\n3\n#detect monsters\n"
+    }
+  ],
+  "comment": "Blocked source path: shk.c:make_happy_shk sends a settled shopkeeper whose home shop is on another level through dog.c:migrate_to_level. The JavaScript shopkeeper migration arm still records note_unported('dog.c migrate_to_level'), so this recipe is retained without a recording and is not runtime evidence for that branch."
+}

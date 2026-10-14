@@ -171,6 +171,7 @@ import {
     costly_spot, inside_shop, is_unpaid, pay_for_damage, picked_container, shop_keeper,
     stolen_value,
 } from './shk.js';
+import { make_happy_shk } from './shk.js';
 import { shkname, Shknam } from './shknam.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
@@ -580,7 +581,8 @@ export async function ghitm(monster, gold, state = game, rawEnv = {}) {
                 robbed = Math.max(0, robbed - value);
                 await message(`The amount ${!robbed ? '' : 'partially '}covers ${mhis(monster, env)} recent losses.`, state, env);
                 eshk.robbed = robbed;
-                if (!robbed) note_unported('shk.c make_happy_shk');
+                if (!robbed)
+                    await make_happy_shk(monster, false, state, env);
             } else if (monster.mpeaceful) {
                 eshk.credit += value;
                 await message(`You have ${eshk.credit} ${currency(eshk.credit, state)} in credit.`, state, env);

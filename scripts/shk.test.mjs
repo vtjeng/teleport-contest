@@ -59,6 +59,7 @@ import {
     clear_no_charge_pets,
     costly_adjacent,
     check_unpaid_usage,
+    angry_shk_exists,
     get_cost,
     cost_per_charge,
     get_pricing_units,
@@ -68,6 +69,7 @@ import {
     find_objowner,
     hot_pursuit,
     inhishop,
+    make_happy_shk,
     is_unpaid,
     oid_price_adjustment,
     onshopbill,
@@ -88,8 +90,10 @@ import {
     PM_GOBLIN,
     PM_MEDUSA,
     PM_ORACLE,
+    PM_ROGUE,
     PM_SHOPKEEPER,
     PM_TOURIST,
+    PM_WATCHMAN,
 } from '../js/monsters.js';
 
 const C_SHK = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
@@ -965,6 +969,77 @@ function shopState({ has_shop = true } = {}) {
     };
     return state;
 }
+
+test('make_happy_shk settles hostility before the shopkeeper turn', async () => {
+    // This fixture keeps the keeper inside its tended shop so the tested
+    // branch is C's in-shop calming path used by dopay after compensation.
+    const state = shopState();
+    const resident = state.level.rooms[0].resident;
+    resident.mhp = 10;
+    resident.mpeaceful = false;
+    resident.nmon = null;
+    resident.mextra.eshk.following = 1;
+    resident.mextra.eshk.robbed = 27;
+    const guard = {
+        mhp: 5,
+        mcanmove: true,
+        mpeaceful: false,
+        data: state.mons[PM_WATCHMAN],
+        nmon: null,
+    };
+    resident.nmon = guard;
+    state.level.monlist = resident;
+    state.urole = { mnum: PM_ROGUE };
+    const cBody = C_SHK.match(
+        /void\s+make_happy_shk\(struct monst \*shkp, boolean silentkops\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(cBody, 'the complete C make_happy_shk body is present');
+    assert.match(cBody,
+        /pacify_shk\(shkp, FALSE\);\s*eshkp->following = 0;\s*eshkp->robbed = 0L;/u);
+    assert.match(cBody,
+        /\} else if \(wasmad\)\s*pline\("%s calms down\.", Shknam\(shkp\)\);/u);
+    const cKopsGone = C_SHK.match(
+        /staticfn void\s+kops_gone\(boolean silent\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(cKopsGone, 'the complete C kops_gone body is present');
+    assert.match(cKopsGone, /mtmp2 = mtmp->nmon;[\s\S]*?mongone\(mtmp\);/u);
+    assert.match(JS_SHK,
+        /await kops_gone\(silentKops, state, env\);\s*await pacify_guards\(state\);/u);
+
+    await make_happy_shk(resident, false, state, { message: async () => {} });
+
+    assert.equal(resident.mpeaceful, true);
+    assert.equal(resident.mextra.eshk.following, 0);
+    assert.equal(resident.mextra.eshk.robbed, 0);
+    assert.equal(guard.mpeaceful, true);
+});
+
+test('angry_shk_exists uses next_shkp and restores a missing surcharge', () => {
+    // C's scan uses next_shkp(), which skips dead monsters and calls
+    // rile_shk() before returning an angry shopkeeper.
+    const angryShopkeeper = {
+        mhp: 10, isshk: true, mpeaceful: false,
+        mextra: { eshk: {
+            surcharge: false,
+            billct: 1,
+            bill_p: [{ price: 3 }],
+        } },
+    };
+    const deadShopkeeper = {
+        mhp: 0, isshk: true, mpeaceful: false,
+    };
+    const state = {
+        level: { monlist: {
+            ...deadShopkeeper,
+            nmon: angryShopkeeper,
+        } },
+    };
+    assert.equal(angry_shk_exists(state), true);
+    assert.equal(angryShopkeeper.mextra.eshk.surcharge, true);
+    assert.equal(angryShopkeeper.mextra.eshk.bill_p[0].price, 4);
+    angryShopkeeper.mpeaceful = true;
+    assert.equal(angry_shk_exists(state), false);
+});
 
 test('shopdig warns in source order and all active callers use the owner', async () => {
     const cBody = sourceBody(C_SHK, '\nshopdig(int fall)');

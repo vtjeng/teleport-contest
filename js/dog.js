@@ -142,7 +142,9 @@ import {
 } from './monsters.js';
 import { an, the, Tobjnam, xnameFresh } from './objnam.js';
 import { genders } from './roles.js';
-import { picked_container, set_residency } from './shk.js';
+import {
+    make_happy_shk, make_happy_shoppers, picked_container, set_residency,
+} from './shk.js';
 import { place_object } from './obj.js';
 import {
     EXPENSIVE_CAMERA,
@@ -536,7 +538,7 @@ export async function tamedog(
     }
 
     if (monster.isshk) {
-        note_unported('shk.c make_happy_shk');
+        await make_happy_shk(monster, false, state, normalized);
         return false;
     }
 
@@ -1052,7 +1054,7 @@ export async function losedogs(rawEnv = {}) {
         monster && dismissKops >= 0; monster = monster.nmon) {
         if (monster.isshk && !monster.mpeaceful) dismissKops = -1;
     }
-    if (dismissKops > 0) note_unported('shk.c make_happy_shoppers');
+    if (dismissKops > 0) await make_happy_shoppers(true, state);
 
     // Exact-position migrants reclaim their squares before followers arrive.
     let previous = null;

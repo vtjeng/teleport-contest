@@ -1,16 +1,17 @@
 // Shop admission, entry/departure, pricing, pickup billing, itemized payment,
 // bill-object lifecycle, remembered-price queries, shopkeeper pursuit, and
-// shopkeeper movement.
+// shopkeeper movement, shopkeeper settlement, and Kops dismissal.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), call_kops(), makekops(), getprice(), get_cost(),
 // get_cost_of_shop_item(), gem_learned(),
-// append_price_quote(), contained_gold(), check_unpaid(),
+// append_price_quote(), contained_gold(), check_unpaid(), make_happy_shk(),
+// angry_shk_exists(), make_happy_shoppers(),
 // use_unpaid_trapobj(), costly_spot(),
 // shop_object(), shk_owns(), mon_owns(), shk_your(), shk_move(),
 // shk_fixes_damage(), repair_damage(), fix_shop_damage(), litter_getpos(),
 // litter_scatter(), litter_newsyms(), discard_damage_struct(), and the
 // end-of-game cleanup chain next_shkp(),
-// rile_shk(), hot_pursuit(), onbill(), clear_unpaid(), clear_no_charge(), setpaid(),
+// rile_shk(), kops_gone(), hot_pursuit(), onbill(), clear_unpaid(), clear_no_charge(), setpaid(),
 // inherits() and paybill().
 
 import {
@@ -145,7 +146,9 @@ import {
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
-import { angry_guards, mnearto, mnexto, mongone, wake_nearto } from './mon.js';
+import {
+    angry_guards, mnearto, mnexto, mongone, pacify_guards, wake_nearto,
+} from './mon.js';
 import { search_special } from './mkroom.js';
 import {
     carried,
@@ -241,6 +244,7 @@ import {
     PM_ROGUE,
     PM_SHOPKEEPER,
     PM_TOURIST,
+    S_KOP,
 } from './monsters.js';
 import {
     haseyes,
@@ -282,7 +286,9 @@ import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import { note_unported } from './unported.js';
-import { findgold, mpickobj, remove_worn_item } from './steal.js';
+import {
+    findgold, mdrop_special_objs, mpickobj, remove_worn_item,
+} from './steal.js';
 import { discover_object, observe_object } from './o_init.js';
 import { Monnam, x_monnam, y_monnam } from './do_name.js';
 import { rn2, rnd } from './rng.js';
@@ -2292,7 +2298,7 @@ export async function dopay(state = game, env = {}) {
             }
             if (money < Math.trunc(robbed / 2) || (money < robbed && stashed))
                 await message(`Unfortunately, ${pronoun(shkp, 'he')} doesn't look satisfied.`, state);
-            else note_unported('shk.c make_happy_shk');
+            else await make_happy_shk(shkp, false, state, env);
         }
         return ECMD_TIME;
     }
@@ -2313,7 +2319,7 @@ export async function dopay(state = game, env = {}) {
             await message(`you ${money < robbed ? 'partially ' : ''}compensate ${shkname(shkp, state)} for ${
                 pronoun(shkp, 'his')} losses.`, state);
             await pay(money < robbed ? money : robbed, shkp, state, env);
-            note_unported('shk.c make_happy_shk');
+            await make_happy_shk(shkp, false, state, env);
         } else {
             await message(`${Shknam(shkp, state)} is after your hide, not your gold!`, state);
             if (money < 1000) {
@@ -2327,7 +2333,7 @@ export async function dopay(state = game, env = {}) {
             await pay(1000, shkp, state, env);
             if (String(eshk.customer ?? '').slice(0, PL_NSIZ)
                 !== String(state.plname ?? '').slice(0, PL_NSIZ) || random.rn2(3))
-                note_unported('shk.c make_happy_shk');
+                await make_happy_shk(shkp, false, state, env);
             else await message(`But ${shkname(shkp, state)} is as angry as ever.`, state);
         }
         return ECMD_TIME;
@@ -2731,6 +2737,100 @@ function pacify_shk(shopkeeper, clearSurcharge) {
             entry.price -= reduction;
         }
     }
+}
+
+// C ref: shk.c angry_shk_exists() (1275-1284). next_shkp() may restore a
+// missing anger surcharge while this scan visits living shopkeepers.
+export function angry_shk_exists(state = game) {
+    for (let shopkeeper = next_shkp(
+        state.level?.monlist ?? null, false, state,
+    ); shopkeeper;
+        shopkeeper = next_shkp(shopkeeper.nmon, false, state)) {
+        if (!shopkeeper.mpeaceful)
+            return true;
+    }
+    return false;
+}
+
+// C ref: shk.c kops_gone() (5606-5622). Save nmon before mongone() detaches
+// each Keystone Kop from the current level chain.
+async function kops_gone(silent, state, env) {
+    let visible = 0;
+    let monster = state.level?.monlist ?? null;
+    while (monster) {
+        const next = monster.nmon;
+        if (monster.mhp > 0 && monster.data?.mlet === S_KOP) {
+            if (canspotmon(monster, state)) ++visible;
+            const removal = mongone(monster, { ...env, state });
+            if (removal && typeof removal.then === 'function') await removal;
+        }
+        monster = next;
+    }
+    if (visible && !silent) {
+        await (env.message ?? ttyPline)(
+            `The Kop${plur(visible)} (disappointed) vanish${visible === 1 ? 'es' : ''} into thin air.`,
+            state,
+        );
+    }
+}
+
+// C ref: shk.c make_happy_shoppers() (1438-1447).
+export async function make_happy_shoppers(
+    silentKops = false,
+    state = game,
+    env = {},
+) {
+    if (!angry_shk_exists(state)) {
+        await kops_gone(silentKops, state, env);
+        await pacify_guards(state);
+    }
+}
+
+// C ref: shk.c make_happy_shk() (1394-1436). Covers payment and taming
+// callers; shopkeeper migration to another level remains unported.
+export async function make_happy_shk(
+    shopkeeper,
+    silentKops = false,
+    state = game,
+    env = {},
+) {
+    const eshk = shopkeeper.mextra.eshk;
+    const wasMad = !shopkeeper.mpeaceful;
+
+    pacify_shk(shopkeeper, false);
+    eshk.following = 0;
+    eshk.robbed = 0;
+    if (state.urole?.mnum !== PM_ROGUE)
+        adjalign(sgn(state.u.ualign.type), state);
+
+    if (!inhishop(shopkeeper, state)) {
+        const shopkeeperName = shkname(shopkeeper, state);
+        let vanished = canseemon(shopkeeper, state);
+        if (on_level(eshk.shoplevel, state.u.uz)) {
+            await home_shk(shopkeeper, false, state, env);
+            if (canspotmon(shopkeeper, state)) {
+                await (env.message ?? ttyPline)(Shknam(shopkeeper, state)
+                    + ' returns to '
+                    + noitPronoun(shopkeeper, 'his', state, rn2)
+                    + ' shop.', state);
+                vanished = false;
+            }
+        } else {
+            if (sensemon(shopkeeper, state)) vanished = true;
+            const dropping = mdrop_special_objs(shopkeeper, { ...env, state });
+            if (dropping && typeof dropping.then === 'function') await dropping;
+            note_unported('dog.c migrate_to_level');
+            eshk.dismiss_kops = true;
+        }
+        if (vanished)
+            await (env.message ?? ttyPline)('Satisfied, '
+                + shopkeeperName + ' suddenly disappears!', state);
+    } else if (wasMad) {
+        await (env.message ?? ttyPline)(
+            Shknam(shopkeeper, state) + ' calms down.', state);
+    }
+
+    await make_happy_shoppers(silentKops, state, env);
 }
 
 function noitPronoun(shopkeeper, field, state, random) {
