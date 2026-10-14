@@ -300568,6 +300568,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-makemon-runtime-norep-callback-v57",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Preserve Norep semantics for runtime monster appearance messages.",
+      "cFile": "makemon.c",
+      "sessions": [
+        "synthetic/v57/v57-throne-court-summon-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v57-throne-court-summon-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "makemon",
+      "session": "synthetic/v57/v57-throne-court-summon-action2"
     }
   ]
 }
