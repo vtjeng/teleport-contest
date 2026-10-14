@@ -59,7 +59,6 @@ import { dirtocoord, xytodir } from '../js/cmd.js';
 import { set_wounded_legs } from '../js/do.js';
 import { see_monsters, statusConditionActive } from '../js/display.js';
 import {
-    UnsupportedHeroMoveBoundaryError,
     cant_squeeze_thru,
     invocation_message,
     notice_mon_off,
@@ -1302,24 +1301,17 @@ test('maybewakesteed halves a frozen steed and ends its meal', async () => {
 
 // --- teleds(), the hero relocation both halves of the ride use ---
 
-test('teleds refuses its unported swallowed arm',
-    async () => {
-    // teleport.c:448-573. Vault guard lookup is ported; swallowing is not.
-    const rows = [
-        ['out of an engulfer', (state) => { state.u.uswallow = 1; }],
-    ];
-    for (const [reason, mutate] of rows) {
-        const state = await mounted();
-        const spot = { x: state.u.ux + 1, y: state.u.uy, flags: 0 };
-        mutate(state, spot);
-        await assert.rejects(
-            teleds(spot.x, spot.y, spot.flags, state),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && new RegExp(reason.replaceAll(' ', '\\s'), 'u')
-                    .test(error.message),
-            reason,
-        );
-    }
+test('teleds clears swallowing and redraws before relocation', async () => {
+    // teleport.c:488-505 saves was_swallowed, clears it through set_ustuck(),
+    // redraws with docrt(), then continues to u_on_newpos().
+    const state = await mounted();
+    const spot = { x: state.u.ux + 1, y: state.u.uy };
+    state.u.uswallow = 1;
+
+    await teleds(spot.x, spot.y, 0, state);
+
+    assert.equal(state.u.uswallow, 0);
+    assert.deepEqual([state.u.ux, state.u.uy], [spot.x, spot.y]);
 });
 
 test('teleds continues after the absent buried-ball finder no-op', async () => {

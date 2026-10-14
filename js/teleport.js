@@ -153,7 +153,6 @@ import {
     spoteffects,
     switch_terrain,
     check_capacity,
-    UnsupportedHeroMoveBoundaryError,
     u_locomotion,
 } from './hack.js';
 import { exercise, acurr } from './attrib.js';
@@ -1834,12 +1833,16 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
         state.youmonst.m_ap_type = M_AP_NOTHING;
     }
     if (was_swallowed) {
-        // C sets ball_active and redraws the map here when Punished. The
-        // swallowed relocation path still depends on that unported redraw and
-        // downstream effects, so retain its existing boundary as a whole.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'teleds() out of an engulfer',
-        );
+        // C teleds():498-503 restores punishment-ball state after set_ustuck()
+        // clears swallowing, then redraws the ordinary map before relocation.
+        // Punished(state) is Boolean(state.uball) in steed.js; keep this test
+        // local to avoid a teleport.js <-> steed.js import cycle.
+        if (state.uball) {
+            ball_active = true;
+            ball_still_in_range = allow_drag = false;
+        }
+        if (state === game) await docrt();
+        else note_unported('display.c docrt');
     }
 
     if (ball_active && (ball_still_in_range || allow_drag)) {
