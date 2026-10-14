@@ -11,7 +11,7 @@
   "remainingScreens": 108,
   "recordedSteps": 785,
   "status": "complete",
-  "commit": "00c16d417d749309c6bae191d1a31651fe9388d1",
+  "commit": "a8c6af209ac0e5363993d5f4822e10666766e280",
   "mismatch": {
     "kind": "rng",
     "corpus": "synthetic",
@@ -38,7 +38,7 @@
       "cursors": "782/785"
     }
   },
-  "summary": "The current accepted replay reaches the successful Invocation arm of spell.c:deadbook at step 677. The source mismatch is both the wrong random wrapper and the skipped mklev.c:mkinvokearea call. Port the entire mkinvokearea/mkinvpos/mkinvk_check_wall family and await it from deadbook in source order; this creates the stairwell and updates the Invocation event before deadbook continues.",
+  "summary": "The current accepted replay reached spell.c:deadbook at step 677. This task replaced its mismatched two rnd(6) calls with d(2,6), ported mklev.c:mkinvokearea/mkinvpos/mkinvk_check_wall, and wired the successful Invocation caller. The committed replay now matches all screens, RNG calls and cursor positions through the end of the admitted v63 segment.",
   "source": {
     "file": "mklev.c",
     "functions": [
@@ -52,9 +52,10 @@
       "js/read.js -> js/spell.js:study_book -> js/spell.js:deadbook -> js/mklev.js:mkinvokearea -> mkinvpos / mkinvk_check_wall (caller wiring to complete in this task)."
     ],
     "dependencies": [
-      "dig.c:buried_ball_to_punishment() is already implemented in js/dig.js and must be awaited when clearing TT_BURIEDBALL, including its redraw and engraving effects.",
-      "trap.c:deltrap() and maketrap() already exist in js/trap.js; mkinvpos() uses them to remove traps and create/reveal FIRE_TRAPs.",
-      "zap.c:fracture_rock(), mon.c:mintrap(), mon.c:minliquid(), mon.c:seemimic(), vision.c:does_block()/unblock_point(), display.c:newsym()/flush_screen(), hack.c:nh_delay_output(), tty message-window display, and mklev.c:mkstairs() have existing JavaScript owners; inspect their actual supported paths and keep source order."
+      "dig.c:buried_ball_to_punishment() already exists in js/dig.js; mkinvokearea awaits it only for the TT_BURIEDBALL restraint before reset_utrap(FALSE). Its helper body was unchanged.",
+      "trap.c:maketrap() is source-verified in accepted evidence. Its returned trap pointer is consumed by mkinvpos() to set tseen; the existing JavaScript result is awaited before the same conditional write.",
+      "zap.c:fracture_rock(), trap.c:mintrap(), mon.c:minliquid()/seemimic(), vision.c:does_block()/unblock_point(), display.c:newsym()/flush_screen(), hack.c:nh_delay_output(), the TTY message-window display, and mklev.c:mkstairs() have existing JavaScript owners reused in source order.",
+      "mkinvpos() retains note_unported(\"alloc.c panic\") and note_unported(\"pline.c impossible\") only for invalid map-boundary diagnostics; its default-distance impossible diagnostic remains note_unported(\"pline.c impossible\"). The source caller supplies interior invocation coordinates and distances 0 through 6."
     ]
   },
   "goalKind": "file-port",
@@ -370,5 +371,47 @@
       },
       "remainingScope": "The target now matches through step 676. Step 677 enters spell.c:deadbook(), which this task did not reserve or implement. The target retains a null runner error and improves each saved matched metric."
     }
+  },
+  "implementationReplay": {
+    "base": "00c16d417d749309c6bae191d1a31651fe9388d1",
+    "diagnosisCommit": "818277d6889d0fd2492acedb8423541dd51ba999",
+    "implementationCommit": "a8c6af209ac0e5363993d5f4822e10666766e280",
+    "changedFunctions": [
+      "mklev.c:mkinvokearea",
+      "mklev.c:mkinvpos",
+      "mklev.c:mkinvk_check_wall",
+      "spell.c:deadbook successful Invocation branch"
+    ],
+    "sourceRange": "mklev.c:2410-2497, 2503-2598, 2603-2613",
+    "result": {
+      "batch": "v63",
+      "caseId": "v63-successful-invocation-action9",
+      "segment": 0,
+      "fromStep": 677,
+      "throughStep": 784,
+      "screens": "785/785",
+      "rng": "19957/19957",
+      "cursors": "785/785",
+      "error": null
+    },
+    "focusedChecks": {
+      "node scripts/mkinvokearea.test.mjs": {
+        "exitCode": 0,
+        "summary": "2 tests passed"
+      },
+      "node scripts/spell.test.mjs": {
+        "exitCode": 0,
+        "summary": "20 tests passed"
+      },
+      "npm run lint": {
+        "exitCode": 0
+      },
+      "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json": {
+        "exitCode": 0,
+        "summary": "v63/v63-successful-invocation-action9 segment 0 through step 784 matched"
+      }
+    },
+    "evidencePath": ".cache/task-evidence.json",
+    "entryPointNote": "The v63 recording reaches the successful Invocation path and matches through the end of the segment. Its hero is not TT_BURIEDBALL-restrained, so the conditional buried_ball_to_punishment call is wired but not exercised in this case; existing dig.c recordings cover the helper through other callers."
   }
 }
