@@ -194,8 +194,8 @@ import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
 import { setnotworn, setworn } from './worn.js';
 import {
-    Is_dragon_armor, WrappingAllowed, is_sword, maybe_adjust_light, mksobj,
-    remove_object,
+    Is_dragon_armor, WrappingAllowed, is_flimsy, is_sword, maybe_adjust_light,
+    mksobj, remove_object,
 } from './obj.js';
 import { artifact_light, retouch_equipment } from './artifacts.js';
 import { makeplural } from './fruit.js';

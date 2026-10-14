@@ -67,6 +67,24 @@ import {
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
 const JS_SOURCE = readFileSync('js/polyself.js', 'utf8');
 
+test('break_armor imports and applies the source is_flimsy predicate for horns', () => {
+    const cStart = C_SOURCE.indexOf('break_armor(void)');
+    const cEnd = C_SOURCE.indexOf('\nstaticfn void\ndrop_weapon', cStart);
+    const jsStart = JS_SOURCE.indexOf('async function break_armor(state, rawEnv = {})');
+    const jsEnd = JS_SOURCE.indexOf('// ---------- drop_weapon', jsStart);
+    const cFunction = C_SOURCE.slice(cStart, cEnd);
+    const jsFunction = JS_SOURCE.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart, 'C break_armor source range exists');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JS break_armor source range exists');
+    assert.match(cFunction,
+        /if \(has_horns\(uptr\)\)\s*\{\s*if \(\(otmp = uarmh\) != 0\)\s*\{\s*if \(is_flimsy\(otmp\) && !donning\(otmp\)\)/u);
+    assert.match(jsFunction,
+        /if \(has_horns\(uptr\) && \(otmp = state\.uarmh\) != null\)\s*\{\s*if \(is_flimsy\(otmp, state\) && !donning\(otmp, state\)\)/u);
+    assert.match(JS_SOURCE,
+        /import \{[^}]*\bis_flimsy,[^}]*\} from '\.\/obj\.js';/su);
+});
+
 test('dohide petrifies after reporting an all-cockatrice floor pile', () => {
     const cStart = C_SOURCE.indexOf('dohide(void)');
     const cEnd = C_SOURCE.indexOf('\nint\ndopoly', cStart);
