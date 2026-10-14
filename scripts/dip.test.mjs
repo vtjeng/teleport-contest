@@ -40,6 +40,7 @@ import { altarmask_at } from '../js/pray.js';
 import { water_damage } from '../js/trap_water_damage.js';
 import { runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 
 const RC = [
     'OPTIONS=name:DipTest,role:Wizard,race:human,gender:female,align:neutral',
@@ -517,3 +518,13 @@ for (const accepted of [true, false]) {
         assert.match(source, /else if \(at_pool\) \{[\s\S]*?if \(y_n\(qbuf\) == 'y'\)[\s\S]*?water_damage\(obj, 0, TRUE\)/u);
     });
 }
+
+test('dipsink matches the admitted blind and deaf sink backup recording', async () => {
+    const recording = JSON.parse(await readFile(
+        new URL('../challenges/cases/v72/v72-blind-deaf-sink-scout1.session.json', import.meta.url),
+        'utf8',
+    ));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
+});

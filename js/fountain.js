@@ -20,6 +20,7 @@ import {
     ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
+    FACE,
     FROMOUTSIDE,
     FOUNTAIN,
     G_GONE,
