@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-13T18:48:26.225Z",
+  "capturedAt": "2026-10-14T02:46:25.989Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -106405,6 +106405,296 @@
         "type": "resume",
         "at": "2026-10-13T18:40:30.299Z",
         "task": "Prep28"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v58-ceiling-striking-helmet-action1-20261013-faf04418fa0ffae57f6faf8f2959470e6fa6cb1c",
+        "type": "published",
+        "at": "2026-10-13T18:48:40.170Z",
+        "task": "A2-investigation-v58-ceiling-striking-helmet-action1-20261013",
+        "commit": "faf04418fa0ffae57f6faf8f2959470e6fa6cb1c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a76fb960f9ed89ad00bf859a13290a0627c6ba5b",
+        "type": "ready",
+        "at": "2026-10-13T18:52:17.954Z",
+        "task": "Prep28",
+        "delivery": "a76fb960f9ed89ad00bf859a13290a0627c6ba5b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a76fb960f9ed89ad00bf859a13290a0627c6ba5b-20261013",
+        "type": "received",
+        "at": "2026-10-13T18:53:54.808Z",
+        "task": "Prep28",
+        "delivery": "a76fb960f9ed89ad00bf859a13290a0627c6ba5b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-resume-prep29-after-prep28-correction-20261013",
+        "type": "resume",
+        "at": "2026-10-13T18:53:56.101Z",
+        "task": "Prep29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-prep27-v63-group-20261013",
+        "type": "activity",
+        "at": "2026-10-13T18:53:57.431Z",
+        "task": "Prep27",
+        "phase": "review",
+        "reason": "Verify the consecutive v63/v64 preparation group to restore independent source work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-prep28-corrected-v64-group-20261013",
+        "type": "activity",
+        "at": "2026-10-13T18:53:58.888Z",
+        "task": "Prep28",
+        "phase": "review",
+        "reason": "Verify corrected clay control provenance and remaining v64 independence before grouped validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-6cc38a8bd868d59ac190d368a69dbd55aeb0c88aa54f82a0a8f1e52a34a18d46-0d77886b4c27cd162d19dbe498c8c59f5a731307-Prep27",
+        "type": "integrating",
+        "at": "2026-10-13T19:00:28.797Z",
+        "task": "Prep27",
+        "integration": "0d77886b4c27cd162d19dbe498c8c59f5a731307",
+        "prepGroup": [
+          "Prep27",
+          "Prep28"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-6cc38a8bd868d59ac190d368a69dbd55aeb0c88aa54f82a0a8f1e52a34a18d46-0d77886b4c27cd162d19dbe498c8c59f5a731307-Prep28",
+        "type": "integrating",
+        "at": "2026-10-13T19:00:28.797Z",
+        "task": "Prep28",
+        "integration": "0d77886b4c27cd162d19dbe498c8c59f5a731307",
+        "prepGroup": [
+          "Prep27",
+          "Prep28"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-06d4b92bc277627d3ff98983b96d11a9a4d90b8b",
+        "type": "ready",
+        "at": "2026-10-13T19:03:47.415Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "delivery": "06d4b92bc277627d3ff98983b96d11a9a4d90b8b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+        "type": "assign",
+        "at": "2026-10-13T19:07:02.810Z",
+        "task": "B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep29-active-source-20261013-v65",
+        "type": "turn",
+        "at": "2026-10-13T19:13:18.080Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v59-fumbling-magic-alchemy-20261013",
+        "type": "implement",
+        "at": "2026-10-13T19:16:21.324Z",
+        "task": "B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+        "goal": "div-fix-hold-another-object-dropx-v59-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-962c2521305f76d8ee8ae4b95b872f09d41394c8",
+        "type": "ready",
+        "at": "2026-10-13T19:20:42.143Z",
+        "task": "B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+        "delivery": "962c2521305f76d8ee8ae4b95b872f09d41394c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v48-short-version-command-20261013",
+        "type": "assign",
+        "at": "2026-10-13T19:22:39.593Z",
+        "task": "B-investigation-v48-short-version-command-attempt1-20261013",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-version-doversion-v48-20261013",
+        "type": "implement",
+        "at": "2026-10-13T19:25:26.540Z",
+        "task": "B-investigation-v48-short-version-command-attempt1-20261013",
+        "goal": "port-version-doversion-v48-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9c5c6d80e8ea0efe0eaa9f71e90b1075420599bf",
+        "type": "ready",
+        "at": "2026-10-13T19:38:20.455Z",
+        "task": "B-investigation-v48-short-version-command-attempt1-20261013",
+        "delivery": "9c5c6d80e8ea0efe0eaa9f71e90b1075420599bf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-v48-submit-20261013",
+        "type": "turn",
+        "at": "2026-10-13T19:40:54.420Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "v48 short-version task submitted and verified. Waiting for a non-overlapping queue case or delivery acceptance to release a reserved source family."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-28afda36bd2c194c2213d36e8d4f69068a49a857",
+        "type": "ready",
+        "at": "2026-10-13T21:20:14.020Z",
+        "task": "Prep29",
+        "delivery": "28afda36bd2c194c2213d36e8d4f69068a49a857"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep30-v66-20261013",
+        "type": "assign",
+        "at": "2026-10-13T21:27:05.226Z",
+        "task": "Prep30",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v66"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep27-0d77886b4c27cd162d19dbe498c8c59f5a731307",
+        "type": "validated",
+        "at": "2026-10-14T02:28:43.960Z",
+        "task": "Prep27",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep27-0d77886b4c27cd162d19dbe498c8c59f5a731307",
+        "type": "accepted",
+        "at": "2026-10-14T02:28:43.960Z",
+        "task": "Prep27"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep28-0d77886b4c27cd162d19dbe498c8c59f5a731307",
+        "type": "validated",
+        "at": "2026-10-14T02:28:43.960Z",
+        "task": "Prep28",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep28-0d77886b4c27cd162d19dbe498c8c59f5a731307",
+        "type": "accepted",
+        "at": "2026-10-14T02:28:43.960Z",
+        "task": "Prep28"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep30-v66-recovered-20261013-1",
+        "type": "turn",
+        "at": "2026-10-14T02:30:51.005Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep30 v66 recovered with 42 preserved C pairs, 8 byte-identical independent replays, and 5 provisional distinct first failures."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-06d4b92bc277627d3ff98983b96d11a9a4d90b8b-20261013",
+        "type": "received",
+        "at": "2026-10-14T02:34:06.545Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "delivery": "06d4b92bc277627d3ff98983b96d11a9a4d90b8b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-962c2521305f76d8ee8ae4b95b872f09d41394c8-20261013",
+        "type": "received",
+        "at": "2026-10-14T02:34:08.086Z",
+        "task": "B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+        "delivery": "962c2521305f76d8ee8ae4b95b872f09d41394c8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-9c5c6d80e8ea0efe0eaa9f71e90b1075420599bf-20261013",
+        "type": "received",
+        "at": "2026-10-14T02:34:09.880Z",
+        "task": "B-investigation-v48-short-version-command-attempt1-20261013",
+        "delivery": "9c5c6d80e8ea0efe0eaa9f71e90b1075420599bf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-28afda36bd2c194c2213d36e8d4f69068a49a857-20261013",
+        "type": "received",
+        "at": "2026-10-14T02:34:11.415Z",
+        "task": "Prep29",
+        "delivery": "28afda36bd2c194c2213d36e8d4f69068a49a857"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep27-3fc2021644e79e564fb762bc2038139c3241ff42",
+        "type": "activity",
+        "at": "2026-10-14T02:37:09.785Z",
+        "task": "Prep27",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep27-3fc2021644e79e564fb762bc2038139c3241ff42",
+        "type": "activity",
+        "at": "2026-10-14T02:37:10.745Z",
+        "task": "Prep27",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep28-3fc2021644e79e564fb762bc2038139c3241ff42",
+        "type": "activity",
+        "at": "2026-10-14T02:37:11.786Z",
+        "task": "Prep28",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep28-3fc2021644e79e564fb762bc2038139c3241ff42",
+        "type": "activity",
+        "at": "2026-10-14T02:37:13.067Z",
+        "task": "Prep28",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-active-v63-v64-refresh-20261013",
+        "type": "turn",
+        "at": "2026-10-14T02:46:07.023Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Selecting an independent case from the newly admitted v63/v64 batches."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-queue-refresh-20261013",
+        "type": "turn",
+        "at": "2026-10-14T02:46:16.526Z",
+        "worker": "B",
+        "state": "active"
       }
     ]
   },
@@ -106485,18 +106775,6 @@
           "C-investigation-v57-throne-court-summon-action2-20261013",
           "C-investigation-v56-sack-container-help-traditional-action2-20261013"
         ],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep27",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "2e179fceccde68131d733a1874d5dbde7ee96440",
-        "batch": "v63",
-        "since": "2026-10-13T16:15:07.722Z",
-        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -106788,6 +107066,66 @@
         "status": "ready",
         "delivery": "32a017394dbc3559703c3a33af369feabda5d1ca",
         "since": "2026-10-13T18:09:52.244Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "worker": "B",
+        "goal": "port-dbridge-open-drawbridge-v58-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "06d4b92bc277627d3ff98983b96d11a9a4d90b8b",
+        "since": "2026-10-13T19:03:47.415Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+        "worker": "B",
+        "goal": "div-fix-hold-another-object-dropx-v59-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "962c2521305f76d8ee8ae4b95b872f09d41394c8",
+        "since": "2026-10-13T19:20:42.143Z",
+        "blockedBy": [
+          "B-investigation-v57-hallucinatory-whatis-20261013",
+          "B-investigation-v57-traditional-container-menu-request-20261013",
+          "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+          "B-investigation-v57-flying-steed-pool-dismount-20261013",
+          "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+          "B-investigation-v58-castle-passtune-action3-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v48-short-version-command-attempt1-20261013",
+        "worker": "B",
+        "goal": "port-version-doversion-v48-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9c5c6d80e8ea0efe0eaa9f71e90b1075420599bf",
+        "since": "2026-10-13T19:38:20.455Z",
+        "blockedBy": [
+          "B-investigation-v57-hallucinatory-whatis-20261013",
+          "B-investigation-v57-traditional-container-menu-request-20261013",
+          "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+          "B-investigation-v57-flying-steed-pool-dismount-20261013",
+          "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+          "B-investigation-v58-castle-passtune-action3-20261013",
+          "B-investigation-v59-fumbling-magic-alchemy-action2-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep29",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "28afda36bd2c194c2213d36e8d4f69068a49a857",
+        "batch": "v65",
+        "since": "2026-10-13T21:20:14.020Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -107378,24 +107716,12 @@
         "since": "2026-10-13T18:23:01.605Z",
         "blockedBy": [],
         "reason": "Source trace identifies read.c:litroom() as the missing caller for potion.c:impact_arti_light(); read.c:litroom is reserved by A2-investigation-v58-swallowed-light-action2-20261013. Preserve report 63c9e9879 and resume after that delivery is accepted and the refreshed queue confirms this case remains unmatched."
-      },
-      {
-        "task": "Prep29",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "parked",
-        "delivery": null,
-        "batch": "v65",
-        "since": "2026-10-13T18:40:28.816Z",
-        "blockedBy": [],
-        "reason": "Preserve v65 planning at the worker-confirmed safe boundary while correcting earlier v64 first-cause overlap."
       }
     ]
   },
   "development": {
-    "executionCommit": "5634567626a2300fafc2a91ef8a10ca138f5edab",
-    "measuredAt": "2026-10-13T18:32:59.864Z",
+    "executionCommit": "0d77886b4c27cd162d19dbe498c8c59f5a731307",
+    "measuredAt": "2026-10-13T19:06:11.711Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
