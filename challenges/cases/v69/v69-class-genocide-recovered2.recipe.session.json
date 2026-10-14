@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Recreate original v69 ordinary class-genocide multiple report after proof loss. Blessed scroll ant class a actually sets global G_GENOD, then report six species. Debug star eliminating current NPCs is a different mechanism; source report branch must be re-observed.",
+  "segments": [
+    {
+      "seed": 69101805,
+      "datetime": "20910513180510",
+      "nethackrc": "OPTIONS=name:V69ClassGeno,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra a\n                    #genocided\n                    "
+    }
+  ]
+}

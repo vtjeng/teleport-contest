@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Original v69 planned source route apply.c do_break_wand teleportation while actually swallowed. First recording of this route after restoration; previous recipe was written but never recorded. Clear initial NPCs using actual blessed-scroll debugstar, raise Knight survival level15, wish charged teleport wand and inspect observed letter. Actual C swallow must be established before breaking; no inherited missing proof counts. Actual C inventory b charged teleport wand5, Knight82HP. Explicit hostile air elemental then force-rest m. three turns to allow genuine engulfing, inspect source attributes before wand use. C action3 reached controlled teleport prompt, but later inspection commands remained inside getpos and no teleport outcome occurred. Preserve that matching prompt-only recording. Three spaces acknowledge break feedback, blast and teleport introduction; fourth acknowledges first getpos tip; l dot selects adjacent east room floor from actual map, completing source zapyourself teleport before inventory/attributes.",
+  "segments": [
+    {
+      "seed": 69102411,
+      "datetime": "20911119141716",
+      "nethackrc": "OPTIONS=name:V69SwallowBreak,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    #levelchange\n15\n                    \u0017wand of teleportation (0:5)\n                    #wizidentify\n.\n                    i #wizgenesis\nhostile air elemental\n                    m.m.m.                    #attributes\n                    aby      l.                    i                    #attributes\n                    "
+    }
+  ]
+}

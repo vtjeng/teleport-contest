@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Original v69 use_stethoscope M_AP_FURNITURE mission, distinct from exact v59 object-disguise diagnosis. Independent C first setup wishes stethoscope and observes actual inventory/map before terrain preparation. Source makemon set_mimic_sym uses furniture when mimic occupies DOOR; objnam terrain wishes require wall/door, with iron bars allowed surrogate. Cheap valid route: bars then open door at visited floor cells around center, normal explicit mimic creation, actual diagnosis must name furniture. No seed-only rerolls. Actual map hero centered with all eight adjacent ordinary room tiles. Follow cardinal circuit east,south,west,west,north,north,east,east; on each new tile wish iron bars then open door (source bars surrogate satisfies door terrain precondition). Return west,south center. Normal explicit sleeping giant mimic must spawn on furniture terrain; actual disguise then determines stethoscope direction. Initial NPCs remain absent by C debug_mongen; no game-state injection.",
+  "segments": [
+    {
+      "seed": 69102613,
+      "datetime": "20900121184138",
+      "nethackrc": "OPTIONS=name:V69FurnitureScope,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed stethoscope\n                    #wizidentify\n.\n                    i l\u0017iron bars\n                    \u0017open door\n                     j\u0017iron bars\n                    \u0017open door\n                     h\u0017iron bars\n                    \u0017open door\n                     h\u0017iron bars\n                    \u0017open door\n                     k\u0017iron bars\n                    \u0017open door\n                     k\u0017iron bars\n                    \u0017open door\n                     l\u0017iron bars\n                    \u0017open door\n                     l\u0017iron bars\n                    \u0017open door\n                    hj                    #wizgenesis\nsleeping giant mimic\n                    "
+    }
+  ]
+}

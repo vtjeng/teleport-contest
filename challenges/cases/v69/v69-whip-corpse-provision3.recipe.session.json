@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Original v69 apply.c use_whip snatch3 petrifying-corpse caller. Actual Skeleton has AT_WEAP MR_STONE M2_COLLECT (stone golem lacks weapon attack/collection), can carry and wield corpse without gloves. Barehanded Archaeologist needs source proficiency3, supplied by actual blessed gain-ability raises Dexterity to>=16 before target. Independently wish whip and six blessed potions, inspect count/letters and stats before quaffing, then provide actual floor corpse to hostile collector; no injected NPC inventory or seed rerolls. Actual C a bullwhip b6 blessed gainability potions and Dexterity11. Six qb quaffs with explicit More acknowledgements raise all nonmax attributes to source proficiency>=3; inspect actual final Dexterity before wishing/provisioning corpse. Actual Dexterity17 gives proficiency3; barehanded hero has whip a and consumed b potions. Wish cockatrice corpse then identify/inspect its actual letter before drop. Skeleton collector subsequently must actually wield it; mere creation or carried corpse is not target proof.",
+  "segments": [
+    {
+      "seed": 69102916,
+      "datetime": "20900424141711",
+      "nethackrc": "OPTIONS=name:V69WhipCorpse,role:Archeologist,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n15\n                    \u0017uncursed bullwhip\n                    \u00176 blessed potions of gain ability\n                    #wizidentify\n.\n                    i                    #attributes\n                    qb                    qb                    qb                    qb                    qb                    qb                    #attributes\n                    i                    \u0017cockatrice corpse\n                    #wizidentify\n.\n                    i"
+    }
+  ]
+}

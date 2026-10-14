@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Original v69 polyman See_invisible-loss -> display.c set_mimic_blocking mission. Independent source setup transforms naked human Healer to pit fiend (M1_SEE_INVIS), inspects actual form/property before creating invisible furniture mimic. Later source door terrain supports light-blocker appearance and polyman reversion should unblock sight; no #wizdetect because it destroys disguise. Earlier v63 potion and v64/v67 expiration/eaten-ring probes cannot establish this caller/state without actual C proof. Actual pit-fiend map has full eight-neighbor room footprint and see-invisible attribute. Clear initial NPCs with identified blessed scroll before terrain movement. Source bars->open-door circuit puts furniture terrain at each neighbor, then creates sleeping invisible giant mimic; inspect actual appearance before human reversion. No destructive detection command. Actual C T24 pit fiend sees closed-door disguised invisible mimic west of hero on actual open door; source command sleeping invisible sets minvis without revealing. Controlled polyself human enters polyman and loses form See_invisible. Inspect ensuing map and attributes; actual vision state/result decides coverage.",
+  "segments": [
+    {
+      "seed": 69102815,
+      "datetime": "20900323120500",
+      "nethackrc": "OPTIONS=name:V69PolyMimic,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#polyself\npit fiend\n                    #attributes\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    ra *\n                     l\u0017iron bars\n                    \u0017open door\n                     j\u0017iron bars\n                    \u0017open door\n                     h\u0017iron bars\n                    \u0017open door\n                     h\u0017iron bars\n                    \u0017open door\n                     k\u0017iron bars\n                    \u0017open door\n                     k\u0017iron bars\n                    \u0017open door\n                     l\u0017iron bars\n                    \u0017open door\n                     l\u0017iron bars\n                    \u0017open door\n                    hj                    #wizgenesis\nsleeping invisible giant mimic\n                    #polyself\nhuman\n                    #attributes\n                    "
+    }
+  ]
+}

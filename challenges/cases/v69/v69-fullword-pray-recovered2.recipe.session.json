@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Recreate original v69 full-word Pray+Confirm cancellation after all original proof lost. C must reject abbreviated n, accept full no and preserve T1; no confirmed divine prayer/conduct outcome claimed.",
+  "segments": [
+    {
+      "seed": 69101603,
+      "datetime": "20910311144148",
+      "nethackrc": "OPTIONS=name:V69FullWordPray,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup,paranoid_confirmation:pray Confirm\n",
+      "moves": "     #pray\nn\nno\n                    #attributes\n                    "
+    }
+  ]
+}

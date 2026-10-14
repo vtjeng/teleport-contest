@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Recreate original v69 counted quivered-stack split and merge after proof loss. Actual a12 arrows quivered, #adjust four to b, then b merged back to a12 still in quiver. Source canonical ownership and quantities must be confirmed from current C. Closest v35 unquivered adjustment differs.",
+  "segments": [
+    {
+      "seed": 69102108,
+      "datetime": "20910816234143",
+      "nethackrc": "OPTIONS=name:V69QuiverAdjust,role:Ranger,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     \u001712 arrows\n                    #wizidentify\n.\n                    i Qa                    #adjust\n4ab                    i                    #adjust\nba                    i                    "
+    }
+  ]
+}

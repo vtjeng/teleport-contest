@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Original v69 theft of blocked levitation-boots mission refined before first C comparison: source float_up escapes TT_PIT, so actual WEB supplies I_SPECIAL blocked levitation. Naked Knight raises level15 for survival, wishes only levitation boots and source web; #sit triggers VIASITTING web trap, then wears observed boots a. Actual C trapped+blocked state required before creating nymph. No invalid pit blocking claim or injected equipment/trap state.",
+  "segments": [
+    {
+      "seed": 69102714,
+      "datetime": "20900222095349",
+      "nethackrc": "OPTIONS=name:V69BlockedBoots,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n15\n                    \u0017uncursed levitation boots\n                    #wizidentify\n.\n                    \u0017web\n                    #sit\n                    Wa                    #attributes\n                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Original v69 polyman See_invisible-loss -> display.c set_mimic_blocking mission. Independent source setup transforms naked human Healer to pit fiend (M1_SEE_INVIS), inspects actual form/property before creating invisible furniture mimic. Later source door terrain supports light-blocker appearance and polyman reversion should unblock sight; no #wizdetect because it destroys disguise. Earlier v63 potion and v64/v67 expiration/eaten-ring probes cannot establish this caller/state without actual C proof.",
+  "segments": [
+    {
+      "seed": 69102815,
+      "datetime": "20900323120500",
+      "nethackrc": "OPTIONS=name:V69PolyMimic,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#polyself\npit fiend\n                    #attributes\n                    "
+    }
+  ]
+}
