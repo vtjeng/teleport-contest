@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source spell.c:CHAIN_LIGHTNING_SPACE_POS explicitly accepts POOL/MOAT but not WATER. Build actual neighboring pool using legal flight, create aquatic target, then record forced-cast spell menu before choosing actual key and direction. Source pointer read before C; no generic beam/pool claim until cast propagation reaches real pool. Source correction: ordinary #cast invokes docast and pauper knows no spells. Actual debug command #wizcast is cmd.c1949 -> spell.c:dowizcast785; menu force casts from full source spell list. Original no-spell setup preserved. Record real menu before selection. Actual forced-cast menu has2 pages; inspect page2 before choosing actual chain-lightning key. Source-created sleeping giant eel remains on adjacent east pool; only C menu and map guide next action.",
+  "segments": [
+    {
+      "seed": 71102402,
+      "datetime": "20931024101700",
+      "nethackrc": "OPTIONS=name:v71-chain-lightning-pool-scout1,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    #levelchange\n30\n                                        \u0017uncursed amulet of flying\n                    Pa                    l                    \u0017pool\n                    h                    #wizgenesis\nsleeping giant eel\n                    #cast\n#wizcast\n>"
+    }
+  ]
+}

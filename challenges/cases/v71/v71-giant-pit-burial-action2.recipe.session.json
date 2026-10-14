@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C mon.c:xkilled requires actual mtrapped pit and carried BOULDER. makemon.c:m_initweap S_GIANT gives boulder on rn2(2). This first source/C setup wishes ordinary flying boots, makes pit off upstairs, creates hill giant and captures real geometry. No giant trapping/carrying claim until C observations; do not reroll seeds solely for boulder gate. C first wish rejected nonexistent boots of flying; all later keys remained in wish prompt and establish no giant/pit state. Source objects.h859 has actual amulet of flying; replace item and wear with P rather than armor W. This is cheap source correction, not seed reroll.",
+  "segments": [
+    {
+      "seed": 71102301,
+      "datetime": "20931023101100",
+      "nethackrc": "OPTIONS=name:v71-giant-pit-burial-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017uncursed amulet of flying\n                    Pa                    h                    \u0017pit\n                    l                    #wizgenesis\nhill giant\n                    i                    "
+    }
+  ]
+}

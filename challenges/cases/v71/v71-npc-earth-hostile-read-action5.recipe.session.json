@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:find_offensive Earth requires intelligent NPC actual scroll, eye/mcansee, nonRogue and helmet/amorphous/etc or rn2(10). Captain ordinarily may carry helmet; first C-only setup drops Earth scroll before genesis and inspects pickup/geometry before anger action. Hero protective helm preserves ordinary C state; no target claim until NPC reads scroll. Source pickup correction: mon.c:can_carry returns0 for peaceful non-tame NPC, so initial peaceful setup cannot acquire Earth. monmove.c:postmov runs mpickstuff after actual MOVE/DONE, not a standing adjacent attack. Cheap different route: hostile helmet-bearing dwarf king, level20 hero before first NPC time, leave Earth on original hero tile and step west so NPC can move onto it and pick it up. No thrown scroll on an already occupied NPC tile. C possession/read must still be proved. Continuation designed before JS comparison: actual hostile pickup C336 proved; ten bounded wait turns permit the source random Earth eligibility if hard helmet absent; no read claimed until recorded.",
+  "segments": [
+    {
+      "seed": 71102302,
+      "datetime": "20931023101100",
+      "nethackrc": "OPTIONS=name:v71-npc-earth-scroll-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017uncursed dwarvish iron helm\n                    Wa                    \u0017uncursed scroll of earth\n                    db                    #wizgenesis\nhostile dwarf king\n                    #levelchange\n20\n                                        h                    m.                    m.                    m.                    i                    m.                         m.                         m.                         m.                         m.                         m.                         m.                         m.                         m.                         m.                         "
+    }
+  ]
+}

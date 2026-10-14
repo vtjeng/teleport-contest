@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C read.c:create_particular_parse supports quantity20 and sleeping/peaceful modifiers; makemon.c:m_initinv777 gives actual special box on rn2(20)==0, with untimed HOUSECAT corpse and spe1. Twenty newly created quantum mechanics are one independently chosen source setup, not seed retries. Uncursed genocide targets actual quantum mechanics, dropping inventories. First C capture determines whether box exists/location; do not wish a +1 box as substitute. No final escape proof claimed yet.",
+  "segments": [
+    {
+      "seed": 71102304,
+      "datetime": "20931023131100",
+      "nethackrc": "OPTIONS=name:v71-quantum-box-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    #wizgenesis\n20 sleeping peaceful quantum mechanic\n                                                            \u0017uncursed scroll of genocide\n                    ra                    quantum mechanic\n                                                                                                    i                    "
+    }
+  ]
+}

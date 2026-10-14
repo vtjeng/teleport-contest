@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source teleport.c:mlevel_tele_trap LEVEL_TELEP uses random_teleport_level and migrate_to_level, differing from hole/trapdoor paths. Legal amulet of flying avoids hero trap activation while making an off-stairs trap; tame large dog may enter during following. Actual trap creation, geometry and NPC action must be established in C; no pet teleport claim from wish alone. New source state variation: after actual pet is southeast, legally wish cursed leash b, attach using abn; record actual attachment before luring onto level teleporter. teleport.c:teleport_pet returnsFalse for cursed attached leash and nonforced trap, so successful attachment changes reached gate from prior unleased migration.",
+  "segments": [
+    {
+      "seed": 71102306,
+      "datetime": "20931023131100",
+      "nethackrc": "OPTIONS=name:v71-monster-leveltele-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017uncursed amulet of flying\n                    Pa                    l                    \u0017level teleporter\n                    h                    #wizgenesis\ntame large dog\n                    m.                    i                    \u0017cursed leash\n                    abn                    i                    "
+    }
+  ]
+}

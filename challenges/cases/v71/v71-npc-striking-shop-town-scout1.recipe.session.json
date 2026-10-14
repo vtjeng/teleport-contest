@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed setup for muse.c:mbhit wand striking shop-door add_damage branch. Named Minetown level is a source-defined town route with real shop ownership; no constructed shop state or fixture injection. First C-only level/map capture identifies actual layout and shops before an NPC/wand route is chosen. Legal level30 protects caster from bounded NPC actions; no strike/damage claim from arrival alone. If Orcstown or earlier source blocker appears preserve it, not a qualifying shop strike.",
+  "segments": [
+    {
+      "seed": 71102403,
+      "datetime": "20931024121100",
+      "nethackrc": "OPTIONS=name:v71npcstriketown,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    #levelchange\n30\n                                                            \u0016minetown\n                                        #wizmap\n                                        i                    "
+    }
+  ]
+}

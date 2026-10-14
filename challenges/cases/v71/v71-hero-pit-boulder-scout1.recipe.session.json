@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source objnam.c:wizterrainwish makes trap without dotrap. First C-only setup captures actual map and HP after full-healing before choosing ordinary off/on movement into pit. C do.c:flooreffects human trapped boulder landing is candidate; no trap state claimed from wish alone.",
+  "segments": [
+    {
+      "seed": 71102203,
+      "datetime": "20931022150900",
+      "nethackrc": "OPTIONS=name:v71-hero-pit-boulder-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017blessed potion of full healing\n                    qa                    \u0017pit\n                    i                    "
+    }
+  ]
+}

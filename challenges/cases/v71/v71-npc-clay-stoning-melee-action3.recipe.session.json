@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source uhitm.c:hmon_hitmon CORPSE1152 -> trap.c:minstapetrify3858 -> mon.c:mon_to_stone3748. Ordinary thrown petrifier with gloves targets an actual clay golem, not hero active Stoned. First C map captures actual target direction before throw; source route/caller compared with retained v51 wood-golem AD_STON coverage. Source correction after C miss: dothrow.c:thitmonst2256-2302 has no ordinary CORPSE hit arm; ordinary thrown corpse always tmiss unless swallowed guaranteed_hit, so level bonus did not help. Preserve thrown miss. Cheap genuinely different source route: wield actual b corpse with worn gloves, then ordinary forced melee south. hmon_hitmon CORPSE arm reaches minstapetrify -> mon_to_stone. Level20 improves ordinary melee source hit bonus, not thrown corpse.",
+  "segments": [
+    {
+      "seed": 71102305,
+      "datetime": "20931023131100",
+      "nethackrc": "OPTIONS=name:v71-npc-clay-stoning-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017uncursed leather gloves\n                    Wa                    \u0017uncursed cockatrice corpse\n                    #wizgenesis\npeaceful clay golem\n                    i                    #levelchange\n20\n                    wb                    Fj                    i                    "
+    }
+  ]
+}

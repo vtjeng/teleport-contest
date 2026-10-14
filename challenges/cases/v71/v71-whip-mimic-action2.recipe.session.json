@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c3249 -> uhitm.c stumble_onto_mimic. First C-only setup captures actual disguised-mimic location before choosing source direction. No shapechanger-protection object; no attempt claims reachability until C action. Actual disguised object at68,17, west ofhero69,17. Apply inventory a then h. Original #wizwhere is valid dungeon listing, not monster locator; actual map provides coordinate.",
+  "segments": [
+    {
+      "seed": 71102202,
+      "datetime": "20931022120900",
+      "nethackrc": "OPTIONS=name:v71-whip-mimic-scout1,role:Archeologist,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017uncursed bullwhip\n                    wa                    #wizgenesis\nsmall mimic\n                    #wizwhere\n                    i                    aah                    "
+    }
+  ]
+}

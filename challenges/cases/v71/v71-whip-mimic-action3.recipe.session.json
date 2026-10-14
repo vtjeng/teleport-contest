@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c3249 -> uhitm.c stumble_onto_mimic. First C-only setup captures actual disguised-mimic location before choosing source direction. No shapechanger-protection object; no attempt claims reachability until C action. Corrected C map comparison108 vs152: newly appeared ] is at68,16, northwest ofhero69,17. West ( at68,17 existed before creation; first action missed actual target and is preserved. New northwest y direction follows changed C cell, not JavaScript.",
+  "segments": [
+    {
+      "seed": 71102202,
+      "datetime": "20931022120900",
+      "nethackrc": "OPTIONS=name:v71-whip-mimic-scout1,role:Archeologist,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017uncursed bullwhip\n                    wa                    #wizgenesis\nsmall mimic\n                    #wizwhere\n                    i                    aay                    "
+    }
+  ]
+}

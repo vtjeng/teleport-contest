@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:find_offensive Earth requires intelligent NPC actual scroll, eye/mcansee, nonRogue and helmet/amorphous/etc or rn2(10). Captain ordinarily may carry helmet; first C-only setup drops Earth scroll before genesis and inspects pickup/geometry before anger action. Hero protective helm preserves ordinary C state; no target claim until NPC reads scroll. C captain16,12 is northeast ofhero15,13; initial Earth remains underhero so pickup not reached. Cheap ordinary pickup comma then throw inventory b northeast carries scroll to captain square and angers it; bounded waits check NPC pickup/read. No actual possession/read claim until C.",
+  "segments": [
+    {
+      "seed": 71102302,
+      "datetime": "20931023101100",
+      "nethackrc": "OPTIONS=name:v71-npc-earth-scroll-scout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017uncursed dwarvish iron helm\n                    Wa                    \u0017uncursed scroll of earth\n                    db                    #wizgenesis\npeaceful captain\n                    m.                    i                    ,                    tbu                    m.                    m.                    m.                    i                    "
+    }
+  ]
+}
