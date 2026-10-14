@@ -1,0 +1,46 @@
+{
+  "session": "synthetic/v73/v73-blind-peaceful-lurker-action2",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-blind-peaceful-lurker-action2",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "3529cbd1c1460616d747cf6656291e3bdfa2c08096e0409b2fa38b506d819c71",
+  "evaluationPath": "challenges/evaluations/accepted-884d8d9e40bc31e62b87b33c23c4ae3f1a855a12-v73.json",
+  "evaluationCommit": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+  "remainingScreens": 276,
+  "recordedSteps": 276,
+  "status": "complete",
+  "commit": "4982517f05ce0a73aa9348440bd6bbe86e0c266e",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": "hack.c",
+    "cFile": "hack.c",
+    "luaFile": null,
+    "sessions": ["synthetic/v73/v73-blind-peaceful-lurker-action2"],
+    "remainingScreens": 276,
+    "remainingScreensUpperBound": null,
+    "caseId": "v73-blind-peaceful-lurker-action2",
+    "batch": "v73",
+    "recordingPath": "challenges/cases/v73/v73-blind-peaceful-lurker-action2.session.json",
+    "session": "synthetic/v73/v73-blind-peaceful-lurker-action2"
+  },
+  "summary": "At segment 0 step 213, a blind hero moves onto the square of an unknown peaceful ceiling hider. C's domove_attackmon_at() gate skips do_attack() because the monster is mundetected, not sensed, and neither an eel nor a hides-under monster; movement continues and the source emits 'You surprise something!'. The JavaScript preflight calls requireSupportedDestinationMonster() before that source gate and classifies the hidden peaceful monster as an unsupported hostile melee target, throwing before C's no-attack branch.",
+  "source": {
+    "file": "hack.c",
+    "branch": "domove_attackmon_at() enters its attack path only for forcefight, a non-mundetected target, a sensed target, or a non-safe hides-under/eel target. An unknown unsensed ceiling hider satisfies none of these conditions. domove_core() therefore continues through test_move(), commits movement, and reaches spoteffects().",
+    "functions": ["domove_attackmon_at", "domove_core"],
+    "callers": [
+      "hack.c:domove_core calls domove_attackmon_at(mtmp, x, y, &displaceu) before test_move and movement/spoteffects",
+      "cmd.c:domove dispatches the hero movement command into hack.c:domove_core"
+    ],
+    "dependencies": ["display.h:is_safemon", "mon.c:sensemon", "mondata.h:hides_under"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v73 evaluation for case v73-blind-peaceful-lurker-action2 reports the first C/JavaScript boundary at segment 0 step 213, key h: C shows 'You surprise something!' and continues to 276 screens, while JavaScript stops at 213 screens after 2929 of 2996 RNG calls.",
+    "The corresponding source target is hack.c:domove_attackmon_at() at lines 1955-1992. Its predicate is forcefight || !mundetected || sensemon || ((hides_under || eel) && !is_safemon). The target in this recording is an unknown unsensed ceiling hider, so the predicate is false and C does not call do_attack().",
+    "js/hack.js:preflightDomoveDestination() and domove_core() both call requireSupportedDestinationMonster() before domove_attackmon_at(). That seam calls requireOrdinaryHostileMelee() for a hidden target when is_safemon() is false; the guard throws 'attacking a hidden monster (ceiling hider or other)' even though the C gate skips the attack and permits normal movement. The source fix must preserve the C gate and allow the caller to continue without inventing an attack or RNG draw."
+  ]
+}
