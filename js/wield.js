@@ -790,13 +790,11 @@ async function shk_your_prefix(obj, state) {
 // for an object, handles conflicts with worn/quivered/swapped slots, and
 // calls ready_weapon() to put it in the hand.
 //
-// Several branches stop. Choosing the quivered weapon when the quiver holds a
-// stack invokes ynq() and setuqwep(), both of which reach unported subsystems.
-// Choosing a worn item refuses with "You cannot wield that!" only when the
-// item is armor, an accessory or a saddle, which is the full list of
-// wornmasks the C function tests at 443. The objsplit arms that handle a
-// counted selection (the hero typed a digit at the getobj prompt) stop because
-// getobj() itself stops at the count path.
+// The quivered-weapon branch handles the split-one and whole-stack choices.
+// Choosing a counted partial stack still stops because getobj() itself stops
+// at that count path. Choosing a worn item refuses with "You cannot wield
+// that!" only when the item is armor, an accessory or a saddle, which is the
+// full list of wornmasks the C function tests at 443.
 export async function dowield(state = game) {
     /* May we attempt this? */
     state.multi = 0;
@@ -847,9 +845,46 @@ export async function dowield(state = game) {
     } else if (wep === state.uswapwep) {
         return doswapweapon(state);
     } else if (wep === state.uquiver) {
-        // The quiver path offers to split stacked quivered ammo through
-        // ynq(), which is not ported in this form. Stop here.
-        throw new UnsupportedWieldError('wielding the quivered weapon');
+        const quiver = state.uquiver;
+        if (quiver.quan > 1
+            && inv_cnt(false, state) < 52
+            && quiver_splittable(quiver, state)) {
+            let qbuf = `You have ${quiver.quan} `
+                + `${simpleonames(quiver, state)} readied.  Wield one?`;
+            const answer = await quiver_ynq(qbuf, state);
+            if (answer === 'q') return ECMD_OK;
+            if (answer === 'y') {
+                wep = splitobj(quiver, 1, { state });
+                finish_splitting(wep, state);
+            } else {
+                qbuf = 'Wield all of them instead?';
+                if (await quiver_ynq(qbuf, state) !== 'y') {
+                    const prefix = await shk_your_prefix(quiver, state);
+                    await ttyPline(
+                        `${prefix}${simpleonames(quiver, state)} `
+                        + `${otense(quiver, 'remain', state)} readied.`,
+                        state,
+                    );
+                    return ECMD_OK;
+                }
+                setuqwep(null, setwornEnv(state));
+            }
+        } else {
+            const usePlural = is_plural(quiver, state)
+                || pair_of(quiver, state);
+            const qbuf = `You have ${!usePlural ? 'that' : 'those'} `
+                + `readied.  Wield ${!usePlural ? 'it' : 'them'} instead?`;
+            if (await quiver_ynq(qbuf, state) !== 'y') {
+                const prefix = await shk_your_prefix(quiver, state);
+                await ttyPline(
+                    `${prefix}${simpleonames(quiver, state)} `
+                    + `${otense(quiver, 'remain', state)} readied.`,
+                    state,
+                );
+                return ECMD_OK;
+            }
+            setuqwep(null, setwornEnv(state));
+        }
     } else if (wep.owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
         await ttyPline('You cannot wield that!', state);
         return ECMD_FAIL;

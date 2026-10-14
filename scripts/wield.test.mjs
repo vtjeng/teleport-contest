@@ -1,8 +1,9 @@
-// wield.c doquiver_core() (512-678), including its ordinary item and weapon
+// wield.c doquiver_core() and dowield(), including ordinary item and weapon
 // slot paths. Assertions pin source-visible slot, result, and message effects
 // rather than relying on a recorded session's object serialization.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -23,6 +24,7 @@ import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
     BOW,
+    ARROW,
     DAGGER,
     SCR_ENCHANT_WEAPON,
     SCROLL_CLASS,
@@ -30,8 +32,13 @@ import {
 } from '../js/objects.js';
 import { monst_globals_init, PM_SAMURAI } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
-import { chwepon, doquiver_core, wield_tool } from '../js/wield.js';
+import { initRng } from '../js/rng.js';
+import { chwepon, doquiver_core, dowield, wield_tool } from '../js/wield.js';
 import { scanSession } from './scan-sessions.mjs';
+
+const WIELD_C = readFileSync(
+    new URL('../nethack-c/upstream/src/wield.c', import.meta.url), 'utf8',
+);
 
 function makeState() {
     const state = {
@@ -188,6 +195,30 @@ test('doquiver_core unwields a confirmed primary weapon for ECMD_TIME',
         assert.equal(dagger.owornmask & W_WEP, 0);
         assert.equal(dagger.owornmask & W_QUIVER, W_QUIVER);
         assert.match(pending(state), /bare handed/u);
+    });
+
+test('dowield splits one arrow from the quiver and keeps the rest readied',
+    async () => {
+        assert.match(WIELD_C,
+            /if \(uquiver->quan > 1L[\s\S]*?Sprintf\(qbuf, "You have %ld %s readied\.  Wield one\?"[\s\S]*?case 'q':[\s\S]*?case 'y':[\s\S]*?wep = splitobj\(uquiver, 1L\);[\s\S]*?finish_splitting\(wep\);/u);
+
+        const state = makeState();
+        const quiver = item(state, ARROW, {
+            quan: 5,
+            owornmask: W_QUIVER,
+        });
+        queueItem(state, quiver);
+        state.uquiver = quiver;
+        answerWith(state, 'y');
+        initRng(74022021);
+
+        assert.equal(await dowield(state), ECMD_TIME);
+        assert.strictEqual(state.uquiver, quiver);
+        assert.equal(quiver.quan, 4);
+        assert.equal(quiver.owornmask & W_QUIVER, W_QUIVER);
+        assert.equal(state.uwep.quan, 1);
+        assert.notStrictEqual(state.uwep, quiver);
+        assert.equal(state.uwep.owornmask & W_WEP, W_WEP);
     });
 
 test('seed0101 quiver witness completes after quivering and throwing', async () => {
