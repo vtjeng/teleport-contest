@@ -8,8 +8,8 @@
   "manifestPath": "challenges/manifests/v71.json",
   "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
   "recordingSha256": "e01f1f19f2cfa402a9f593c9f9824b65fe7e599e759203fd49a6b7f0a4052c2d",
-  "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v71.json",
-  "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+  "evaluationPath": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+  "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
   "status": "complete",
   "commit": "d2ebcc7c2e231fe02b1508edf39b71c362bf2ac8",
   "mismatch": {
