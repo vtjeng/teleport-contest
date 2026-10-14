@@ -1,0 +1,41 @@
+{
+  "session": "synthetic/v70/v70-swallowed-poly-action3",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-swallowed-poly-action3",
+  "remainingScreens": 339,
+  "recordedSteps": 339,
+  "status": "complete",
+  "summary": "The admitted v70 swallowed-monster polymorph replay stops in the existing JavaScript port of mon.c:newcham() because mon.js reads S_LIGHT without importing it. C uses the symbol-class check to decide whether the monster remains non-solid and expels the swallowed hero after the controlled form change.",
+  "commit": "53d933b0f48a9e4d51b42562e27949651633428f",
+  "mismatch": {
+    "session": "synthetic/v70/v70-swallowed-poly-action3",
+    "remainingScreens": 339,
+    "kind": "stop",
+    "message": "Replay error: S_LIGHT is not defined",
+    "step": null
+  },
+  "source": {
+    "file": "mon.c",
+    "branch": "mon.c:newcham() changes the polymorphed monster's data and then handles a hero swallowed by that monster. C checks whether the target is amorphous or has mlet S_LIGHT before choosing the solid-form break-out message and reducing the monster to 1 hit point; it then calls expels(). js/mon.js mirrors the condition in apply_newcham_steps() but does not import S_LIGHT from monsters.js, so this branch throws before the source transition completes.",
+    "functions": [
+      "newcham"
+    ],
+    "callers": [
+      "zap.c:bhitm() reaches newcham() from its resisted-polymorph attack branch; js/zap.js:bhitm() calls newcham() from the corresponding branch. The admitted recording enables monster polymorph control, swallows the hero, and chooses the target form through the wizard prompt."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingSha256": "19f34e806d302ac3e66b0af3453efd8dcbc0b5d67d5d57bc8d7819f53c532378",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "evidence": [
+    "The accepted v70 evaluation records 0/339 screens, 0/6438 RNG calls, and 0/339 cursors, with error S_LIGHT is not defined for this case. The manifest identifies the target behavior as mon.c:newcham().",
+    "A targeted scan of the admitted recording on 53d933b0f48a9e4d51b42562e27949651633428f stops with ReferenceError: S_LIGHT is not defined at js/mon.js:2936 in apply_newcham_steps(), called by apply_newcham(), newcham(), and zap.js:bhitm(). The retained log is /tmp/teleport-validation-1000/run-qLttsA/stdout.log.",
+    "Upstream mon.c:newcham() at lines 5278-5534 checks !(amorphous(mdat) || mdat->mlet == S_LIGHT) while u.ustuck == mtmp and u.uswallow is true. For a solid target it issues the break-out message, sets mtmp->mhp to 1, and then expels the hero; non-solid targets skip that arm.",
+    "js/mon.js:apply_newcham_steps() reproduces the source condition as target.mlet === S_LIGHT, but the module's monsters.js import list omits S_LIGHT even though monsters.js exports it. This is a missing binding in the existing source path, not a missing polymorph branch or a case-specific condition."
+  ]
+}
