@@ -1,0 +1,42 @@
+{
+  "session": "synthetic/v70/v70-whip-five-dose-action2",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-whip-five-dose-action2",
+  "remainingScreens": 484,
+  "recordedSteps": 484,
+  "status": "complete",
+  "summary": "The admitted v70 bullwhip replay stops before its first screen because the module-level JavaScript whipattack() helper reads the u binding declared only inside use_whip(). C apply.c keeps the whipattack label inside use_whip(), where its u.ux/u.uy references use the game-global hero state. The source-owned fix is to read the hero state from the helper argument.",
+  "commit": "2b7b9f55258da7c0e63e7f1abea40f5079e6d4d9",
+  "mismatch": {
+    "session": "synthetic/v70/v70-whip-five-dose-action2",
+    "remainingScreens": 484,
+    "kind": "stop",
+    "message": "Replay error: u is not defined",
+    "step": null
+  },
+  "source": {
+    "file": "apply.c",
+    "branch": "When use_whip() reaches the monster-weapon disarm branch and the proficiency roll selects case 2, it places the weapon at the hero square. The JavaScript whipattack helper is outside use_whip lexical scope and must read that square through state.u.",
+    "functions": [
+      "use_whip"
+    ],
+    "callers": [
+      "apply.c:doapply() dispatches the BULLWHIP arm to use_whip(); js/apply.js doapply() calls use_whip() at line 5015."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingSha256": "1557dab6f7b88fe0be4074ebaa73f528c3983aa30ec3b73301bb44d8e296a1f9",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "evidence": [
+    "The current saved queue identifies the canonical v70 recording and manifest, with 484 recorded steps, 0 matched screens/RNG/cursors, and first mismatch kind stop: Replay error: u is not defined.",
+    "A fresh admitted scan on commit 2b7b9f55258da7c0e63e7f1abea40f5079e6d4d9 reproduces ReferenceError: u is not defined at whipattack (js/apply.js:963:87), called by use_whip (js/apply.js:912:16), then doapply command dispatch (js/cmd.js:3041:16, rhack at 5986:25). The retained diagnostic log is /tmp/teleport-validation-1000/run-JU99JH/stdout.log.",
+    "js/apply.js use_whip() declares const u = state.u at line 789, but whipattack() is a separate module-level function at lines 923-1028. Its case-2 floor-placement branch references u.ux/u.uy at lines 963, 964 and 983, which cannot resolve that binding.",
+    "C apply.c use_whip() spans lines 2954-3271. Its whipattack label is inside that same function at lines 3128-3271, so case 2 can access global u. The source path is use_whip(obj) selected from apply.c:doapply() BULLWHIP arm at line 4266.",
+    "This is a JavaScript lexical-scope defect in the already wired source path; it does not depend on the session seed or the five-dose input sequence."
+  ]
+}
