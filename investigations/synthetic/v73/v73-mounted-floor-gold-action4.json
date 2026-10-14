@@ -1,0 +1,82 @@
+{
+  "session": "synthetic/v73/v73-mounted-floor-gold-action4",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-mounted-floor-gold-action4",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "5ee34a8e464abdadd63c42990fb6f81587bd130d5789e0feceb189614328636e",
+  "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+  "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+  "remainingScreens": 457,
+  "recordedSteps": 457,
+  "status": "complete",
+  "commit": "b38d20168355afdbf3a906b6cf516eabf392c92e",
+  "mismatch": {
+    "session": "synthetic/v73/v73-mounted-floor-gold-action4",
+    "remainingScreens": 457,
+    "step": null,
+    "kind": "stop",
+    "firstMismatch": {
+      "message": "y_monnam is not defined",
+      "error": "y_monnam is not defined"
+    }
+  },
+  "summary": "During the mounted floor-gold theft branch, the JS replay stops when steal.js:stealgold calls y_monnam for the hero’s steed, because the module uses y_monnam without importing it. C steal.c:stealgold makes the same naming call after transferring floor gold to the leprechaun. The saved C/JS prefix matches through 384 prior steps; the thrown ReferenceError at step 385 prevents all later output.",
+  "source": {
+    "file": "steal.c",
+    "functions": [
+      "stealgold"
+    ],
+    "branch": "A leprechaun attacks a mounted hero while a gold pile lies under the steed and the hero carries no gold or carries a smaller pile. C transfers the floor stack and names the steed in its message; JS reaches the same branch but its y_monnam binding is missing.",
+    "callers": [
+      "uhitm.c:mhitm_ad_sgld() calls steal.c:stealgold() when a monster attacks the hero with AD_SGLD and is not cancelled.",
+      "js/uhitm.js:mhitm_ad_sgld() calls js/steal.js:stealgold() in the corresponding monster-to-hero attack branch."
+    ],
+    "dependencies": [
+      "steal.c:stealgold() calls do_name.c:y_monnam() for a mounted hero; js/steal.js already imports related naming functions from js/do_name.js but omits y_monnam."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C source steal.c:58-116 transfers floor gold first, then uses y_monnam(u.usteed) to build the possessive in the mounted message; no RNG or separate naming branch precedes that call.",
+    "JavaScript js/steal.js:1242-1271 follows the same floorGold branch and calls y_monnam(who,state,env), while its do_name.js import list includes Adjmonnam, Monnam and Some_Monnam but omits y_monnam.",
+    "The admitted v73 case is designed with a mounted hero, no carried gold, a floor gold pile and an adjacent leprechaun. The retained C/JS comparison matches 385 screens and 2319 RNG calls before the step-385 ReferenceError; the case queue records the resulting stop error and zero complete session outputs."
+  ],
+  "baselineMetrics": {
+    "screens": {
+      "matched": 0,
+      "total": 457
+    },
+    "rng": {
+      "matched": 0,
+      "total": 2432
+    },
+    "cursors": {
+      "matched": 0,
+      "total": 457
+    }
+  },
+  "partialPrefix": {
+    "source": "Main .cache/prep37-recovery/prep73/mission-plan.json saved error-prefix proof",
+    "capturedScreens": 385,
+    "errorDuringStep": 385,
+    "metrics": {
+      "rng": {
+        "c": 2319,
+        "js": 2319
+      },
+      "screens": {
+        "c": 385,
+        "js": 385
+      },
+      "cursors": {
+        "c": 385,
+        "js": 385
+      }
+    },
+    "error": "ReferenceError: y_monnam is not defined",
+    "cSource": "steal.c:58-116",
+    "jsSource": "js/steal.js:1242-1271"
+  }
+}
