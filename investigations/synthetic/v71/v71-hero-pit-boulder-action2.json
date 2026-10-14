@@ -15,7 +15,7 @@
   "remainingScreens": 306,
   "status": "complete",
   "commit": "6212b32a84b5162bfe077fe802fd09564ccfcb53",
-  "summary": "The admitted baseline stops in do.c:flooreffects because js/do.js omits its NO_KILLER_PREFIX import. The import is fixed; the committed replay now reaches the trapped-hero boulder branch and matches through step 264, then stops at step 265 on the separate unported trap.c:selftouch path.",
+  "summary": "The baseline stopped at do.c:flooreffects because js/do.js omitted NO_KILLER_PREFIX. Fixing that import exposed the source-equivalent trap.c:selftouch call and two flooreffects details: vtense(NULL, verb) conjugation and the trapped-hero goto that skips the later generic fill message. Those paths are now wired from C; the final committed replay matches all 306 screens, RNG calls, cursors and input boundaries.",
   "mismatch": {
     "session": "synthetic/v71/v71-hero-pit-boulder-action2",
     "remainingScreens": 306,
@@ -27,22 +27,29 @@
   "source": {
     "file": "do.c",
     "functions": [
-      "flooreffects"
+      "flooreffects",
+      "trapeffect_pit"
     ],
-    "branch": "When a boulder lands on a pit or hole containing the trapped hero, and the hero neither passes walls nor throws rocks, do.c:flooreffects calls losehp(Maybe_Half_Phys(rnd(15)), \"squished under a boulder\", NO_KILLER_PREFIX), then removes the trap and boulder. js/do.js:flooreffects has the matching branch and call but omits NO_KILLER_PREFIX from its const.js imports.",
+    "branch": "The admitted recipe enters an ordinary pit, then drops a boulder onto the trapped hero. do.c:flooreffects uses NO_KILLER_PREFIX for squish damage, prints the trapped-boulder message through vtense(NULL, verb), and jumps to deletedwithboulder to skip the generic pit-fill message. trap.c:trapeffect_pit calls selftouch(\"Falling, you\") after ordinary pit damage and ball handling. JS now preserves each source call and branch order.",
     "callers": [
       "C wizcmds.c:wiz_wish -> zap.c:makewish -> invent.c:hold_another_object -> invent.c:dropx/dropy/dropz -> do.c:flooreffects. JS wizcmds.js:wiz_wish -> zap.js:makewish -> invent.js:hold_another_object/gotoDrop -> invent.js:dropx -> do.js:flooreffects."
     ],
-    "dependencies": []
+    "dependencies": [],
+    "additionalSource": {
+      "file": "trap.c",
+      "function": "trapeffect_pit",
+      "lines": "1824-2010",
+      "implementation": "js/trap_effects.js",
+      "call": "dotrap -> trapeffect_selector -> trapeffect_pit"
+    }
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The admitted v71 evaluation records zero of 306 screens and the stop ReferenceError: NO_KILLER_PREFIX is not defined.",
-    "A focused scan of the admitted recording reproduces the error at js/do.js:1065; the call stack is flooreffects -> dropzAdmitted -> dropx -> gotoDrop -> hold_another_object -> makewish -> wiz_wish.",
-    "Upstream do.c:flooreffects (161-357) passes NO_KILLER_PREFIX to losehp in the trapped-hero boulder branch. js/const.js exports the same constant; js/do.js references it without importing it.",
-    "The recorded recipe places the Healer in a pit and wishes for a boulder. The boulder lands on the trapped hero and reaches the source branch during hold_another_object drop handling.",
-    "After commit ad0214789823c7d6b2dbe5a6c1260b9589c60712, focused scan run-Ba8OY8 emitted 306 screens and first diverged at zero-based step 265; screens and input matched through step 264. The remaining unported function is trap.c:selftouch, outside this do.c:flooreffects correction.",
-    "scripts/flooreffects.test.mjs passes 15 tests, including a direct trapped-hero boulder test that verifies rnd(15), one point of damage, pit removal, and boulder consumption.",
-    "npm run lint passes after the source import and regression test changes."
+    "The admitted v71 evaluation records zero of 306 screens and stops at ReferenceError: NO_KILLER_PREFIX is not defined in do.c:flooreffects.",
+    "Upstream do.c:flooreffects (161-357) passes NO_KILLER_PREFIX to trapped-hero squish damage, uses vtense(NULL, verb) for the initial boulder message, and jumps to deletedwithboulder before its generic fill message. The JS implementation now imports the constant, conjugates the verb and preserves the jump.",
+    "Upstream trap.c:trapeffect_pit (1824-2010) invokes selftouch(\"Falling, you\") after ordinary pit damage and ball handling. The JS caller now awaits the already-ported helper at the same point.",
+    "The focused flooreffects test verifies rnd(15), one point of trapped-hero damage, the exact conjugated message, and absence of the skipped generic fill message. The pit selftouch test drives the ordinary pit handler with a wielded cockatrice corpse to the stoning-planning boundary.",
+    "After commit b24fa57c93891b5db4c66ed7ccd66ac13f2d1afb, focused scan run-o9KE3k emitted all 306 screens with no screen, RNG, cursor, input-boundary or unported mismatch.",
+    "The final focused test run passed 16 tests in scripts/flooreffects.test.mjs and scripts/trap-pit-selftouch.test.mjs. npm run lint passed after the final source changes."
   ]
 }
