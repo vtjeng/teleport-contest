@@ -1,0 +1,67 @@
+{
+  "session": "synthetic/v72/v72-engulfed-aklys-action2",
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-engulfed-aklys-action2",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingPath": "challenges/cases/v72/v72-engulfed-aklys-action2.session.json",
+  "recordingSha256": "65cfe6533279fda84c8ee6333f8583e9941260897753b7e9deb4877f9fcd201a",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "evaluationBlob": "d1f964a8b233d32e31f884598a51115662e4ae20",
+  "remainingScreens": 550,
+  "recordedSteps": 550,
+  "status": "complete",
+  "commit": "6c2f9777bb64af38d28df9559bf7dfac5f84840f",
+  "mismatch": {
+    "session": "synthetic/v72/v72-engulfed-aklys-action2",
+    "remainingScreens": 550,
+    "segment": 0,
+    "step": 525,
+    "key": "l",
+    "kind": "ReferenceError",
+    "error": "DISP_TETHER is not defined",
+    "source": "dothrow.c:throwit1577"
+  },
+  "diagnosis": "At C step 525 the swallowed hero throws the tethered aklys at the purple worm. dothrow.c:throwit1577 animates the tether with tmp_at(DISP_TETHER, ...). js/dothrow.js has the matching awaited tmp_at call but does not import DISP_TETHER from const.js, so the branch throws ReferenceError before the worm hit, return, or digestion sequence.",
+  "source": {
+    "file": "dothrow.c",
+    "function": "throwit",
+    "lines": "1507-1849; swallowed/tethered branch 1564-1578",
+    "javascript": "js/dothrow.js:throwit",
+    "branch": "In the swallowed branch, a wielded tethered weapon displays DISP_TETHER before the swallowed monster hit is processed.",
+    "callers": [
+      "dothrow.c:dothrow -> dothrow.c:throw_obj -> dothrow.c:throwit"
+    ],
+    "dependencies": [
+      "display.c:tmp_at handles DISP_TETHER display state",
+      "const.js exports DISP_TETHER"
+    ],
+    "cBehavior": "When the hero is swallowed and the thrown wielded weapon is tethered, C calls tmp_at(DISP_TETHER, obj_to_glyph(...)) before the weapon hits the swallower.",
+    "jsBeforeFix": "js/dothrow.js called tmp_at(DISP_TETHER, ...) but omitted DISP_TETHER from its const.js imports."
+  },
+  "fix": "Import the existing DISP_TETHER constant into js/dothrow.js; retain the existing awaited display call and source order.",
+  "evidence": [
+    "The v72 admitted source trace identifies dothrow.c:throwit1577. At segment 0 step 525 the tethered club hits the purple worm; the previous swallow setup and the later return/digest boundaries are preserved in the admitted recording.",
+    "Upstream dothrow.c:throwit calls tmp_at(DISP_TETHER, obj_to_glyph(...)) inside the swallowed and tethered-weapon branch. js/const.js exports DISP_TETHER as -3.",
+    "The accepted JavaScript evaluation stops at step 525 with ReferenceError DISP_TETHER is not defined; the saved error-prefix proof matches all 525 preceding screens and 3009 RNG calls."
+  ],
+  "goalKind": "divergence-fix",
+  "summary": "The admitted swallowed-hero throw reaches dothrow.c:throwit’s tether animation, but JavaScript omits the existing DISP_TETHER constant from its imports. The fix is a source-aligned import; the tmp_at call is already present and awaited.",
+  "baselineEvaluation": {
+    "screens": {
+      "matched": 0,
+      "total": 550
+    },
+    "rng": {
+      "matched": 0,
+      "total": 3021
+    },
+    "cursors": {
+      "matched": 0,
+      "total": 550
+    },
+    "reason": "The accepted JavaScript comparison stopped at segment 0 step 525 with ReferenceError DISP_TETHER is not defined; its error-prefix proof matches the preceding 525 screens and 3009 RNG calls."
+  }
+}
