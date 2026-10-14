@@ -1,0 +1,51 @@
+{
+  "session": "synthetic/v66/v66-alphabetical-discoveries-action2",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-alphabetical-discoveries-action2",
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingSha256": "b946d0842fe18f7d30d0a6b1138a7e3b5b7cad4e505e2649e98d3ace9ebd0bfc",
+  "evaluationPath": "challenges/evaluations/accepted-f0581a7656691256c99c2e6deeebfdc57ff7e06c-v66.json",
+  "evaluationCommit": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+  "remainingScreens": 21,
+  "recordedSteps": 62,
+  "status": "complete",
+  "commit": "d2b5c11da561abea2f2f24d7034ff513b18914f0",
+  "mismatch": {
+    "session": "synthetic/v66/v66-alphabetical-discoveries-action2",
+    "kind": "stop",
+    "sourceFile": "o_init.c",
+    "function": "disco_output_sorted",
+    "step": 41,
+    "remainingScreens": 21,
+    "message": "unsupported hero command: an unported branch of this command: discovery display requires disco_output_sorted()"
+  },
+  "summary": "The v66 case explicitly selects alphabetical discovery order and reaches the live \\ known command. C o_init.c:dodiscovered() gathers every discovered type, omits class headings for the global alphabetical mode, and calls disco_output_sorted() to sort the accumulated rows before displaying the text window. JavaScript dodiscovered() throws UnsupportedDiscoveryDisplayError for every order except default 'o', so the production command stops at step 41 before rendering the C window. The existing comparator, sortloot key formatter, class discovery implementation, and production command dispatch provide the helpers needed to implement the whole sorted branch without changing unrelated discovery paths.",
+  "source": {
+    "file": "o_init.c",
+    "functions": ["dodiscovered", "disco_output_sorted"],
+    "branch": "The hero has discovered at least one object type and flags.discosort selects 's', 'c', or 'a'; dodiscovered() buffers one class at a time for sortloot/class alphabetization or all classes for global alphabetization, then disco_output_sorted() orders and emits each buffer.",
+    "callers": [
+      "cmd.c:cmdlist known row -> dodiscovered() for the ordinary '\\' command",
+      "cmd.c:ext_func_tab known command -> dodiscovered()",
+      "o_init.c:dodiscovered() -> disco_output_sorted() after each class in 's'/'c' order and once for global 'a' order"
+    ],
+    "dependencies": [
+      "o_init.c:discovered_cmp() (existing JavaScript comparator used by class discovery)",
+      "o_init.c:sortloot_descr() (existing JavaScript formatter backed by invent.c:loot_classify())",
+      "o_init.c:disco_append_typename() and disco_typename() (existing JavaScript formatters)",
+      "artifacts.c:disp_artifact_discoveries() (existing JavaScript implementation)",
+      "cmd.c:runKnownCommand() (existing production dispatcher and text-window owner)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/cases/v66/v66-alphabetical-discoveries-action2.session.json selects OPTIONS=sortdiscoveries:a; its step 41 input is '\\\\' after #wizidentify and the recorder has already prepared known object types.",
+    "challenges/evaluations/accepted-f0581a7656691256c99c2e6deeebfdc57ff7e06c-v66.json reports 41/62 screens, 2855/2855 RNG calls, and 41/62 cursors, with the first stop at step 41 in o_init.c:disco_output_sorted.",
+    "nethack-c/upstream/src/o_init.c:741-760 defines disco_output_sorted(): qsorts lines with discovered_cmp(), removes the six-byte sortloot key while restoring the encounter prefix when lootsort is enabled, writes each line, and frees each buffer entry.",
+    "nethack-c/upstream/src/o_init.c:764-862 defines dodiscovered(): validates the sort option, gathers unique items and artifacts, loops through inventory classes, flushes at class boundaries for 's'/'c', accumulates across classes for 'a', emits headings under the C conditions, and displays the text window when count is nonzero.",
+    "nethack-c/upstream/src/cmd.c:1749-1750 binds '\\\\' to the known/dodiscovered command; js/cmd.js:3111-3124 and 5167-5168 route the ordinary key through runKnownCommand() and displayTtyTextWindow().",
+    "js/o_init.js:880-903 currently throws UnsupportedDiscoveryDisplayError for 's', 'c', and 'a'; scripts/o_init-discoveries.test.mjs:111-132 asserts that obsolete refusal, and scripts/startup-sortdiscoveries.test.mjs:48-67 asserts the deferred live-command stop."
+  ]
+}
