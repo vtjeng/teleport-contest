@@ -57,7 +57,7 @@
   "source": {
     "file": "teleport.c",
     "branch": "mlevel_tele_trap():2048-2072 handles LEVEL_TELEP and NO_TRAP after hole and portal cases. For LEVEL_TELEP it refuses amulet carriers/endgame monsters, calls random_teleport_level(), shudders if the destination depth is unchanged, otherwise calls get_level() and later migrates with MIGR_RANDOM. A visible monster disappears out of sight, reveals the trap, and becomes confused without teleport control.",
-    "functions": ["mlevel_tele_trap", "random_teleport_level"],
+    "functions": ["mlevel_tele_trap"],
     "callers": [
       "trap.c:dotrap() dispatches monster trap effects to teleport.c:mlevel_tele_trap(); js/trap_effects.js:trapeffect_selector() uses js/teleport.js:mlevel_tele_trap().",
       "teleport.c:mlevel_tele_trap() calls random_teleport_level(); its JS caller passes the active RNG, including the cloned RNG used during elapsed-turn planning."
@@ -65,6 +65,14 @@
     "dependencies": [
       "teleport.c:random_teleport_level() and the caller-owned rn2/rnd stream",
       "teleport.c:get_level() and dog.c:migrate_to_level() existing destination and migration helpers"
+    ],
+    "requiredFunctions": [
+      {
+        "sourceFile": "teleport.c",
+        "name": "random_teleport_level",
+        "lineRange": "2191-2257",
+        "reason": "mlevel_tele_trap calls this required helper, but it remains outside the primary selected range so unrelated teleport.c functions are not included by range expansion."
+      }
     ]
   },
   "evidence": [
