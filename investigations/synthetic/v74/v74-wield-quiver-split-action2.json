@@ -1,0 +1,82 @@
+{
+  "session": "synthetic/v74/v74-wield-quiver-split-action2",
+  "corpus": "synthetic",
+  "batch": "v74",
+  "caseId": "v74-wield-quiver-split-action2",
+  "manifestPath": "challenges/manifests/v74.json",
+  "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c3e0bafb",
+  "recordingSha256": "1bc7e7b57b01f9d127c1888bac9bc1c033a8e01abd7a040bcbd5afdd076f0036",
+  "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+  "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
+  "remainingScreens": 51,
+  "recordedSteps": 193,
+  "status": "complete",
+  "commit": "60c9002c79375f083437f1ca0bdbfcdd9b8e77d3",
+  "mismatch": {
+    "session": "synthetic/v74/v74-wield-quiver-split-action2",
+    "remainingScreens": 51,
+    "step": 142,
+    "kind": "screen",
+    "sourceFile": "wield.c",
+    "function": "dowield",
+    "firstMismatch": {
+      "screenIndex": 142,
+      "cEntry": "wield.c:dowield prompts whether to wield one from the quivered stack; y splits one arrow and continues to weapon setup",
+      "jsEntry": "js/wield.js:dowield refuses the quivered weapon before processing the source prompt and split"
+    }
+  },
+  "summary": "wield.c:dowield handles the currently quivered stack directly. When the stack can be split and inventory capacity permits, it asks whether to wield one; y splits one object and continues normal wield setup, while q returns. Other answers ask whether to wield the entire stack, clearing uquiver only when accepted. The JS implementation now follows this branch and preserves the remainder in the quiver when one object is wielded. The full admitted replay matches all recorded screens, RNG calls, and cursors.",
+  "source": {
+    "file": "wield.c",
+    "functions": [
+      "dowield"
+    ],
+    "branch": "The selected object is uquiver. For a splittable stack with quan>1 and inventory count below invlet_basic, the function asks “Wield one?”; q returns ECMD_OK, y splits one object, calls finish_splitting, then proceeds through ordinary weapon setup. Other answers ask whether to wield all; refusal reports that the stack remains readied, while acceptance clears uquiver. The fallback whole-object prompt uses source singular/plural wording and likewise preserves the quiver on refusal.",
+    "callers": [
+      "The #wield command reaches wield.c:dowield.",
+      "wield.c:dowield selects the current uquiver object, calls splitobj/finish_splitting for the one-object choice, and continues through wield setup."
+    ],
+    "dependencies": [
+      "obj.c:splitobj",
+      "obj.c:finish_splitting",
+      "worn.c:setuqwep"
+    ]
+  },
+  "baselineMetrics": {
+    "screens": {
+      "matched": 142,
+      "total": 193
+    },
+    "rng": {
+      "matched": 2445,
+      "total": 2450
+    },
+    "cursors": {
+      "matched": 142,
+      "total": 193
+    },
+    "error": null
+  },
+  "verifiedMetrics": {
+    "screens": {
+      "matched": 193,
+      "total": 193
+    },
+    "rng": {
+      "matched": 2450,
+      "total": 2450
+    },
+    "cursors": {
+      "matched": 193,
+      "total": 193
+    },
+    "error": null
+  },
+  "evidence": [
+    "C source wield.c:dowield (354-457) handles the quiver selection before the ordinary worn-item checks. With a stack and capacity, it prompts whether to wield one, returns for q, and on y uses splitobj(uquiver, 1L), finish_splitting, then continues wield setup.",
+    "The published v74 admission evaluation at source base 8f280fd706dcfdad7c302cc39301cb056753af10 records 142/193 screens, 2445/2450 RNG calls, and 142/193 cursors, with null error.",
+    "The admitted v74 case segment 0 reaches the wield command at step 141 and the first mismatch at step 142. It chooses one arrow from the quivered stack. The corrected full replay matches 193/193 screens, 2450/2450 RNG calls, and 193/193 cursors through step 192, with no unported calls.",
+    "A source-pinned focused regression selects one arrow from a five-arrow quiver and verifies that four stay quivered while the split arrow becomes the primary weapon."
+  ],
+  "goalKind": "divergence-fix"
+}
