@@ -117,6 +117,8 @@ function fixture(t, {dependent = true} = {}) {
 test('implementation group CLI rejects missing, duplicate and unrelated flags', () => {
     assert.deepEqual(parseImplementationArgs(['split', '--ledger', 'ledger', '--tasks', 'A1,A2']),
         {phase: 'split', ledger: 'ledger', tasks: 'A1,A2'});
+    assert.deepEqual(parseImplementationArgs(['integrate', '--ledger', 'ledger', '--retain', 'abc,def']),
+        {phase: 'integrate', ledger: 'ledger', retain: 'abc,def'}); // The CLI resolves commit identifiers before changing branches.
     for (const args of [[], ['integrate'], ['split', '--ledger', 'x'], ['accept', '--ledger', 'x', '--tasks', 'A1'],
         ['plan', '--ledger', 'x', '--ledger', 'y']]) assert.throws(() => parseImplementationArgs(args), /Usage/);
 });
@@ -205,6 +207,15 @@ test('unreceived tasks and their dependents remain queued rather than dropping o
 
 test('implementation feedback releases siblings and preserves group metadata on retry', t => {
     const f = fixture(t), group = integrateImplementationGroup(f.options, f.root);
+    const originalPlan = JSON.parse(readFileSync(join(f.root, '.cache/implementation-group.json')));
+    // Main's two ordered tooling changes and original diagnosis are outside worker submissions.
+    f.save('scripts/coordinator-protocol.mjs', 'export const version = 1;\n');
+    f.save('investigations/required.json', {diagnosis: 'original'});
+    f.git('add', '-f', 'scripts/coordinator-protocol.mjs', 'investigations/required.json');
+    f.git('commit', '-qm', 'Coordinator tooling and required diagnosis'); const retainedFirst = f.git('rev-parse', 'HEAD');
+    f.save('scripts/coordinator-protocol.mjs', 'export const version = 2;\n');
+    f.git('add', '-f', 'scripts/coordinator-protocol.mjs');
+    f.git('commit', '-qm', 'Coordinator tooling correction'); const retainedSecond = f.git('rev-parse', 'HEAD');
     const event = verifyEvent(f.root, f.state(), {id: 'correct-A2', type: 'feedback', task: 'A2',
         delivery: f.deliveries[1], reason: 'Correct the target behavior.'});
     f.send(event);
@@ -214,22 +225,40 @@ test('implementation feedback releases siblings and preserves group metadata on 
     assert.throws(() => integrateImplementationGroup(f.options, f.root), /finish.*corrections/);
     // A later correction is a delta on the worker branch, not a replacement for its original patch.
     f.git('switch', '-q', 'worker/a'); f.send({type: 'resume', task: 'A2'});
+    f.git('cherry-pick', retainedFirst, retainedSecond);
+    f.send({type: 'scope', task: 'A2', reservations: ['source:fixture.c:f2'],
+        allowedPaths: ['js/f2.js', 'investigations/required.json']});
     const base = f.git('rev-parse', 'HEAD'), original = f.state().deliveries[f.deliveries[1]];
     const packet = JSON.parse(readFileSync(original.evidence));
     f.save('js/f2.js', 'export function f2() { return 2; }\n'); // A distinct correction makes missing originals visible.
-    f.git('add', 'js/f2.js'); f.git('commit', '-qm', 'Correct f2'); packet.git = deliveryGit(f.root, base, 'HEAD');
+    f.save('investigations/required.json', {diagnosis: 'corrected'}); // A modification requires Main's retained original add.
+    f.git('add', 'js/f2.js', 'investigations/required.json'); f.git('commit', '-qm', 'Correct f2'); packet.git = deliveryGit(f.root, base, 'HEAD');
     const bytes = JSON.stringify(packet), evidence = `.cache/${digest(bytes)}.json`; f.save(evidence, bytes);
     f.send({type: 'ready', task: 'A2', delivery: packet.git.head, base, commits: packet.git.commits,
         paths: packet.git.paths, evidence: join(f.root, evidence), dependencies: [f.deliveries[0]]});
     f.send({type: 'received', task: 'A2', delivery: packet.git.head});
     f.git('switch', '-q', group.branch);
-    const corrected = integrateImplementationGroup(f.options, f.root);
+    const corrected = integrateImplementationGroup({...f.options, retain: `${retainedSecond},${retainedFirst}`}, f.root);
     assert.notEqual(corrected.branch, group.branch);
-    assert.equal(f.git('rev-parse', group.branch), group.commit);
+    assert.equal(f.git('rev-parse', group.branch), retainedSecond, 'failed branch keeps its complete coordinator history');
+    assert.equal(f.git('rev-parse', 'main'), f.base);
+    const plan = JSON.parse(readFileSync(join(f.root, '.cache/implementation-group.json')));
+    assert.equal(plan.base, originalPlan.base); assert.equal(plan.baseline, originalPlan.baseline);
+    assert.deepEqual(plan.retained, [retainedFirst, retainedSecond], 'retained changes are frozen in original history order');
+    assert.match(f.git('show', 'HEAD:scripts/coordinator-protocol.mjs'), /version = 2/);
+    assert.equal(JSON.parse(f.git('show', 'HEAD:investigations/required.json')).diagnosis, 'corrected');
     assert.match(f.git('show', 'HEAD:js/f1.js'), /return 1/);
     assert.match(f.git('show', 'HEAD:js/f2.js'), /return 2/);
     assert.equal(f.state().tasks.A4.status, 'integrating');
-    f.checkpoint(corrected.commit); acceptImplementationGroup(f.options, f.root);
+    assert.equal(integrateImplementationGroup(f.options, f.root).commit, corrected.commit, 'retry automatically reuses the frozen retained list');
+    const split = splitImplementationGroup({...f.options, tasks: 'A1,A2'}, f.root);
+    assert.match(f.git('show', 'HEAD:scripts/coordinator-protocol.mjs'), /version = 2/);
+    assert.equal(JSON.parse(f.git('show', 'HEAD:investigations/required.json')).diagnosis, 'corrected');
+    assert.equal(f.state().tasks.A3.status, 'ready', 'retaining coordinator commits does not restore omitted worker patches');
+    assert.match(f.git('show', 'HEAD:js/f3.js'), /return 0/);
+    assert.equal(f.git('rev-parse', corrected.branch), corrected.commit);
+    assert.equal(JSON.parse(readFileSync(join(f.root, '.cache/implementation-group.json'))).base, f.base);
+    f.checkpoint(split.commit, ['f1', 'f2']); acceptImplementationGroup(f.options, f.root);
     assert.equal(f.state().tasks.A2.status, 'accepted');
 });
 
@@ -242,6 +271,26 @@ test('a reserved candidate plan resumes after interruption before branch creatio
     assert.equal(group.branch, plan.branch);
     assert.equal(f.git('rev-parse', 'main'), f.base);
     assert.equal(group.preflight.every(result => result.passed), true);
+});
+
+test('retained commits reject unrelated history, accepted baseline and worker source without changing the candidate', t => {
+    const f = fixture(t), group = integrateImplementationGroup(f.options, f.root);
+    const plan = readFileSync(join(f.root, '.cache/implementation-group.json'), 'utf8');
+    const ledger = readFileSync(join(f.root, f.options.ledger), 'utf8');
+    // A real tooling commit on an unrelated branch is not an authorized retained prerequisite.
+    f.git('switch', '-qc', 'unrelated-coordinator', f.base);
+    f.save('scripts/unrelated.mjs', 'export const unrelated = true;\n');
+    f.git('add', '-f', 'scripts/unrelated.mjs'); f.git('commit', '-qm', 'Unrelated tooling');
+    const unrelated = f.git('rev-parse', 'HEAD'); f.git('switch', '-q', group.branch);
+    for (const retain of [unrelated, f.base]) assert.throws(() => integrateImplementationGroup({...f.options, retain}, f.root), /current failed candidate/);
+    // Cherry-pick timestamps can change the worker SHA; use the actual candidate source commit.
+    const candidateSource = f.git('rev-list', '--reverse', `${f.base}..${group.commit}`).split('\n')[0];
+    assert.throws(() => integrateImplementationGroup({...f.options, retain: candidateSource}, f.root), /worker fixes belong in submissions/);
+    assert.throws(() => integrateImplementationGroup({...f.options, retain: `${f.deliveries[0]},${f.deliveries[0]}`}, f.root), /unique/);
+    assert.equal(f.git('rev-parse', 'HEAD'), group.commit);
+    assert.equal(f.git('rev-parse', 'main'), f.base);
+    assert.equal(readFileSync(join(f.root, '.cache/implementation-group.json'), 'utf8'), plan);
+    assert.equal(readFileSync(join(f.root, f.options.ledger), 'utf8'), ledger);
 });
 
 test('a fixed-session regression rejects a group even when every synthetic target improves', t => {

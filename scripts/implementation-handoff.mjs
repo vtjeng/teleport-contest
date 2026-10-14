@@ -4,7 +4,7 @@ import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {isDeepStrictEqual} from 'node:util';
-import {git, isAncestor, preflightDelivery, readDelivery, syncMain, verifyEvent, verifyPublicationChanges} from './worker-delivery.mjs';
+import {git, hasSubmittedSnapshot, isAncestor, preflightDelivery, readDelivery, resolveCommit, syncMain, verifyEvent, verifyPublicationChanges} from './worker-delivery.mjs';
 import {recordEvent, summarizeLedger, updateLedger} from './worker-state.mjs';
 import {acceptedDependency, acceptedMain, pendingMainWork} from './worker-backlog.mjs';
 import {digest} from './challenge-results.mjs';
@@ -15,6 +15,7 @@ import {boundedMain} from './run-bounded.mjs';
 
 const USAGE = `Usage: node scripts/implementation-handoff.mjs <plan|integrate|accept|publish|split> --ledger <shared-ledger>
   split: --tasks <comma-separated-task-ids>
+  integrate, split: [--retain <comma-separated-coordinator-commit-ids>]
   publish: [--queue <saved-work-queue>] [--admission <hosted-receipt>]
 
 integrate freezes all dependency-ready, scope-compatible received implementations
@@ -25,11 +26,15 @@ publish fast-forwards local main and publishes one report commit for the group.
 After a failed group, split builds a selected subset from the original base on
 a new candidate branch, preserving the failed branch and every held submission.
 Wait for CI to finish before splitting. Resolve any unfinished cherry-pick first.
+Use --retain for tooling fixes, quality records, friction notes and prerequisite
+diagnoses already committed on the failed candidate. They are frozen in history
+order and reapplied before worker submissions on corrected rebuilds and splits.
+Worker source fixes stay in their task submissions, not the retained list.
 New arrivals wait for the next group. No worker messages or game replay occur.`;
 
 export function parseImplementationArgs(args) {
     const [phase, ...rest] = args, options = {phase};
-    const extra = {plan: [], integrate: [], accept: [], publish: ['queue', 'admission'], split: ['tasks']};
+    const extra = {plan: [], integrate: ['retain'], accept: [], publish: ['queue', 'admission'], split: ['tasks', 'retain']};
     if (!Object.hasOwn(extra, phase)) throw new Error(USAGE);
     for (let i = 0; i < rest.length; i += 2) {
         const key = rest[i]?.slice(2);
@@ -123,6 +128,34 @@ function savePlan(ctx, plan) {
     writeFileSync(path(ctx), bytes);
 }
 
+function selectRetained(ctx, plan, requested) {
+    if (requested === undefined) return plan;
+    const commits = requested.split(',').map(sha => resolveCommit(ctx.root, sha));
+    if (!commits.length || new Set(commits).size !== commits.length) throw new Error('retained commit list must be nonempty and unique');
+    const retained = plan.retained ?? [], head = git(ctx.root, 'rev-parse', 'HEAD');
+    const added = new Set(commits.filter(sha => !retained.includes(sha)));
+    for (const sha of added) {
+        if (!isAncestor(ctx.root, plan.base, sha) || isAncestor(ctx.root, sha, plan.base) || !isAncestor(ctx.root, sha, head)
+            || git(ctx.root, 'show', '-s', '--format=%P', sha).split(' ').length !== 1)
+            throw new Error('retained commits must be single-parent commits from the current failed candidate after its base');
+        const paths = git(ctx.root, 'diff-tree', '--no-commit-id', '--no-renames', '--name-only', '-r', sha).split('\n').filter(Boolean);
+        if (paths.some(path => !(path.startsWith('scripts/') || path === 'QUALITY.json' || path === 'QUALITY-evidence.json'
+            || path === '.agents/friction.md' || /^investigations\/.+\.json$/u.test(path))))
+            throw new Error('retain only coordinator tooling, quality, friction and diagnosis commits; worker fixes belong in submissions');
+    }
+    const ordered = git(ctx.root, 'rev-list', '--reverse', '--topo-order', `${plan.base}..${head}`).split('\n').filter(sha => added.has(sha));
+    return {...plan, retained: [...retained, ...ordered]};
+}
+
+function applyRetained(ctx, plan) {
+    for (const sha of plan.retained ?? []) {
+        const parent = git(ctx.root, 'rev-parse', `${sha}^`);
+        if (git(ctx.root, 'cherry', 'HEAD', sha, parent).startsWith('+')
+            && !hasSubmittedSnapshot(ctx.root, sha, plan.base, 'HEAD'))
+            git(ctx.root, 'cherry-pick', '--allow-empty', sha);
+    }
+}
+
 function createCandidate(ctx, plan) {
     if (git(ctx.root, 'status', '--porcelain')) throw new Error('candidate creation requires a clean worktree');
     const branch = `integration-checkpoint/implementation-${digest(JSON.stringify(plan)).slice(0, 16)}`;
@@ -160,24 +193,28 @@ export function integrateImplementationGroup(options, root = process.cwd()) {
         plan = null;
     }
     if (!plan) {
+        if (options.retain !== undefined) throw new Error('retained commits require a frozen failed group');
         plan = planImplementationGroup(options, ctx.root);
         if (!plan.tasks.length) return {commit: plan.base, tasks: [], held: plan.held};
         plan = createCandidate(ctx, plan);
     }
     resumeCandidate(ctx, plan); checkCandidateBranch(ctx, plan);
+    const selected = selectRetained(ctx, plan, options.retain);
+    const retainedChanged = !isDeepStrictEqual(selected.retained ?? [], plan.retained ?? []);
     const tasks = plan.tasks.map(member => member.task), head = git(ctx.root, 'rev-parse', 'HEAD');
     const submitted = tasks.map(id => latest(ctx.state, ctx.state.tasks[id]));
-    if (submitted.every(delivery => delivery.integration === head && isDeepStrictEqual(delivery.implementationGroup, tasks)
+    if (!retainedChanged && submitted.every(delivery => delivery.integration === head && isDeepStrictEqual(delivery.implementationGroup, tasks)
         && ['integrating', 'validated'].includes(ctx.state.tasks[delivery.task].status))) {
         checkSubmissions(ctx, plan);
         return {commit: head, branch: plan.branch, tasks, checkpointRequired: true};
     }
     if (tasks.some(id => ctx.state.tasks[id]?.status !== 'ready')) throw new Error('finish the frozen group corrections before retrying');
     const corrected = members(ctx.state, tasks.map(id => ctx.state.tasks[id]));
-    if (!isDeepStrictEqual(corrected, plan.tasks)) {
-        plan = createCandidate(ctx, {...plan, tasks: corrected, retryOf: plan.branch});
+    if (retainedChanged || !isDeepStrictEqual(corrected, plan.tasks)) {
+        plan = createCandidate(ctx, {...selected, tasks: corrected, retryOf: plan.branch});
     }
     checkSubmissions(ctx, plan);
+    applyRetained(ctx, plan);
     for (const task of tasks) integrateTaskCommits(ctx.root, ctx.state, task);
     const commit = git(ctx.root, 'rev-parse', 'HEAD');
     ctx = context(options, ctx.root); checkSubmissions(ctx, plan);
@@ -204,6 +241,7 @@ export function splitImplementationGroup(options, root = process.cwd()) {
     if (existsSync(git(ctx.root, 'rev-parse', '--git-path', 'CHERRY_PICK_HEAD')))
         throw new Error('resolve the unfinished cherry-pick before splitting');
     if (ctx.state.coordinator.processes.length) throw new Error('finish the active validation before splitting');
+    plan = selectRetained(ctx, plan, options.retain);
     const requested = options.tasks.split(','), ids = plan.tasks.map(member => member.task);
     if (!requested.length || new Set(requested).size !== requested.length || requested.some(id => !ids.includes(id))
         || requested.length >= ids.length) throw new Error('split requires a nonempty proper subset of the frozen group');
