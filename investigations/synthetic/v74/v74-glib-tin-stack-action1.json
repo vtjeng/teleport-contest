@@ -8,7 +8,7 @@
   "recordingSha256": "59d919b191647da719ff6a61d69daeeb285c19932c532f61216fd164d4887bc9",
   "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
   "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
-  "remainingScreens": 0,
+  "remainingScreens": 75,
   "recordedSteps": 257,
   "status": "complete",
   "commit": "0c63b06172d3d4432beab3f9f9f3be421066dc15",
@@ -81,5 +81,6 @@
     "The admission evaluation at the assigned source base records 182/257 screens, 2577/2584 RNG calls, and 182/257 cursors for this case; the first screen/cursor mismatch is step 182, key a.",
     "The admitted v74 recording, segment 0, step 182, exercises doeat -> start_tin -> dropx with GLIB and no opener. The corrected candidate replay matches the complete segment: 257/257 screens, 2584/2584 RNG calls, and 257/257 cursors.",
     "A new independent focused regression drives doeat with a three-tin inventory stack and GLIB; it verifies one tin remains on the floor and two remain in inventory."
-  ]
+  ],
+  "goalKind": "divergence-fix"
 }
