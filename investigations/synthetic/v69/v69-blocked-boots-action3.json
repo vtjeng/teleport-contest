@@ -130,6 +130,18 @@
         "run": "run-5pZdj2",
         "passed": true
       }
+    },
+    "sourceFile": "objnam.c",
+    "session": "synthetic/v69/v69-blocked-boots-action3",
+    "metadataCorrection": {
+      "reason": "Canonical worker context requires a session string for GOALS.sessions; runtime step and segment ranges remain in the evidence fields.",
+      "contextFields": {
+        "sourceFile": "objnam.c",
+        "sessions": [
+          "synthetic/v69/v69-blocked-boots-action3"
+        ]
+      },
+      "sourceAndChecksUnchanged": true
     }
   }
 }
