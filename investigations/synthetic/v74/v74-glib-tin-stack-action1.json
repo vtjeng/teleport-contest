@@ -1,0 +1,85 @@
+{
+  "session": "synthetic/v74/v74-glib-tin-stack-action1",
+  "corpus": "synthetic",
+  "batch": "v74",
+  "caseId": "v74-glib-tin-stack-action1",
+  "manifestPath": "challenges/manifests/v74.json",
+  "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c3e0bafb",
+  "recordingSha256": "59d919b191647da719ff6a61d69daeeb285c19932c532f61216fd164d4887bc9",
+  "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+  "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
+  "remainingScreens": 0,
+  "recordedSteps": 257,
+  "status": "complete",
+  "commit": "0c63b06172d3d4432beab3f9f9f3be421066dc15",
+  "mismatch": {
+    "session": "synthetic/v74/v74-glib-tin-stack-action1",
+    "remainingScreens": 75,
+    "step": 182,
+    "kind": "screen",
+    "sourceFile": "eat.c",
+    "function": "start_tin",
+    "firstMismatch": {
+      "screenIndex": 182,
+      "cEntry": "screen after tin slips from hero; dropx redraws under hero",
+      "jsEntry": "missing screen after start_tin calls dropx without its redraw environment"
+    }
+  },
+  "summary": "With GLIB active and no tin opener, eat.c:start_tin emits the no-opener and slipping messages, splits one tin from the stack, and calls do.c:dropx. The JS caller supplied only { state }, while the existing dropx environment requires the newsym, encumberMessage, and extractExternalObject operations that dropCommandEnv provides. Forwarding the eat environment through dropCommandEnv lets the dropped tin complete dropz and redraw the square; the admitted replay now matches all 257 screens, RNG calls, and cursors.",
+  "source": {
+    "file": "eat.c",
+    "functions": [
+      "start_tin"
+    ],
+    "branch": "The no-opener branch emits the difficulty message; when Glib is active, it emits the slipping message, splits one object when quan>1, calls dropx if the split object is carried, then returns. The same no-opener logic is also repeated in the invalid-uwep arm.",
+    "callers": [
+      "do.c:doeat selects the carried tin and calls eat.c:start_tin.",
+      "eat.c:start_tin calls do.c:dropx; do.c:dropx calls dropy/dropz, whose ordinary-floor tail calls newsym and encumber_msg.",
+      "js/eat.js:doeat builds eatEnv with newsym, encumberMessage, and extractExternalObject hooks; the corrected start_tin call forwards that environment through do.js:dropCommandEnv."
+    ],
+    "dependencies": [
+      "do.c:dropx",
+      "do.c:dropz",
+      "display.c:newsym",
+      "pickup.c:encumber_msg",
+      "mkobj.c:remove_object"
+    ]
+  },
+  "baselineMetrics": {
+    "screens": {
+      "matched": 182,
+      "total": 257
+    },
+    "rng": {
+      "matched": 2577,
+      "total": 2584
+    },
+    "cursors": {
+      "matched": 182,
+      "total": 257
+    },
+    "error": null
+  },
+  "verifiedMetrics": {
+    "screens": {
+      "matched": 257,
+      "total": 257
+    },
+    "rng": {
+      "matched": 2584,
+      "total": 2584
+    },
+    "cursors": {
+      "matched": 257,
+      "total": 257
+    },
+    "error": null
+  },
+  "evidence": [
+    "C source eat.c:start_tin (1723-1799): the Glib/no-opener arm splits one tin from the stack and calls dropx for a carried object.",
+    "C source do.c:dropx/dropz (786-842): an ordinary floor drop reaches newsym(u.ux,u.uy) and encumber_msg after placement and stacking.",
+    "The admission evaluation at the assigned source base records 182/257 screens, 2577/2584 RNG calls, and 182/257 cursors for this case; the first screen/cursor mismatch is step 182, key a.",
+    "The admitted v74 recording, segment 0, step 182, exercises doeat -> start_tin -> dropx with GLIB and no opener. The corrected candidate replay matches the complete segment: 257/257 screens, 2584/2584 RNG calls, and 257/257 cursors.",
+    "A new independent focused regression drives doeat with a three-tin inventory stack and GLIB; it verifies one tin remains on the floor and two remain in inventory."
+  ]
+}
