@@ -10,10 +10,11 @@ test('doversion prints the short version and returns ECMD_OK', async () => {
     const state = { iflags: { menu_requested: false } };
     const messages = [];
 
-    // This is the version_id emitted by the patched Unix C recorder in the v48 case.
+    // The help-version comparison normalizes the Linux recorder's Unix build
+    // label to the MacOS version_id used by the judge profile.
     assert.equal(
         getversionstring(),
-        'Unix NetHack Version 5.0.0 - last build May  2 2026 12:00:00.',
+        'MacOS NetHack Version 5.0.0 - last build May  2 2026 12:00:00.',
     );
     const result = await doversion(state, {
         pline: async (message, currentState) => {

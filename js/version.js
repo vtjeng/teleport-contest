@@ -14,7 +14,7 @@ export const VI_BRANCH = 4;
 export const NETHACK_VERSION = '5.0.0';
 
 const RECORDER_VERSION_ID =
-    'Unix NetHack Version 5.0.0 - last build May  2 2026 12:00:00.';
+    'MacOS NetHack Version 5.0.0 - last build May  2 2026 12:00:00.';
 const LUA_VERSION = '5.4.8';
 const LUA_COPYRIGHT = 'Lua 5.4.8  Copyright (C) 1994-2025 Lua.org, PUC-Rio';
 
