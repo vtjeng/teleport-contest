@@ -614,6 +614,7 @@ import {
     check_caitiff,
     flash_hits_mon,
     force_attack,
+    stumble_onto_mimic,
 } from './uhitm.js';
 import { find_mid, get_obj_location, obj_merge_light_sources, transient_light_cleanup } from './light.js';
 import {

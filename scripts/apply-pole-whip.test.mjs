@@ -174,3 +174,30 @@ test('doapply wields the Knight lance and runs polearm targeting', async () => {
         'You miss; there is no one there to hit.');
     assert.equal(game.moves, 3);
 });
+
+test('use_whip imports the source helper for an undiscovered mimic', () => {
+    const cSource = readFileSync(new URL(
+        '../nethack-c/upstream/src/apply.c', import.meta.url,
+    ), 'utf8');
+    const jsSource = readFileSync(new URL('../js/apply.js', import.meta.url),
+        'utf8');
+    const uhitmSource = readFileSync(new URL('../js/uhitm.js', import.meta.url),
+        'utf8');
+    const cStart = cSource.indexOf('\nuse_whip(struct obj *obj)');
+    const cEnd = cSource.indexOf('\nstatic const char\n    not_enough_room[]', cStart);
+    const cUseWhip = cSource.slice(cStart, cEnd);
+    const jsStart = jsSource.indexOf('async function whipattack(');
+    const jsEnd = jsSource.indexOf('\n}\n', jsStart);
+    const jsWhipattack = jsSource.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'the C source slice must contain the complete use_whip body');
+    assert.match(cUseWhip,
+        /if \(M_AP_TYPE\(mtmp\) && !Protection_from_shape_changers\s*&& !sensemon\(mtmp\)\)\s*\{\s*stumble_onto_mimic\(mtmp\);\s*do_snap = FALSE;/u);
+    assert.match(jsSource,
+        /import \{[\s\S]*?stumble_onto_mimic[\s\S]*?\} from '\.\/uhitm\.js';/u);
+    assert.match(jsWhipattack,
+        /if \(M_AP_TYPE\(monster\) && !applyPropertyActive\(PROT_FROM_SHAPE_CHANGERS, state\)\s*&& !sensemon\(monster, state\)\)\s*\{\s*await stumble_onto_mimic\(monster, state\);\s*doSnap = false;/u);
+    assert.match(uhitmSource,
+        /export async function stumble_onto_mimic\(/u);
+});
