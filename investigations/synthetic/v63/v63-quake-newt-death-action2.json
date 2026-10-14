@@ -28,7 +28,7 @@
     "passed": false,
     "error": "dmonsfree: 1 removed does not match 0 pending"
   },
-  "summary": "When music.c do_pit reduces a trapped newt below zero HP after earthquake damage, C calls mon.c xkilled(mtmp, XKILL_NOMSG) to complete death cleanup. js/music.js instead records note_unported('mon.c xkilled') after the HP reduction and message, leaving a dead monster linked without incrementing iflags.purge_monsters. The next planned movemon reaches dmonsfree, which removes one dead node against zero pending and stops the replay. Wire the existing JS xkilled implementation into this lethal branch; the separate boulder, selftouch, and hero-fall gaps remain outside this finding.",
+  "summary": "When music.c do_pit reduces a trapped newt below zero HP after earthquake damage, C calls mon.c xkilled(mtmp, XKILL_NOMSG) to complete death cleanup. The original js/music.js path recorded note_unported('mon.c xkilled') after the HP reduction and message, leaving a dead monster linked without incrementing iflags.purge_monsters. The next planned movemon then failed its dmonsfree count check. The implementation now calls the existing JS xkilled path; the separate boulder, selftouch, and hero-fall gaps remain outside this finding.",
   "source": {
     "file": "music.c",
     "branch": "A monster occupies a square selected by do_earthquake for a new pit, is not a flyer or clinger, survives mselftouch, then the pit damage reduces mhp below one.",
@@ -48,6 +48,7 @@
     "nethack-c/upstream/src/music.c:274-290 reduces monster HP, emits the death message, then calls xkilled(mtmp, XKILL_NOMSG). The value is discarded, but xkilled's state changes are required before monster-list cleanup.",
     "js/music.js:307-322 matches the HP reduction and message but substitutes note_unported('mon.c xkilled'), leaving the dead monster attached.",
     "The admitted v63 evaluation at 02a098f reports a replay stop before step comparison: dmonsfree removed one monster while purge_monsters was zero. runSegment on worker base 3caae42 reproduces it; the stack runs through js/makemon_create.js:dmonsfree, js/mon.js:movemon, and js/unported_monster_actions.js:planSimpleMonsterTurn.",
-    "The recording's earthquake action starts at input step 382. Its C trace reaches music.c:do_earthquake, music.c:do_pit, and mon.c:xkilled for the newt death; C continues recording all 414 steps."
+    "The recording's earthquake action starts at input step 382. Its C trace reaches music.c:do_earthquake, music.c:do_pit, and mon.c:xkilled for the newt death; C continues recording all 414 steps.",
+    "After wiring xkilled, runJsSession at the 5c617e702 implementation commit matches the admitted recording completely: 414/414 screens, 4,479/4,479 RNG calls, and 414/414 cursors."
   ]
 }
