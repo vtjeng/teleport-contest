@@ -1,0 +1,131 @@
+{
+  "session": "synthetic/v66/v66-mounted-pet-mimic-action5",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-mounted-pet-mimic-action5",
+  "manifestPath": "challenges/manifests/v66.json",
+  "recordingPath": "challenges/cases/v66/v66-mounted-pet-mimic-action5.session.json",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingSha256": "0b32025e296828f516a2614beb19daf88514e1fc2eecbc824c0829491d7085b6",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "remainingScreens": 52,
+  "recordedSteps": 221,
+  "status": "partial",
+  "commit": "cd3a25bc56078f864660a69ad6b7856706816bd4",
+  "mismatch": {
+    "screen": {
+      "index": 169,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 169,
+        "key": " "
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 49,
+      "cCell": {
+        "ch": "-",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 2783,
+      "cEntry": "rn2(2)=1",
+      "cCaller": "landing_spot(steed.c:543)",
+      "jsEntry": "rn2(5)=0",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 169,
+        "key": " "
+      },
+      "stepIndex": 169
+    },
+    "cursor": {
+      "index": 169,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 169,
+        "key": " "
+      },
+      "cCursor": [
+        57,
+        0,
+        1
+      ],
+      "jsCursor": [
+        52,
+        15,
+        1
+      ]
+    },
+    "step": 169,
+    "kind": "rng",
+    "sourceFile": "steed.c",
+    "function": "landing_spot",
+    "line": 543,
+    "session": "synthetic/v66/v66-mounted-pet-mimic-action5",
+    "remainingScreens": 52
+  },
+  "summary": "The mounted leocrotta eats a small-mimic corpse. C dogmove.c:quickmimic() dismounts the steed with DISMOUNT_POLY before choosing the mimic appearance; the first missing call enters steed.c:landing_spot() at step 169. JavaScript dog_eat() instead records the dismount as unported and returns from its m_consume_obj callback, while quickmimic() separately refuses a steed.",
+  "source": {
+    "file": "dogmove.c",
+    "functions": [
+      "dog_eat",
+      "quickmimic"
+    ],
+    "branch": "Tame pet consumes a mimic corpse while it is the hero's steed: quickmimic must call dismount_steed(DISMOUNT_POLY) before consuming random choices or changing the mimic appearance.",
+    "callers": [
+      "dogmove.c:dog_eat() -> mon.c:m_consume_obj() -> quickmimic() after a tame pet eats a mimic corpse",
+      "dogmove.c:quickmimic() -> steed.c:dismount_steed(DISMOUNT_POLY) when mtmp == u.usteed"
+    ],
+    "dependencies": [
+      "steed.c:dismount_steed() (existing js/steed.js implementation)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "baselineMetrics": {
+    "screens": {
+      "matched": 169,
+      "total": 221
+    },
+    "rng": {
+      "matched": 2788,
+      "total": 2866
+    },
+    "cursors": {
+      "matched": 176,
+      "total": 221
+    }
+  },
+  "evidence": [
+    "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json: the accepted-source baseline records 169/221 screens, 2788/2866 RNG calls, and 176/221 cursors matched; the first mismatch is step 169, C landing_spot(steed.c:543) rn2(2)=1 versus JS rn2(5)=0.",
+    "nethack-c/upstream/src/dogmove.c:1478-1488: quickmimic() returns only for shape-changer protection or when the monster is not eating; for the steed it calls dismount_steed(DISMOUNT_POLY) before the mimic-choice rn2 loop.",
+    "js/dogmove.js:666-678: dog_eat() passes a quickMimic callback to mon.c:m_consume_obj(); the callback currently records note_unported('steed.c dismount_steed') and returns for the steed.",
+    "js/dogmove.js:703-722: quickmimic() separately throws for a steed before entering its random-choice loop.",
+    "js/steed.js:880-965: an existing dismount_steed() implementation handles DISMOUNT_POLY and landing_spot().",
+    "/tmp/teleport-validation-1000/run-pE3Yn4/receipt.json: current cd3a25bc56078f864660a69ad6b7856706816bd4 replay completed successfully; 221 screens emitted; step-169 screen, RNG and cursor mismatch matches the saved baseline."
+  ],
+  "resolution": {
+    "status": "verified",
+    "sourceFinding": "The baseline mismatch entered steed.c:landing_spot because dogmove.c:quickmimic must call dismount_steed(DISMOUNT_POLY) before its appearance-choice RNG. A separate independent recipe exposed a planner-only duplicate: dog_eat() replayed its quickMimic callback while predicting the monster turn, which dismounted the live steed and wrote its message before execution. The callback now returns during planning for the live steed; execution then follows quickmimic() source order.",
+    "implementation": "dogmove.c:dog_eat() and quickmimic() now preserve the planning boundary and execute the steed dismount before mimic-choice RNG.",
+    "validation": [
+      "The admitted v66 recipe replay matched all 2866 RNG calls, 221 screens, and 221 cursors.",
+      "The independent mounted-steed recipe replay matched all 2434 RNG calls, 138 screens, and 138 cursors.",
+      "The independent recipe also matched after removing the exploratory topl.c change, so no TTY source change is part of this fix."
+    ],
+    "freshRuns": [
+      "/tmp/teleport-validation-1000/run-T6Wa0n/receipt.json",
+      "/tmp/teleport-validation-1000/run-A87smH/receipt.json"
+    ]
+  }
+}
