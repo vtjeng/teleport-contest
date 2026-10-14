@@ -1,0 +1,51 @@
+{
+  "session": "synthetic/v70/v70-cursed-whistle-scout1",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-cursed-whistle-scout1",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingSha256": "3ae7f49b0552d9342c3d49877c4bfaea4b67f5c0df634b95af92f45141320d1e",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "remainingScreens": 318,
+  "recordedSteps": 318,
+  "status": "complete",
+  "commit": "dc68d29191160d366551c333356564732926bec9",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "caseId": "v70-cursed-whistle-scout1",
+    "batch": "v70",
+    "sessions": [
+      "synthetic/v70/v70-cursed-whistle-scout1"
+    ],
+    "remainingScreens": 318,
+    "recordingPath": "challenges/cases/v70/v70-cursed-whistle-scout1.session.json"
+  },
+  "summary": "The cursed magic whistle humming branch reaches the second random gate, wakes nearby pets, then throws ReferenceError because js/apply.js calls noteleport_level without importing it. The C caller checks teleport.c:notteleport_level before calling tele_to_rnd_pet; the JavaScript implementation and export already exist in js/teleport.js. The first 111 screens and 2866 RNG calls match, including the C humming message; source correction is the missing caller import and a focused guard test.",
+  "source": {
+    "file": "apply.c",
+    "branch": "use_magic_whistle: when can_blow succeeds, the whistle is cursed, and both rn2(2) checks return zero, C emits the humming message, wakes nearby monsters, checks noteleport_level(&gy.youmonst), and only then calls tele_to_rnd_pet.",
+    "functions": [
+      "use_magic_whistle"
+    ],
+    "callers": [
+      "apply.c:doapply",
+      "js/apply.js:doapply"
+    ],
+    "dependencies": [
+      "teleport.c:noteleport_level",
+      "teleport.c:tele_to_rnd_pet"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "challenges/manifests/v70.json records the C branch as apply.c:use_magic_whistle and the C outcome at segment 0, step 111; the admitted recording is byte-identical to an independent C replay.",
+    "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json records the first mismatch as ReferenceError: noteleport_level is not defined, with 318/318 screens unmatched.",
+    "The accepted local prefix artifact cited by the manifest matches C through segment 0, step 110: 111 screens and 2866 RNG calls; the exception occurs at input step 111 after the prefix.",
+    "nethack-c/upstream/src/apply.c:495-505 calls noteleport_level between the second random gate and tele_to_rnd_pet. js/apply.js:4528 makes the same call, but its teleport.js import list at line 577 omits the symbol.",
+    "js/teleport.js:586 exports the existing noteleport_level implementation and js/teleport.js:1334 exports tele_to_rnd_pet; no teleport behavior port is needed for this defect.",
+    "scripts/apply-whistle.test.mjs:142 covers the second-random-draw suppression branch but does not cover the relocation-permission check; add a focused test for a cursed whistle with both checks passing and level.flags.noteleport set."
+  ]
+}
