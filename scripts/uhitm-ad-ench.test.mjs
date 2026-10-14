@@ -102,10 +102,15 @@ test('AD_ENCH passive and floor-drain callers preserve their C guards', () => {
     // source-selected object and by-you flag to the one zap.c drain_item owner.
     assert.match(MHITM_C, /if \(mhitb && !mdef->mcan && mwep\)\s*\{\s*\(void\) drain_item\(mwep, FALSE\);/u);
     assert.match(MHITM_JS, /if \(mhitb && !mdef\.mcan && mwep\)\s*drain_item\(mwep, false, state, env\);/u);
-    assert.match(MHITU_C, /drain_item\(mon_currwep, TRUE\);/u);
-    assert.match(MHITU_JS, /if \(env\.mon_currwep\)\s*drain_item\(env\.mon_currwep, true, state, env\);/u);
+    assert.match(MHITU_C,
+        /case AD_ENCH:[\s\S]*?if \(mon_currwep\) \{[\s\S]*?drain_item\(mon_currwep, TRUE\);[\s\S]*?\}\s*return M_ATTK_HIT;/u);
+    // The async JavaScript wrapper keeps C's weapon guard, then waits for the
+    // drain before returning the same attack result.
+    assert.match(MHITU_JS,
+        /case M\.AD_ENCH:[\s\S]*?if \(env\.mon_currwep\) \{\s*const drained = drain_item\(env\.mon_currwep, true, state, env\);\s*if \(drained && typeof drained\.then === 'function'\) await drained;\s*\}\s*return M_ATTK_HIT;/u);
     assert.match(ZAP_C, /case SPE_DRAIN_LIFE:[\s\S]*?drain_item\(obj, TRUE\);/u);
-    assert.match(ZAP_JS, /case SPE_DRAIN_LIFE:\s*drain_item\(obj, true, state, \{ \.\.\.rawEnv, random \}\);/u);
+    assert.match(ZAP_JS,
+        /case SPE_DRAIN_LIFE: \{\s*const drained = drain_item\(obj, true, state, \{ \.\.\.rawEnv, random \}\);\s*if \(drained && typeof drained\.then === 'function'\) await drained;\s*break;\s*\}/u);
 });
 
 test('mhitm_adtyping reaches monster-to-hero drainage in C call order', async () => {
