@@ -28,7 +28,7 @@ import {
 } from '../js/objects.js';
 import {
     ANIMATE_NORMAL, ANIMATE_SHATTER, ANIMATE_SPELL, FAST, FROMFORM,
-    CORPSTAT_HISTORIC, INVIS, OBJ_DELETED, OBJ_INVENT,
+    CORPSTAT_HISTORIC, INVIS, OBJ_DELETED, OBJ_INVENT, W_WEP,
     W_BALL, W_CHAIN,
 } from '../js/const.js';
 import { PM_NEWT } from '../js/monsters.js';
@@ -351,6 +351,40 @@ test('Stone to Flesh animates a statue through the canonical runtime owner', asy
     assert.ok(monster);
     assert.equal(statue.where, OBJ_DELETED);
     assert.match(messages.join(' '), /comes to life|moves|turns into flesh/u);
+});
+
+test('statue animation removes a wielded statue before deleting it', async () => {
+    // This independent fixed seed reaches trap.c:animate_statue with a weapon
+    // slot set, exercising the remove_worn_item call before delobj.
+    await runSegment({
+        seed: 8210072,
+        datetime: '20310204050607',
+        nethackrc: 'OPTIONS=name:WieldedStatue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n',
+        moves: '.',
+    }, {});
+    const statue = mksobj(STATUE, true, false, {
+        state: game,
+        hooks: { monsterObject },
+    });
+    statue.corpsenm = PM_NEWT;
+    statue.where = OBJ_INVENT;
+    statue.nobj = game.invent;
+    game.invent = statue;
+    statue.owornmask = W_WEP;
+    game.uwep = statue;
+
+    const monster = await animate_statue(
+        statue,
+        game.u.ux,
+        game.u.uy,
+        ANIMATE_SPELL,
+        { state: game, message: async () => {} },
+    );
+
+    assert.ok(monster);
+    assert.equal(game.uwep, null);
+    assert.equal(statue.owornmask, 0);
+    assert.equal(statue.where, OBJ_DELETED);
 });
 
 for (const cause of [ANIMATE_NORMAL, ANIMATE_SHATTER]) {
