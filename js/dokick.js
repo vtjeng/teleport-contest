@@ -204,7 +204,7 @@ import { a_monnam, hcolor, hliquid, Monnam, mon_nam } from './do_name.js';
 import { enexto, noteleport_level, goodpos } from './teleport.js';
 import { canseemon, canspotmon } from './display.js';
 import { stop_occupation } from './allmain.js';
-import { cvt_sdoor_to_door } from './detect.js';
+import { cvt_sdoor_to_door, find_trap } from './detect.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { scatter, SCATTER_MAY_HIT, SCATTER_VIS_EFFECTS } from './explode.js';
 import { sink_backs_up } from './fountain.js';
@@ -653,7 +653,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     const trap = t_at(x, y, state);
     if (trap) {
         if ((is_pit(trap.ttyp) && !Passes_walls(state)) || trap.ttyp === WEB) {
-            if (!trap.tseen) note_unported('detect.c find_trap');
+            if (!trap.tseen) await find_trap(trap, { ...rawEnv, state });
             const hallu = u.uprops[HALLUC];
             const halluRes = u.uprops[HALLUC_RES];
             const hallucination = Boolean(hallu.intrinsic)

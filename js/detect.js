@@ -2815,6 +2815,13 @@ async function findTrap(trap, env) {
     if (cleared) await env.waitFoundTrap(env);
 }
 
+// C ref: detect.c find_trap() (1935-1964). The discovery sequence is shared
+// by explicit searching and callers such as dokick.c:really_kick_object().
+export async function find_trap(trap, rawEnv = {}) {
+    const env = normalizeSearchEnv(rawEnv);
+    await findTrap(trap, env);
+}
+
 /**
  * C ref: detect.c dosearch0().
  *
@@ -2913,7 +2920,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                     if (animated) await env.exerciseWisdom(env);
                     return 1;
                 }
-                await findTrap(trap, env);
+                await find_trap(trap, { ...rawEnv, state });
             }
         }
     }
