@@ -12,7 +12,7 @@
   "remainingScreens": 18,
   "recordedSteps": 417,
   "status": "complete",
-  "commit": "e35609903fe130b619439dd05d8c88c2463b7b98",
+  "commit": "3111b052a98d35333fe7713090f8de007b193909",
   "mismatch": {
     "session": "synthetic/v69/v69-blocked-boots-action3",
     "batch": "v69",
@@ -20,7 +20,23 @@
     "remainingScreens": 18,
     "recordingPath": "challenges/cases/v69/v69-blocked-boots-action3.session.json"
   },
-  "summary": "When levitation boots activate while the hero is caught in a web, C's trap.c:float_up compares u.utraptype (TT_WEB=3) to WEB (18), so that condition is false and C prints the generic leg-still-stuck message. JavaScript compares against TT_WEB instead and prints a web-specific message, causing the first screen mismatch at segment 0 step 219. This is an accidental but observable C enum mismatch; preserve it. The accepted v69 evaluation has 399/417 screens matched, all 3315 RNG calls and 417 cursors matched.",
+  "summary": "When levitation boots activate while the hero is caught in a web, C's trap.c:float_up compares u.utraptype (TT_WEB=3) to WEB (18), so that condition is false and C prints the generic leg-still-stuck message. JavaScript compared against TT_WEB instead and printed a web-specific message, causing the first screen mismatch at segment 0 step 219. The correction preserves C's accidental enum comparison and matches through step 326. The replay then exposes a separate water-nymph message mismatch at step 327: C says 'boots' while JS says 'shoes'.",
+  "fix": {
+    "commit": "3111b052a98d35333fe7713090f8de007b193909",
+    "files": [
+      "js/trap.js",
+      "scripts/hero-bear-trap.test.mjs"
+    ],
+    "description": "Use WEB rather than TT_WEB in float_up's web-message condition, matching the exact C enum comparison and its generic leg-still-stuck output."
+  },
+  "followOnMismatch": {
+    "step": 327,
+    "key": ".",
+    "kind": "screen-message",
+    "c": "The water nymph charms you. You gladly start removing your boots.",
+    "javascript": "The water nymph charms you. You gladly start removing your shoes.",
+    "scope": "separate equipment-removal message path; not edited in this float_up task"
+  },
   "source": {
     "file": "trap.c",
     "branch": "float_up's u.utrap branch compares TT_PIT, TT_LAVA, TT_INFLOOR, and TT_BURIEDBALL by their trap-type values. The following accidental comparison uses WEB, a terrain/trap enum value, rather than TT_WEB, so an actual web restraint reaches the generic bear-trap-style leg message.",
@@ -46,6 +62,7 @@
     "Upstream trap.c:3937-4009 has the source comparison `u.utraptype == WEB` in the u.utrap message branch. you.h defines TT_WEB as 3; trap.h defines WEB as 18. The web trap setup stores TT_WEB, so the comparison is false and execution reaches the generic else branch.",
     "js/trap.js:1922-1967 currently tests `u.utraptype === TT_WEB` and prints a web-specific message. Match the C comparison to WEB in float_up; leave other correctly typed TT_WEB checks in trap.c/trap.js unchanged.",
     "The v58 blocked-levitation bear-trap case exercises reset_utrap followed by float_up after the bear trap is removed; the hero is no longer trapped there. It does not cover this caught-web enum comparison. The v69 case reaches the different still-trapped branch.",
-    "The source report's tested base is the current accepted worker history; the exact diagnosis is based on the admitted C recording and evaluation."
+    "scripts/hero-bear-trap.test.mjs passed 22 tests and npm run lint passed.",
+    "The corrected replay matches 327 screens/cursors and all 3315 RNG calls through step 326; the synthetic range verifier confirms segment 0 through step 326. The new first mismatch at step 327 is the separate boots-versus-shoes message recorded in followOnMismatch."
   ]
 }
