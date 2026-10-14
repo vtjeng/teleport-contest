@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first eat.c eataccessory RIN_SEE_INVISIBLE -> display.c mimic_light_blocking. Need actual invisible light-blocking mimic and sight consequence. Scout source-generated corridor and actual inventory first; place invisible sleeping mimic in corridor, consume metallic ring as rock mole, require successful intrinsic gain plus changed witness visibility. If ordinary caller matches prior coverage without a visible consequence, exclude.",
+  "segments": [
+    {
+      "seed": 67102412,
+      "datetime": "20880323122544",
+      "nethackrc": "OPTIONS=name:V67RingMimic,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                    \u0017uncursed ring of see invisible\n                    \u0017uncursed ring of teleport control\n                    \u0017uncursed wand of teleportation (0:20)\n                    \u0017uncursed stethoscope\n                    #wizidentify\n.\n                    #wizmap\ni"
+    }
+  ]
+}

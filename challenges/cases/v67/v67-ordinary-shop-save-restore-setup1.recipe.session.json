@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary live shop save/restore history. Own C setup proves livebookshop Sneem and actualunpaid53goldscroll with5000gold, avoidingv65Minetownsubroom firstcause. Save beforeleaving boundaries, restore insecondsegment atindependenttime/seed while bill/residency state remainslive, theninspect/pay. Firstsource restorebranch must betraced; do notclaimgeneric save correctness fromC only.",
+  "segments": [
+    {
+      "seed": 67101907,
+      "datetime": "20871119225110",
+      "nethackrc": "OPTIONS=name:V67OrdinaryShop,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     #wizlevelport\n5\n                         #wizmap\n#wizcast\n:detect monsters\n                    #wizlevelport\n6\n                         #wizmap\n#wizcast\n:detect monsters\n                    #wizlevelport\n3\n                         #wizmap\n#wizcast\n:detect monsters\n                    #optionsfull\n:debug_mongen\n\n#wizlevelport\n2\n                         #wizmap\n#wizcast\n:detect monsters\n                    #wizmakemap\n                         #wizmap\n#wizcast\n:detect monsters\n                    \u0017uncursed wand of teleportation (0:20)\n                    #wizidentify\n.\n                    i zi.  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkk.                         #wizmap\n:                    \u00175000 gold pieces\n                    ,                    i Sy",
+      "terminalInputKey": "y"
+    },
+    {
+      "seed": 67102210,
+      "datetime": "20880121100322",
+      "nethackrc": "OPTIONS=name:V67OrdinaryShop,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "          #wizmap\ni"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c fig_transform -> timeout.c start_timer retry while OBJ_CONTAINED. Archeologist starts empty sack h; wishcursedlichenfigurine i and blessedgenocide j to remove existing level monsters before longtimerhistory. Actualtimer rnd9000+200 fromC, actualcontainment and retryrnd5000 required. Afterremoval restoreordinarymonster generationbeforeeventualfamiliar creation. Firstinventory/timerscoutbeforeselectingcontainerinputs; no borrowed challenge seeds/actions. Own C inventory and timer observed; readidentifiedblessedgenocide j withwizard* to clear existingmonsters, thenapplystarting empty sack h andcaptureactualcontainer actionmenu beforeputtingfigurine inside. Cwish76 attach_fig_transform_timeout rnd9000=4026 ->delay4226. Sackactionmenuobserved; choose stashs andfigurinei. Establishactualcontainment viaapplicationtheninventory beforelongcountedrest. Allmonstersremovedbysourcewizardgenocide; futuregenerationdisabled so countedrest isuninterrupted. Cactualstashmessage/inventoryprovesi removedfromhero inventory intoh sack. Turnon clockstatus, then source-counted6000rest withno NPCs andnohero hunger. Archeologistfast worldclock differsactions, so actualCclock andfig_transform rnd5000retry are witnesses; no assumption fromcount alone. Source invent.c freeinv_core1391 stops FIG_TRANSFORM whenfigurineleaves inventory, so carried->sack cannotreach containedretry. C clock6004 crosses originaldelay4226 withnofig_transformrnd5000; this is timer-cancellation history, notretry. Clear remaining soundMore, applysack andinspectactualtakeoutmenu beforeextracting andtesting reattachment.",
+  "segments": [
+    {
+      "seed": 67102311,
+      "datetime": "20880222111433",
+      "nethackrc": "OPTIONS=name:V67ContainedFig,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017cursed figurine of a lichen\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i rj                    *\n                    ahsi\n                    i #optionsfull\n:time\n\n6000.                    ah:\n                                                  ah"
+    }
+  ]
+}

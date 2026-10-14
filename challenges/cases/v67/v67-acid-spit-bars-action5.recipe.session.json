@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C source variation after slow fog-cloud form reverted during adjacent NPC attacks. Source movement checks destination bars, so a normal hero can leave bars created underfoot for ordinary floor. Keep durable Knight body, create a complete three-cell bars row across independently mapped narrow roomx24..26,y4, then generate blacknaga; blocked row prevents it walking around the single-cell barrier. ActualNPCposition and opposite-side hero action are selected from C only. Prior fog setup and premature-reversion miss retained. Actual C hero(24,4) inleftbars, blacknaga(24,3) northrow, fox(24,5) south. Step southeast toclearfloor(25,5), opposite blocked row. Naga can align fromnorth but cannot walkaround the room-width row before dissolving bars. Give12realturns with More clears; require actual acid-venom dissolution and resulting terrain.",
+  "segments": [
+    {
+      "seed": 67102109,
+      "datetime": "20871220235211",
+      "nethackrc": "OPTIONS=name:V67AcidBars,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     #wizmap\n\u0017iron bars\n                    h\u0017iron bars\n                    h\u0017iron bars\n                    #wizgenesis\nhostile black naga\n                    #wizmap\nn                    m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            #terrain\ne\n"
+    }
+  ]
+}

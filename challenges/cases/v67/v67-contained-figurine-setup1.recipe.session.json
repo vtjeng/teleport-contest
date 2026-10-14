@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c fig_transform -> timeout.c start_timer retry while OBJ_CONTAINED. Archeologist starts empty sack h; wishcursedlichenfigurine i and blessedgenocide j to remove existing level monsters before longtimerhistory. Actualtimer rnd9000+200 fromC, actualcontainment and retryrnd5000 required. Afterremoval restoreordinarymonster generationbeforeeventualfamiliar creation. Firstinventory/timerscoutbeforeselectingcontainerinputs; no borrowed challenge seeds/actions.",
+  "segments": [
+    {
+      "seed": 67102311,
+      "datetime": "20880222111433",
+      "nethackrc": "OPTIONS=name:V67ContainedFig,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017cursed figurine of a lichen\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i"
+    }
+  ]
+}

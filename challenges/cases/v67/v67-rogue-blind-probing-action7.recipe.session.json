@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first zap.c zap_map SDOOR -> dig.c draft_message(FALSE). First inspect the wizard level menu and choose the actual Rogue level from C output; no menu letter or secret-door geometry is assumed. Later establish blindness and probe an actual secret door. Own C menu63 proves Rogue entry g at depth17. Enter it and inspect ordinary map/terrain before selecting an actual secret door. Own C terrain menu lists internal levl codes as entry e; use it to locate SDOOR without revealing/converting it. C94 internal map proves SDOOR=e at (57,12), ordinary room north at(57,11). Wish teleport control and wand, teleport north of that still-secret door, then blindfold and zap probing south; source C cansee false on actual Rogue level must emit draft. Inventory and teleport scout precedes blindness/probing. Own C inventory: i teleport control, j teleportation, k blindfold, l probing; hero(15,9). Wear i left, teleport self and choose(57,11), north of actual SDOOR(57,12). Confirm geometry before blindfold/probe. C terminal confirms hero(58,11), one east of intended spot: one ring-setup l was a move rather than prompt selection. Move west to(57,11), wear k blindfold and probe south through actual SDOOR(57,12). Source wiz_map_levltyp loops x=1 and row[x-1]; correct the dump coordinate offset: actual e at dump index58 means SDOOR(59,12), not57. Move two east to(59,11) and probe south while Blind. Prior wrong-column target miss retained. Local JS comparison exposed an earlier Rogue generation roguejoin first cause at64; later draft cannot be counted independently until that cause clears.",
+  "segments": [
+    {
+      "seed": 67101502,
+      "datetime": "20870715182736",
+      "nethackrc": "OPTIONS=name:V67RogueDraft,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#wizlevelport\n?\ng                    #terrain\ne\n\u0017uncursed ring of teleport control\n                    \u0017uncursed wand of teleportation (0:20)\n                    \u0017uncursed blindfold\n                    \u0017uncursed wand of probing (0:20)\n                    #wizidentify\n.\n                    i Pi l                    zj.  lllllllllllllllllllllllllllllllllllllllllljj.                    #terrain\ne\nhPk                    zlj                    #terrain\ne\nllzlj                    "
+    }
+  ]
+}

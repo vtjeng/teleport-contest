@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second independent source material variation for eat.c is_edible/eataccessory. First seed produced moonstone see-invisible ring (C115), which no ordinary metallivore can eat. This independently chosen seed changes shuffled object material; scout actual wish appearance, ring inventory and map anew before choosing corridor/actions. No JavaScript results have been consulted for this family and no repeated seed search is planned. If this variation is also inedible or target visibility unproved, defer.",
+  "segments": [
+    {
+      "seed": 67102513,
+      "datetime": "20880424133655",
+      "nethackrc": "OPTIONS=name:V67RingMaterial,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                    \u0017uncursed ring of see invisible\n                    \u0017uncursed ring of teleport control\n                    \u0017uncursed wand of teleportation (0:20)\n                    \u0017uncursed stethoscope\n                    #wizidentify\n.\n                    #wizmap\ni"
+    }
+  ]
+}

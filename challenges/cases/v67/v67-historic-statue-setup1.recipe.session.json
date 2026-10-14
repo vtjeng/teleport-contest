@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first trap.c animate_statue historic statue -> adjalign. Archeologist wishes an actual historic statue of a lichen, drops it and zaps stone-to-flesh downward; actual regret and alignment evidence required. First scout inventory before choosing letters. Avoid v64 wielded-statue deletion by floor placement, not wielding.",
+  "segments": [
+    {
+      "seed": 67101806,
+      "datetime": "20871018215009",
+      "nethackrc": "OPTIONS=name:V67Historic,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed historic statue of a lichen\n                    \u0017uncursed wand of stone to flesh (0:20)\n                    #wizidentify\n.\n                    i"
+    }
+  ]
+}

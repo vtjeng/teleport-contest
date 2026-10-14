@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first trap.c trapeffect_landmine -> keep_saddle_with_steedcorpse. Knight creates a tame saddled rothe at initial hero level before raising hero durability, so adj_lev does not inflate the low-level steed. First C scout establishes actual adjacent rothe position and inventory letters before choosing mount/stethoscope actions. Landmine death and scattered corpse/saddle relocation are not assumed from creation alone.",
+  "segments": [
+    {
+      "seed": 67101401,
+      "datetime": "20870614173529",
+      "nethackrc": "OPTIONS=name:V67MineSteed,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#wizgenesis\ntame saddled rothe\n                    #levelchange\n10\n                                                                                     \u0017uncursed stethoscope\n                    #wizmap\ni                    "
+    }
+  ]
+}

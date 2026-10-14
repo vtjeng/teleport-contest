@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mthrowu.c thrwmu is_pole -> mhitu.c mswings_verb/thitu. Actual hostile human must collect and wield a halberd, then make a reach attack at source-valid range. Hero application of polearm is a different caller. Initial independent scout establishes room/inventory before placement.",
+  "segments": [
+    {
+      "seed": 67101705,
+      "datetime": "20870917204958",
+      "nethackrc": "OPTIONS=name:V67NpcPolearm,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     \u0017uncursed +3 halberd\n                    \u0017uncursed amulet of life saving\n                    #wizidentify\n.\n                    #wizmap\ni"
+    }
+  ]
+}

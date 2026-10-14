@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first trap.c trapeffect_landmine -> keep_saddle_with_steedcorpse. Knight creates a tame saddled rothe at initial hero level before raising hero durability, so adj_lev does not inflate the low-level steed. First C scout establishes actual adjacent rothe position and inventory letters before choosing mount/stethoscope actions. Landmine death and scattered corpse/saddle relocation are not assumed from creation alone. Own expanded C map places hero (56,7), saddled rothe (55,6), stethoscope i. Inspect northwest, mount northwest with source wizard force yes, then inspect downward while mounted; require actual low steed HP before designing a mine crossing. C273/324 explicitly shows mounted tame rothe level1 HP4(4), while hero has77 HP. Mounted hero is on ordinary floor (55,6), away from the original upstairs. Create an actual land mine beneath the steed, step east and back west, then observe explosion/death/scatter state. No helper effect is presumed before the C recording. C wish \"land mine\" produced the disarmed inventory object j, not an armed floor trap. objnam.c4623-4656 explicitly requires a trapped prefix or trap suffix. Preserve that target miss; correct to \"land mine trap\" for the source wizard terrain path.",
+  "segments": [
+    {
+      "seed": 67101401,
+      "datetime": "20870614173529",
+      "nethackrc": "OPTIONS=name:V67MineSteed,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#wizgenesis\ntame saddled rothe\n                    #levelchange\n10\n                                                                                     \u0017uncursed stethoscope\n                    #wizmap\ni                    aiy                    #ride\nyy                    ai>                    #wizmap\n\u0017land mine trap\n                    lh                                        #wizmap\n"
+    }
+  ]
+}

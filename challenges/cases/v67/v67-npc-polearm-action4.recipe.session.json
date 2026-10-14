@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mthrowu.c thrwmu is_pole -> mhitu.c mswings_verb/thitu. Actual hostile human must collect and wield a halberd, then make a reach attack at source-valid range. Hero application of polearm is a different caller. Initial independent scout establishes room/inventory before placement. Own C scout cursor(16,17), ordinary room floor below; i halberd, j lifesaving. Wear j, drop polearm at(16,17), move southwest to(15,18), generate hostile human and observe actual placement before pickup/attack. Actual C human(14,19), halberd(16,17), hero(15,18) blocks immediate path. Source monmove item pickup can be skipped in close combat. Wish teleportation and leave the small room via controlled destination(28,17) in the independently mapped ordinary eastern room; allow actual pickup turns before returning to source polearm range. C inventory proves wand k. Zapself, choose(28,17) with13east and1north fromhero(15,18), clear teleport More before three real waits; map after actual monster allotments.",
+  "segments": [
+    {
+      "seed": 67101705,
+      "datetime": "20870917204958",
+      "nethackrc": "OPTIONS=name:V67NpcPolearm,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     \u0017uncursed +3 halberd\n                    \u0017uncursed amulet of life saving\n                    #wizidentify\n.\n                    #wizmap\ni Pj                    dib#wizgenesis\nhostile human\n                    #wizmap\n\u0017uncursed wand of teleportation (0:20)\n                    #wizidentify\n.\n                    i zk.  lllllllllllllk.                    m.            m.            m.            #wizmap\n"
+    }
+  ]
+}

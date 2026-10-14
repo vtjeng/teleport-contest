@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first ordinary shop history for shk.c fix_shop_damage/repair_damage, dopay/make_happy_shk and home_shk/mnearto. Use source-generated ordinary rooms rather than the earlier Minetown subroom first cause. First inspect dungeon level5 through actual map and detect-monsters spell to locate a real keeper; no shop is assumed. C level5 detector reports no monsters and map has no proved shop. Continue ordinary exploration to adjacent dungeon level6 and detect an actual keeper; no seed search and no shop claim from room shape. Source mklev1349 guarantees shop attempt at depth2/3 when enough rooms, unlike deeper random room families. Actual level6 is leprechaun hall, no shop. Take source-supported shallow depth3 exploration, preserving both deeper non-shop scouts.",
+  "segments": [
+    {
+      "seed": 67101907,
+      "datetime": "20871119225110",
+      "nethackrc": "OPTIONS=name:V67OrdinaryShop,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     #wizlevelport\n5\n                         #wizmap\n#wizcast\n:detect monsters\n                    #wizlevelport\n6\n                         #wizmap\n#wizcast\n:detect monsters\n                    #wizlevelport\n3\n                         #wizmap\n#wizcast\n:detect monsters\n"
+    }
+  ]
+}

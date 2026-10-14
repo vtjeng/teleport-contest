@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source replacement candidate pray.c doturn can_chant early return. Knight polymorphs into silent headless acid blob, then invokes #turn twice before any religious action. C gnostic increment makes first refused intent spend one turn and repeated refusal spend none. Display time to establish history; earlier undead-target and demon rejection cases are separate later branches. No JavaScript result selected this input.",
+  "segments": [
+    {
+      "seed": 67102614,
+      "datetime": "20880525144706",
+      "nethackrc": "OPTIONS=name:V67MuteTurn,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#polyself\nacid blob\n                         #turn\n                    #turn\n                    "
+    }
+  ]
+}

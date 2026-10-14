@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mthrowu.c spitmu/m_throw -> hit_bars -> monmove.c dissolve_bars. Source objnam.c wizterrainwish3724 permits actual iron bars under hero; controlled fog-cloud form passes them and has no intrinsic invisibility, allowing later acid-spit line. First scout actual ordinary room before bar placement/NPC direction. No Minetown special-map setup is required. Own C fogcloud hero(26,4), narrow ordinary roomfloorx24..26,y3..8. Stepwest to(25,4), wish actual ironbars underhero, create hostile blacknaga onadjacent legalfloor, then source detectmonsters establishes its actual coordinate before placing heroopposite acrossbars. Blindform means ordinary map glyphs alone cannot prove NPCposition. Actual C detector shows hero(25,4) inbars, blacknaga(25,5) immediatelysouth. Clear detection More, stepnorth toordinaryfloor(25,3), puttingactualbarsbetween them at source ranged distance2, then threeforcedturns with More clears. Require actual acid-venom/bar destruction; no NPCposition guessed from Blind map.",
+  "segments": [
+    {
+      "seed": 67102109,
+      "datetime": "20871220235211",
+      "nethackrc": "OPTIONS=name:V67AcidBars,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     #polyself\nfog cloud\n                                                                                #wizmap\nh\u0017iron bars\n                    #wizgenesis\nhostile black naga\n                    #wizcast\n:detect monsters\n                    k                    m.            m.            m.            #terrain\ne\n"
+    }
+  ]
+}

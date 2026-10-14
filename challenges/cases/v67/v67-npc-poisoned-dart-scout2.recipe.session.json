@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mthrowu.c m_throw poisoned missile -> attrib.c poisoned. Knight has no intrinsic poison resistance. Wish poisoned darts, then establish actual hostile weapon-capable human pickup and ranged hit from C geometry; no poison reach is inferred from creation. First scout inventory and room before missile placement. C inventory dart i/lifesaving j, hero(64,10). Wear j, drop darts on actual ordinary floor, move west, create hostile human, then inspect its actual placement before choosing item-pickup history.",
+  "segments": [
+    {
+      "seed": 67101604,
+      "datetime": "20870816193847",
+      "nethackrc": "OPTIONS=name:V67DartPoison,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     \u001720 uncursed poisoned +3 darts\n                    \u0017uncursed amulet of life saving\n                    #wizidentify\n.\n                    #wizmap\ni Pj                    dih#wizgenesis\nhostile human\n                    #wizmap\n"
+    }
+  ]
+}

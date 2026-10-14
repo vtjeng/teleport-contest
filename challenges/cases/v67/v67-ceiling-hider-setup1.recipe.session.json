@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mhitu.c mattacku ceiling-hider branch. Controlled piercer hero on ordinary dungeon ceiling must hide, then an actual hostile monster must approach and trigger fall, relocation and impact. This setup scouts the floor and actual controlled polymorph before monster placement.",
+  "segments": [
+    {
+      "seed": 67101503,
+      "datetime": "20870715182736",
+      "nethackrc": "OPTIONS=name:V67CeilingHide,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n#levelchange\n10\n                                                                                     #polyself\niron piercer\n                    #hide\n                    #wizmap\n"
+    }
+  ]
+}
