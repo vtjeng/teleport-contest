@@ -1538,7 +1538,7 @@ test('breakobj wires the lit-oil source branch before object cleanup', () => {
 
     const js = readFileSync(new URL('../js/dothrow.js', import.meta.url), 'utf8');
     const jsStart = js.indexOf('export async function breakobj(');
-    const jsEnd = js.indexOf('\n}\n\nfunction next2u', jsStart);
+    const jsEnd = js.indexOf('\n}\n\nexport function next2u', jsStart);
     assert.ok(jsStart > 0 && jsEnd > jsStart);
     const jsBody = js.slice(jsStart, jsEnd);
     assert.match(jsBody,
