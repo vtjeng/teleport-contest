@@ -13,7 +13,8 @@
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
-//         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Hea-fila.lua,
+//         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Kni-fila.lua,
+//         dat/Hea-fila.lua,
 //         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua,
 //         dat/Mon-fila.lua, dat/Mon-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
@@ -1401,6 +1402,24 @@ async function kniLoca(des) {
     for (let i = 0; i < 7; ++i) await des.trap('anti magic');
     for (const monster of KNI_LOCA_MONSTERS)
         await des.monster(monster);
+}
+
+// C ref: complete dat/Kni-fila.lua. Keep the two terrain initializers and
+// the source-ordered random contents for the Knight quest's earlier filler.
+async function kniFila(des) {
+    await des.level_init({ style: 'solidfill', fg: '.' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 8; ++i) await des.object();
+    for (let i = 0; i < 4; ++i)
+        await des.monster({ id: 'quasit', peaceful: 0 });
+    await des.monster({ class: 'i', peaceful: 0 });
+    await des.monster({ id: 'ochre jelly', peaceful: 0 });
+    for (let i = 0; i < 4; ++i) await des.trap();
 }
 
 // C ref: dat/Ran-loca.lua. Preserve the source's map, region, stair, and
@@ -3260,6 +3279,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Tou-loca': touLoca,
     'Tou-filb': touFilb,
     'Tou-goal': touGoal,
+    'Kni-fila': kniFila,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Ran-fila': ranFila,
