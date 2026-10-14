@@ -89,6 +89,11 @@ import { MON_LOCA_LEVEL_MAP } from './mon_loca_level_data.js';
 import { MON_STRT_LEVEL_MAP } from './mon_strt_level_data.js';
 import { ROG_GOAL_LEVEL_MAP, ROG_GOAL_MONSTERS } from './rog_goal_level_data.js';
 import { SAM_GOAL_LEVEL_MAP } from './sam_goal_level_data.js';
+import {
+    SAM_STRT_LEVEL_CHEST, SAM_STRT_LEVEL_DOORS, SAM_STRT_LEVEL_GUARDS,
+    SAM_STRT_LEVEL_MAP, SAM_STRT_LEVEL_SATO, SAM_STRT_LEVEL_SATO_INVENTORY,
+    SAM_STRT_LEVEL_SIEGE, SAM_STRT_LEVEL_TRAP_COUNT,
+} from './sam_strt_level_data.js';
 import { TOU_STRT_LEVEL_MAP, TOU_STRT_DOORS, TOU_STRT_GUIDES } from './tou_strt_level_data.js';
 import {
     RAN_LOCA_LEVEL_MAP, RAN_LOCA_MONSTERS, RAN_LOCA_OBJECT_COUNT, RAN_LOCA_TRAPS,
@@ -3375,6 +3380,31 @@ async function samLoca(des) {
     for (const monster of SAM_LOCA_LEVEL_MONSTERS) await des.monster(...monster);
 }
 
+// Whole dat/Sam-strt.lua program. Generated descriptors retain the fixed map,
+// placements, and the source order around Lord Sato's custom inventory.
+async function samStrt(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.map(SAM_STRT_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.region({ region: [18, 3, 26, 7], lit: 1, type: 'throne', filled: 2 });
+    await des.levregion({ region: [62, 12, 70, 17], type: 'branch' });
+    await des.stair('down', 29, 4);
+    for (const door of SAM_STRT_LEVEL_DOORS) await des.door(...door);
+    await des.monster({ ...SAM_STRT_LEVEL_SATO, inventory: async () => {
+        for (const object of SAM_STRT_LEVEL_SATO_INVENTORY)
+            await des.object({ ...object });
+    } });
+    await des.object(...SAM_STRT_LEVEL_CHEST);
+    for (const guard of SAM_STRT_LEVEL_GUARDS) await des.monster(...guard);
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+    for (let i = 0; i < SAM_STRT_LEVEL_TRAP_COUNT; ++i) await des.trap();
+    for (const monster of SAM_STRT_LEVEL_SIEGE) {
+        if (Array.isArray(monster)) await des.monster(...monster);
+        else await des.monster({ ...monster });
+    }
+}
+
 // C ref: complete dat/Sam-filb.lua. Preserve the generated fixed map,
 // unlit region, and source-ordered doors, stairs, and random contents.
 async function samFilb(des) {
@@ -3397,6 +3427,7 @@ async function samFilb(des) {
 }
 
 export const QUEST_LEVEL_LOADERS = {
+    'Sam-strt': samStrt,
     'Sam-loca': samLoca,
     'Sam-filb': samFilb,
     'Rog-loca': rogLoca,
