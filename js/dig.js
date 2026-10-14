@@ -2211,7 +2211,7 @@ function setTerrain(location, typ, flags = 0) {
     location.doormask = flags;
 }
 
-async function draft_message(unexpected, env) {
+export async function draft_message(unexpected, env) {
     const state = env.state;
     const random = env.random ?? { rn1 };
     const message = env.planning ? async () => {} : (env.message ?? (async () => {}));

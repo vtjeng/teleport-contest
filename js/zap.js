@@ -60,6 +60,7 @@ import {
 } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
 import { bury_objs,
+    draft_message,
     zap_dig,
 } from './dig.js';
 export { zap_dig };
@@ -3954,9 +3955,12 @@ export async function zap_map(
                 await ttyPline('Probing reveals a secret door.', state, rawEnv);
                 learnIt = true;
             } else if (Is_rogue_level(state.u.uz)) {
-                // zap.c discards draft_message(FALSE)'s result. Its floor
-                // draft output is outside this caller arm's implemented set.
-                note_unported('dig.c draft_message');
+                await draft_message(false, {
+                    ...rawEnv,
+                    state,
+                    random: { ...random, rn1: random.rn1 ?? rn1 },
+                    message: rawEnv.message ?? ttyPline,
+                });
             }
         } else if (type === SCORR) {
             location.typ = CORR;
