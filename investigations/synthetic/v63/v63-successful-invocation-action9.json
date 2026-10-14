@@ -211,5 +211,60 @@
     "screens": 460,
     "rng": 19743,
     "cursors": 460
+  },
+  "postImplementationReplay": {
+    "commit": "6f65784f0",
+    "source": "hack.c:invocation_message() (3064-3085), reached from teleport.c:teleds() after teleds destination effects",
+    "changes": [
+      "preflight_dotrap() admits the already implemented VIBRATING_SQUARE effect in the supported-type, seen-trap, and mounted-hero guards, following trap.c:dotrap() and trap.h:undestroyable_trap().",
+      "invocation_message() now follows hack.c message and state order; teleds() awaits its output."
+    ],
+    "focusedReplay": {
+      "command": "replayChallengeCases() for v63-successful-invocation-action9 at commit 6f65784f0",
+      "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+      "baseline": {
+        "screens": "460/785",
+        "rng": "19743/19957",
+        "cursors": "460/785",
+        "error": null
+      },
+      "result": {
+        "screens": "677/785",
+        "rng": "19951/19957",
+        "cursors": "782/785",
+        "error": null
+      },
+      "targetImproved": true,
+      "firstRemainingMismatch": {
+        "step": 677,
+        "key": " ",
+        "cCaller": "deadbook(spell.c:287)",
+        "rng": "C d(2,6)=8; JS rnd(6)=4",
+        "screen": "C horizontal line at row 0 column 45; JS blank",
+        "cursor": "C [53,0,1]; JS [26,13,1]"
+      }
+    },
+    "verifiedPrefix": {
+      "batch": "v63",
+      "caseId": "v63-successful-invocation-action9",
+      "segment": 0,
+      "fromStep": 460,
+      "throughStep": 676,
+      "source": "teleport.c:teleds -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_vibrating_square -> feeltrap; then teleport.c:teleds -> hack.c:invocation_message"
+    },
+    "focusedChecks": {
+      "node scripts/dismount-steed.test.mjs": {
+        "exitCode": 0,
+        "summary": "60 tests passed"
+      },
+      "node scripts/hero-vibrating-square.test.mjs": {
+        "exitCode": 0,
+        "summary": "1 test passed"
+      },
+      "npm run lint": {
+        "exitCode": 0
+      }
+    },
+    "remainingScope": "The target now matches through step 676. Step 677 enters spell.c:deadbook(), which this task did not reserve or implement. The target retains a null runner error and improves each saved matched metric."
   }
 }
