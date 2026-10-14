@@ -1,0 +1,73 @@
+{
+  "session": "synthetic/v72/v72-floating-eye-passive-action2",
+  "remainingScreens": 314,
+  "recordedSteps": 314,
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-floating-eye-passive-action2",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingSha256": "970d03d618f2c20f5b0b41fafcd54f8970b466b8e0b704f0fc3c5c1d7283caa3",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "status": "complete",
+  "commit": "4f75581cfbd7be33aa4fbc12d2c87817cf738993",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v72",
+    "caseId": "v72-floating-eye-passive-action2",
+    "session": "synthetic/v72/v72-floating-eye-passive-action2",
+    "manifestPath": "challenges/manifests/v72.json",
+    "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+    "recording": "challenges/cases/v72/v72-floating-eye-passive-action2.session.json",
+    "recordingPath": "challenges/cases/v72/v72-floating-eye-passive-action2.session.json",
+    "recordingSha256": "970d03d618f2c20f5b0b41fafcd54f8970b466b8e0b704f0fc3c5c1d7283caa3",
+    "recipe": "challenges/cases/v72/v72-floating-eye-passive-action2.recipe.session.json",
+    "recipeSha256": "af423bfec27dc02e76f6ff37e68b204ef6a1b4b216fb403345b705ce127d6ad9",
+    "replayInputSha256": "8f052fd80c88e3b221df2c26fa6968d7128f4ebbb85e8200eb6219a811536a49",
+    "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+    "evaluationArtifact": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "remainingScreens": 314,
+    "recordedSteps": 314,
+    "previousScreensMatched": 263,
+    "regression": false,
+    "passed": false,
+    "error": "ureflects is not defined",
+    "metrics": {
+      "screens": { "matched": 0, "total": 314 },
+      "rng": { "matched": 2860, "total": 2898 },
+      "cursors": { "matched": 263, "total": 314 }
+    },
+    "firstMismatch": {
+      "kind": "ReferenceError",
+      "message": "ureflects is not defined",
+      "step": 263
+    },
+    "step": 263,
+    "kind": "ReferenceError",
+    "sourceFile": "uhitm.c",
+    "function": "passive",
+    "message": "ureflects is not defined",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": 6027
+  },
+  "summary": "A visible floating eye survives an unarmed hit, then its AD_PLYS passive reaches C's reflection check before Free_action. The JS port calls ureflects at the corresponding point, but uhitm.js has no binding for that name, so replay stops at step 263.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "In passive's living, uncancelled follow-up gate, the AD_PLYS floating-eye arm checks visibility and mcansee, then calls ureflects before the Hallucination and Free_action branches. The case's Free_action ring affects the post-reflection result but does not skip the reflection call.",
+    "functions": ["passive"],
+    "callers": [
+      "uhitm.c:hitum -> passive",
+      "js/uhitm.js:hitum -> passive"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read nethack-c/upstream/src/uhitm.c:5865-6124. Its AD_PLYS branch at 6020-6042 calls ureflects first, then evaluates Hallucination and Free_action in order. The case reaches this branch because the visible, uncancelled floating eye survives the unarmed hit and the passive gate's rn2(3) succeeds.",
+    "Read js/uhitm.js:7905-8224. passive mirrors the same branch and awaits ureflects at 8100, but the module has no binding for that symbol. The existing implementation is exported from js/muse.js:3129; neighboring uhitm paths use dynamic imports for muse helpers where needed.",
+    "The admitted error-prefix proof in challenges/manifests/v72.json shows screens, cursors, and RNG match through step 262, with 2860/2860 RNG calls, then stops at step 263 on the undefined reference. The production path is domove -> do_attack -> hitum -> passive, not a direct helper test."
+  ]
+}
