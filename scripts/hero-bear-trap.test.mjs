@@ -21,6 +21,8 @@ import {
     TT_BURIEDBALL,
     TT_NONE,
     TT_PIT,
+    TT_WEB,
+    WEB,
     WOUNDED_LEGS,
     W_ARMF,
     WT_WOUNDEDLEG_REDUCT,
@@ -51,7 +53,7 @@ import {
 } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { float_vs_flight } from '../js/polyself.js';
-import { t_at, unconscious } from '../js/trap.js';
+import { float_up, t_at, unconscious } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     check_in_air,
@@ -502,6 +504,23 @@ test('escaping a bear trap while levitating resumes with float_up()', async () =
     assert.equal(game.u.uprops[LEVITATION].blocked, 0);
     assert.match(game._ttyToplines, /You start to float in the air!/u);
 });
+
+test('float_up keeps C’s WEB versus TT_WEB comparison for trapped webs',
+    async () => {
+        await heroOnLevelOne();
+        game.u.utrap = 1;
+        game.u.utraptype = TT_WEB;
+        assert.equal(TT_WEB, 3);
+        assert.equal(WEB, 18);
+        clearTtyMessageWindow(game);
+
+        await float_up(game);
+
+        assert.match(
+            game._ttyToplines,
+            /^You float up slightly, but your leg is still stuck\.$/u,
+        );
+    });
 
 test('a hero the bear trap cannot hold is told so and stays free', async () => {
     // trap.c:1495-1505's two harmless arms and the owlbear howl at :1515-1516.

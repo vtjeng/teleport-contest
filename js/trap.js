@@ -1950,7 +1950,10 @@ export async function float_up(state = game) {
                     ) ? 'floor' : 'ground'}.`,
                 state,
             );
-        } else if (u.utraptype === TT_WEB) {
+        // C trap.c:float_up() compares the trap-type field to WEB (18), not
+        // TT_WEB (3). Preserve that source enum mismatch: an actual web trap
+        // reaches the generic leg-still-stuck message.
+        } else if (u.utraptype === WEB) {
             await ttyPline(
                 `You float up slightly, but you are still stuck in the ${
                     trapname(WEB, false, state)
