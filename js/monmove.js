@@ -425,7 +425,7 @@ import { quest_stat_check, quest_talk } from './quest.js';
 import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { worm_move, wormhitu } from './worm.js';
+import { worm_move, worm_nomove, wormhitu } from './worm.js';
 import { add_damage, after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj, mpickobj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
@@ -4168,8 +4168,7 @@ export async function m_move(monster, rawEnv = {}) {
                 return MMOVE_MOVED;
             }
         }
-        if (monster.wormno)
-            note_unported('worm.c worm_nomove');
+        if (monster.wormno) worm_nomove(monster, env);
         return postMonsterMove(
             monster,
             oldX,
