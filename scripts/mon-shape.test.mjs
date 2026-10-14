@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { G_GENOD, NON_PM } from '../js/const.js';
+import { G_GENOD, NC_SHOW_MSG, NON_PM } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { GameDisplay } from '../js/game_display.js';
 import {
     alloc_itermonarr,
     get_iter_mons_xy,
@@ -204,6 +205,39 @@ test('newcham refreshes stale apparent-hero coordinates during monster movement'
     }), true);
 
     assert.deepEqual([shifted.mux, shifted.muy], [state.u.ux, state.u.uy]);
+});
+
+// C's monster scan has no planning display pass. The cloned JS scan must
+// transform the monster without writing the visible NC_SHOW_MSG line.
+test('newcham keeps its default transformation message off the planning display', async () => {
+    const state = monsterState();
+    state.in_mklev = true;
+    state.youmonst = { data: state.mons[M.PM_HUMAN] };
+    state.nhDisplay = new GameDisplay(null);
+    const planned = monster(state, M.PM_GIANT_EEL, {
+        cham: M.PM_CHAMELEON,
+        mx: 4,
+        my: 4,
+    });
+
+    assert.equal(await newcham(planned, state.mons[M.PM_SEWER_RAT], {
+        state,
+        planning: true,
+        ncflags: NC_SHOW_MSG,
+        random: {
+            rn2: () => 0,
+            rnd: () => 1,
+            rn1: () => 1,
+            rne: () => 1,
+            d: () => 1,
+        },
+        canSpotMonster: () => true,
+        redrawSquare: () => {},
+    }), true);
+
+    assert.equal(planned.data, state.mons[M.PM_SEWER_RAT]);
+    assert.equal(state._pending_message, undefined);
+    assert.equal(state.nhDisplay.topMessage, null);
 });
 
 test('alloc_itermonarr accepts C release and growth requests', () => {

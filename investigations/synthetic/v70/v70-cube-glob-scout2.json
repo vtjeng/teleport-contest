@@ -12,7 +12,7 @@
   "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v70.json",
   "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
   "status": "complete",
-  "summary": "The remaining step 299-301 timing mismatch comes from the elapsed-turn planning scan calling newcham with planning:true while newchamEnv defaults its message operation to live ttyPline. The cloned cube transformation therefore waits for input on the live TTY before the live scan transforms its cube. Use a silent default message for planning calls; preserve the supplied message operation when callers provide one.",
+  "summary": "The planning scan called newcham with planning:true, but newchamEnv selected live ttyPline when no message owner was supplied. The cloned cube transformation therefore waited on the live TTY before the live scan ran. newcham now uses a silent default message in planning calls, and a fresh replay matches all 351 recorded frames.",
   "mismatch": {
     "session": "synthetic/v70/v70-cube-glob-scout2",
     "remainingScreens": 52,
@@ -106,7 +106,8 @@
     "The focused meatobj test now asserts the C verbose You_hear gates and four verbose/acoustics/deaf combinations; scripts/mon-consumption.test.mjs passed before its final comment-only clarification. scripts/cmd.test.mjs and npm run lint also passed on this source tree.",
     "The committed source order in js/unported_monster_actions.js:planSimpleMonsterTurn calls movemon with state: planned, then planSimpleMonsterScan passes planning:true to movemon_singlemon. js/monmove.js:dochug propagates that environment into gelcube_digests and m_consume_obj. js/mon.js:m_consume_obj forwards rawEnv into newcham; newchamEnv in js/mon.js currently sets message to rawEnv.message ?? ttyPline, without checking planning.",
     "The bounded JavaScript trace run-afDJ2K captured zero-based boundary i=299 in the stack ttyPline -> m_consume_obj -> gelcube_digests -> dochug. At that boundary the real game monster remains a gelatinous cube holding the glob and the pending line is the earlier engulf message. After the input dismisses that line, the live monster data setter changes from PM_GELATINOUS_CUBE (8) to PM_GREEN_SLIME (208) at hook 300. This order identifies the preflight clone as the source of the earlier wait: planning runs before the live monster scan and must keep its messages off the TTY.",
-    "The instrumented C diagnostic replay remained byte-identical to the retained C recording across screens and cursors, with the same RNG function/value sequence. Its temporary source labels shifted from diagnostic line additions; no C gameplay behavior changed. The earlier bounded JavaScript replay remains 348/351 screens, 3081/3081 RNG calls and 350/351 cursors, with differences confined to steps 299-301 and cursor 300."
+    "The instrumented C diagnostic replay remained byte-identical to the retained C recording across screens and cursors, with the same RNG function/value sequence. Its temporary source labels shifted from diagnostic line additions; no C gameplay behavior changed. The earlier bounded JavaScript replay remains 348/351 screens, 3081/3081 RNG calls and 350/351 cursors, with differences confined to steps 299-301 and cursor 300.",
+    "After the newcham planning-message default changed, fresh bounded replay run-gWt9Ig reports recordingMatched:true and inputBoundaryMatched:true for all 351 steps; divergence is null. The focused test scripts/mon-shape.test.mjs confirms that a planning newcham transformation changes the monster while leaving its pending-message state and display untouched."
   ],
   "goalKind": "divergence-fix",
   "recordedSteps": 351,
