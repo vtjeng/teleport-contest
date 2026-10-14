@@ -15,6 +15,7 @@
   "mismatch": {
     "kind": "synthetic",
     "corpus": "synthetic",
+    "session": "synthetic/v64/v64-wielded-statue-animation-action4",
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
