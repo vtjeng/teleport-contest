@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The admitted v69 cube-contents replay first exposed an omitted PM_GELATINOUS_CUBE import in js/mon.js:meatbox. After that binding was restored, replay matched through step 459 and exposed a second planner refusal at step 460: js/unported_monster_actions.js rejected a gelatinous cube with digestible inventory even though js/monmove.js:dochug already calls the implemented gelcube_digests path. The task now covers both source-traced issues so the recorded filled-container consumption reaches meatbox.",
+  "summary": "The admitted v69 cube-contents replay exposed three source-traced issues in sequence: meatbox lacked its PM_GELATINOUS_CUBE import, the planner refused an already implemented gelcube_digests branch, and m_consume_obj refused every egg. The task now restores the species binding, admits the clone-only digestion path, and ports C's egg consumption and polymorph behavior so the filled-container case can continue.",
   "source": {
     "file": "mon.c",
     "branch": "When a monster consumes a container with contents at a valid map position, meatbox checks whether the monster is a gelatinous cube. C calls mpickobj for each child when it is a cube; otherwise it reports the spill and applies floor effects before placement.",
@@ -99,6 +99,27 @@
         ]
       },
       "plannedCorrection": "Remove the stale gelatinous-cube planner refusal and retain the clone-only preflight boundary for unsupported branches. Update the focused planner test to cover empty, ineligible, and digestible inventories while asserting that live state, RNG, and display remain unchanged."
+    },
+    {
+      "afterCommit": "ea325916f",
+      "firstMismatch": {
+        "kind": "stop",
+        "step": 461,
+        "message": "UnsupportedTurnBoundaryError: simple monster action requires a non-EGG food item"
+      },
+      "source": {
+        "file": "mon.c",
+        "functions": [
+          "m_consume_obj"
+        ],
+        "branch": "m_consume_obj evaluates polyfood for eggs, deletes the egg, and calls newcham when the egg species is a shape changer or has AD_POLY. An ordinary egg is deleted without a polymorph call.",
+        "callers": [
+          "monmove.c:gelcube_digests -> mon.c:m_consume_obj",
+          "mon.c:mpickstuff -> mon.c:m_consume_obj",
+          "dogmove.c:dog_eat -> mon.c:m_consume_obj"
+        ]
+      },
+      "plannedCorrection": "Port the EGG branch of m_consume_obj in source order: evaluate polyfood, delete the egg, then await newcham only for a polymorphing species. Keep TIN and other uncovered food effects behind their existing boundaries."
     }
   ],
   "goalKind": "divergence-fix",
@@ -108,6 +129,7 @@
     "After commit 676faed67 imported PM_GELATINOUS_CUBE, the replay matched 459 screens. At step 460 it stopped in the planner before C's random call at monmove.c:538. Source tracing showed the cause was js/unported_monster_actions.js:assertSimpleActionState duplicating gelcube_digests' eligibility and refusing its true branch, even though monmove.c:dochug PHASE THREE calls gelcube_digests and js/monmove.js already implements that call. Removing this obsolete guard lets the clone-only preflight execute the existing source path without changing live state.",
     "The source callers include nethack-c/upstream/src/dogmove.c:dog_eat, monmove.c:gelcube_digests, and mon.c:mpickstuff. Their JS counterparts call the existing async m_consume_obj/meatbox chain in js/dogmove.js, js/monmove.js, and js/mon.js.",
     "In js/mon.js:1422-1427, meatbox evaluates state.mons?.[PM_GELATINOUS_CUBE]. The module’s only monsters.js import block at js/mon.js:~450-565 omits PM_GELATINOUS_CUBE, although js/monsters.js exports it as index 8. The missing binding is therefore the direct cause; the branch body and callers already exist.",
-    "The task changes js/mon.js:meatbox's missing species binding, and removes the stale cube refusal from js/unported_monster_actions.js so js/monmove.js:dochug can reach gelcube_digests on the planner clone. The focused tests exercise both the container transfer and planner admission; the admitted v69 recording provides production caller evidence through the first cube-consumption path."
+    "After commit ea325916f removed the planner refusal, replay matched step 460 and stopped at step 461 in js/mon.js:m_consume_obj. Upstream mon.c:1416-1434 evaluates polyfood for eggs, deletes the egg, and calls newcham when the egg species is a shape changer or has AD_POLY; ordinary eggs are consumed without a form change. The JS correction ports that EGG branch and leaves TIN and other unported effects guarded.",
+    "The task imports PM_GELATINOUS_CUBE for meatbox, removes the stale cube refusal from js/unported_monster_actions.js, and ports the EGG branch of m_consume_obj. Focused tests exercise container transfer, planner-clone inventory ownership, and ordinary egg digestion. The admitted v69 recording provides production evidence through dochug -> gelcube_digests -> m_consume_obj -> meatbox."
   ]
 }
