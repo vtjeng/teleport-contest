@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T06:26:21.151Z",
+  "capturedAt": "2026-10-14T07:49:26.858Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -117522,6 +117522,1518 @@
         "type": "resume",
         "at": "2026-10-14T06:25:19.129Z",
         "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep31-v67-ring-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:26:25.692Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v57-hallucinatory-whatis-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "published",
+        "at": "2026-10-14T06:26:36.078Z",
+        "task": "B-investigation-v57-hallucinatory-whatis-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v56-sack-container-help-traditional-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:39.933Z",
+        "task": "C-investigation-v56-sack-container-help-traditional-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v57-traditional-container-menu-request-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:41.280Z",
+        "task": "B-investigation-v57-traditional-container-menu-request-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v58-wielded-boots-wear-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:42.636Z",
+        "task": "C-investigation-v58-wielded-boots-wear-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:43.976Z",
+        "task": "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:45.296Z",
+        "task": "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v58-swallowed-wraith-growth-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:46.596Z",
+        "task": "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v57-flying-steed-pool-dismount-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:47.957Z",
+        "task": "B-investigation-v57-flying-steed-pool-dismount-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:49.274Z",
+        "task": "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v58-blind-fountain-drink-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:50.682Z",
+        "task": "A2-investigation-v58-blind-fountain-drink-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v58-npc-magicbane-confusion-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:52.005Z",
+        "task": "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v62-caveman-earlier-filler-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:53.439Z",
+        "task": "A2-investigation-v62-caveman-earlier-filler-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-healer-earlier-filler-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:54.822Z",
+        "task": "C-investigation-v62-healer-earlier-filler-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-healer-later-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:56.183Z",
+        "task": "C-investigation-v62-healer-later-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-caveman-later-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:57.544Z",
+        "task": "C-investigation-v62-caveman-later-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-monk-earlier-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:26:58.830Z",
+        "task": "C-investigation-v62-monk-earlier-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-monk-later-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:00.131Z",
+        "task": "C-investigation-v62-monk-later-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-ranger-earlier-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:01.509Z",
+        "task": "C-investigation-v62-ranger-earlier-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v56-fumbling-corpse-trip-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:02.823Z",
+        "task": "A2-investigation-v56-fumbling-corpse-trip-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-ranger-later-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:04.141Z",
+        "task": "C-investigation-v62-ranger-later-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v62-tourist-earlier-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:05.425Z",
+        "task": "A2-investigation-v62-tourist-earlier-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v62-tourist-later-filler-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:06.734Z",
+        "task": "C-investigation-v62-tourist-later-filler-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:08.049Z",
+        "task": "C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v56-full-pack-gem-lift-action3-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:09.296Z",
+        "task": "C-investigation-v56-full-pack-gem-lift-action3-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v59-fumbling-magic-alchemy-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:10.620Z",
+        "task": "B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:12.026Z",
+        "task": "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v63-petrifying-newman-action2-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:13.427Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v64-unseen-web-kick-action5-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:14.718Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-successful-invocation-action9-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:16.121Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v59-cancellation-magic-trap-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:17.615Z",
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v62-sokoban-object-resists-action6-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:18.943Z",
+        "task": "A2-investigation-v62-sokoban-object-resists-action6-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v58-swallowed-light-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:20.227Z",
+        "task": "A2-investigation-v58-swallowed-light-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-knight-earlier-filler-setup1-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:21.447Z",
+        "task": "C-investigation-v63-knight-earlier-filler-setup1-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v63-quake-newt-death-action2-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:22.768Z",
+        "task": "B-investigation-v63-quake-newt-death-action2-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-samurai-earlier-filler-setup1-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:24.117Z",
+        "task": "C-investigation-v63-samurai-earlier-filler-setup1-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-rogue-earlier-filler-setup1-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:25.777Z",
+        "task": "C-investigation-v63-rogue-earlier-filler-setup1-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-valkyrie-earlier-filler-setup1-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:26.996Z",
+        "task": "C-investigation-v63-valkyrie-earlier-filler-setup1-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-valkyrie-later-filler-setup1-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:28.389Z",
+        "task": "C-investigation-v63-valkyrie-later-filler-setup1-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v64-wielded-statue-animation-action4-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:29.716Z",
+        "task": "B-investigation-v64-wielded-statue-animation-action4-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-knight-later-filler-setup1-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:31.106Z",
+        "task": "C-investigation-v63-knight-later-filler-setup1-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v63-samurai-later-filler-setup1-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:32.410Z",
+        "task": "C-investigation-v63-samurai-later-filler-setup1-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v64-multi-trouble-horn-action2-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:33.716Z",
+        "task": "B-investigation-v64-multi-trouble-horn-action2-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v64-broken-speed-wand-action3-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:35.069Z",
+        "task": "C-investigation-v64-broken-speed-wand-action3-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v64-mounted-controlled-horse-action4-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:36.438Z",
+        "task": "C-investigation-v64-mounted-controlled-horse-action4-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:37.780Z",
+        "task": "B-investigation-v64-grapple-cockatrice-body-collision-action4-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v64-wielded-polymorph-potion-action3-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:39.070Z",
+        "task": "C-investigation-v64-wielded-polymorph-potion-action3-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v64-punished-submerge-action4-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:40.437Z",
+        "task": "B-investigation-v64-punished-submerge-action4-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v64-worn-amulet-poly-action3-20261014-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:41.749Z",
+        "task": "A2-investigation-v64-worn-amulet-poly-action3-20261014",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:43.004Z",
+        "task": "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v48-short-version-command-attempt1-20261013-653ba6a490257a5f6cc6364a77af419fb600c942",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T06:27:44.216Z",
+        "task": "B-investigation-v48-short-version-command-attempt1-20261013",
+        "commit": "653ba6a490257a5f6cc6364a77af419fb600c942",
+        "knownBy": "2026-10-14T06:26:36.078Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v63-hostile-ghost-door-resolved-20261014",
+        "type": "park",
+        "at": "2026-10-14T06:28:18.541Z",
+        "task": "A2-investigation-v63-hostile-ghost-door-action11-20261014",
+        "reason": "The accepted lock.c:doorlock callback fix resolves the diagnosed mismatch. The report is committed at 3411bae31, and a focused replay at 599bcfe matched all 921 screens and input boundaries; there is no source work left in this investigation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-ghost-door-resolved-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:28:22.270Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v64-stair-shipped-object-arrival-action3-20261014",
+        "type": "assign",
+        "at": "2026-10-14T06:28:47.187Z",
+        "task": "A2-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v64-stair-shipped-object-arrival-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:28:51.154Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v58-self-stethoscope-ustatusline-20261014",
+        "type": "implement",
+        "at": "2026-10-14T06:30:18.493Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "goal": "fix-insight-ustatusline-self-status-v58-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v64-stair-shipped-object-arrival-await-makemon-20261014",
+        "type": "park",
+        "at": "2026-10-14T06:30:28.196Z",
+        "task": "A2-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v64-stair-parked-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:30:31.742Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "assign",
+        "at": "2026-10-14T06:31:28.086Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v63-deadbook-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:31:32.610Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v63-invocation-mkinvokearea-20261014",
+        "type": "implement",
+        "at": "2026-10-14T06:33:39.571Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "goal": "port-mklev-mkinvokearea-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-0e4e77c4bc170b548e468bcaa2a489880137f504-79c6fec5e24b17c99109b30a20c2a7a30903a0a9d41eba4dab69463b1e6ebfd9-B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T06:33:48.554Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "integration": "0e4e77c4bc170b548e468bcaa2a489880137f504",
+        "validationGroup": [
+          "B-investigation-v63-sighted-wizard-clone-action4-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "clone-record-prerequisites-0e4e77c4bc170b548e468bcaa2a489880137f504-B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T06:35:11.839Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "integration": "0e4e77c4bc170b548e468bcaa2a489880137f504"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "clone-record-prerequisites-0e4e77c4bc170b548e468bcaa2a489880137f504-B-investigation-v63-sighted-wizard-clone-action4-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T06:35:11.839Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "integration": "0e4e77c4bc170b548e468bcaa2a489880137f504"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-c38740332b7241ee7d0b378a3d5c0ce961d2d719-79c6fec5e24b17c99109b30a20c2a7a30903a0a9d41eba4dab69463b1e6ebfd9-B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T06:36:10.727Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "integration": "c38740332b7241ee7d0b378a3d5c0ce961d2d719",
+        "validationGroup": [
+          "B-investigation-v63-sighted-wizard-clone-action4-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-16ba32517f65d38f6ca10895ac8ed9969f0d0af2",
+        "type": "ready",
+        "at": "2026-10-14T06:37:31.775Z",
+        "task": "Prep31",
+        "delivery": "16ba32517f65d38f6ca10895ac8ed9969f0d0af2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep31-16ba32517f65d38f6ca10895ac8ed9969f0d0af2",
+        "type": "received",
+        "at": "2026-10-14T06:39:27.704Z",
+        "task": "Prep31",
+        "delivery": "16ba32517f65d38f6ca10895ac8ed9969f0d0af2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-Prep31-16ba32517f65d38f6ca10895ac8ed9969f0d0af2-explicit-dependencies",
+        "type": "feedback",
+        "at": "2026-10-14T06:39:30.855Z",
+        "task": "Prep31",
+        "delivery": "16ba32517f65d38f6ca10895ac8ed9969f0d0af2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep31-v67-dependency-correction-wait-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:40:29.624Z",
+        "worker": "Prep",
+        "state": "blocked",
+        "reason": "The v67 evidence is committed; waiting for Root to resume its submission for a dependency correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep31-v67-dependency-correction-wait-reason-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:40:50.772Z",
+        "worker": "Prep",
+        "state": "blocked",
+        "reason": "The v67 evidence is committed; waiting for Root to resume its submission for a dependency correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep31-v67-dependency-correction-resume-20261014",
+        "type": "resume",
+        "at": "2026-10-14T06:43:07.185Z",
+        "task": "Prep31"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9e7746750f2da3ea572225b8222b441271eb202a",
+        "type": "ready",
+        "at": "2026-10-14T06:43:26.730Z",
+        "task": "Prep31",
+        "delivery": "9e7746750f2da3ea572225b8222b441271eb202a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f5c9408a0e4c93391149793cca34e2e0fc1b119f",
+        "type": "ready",
+        "at": "2026-10-14T06:44:28.535Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep32-v68-20261014",
+        "type": "assign",
+        "at": "2026-10-14T06:45:06.702Z",
+        "task": "Prep32",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v68"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep31-9e7746750f2da3ea572225b8222b441271eb202a",
+        "type": "received",
+        "at": "2026-10-14T06:46:08.815Z",
+        "task": "Prep31",
+        "delivery": "9e7746750f2da3ea572225b8222b441271eb202a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-self-stethoscope-f5c9408a0e4c93391149793cca34e2e0fc1b119f",
+        "type": "received",
+        "at": "2026-10-14T06:46:10.041Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v59-downward-cancel-after-A2-accept-20261014",
+        "type": "resume",
+        "at": "2026-10-14T06:46:25.008Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v59-downward-cancel-zap-map-20261014",
+        "type": "implement",
+        "at": "2026-10-14T06:47:52.063Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "goal": "fix-zap-map-downward-cancellation-engraving-v59-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-449b70838c80ff0e2661f1e13e3588ca054b18f8",
+        "type": "ready",
+        "at": "2026-10-14T06:49:44.130Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "delivery": "449b70838c80ff0e2661f1e13e3588ca054b18f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-invocation-ready-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:50:27.411Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a464b127191e6af33d699c7216404b8e1c4fe653",
+        "type": "ready",
+        "at": "2026-10-14T06:51:41.479Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-clone20-c387-cursor-regression-B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T06:52:11.716Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "delivery": "20e461f102fde7599d44c27518f70ccc0ada3a17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v64-ready-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:52:46.226Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Castle-hole delivery is ready; awaiting Root integration and combined validation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-invocation-449b70838c80ff0e2661f1e13e3588ca054b18f8",
+        "type": "received",
+        "at": "2026-10-14T06:54:25.810Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "delivery": "449b70838c80ff0e2661f1e13e3588ca054b18f8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-castle-a464b127191e6af33d699c7216404b8e1c4fe653",
+        "type": "received",
+        "at": "2026-10-14T06:54:27.638Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep32-v68-source-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T06:55:14.575Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v62-sokoban-trap-seen-action6-20261014",
+        "type": "assign",
+        "at": "2026-10-14T06:55:26.120Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v62-sokoban-dotrap-seen-trap-20261014",
+        "type": "implement",
+        "at": "2026-10-14T06:56:13.221Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "goal": "fix-trap-dotrap-seen-sokoban-pit-v62-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1cdd23ee40db39808e4650117540dbe0b46e3ce0",
+        "type": "ready",
+        "at": "2026-10-14T06:56:19.573Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "delivery": "1cdd23ee40db39808e4650117540dbe0b46e3ce0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-downward-cancel-1cdd23ee40db39808e4650117540dbe0b46e3ce0",
+        "type": "received",
+        "at": "2026-10-14T06:58:10.346Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "delivery": "1cdd23ee40db39808e4650117540dbe0b46e3ce0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v58-gremlin-after-litroom-release-20261014",
+        "type": "resume",
+        "at": "2026-10-14T06:58:24.724Z",
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v58-gremlin-litroom-after-release-20261014",
+        "type": "implement",
+        "at": "2026-10-14T06:59:12.689Z",
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "goal": "fix-read-litroom-gremlin-vision-recalc-v58-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d1b5d8939315b331d0c6f607284d23d0c28e5eee",
+        "type": "ready",
+        "at": "2026-10-14T07:02:39.126Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "delivery": "d1b5d8939315b331d0c6f607284d23d0c28e5eee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-sokoban-ready-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:02:58.171Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-investigation-v62-sokoban-trap-seen-action6-20261014-d1b5d8939315b331d0c6f607284d23d0c28e5eee",
+        "type": "received",
+        "at": "2026-10-14T07:04:03.670Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "delivery": "d1b5d8939315b331d0c6f607284d23d0c28e5eee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v58-gremlin-litroom-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:04:08.336Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is fixing the v58 light-scroll gremlin visibility mismatch in read.c:litroom."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-blocked-artifact-light-litroom-owner-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:04:35.308Z",
+        "worker": "A2",
+        "state": "blocked"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T07:06:05.729Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:06:05.729Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:06:05.729Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T07:06:05.729Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:06:05.729Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-71845975812a9ce6b66643181c3e57e8c795c0a2",
+        "type": "ready",
+        "at": "2026-10-14T07:06:27.820Z",
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "delivery": "71845975812a9ce6b66643181c3e57e8c795c0a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-gremlin-delivery-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:07:36.641Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Waiting for Root to accept C’s gremlin litroom fix and coordinate the next litroom owner; the saved work queue is stale."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-released",
+        "type": "ready",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-A2-investigation-v63-successful-invocation-deadbook-action9-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-B-investigation-v64-castle-hole-gotohell-action1-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-C-investigation-v59-downward-cancellation-engraving-action2-20261013-released",
+        "type": "ready",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-dependency-group-4e96cfd892fa84b3733d5d41c55e962e99cb2c4a-prerequisites-A2-investigation-v62-sokoban-trap-seen-action6-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:09:07.259Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "4e96cfd892fa84b3733d5d41c55e962e99cb2c4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-gremlin-71845975812a9ce6b66643181c3e57e8c795c0a2",
+        "type": "received",
+        "at": "2026-10-14T07:09:08.496Z",
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "delivery": "71845975812a9ce6b66643181c3e57e8c795c0a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-68d2aee35604b96b8213c8d235397d1eac9ff29f-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T07:09:41.113Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "integration": "68d2aee35604b96b8213c8d235397d1eac9ff29f",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-68d2aee35604b96b8213c8d235397d1eac9ff29f-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:09:41.113Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "68d2aee35604b96b8213c8d235397d1eac9ff29f",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-68d2aee35604b96b8213c8d235397d1eac9ff29f-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:09:41.113Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "integration": "68d2aee35604b96b8213c8d235397d1eac9ff29f",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-68d2aee35604b96b8213c8d235397d1eac9ff29f-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T07:09:41.113Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "68d2aee35604b96b8213c8d235397d1eac9ff29f",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-68d2aee35604b96b8213c8d235397d1eac9ff29f-06bb90d42575dc70163fbafbe67287168d8ef432217cead8332a22065dd934c5-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:09:41.113Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "68d2aee35604b96b8213c8d235397d1eac9ff29f",
+        "validationGroup": [
+          "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-false-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796",
+        "type": "validated",
+        "at": "2026-10-14T07:21:36.182Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-false-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796",
+        "type": "validated",
+        "at": "2026-10-14T07:21:37.472Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-A2-investigation-v63-successful-invocation-deadbook-action9-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-C-investigation-v59-downward-cancellation-engraving-action2-20261013-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B-investigation-v64-castle-hole-gotohell-action1-20261014-38526616796-A2-investigation-v62-sokoban-trap-seen-action6-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:38.769Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "delivery": "a464b127191e6af33d699c7216404b8e1c4fe653"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-A2-investigation-v63-successful-invocation-deadbook-action9-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-B-investigation-v64-castle-hole-gotohell-action1-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-C-investigation-v59-downward-cancellation-engraving-action2-20261013-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-38526616796-A2-investigation-v62-sokoban-trap-seen-action6-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:21:40.130Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "delivery": "f5c9408a0e4c93391149793cca34e2e0fc1b119f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-self-status-correction-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:23:21.787Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is updating the self-stethoscope regression test to assert the newly ported injured-leg behavior."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-self-status-correction-after-CI-38526616796",
+        "type": "resume",
+        "at": "2026-10-14T07:23:28.711Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-castle-correction-active-20261014-38526616796",
+        "type": "turn",
+        "at": "2026-10-14T07:24:46.094Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-castle-ci-correction-38526616796-20261014",
+        "type": "resume",
+        "at": "2026-10-14T07:28:05.293Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f6b1f823ccdc60ed267a8dd7922d31c42c3af52c",
+        "type": "ready",
+        "at": "2026-10-14T07:30:21.541Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "delivery": "f6b1f823ccdc60ed267a8dd7922d31c42c3af52c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a17ffe7786144099efa57e2941e709b28754a331-c19efe17743221415cceb7b5a9f019817d013c884e376149b5ec420f47b51384-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:30:28.952Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331",
+        "validationGroup": [
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a17ffe7786144099efa57e2941e709b28754a331-c19efe17743221415cceb7b5a9f019817d013c884e376149b5ec420f47b51384-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T07:30:28.952Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331",
+        "validationGroup": [
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a17ffe7786144099efa57e2941e709b28754a331-c19efe17743221415cceb7b5a9f019817d013c884e376149b5ec420f47b51384-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:30:28.952Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331",
+        "validationGroup": [
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-after-self-status-correction-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:30:41.940Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Waiting for Root to accept C’s self-status correction and assign the parked artifact-light follow-on after gremlin acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-ready-split-a17ffe7786144099efa57e2941e709b28754a331-friction-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:33:59.001Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-ready-split-a17ffe7786144099efa57e2941e709b28754a331-friction-A2-investigation-v63-successful-invocation-deadbook-action9-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:33:59.001Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-ready-split-a17ffe7786144099efa57e2941e709b28754a331-friction-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T07:33:59.001Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-ready-split-a17ffe7786144099efa57e2941e709b28754a331-friction-C-investigation-v59-downward-cancellation-engraving-action2-20261013-released",
+        "type": "ready",
+        "at": "2026-10-14T07:33:59.001Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-ready-split-a17ffe7786144099efa57e2941e709b28754a331-friction-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T07:33:59.001Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-ready-split-a17ffe7786144099efa57e2941e709b28754a331-friction-A2-investigation-v62-sokoban-trap-seen-action6-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T07:33:59.001Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "a17ffe7786144099efa57e2941e709b28754a331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C-self-correction-f6b1f823ccdc60ed267a8dd7922d31c42c3af52c",
+        "type": "received",
+        "at": "2026-10-14T07:34:00.330Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "delivery": "f6b1f823ccdc60ed267a8dd7922d31c42c3af52c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-97e0af5ec30959ef749f51db110201ad43b46909",
+        "type": "ready",
+        "at": "2026-10-14T07:34:34.813Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "delivery": "97e0af5ec30959ef749f51db110201ad43b46909"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-castle-correction-ready-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:35:11.554Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Castle correction is ready for integration. The preserved wizard-clone correction remains blocked until Castle acceptance releases its overlapping source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-b368ad83d90f19d943f33c72c28736baf527fae9-c19efe17743221415cceb7b5a9f019817d013c884e376149b5ec420f47b51384-A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:37:16.802Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "integration": "b368ad83d90f19d943f33c72c28736baf527fae9",
+        "validationGroup": [
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-b368ad83d90f19d943f33c72c28736baf527fae9-c19efe17743221415cceb7b5a9f019817d013c884e376149b5ec420f47b51384-C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T07:37:16.802Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "integration": "b368ad83d90f19d943f33c72c28736baf527fae9",
+        "validationGroup": [
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-b368ad83d90f19d943f33c72c28736baf527fae9-c19efe17743221415cceb7b5a9f019817d013c884e376149b5ec420f47b51384-A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T07:37:16.802Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "integration": "b368ad83d90f19d943f33c72c28736baf527fae9",
+        "validationGroup": [
+          "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+          "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+          "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B-castle-correction-97e0af5ec30959ef749f51db110201ad43b46909",
+        "type": "received",
+        "at": "2026-10-14T07:37:51.877Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "delivery": "97e0af5ec30959ef749f51db110201ad43b46909"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v63-successful-invocation-deadbook-action9-20261014-b368ad83d90f19d943f33c72c28736baf527fae9-validated",
+        "type": "validated",
+        "at": "2026-10-14T07:46:59.238Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v59-downward-cancellation-engraving-action2-20261013-b368ad83d90f19d943f33c72c28736baf527fae9-validated",
+        "type": "validated",
+        "at": "2026-10-14T07:46:59.238Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v62-sokoban-trap-seen-action6-20261014-b368ad83d90f19d943f33c72c28736baf527fae9-validated",
+        "type": "validated",
+        "at": "2026-10-14T07:46:59.238Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v63-successful-invocation-deadbook-action9-20261014-b368ad83d90f19d943f33c72c28736baf527fae9-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T07:47:31.297Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v59-downward-cancellation-engraving-action2-20261013-b368ad83d90f19d943f33c72c28736baf527fae9-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T07:47:31.297Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v62-sokoban-trap-seen-action6-20261014-b368ad83d90f19d943f33c72c28736baf527fae9-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T07:47:31.297Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-stone-flesh-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:48:50.976Z",
+        "worker": "C",
+        "state": "active"
       }
     ]
   },
@@ -117558,9 +119070,57 @@
         "worker": "B",
         "goal": "port-wizard-clone-spell-v63-20261014",
         "kind": "implementation",
-        "status": "ready",
+        "status": "changes-required",
         "delivery": "20e461f102fde7599d44c27518f70ccc0ada3a17",
         "since": "2026-10-14T04:50:24.122Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep31",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "9e7746750f2da3ea572225b8222b441271eb202a",
+        "batch": "v67",
+        "since": "2026-10-14T06:43:26.730Z",
+        "blockedBy": [
+          "Prep29",
+          "Prep30"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "worker": "C",
+        "goal": "fix-read-litroom-gremlin-vision-recalc-v58-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "71845975812a9ce6b66643181c3e57e8c795c0a2",
+        "since": "2026-10-14T07:06:27.820Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "worker": "C",
+        "goal": "fix-insight-ustatusline-self-status-v58-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f6b1f823ccdc60ed267a8dd7922d31c42c3af52c",
+        "since": "2026-10-14T07:30:21.541Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "worker": "B",
+        "goal": "fix-stronghold-gotohell-hole-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "97e0af5ec30959ef749f51db110201ad43b46909",
+        "since": "2026-10-14T07:34:34.813Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -118109,17 +119669,6 @@
         "reason": "Diagnosis is committed at 5e8801ffe. The fix is a missing WAN_OPENING/SPE_KNOCK down branch in zap.c:zap_updown, already reserved by A2’s ready v58 ceiling-strike delivery. Resume this follow-on after that delivery is accepted and the queue confirms this case remains unmatched."
       },
       {
-        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T18:16:56.906Z",
-        "blockedBy": [],
-        "reason": "The source-traced defect is in zap.c:zap_map(), reserved by B-investigation-v58-castle-passtune-action3. Preserve report fadc60f56 and resume only after B releases or the coordinator assigns the shared scope."
-      },
-      {
         "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
         "worker": "C",
         "goal": null,
@@ -118164,21 +119713,32 @@
         "reason": "Duplicate of C committed parked diagnosis adc0e4d88 for the same session. Reuse that source finding and select a different unowned case."
       },
       {
-        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
-        "worker": "C",
+        "task": "A2-investigation-v63-hostile-ghost-door-action11-20261014",
+        "worker": "A2",
         "goal": null,
         "kind": "investigation",
         "status": "parked",
         "delivery": null,
-        "since": "2026-10-14T04:23:26.605Z",
+        "since": "2026-10-14T06:28:18.541Z",
         "blockedBy": [],
-        "reason": "The source trace identifies read.c:litroom, which A2 reserves for its swallowed-light task. Preserved the distinct gremlin-visibility finding in investigations/synthetic/v58/v58-gremlin-scroll-light-action1.json; no source code was edited. Resume after A2 accepts/releases source:read.c:litroom."
+        "reason": "The accepted lock.c:doorlock callback fix resolves the diagnosed mismatch. The report is committed at 3411bae31, and a focused replay at 599bcfe matched all 921 screens and input boundaries; there is no source work left in this investigation."
+      },
+      {
+        "task": "A2-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T06:30:28.196Z",
+        "blockedBy": [],
+        "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       }
     ]
   },
   "development": {
-    "executionCommit": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
-    "measuredAt": "2026-10-14T06:15:48.965Z",
+    "executionCommit": "b368ad83d90f19d943f33c72c28736baf527fae9",
+    "measuredAt": "2026-10-14T07:43:05.451Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

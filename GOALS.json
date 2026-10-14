@@ -305802,7 +305802,7 @@
     {
       "id": "port-mklev-mkinvokearea-v63-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mkinvokearea, mkinvpos, mkinvk_check_wall from mklev.c",
       "cFile": "mklev.c",
       "sessions": [
@@ -305812,7 +305812,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "b368ad83d90f19d943f33c72c28736baf527fae9",
       "delivered": null,
       "functions": [
         {
@@ -305846,7 +305846,148 @@
           "declared": true,
           "sourceFile": "dig.c"
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "b368ad83d90f19d943f33c72c28736baf527fae9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
+        "target": "synthetic/v63/v63-successful-invocation-action9",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/b368ad83d90f19d943f33c72c28736baf527fae9/run-hosted-GWA0Qx/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mkinvokearea",
+            "symbol": "mkinvokearea",
+            "implementation": "js/mklev.js",
+            "sourceReview": "Read all of mklev.c:mkinvokearea() (2410-2497). Preserve floor message before the wall scan, the exact radius expansion and stop-on-first-wall branch, optional wall message, blocking message-window call, trapped-hero reset order, center then ring cell order, screen flush and delay after each ring, down-stair placement, redraw and full vision recalculation. The one required callee buried_ball_to_punishment() is awaited before the caller reset when the hero is trapped by a buried ball. The JavaScript uses d(2,6) before this call in spell.c:deadbook, matching C RNG order. No RNG, message, terrain or state effect stands in for an unported call.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "deadbook",
+                "source": "spell.c:deadbook() (287-297) rolls d(2,6), calls mkinvokearea() for primed invocation tools, then updates invoked, demigod and countdown state. js/read.js:read -> js/spell.js:study_book -> deadbook is the production dispatch path."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-successful-invocation-action9",
+                "segment": 0,
+                "fromStep": 677,
+                "throughStep": 784,
+                "source": "read.c:doread -> spell.c:study_book/learn -> deadbook -> mklev.c:mkinvokearea -> mkinvpos/mkinvk_check_wall; the successful Invocation builds the stairwell and matches through the end of segment 0."
+              }
+            ]
+          },
+          {
+            "name": "mkinvpos",
+            "symbol": "mkinvpos",
+            "implementation": "js/mklev.js",
+            "sourceReview": "Read all of mklev.c:mkinvpos() (2503-2598). Preserve its bounded-area guard, trap deletion, boulder chain handling (fracture at most one object when make_rocks is true, otherwise delete), location metadata and vision-array writes, distance-specific terrain and fire-trap creation, mimic wakeup, monster trap/liquid effects, vision unblock and redraw. maketrap() returns the trap pointer consumed by the C caller to set tseen; the existing JS maketrap() return is awaited and used the same way. The invalid-bound diagnostic and impossible-distance calls remain explicit note_unported boundaries; valid mkinvokearea input has distances 0..6 and the source-stated interior invocation location.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "mkinvokearea",
+                "source": "mklev.c:mkinvokearea() (2467-2486) visits the center at distance 0, then each source-ordered edge cell at distances 1 through 6."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-successful-invocation-action9",
+                "segment": 0,
+                "fromStep": 677,
+                "throughStep": 784,
+                "source": "read.c:doread -> spell.c:study_book/learn -> deadbook -> mklev.c:mkinvokearea -> mkinvpos/mkinvk_check_wall; the successful Invocation builds the stairwell and matches through the end of segment 0."
+              }
+            ]
+          },
+          {
+            "name": "mkinvk_check_wall",
+            "symbol": "mkinvk_check_wall",
+            "implementation": "js/mklev.js",
+            "sourceReview": "Read all of mklev.c:mkinvk_check_wall() (2603-2613). It checks isok before indexing the map, then returns one for IS_STWALL or IRONBARS and zero otherwise. The JavaScript predicate has no RNG, output or state mutation.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "mkinvokearea",
+                "source": "mklev.c:mkinvokearea() calls mkinvk_check_wall() at the invocation square and at the top/bottom and left/right edges of successive search rings."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mkinvokearea.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "buried_ball_to_punishment",
+            "symbol": "buried_ball_to_punishment",
+            "implementation": "js/dig.js",
+            "sourceFile": "dig.c",
+            "sourceReview": "Reused the existing dig.c:buried_ball_to_punishment() port (1935-1955): it finds the buried ball, extracts and reuses that object with punish(), resets the buried-ball restraint, deletes the engraving at the selected ball coordinates and redraws. This task adds the mklev.c caller wiring only; the helper body was not changed in this delivery. Its nested read.c:punish() call retains the existing note_unported(\"ball.c set_bc\") gap on the blind branch.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "mkinvokearea",
+                "source": "mklev.c:mkinvokearea() (2459-2462) calls buried_ball_to_punishment() only when the hero is restrained by TT_BURIEDBALL, then resets the restraint."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "dig.c:digactualhole() restores punishment before a downward pit or hole; existing caller evidence is retained."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig-buried-ball.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/punishment-dig-levitating.session.json",
+              "recordings/dig.c/punishment-downstairs.session.json",
+              "recordings/dig.c/punishment-level-teleport.session.json",
+              "recordings/dig.c/punishment-movement-tether.session.json",
+              "recordings/dig.c/punishment-same-level-teleport.session.json",
+              "recordings/dig.c/punishment-unearth-pit.session.json",
+              "recordings/dig.c/punishment-unearth-spiked-pit.session.json"
+            ],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "The selected active entry point is reading a primed Book of the Dead at the Invocation square. C has one mkinvokearea caller in spell.c:deadbook; mkinvpos and mkinvk_check_wall are private helpers reached only from mkinvokearea. The admitted v63 case matches segment 0 through step 784 and reaches all three selected mklev functions through that production caller. The hero is not trapped by a buried ball in this fixture, so it does not exercise the conditional buried_ball_to_punishment call; the existing helper has independent matching dig.c recordings through other active callers. mkinvpos invalid-bound panic/impossible diagnostics and the impossible-distance diagnostic remain named, unreachable source gaps. Existing trap.c:maketrap() is source-verified and its returned trap is consumed to set tseen.",
+        "entryPoints": [
+          {
+            "name": "Read the Book of the Dead with the invocation tools primed at the vibrating square",
+            "functions": [
+              "mkinvokearea",
+              "mkinvpos",
+              "mkinvk_check_wall"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-successful-invocation-action9",
+                "segment": 0,
+                "fromStep": 677,
+                "throughStep": 784,
+                "source": "read.c:doread -> spell.c:study_book/learn -> deadbook -> mklev.c:mkinvokearea -> mkinvpos/mkinvk_check_wall; the successful Invocation builds the stairwell and matches through the end of segment 0."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-stronghold-gotohell-hole-v64-20261014",
@@ -305869,7 +306010,7 @@
     {
       "id": "fix-zap-map-downward-cancellation-engraving-v59-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Delete a non-headstone engraving when a downward cancellation wand or spell reaches zap_map.",
       "cFile": "zap.c",
       "sessions": [
@@ -305879,15 +306020,86 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "b368ad83d90f19d943f33c72c28736baf527fae9",
       "delivered": null,
       "function": "zap_map",
-      "session": "synthetic/v59/v59-downward-cancellation-engraving-action2"
+      "session": "synthetic/v59/v59-downward-cancellation-engraving-action2",
+      "closeStanding": {
+        "sha": "b368ad83d90f19d943f33c72c28736baf527fae9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
+        "target": "synthetic/v59/v59-downward-cancellation-engraving-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/b368ad83d90f19d943f33c72c28736baf527fae9/run-hosted-GWA0Qx/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "zap_map",
+            "implementation": "js/zap.js",
+            "symbol": "zap_map",
+            "sourceReview": "Read the complete C zap.c:zap_map function, lines 3625-3825. This divergence fix adds the non-headstone engraving deletion arm at lines 3658-3663: WAN_CANCELLATION, SPE_CANCELLATION, and WAN_MAKE_INVISIBLE all call del_engr(e). JavaScript reuses del_engr_at(x, y, state). The preceding maybe_explode_trap() call is already implemented and accepted; this task does not alter it. The selected arm makes no random call, emits no message, and changes only the target engraving.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "C zap.c:dozap() calls weffects() at line 2673; JS zap.js:dozap() calls weffects() at line 961."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "C zap.c:weffects() calls zap_updown() for a vertical effect at line 3446; JS zap.js:weffects() calls zap_updown() at line 6521."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "C zap.c:zap_updown() calls zap_map() after the downward floor-pile effect at line 3389; JS zap.js:zap_updown() calls zap_map() at line 6475."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v59",
+                "caseId": "v59-downward-cancellation-engraving-action2",
+                "segment": 0,
+                "fromStep": 152,
+                "throughStep": 175,
+                "source": "zap.c:dozap -> weffects -> zap_updown -> zap_map downward cancellation engraving branch"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected entry point is zapping a cancellation wand downward onto a non-headstone engraving; the recorded command reaches C zap.c:dozap -> weffects -> zap_updown -> zap_map and the corresponding JS path. The admitted v59 replay matches all 196 screens, RNG calls, cursor positions, and the input boundary after the deletion arm. WAN_MAKE_INVISIBLE shares the same C deletion branch and is implemented by the same code, but the selected recording specifically exercises cancellation.",
+        "entryPoints": [
+          {
+            "name": "Downward cancellation removes a non-headstone engraving",
+            "functions": [
+              "zap_map"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v59",
+                "caseId": "v59-downward-cancellation-engraving-action2",
+                "segment": 0,
+                "fromStep": 152,
+                "throughStep": 175,
+                "source": "zap.c:dozap -> weffects -> zap_updown -> zap_map"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-trap-dotrap-seen-sokoban-pit-v62-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Admit the C seen rolling-boulder trap escape path through preflight_dotrap.",
       "cFile": "trap.c",
       "sessions": [
@@ -305897,10 +306109,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "b368ad83d90f19d943f33c72c28736baf527fae9",
       "delivered": null,
       "function": "dotrap",
-      "session": "synthetic/v62/v62-sokoban-original-boulder-fill-action6"
+      "session": "synthetic/v62/v62-sokoban-original-boulder-fill-action6",
+      "closeStanding": {
+        "sha": "b368ad83d90f19d943f33c72c28736baf527fae9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
+        "target": "synthetic/v62/v62-sokoban-original-boulder-fill-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/b368ad83d90f19d943f33c72c28736baf527fae9/run-hosted-GWA0Qx/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dotrap",
+            "symbol": "dotrap",
+            "implementation": "js/trap_effects.js",
+            "sourceReview": "Read all of trap.c:dotrap() (2995-3060). For a seen rolling-boulder trap, the function reaches the normal already_seen escape check and evaluates rn2(5); the Sokoban force-through special case applies only to pits and holes. The JS preflight now admits the rolling-boulder type, then the existing dotrap implementation preserves the source RNG and effect order.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "preflightDomoveDestination",
+                "source": "C hack.c:domove_core moves the hero before hack.c:spoteffects() calls trap.c:dotrap(). The JS hack.js:preflightDomoveDestination() calls preflight_dotrap() before that state write; it now admits the source-known rolling-trap path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v62",
+                "caseId": "v62-sokoban-original-boulder-fill-action6",
+                "segment": 0,
+                "fromStep": 588,
+                "throughStep": 616,
+                "source": "hack.c:domove_core -> hack.c:spoteffects -> trap.c:dotrap seen-trap escape roll at line 3038; the C screen identifies the rolling-boulder trap, and replay matches through the final step."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted v62 replay moves the hero onto a seen rolling-boulder trap in Sokoban. In C, hack.c:domove_core moves the hero and hack.c:spoteffects() calls trap.c:dotrap(). The JS preflight runs before the movement write and now admits this source-known branch; the existing dotrap implementation then matches through the final recorded step.",
+        "entryPoints": [
+          {
+            "name": "Move onto a seen rolling-boulder trap in Sokoban",
+            "functions": [
+              "dotrap"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v62",
+                "caseId": "v62-sokoban-original-boulder-fill-action6",
+                "segment": 0,
+                "fromStep": 588,
+                "throughStep": 616,
+                "source": "hack.c:domove_core movement -> hack.c:spoteffects -> trap.c:dotrap -> rolling-boulder trap seen escape/effect."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
