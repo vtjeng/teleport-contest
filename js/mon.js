@@ -549,6 +549,7 @@ import {
     S_KOBOLD,
     S_KOP,
     S_LICH,
+    S_LIGHT,
     S_MIMIC,
     S_ORC,
     S_UNICORN,
