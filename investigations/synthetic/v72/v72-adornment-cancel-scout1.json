@@ -1,0 +1,72 @@
+{
+  "session": "synthetic/v72/v72-adornment-cancel-scout1",
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-adornment-cancel-scout1",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingPath": "challenges/cases/v72/v72-adornment-cancel-scout1.session.json",
+  "recordingSha256": "7632a3db0209ab82b89646a161c6e68ce392a610c1ca22fe7dc411a9b9014536",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "evaluationBlob": "d1f964a8b233d32e31f884598a51115662e4ae20",
+  "remainingScreens": 272,
+  "recordedSteps": 272,
+  "status": "complete",
+  "commit": null,
+  "mismatch": {
+    "segment": 0,
+    "step": 211,
+    "key": ".",
+    "kind": "ReferenceError",
+    "error": "A_CHA is not defined",
+    "source": "zap.c:cancel_item1258",
+    "session": "synthetic/v72/v72-adornment-cancel-scout1",
+    "remainingScreens": 272
+  },
+  "diagnosis": "At C step 211, self-cancellation traverses the hero inventory and reaches the worn RIN_ADORNMENT branch of zap.c:cancel_item. C subtracts obj->spe from ABON(A_CHA) and marks the status line dirty; JS performs the same operation but its zap.js imports omit A_CHA, causing a ReferenceError before the branch completes.",
+  "source": {
+    "file": "zap.c",
+    "function": "cancel_item",
+    "lines": "1239-1362; worn RIN_ADORNMENT 1258-1263",
+    "javascript": "js/zap.js:cancel_item",
+    "callerPath": "zap.c:zapyourself -> zap.c:cancel_monst(self_cancel=TRUE) -> zap.c:cancel_item",
+    "cBehavior": "For a carried worn adornment ring, cancel_item subtracts obj->spe from ABON(A_CHA), sets disp.botl, then continues with the source cancellation effects. Self-zapping cancellation reaches each inventory object in nobj order.",
+    "jsBeforeFix": "js/zap.js contained the matching A_CHA update but omitted A_CHA from its const.js import list.",
+    "functions": [
+      "cancel_item"
+    ],
+    "branch": "zap.c:cancel_item worn RIN_ADORNMENT branch; cancel_monst inventory walk reached by self-cancellation.",
+    "callers": [
+      "zap.c:zapyourself -> zap.c:cancel_monst -> zap.c:cancel_item"
+    ],
+    "dependencies": [
+      "attrib.h:ABON(x) expands to u.abon.a[x]",
+      "zap.c:cancel_monst walks gi.invent and calls cancel_item when self_cancel is true",
+      "js/const.js exports A_CHA"
+    ]
+  },
+  "fix": "Import the existing A_CHA constant in js/zap.js. Extend the existing self-cancellation test with a worn +3 adornment ring and assert its charisma bonus falls from 3 to 0 through cancel_monst.",
+  "evidence": [
+    "The admitted v72 source trace shows a +3 adornment ring worn on the right hand with Charisma 19; self-cancellation at segment 0 step 211 reaches Charisma 16 before stopping on ReferenceError A_CHA is not defined.",
+    "Upstream zap.c:cancel_item subtracts obj->spe from ABON(A_CHA) for a worn RIN_ADORNMENT; attrib.h defines ABON(x) as u.abon.a[x].",
+    "The corrected full replay matches all 272 screens, 2515 RNG calls, and 272 cursors; the independent source-range verifier will cite segment 0 through step 271."
+  ],
+  "goalKind": "divergence-fix",
+  "summary": "The admitted self-cancellation case stops in zap.c:cancel_item because the JavaScript translation references A_CHA without importing it. Importing the existing constant preserves the C charisma decrement and lets the full replay complete.",
+  "baselineEvaluation": {
+    "screens": {
+      "matched": 0,
+      "total": 272
+    },
+    "rng": {
+      "matched": 0,
+      "total": 2515
+    },
+    "cursors": {
+      "matched": 0,
+      "total": 272
+    },
+    "reason": "The accepted JavaScript comparison stopped at segment 0 step 211 with ReferenceError A_CHA is not defined; its saved error-prefix proof matches the preceding 211 screens and 2503 RNG calls."
+  }
+}
