@@ -1,0 +1,70 @@
+{
+  "session": "synthetic/v72/v72-boots-ice-scout1",
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-boots-ice-scout1",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingPath": "challenges/cases/v72/v72-boots-ice-scout1.session.json",
+  "recordingSha256": "cb3346582a44be3caf9bcb9d15d0fccf7a8c32498a77ae18e087bf7ae7d8c8c2",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "evaluationBlob": "d1f964a8b233d32e31f884598a51115662e4ae20",
+  "remainingScreens": 246,
+  "recordedSteps": 246,
+  "status": "complete",
+  "commit": "10293385acd9a12af43aa7bcab20f4a5d5a83cff",
+  "mismatch": {
+    "session": "synthetic/v72/v72-boots-ice-scout1",
+    "remainingScreens": 246,
+    "segment": 0,
+    "step": 196,
+    "key": "h",
+    "kind": "ReferenceError",
+    "error": "objdescr_is is not defined",
+    "source": "hack.c:slippery_ice_fumbling2396"
+  },
+  "diagnosis": "C creates ICE beneath ordinary low boots at step 171. When the hero leaves the ice at step 196, hack.c:slippery_ice_fumbling checks whether the worn boots are snow boots with objdescr_is(uarmf, \"snow boots\"). The JavaScript function makes the same call, but js/hack.js does not import objdescr_is from o_init.js, so movement stops with ReferenceError before the source RNG draw and fumbling state update.",
+  "source": {
+    "file": "hack.c",
+    "function": "slippery_ice_fumbling",
+    "functions": [
+      "slippery_ice_fumbling"
+    ],
+    "lines": "2396-2413",
+    "javascript": "js/hack.js:slippery_ice_fumbling",
+    "branch": "While standing on ice without levitation, a snow-boots check suppresses slipping; otherwise C may set timed fumbling. Leaving ice clears the FROMOUTSIDE source.",
+    "callers": [
+      "hack.c:domove_core -> hack.c:slippery_ice_fumbling; JS hack.js:domove_core -> hack.js:slippery_ice_fumbling"
+    ],
+    "dependencies": [
+      "o_init.c:objdescr_is compares the unidentified object description to the supplied text",
+      "js/o_init.js exports objdescr_is"
+    ],
+    "cBehavior": "C calls objdescr_is on the worn boots before the cold-resistance and movement checks. With non-snow boots, it continues through the source movement branch and may consume rn2(2).",
+    "jsBeforeFix": "js/hack.js calls objdescr_is but imports only init_objects from o_init.js."
+  },
+  "fix": "Import the existing objdescr_is helper from o_init.js into js/hack.js; keep the snow-boots check and following source order unchanged.",
+  "evidence": [
+    "The v72 trace creates ICE at segment 0 step 171; the hero leaves the ice at step 196, which reaches hack.c:slippery_ice_fumbling before the error.",
+    "The accepted prefix matches 196 screens/cursors and 2147 RNG calls. The first error is ReferenceError objdescr_is is not defined at hack.c:slippery_ice_fumbling2396.",
+    "C uses objdescr_is(uarmf, \"snow boots\") in hack.c:slippery_ice_fumbling; js/o_init.js exports the matching helper."
+  ],
+  "goalKind": "divergence-fix",
+  "summary": "Leaving ICE reaches the existing slippery_ice_fumbling translation, which calls objdescr_is but omits its import. Importing the existing helper preserves the C snow-boots check and lets movement continue.",
+  "baselineEvaluation": {
+    "screens": {
+      "matched": 0,
+      "total": 246
+    },
+    "rng": {
+      "matched": 0,
+      "total": 2159
+    },
+    "cursors": {
+      "matched": 0,
+      "total": 246
+    },
+    "reason": "The accepted JavaScript comparison stopped at segment 0 step 196 with ReferenceError objdescr_is is not defined; its saved prefix proof matches all preceding 196 screens and 2147 RNG calls."
+  }
+}
