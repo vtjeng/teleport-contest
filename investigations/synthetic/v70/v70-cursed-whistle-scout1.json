@@ -21,7 +21,8 @@
       "synthetic/v70/v70-cursed-whistle-scout1"
     ],
     "remainingScreens": 318,
-    "recordingPath": "challenges/cases/v70/v70-cursed-whistle-scout1.session.json"
+    "recordingPath": "challenges/cases/v70/v70-cursed-whistle-scout1.session.json",
+    "session": "synthetic/v70/v70-cursed-whistle-scout1"
   },
   "summary": "The cursed magic whistle humming branch reaches the second random gate, wakes nearby pets, then throws ReferenceError because js/apply.js calls noteleport_level without importing it. The C caller checks teleport.c:notteleport_level before calling tele_to_rnd_pet; the JavaScript implementation and export already exist in js/teleport.js. The first 111 screens and 2866 RNG calls match, including the C humming message; source correction is the missing caller import and a focused guard test.",
   "source": {
