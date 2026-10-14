@@ -6,7 +6,7 @@
   "remainingScreens": 339,
   "recordedSteps": 339,
   "status": "complete",
-  "summary": "The admitted v70 swallowed-monster polymorph replay stops in the existing JavaScript port of mon.c:newcham() because mon.js reads S_LIGHT without importing it. C uses the symbol-class check to decide whether the monster remains non-solid and expels the swallowed hero after the controlled form change.",
+  "summary": "The admitted v70 swallowed-monster polymorph replay stops in the existing JavaScript port of mon.c:newcham() because mon.js reads S_LIGHT without importing it. C uses this symbol-class check to select the solid-form break-out message and one-hit-point treatment before expelling the hero from a monster that no longer engulfs.",
   "commit": "53d933b0f48a9e4d51b42562e27949651633428f",
   "mismatch": {
     "session": "synthetic/v70/v70-swallowed-poly-action3",
@@ -17,7 +17,7 @@
   },
   "source": {
     "file": "mon.c",
-    "branch": "mon.c:newcham() changes the polymorphed monster's data and then handles a hero swallowed by that monster. C checks whether the target is amorphous or has mlet S_LIGHT before choosing the solid-form break-out message and reducing the monster to 1 hit point; it then calls expels(). js/mon.js mirrors the condition in apply_newcham_steps() but does not import S_LIGHT from monsters.js, so this branch throws before the source transition completes.",
+    "branch": "mon.c:newcham() changes the polymorphed monster's data and then handles a hero swallowed by that monster. If the target no longer has an engulfing attack, C checks whether it is solid before choosing the break-out message and setting the monster to 1 hit point; it calls expels() for every target without an engulfing attack. js/mon.js mirrors the solid-form condition in apply_newcham_steps() but does not import S_LIGHT from monsters.js, so this branch throws before the source transition completes.",
     "functions": [
       "newcham"
     ],
@@ -35,7 +35,7 @@
   "evidence": [
     "The accepted v70 evaluation records 0/339 screens, 0/6438 RNG calls, and 0/339 cursors, with error S_LIGHT is not defined for this case. The manifest identifies the target behavior as mon.c:newcham().",
     "A targeted scan of the admitted recording on 53d933b0f48a9e4d51b42562e27949651633428f stops with ReferenceError: S_LIGHT is not defined at js/mon.js:2936 in apply_newcham_steps(), called by apply_newcham(), newcham(), and zap.js:bhitm(). The retained log is /tmp/teleport-validation-1000/run-qLttsA/stdout.log.",
-    "Upstream mon.c:newcham() at lines 5278-5534 checks !(amorphous(mdat) || mdat->mlet == S_LIGHT) while u.ustuck == mtmp and u.uswallow is true. For a solid target it issues the break-out message, sets mtmp->mhp to 1, and then expels the hero; non-solid targets skip that arm.",
+    "Upstream mon.c:newcham() at lines 5278-5534 checks !(amorphous(mdat) || mdat->mlet == S_LIGHT) when the hero is swallowed and the new target does not have an engulfing attack. A solid target receives the break-out message and 1 hit point before expels() runs; non-solid targets still reach expels() without that treatment.",
     "js/mon.js:apply_newcham_steps() reproduces the source condition as target.mlet === S_LIGHT, but the module's monsters.js import list omits S_LIGHT even though monsters.js exports it. This is a missing binding in the existing source path, not a missing polymorph branch or a case-specific condition."
   ]
 }
