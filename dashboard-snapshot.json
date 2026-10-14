@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T20:21:51.832Z",
+  "capturedAt": "2026-10-14T20:38:59.424Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -125644,6 +125644,196 @@
         "type": "accepted",
         "at": "2026-10-14T20:18:57.834Z",
         "task": "B-investigation-v68-npc-rust-bars-action4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v70-whip-five-dose-action2-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "published",
+        "at": "2026-10-14T20:22:05.693Z",
+        "task": "C-investigation-v70-whip-five-dose-action2-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v70-tame-grip-jump-scout2-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:09.583Z",
+        "task": "A2-investigation-v70-tame-grip-jump-scout2-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v70-eat-ball-scout1-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:10.973Z",
+        "task": "A2-investigation-v70-eat-ball-scout1-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v70-lava-timed-levitation-scout1-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:12.327Z",
+        "task": "C-investigation-v70-lava-timed-levitation-scout1-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v70-swallowed-poly-action3-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:13.722Z",
+        "task": "C-investigation-v70-swallowed-poly-action3-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v69-cube-contents-action4-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:15.066Z",
+        "task": "B-investigation-v69-cube-contents-action4-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v70-horn-fedora-scout1-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:16.382Z",
+        "task": "A2-investigation-v70-horn-fedora-scout1-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v68-master-key-trap-action5-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:17.687Z",
+        "task": "C-investigation-v68-master-key-trap-action5-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v70-hidden-eel-scout1-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:18.987Z",
+        "task": "A2-investigation-v70-hidden-eel-scout1-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v70-cursed-whistle-scout1-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:20.314Z",
+        "task": "B-investigation-v70-cursed-whistle-scout1-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v70-blind-ice-decor-on-scout2-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:21.624Z",
+        "task": "A2-investigation-v70-blind-ice-decor-on-scout2-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v70-item-split-scout2-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:22.915Z",
+        "task": "B-investigation-v70-item-split-scout2-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v70-stoned-clay-scout1-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:24.211Z",
+        "task": "A2-investigation-v70-stoned-clay-scout1-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v69-swallowed-break-action4-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:25.522Z",
+        "task": "C-investigation-v69-swallowed-break-action4-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v68-npc-rust-bars-action4-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:26.826Z",
+        "task": "B-investigation-v68-npc-rust-bars-action4-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v68-buried-filled-sack-action8-20261014-3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:22:28.229Z",
+        "task": "C-investigation-v68-buried-filled-sack-action8-20261014",
+        "commit": "3a7bf7c7ed2bb928665e01ad38beefece628d489",
+        "knownBy": "2026-10-14T20:22:05.693Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-f120bc1cc8314b0fe259bc3da69f521c150f1304197c9f4a8e53b4b0205708fd-e39d754f994077858514ef103d1117a3949303b3-Prep35",
+        "type": "integrating",
+        "at": "2026-10-14T20:23:15.823Z",
+        "task": "Prep35",
+        "integration": "e39d754f994077858514ef103d1117a3949303b3",
+        "prepGroup": [
+          "Prep35"
+        ],
+        "validationGroup": [
+          "Prep35"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep35-e39d754f994077858514ef103d1117a3949303b3",
+        "type": "validated",
+        "at": "2026-10-14T20:33:00.449Z",
+        "task": "Prep35",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep35-e39d754f994077858514ef103d1117a3949303b3",
+        "type": "accepted",
+        "at": "2026-10-14T20:33:00.449Z",
+        "task": "Prep35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep35-62083786357189a4660adb0b96d92609e3d885b7",
+        "type": "activity",
+        "at": "2026-10-14T20:37:20.482Z",
+        "task": "Prep35",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep35-62083786357189a4660adb0b96d92609e3d885b7",
+        "type": "activity",
+        "at": "2026-10-14T20:37:21.529Z",
+        "task": "Prep35",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
@@ -125668,18 +125858,6 @@
         "status": "ready",
         "delivery": "c9dac2a6318562b1317e6693d30031178efa17ce",
         "since": "2026-10-14T19:54:04.171Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep35",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "bd0d1cb6f99eeb1bb70aa0491a08739c160d28de",
-        "batch": "v71",
-        "since": "2026-10-14T19:59:30.479Z",
         "blockedBy": [],
         "unblocks": 0
       },
@@ -126927,8 +127105,8 @@
     }
   },
   "development": {
-    "executionCommit": "e3c791fcf1803ed1fc399b6f25eed7c8b9bea809",
-    "measuredAt": "2026-10-14T20:13:47.435Z",
+    "executionCommit": "e39d754f994077858514ef103d1117a3949303b3",
+    "measuredAt": "2026-10-14T20:32:12.633Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
