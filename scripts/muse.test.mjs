@@ -24,13 +24,18 @@ import {
 import {
     COLNO,
     COULD_SEE,
+    D_CLOSED,
+    D_BROKEN,
+    DOOR,
     IN_SIGHT,
     M_SEEN_ACID,
     M_SEEN_MAGR,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     ROOM,
+    ROOMOFFSET,
     ROWNO,
+    SHOPBASE,
     STONE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -1847,6 +1852,9 @@ test('use_offensive keeps wand beam draws on the caller random stream',
     const state = await offensiveHero();
     state.nhDisplay.onEmptyQueue = () => 13;
     state.context.mon_moving = true;
+    // Force this visible first use to reach C's discover_object(A_WIS) draw.
+    state.objects[WAN_STRIKING].oc_name_known = 0;
+    state.objects[WAN_STRIKING].oc_encountered = 0;
     const wand = carried(state, WAN_STRIKING, { spe: 2 });
     const floorPotion = carried(state, POT_SLEEPING);
     place_object(floorPotion, state.u.ux, state.u.uy, state);
@@ -1899,6 +1907,82 @@ test('use_offensive keeps wand beam draws on the caller random stream',
     // whose zap.c:obj_resists() draw must stay on this action's RNG stream.
     assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 100));
     assert.equal(floorPotion.where, OBJ_FLOOR);
+});
+
+test('mbhit records a monster-broken shop door without losing its global state',
+    async () => {
+    const state = await offensiveHero();
+    // Keep doorlock's follow-up input deterministic if the door path asks for
+    // another key; 13 is outside the normal action needed for this ray.
+    state.nhDisplay.onEmptyQueue = () => 13;
+    state.context.mon_moving = true;
+    const x = state.u.ux;
+    const y = state.u.uy;
+    // Put the closed shop door two cells into a straight ray, with open floor
+    // through the attacking monster's square so mbhit reaches it in order.
+    const doorX = x + 2;
+
+    for (let tileX = x + 1; tileX <= x + 4; ++tileX) {
+        const tile = state.level.at(tileX, y);
+        tile.typ = ROOM;
+        tile.flags = 0;
+        tile.doormask = 0;
+        tile.wall_info = 0;
+    }
+    const door = state.level.at(doorX, y);
+    Object.assign(door, {
+        typ: DOOR,
+        flags: D_CLOSED,
+        doormask: D_CLOSED,
+        roomno: ROOMOFFSET,
+    });
+    state.level.rooms[0] = {
+        rtype: SHOPBASE,
+        resident: {
+            isshk: true,
+            mpeaceful: true,
+            mextra: { eshk: { shd: { x: doorX, y } } },
+        },
+    };
+
+    // Two charges leave a live striking wand for mbhit's one-shot use.
+    const wand = carried(state, WAN_STRIKING, { spe: 2 });
+    const attacker = offensiveMonster(state, PM_GNOME, wand, {
+        mx: x + 4,
+        my: y,
+        mwandexp: true,
+    });
+    state.viz_array[y][attacker.mx] |= IN_SIGHT;
+    assert.equal(canseemon(attacker, state), true);
+    state.m_offense = {
+        has_offense: MUSE_WAN_STRIKING,
+        offensive: wand,
+    };
+    const randomCalls = [];
+    const env = {
+        ...offensiveEnv(state),
+        random: {
+            // Keep the wand's range and hit checks deterministic so this test
+            // reaches the shop-door branch without depending on a seed.
+            rn1: (_bound, base) => base,
+            rn2: (bound) => {
+                randomCalls.push(bound);
+                return 0;
+            },
+            rnd: () => 1,
+            d: (count) => count,
+        },
+        message: async () => {},
+    };
+
+    // C returns 2 after this surviving monster completes its offensive turn.
+    assert.equal(await use_offensive(attacker, env), 2);
+    assert.equal(door.doormask, D_BROKEN);
+    assert.deepEqual(state.level.damagelist?.place, { x: doorX, y });
+    assert.equal(state.level.damagelist?.cost, 0);
+    // C's exercise(A_WIS, TRUE) draws rn2(19); planning must use its cloned
+    // context rather than advancing the live caller's RNG.
+    assert.equal(randomCalls.filter((bound) => bound === 19).length, 1);
 });
 
 test('mbhitm forwards discarded cancellation result through its C caller',

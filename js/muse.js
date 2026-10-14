@@ -2471,7 +2471,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
                     rawEnv,
                 )) {
                     if (state.gz?.zap_oseen)
-                        discover_object(otyp, true, true, true, state);
+                        discover_object(otyp, true, true, true, state, rawEnv);
                     const hitDoor = state.level.at(
                         state.gb.bhitpos.x,
                         state.gb.bhitpos.y,
@@ -2484,7 +2484,12 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
                             SHOPBASE,
                             state,
                         ).length) {
-                        add_damage(gb.bhitpos.x, gb.bhitpos.y, 0, state);
+                        add_damage(
+                            state.gb.bhitpos.x,
+                            state.gb.bhitpos.y,
+                            0,
+                            state,
+                        );
                     }
                 }
                 break;

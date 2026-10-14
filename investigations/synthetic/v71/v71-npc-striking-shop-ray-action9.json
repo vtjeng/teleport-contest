@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v71/v71-npc-striking-shop-ray-action9",
+  "remainingScreens": 559,
+  "recordedSteps": 559,
+  "corpus": "synthetic",
+  "batch": "v71",
+  "caseId": "v71-npc-striking-shop-ray-action9",
+  "manifestPath": "challenges/manifests/v71.json",
+  "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+  "recordingSha256": "e01f1f19f2cfa402a9f593c9f9824b65fe7e599e759203fd49a6b7f0a4052c2d",
+  "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v71.json",
+  "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+  "status": "complete",
+  "commit": "d2ebcc7c2e231fe02b1508edf39b71c362bf2ac8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v71",
+    "caseId": "v71-npc-striking-shop-ray-action9",
+    "session": "synthetic/v71/v71-npc-striking-shop-ray-action9",
+    "manifestPath": "challenges/manifests/v71.json",
+    "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+    "recording": "challenges/cases/v71/v71-npc-striking-shop-ray-action9.session.json",
+    "recordingPath": "challenges/cases/v71/v71-npc-striking-shop-ray-action9.session.json",
+    "recordingSha256": "e01f1f19f2cfa402a9f593c9f9824b65fe7e599e759203fd49a6b7f0a4052c2d",
+    "recipe": "challenges/cases/v71/v71-npc-striking-shop-ray-action9.recipe.session.json",
+    "recipeSha256": "39ba5128e67b251832798c4b376dbbb4781065f2a6ddd3873796911497a512b3",
+    "replayInputSha256": "785d3a55bdb22fa30717cb3b9135a266424251a18fa4bb6e2178d3111554505e",
+    "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v71.json",
+    "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+    "evaluationArtifact": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v71.json",
+    "evaluationUtc": "2026-10-14T20:47:52.339Z",
+    "remainingScreens": 559,
+    "recordedSteps": 559,
+    "previousScreensMatched": 0,
+    "regression": false,
+    "passed": false,
+    "error": "gb is not defined",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 559
+      },
+      "rng": {
+        "matched": 0,
+        "total": 3216
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 559
+      }
+    },
+    "investigation": {
+      "status": "missing",
+      "path": "investigations/synthetic/v71/v71-npc-striking-shop-ray-action9.json"
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: gb is not defined",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: gb is not defined",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A monster wand-of-striking ray that hits a shop door exposed two defects in muse.c:mbhit’s JavaScript path. The door-break branch referenced an undefined gb instead of state.gb, stopping replay. After repairing that state reference, C/JS diagnostics showed cloned monster-turn planning advanced the live RNG: the planner’s makeknown/discover_object call dropped rawEnv, so exercise_nonphysical fell back to module-global rn2. Passing rawEnv preserves the planner clone and leaves the caller RNG aligned with C.",
+  "source": {
+    "file": "muse.c",
+    "branch": "When a monster wand ray reaches a shop door and doorlock breaks it, C marks the wand known when visible and adds zero-cost shop damage at gb.bhitpos. In the JS planner clone, the same discovery call must use its cloned random environment.",
+    "functions": [
+      "mbhit"
+    ],
+    "callers": [
+      "muse.c:use_offensive -> mbhit",
+      "js/muse.js:use_offensive -> mbhit"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C source muse.c:1734-1814 defines mbhit. Its WAN_STRIKING door branch calls doorlock, then makeknown(otyp) when gz.zap_oseen, and add_damage(gb.bhitpos.x, gb.bhitpos.y, 0L) when a shop door is broken. The JS branch uses state.gb for bhitpos and passes rawEnv to discover_object.",
+    "C macro hack.h:1530 maps makeknown(x) to discover_object((x), TRUE, TRUE, TRUE); JS o_init.js:discover_object accepts the caller environment. Omitting rawEnv during cloned monster-turn planning lets its nested exercise draw use module-global RNG.",
+    "Instrumented C trace and JS loader trace are retained under .cache/task-validation/v71-shop-ray/. They identify the planner call path use_offensive -> mbhit -> discover_object -> exercise_nonphysical -> exerciseAttribute and the live-stream shift at C rng call 3195 / JS step 506. The temporary instrumentation did not modify the recipe or recording.",
+    "After the fix, JS-only replay against the immutable C recording matched all 559 screens, 559 cursors, and 3216 RNG calls (run-XLvOSw, receipt under /tmp/teleport-validation-1000/run-XLvOSw/receipt.json)."
+  ]
+}
