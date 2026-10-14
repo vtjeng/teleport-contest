@@ -10,7 +10,7 @@
   "evaluationCommit": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
   "remainingScreens": 106,
   "recordedSteps": 362,
-  "status": "partial",
+  "status": "complete",
   "commit": "1be7c8cca413f41a8bfb208fb28c72312f863b48",
   "mismatch": {
     "session": "synthetic/v73/v73-trapped-mastodon-farlook-action3",
@@ -21,7 +21,7 @@
       "message": "unsupported hero move: a bear trap closing on a steed"
     }
   },
-  "summary": "The admitted input reaches the mounted hero arm of trap.c:trapeffect_bear_trap. The JS correction now admits the branch, sets the hero's trapped timer, names and damages the steed using the already-rolled d(2,4), and avoids the unmounted hero wound/HP loss. The first local replay after this correction advances beyond step 256 and reaches the later farlook boundary, where pager.js currently throws because TRAP_DESCRIPTIONS is undefined. A's submitted pager correction is the explicit continuation prerequisite; this task does not edit pager scope.",
+  "summary": "The mounted bear-trap correction implements trap.c:trapeffect_bear_trap's steed branch and admits it in preflight_dotrap. After merging A's accepted farlook correction at c2c8bf3c, the complete admitted mastodon segment matched all 362 recorded steps. The original first mismatch was the mounted bear-trap refusal at step 256; its corrected replay now completes the later farlook route as well.",
   "source": {
     "file": "trap.c",
     "functions": [
@@ -35,7 +35,7 @@
     "dependencies": [
       "trap.c:set_utrap and trap.c:reset_utrap update the hero's trapped state and remain existing helpers.",
       "trap.c:thitm applies the trap's damage to the steed and supplies the death result used by reset_utrap.",
-      "A's submitted delivery c5900feeb18455d560036e12e561c9caa78f12e6 corrects the later pager.c:look_at_monster farlook boundary. The corrected mastodon replay depends on that change; this task's source correction is limited to the earlier mounted bear-trap branch."
+      "A's accepted delivery c5900feeb18455d560036e12e561c9caa78f12e6 corrects the later pager.c:look_at_monster farlook boundary. This task's full-replay evidence uses accepted integration c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba; the task's source correction remains limited to the earlier mounted bear-trap branch."
     ]
   },
   "goalKind": "divergence-fix",
@@ -44,7 +44,7 @@
     "C trap.c:trapeffect_bear_trap (1479-1560) rolls d(2,4), sets the hero's trap timer, then checks u.usteed: it formats the steed possessive/body part and calls thitm with the preserved damage; reset_utrap(TRUE) is conditional on the steed being killed.",
     "The mounted branch is now implemented in js/trap_effects.js:preflight_dotrap admits BEAR_TRAP for a mounted hero, and trapeffect_bear_trap applies the entry damage to the steed instead of wounding the hero.",
     "Prep's saved route adjudication .cache/prep37-recovery/prep73/final-twenty-eight-route-adjudication.json confirms the actual armed bear trap and mounted farlook context. Earlier plain-trap and dismount setup distinctions remain preserved; no source behavior is inferred from a spawned monster merely standing on a trap.",
-    "After the mounted bear-trap correction, bounded replay run-fi5z8H advanced beyond the original step-256 refusal and reached pager.js:look_at_monster, then stopped with ReferenceError: TRAP_DESCRIPTIONS is not defined. The continuation is covered by A's submitted delivery c5900feeb18455d560036e12e561c9caa78f12e6; this task does not edit pager.js."
+    "The first bounded replay after the mounted trap fix reached the later pager.js farlook boundary and stopped at TRAP_DESCRIPTIONS undefined (run-fi5z8H). After merging A's accepted pager fix in c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba, bounded run-kpvDko matched the complete segment: 362/362 screens, 2269/2269 RNG calls, and 362/362 cursors, with no error, boundary, or unported calls. Synthetic-range verification run-gvDAY2 matched segment 0 through step 361."
   ],
   "baselineMetrics": {
     "screens": {
@@ -57,6 +57,20 @@
     },
     "cursors": {
       "matched": 256,
+      "total": 362
+    }
+  },
+  "verifiedMetrics": {
+    "screens": {
+      "matched": 362,
+      "total": 362
+    },
+    "rng": {
+      "matched": 2269,
+      "total": 2269
+    },
+    "cursors": {
+      "matched": 362,
       "total": 362
     }
   }
