@@ -881,6 +881,8 @@ triage decisions or fix references.
 - The first Dashboard attempt for `b4eee962` also timed out in `updating_pages`.
   Root archived and verified its generated bundle, then removed that deployment
   input before a Dashboard-only retry to avoid duplicate artifacts.
+  Attempt 2 deployed successfully; the pending publication tracker cleared the
+  failure after resumption.
 
 ### 2026-10-14 — preflight fallback correction accepted
 
@@ -890,3 +892,14 @@ triage decisions or fix references.
 - The four-source preflight passed, hosted checkpoint 38535686281 passed at
   `f0581a765`, and all four tasks were accepted. The original failed candidate
   and report snapshots remain in history.
+
+### 2026-10-14 — generated-output assertion and incomplete hero fixtures
+
+- Hosted checkpoint 38601150821 at `db36ea92c` rejected the six-source candidate.
+  Adding Samurai home data to `QUALITY.json` also required adding it to the
+  explicit generated-output list in `quality-status.test.mjs`. Root corrected
+  that assertion; its 36 focused tests passed.
+- The new `newsym` tactile-memory path exposed seven test fixtures without an
+  initialized hero form across five test files. B owns their correction under
+  the original Rogue-memory task. The failed candidate and hosted logs remain
+  preserved; its passing fixed and recording checks do not establish acceptance.
