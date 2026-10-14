@@ -1,0 +1,65 @@
+{
+  "session": "synthetic/v64/v64-peaceful-worm-kicked-exit-action5",
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-peaceful-worm-kicked-exit-action5",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingSha256": "fcb57288df7a8c841228c217dfd7e4424439543133af10a79df8a2178f4c64fa",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "remainingScreens": 0,
+  "recordedSteps": 882,
+  "status": "complete",
+  "commit": "89c599742bbd55402815e9844dad546156c8828d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v64",
+    "caseId": "v64-peaceful-worm-kicked-exit-action5",
+    "session": "synthetic/v64/v64-peaceful-worm-kicked-exit-action5",
+    "manifestPath": "challenges/manifests/v64.json",
+    "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+    "recordingPath": "challenges/cases/v64/v64-peaceful-worm-kicked-exit-action5.session.json",
+    "recordingSha256": "fcb57288df7a8c841228c217dfd7e4424439543133af10a79df8a2178f4c64fa",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "remainingScreens": 0,
+    "recordedSteps": 882,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 882, "total": 882 },
+      "rng": { "matched": 3275, "total": 3360 },
+      "cursors": { "matched": 882, "total": 882 }
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "sourceFile": "worm.c",
+      "function": "worm_nomove",
+      "line": 293,
+      "step": 825,
+      "rng": {
+        "index": 3275,
+        "cEntry": "d(2,2)=2",
+        "cCaller": "worm_nomove(worm.c:293)",
+        "jsEntry": "rn2(5)=4",
+        "location": { "segmentIndex": 0, "stepIndex": 825, "key": "j" }
+      }
+    }
+  },
+  "summary": "At step 825, a long worm that fails to move reaches C's worm_nomove(), which shrinks its tail and, when mhp exceeds the remaining segment count, subtracts d(2,2) from mhp. The JavaScript caller records this branch with note_unported() and skips both the worm state change and its random calls, so the next C d(2,2) differs from JavaScript's later rn2(5).",
+  "source": {
+    "file": "worm.c",
+    "branch": "A monster with nonzero wormno reaches the failed-move arm of monmove.c:m_move after the unicorn relocation escape does not return.",
+    "functions": [ "worm_nomove" ],
+    "callers": [ "monmove.c:m_move" ],
+    "dependencies": [ "worm.c:shrink_worm", "worm.c:count_wsegs" ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C source nethack-c/upstream/src/worm.c:288-297 defines worm_nomove(): it calls shrink_worm(wormno), checks mhp > count_wsegs(worm), subtracts d(2,2), and clamps mhp to 1 without changing mhpmax.",
+    "C caller nethack-c/upstream/src/monmove.c:2063-2074 reaches worm_nomove() only in the failed-move arm for a nonzero wormno, then continues through postmov().",
+    "JavaScript caller js/monmove.js:4169-4171 currently calls note_unported('worm.c worm_nomove') in that same long-worm failed-move branch before postMonsterMove(). The missing callee must be implemented in js/worm.js and wired at this caller; shrink_worm() and count_wsegs() already provide the C dependencies.",
+    "Saved baseline challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json records this case with 882/882 screens and cursors, 3275/3360 RNG entries, and its first mismatch at segment 0 step 825 on key 'j': C d(2,2)=2 in worm_nomove(), JavaScript rn2(5)=4."
+  ]
+}
