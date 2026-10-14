@@ -1763,7 +1763,11 @@ export async function meatobj(mtmp, rawEnv = {}) {
                     await monsterMessage(`Yum${obj.blessed ? '!' : '.'}`, null, state, rawEnv);
                 }
             } else {
-                await monsterMessage('You hear a slurping sound.', null, state, rawEnv);
+                if (state.flags?.verbose) {
+                    const heard = youHear('a slurping sound.', state);
+                    if (heard !== null)
+                        await monsterMessage(heard, null, state, rawEnv);
+                }
             }
             await m_consume_obj(mtmp, obj, { ...rawEnv, state });
             if (mtmp.data !== original) return mtmp.data ? 1 : 2;
@@ -1774,13 +1778,14 @@ export async function meatobj(mtmp, rawEnv = {}) {
     if (engulfed && state.flags?.verbose) {
         if (cansee(mtmp.mx, mtmp.my, state) && messageText)
             await monsterMessage(messageText, mtmp, state, rawEnv);
-        else
-            await monsterMessage(
-                `You hear ${engulfed === 1 ? 'a' : 'several'} slurping sound${engulfed === 1 ? '' : 's'}.`,
-                null,
+        else {
+            const heard = youHear(
+                `${engulfed === 1 ? 'a' : 'several'} slurping sound${engulfed === 1 ? '' : 's'}.`,
                 state,
-                rawEnv,
             );
+            if (heard !== null)
+                await monsterMessage(heard, null, state, rawEnv);
+        }
     }
     return count || engulfed ? 1 : 0;
 }

@@ -18,12 +18,16 @@ test('meatobj imports and applies source slimeproof for green slime glob', () =>
     assert.ok(cStart >= 0 && cEnd > cStart, 'C meatobj source range exists');
     assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JS meatobj source range exists');
     assert.match(cFunction, /GLOB_OF_GREEN_SLIME[\s\S]{0,80}slimeproof\(mtmp->data\)/u);
+    assert.match(cFunction, /if \(flags\.verbose\)[\s\S]{0,180}You_hear\("a slurping sound\."\)/u);
+    assert.match(cFunction, /else if \(flags\.verbose\)[\s\S]{0,140}You_hear\("%s slurping sound%s\."/u);
     assert.match(jsFunction, /GLOB_OF_GREEN_SLIME && !slimeproof\(mtmp\.data\)/u);
+    assert.match(jsFunction, /youHear\('a slurping sound\.', state\)/u);
     assert.match(JS_MON_SOURCE, /import \{[\s\S]*?\bslimeproof\b[\s\S]*?\} from '\.\/mondata\.js';/u);
 });
 import { GameMap } from '../js/game.js';
 import {
     m_consume_obj,
+    meatobj,
     meatcorpse,
     meatmetal,
     mon_give_prop,
@@ -136,6 +140,38 @@ test('m_consume_obj turns an eater into green slime after consuming a glob', asy
 
     assert.equal(glob.where, OBJ_DELETED);
     assert.equal(cube.data, state.mons[PM_GREEN_SLIME]);
+});
+
+test('meatobj gates hidden slurping messages by C verbosity, acoustics, and deafness', async () => {
+    // Each flag combination below isolates a C You_hear gate: only verbose,
+    // acoustic, non-deaf play reports the hidden edible object.
+    for (const { verbose, acoustics, deaf, expected } of [
+        // This is the sole combination that reaches You_hear's output branch.
+        { verbose: true, acoustics: true, deaf: false,
+            expected: ['You hear a slurping sound.'] },
+        // C suppresses the sound when the player is deaf.
+        { verbose: true, acoustics: true, deaf: true, expected: [] },
+        // C acoustics suppresses the sound when disabled.
+        { verbose: true, acoustics: false, deaf: false, expected: [] },
+        // meatobj skips You_hear entirely when verbose is disabled.
+        { verbose: false, acoustics: true, deaf: false, expected: [] },
+    ]) {
+        const state = makeState();
+        state.flags.verbose = verbose;
+        state.flags.acoustics = acoustics;
+        state.u.uroleplay = { deaf };
+        const cube = monster(state, PM_GELATINOUS_CUBE);
+        floorObject(state, GLOB_OF_GREEN_SLIME);
+        const messages = [];
+
+        assert.equal(await meatobj(cube, {
+            state,
+            random: random(),
+            message: async (line) => messages.push(line),
+        }), 1);
+        assert.deepEqual(messages, expected);
+        assert.equal(cube.minvent.otyp, GLOB_OF_GREEN_SLIME);
+    }
 });
 
 test('meatmetal consumes the first acceptable metallic object', async () => {
