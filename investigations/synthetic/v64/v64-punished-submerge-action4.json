@@ -1,0 +1,53 @@
+{
+  "session": "synthetic/v64/v64-punished-submerge-action4",
+  "remainingScreens": 1,
+  "recordedSteps": 261,
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-punished-submerge-action4",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingPath": "challenges/cases/v64/v64-punished-submerge-action4.session.json",
+  "recordingSha256": "b03966047de985063e6a1be4f9480d00f219ac40813863bbd37a71a830642fd5",
+  "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
+  "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+  "status": "complete",
+  "commit": "6f50192e73a8390ef19b76f434cbb08eaba188ef",
+  "mismatch": {
+    "session": "synthetic/v64/v64-punished-submerge-action4",
+    "step": 248,
+    "kind": "rng",
+    "sourceFile": "trap.c",
+    "function": "water_damage",
+    "line": 4771,
+    "rngIndex": 1892,
+    "cEntry": "rn2(20)=16",
+    "cCaller": "water_damage(trap.c:4771)",
+    "jsEntry": "rn2(3)=1",
+    "key": " ",
+    "screenIndex": 252,
+    "screenCell": { "row": 0, "column": 38, "c": "T", "js": " " },
+    "cursor": { "c": [46, 3, 1], "js": [49, 3, 1] }
+  },
+  "summary": "The first difference follows the punished amphibious drown path: C calls unplacebc() and placebc(), while JS records both calls as unported gaps. placebc() invokes flooreffects() for the chain and, when it is not carried, the ball; those effects call water_damage(). The C rn2(20) at trap.c:4771 is the first of these effects after JS has skipped the relocation calls.",
+  "source": {
+    "file": "trap.c",
+    "branch": "drown() reaches its Amphibious || Breathless || Swimming branch with Punished true after water_damage_chain; before setting uinwater, C calls unplacebc() and placebc().",
+    "functions": ["drown"],
+    "callers": [
+      "trap.c:dotrap calls drown() for the water-entry trap effect; js/trap.js:dotrap awaits drown(state)."
+    ],
+    "dependencies": [
+      "ball.c:unplacebc removes the current floor placement while retaining the hero's ball and chain pointers.",
+      "ball.c:placebc calls placebc_core, which applies flooreffects to the chain and to a non-carried ball.",
+      "do.c:flooreffects calls trap.c:water_damage for objects on a pool square."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The accepted v64 evaluation records 260/261 matching screens, 1892 matching RNG calls, and the first mismatch at step 248, key space; its immutable queue entry identifies C water_damage at trap.c:4771 (evaluation 6533e0a77d2145733c0fcabedf1e8446dc251fba).",
+    "A fresh C recording of the unchanged recipe is saved at .cache/B-punished-submerge-c-recording.session.json. Its step 248 records rn2(20)=16 and rn2(20)=17 from water_damage; step 249 begins monster-movement RNG.",
+    "Upstream trap.c:drown lines 5106-5120 calls unplacebc() then placebc() in the punished amphibious/breathless/swimming branch. js/trap.js:drown lines 1478-1480 instead records two note_unported calls.",
+    "Upstream ball.c:placebc_core lines 127-138 calls flooreffects on the chain and, unless the ball is carried, the ball. Upstream do.c:flooreffects lines 270-287 calls water_damage on a pool square. js/ball.js:placebc_core already awaits those same helpers at lines 212-221, and js/do.js implements the water-damage pool branch."
+  ]
+}
