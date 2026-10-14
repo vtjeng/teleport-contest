@@ -1,0 +1,83 @@
+{
+  "session": "synthetic/v66/v66-protected-bell-drop-action6",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-protected-bell-drop-action6",
+  "remainingScreens": 25,
+  "recordedSteps": 639,
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingSha256": "d11c9aeaf45a9a82cf9e014e2ad6a461f64d34bd9532d883f2d3e71351d65a8f",
+  "recipeSha256": "0f8d9d8d3e4ae35d2559fa05e66f1da4d3782c8b4c5b679e08b4bb79cbe1a964",
+  "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v66.json",
+  "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+  "status": "partial",
+  "commit": "8475c19ab61b35c07bf7eb2a2ada25f3b70d9773",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v66",
+    "caseId": "v66-protected-bell-drop-action6",
+    "session": "synthetic/v66/v66-protected-bell-drop-action6",
+    "manifestPath": "challenges/manifests/v66.json",
+    "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+    "recordingPath": "challenges/cases/v66/v66-protected-bell-drop-action6.session.json",
+    "recordingSha256": "d11c9aeaf45a9a82cf9e014e2ad6a461f64d34bd9532d883f2d3e71351d65a8f",
+    "recipePath": "challenges/cases/v66/v66-protected-bell-drop-action6.recipe.session.json",
+    "recipeSha256": "0f8d9d8d3e4ae35d2559fa05e66f1da4d3782c8b4c5b679e08b4bb79cbe1a964",
+    "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v66.json",
+    "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+    "remainingScreens": 25,
+    "recordedSteps": 639,
+    "metrics": {
+      "screens": { "matched": 614, "total": 639 },
+      "rng": { "matched": 2931, "total": 2935 },
+      "cursors": { "matched": 638, "total": 639 }
+    },
+    "firstMismatch": {
+      "location": { "segmentIndex": 0, "stepIndex": 594, "key": "\n" },
+      "kind": "ch",
+      "row": 11,
+      "column": 20,
+      "cCell": { "ch": "(", "color": 8, "attr": 0, "decgfx": 0 },
+      "jsCell": { "ch": ".", "color": 8, "attr": 0, "decgfx": 0 },
+      "sourceFile": "read.c",
+      "function": "do_class_genocide",
+      "line": 2713
+    }
+  },
+  "summary": "During wizard genocide at step 594, C leaves a Bell of Opening on the floor while JavaScript removes it with the genocided monster's inventory. read.c:do_class_genocide() calls mon.c:mongone(), which calls steal.c:mdrop_special_objs() before discard_minvent(). The JS helper keeps the resistance and quest-artifact checks but records note_unported() instead of transferring a protected object. The source helper must perform the floor drop before inventory disposal; its async lifecycle must be awaited by the implemented callers.",
+  "source": {
+    "file": "steal.c",
+    "branch": "mdrop_special_objs() protected-object branch for a monster on the map, reached from wizard class genocide",
+    "functions": [ "mdrop_special_objs" ],
+    "dependencies": [
+      "mon.c:mongone() calls mdrop_special_objs() before discard_minvent(); both operations must remain ordered.",
+      "steal.c:mdrop_obj() already implements extraction, floor effects, placement, stacking, and extrinsic updates; this task must wire that helper rather than duplicate it."
+    ],
+    "callers": [
+      "read.c:do_class_genocide -> mon.c:mongone -> steal.c:mdrop_special_objs",
+      "mon.c:mongone -> mon.c:discard_minvent",
+      "steal.c:mdrop_special_objs -> steal.c:mdrop_obj"
+    ],
+    "relevantSource": {
+      "read": "read.c:do_class_genocide() wizard '*' branch calls mongone() for each live monster.",
+      "mon": "mon.c:mongone() calls mdrop_special_objs() before discard_minvent().",
+      "steal": "steal.c:mdrop_special_objs() retains objects for which obj_resists(obj,0,0) or is_quest_artifact(obj) is true; on-map monsters use mdrop_obj(mon,obj,FALSE).",
+      "zap": "zap.c:obj_resists() protects invocation items such as the Bell of Opening even when both resistance chances are zero."
+    },
+    "js": {
+      "genocide": "js/read.js:do_class_genocide() awaits the return from mongone() when it is a Promise.",
+      "removal": "js/mon.js:mongone() calls mdrop_special_objs() before discard_minvent().",
+      "gap": "js/steal.js:mdrop_special_objs() records note_unported() for protected-object floor drops.",
+      "dropHelper": "js/steal.js:mdrop_obj() already implements the source transfer lifecycle and is asynchronous."
+    }
+  },
+  "evidence": [
+    "The accepted v66 baseline identifies recording SHA d11c9aeaf45a9a82cf9e014e2ad6a461f64d34bd9532d883f2d3e71351d65a8f and reports 614/639 screens, 2931/2935 RNG calls, and 638/639 cursors matched.",
+    "Fresh bounded replay from worker HEAD 8475c19ab61b35c07bf7eb2a2ada25f3b70d9773 emits all 639 screens and reproduces the first screen mismatch at step 594, newline input: C shows the Bell glyph '(' at row 11 column 20, while JS shows floor '.'.",
+    "The replay trace reaches wizard class genocide at step 594. In C, read.c:do_class_genocide() calls mongone(); mon.c:mongone() calls mdrop_special_objs() before discard_minvent(). In JS, read.js calls mongone() and can await a returned Promise, but mon.js currently invokes the helper synchronously and then discards inventory.",
+    "The source helper preserves each inventory object when obj_resists(obj,0,0) or is_quest_artifact(obj) succeeds. Its map-resident branch calls mdrop_obj(mon,obj,FALSE), which already exists as an asynchronous JS helper; the present JS placeholder records the protected-object gap and leaves discard_minvent() to remove the Bell.",
+    "The later RNG divergence at step 617 is outside the first screen mismatch and is not attributed to this diagnosis."
+  ],
+  "goalKind": "divergence-fix"
+}
