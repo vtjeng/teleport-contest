@@ -13,7 +13,7 @@
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
-//         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Kni-fila.lua,
+//         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Kni-fila.lua, dat/Sam-fila.lua,
 //         dat/Hea-fila.lua,
 //         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua,
 //         dat/Mon-fila.lua, dat/Mon-filb.lua,
@@ -1419,6 +1419,23 @@ async function kniFila(des) {
         await des.monster({ id: 'quasit', peaceful: 0 });
     await des.monster({ class: 'i', peaceful: 0 });
     await des.monster({ id: 'ochre jelly', peaceful: 0 });
+    for (let i = 0; i < 4; ++i) await des.trap();
+}
+
+// C ref: complete dat/Sam-fila.lua. Preserve its Mines terrain options and
+// all random descriptors in their original top-level order.
+async function samFila(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: true, joined: true, walled: true });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 9; ++i) await des.object();
+    await des.monster('d');
+    for (let i = 0; i < 5; ++i) await des.monster('wolf');
+    await des.monster('stalker');
     for (let i = 0; i < 4; ++i) await des.trap();
 }
 
@@ -3280,6 +3297,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Tou-filb': touFilb,
     'Tou-goal': touGoal,
     'Kni-fila': kniFila,
+    'Sam-fila': samFila,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Ran-fila': ranFila,
