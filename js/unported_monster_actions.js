@@ -20,6 +20,7 @@ import {
     D_TRAPPED,
     FIRE_RES,
     HEADSTONE,
+    IRONBARS,
     INVIS,
     IS_DOOR,
     IS_OBSTRUCTED,
@@ -1013,6 +1014,11 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const ordinaryDestination = location
         && (IS_ROOM(location.typ)
             || location.typ === CORR
+            // C mon.c:mfndpos() already filtered IRONBARS through ALLOW_BARS
+            // and its diggability checks before m_move() offers this square.
+            // Keep that selected destination eligible so monmove.c:postmov()
+            // can run its source-owned passage or bar-dissolution branch.
+            || location.typ === IRONBARS
             || inertDoorway
             || opensDoor
             || passWallDoorway

@@ -32,6 +32,7 @@ import {
     HALLUC,
     HEADSTONE,
     ICE,
+    IRONBARS,
     IN_SIGHT,
     I_SPECIAL,
     LADDER,
@@ -120,6 +121,7 @@ import {
     PM_MASTER_LICH,
     PM_ORC_SHAMAN,
     PM_PONY,
+    PM_RUST_MONSTER,
     PM_QUANTUM_MECHANIC,
     PM_VAMPIRE_BAT,
     PM_TENGU,
@@ -2561,6 +2563,26 @@ test('simple movement admits every IS_ROOM square', async () => {
             label,
         );
     }
+});
+
+// C ref: mon.c:mfndpos() filters iron bars through ALLOW_BARS, then
+// monmove.c:postmov() lets an eligible rust monster dissolve the selected
+// square. The clone preflight must pass the already-filtered candidate on.
+test('simple movement admits a rust monster destination at iron bars', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_RUST_MONSTER });
+    const bars = game.level.at(target.destinationX, target.heroY);
+    bars.typ = IRONBARS;
+    bars.wall_info = 0;
+    const before = preflightSnapshot();
+
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(preflightSnapshot(), before);
+    await runSimpleMonsterAction(target.monster, { state: game });
+    assert.deepEqual(
+        [target.monster.mx, target.monster.my],
+        [target.destinationX, target.heroY],
+    );
+    assert.notEqual(bars.typ, IRONBARS, 'postmov dissolves the selected bars');
 });
 
 // C ref: monmove.c m_move():1953 and m_avoid_kicked_loc():1295-1308. The
