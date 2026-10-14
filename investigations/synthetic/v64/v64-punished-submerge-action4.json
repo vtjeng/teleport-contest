@@ -26,14 +26,33 @@
     "jsEntry": "rn2(3)=1",
     "key": " ",
     "screenIndex": 252,
-    "screenCell": { "row": 0, "column": 38, "c": "T", "js": " " },
-    "cursor": { "c": [46, 3, 1], "js": [49, 3, 1] }
+    "screenCell": {
+      "row": 0,
+      "column": 38,
+      "c": "T",
+      "js": " "
+    },
+    "cursor": {
+      "c": [
+        46,
+        3,
+        1
+      ],
+      "js": [
+        49,
+        3,
+        1
+      ]
+    },
+    "remainingScreens": 1
   },
   "summary": "The first difference follows the punished amphibious drown path: C calls unplacebc() and placebc(), while JS records both calls as unported gaps. placebc() invokes flooreffects() for the chain and, when it is not carried, the ball; those effects call water_damage(). The C rn2(20) at trap.c:4771 is the first of these effects after JS has skipped the relocation calls.",
   "source": {
     "file": "trap.c",
     "branch": "drown() reaches its Amphibious || Breathless || Swimming branch with Punished true after water_damage_chain; before setting uinwater, C calls unplacebc() and placebc().",
-    "functions": ["drown"],
+    "functions": [
+      "drown"
+    ],
     "callers": [
       "trap.c:dotrap calls drown() for the water-entry trap effect; js/trap.js:dotrap awaits drown(state)."
     ],
