@@ -305784,7 +305784,7 @@
     {
       "id": "fix-insight-ustatusline-self-status-v58-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement the wounded-leg and trapped clauses in the self-status report for the admitted v58 self-stethoscope case.",
       "cFile": "insight.c",
       "sessions": [
@@ -305794,10 +305794,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
       "delivered": null,
       "function": "ustatusline",
-      "session": "synthetic/v58/v58-self-stethoscope-held-trap-action1"
+      "session": "synthetic/v58/v58-self-stethoscope-held-trap-action1",
+      "closeStanding": {
+        "sha": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "target": "synthetic/v58/v58-self-stethoscope-held-trap-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f0581a7656691256c99c2e6deeebfdc57ff7e06c/run-hosted-IGkYcl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "ustatusline",
+            "implementation": "js/insight.js",
+            "symbol": "ustatusline",
+            "sourceReview": "Read the complete insight.c:ustatusline body at lines 3401-3489. This divergence fix ports the selected wounded-leg and trapped clauses only: C tests Wounded_legs && !u.usteed, masks EWounded_legs with BOTH_SIDES, pluralizes body_part(LEG) when both side bits are set, appends that clause before testing u.utrap, then appends \", trapped\". JavaScript reuses existing body_part() and makeplural() implementations and preserves existing explicit refusal guards for unrelated unported status clauses; this is not a whole-function completion claim. The selected code makes no RNG call and adds no state mutation; ttyPline remains the source-owned output call.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "C apply.c:doapply dispatches STETHOSCOPE to apply.c:use_stethoscope, which calls insight.c:ustatusline() when the hero probes themself; js/apply.js:use_stethoscope calls js/insight.js:ustatusline with the same game state."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "C zap.c:do_enlightenment_effect() calls insight.c:ustatusline() when a self-directed probing effect checks the hero; js/zap.js:zapyourself reaches js/insight.js:ustatusline for that status report."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-self-stethoscope-held-trap-action1",
+                "segment": 0,
+                "fromStep": 275,
+                "throughStep": 277,
+                "source": "apply.c:doapply STETHOSCOPE -> apply.c:use_stethoscope -> insight.c:ustatusline wounded-leg and trapped clauses"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected active entry point is applying a stethoscope to the hero while Wounded_legs and u.utrap are set; the admitted case reaches apply.c:doapply -> apply.c:use_stethoscope -> insight.c:ustatusline at step 277. zap.c:do_enlightenment_effect is a second existing caller, retained in the caller map, but the selected recording exercises the stethoscope route. Other status clauses in ustatusline remain explicit gaps and are not claimed complete.",
+        "entryPoints": [
+          {
+            "name": "Self-stethoscope reports wounded legs and a trapped state",
+            "functions": [
+              "ustatusline"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-self-stethoscope-held-trap-action1",
+                "segment": 0,
+                "fromStep": 275,
+                "throughStep": 277,
+                "source": "apply.c:doapply STETHOSCOPE -> apply.c:use_stethoscope -> insight.c:ustatusline"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-mklev-mkinvokearea-v63-20261014",
@@ -305992,7 +306060,7 @@
     {
       "id": "fix-stronghold-gotohell-hole-v64-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement fill_pit from trap.c",
       "cFile": "trap.c",
       "sessions": [
@@ -306002,10 +306070,124 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
       "delivered": null,
       "function": "fill_pit",
-      "session": "synthetic/v64/v64-castle-hole-gotohell-action1"
+      "session": "synthetic/v64/v64-castle-hole-gotohell-action1",
+      "closeStanding": {
+        "sha": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "target": "synthetic/v64/v64-castle-hole-gotohell-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f0581a7656691256c99c2e6deeebfdc57ff7e06c/run-hosted-IGkYcl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "fill_pit",
+            "implementation": "js/trap.js",
+            "symbol": "fill_pit",
+            "sourceReview": "Read trap.c:4010-4021. When a pit or hole has a floor boulder, C extracts the boulder and calls flooreffects(boulder, x, y, \"settle\"). JavaScript now returns synchronously when the source branch has no boulder to settle and returns the flooreffects promise after extracting a boulder. mon_leaving_level preserves the same synchronous no-op path and waits for the actual settling branch before redraw. The dynamic import preserves the existing trap.js/do.js dependency direction. Existing dog migration callers await mon_leaving_level through relmon; clearpriests, mlevel_tele_trap, and wiz_migrate_mons now await their asynchronous cleanup or migration edges. No other flooreffects branches changed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c goto_level calls trap.c fill_pit on the departing hero square before the level transition."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mon_leaving_level",
+                "source": "mon.c mon_leaving_level calls trap.c fill_pit after removing an on-map monster."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "relmon",
+                "source": "mon.c relmon calls mon_leaving_level before unlinking a monster from fmon and transferring it to a migration list; dog.c keepdogs, mon_arrive, and migrate_to_level await this edge."
+              },
+              {
+                "path": "js/priest.js",
+                "symbol": "clearpriests",
+                "source": "priest.c clearpriests calls mon.c mongone for a live priest whose shrine is on another level; mongone reaches mon_leaving_level and trap.c fill_pit. The port awaits a removal only when it returns a promise."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "really_done",
+                "source": "end.c really_done calls clearpriests before disclosure and bones saving; the port awaits cleanup before continuing."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "mlevel_tele_trap",
+                "source": "teleport.c mlevel_tele_trap calls dog.c migrate_to_level for a monster falling through a hole or trapdoor; the port awaits migration through dog.c relmon and mon.c mon_leaving_level."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_migrate_mons",
+                "source": "wizcmds.c wiz_migrate_mons calls dog.c migrate_to_level before decrementing its count and restoring debug_mongen; the port now awaits each migration."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dismount-steed.test.mjs",
+              "scripts/mon-kill.test.mjs",
+              "scripts/dog-migrate.test.mjs",
+              "scripts/paybill-end-cleanup.test.mjs",
+              "scripts/teleport-monster-traps.test.mjs",
+              "scripts/wizard-migration.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v64",
+                "caseId": "v64-castle-hole-gotohell-action1",
+                "segment": 0,
+                "fromStep": 295,
+                "throughStep": 295,
+                "source": "do.c goto_level -> trap.c fill_pit -> do.c flooreffects(\"settle\"); the former mismatch step now matches"
+              },
+              {
+                "batch": "v42",
+                "caseId": "v42-keepdogs-ordinary-descent-control",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 68,
+                "source": "do.c goto_level -> dog.c keepdogs -> mon.c relmon -> mon_leaving_level; accepted evaluation matched 69/69 screens, 6667/6667 RNG calls, and 69/69 cursors (challenges/evaluations/accepted-fcc47e9ff72ca9833565127cd205eca099bd9d48-v42.json)."
+              },
+              {
+                "batch": "v43",
+                "caseId": "v43-mounted-steed-stair-descent-pager-2-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 165,
+                "source": "do.c goto_level -> dog.c losedogs/mon_arrive -> mon.c relmon -> mon_leaving_level; accepted evaluation matched the complete 166-step segment, 6320/6320 RNG calls, and all cursors (challenges/evaluations/accepted-fcc47e9ff72ca9833565127cd205eca099bd9d48-v43.json)."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The target entry point is descending through the Castle hole: do.c dodown selects goto_level, which calls fill_pit before changing levels. The cited admitted v64 range covers the first mismatch at step 295. The production async propagation is also covered by admitted v42 ordinary-pet descent through keepdogs and v43 steed descent through losedogs/mon_arrive; those accepted full segments reach the dog migration caller chain and match all recorded screens, RNG calls, and cursors. scripts/dog-migrate.test.mjs separately reaches migrate_to_level -> mon.c relmon -> mon_leaving_level -> trap.c fill_pit with a boulder over a pit and asserts awaited gameplay effects. The focused migration fixture is not presented as C comparison evidence for that separate fixture. The correction also preserves source-order completion at the priest cleanup, monster hole migration, and wizard migration callers. It keeps no-op monster removal synchronous because the C fill_pit branch has no floor effects to await, while the boulder-settling branch remains awaited.",
+        "entryPoints": [
+          {
+            "name": "A boulder settles into the departing hero's Castle-hole pit",
+            "functions": [
+              "fill_pit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v64",
+                "caseId": "v64-castle-hole-gotohell-action1",
+                "segment": 0,
+                "fromStep": 295,
+                "throughStep": 295,
+                "source": "do.c dodown -> do.c goto_level -> trap.c fill_pit -> do.c flooreffects"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-zap-map-downward-cancellation-engraving-v59-20261014",
@@ -306180,7 +306362,7 @@
     {
       "id": "fix-read-litroom-gremlin-vision-recalc-v58-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore read.c:litroom visibility before light_hits_gremlin() damages gremlins collected by room lighting.",
       "cFile": "read.c",
       "sessions": [
@@ -306190,15 +306372,76 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
       "delivered": null,
       "function": "litroom",
-      "session": "synthetic/v58/v58-gremlin-scroll-light-action1"
+      "session": "synthetic/v58/v58-gremlin-scroll-light-action1",
+      "closeStanding": {
+        "sha": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "target": "synthetic/v58/v58-gremlin-scroll-light-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f0581a7656691256c99c2e6deeebfdc57ff7e06c/run-hosted-IGkYcl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "litroom",
+            "implementation": "js/read.js",
+            "symbol": "litroom",
+            "sourceReview": "Read the full read.c:litroom() body at lines 2491-2634 and its seffect_light() call. This divergence fix restores the source ordering only for the nonempty temporary gremlin list: after vision_recalc(2) and setting gv.vision_full_recalc, C calls vision_recalc(0) before calling light_hits_gremlin() for each collected monster. JavaScript now does the same before draining its gremlin array, so light_hits_gremlin() chooses the monster name from refreshed visibility state. The change preserves C's random-call order; the existing rnd(5) remains inside the same per-monster loop. This is a targeted divergence fix, not a whole-function completion claim.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_light",
+                "source": "C read.c:seffect_light() calls read.c:litroom() for a light scroll; JavaScript read.js:seffect_light() calls read.js:litroom() for the same command path."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-gremlin-scroll-light-action1",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 137,
+                "source": "read.c:seffect_light() -> read.c:litroom() -> light_hits_gremlin(); the light-scroll action reaches the restored visibility recalculation before the gremlin damage message."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected active entry point is reading a light scroll that illuminates a room containing a gremlin. C routes read.c:seffect_light() through read.c:litroom(), recalculates visibility before light_hits_gremlin(), and names the visible gremlin in its damage message. JavaScript follows the same caller chain and now restores visibility at the corresponding point. The admitted v58 case matches the light-scroll action and message through step 137; the full local replay matches all 165 recorded screens, RNG calls, and cursor positions.",
+        "entryPoints": [
+          {
+            "name": "Light scroll damages a visible gremlin after restoring visibility",
+            "functions": [
+              "litroom"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-gremlin-scroll-light-action1",
+                "segment": 0,
+                "fromStep": 135,
+                "throughStep": 137,
+                "source": "read.c:seffect_light() -> read.c:litroom() -> light_hits_gremlin()"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "downward-stone-to-flesh-engraving-zap-map-v59-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement the downward stone-to-flesh engraving effect in zap_map for an ENGRAVE on a non-headstone floor tile.",
       "cFile": "zap.c",
       "sessions": [
@@ -306208,10 +306451,76 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
       "delivered": null,
       "function": "zap_map",
-      "session": "synthetic/v59/v59-stone-to-flesh-stone-text-action2"
+      "session": "synthetic/v59/v59-stone-to-flesh-stone-text-action2",
+      "closeStanding": {
+        "sha": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "target": "synthetic/v59/v59-stone-to-flesh-stone-text-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/f0581a7656691256c99c2e6deeebfdc57ff7e06c/run-hosted-IGkYcl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "zap_map",
+            "implementation": "js/zap.js",
+            "symbol": "zap_map",
+            "sourceReview": "Read zap.c:3625-3825 and compared the downward engraving gate and switch with js/zap.js:3924-4080. For u.dz > 0 and a non-headstone engraving, C's SPE_STONE_TO_FLESH arm acts only on ENGRAVE, emits the Hallucination-dependent pline_The message, then calls wipe_engr_at(x,y,d(2,4),TRUE). The JS function omitted this arm. The fix passes the same injected random object and state to the existing wipe_engr_at implementation, preserving the d(2,4) draw before wipe_engr_at's own RNG. This task claims only this branch; other zap_map callers and effects remain outside its source changes.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "zap.c:weffects() -> zap_updown() -> zap_map() in the downward spell path"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects() dispatches the SPE_STONE_TO_FLESH object to zap_updown()"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v59",
+                "caseId": "v59-stone-to-flesh-stone-text-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 206,
+                "source": "zap.c:weffects() -> zap_updown() -> zap_map(); the wizard casts SPE_STONE_TO_FLESH downward on a non-headstone floor engraving"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "zap_map() is called from zap_updown() for vertical wand and spell effects and from bhit() for lateral zapped wands. This divergence fix implements only the SPE_STONE_TO_FLESH arm of the vertical path; the admitted v59 replay reaches it through weffects() -> zap_updown() -> zap_map(). Existing map effects and lateral wand entry behavior are unchanged.",
+        "entryPoints": [
+          {
+            "name": "Downward stone-to-flesh spell on a non-headstone floor engraving",
+            "functions": [
+              "zap_map"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v59",
+                "caseId": "v59-stone-to-flesh-stone-text-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 206,
+                "source": "zap.c:weffects() -> zap_updown() -> zap_map()"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
