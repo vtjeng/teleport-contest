@@ -6,6 +6,7 @@ import { ART_EXCALIBUR } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
     DOOR,
+    A_CHA,
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
@@ -22,6 +23,7 @@ import {
     SLEEP_RES,
     TOPLINE_EMPTY,
     W_ARMH,
+    W_RING,
 } from '../js/const.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
@@ -46,6 +48,8 @@ import {
     AMULET_OF_UNCHANGING,
     POT_FRUIT_JUICE,
     POT_SICKNESS,
+    RING_CLASS,
+    RIN_ADORNMENT,
     WAN_CANCELLATION,
     objects_globals_init,
 } from '../js/objects.js';
@@ -299,8 +303,18 @@ test('self-cancellation runs cancel_item across the hero inventory chain', async
         spe: 0,
         where: OBJ_INVENT,
     });
+    const adornment = newObject({
+        otyp: RIN_ADORNMENT,
+        oclass: RING_CLASS,
+        quan: 1,
+        spe: 3,
+        owornmask: W_RING,
+        where: OBJ_INVENT,
+    });
     potion.nobj = wandInPack;
+    wandInPack.nobj = adornment;
     game.invent = potion;
+    game.u.abon[A_CHA] = 3;
     const wand = newObject({
         otyp: WAN_CANCELLATION,
         oclass: WAND_CLASS,
@@ -312,6 +326,7 @@ test('self-cancellation runs cancel_item across the hero inventory chain', async
     ), true);
     assert.equal(potion.otyp, POT_FRUIT_JUICE);
     assert.equal(wandInPack.spe, -1);
+    assert.equal(game.u.abon[A_CHA], 0);
 });
 
 test('planned monster cancellation uses the injected resistance draw',
