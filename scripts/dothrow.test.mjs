@@ -131,6 +131,7 @@ import {
     CREAM_PIE,
     CROSSBOW,
     CROSSBOW_BOLT,
+    CRYSKNIFE,
     CRYSTAL_PLATE_MAIL,
     DAGGER,
     DART,
@@ -162,6 +163,7 @@ import {
     SCR_IDENTIFY,
     WAR_HAMMER,
     WOOD,
+    WORM_TOOTH,
     YA,
     YUMI,
     objects_globals_init,
@@ -1165,6 +1167,19 @@ test('throwit() blocks vision when a boulder lands', async () => {
     assert.deepEqual(state.gb.bhitpos, { x: 12, y: 4 });
     assert.deepEqual(pileAt(state, 12, 4), [boulder]);
     assert.equal(does_block(12, 4, null, state), true);
+});
+
+test('throwit() releases a crysknife with its supplied game state', async () => {
+    const state = arena();
+    state.context.mon_moving = true;
+    const knife = item(state, CRYSKNIFE, { unpaid: true });
+
+    await throwit(knife, 0, false, null, state);
+
+    // do.c:obj_no_longer_held() must see this play's context; the default
+    // global game has no mon_moving context and would require shop billing.
+    assert.equal(knife.otyp, WORM_TOOTH);
+    assert.equal(knife.where, OBJ_FLOOR);
 });
 
 test('throwit() names a pick caught by a shopkeeper with the supplied state',

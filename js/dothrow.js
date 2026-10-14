@@ -2892,7 +2892,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         throwit_return(true, state);
         return;
     }
-    obj_no_longer_held(obj);
+    await obj_no_longer_held(obj, { state });
     if (mon?.isshk && is_pick(obj, state)) {
         if (cansee(bx, by, state)) {
             await ttyPline(
