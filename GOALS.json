@@ -308346,6 +308346,315 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-weapon-skill-notifications-v65-spell-practice-action2-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement give_may_advance_msg, use_skill, add_weapon_skill from weapon.c",
+      "cFile": "weapon.c",
+      "sessions": [
+        "synthetic/v65/v65-spell-practice-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v65-spell-practice-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "give_may_advance_msg",
+          "line": 76,
+          "endLine": 89,
+          "declared": false
+        },
+        {
+          "name": "weapon_descr",
+          "line": 90,
+          "endLine": 148,
+          "declared": true
+        },
+        {
+          "name": "hitval",
+          "line": 149,
+          "endLine": 215,
+          "declared": true
+        },
+        {
+          "name": "dmgval",
+          "line": 216,
+          "endLine": 360,
+          "declared": true
+        },
+        {
+          "name": "special_dmgval",
+          "line": 361,
+          "endLine": 435,
+          "declared": true
+        },
+        {
+          "name": "silver_sears",
+          "line": 436,
+          "endLine": 475,
+          "declared": true
+        },
+        {
+          "name": "oselect",
+          "line": 476,
+          "endLine": 519,
+          "declared": false
+        },
+        {
+          "name": "autoreturn_weapon",
+          "line": 520,
+          "endLine": 532,
+          "declared": true
+        },
+        {
+          "name": "select_rwep",
+          "line": 533,
+          "endLine": 679,
+          "declared": true
+        },
+        {
+          "name": "monmightthrowwep",
+          "line": 680,
+          "endLine": 704,
+          "declared": true
+        },
+        {
+          "name": "select_hwep",
+          "line": 705,
+          "endLine": 746,
+          "declared": true
+        },
+        {
+          "name": "possibly_unwield",
+          "line": 747,
+          "endLine": 800,
+          "declared": true
+        },
+        {
+          "name": "mon_wield_item",
+          "line": 801,
+          "endLine": 937,
+          "declared": true
+        },
+        {
+          "name": "mwepgone",
+          "line": 938,
+          "endLine": 949,
+          "declared": true
+        },
+        {
+          "name": "abon",
+          "line": 950,
+          "endLine": 992,
+          "declared": true
+        },
+        {
+          "name": "dbon",
+          "line": 993,
+          "endLine": 1019,
+          "declared": true
+        },
+        {
+          "name": "finish_towel_change",
+          "line": 1020,
+          "endLine": 1037,
+          "declared": true
+        },
+        {
+          "name": "wet_a_towel",
+          "line": 1038,
+          "endLine": 1066,
+          "declared": true
+        },
+        {
+          "name": "dry_a_towel",
+          "line": 1067,
+          "endLine": 1091,
+          "declared": true
+        },
+        {
+          "name": "skill_level_name",
+          "line": 1092,
+          "endLine": 1124,
+          "declared": true
+        },
+        {
+          "name": "skill_name",
+          "line": 1125,
+          "endLine": 1131,
+          "declared": true
+        },
+        {
+          "name": "slots_required",
+          "line": 1132,
+          "endLine": 1155,
+          "declared": true
+        },
+        {
+          "name": "can_advance",
+          "line": 1156,
+          "endLine": 1172,
+          "declared": true
+        },
+        {
+          "name": "could_advance",
+          "line": 1173,
+          "endLine": 1186,
+          "declared": true
+        },
+        {
+          "name": "peaked_skill",
+          "line": 1187,
+          "endLine": 1197,
+          "declared": true
+        },
+        {
+          "name": "skill_advance",
+          "line": 1198,
+          "endLine": 1228,
+          "declared": true
+        },
+        {
+          "name": "add_skills_to_menu",
+          "line": 1229,
+          "endLine": 1305,
+          "declared": true
+        },
+        {
+          "name": "show_skills",
+          "line": 1306,
+          "endLine": 1328,
+          "declared": true
+        },
+        {
+          "name": "enhance_weapon_skill",
+          "line": 1329,
+          "endLine": 1413,
+          "declared": true
+        },
+        {
+          "name": "unrestrict_weapon_skill",
+          "line": 1414,
+          "endLine": 1423,
+          "declared": true
+        },
+        {
+          "name": "use_skill",
+          "line": 1424,
+          "endLine": 1436,
+          "declared": true
+        },
+        {
+          "name": "add_weapon_skill",
+          "line": 1437,
+          "endLine": 1452,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 76,
+        "to": 1452
+      }
+    },
+    {
+      "id": "fix-display-newsym-blind-tactile-memory-v67-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement newsym from display.c",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v67/v67-rogue-blind-probing-action7"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "newsym",
+      "session": "synthetic/v67/v67-rogue-blind-probing-action7"
+    },
+    {
+      "id": "fix-artifact-light-scroll-buc-transition-v58-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement litroom from read.c",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v58/v58-artifact-light-buc-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v58-artifact-light-buc-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "litroom",
+      "session": "synthetic/v58/v58-artifact-light-buc-action2"
+    },
+    {
+      "id": "fix-drop-boulder-pit-floor-effects-v65-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement flooreffects, dropx from do.c",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v65/v65-ordinary-giant-pit-drop-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "flooreffects",
+      "session": "synthetic/v65/v65-ordinary-giant-pit-drop-action2"
+    },
+    {
+      "id": "fix-engulfer-digests-nurse-blindness-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement engulfer_digests_food from do.c",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v66/v66-swallowed-nurse-cure-action7"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "engulfer_digests_food",
+      "session": "synthetic/v66/v66-swallowed-nurse-cure-action7"
+    },
+    {
+      "id": "port-sam-strt-lua-v65-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Implement Sam-strt.lua from Sam-strt.lua",
+      "luaFile": "Sam-strt.lua",
+      "sessions": [
+        "synthetic/v65/v65-samurai-home-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v65-samurai-home-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Sam-strt.lua",
+          "line": 1,
+          "endLine": 98
+        }
+      ]
     }
   ]
 }
