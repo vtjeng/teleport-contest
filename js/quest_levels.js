@@ -19,7 +19,7 @@
 //         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua, dat/Val-fila.lua,
 //         dat/Mon-fila.lua, dat/Mon-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
-//         dat/tower3.lua, dat/Val-strt.lua, dat/Val-filb.lua.
+//         dat/tower3.lua, dat/Val-strt.lua, dat/Val-filb.lua, dat/Kni-filb.lua.
 
 import {
     COLNO, FEMALE, G_GENOD, ROOM, ROWNO,
@@ -1384,6 +1384,25 @@ async function samGoal(des) {
 // population, and trap calls in source order; the static tables are generated
 // from the Lua program so the transparent map and explicit descriptors stay
 // tied to upstream.
+// C ref: complete dat/Kni-filb.lua. Keep the Mines options and source order
+// for the Knight quest's later filler descriptors.
+async function kniFilb(des) {
+    await des.level_init({ style: 'solidfill', fg: '.' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'P',
+        smoothed: false, joined: true, lit: 1, walled: false });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 11; ++i) await des.object();
+    for (let i = 0; i < 4; ++i)
+        await des.monster({ id: 'quasit', peaceful: 0 });
+    await des.monster({ class: 'i', peaceful: 0 });
+    for (let i = 0; i < 3; ++i)
+        await des.monster({ id: 'ochre jelly', peaceful: 0 });
+    for (let i = 0; i < 4; ++i) await des.trap();
+}
+
 async function kniLoca(des) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
     await des.level_flags('mazelevel', 'hardfloor');
@@ -3392,6 +3411,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Sam-fila': samFila,
     'Rog-fila': rogFila,
     'Kni-loca': kniLoca,
+    'Kni-filb': kniFilb,
     'Ran-loca': ranLoca,
     'Ran-fila': ranFila,
     'Ran-filb': ranFilb,
