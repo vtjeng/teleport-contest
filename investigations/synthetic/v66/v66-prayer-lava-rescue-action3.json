@@ -1,0 +1,55 @@
+{
+  "session": "synthetic/v66/v66-prayer-lava-rescue-action3",
+  "remainingScreens": 1,
+  "recordedSteps": 260,
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-prayer-lava-rescue-action3",
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingSha256": "b9c4d85da5a9b056d2cdf7f86a1b5e1a1df36d2996f4072baaaa582d104ba813",
+  "evaluationPath": "challenges/evaluations/accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v66.json",
+  "evaluationCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
+  "status": "complete",
+  "commit": "7209f79f8a461df73f4beaf5c591a67678462c64",
+  "mismatch": {
+    "remainingScreens": 1,
+    "firstMismatch": {
+      "screen": {
+        "index": 240,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 240,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 32,
+        "cCell": { "ch": "Y", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": " ", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "metrics": {
+      "screens": { "matched": 259, "total": 260 },
+      "rng": { "matched": 4244, "total": 4244 },
+      "cursors": { "matched": 260, "total": 260 }
+    }
+  },
+  "summary": "The lava-rescue prayer branch omits the source landing message after teleporting or releasing the hero from the lava trap. pray.c:fix_worst_trouble() calls trap.c:rescued_from_terrain(DISSOLVED); js/pray.js instead records a stale hack.c gap, although js/trap.js already ports the callee.",
+  "source": {
+    "file": "pray.c",
+    "branch": "fix_worst_trouble() handles TROUBLE_LAVA after prayer; it calls safe_teleds(TELEDS_NO_FLAGS), calls reset_utrap(TRUE) only if teleporting fails, then always reports the rescue with rescued_from_terrain(DISSOLVED).",
+    "functions": ["fix_worst_trouble"],
+    "callers": ["pray.c:pleased() calls fix_worst_trouble(trouble) after finding TROUBLE_LAVA."],
+    "dependencies": ["trap.c:rescued_from_terrain() is already implemented in js/trap.js and can be called directly."]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved admitted evaluation has 259/260 screens matched, 4244/4244 RNG calls matched, and 260/260 cursors matched; its first screen mismatch is segment 0 step 240, row 0 column 32.",
+    "The bounded scan at commit 7209f79f8a461df73f4beaf5c591a67678462c64 reproduced that mismatch and reported hack.c rescued_from_terrain as unported.",
+    "nethack-c/upstream/src/pray.c:373-600 shows fix_worst_trouble(); lines 397-402 call rescued_from_terrain(DISSOLVED) after the teleport/reset logic.",
+    "js/pray.js:1443-1475 mirrors the switch but uses note_unported('hack.c rescued_from_terrain'); js/trap.js:1293 exports the existing trap.c rescued_from_terrain() port."
+  ]
+}
