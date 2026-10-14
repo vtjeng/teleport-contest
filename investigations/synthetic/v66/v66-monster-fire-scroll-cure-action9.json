@@ -1,0 +1,101 @@
+{
+  "session": "synthetic/v66/v66-monster-fire-scroll-cure-action9",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-monster-fire-scroll-cure-action9",
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingPath": "challenges/cases/v66/v66-monster-fire-scroll-cure-action9.session.json",
+  "recordingSha256": "3ee90bcdd5d02a625986bd963712faf6628cb472f91433f2837899c59cf24540",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "remainingScreens": 139,
+  "recordedSteps": 671,
+  "status": "complete",
+  "commit": "9acbdb3c96a4e449f5a2c71ee3286e7f0d247326",
+  "mismatch": {
+    "screen": {
+      "index": 532,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 532,
+        "key": "y"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 59,
+      "cCell": {
+        "ch": "B",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "I",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 3017,
+      "cEntry": "rn2(5)=2",
+      "cCaller": "destroy_items(zap.c:5998)",
+      "jsEntry": "rn2(3)=2",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 532,
+        "key": "y"
+      },
+      "stepIndex": 532
+    },
+    "cursor": {
+      "index": 532,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 532,
+        "key": "y"
+      },
+      "cCursor": [
+        72,
+        0,
+        1
+      ],
+      "jsCursor": [
+        21,
+        12,
+        1
+      ]
+    },
+    "step": 532,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "destroy_items",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 5998
+  },
+  "summary": "When a green-slime-form hero successfully slimes a monster that cures itself with a fire scroll, JavaScript consumes the scroll but skips the resulting fire explosion. C calls explode() from muse_unslime(); the skipped blast causes the downstream inventory-destruction RNG and screen mismatch.",
+  "source": {
+    "file": "muse.c",
+    "branch": "In muse_unslime(), when the monster uses SCR_FIRE and is not confused, C calculates the scroll damage, consumes the scroll, calls explode(mon->mx, mon->my, -11, dmg, SCROLL_CLASS, by_you ? -EXPL_FIERY : EXPL_FIERY), then sets dmg to zero because explode() applied the effects.",
+    "functions": [
+      "muse_unslime"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_ad_slim() -> muse.c:munslime() -> muse.c:muse_unslime() for a successful hero slime attack against a monster that can cure sliming with SCR_FIRE"
+    ],
+    "dependencies": [
+      "explode.c:explode() (already implemented in js/explode.js; applies the blast, inventory destruction, damage, and screens)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/muse.c:3158-3167: the unconfused SCR_FIRE arm consumes the scroll, calls explode() at the monster coordinates with type -11 and SCROLL_CLASS, and sets dmg to zero afterward.",
+    "js/muse.js:3445-3455: the same arm consumes SCR_FIRE but currently calls note_unported('explode.c explode') instead of invoking the blast; its later dmg=0 assignment therefore omits the C effects.",
+    "js/explode.js:411-460 and 560-690: explode() already accepts the scroll class, derives AD_FIRE from type -11, and processes monsters and the hero, including destroy_items(), armor burning, damage, and rendering.",
+    "challenges/cases/v66/v66-monster-fire-scroll-cure-action9.recipe.session.json: the hero becomes a green slime, acquires a hostile ogre holding the fire-scroll stack, and performs a forced contact attack; the ogre then reads the scroll to cure sliming.",
+    "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json: the saved baseline first mismatches at step 532, with C rn2(5)=2 at zap.c:5998 and JS rn2(3)=2; the C RNG call is downstream of the omitted explode() call, so zap.c:destroy_items is not the first-cause owner."
+  ]
+}
