@@ -20,7 +20,9 @@
     "key": ".",
     "kind": "ReferenceError",
     "error": "KILLED_BY is not defined",
-    "source": "music.c:do_improvisation622-624"
+    "source": "music.c:do_improvisation622-624",
+    "session": "synthetic/v72/v72-frost-horn-self-action4",
+    "remainingScreens": 0
   },
   "diagnosis": "The admitted sequence activates an unresisted frost horn and directs it at the hero. C reaches music.c:do_improvisation622-624 and calls losehp(damage, buf, KILLED_BY). JavaScript made the same call, but js/music.js omitted KILLED_BY from its const.js imports, so the first self-damage branch stopped with ReferenceError before losehp. The unchanged KILLED_BY constant is already exported by js/const.js.",
   "source": {
@@ -30,51 +32,26 @@
     "javascript": "js/music.js:do_improvisation",
     "callerPath": "music.c:do_play_instrument -> music.c:do_improvisation -> zap.c:zapyourself -> hack.c:losehp",
     "cBehavior": "After zapyourself returns nonzero damage, C calls losehp(damage, buf, KILLED_BY).",
-    "jsBeforeFix": "The matching JavaScript branch referenced KILLED_BY but did not import it from const.js."
+    "jsBeforeFix": "The matching JavaScript branch referenced KILLED_BY but did not import it from const.js.",
+    "functions": [
+      "do_improvisation"
+    ],
+    "branch": "music.c:do_improvisation self-directed fire/frost horn branch, where nonzero zapyourself damage is passed to losehp with KILLED_BY.",
+    "callers": [
+      "music.c:do_play_instrument -> music.c:do_improvisation"
+    ],
+    "dependencies": [
+      "hack.h:KILLED_BY is 1",
+      "hack.c:losehp uses the supplied killer format",
+      "js/const.js exports KILLED_BY"
+    ]
   },
   "fix": "Import KILLED_BY from js/const.js. The existing damage call, state flow, and killer-format value remain unchanged.",
-  "evidence": {
-    "sourceCommit": "a93d8ad4367fc8a1dfabf257565342ef566d888a",
-    "checks": {
-      "focusedTest": {
-        "run": "run-ZBFyas",
-        "log": "/tmp/teleport-validation-1000/run-ZBFyas/stdout.log",
-        "testsPassed": 22
-      },
-      "lint": {
-        "run": "run-c7NDsv",
-        "log": "/tmp/teleport-validation-1000/run-c7NDsv/stdout.log",
-        "passed": true
-      },
-      "scan": {
-        "run": "run-ADdtfu",
-        "log": "/tmp/teleport-validation-1000/run-ADdtfu/stdout.log",
-        "screensEmitted": 278,
-        "recordedSteps": 278,
-        "divergence": null
-      },
-      "differential": {
-        "run": "run-5X6apQ",
-        "log": "/tmp/teleport-validation-1000/run-5X6apQ/stdout.log",
-        "passed": true,
-        "screensMatched": 278,
-        "screensTotal": 278,
-        "rngMatched": 3093,
-        "rngTotal": 3093,
-        "cursorsMatched": 278,
-        "cursorsTotal": 278,
-        "inputBoundaryMatched": true
-      },
-      "syntheticRange": {
-        "run": "run-moIeTN",
-        "log": "/tmp/teleport-validation-1000/run-moIeTN/stdout.log",
-        "segment": 0,
-        "throughStep": 277,
-        "matched": true
-      }
-    },
-    "unrelatedUnported": [
-      "sounds.c SoundAchievement"
-    ]
-  }
+  "evidence": [
+    "The admitted v72 source trace identifies music.c:do_improvisation622-624; the first JavaScript stop was ReferenceError KILLED_BY is not defined at segment 0 step 217 after the hero used an unresisted frost horn on herself.",
+    "Upstream music.c:do_improvisation passes KILLED_BY to losehp when zapyourself returns nonzero damage; upstream hack.h defines KILLED_BY as 1, and js/const.js exports the corresponding value.",
+    "The corrected replay matches all 278 screens, 3093 RNG calls, and 278 cursors, with inputBoundaryMatched true; the source range verifier matches segment 0 through step 277."
+  ],
+  "goalKind": "divergence-fix",
+  "summary": "Importing KILLED_BY from const.js lets the self-directed frost-horn branch reach losehp with C’s killer format. The admitted v72 recording now matches every screen, RNG call, cursor position, and input boundary."
 }
