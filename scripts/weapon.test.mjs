@@ -2014,7 +2014,7 @@ test('special_dmgval refuses the body-armor mask', () => {
 
 // weapon.c:1423-1434.
 test('use_skill practices a skill and stops where C announces advancement',
-    () => {
+    async () => {
         const state = makeHeroState();
         const advanceable = (skill) => {
             const slot = skillSlot(skill, state);
@@ -2027,7 +2027,7 @@ test('use_skill practices a skill and stops where C announces advancement',
         // The `skill != P_NONE` term, made decisive by giving slot P_NONE an
         // unrestricted skill so the second term would let it through.
         const none = advanceable(P_NONE);
-        use_skill(P_NONE, 5, state);
+        await use_skill(P_NONE, 5, state);
         assert.equal(none.advance, 0);
 
         // The `!P_RESTRICTED(skill)` term. A restricted skill takes no
@@ -2035,7 +2035,7 @@ test('use_skill practices a skill and stops where C announces advancement',
         const sword = skillSlot(P_LONG_SWORD, state);
         sword.skill = P_ISRESTRICTED;
         sword.max_skill = P_EXPERT;
-        use_skill(P_LONG_SWORD, 5, state);
+        await use_skill(P_LONG_SWORD, 5, state);
         assert.equal(sword.advance, 0);
 
         // The ordinary case. practice_needed_to_advance(P_BASIC) is
@@ -2044,9 +2044,9 @@ test('use_skill practices a skill and stops where C announces advancement',
         // false before and after and nothing is announced.
         advanceable(P_LONG_SWORD);
         state.u.weapon_slots = 0;
-        use_skill(P_LONG_SWORD, 5, state);
+        await use_skill(P_LONG_SWORD, 5, state);
         assert.equal(sword.advance, 5);
-        use_skill(P_LONG_SWORD, 3, state);
+        await use_skill(P_LONG_SWORD, 3, state);
         assert.equal(sword.advance, 8);
 
         // give_may_advance_msg(). Two slots and 79 practice leave the hero one
@@ -2054,13 +2054,13 @@ test('use_skill practices a skill and stops where C announces advancement',
         sword.advance = 79;
         state.u.weapon_slots = 2;
         assert.equal(can_advance(P_LONG_SWORD, false, state), false);
-        use_skill(P_LONG_SWORD, 1, state);
+        await use_skill(P_LONG_SWORD, 1, state);
         // C adds the practice before it tests again, so the write survives.
         assert.equal(sword.advance, 80);
 
         // `!advance_before` keeps the message to the crossing itself. Further
         // practice on an already-advanceable skill announces nothing.
-        use_skill(P_LONG_SWORD, 1, state);
+        await use_skill(P_LONG_SWORD, 1, state);
         assert.equal(sword.advance, 81);
     });
 

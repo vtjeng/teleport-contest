@@ -898,9 +898,9 @@ test('achieve_rank complements the index for a female hero', () => {
     assert.equal(achieve_rank(1, heroState({ female: true })), -ACH_RNK1);
 });
 
-test('add_weapon_skill adds slots and refuses a new advanceable skill', () => {
+test('add_weapon_skill adds slots and reports a new advanceable skill', async () => {
     const state = heroState();
-    add_weapon_skill(1, state);
+    await add_weapon_skill(1, state);
     assert.equal(state.u.weapon_slots, 1);
 
     // P_BARE_HANDED_COMBAT (index 30) at P_UNSKILLED (1) with a maximum of
@@ -913,7 +913,8 @@ test('add_weapon_skill adds slots and refuses a new advanceable skill', () => {
         () => ({ skill: 0, max_skill: 0, advance: 0 }),
     );
     advancing.u.weapon_skills[30] = { skill: 1, max_skill: 2, advance: 20 };
-    assert.throws(() => add_weapon_skill(1, advancing), /give_may_advance_msg/);
+    await add_weapon_skill(1, advancing);
+    assert.equal(advancing.u.weapon_slots, 1);
 });
 
 // exper.c pluslvl(false) is what #levelchange runs. The arithmetic below comes

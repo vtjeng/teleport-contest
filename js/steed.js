@@ -710,9 +710,9 @@ export async function mount_steed(mtmp, force, state = game) {
 // until the hero types #enhance. weapon.c skill_init() starts a Knight's
 // riding at P_BASIC with 20 practice, and skills.h
 // practice_needed_to_advance(P_BASIC) is 80, so use_skill()'s
-// give_may_advance_msg() arm -- the one js/weapon.js refuses -- is 6000
-// mounted steps away, and needs a spare weapon slot as well.
-export function exercise_steed(state = game) {
+// give_may_advance_msg() arm is 6000 mounted steps away, and needs a spare
+// weapon slot as well.
+export async function exercise_steed(state = game) {
     const u = state.u;
 
     if (!u.usteed)
@@ -721,7 +721,7 @@ export function exercise_steed(state = game) {
     /* It takes many turns of riding to exercise skill */
     if (++u.urideturns >= 100) {
         u.urideturns = 0;
-        use_skill(P_RIDING, 1, state);
+        await use_skill(P_RIDING, 1, state);
     }
 }
 

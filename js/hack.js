@@ -4401,7 +4401,7 @@ async function domove_core(state = game) {
         u.usteed.mx = u.ux;
         u.usteed.my = u.uy;
         /* [if move attempt ends up being blocked, should training count?] */
-        exercise_steed(state); /* train riding skill */
+        await exercise_steed(state); /* train riding skill */
     }
 
     if (destinationMonster) {

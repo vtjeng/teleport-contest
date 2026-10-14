@@ -142,7 +142,7 @@ test('exercise_steed() counts nothing for a hero who is not mounted',
     const state = await mounted();
     state.u.usteed = null;
     state.u.urideturns = 7;
-    exercise_steed(state);
+    await exercise_steed(state);
     assert.equal(state.u.urideturns, 7);
 });
 
@@ -152,11 +152,11 @@ test('exercise_steed() trains riding on the hundredth step and not before',
     const advance = ridingSlot(state).advance;
 
     state.u.urideturns = RIDE_TURNS_PER_SKILL_POINT - 2;
-    exercise_steed(state);
+    await exercise_steed(state);
     assert.equal(state.u.urideturns, RIDE_TURNS_PER_SKILL_POINT - 1);
     assert.equal(ridingSlot(state).advance, advance);
 
-    exercise_steed(state);
+    await exercise_steed(state);
     // steed.c:394-395 zeroes the counter and spends the point in one step.
     assert.equal(state.u.urideturns, 0);
     assert.equal(ridingSlot(state).advance, advance + 1);

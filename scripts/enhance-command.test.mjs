@@ -30,12 +30,10 @@ import {
     P_UNSKILLED,
     TIP_ENHANCE,
 } from '../js/const.js';
-import { failClosedCommandRefusals } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { P_RESTRICTED, skillSlot } from '../js/startup_skills.js';
 import {
-    UnsupportedWeaponSkillError,
     add_skills_to_menu,
     could_advance,
     enhance_weapon_skill,
@@ -373,13 +371,6 @@ test('enhance_weapon_skill shows the listing and answers ECMD_OK', async () => {
     // :1338 -- the tip is marked seen whether or not anything can advance,
     // and svc.context, zeroed at game start, holds no other tip yet.
     assert.equal(state.context.tips, 1 << TIP_ENHANCE);
-});
-
-// js/cmd.js failClosedCommand() converts only the classes this list names; a
-// class left out of it escapes as a hard failure and discards the segment's
-// matching prefix instead of stopping on it.
-test('the weapon-skill refusal ends the segment rather than the run', () => {
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedWeaponSkillError));
 });
 
 // The column the menu's first drawn character lands in, after a segment that
