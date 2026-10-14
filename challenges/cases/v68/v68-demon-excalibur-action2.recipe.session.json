@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first minion.c demon_talk wielded Excalibur hostility guard. Source wizcmds.c wiz_level_change adjusts hero experience level; level20 supplies survival HP without changing dungeon level. Lawful pauper Knight clears initial NPCs, wishes and wields actual Excalibur before peaceful Geryon genesis; C must show looks very angry from demon_talk, not ordinary hostile spawn or weapon attack. Source-designed before any JS comparison; recorder held for Root acceptance now. Actual C inventory a blessed Excalibur after genocide scroll consumed and experiencelevel20 setup. Wielda, create peaceful Geryon, then source forced m-prefix wait turns allow live demon_talk caller. No attack command or ordinary hostile genesis used.",
+  "segments": [
+    {
+      "seed": 68101906,
+      "datetime": "20890731154512",
+      "nethackrc": "OPTIONS=name:V68DemonBlade,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    #levelchange\n20\n                    \u0017blessed Excalibur\n                    #wizidentify\n.\n                    i wa                    #wizgenesis\npeaceful Geryon\n                    m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            "
+    }
+  ]
+}

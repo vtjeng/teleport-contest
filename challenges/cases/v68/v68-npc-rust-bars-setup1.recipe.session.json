@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first monmove.c postmov IRONBARS -> rust monster AD_RUST dissolve_bars. NPC rusting is distinct from v42 hero still_chewing/morehungry. Clear initial NPCs, inspect actual room geometry before moving off stairs to create an iron-bar barrier; source follow path should force actual NPC onto bars before any eating claim. C-first new seed/date, no JS comparison informs inputs.",
+  "segments": [
+    {
+      "seed": 68102613,
+      "datetime": "20900208162729",
+      "nethackrc": "OPTIONS=name:V68RustBars,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    #wizmap\n                    "
+    }
+  ]
+}

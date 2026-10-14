@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c bury_an_obj ROT_ORGANIC -> rot_organic container-content loop. Put actual metal dagger into an organic sack, bury sack via source #wizbury, inspect C timer deadline, wait past it and unearth surviving child without sack. Source source-protected items are excluded; ordinary metal child should survive. Actual bag menu, inventory and timer are scouted before long wait. No JS results select the input. Own C inventory: i empty uncursed sack, j uncursed dagger,k digging,l blessed genocide. Scroll is identified before reading; acknowledge disappears message then submit wizard class-star. Apply actual bag i and inspect its actions menu before choosing stash.",
+  "segments": [
+    {
+      "seed": 68101502,
+      "datetime": "20890327105728",
+      "nethackrc": "OPTIONS=name:V68BuriedSack,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed sack\n                    \u0017uncursed dagger\n                    \u0017uncursed wand of digging (0:20)\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i rl *\n                    ai"
+    }
+  ]
+}

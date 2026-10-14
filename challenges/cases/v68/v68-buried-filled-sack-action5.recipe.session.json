@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c bury_an_obj ROT_ORGANIC -> rot_organic container-content loop. Put actual metal dagger into an organic sack, bury sack via source #wizbury, inspect C timer deadline, wait past it and unearth surviving child without sack. Source source-protected items are excluded; ordinary metal child should survive. Actual bag menu, inventory and timer are scouted before long wait. No JS results select the input. Own C inventory: i empty uncursed sack, j uncursed dagger,k digging,l blessed genocide. Scroll is identified before reading; acknowledge disappears message then submit wizard class-star. Apply actual bag i and inspect its actions menu before choosing stash. Own C284 bag menu s=stash one item, j actual metal dagger. Stash j, drop actual sack i, source #wizbury buries floor objects; inspect actual timeout queue before choosing wait length. Blessed identified scroll C eliminates4 nearby monsters. Actual C286 puts -1 metal dagger into sack;308 drops sack containing1item;337 source burial succeeds and rnd250=91 schedules ROT_ORGANIC345. C366 timeout confirms current time4 and sole container callback345. Acknowledge timeout, wait450 actual turns beyond345, inspect queue, then wish pick-axe and inspect its actual letter before digging a pit to unearth surviving child. Actual C371 counted rest includes child bury obj_resists rn2(100)=82; C400 queue after time454 has no active timers. Actual inventory m pick-axe. Apply m downward to create initial pit (dig.c dighole(TRUE)), which calls unearth_objs at862; pick up revealed metal dagger and inspect inventory to prove original sack no longer exists.",
+  "segments": [
+    {
+      "seed": 68101502,
+      "datetime": "20890327105728",
+      "nethackrc": "OPTIONS=name:V68BuriedSack,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017uncursed sack\n                    \u0017uncursed dagger\n                    \u0017uncursed wand of digging (0:20)\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i rl *\n                    aisj                    di                    #wizbury\n                    #timeout\n 450.                    #timeout\n                    \u0017uncursed pick-axe\n                    #wizidentify\n.\n                    i am>                              ,                    i"
+    }
+  ]
+}

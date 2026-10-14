@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c use_whip trapped-in-pit boulder anchor branch. Archeologist supplies source proficiency; clear initial NPCs then wish bullwhip,pickaxe,boulder, inspect actual C placement and inventory before choosing adjacent dig floor. Boulder should remain on floor from weight, not be inferred from input. Pickaxe dig creates actual u.utrap TT_PIT; applying whip toward adjacent boulder can reset_utrap before teleds. Inputs fixed before JS comparison.",
+  "segments": [
+    {
+      "seed": 68102209,
+      "datetime": "20891004203945",
+      "nethackrc": "OPTIONS=name:V68WhipAnchor,role:Archeologist,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    \u0017uncursed bullwhip\n                    \u0017uncursed pick-axe\n                    \u0017boulder\n                    #wizidentify\n.\n                    i"
+    }
+  ]
+}

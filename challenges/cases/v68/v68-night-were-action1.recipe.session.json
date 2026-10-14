@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first nighttime mon.c m_calcdistress -> were.c were_change/new_were NPC transformation. Actual nighttime datetime selects night()30 chance without claiming full moon. Peaceful human werewolf genesis after initial NPC clearance; C must actually show changes into a wolf and corresponding source random calls. Night/date and source selection set before JS comparison; 60 cheap actual turns are a bounded reachability attempt.",
+  "segments": [
+    {
+      "seed": 68102007,
+      "datetime": "20890802221523",
+      "nethackrc": "OPTIONS=name:V68NightWere,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    #wizgenesis\npeaceful werewolf\n                    m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            "
+    }
+  ]
+}

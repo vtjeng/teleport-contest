@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dig.c rot_corpse on-floor hidden-hero branch -> hideunder exposure recheck. Source on_floor condition requires floor corpse, not buried. Clear actual NPCs, wish ordinary newt corpse, inspect carried selector before dropping; then cave-spider M1_CONCEAL form can #monster hide beneath sole floor object. Inspect actual C timer deadline and hiding state before source-designed wait. No source state or decay reach inferred from recipe alone. ActualC inventoryb newtcorpse. Dropb as sole currentfloor object, polymorphcave spider and invoke actual hiding command #monster. Record attributes and timerqueue before chosen decay wait.",
+  "segments": [
+    {
+      "seed": 68102512,
+      "datetime": "20900107141518",
+      "nethackrc": "OPTIONS=name:V68CorpseHider,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    \u0017newt corpse\n                    #wizidentify\n.\n                    i db                    #polyself\ncave spider\n                    #monster\n                    #attributes\n                    #timeout\n                    "
+    }
+  ]
+}

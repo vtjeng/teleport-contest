@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first muse.c find_misc/use_misc cursed POT_GAIN_LEVEL -> Can_rise_up -> migrate_to_level(MIGR_RANDOM). Source searches_for_item selects gain-level potions; provision a floor potion to an ordinary humanoid collector, not shk/priest/guard. Clear initial NPCs, debug level teleport to dungeon2 for upward migration, wish cursed gain-level potion and inspect actual room/selector before floor pickup route. No hero quaff inputs, no JS results inform C setup. Actual C Dlvl2 and b cursedgainlevel, hero terminal54,15; left53/52 ordinaryfloor. Dropb, movehh, create peaceful goblin (ordinary source searches_for_item accepts gainlevel potion even cursed), then bounded actual turns should collect and drink it. C must show pickup, cursed rising/migration, not hero consumption. Source correction: mon.c can_carry2035 returns0 for peaceful nonpet, so longer peaceful wait cannot provision potion despite searches_for_item. Preserve short/long peaceful misses. Materially different hostile goblin can carry and should collect when on actual potion square. Keep existing drop54,15/hero52,15 then hostile genesis and bounded wait; no JS comparison yet for this route.",
+  "segments": [
+    {
+      "seed": 68102714,
+      "datetime": "20900309183930",
+      "nethackrc": "OPTIONS=name:V68NpcRise,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    \u00162\n                    \u0017cursed potion of gain level\n                    #wizidentify\n.\n                    i db                    hh#wizgenesis\nhostile goblin\n                    m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            m.            #wizmap\n                    "
+    }
+  ]
+}

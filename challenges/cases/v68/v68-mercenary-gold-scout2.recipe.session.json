@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first dokick.c ghitm mercenary bribery. Hostile sleeping soldier is awakened by thrown gold, catches it, and applies the source goldreqd/rn2(3) acceptance branch. New seed/date, pauper Knight, remove actual starting NPCs with identified blessed class-genocide before source wizard genesis. Inspect actual C placement before choosing throw direction; no JS result selects inputs. Actual C inventory a identified blessed genocide; read a then create 1500gp and sleeping hostile soldier, inspect actual map before throw.",
+  "segments": [
+    {
+      "seed": 68101805,
+      "datetime": "20890630143301",
+      "nethackrc": "OPTIONS=name:V68MercGold,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    \u00171500 gold pieces\n                    #wizgenesis\nsleeping hostile soldier\n                    #wizmap\n                    i"
+    }
+  ]
+}

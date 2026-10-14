@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mthrowu.c m_throw CREAM_PIE -> hero ucreamed/Blinded. Source makemon.c m_initweap S_KOP equips cream pies with rn2(3) gate; create hostile Kop Kaptain, inspect actual C placement, then move to a clear throwing line at range2 before bounded wait. Source experiencelevel20 supplies durability for incidental clubs. No pie inventory or projectile reach claimed before recorded C; no JS results select setup. Source correction: !rn2(4), not nonzero, equips cream pies. setup1 actual rn2(4)=2 has no pies; action2 preserves club/range mission miss. Materially different second setup creates four lower-level hostile Keystone Kops to expose independent source equipment draws and safer projectile route; inspect actual positions/equipment RNG before moves. No JS comparison has selected these inputs.",
+  "segments": [
+    {
+      "seed": 68102411,
+      "datetime": "20891206210307",
+      "nethackrc": "OPTIONS=name:V68KopPie,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    #levelchange\n20\n                    #wizgenesis\n4 hostile Keystone Kop\n                    #wizmap\n                    "
+    }
+  ]
+}

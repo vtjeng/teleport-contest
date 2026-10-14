@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first monmove.c postmov IRONBARS -> rust monster AD_RUST dissolve_bars. NPC rusting is distinct from v42 hero still_chewing/morehungry. Clear initial NPCs, inspect actual room geometry before moving off stairs to create an iron-bar barrier; source follow path should force actual NPC onto bars before any eating claim. C-first new seed/date, no JS comparison informs inputs. Actual C room spans terminal48..54? Hero map atcol51,row8, west50,row8 floor; source barrier line atx50 four floorrows8..11 reaches top/bottom walls. Create bars viah then three south steps/wishes; stepwest offbarrier and create explicit hostile rustmonster before choosing pursuit route from actual C map. All terrain inputs from C floor geometry, not JS. C actual barrier col50 rows8..11, hero49,11 and rustmonster48,11 on west side. Walklll to east52,11 across source-passable bars; follow path must crossbarrier and actual postmov AD_RUST message proves consumption. No assumption of spawn on bars, no debug overwrite-stairs required.",
+  "segments": [
+    {
+      "seed": 68102613,
+      "datetime": "20900208162729",
+      "nethackrc": "OPTIONS=name:V68RustBars,role:Knight,race:human,gender:male,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n\u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    i ra *\n                    #wizmap\n                    h\u0017iron bars\n                    j\u0017iron bars\n                    j\u0017iron bars\n                    j\u0017iron bars\n                    h#wizgenesis\nhostile rust monster\n                    #wizmap\n                    lll                    m.            m.            m.            m.            #wizmap\n                    "
+    }
+  ]
+}
