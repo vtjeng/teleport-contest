@@ -1,0 +1,65 @@
+{
+  "session": "synthetic/v64/v64-unseen-web-kick-action5",
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-unseen-web-kick-action5",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingSha256": "ad9f966d532aef9f669e84c689f493174d6b803e35c269dceba76dbab20a4575",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "remainingScreens": 2,
+  "recordedSteps": 267,
+  "status": "complete",
+  "commit": "6d4dec8d0dc05e5cedbc3747193650d042a82287",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v64",
+    "caseId": "v64-unseen-web-kick-action5",
+    "session": "synthetic/v64/v64-unseen-web-kick-action5",
+    "manifestPath": "challenges/manifests/v64.json",
+    "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+    "recordingPath": "challenges/cases/v64/v64-unseen-web-kick-action5.session.json",
+    "recordingSha256": "ad9f966d532aef9f669e84c689f493174d6b803e35c269dceba76dbab20a4575",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "remainingScreens": 2,
+    "recordedSteps": 267,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 265, "total": 267 },
+      "rng": { "matched": 5443, "total": 5447 },
+      "cursors": { "matched": 266, "total": 267 }
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "sourceFile": "attrib.c",
+      "function": "exercise",
+      "line": 509,
+      "step": 249,
+      "rng": {
+        "index": 5443,
+        "cEntry": "rn2(19)=1",
+        "cCaller": "exercise(attrib.c:509)",
+        "jsEntry": "rn2(70)=27",
+        "location": { "segmentIndex": 0, "stepIndex": 249, "key": "h" }
+      }
+    }
+  },
+  "summary": "At step 249, kicking a non-boulder object over an unseen web reaches dokick.c:really_kick_object(). C calls find_trap(trap), which marks the web seen, exercises wisdom, updates the remembered glyph and prints 'You find a web.' before the refusal. JavaScript already has the equivalent discovery sequence inside detect.js's private findTrap helper for explicit searching, but the kick caller records note_unported('detect.c find_trap') and skips it. Expose and reuse that source-owned behavior from both callers.",
+  "source": {
+    "file": "detect.c",
+    "branch": "A kicked object reaches really_kick_object() with a web (or pit) trap at the target square and the trap has not yet been seen.",
+    "functions": [ "find_trap" ],
+    "callers": [ "detect.c:dosearch0", "dokick.c:really_kick_object" ],
+    "dependencies": [ "attrib.c:exercise", "display.c:feel_newsym", "display.c:map_trap", "pline.c:You", "window.c:display_nhwindow", "display.c:docrt", "trap.c:trapname" ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C source nethack-c/upstream/src/detect.c:1935-1962 defines find_trap(): it marks trap->tseen, exercises A_WIS, calls feel_newsym(), clears and maps the trap when hallucinating or when the remembered glyph differs, prints 'You find <trap>.', and waits/redraws after the cluttered-map branch.",
+    "C caller nethack-c/upstream/src/dokick.c:521-530 calls find_trap() for an unseen pit or web before printing the cannot-kick message. The existing JavaScript js/dokick.js:653-661 instead records note_unported('detect.c find_trap'), skipping the wisdom RNG and discovery message seen at the mismatch.",
+    "C caller nethack-c/upstream/src/detect.c:2079-2088 also calls find_trap() from dosearch0(); JavaScript js/detect.js has the matching discovery behavior in its private findTrap() used by dosearch0(), so make that behavior the exported find_trap() source owner and keep the existing explicit-search caller wired through it.",
+    "Saved baseline challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json records 265/267 screens, 5443/5447 RNG entries, and 266/267 cursors. Its first mismatch is segment 0 step 249, key 'h': C draws rn2(19)=1 from exercise(attrib.c:509), while JavaScript reaches a later rn2(70)=27 because it skips find_trap()."
+  ]
+}
