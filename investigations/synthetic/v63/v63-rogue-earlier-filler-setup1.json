@@ -1,0 +1,141 @@
+{
+  "session": "synthetic/v63/v63-rogue-earlier-filler-setup1",
+  "remainingScreens": 24,
+  "recordedSteps": 265,
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-rogue-earlier-filler-setup1",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "e957366784a89e5ee4ca4d4c01d1568e68e00fe0a76fa08a2189216740a27eaa",
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+  "status": "complete",
+  "commit": "e52df335caf199202f12bf916da378debf7217f1",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-rogue-earlier-filler-setup1",
+    "session": "synthetic/v63/v63-rogue-earlier-filler-setup1",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recording": "challenges/cases/v63/v63-rogue-earlier-filler-setup1.session.json",
+    "recordingPath": "challenges/cases/v63/v63-rogue-earlier-filler-setup1.session.json",
+    "recordingSha256": "e957366784a89e5ee4ca4d4c01d1568e68e00fe0a76fa08a2189216740a27eaa",
+    "recipe": "challenges/cases/v63/v63-rogue-earlier-filler-setup1.recipe.session.json",
+    "recipeSha256": "fdb82ec159550e3ddad63e6866e6ac8bd5b0a1c66175558d004d685af8764c25",
+    "replayInputSha256": "5d8a0d424bda8035238c89e2c08d6d84d98eb2706d483f4c492b6ead514f832f",
+    "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+    "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+    "evaluationArtifact": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+    "evaluationUtc": "2026-10-14T02:54:25.085Z",
+    "remainingScreens": 24,
+    "recordedSteps": 265,
+    "previousScreensMatched": 241,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 241,
+        "total": 265
+      },
+      "rng": {
+        "matched": 3272,
+        "total": 5908
+      },
+      "cursors": {
+        "matched": 248,
+        "total": 265
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 241,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 2,
+        "column": 13,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3249,
+        "cEntry": "rn2(3)=0",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=3",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "stepIndex": 241
+      },
+      "cursor": {
+        "index": 241,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "cCursor": [
+          15,
+          5,
+          1
+        ],
+        "jsCursor": [
+          35,
+          18,
+          1
+        ]
+      }
+    },
+    "step": 241,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "The role-specific Rogue filler program Rog-fila.lua is absent from QUEST_LEVEL_LOADERS. In the earlier Rogue quest filler branch, mklev.c:makelevel selects Rog-fila and routes to makemaz/load_special; JavaScript therefore falls through to generic level generation instead of running the six-room Rogue filler and random corridors.",
+  "source": {
+    "file": "Rog-fila.lua",
+    "branch": "In the Rogue quest above Rog-loca, mklev.c:makelevel selects the earlier filler name Rog-fila; its special-level loader must execute the complete program.",
+    "functions": [
+      "Rog-fila.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special",
+      "js/mklev.js:makelevel -> makemaz -> load_special via QUEST_LEVEL_LOADERS"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "nethack-c/upstream/dat/Rog-fila.lua:1-64 defines six ordinary rooms and then des.random_corridors(); the room callbacks place stairs, random objects, traps, and hostile leprechauns, guardian nagas, water nymphs, and class l monsters in source order.",
+    "nethack-c/upstream/src/mklev.c:1275-1285 selects role-specific quest filler proto names from filecode and depth. js/mklev.js:756-770 mirrors this selection and dispatches registered programs through makemaz/load_special.",
+    "js/quest_levels.js:3230-3278 holds QUEST_LEVEL_LOADERS; it has Kni-fila and Sam-fila entries but no Rog-fila entry. Existing arcFila and monFila establish the room callback interface and random_corridors() dispatch pattern.",
+    "Accepted v63 baseline artifact reports v63-rogue-earlier-filler-setup1 at 241/265 screens, 3272/5908 RNG calls, and 248/265 cursors, with no runtime error. The first mismatch is at segment 0, step 241, when the C and JS RNG paths diverge while randomizing the level."
+  ]
+}
