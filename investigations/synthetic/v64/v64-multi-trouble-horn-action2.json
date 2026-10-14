@@ -1,0 +1,54 @@
+{
+  "session": "synthetic/v64/v64-multi-trouble-horn-action2",
+  "remainingScreens": 1,
+  "recordedSteps": 120,
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-multi-trouble-horn-action2",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingSha256": "a874ee8c7557b638ffeffbfc320bf502bfe021bd2c81bcc08635871f2dba03ff",
+  "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
+  "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+  "status": "complete",
+  "commit": "522b8f094fea76d97376c20e63c7105a6a854d9e",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "session": "synthetic/v64/v64-multi-trouble-horn-action2",
+    "sourceFile": "attrib.c",
+    "cFile": "attrib.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v64/v64-multi-trouble-horn-action2"
+    ],
+    "remainingScreens": 1,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 102,
+    "caseId": "v64-multi-trouble-horn-action2",
+    "batch": "v64",
+    "recordingPath": "challenges/cases/v64/v64-multi-trouble-horn-action2.session.json"
+  },
+  "summary": "When blindness and deafness are both timed troubles, apply.c use_unicorn_horn shuffles their list before deciding which one to cure. C calls rnd.c shuffle_int_array; JS records that call as unported and proceeds directly to the cure-count roll, so the cure order and RNG stream diverge.",
+  "source": {
+    "file": "apply.c",
+    "branch": "When the uncursed or blessed horn finds more than one timed property trouble, use_unicorn_horn shuffles trouble_list before it rolls val_limit.",
+    "functions": [
+      "use_unicorn_horn"
+    ],
+    "callers": [
+      "apply.c:doapply calls use_unicorn_horn for a unicorn horn.",
+      "cmd.c:doturn calls use_unicorn_horn with a null object when a unicorn uses its special ability."
+    ],
+    "dependencies": [
+      "rnd.c:shuffle_int_array; the helper mutates the trouble list and consumes rn2 calls"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v64 manifest identifies apply.c:use_unicorn_horn -> rnd.c:shuffle_int_array and states that the selected case has timed blindness and deafness; C first calls rn2(2), then rolls the number of troubles to cure.",
+    "Read nethack-c/upstream/src/apply.c:2259-2392 and rnd.c:299-310. shuffle_int_array performs the descending Fisher-Yates loop and skips swaps when rn2(i + 1) returns i.",
+    "At examined commit 522b8f0, js/apply.js:3610-3612 calls recordGap('rnd.c shuffle_int_array') before immediately drawing valLimit. The first mismatch is step 103, key o: C records rn2(2)=0 (with stale caller exercise(attrib.c:509)); JS instead calls d(2,4)=5 and displays the troubles in reverse order. See .cache/B-v64-horn-before.log.",
+    "The saved accepted v64 evaluation reports 119/120 screens, 2447/2454 RNG calls, and 120/120 cursors for this case. The source owner is apply.c and its RNG helper is rnd.c; the queue's attrib.c annotation is not the owning branch."
+  ]
+}
