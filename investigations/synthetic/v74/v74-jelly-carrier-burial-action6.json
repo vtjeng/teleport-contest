@@ -1,0 +1,47 @@
+{
+  "session": "synthetic/v74/v74-jelly-carrier-burial-action6",
+  "corpus": "synthetic",
+  "batch": "v74",
+  "caseId": "v74-jelly-carrier-burial-action6",
+  "manifestPath": "challenges/manifests/v74.json",
+  "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c3e0bafb",
+  "recordingPath": "challenges/cases/v74/v74-jelly-carrier-burial-action6.session.json",
+  "recordingSha256": "b78a88c609bbe84d920fbf698a8150888a5101365cb441759c94d9dc900319c9",
+  "recipePath": "challenges/cases/v74/v74-jelly-carrier-burial-action6.recipe.session.json",
+  "recipeSha256": "7697443076f988f8981785d98b2c8a48dd08ef96aab5fa120e3fbd7f654b6378",
+  "replayInputSha256": "ad80d9adc5a47e27c84f5693d3027d3f2f05ec951a12efd604dddbba5fd52bbf",
+  "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+  "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
+  "status": "diagnosed",
+  "remainingScreens": 772,
+  "recordedSteps": 772,
+  "mismatch": {
+    "kind": "stop",
+    "message": "Replay error: OBJ_BURIED is not defined",
+    "step": null
+  },
+  "summary": "The case reaches the carried-boulder burial branch of mon.c:xkilled. JavaScript mirrors the C pit and inventory predicates and passes CORPSTAT_BURIED to make_corpse(), whose bury_an_obj() call buries the corpse. It then evaluates cadaver.where === OBJ_BURIED before printing C's visible buried-corpse message, but js/mon.js does not import OBJ_BURIED. The missing binding stops the replay at that condition; import the existing obj.h enum constant and preserve the C message guard.",
+  "source": {
+    "file": "mon.c",
+    "functions": ["xkilled", "make_corpse"],
+    "callers": [
+      "mon.c:killed -> xkilled",
+      "mon.c:xkilled -> make_corpse(CORPSTAT_BURIED)",
+      "mon.c:make_corpse -> bury_an_obj when CORPSTAT_BURIED is set"
+    ],
+    "findings": [
+      "mon.c:xkilled checks mtrapped, finds a pit at the monster coordinates, and sets burycorpse when m_carrying(mtmp, BOULDER) succeeds (lines 3514-3522).",
+      "The ordinary corpse path passes CORPSTAT_BURIED to make_corpse when burycorpse is true (lines 3617-3628).",
+      "The buried-corpse message is conditional on the returned corpse being OBJ_BURIED and visible, matching the source state transition and message guard.",
+      "js/mon.js imports CORPSTAT_BURIED and implements the corresponding make_corpse/bury_an_obj path, but its constants import list omits OBJ_BURIED while xkilled reads it at the message guard. js/const.js already exports OBJ_BURIED as the C obj.h enum value 6.",
+      "The admitted evaluation reports an immediate ReferenceError before any replay steps; this is a missing binding, not evidence of different random or burial behavior."
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "Read nethack-c/upstream/src/mon.c:xkilled. The pit guard at lines 3514-3522 sets burycorpse only when the monster is trapped over a pit and carries a boulder; the corpse branch at lines 3617-3628 passes CORPSTAT_BURIED and tests cadaver->where == OBJ_BURIED before its message.",
+    "Read js/mon.js:xkilled and make_corpse. JavaScript has the same carried-boulder predicate, awaits make_corpse(CORPSTAT_BURIED), and compares cadaver.where to OBJ_BURIED, but the top-level imports do not bind OBJ_BURIED.",
+    "Read js/const.js:1196, which exports OBJ_BURIED = 6, and js/bury.js:bury_an_obj, which is the existing helper used by make_corpse when burythem is true.",
+    "The admitted v74 evaluation identifies the first stop as ReferenceError 'OBJ_BURIED is not defined'; the source comparison pinpoints the missing js/mon.js import at the message guard."
+  ]
+}
