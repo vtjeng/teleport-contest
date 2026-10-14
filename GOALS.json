@@ -313770,6 +313770,133 @@
           }
         ]
       }
+    },
+    {
+      "id": "port-monster-level-teleporter-trap-branch-v71-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement mlevel_tele_trap from teleport.c",
+      "cFile": "teleport.c",
+      "sessions": [
+        "synthetic/v71/v71-monster-leveltele-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v71-monster-leveltele-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mlevel_tele_trap",
+          "line": 2006,
+          "endLine": 2101,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2006,
+        "to": 2101
+      },
+      "requiredFunctions": [
+        {
+          "name": "random_teleport_level",
+          "line": 2191,
+          "endLine": 2262,
+          "declared": true,
+          "sourceFile": "teleport.c"
+        }
+      ]
+    },
+    {
+      "id": "fix-blind-deaf-sink-face-import-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement sink_backs_up from fountain.c",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v72/v72-blind-deaf-sink-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v72-blind-deaf-sink-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "sink_backs_up",
+      "session": "synthetic/v72/v72-blind-deaf-sink-scout1"
+    },
+    {
+      "id": "fix-dothrow-throwit-tether-display-import-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement throwit from dothrow.c",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v72/v72-engulfed-aklys-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v72-engulfed-aklys-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "throwit",
+      "session": "synthetic/v72/v72-engulfed-aklys-action2"
+    },
+    {
+      "id": "fix-hack-slippery-ice-objdescr-import-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement slippery_ice_fumbling from hack.c",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v72/v72-boots-ice-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v72-boots-ice-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "slippery_ice_fumbling",
+      "session": "synthetic/v72/v72-boots-ice-scout1"
+    },
+    {
+      "id": "fix-elf-bow-damage-constant-import-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement hmon_hitmon_weapon_melee from uhitm.c",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v72/v72-elf-bow-shot-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v72-elf-bow-shot-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "hmon_hitmon_weapon_melee",
+      "session": "synthetic/v72/v72-elf-bow-shot-action2"
+    },
+    {
+      "id": "port-m-consume-green-slime-glob-transformation-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement m_consume_obj, meatobj from mon.c",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v70/v70-cube-glob-scout2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v70-cube-glob-scout2-followup-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "m_consume_obj",
+      "session": "synthetic/v70/v70-cube-glob-scout2"
     }
   ]
 }
