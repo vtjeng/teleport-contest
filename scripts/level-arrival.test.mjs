@@ -43,6 +43,7 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     RANGE_GLOBAL,
     RANGE_LEVEL,
+    ROT_ORGANIC,
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
@@ -247,13 +248,14 @@ test('timer locality follows the four timer kinds', () => {
     assert.equal(state.gt.timer_base.next, null);
 });
 
-test('run_timers stops rather than firing an unported timeout arm', async () => {
+test('run_timers refuses an unsupported monster timer kind', async () => {
     const state = dungeonState();
     timeout_globals_init(state);
     state.moves = 100;
-    // An unported ROT_ORGANIC callback remains a genuine arrival boundary;
-    // ROT_CORPSE's carried-object arm now runs its source cleanup.
-    start_timer(5, TIMER_OBJECT, 0, { where: OBJ_INVENT, timed: 0 }, state);
+    // timeout.c:timer_sanity_check() rejects TIMER_MONSTER elements as
+    // unexpected; run_timers() keeps this unsupported queue kind fail-closed.
+    start_timer(5, TIMER_MONSTER, ROT_ORGANIC,
+        { where: OBJ_INVENT, timed: 0 }, state);
     // Scheduled for move 105, which is still ahead of the arrival turn.
     await run_timers(state, { newsym: () => {} });
     state.moves = 105;
@@ -268,7 +270,7 @@ test('run_timers stops rather than firing an unported timeout arm', async () => 
             site: "goto_level()'s run_timers()",
         }),
         (error) => error.message === "goto_level()'s run_timers() requires "
-            + 'a ported timeout function, but rot_organic() is due',
+            + `every due timer kind to have a supported handler, but kind ${TIMER_MONSTER} is due`,
     );
 });
 

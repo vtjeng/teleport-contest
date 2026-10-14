@@ -131,6 +131,7 @@ import {
     newObject,
     place_object,
 } from '../js/obj.js';
+import { add_to_buried } from '../js/invent.js';
 import { UnsupportedShopError } from '../js/shk.js';
 import {
     planningState,
@@ -1763,54 +1764,44 @@ test('retained hero movement skips upkeep that C does not reach', async () => {
     assert.equal(game.gt.timer_base.timeout, 2);
 });
 
-test('due timeout retries stop at the elapsed coordinator before mutation',
-    async () => {
-        const replay = await runSegment({
-            seed: 2026072301,
-            datetime: '20260723120000',
-            nethackrc: 'OPTIONS=name:TimeoutBoundary,role:Healer,'
-                + 'race:human,gender:female,align:neutral,!legacy,'
-                + '!tutorial,!splash_screen,pettype:none,!acoustics',
-            moves: '',
-        });
-        for (const column of game.level.monsters) column.fill(null);
-        game.level.monlist = null;
-        game.context.move = 1;
-        game.context.seer_turn = 1000;
-        game.u.umovement = NORMAL_SPEED;
-        // ROT_ORGANIC remains unported, so the whole elapsed turn stops
-        // atomically; BURN_OBJECT now dispatches the source callback.
-        game.gt.timer_base = {
-            timeout: game.moves + 1,
-            kind: TIMER_OBJECT,
-            func_index: ROT_ORGANIC,
-            arg: { otyp: CORPSE, timed: 1 },
-            next: null,
-        };
-        const before = completeSecondTurnSnapshot(game, replay);
-        const timerBefore = structuredClone(game.gt.timer_base);
-
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => error instanceof UnsupportedTurnBoundaryError
-                    && error.reason
-                        === 'a ported timeout function, but rot_organic() '
-                            + 'is due',
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, replay),
-                before,
-            );
-            assert.deepEqual(game.gt.timer_base, timerBefore);
-        }
-
-        game.gt.timer_base.timeout = game.moves + 100;
-        game.nhDisplay.pushKey('.'.charCodeAt(0));
-        await moveloop_core();
-        assert.equal(game.moves, 2);
-        assert.equal(game.gt.timer_base.timeout, 101);
+test('due ROT_ORGANIC timeout frees an empty buried container', async () => {
+    await runSegment({
+        seed: 2026072301,
+        datetime: '20260723120000',
+        nethackrc: 'OPTIONS=name:TimeoutBoundary,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: '',
     });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.context.move = 1;
+    game.context.seer_turn = 1000;
+    game.u.umovement = NORMAL_SPEED;
+    // C uses one turn of delay for this fixture so the buried sack is due at
+    // the elapsed-turn timer boundary.
+    const sack = newObject({
+        o_id: 90002, // Distinct from this file's 90001 corpse fixture.
+        oclass: game.objects[SACK].oc_class,
+        otyp: SACK,
+        quan: 1,
+        ox: game.u.ux,
+        oy: game.u.uy,
+    });
+    add_to_buried(sack, { state: game });
+    start_timer(1, TIMER_OBJECT, ROT_ORGANIC, sack, game);
+
+    // Supply the next command because the now-supported timeout lets the
+    // elapsed turn finish and reach the ordinary input boundary.
+    game.nhDisplay.pushKey('.'.charCodeAt(0));
+    await moveloop_core();
+    assert.equal(sack.where, OBJ_DELETED,
+        'rot_organic extracts and frees the empty container');
+    assert.equal(game.gt.timer_base, null,
+        'run_timers removes the fired object timer');
+    assert.equal(game.moves, 2,
+        'the elapsed turn reaches the command boundary after firing the timer');
+});
 
 test('the billionth turn capitulates before hero sequence and upkeep',
     () => withSerializedGrids(async () => {
