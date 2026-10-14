@@ -3927,6 +3927,47 @@ test('itemactions split dispatches the queued adjust_split function pointer',
             /queuedExtcmdEntry\?\.ef_funct === 'adjust_split'[\s\S]*?adjust_split\(state\)/u);
     });
 
+test('itemactions split reads an explicit amount from stacks larger than two',
+    async () => {
+        await runSegment({
+            seed: 4210046,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:QueuedCountedStackSplit,role:Valkyrie,race:human,'
+                + 'gender:female,align:lawful,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: ' ',
+        });
+        let stack = game.invent;
+        while (stack && stack.oclass !== FOOD_CLASS) stack = stack.nobj;
+        assert.ok(stack, 'the fixture starts with an adjustable food ration');
+        stack.quan = 5;
+        game.flags.invlet_constant = true;
+
+        await itemactions(stack, game, {
+            selectMenu: async (_state, spec) => (
+                spec.items.find((item) => item.selector === 'I')?.value
+            ),
+        });
+        assert.equal(cmdq_peek(CQ_CANNED, game).ec_entry.ef_funct, 'adjust_split');
+
+        // C asks for the first digit, then get_count consumes the space that
+        // ends the quantity before doorganize_core asks for the destination.
+        game.nhDisplay.pushKey('2'.charCodeAt(0));
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.nhDisplay.pushKey('b'.charCodeAt(0));
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.context.move = 0;
+        await rhack(0, game);
+
+        assert.equal(cmdq_peek(CQ_CANNED, game), null);
+        assert.equal(stack.quan, 3);
+        let split = game.invent;
+        while (split && split.invlet !== 'b') split = split.nobj;
+        assert.equal(split?.otyp, stack.otyp);
+        assert.equal(split?.quan, 2);
+        assert.equal(game.context.move, 0, 'adjust_split returns ECMD_OK');
+    });
+
 test('queued getobj awaits an asynchronous object filter', async () => {
     await runSegment({
         seed: 4210044,
