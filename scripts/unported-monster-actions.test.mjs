@@ -224,6 +224,10 @@ const MONMOVE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/monmove.c', import.meta.url),
     'utf8',
 );
+const MCASTU_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/mcastu.c', import.meta.url),
+    'utf8',
+);
 const MTHROWU_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/mthrowu.c', import.meta.url),
     'utf8',
@@ -3955,16 +3959,31 @@ test('starting-pet adapter wires dog_move reflection to mon_reflects',
         });
 });
 
-test('mattacku production adapter preserves source mon_nam for castmu', () => {
-    const c = readFileSync(new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8');
+test('both production castmu adapters preserve source mon_nam', () => {
+    const mhitu = readFileSync(new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/unported_monster_actions.js', import.meta.url), 'utf8');
-    const adapterStart = js.indexOf('function attackHeroWithMattacku(');
-    const adapterEnd = js.indexOf('// C ref: dogmove.c pet_ranged_attk()', adapterStart);
-    const adapter = js.slice(adapterStart, adapterEnd);
-    assert.match(c, /castmu\(mtmp, mattk, TRUE, foundyou\)/u);
-    assert.match(adapter, /castMonsterSpell:[\s\S]*?monnam: \(mtmp\) => mon_nam\(mtmp, state, spellEnv\)/u);
-    assert.doesNotMatch(adapter, /pmnames\?\./u,
-        'the adapter must not replace source naming with raw species text');
+    const attackStart = js.indexOf('function attackHeroWithMattacku(');
+    const attackEnd = js.indexOf('// C ref: dogmove.c pet_ranged_attk()', attackStart);
+    const attackAdapter = js.slice(attackStart, attackEnd);
+    const dochugStart = MONMOVE_SOURCE.indexOf('dochug(struct monst *mtmp)');
+    const dochugEnd = MONMOVE_SOURCE.indexOf('\n/* ', dochugStart);
+    const dochug = MONMOVE_SOURCE.slice(dochugStart, dochugEnd);
+    const spellStart = js.indexOf('castUndirectedSpell: async (subject, spellEnv) =>');
+    const spellEnd = js.indexOf('\n                    for (const a of mdat.mattk)', spellStart);
+    const spellAdapter = js.slice(spellStart, spellEnd);
+    const fumbleStart = MCASTU_SOURCE.indexOf('if (rn2(ml * 10)');
+    const fumbleEnd = MCASTU_SOURCE.indexOf('return M_ATTK_MISS;', fumbleStart);
+    const fumble = MCASTU_SOURCE.slice(fumbleStart, fumbleEnd);
+
+    assert.match(mhitu, /castmu\(mtmp, mattk, TRUE, foundyou\)/u);
+    assert.match(dochug, /castmu\(mtmp, a, FALSE, FALSE\)/u);
+    assert.match(fumble, /canseemon\(mtmp\)[\s\S]*?mon_nam\(mtmp\)/u);
+    assert.match(attackAdapter,
+        /castMonsterSpell:[\s\S]*?monnam: \(mtmp\) => mon_nam\(mtmp, state, spellEnv\)/u);
+    assert.match(spellAdapter,
+        /monnam: \(mtmp\) => mon_nam\(mtmp, state, spellEnv\)/u);
+    assert.doesNotMatch(spellAdapter, /pmnames\?\./u,
+        'the undirected-spell adapter must preserve invisible and other C naming rules');
 });
 
 test('monster missile caller adapters preserve hallucinated display RNG', () => {

@@ -1587,12 +1587,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                         ...spellEnv,
                         monsterName: (mtmp) =>
                             capitalizedMonsterName(mtmp, state),
-                        monnam: (mtmp) => {
-                            const name = mtmp.data?.pmnames?.[2]
-                                ?? mtmp.data?.pmnames?.[0]
-                                ?? 'something';
-                            return `the ${name}`;
-                        },
+                        monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
                         message: env.planning ? undefined
                             : async (text, s) => { await ttyPline(text, s); },
                         mdamageu: (mtmp2, dmg) =>
