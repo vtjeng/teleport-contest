@@ -1,0 +1,75 @@
+{
+  "session": "synthetic/v73/v73-helmet-npc-earth-action5",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-helmet-npc-earth-action5",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingPath": "challenges/cases/v73/v73-helmet-npc-earth-action5.session.json",
+  "recordingSha256": "b58cde514c18bc8d1e4ae0ffffef27226bab24d26b3ec1b920068eacb8bf9774",
+  "recipePath": "challenges/cases/v73/v73-helmet-npc-earth-action5.recipe.session.json",
+  "recipeSha256": "6ca26be859be437b646673503d3d60537bbece213feb668a62d63277c6e9e5a6",
+  "replayInputSha256": "d439f1b4cb5aabc7f91023f763aa3932e98385bd2fef7819ed8833294cba2916",
+  "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+  "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+  "status": "complete",
+  "commit": "bedab330ee245f3cf1d00c2e6c4dc8e954350654",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v73",
+    "caseId": "v73-helmet-npc-earth-action5",
+    "session": "synthetic/v73/v73-helmet-npc-earth-action5",
+    "manifestPath": "challenges/manifests/v73.json",
+    "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+    "recording": "challenges/cases/v73/v73-helmet-npc-earth-action5.session.json",
+    "recordingPath": "challenges/cases/v73/v73-helmet-npc-earth-action5.session.json",
+    "recordingSha256": "b58cde514c18bc8d1e4ae0ffffef27226bab24d26b3ec1b920068eacb8bf9774",
+    "recipe": "challenges/cases/v73/v73-helmet-npc-earth-action5.recipe.session.json",
+    "recipeSha256": "6ca26be859be437b646673503d3d60537bbece213feb668a62d63277c6e9e5a6",
+    "replayInputSha256": "d439f1b4cb5aabc7f91023f763aa3932e98385bd2fef7819ed8833294cba2916",
+    "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+    "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+    "evaluationArtifact": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+    "remainingScreens": 632,
+    "recordedSteps": 632,
+    "previousScreensMatched": 581,
+    "regression": false,
+    "passed": false,
+    "error": "mon_nam is not defined",
+    "metrics": {
+      "screens": { "matched": 0, "total": 632 },
+      "rng": { "matched": 0, "total": 2965 },
+      "cursors": { "matched": 0, "total": 632 }
+    },
+    "firstMismatch": {
+      "kind": "ReferenceError",
+      "message": "mon_nam is not defined",
+      "step": 581
+    },
+    "step": 581,
+    "kind": "ReferenceError",
+    "sourceFile": "muse.c",
+    "function": "use_offensive",
+    "message": "mon_nam is not defined",
+    "cFile": "muse.c",
+    "luaFile": null,
+    "line": 1903
+  },
+  "summary": "A hostile dwarf wearing a hard helmet reads a scroll of earth. The first JavaScript failure occurs when muse.c:use_offensive formats the visible reader's rumble message with mon_nam; js/muse.js calls mon_nam without importing it.",
+  "source": {
+    "file": "muse.c",
+    "branch": "In MUSE_SCR_EARTH, use_offensive calls mreadmsg, then the canspotmon branch prints the ceiling rumble message with mon_nam(mtmp). The JS branch follows the same order and arguments but its module import list omits mon_nam.",
+    "functions": ["use_offensive"],
+    "callers": [
+      "muse.c:muse -> use_offensive",
+      "js/muse.js:muse -> use_offensive"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read nethack-c/upstream/src/muse.c:1824-2032. In the MUSE_SCR_EARTH branch at lines 1899-1905, use_offensive calls mreadmsg, then formats the visible reader's ceiling-rumble message with mon_nam(mtmp).",
+    "Read js/muse.js:2658-2870. Its corresponding branch awaits mreadmsg and uses mon_nam(mtmp, state) at line 2861, but the do_name.js import list omits mon_nam. The ReferenceError at step 581 is therefore an unresolved imported binding in an otherwise corresponding source branch.",
+    "The admitted evaluation's stopped replay records 581 matching screens/cursors and 2939 matching RNG calls before the error at step 581. The case exercises the production path through muse -> use_offensive -> MUSE_SCR_EARTH with a visible monster reader."
+  ]
+}
