@@ -786,3 +786,20 @@ triage decisions or fix references.
 - Outcome: Root preserved the original commit, removed the premature report
   addition from Main, and included it in the candidate before hosted validation.
   The retry retains that report and the earlier timeout log as prerequisites.
+
+### 2026-10-14 — later clone boundary depends on queued Castle callers
+
+- Context: clone candidate c38740332 passed hosted run38523290019.
+- Friction: acceptance found screens+152 and RNG+1754 but cursors-46 in
+  its target. The candidate stops at step986 before later cursors are emitted.
+  The C trace reaches muse.c:use_defensive monster creation; that caller is
+  reserved by the ready Castle-hole delivery a464b127.
+- Outcome: Root requested an immutable correction without weakening the gate,
+  preserved the failed branch and frozen plan, and selected a fresh compatible
+  group containing Castle and four other received deliveries. It needs its own
+  hosted checkpoint. The clone correction resumes after Castle releases the
+  caller scope; its previous score is not acceptance evidence for the new group.
+- Friction: old parked reports failed current schema and ancestry checks during
+  submission. Workers preserved old commits, normalized fields from recorded
+  values, and used accepted-tree ancestry bridges with scoped restored blobs.
+  They validated the complete reports before submission.
