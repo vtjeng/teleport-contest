@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T17:41:31.855Z",
+  "capturedAt": "2026-10-14T18:43:55.179Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -122012,6 +122012,687 @@
         "type": "accepted",
         "at": "2026-10-14T17:37:01.005Z",
         "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v66-protected-bell-drop-action6-20261014-950dde6db081376d3953d458b13f1c955bd0e7e0",
+        "type": "published",
+        "at": "2026-10-14T17:41:46.070Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "commit": "950dde6db081376d3953d458b13f1c955bd0e7e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v67-angry-shop-settlement-action10-continuation-20261014-950dde6db081376d3953d458b13f1c955bd0e7e0",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T17:41:50.166Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "commit": "950dde6db081376d3953d458b13f1c955bd0e7e0",
+        "knownBy": "2026-10-14T17:41:46.070Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v65-runtime-customcolors-reset-action1-20261014-950dde6db081376d3953d458b13f1c955bd0e7e0",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T17:41:51.521Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "commit": "950dde6db081376d3953d458b13f1c955bd0e7e0",
+        "knownBy": "2026-10-14T17:41:46.070Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2a1b088388fbb0d4e674c289b4fa3e3fe7de51d4",
+        "type": "ready",
+        "at": "2026-10-14T17:42:21.556Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "delivery": "2a1b088388fbb0d4e674c289b4fa3e3fe7de51d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2a1b088388fbb0d4e674c289b4fa3e3fe7de51d4",
+        "type": "received",
+        "at": "2026-10-14T17:45:41.780Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "delivery": "2a1b088388fbb0d4e674c289b4fa3e3fe7de51d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1a6a84997093ebae3e96c973fbecd4bd49ad5a92",
+        "type": "ready",
+        "at": "2026-10-14T17:48:05.407Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "delivery": "1a6a84997093ebae3e96c973fbecd4bd49ad5a92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v65-thrown-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T17:48:27.722Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-dd418d4bb6a414d7faa37653e120cf843767ecab",
+        "type": "ready",
+        "at": "2026-10-14T17:48:34.221Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "delivery": "dd418d4bb6a414d7faa37653e120cf843767ecab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-prayer-include-diagnosis-220028-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T17:49:46.958Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "delivery": "2a1b088388fbb0d4e674c289b4fa3e3fe7de51d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-1a6a84997093ebae3e96c973fbecd4bd49ad5a92",
+        "type": "received",
+        "at": "2026-10-14T17:49:50.294Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "delivery": "1a6a84997093ebae3e96c973fbecd4bd49ad5a92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-dd418d4bb6a414d7faa37653e120cf843767ecab",
+        "type": "received",
+        "at": "2026-10-14T17:49:53.589Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "delivery": "dd418d4bb6a414d7faa37653e120cf843767ecab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v65-options-help-file-action3-20261014",
+        "type": "assign",
+        "at": "2026-10-14T17:50:00.075Z",
+        "task": "A2-investigation-v65-options-help-file-action3-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v66-crown-report-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T17:50:49.198Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-61c07bb7a162e8c7cdf327239a18cce5f4014559",
+        "type": "ready",
+        "at": "2026-10-14T17:50:55.608Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "delivery": "61c07bb7a162e8c7cdf327239a18cce5f4014559"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2c717f1fe73c086135341c0427b8e94b9177dd53",
+        "type": "ready",
+        "at": "2026-10-14T17:51:44.314Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v65-options-menu-help-20261014",
+        "type": "implement",
+        "at": "2026-10-14T17:54:05.778Z",
+        "task": "A2-investigation-v65-options-help-file-action3-20261014",
+        "goal": "divergence-fix-options-doset-menu-help-v65-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-61c07bb7a162e8c7cdf327239a18cce5f4014559",
+        "type": "received",
+        "at": "2026-10-14T17:54:41.770Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "delivery": "61c07bb7a162e8c7cdf327239a18cce5f4014559"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2c717f1fe73c086135341c0427b8e94b9177dd53",
+        "type": "received",
+        "at": "2026-10-14T17:54:44.915Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v65-runtime-customsymbols-reset-action1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T17:55:27.252Z",
+        "task": "C-investigation-v65-runtime-customsymbols-reset-action1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v67-rogue-blind-continuation-action9-20261014",
+        "type": "assign",
+        "at": "2026-10-14T17:55:32.720Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v65-customsymbols-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T17:55:37.825Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the v65 runtime custom symbols reset mismatch after syncing accepted Main."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-four-source-prayer-report-conflict-review-20261014",
+        "type": "activity",
+        "at": "2026-10-14T17:58:21.082Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "phase": "review",
+        "reason": "Resolve the missing-base investigation conflict using the worker exact source-stage report; preserve original diagnosis and later corrections, with no source-code merge edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v67-rogue-blind-continuation-action9-20261014",
+        "type": "implement",
+        "at": "2026-10-14T17:59:17.459Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
+        "goal": "fix-rogue-blind-probe-draft-message-v67-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-rogue-blind-20261014",
+        "type": "turn",
+        "at": "2026-10-14T17:59:32.731Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the next Rogue blind-probing screen mismatch after the tactile-memory fix; the current candidate is a missing tactile draft message."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-options-help-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T17:59:44.097Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v65-runtime-customsymbols-reset-action1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T18:00:01.833Z",
+        "task": "C-investigation-v65-runtime-customsymbols-reset-action1-20261014",
+        "goal": "fix-utf8map-customsymbols-reset-v65-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7209f79f8a461df73f4beaf5c591a67678462c64",
+        "type": "ready",
+        "at": "2026-10-14T18:01:32.295Z",
+        "task": "A2-investigation-v65-options-help-file-action3-20261014",
+        "delivery": "7209f79f8a461df73f4beaf5c591a67678462c64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v66-prayer-lava-rescue-action3-20261014",
+        "type": "assign",
+        "at": "2026-10-14T18:02:39.170Z",
+        "task": "A2-investigation-v66-prayer-lava-rescue-action3-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b4be5a969120a6b24f3924945928e4bb95c0b5ee",
+        "type": "ready",
+        "at": "2026-10-14T18:02:49.215Z",
+        "task": "C-investigation-v65-runtime-customsymbols-reset-action1-20261014",
+        "delivery": "b4be5a969120a6b24f3924945928e4bb95c0b5ee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-02633522fe139ab607049ee212fb8dbaf04cdded-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:02:54.756Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "integration": "02633522fe139ab607049ee212fb8dbaf04cdded",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-02633522fe139ab607049ee212fb8dbaf04cdded-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:02:54.756Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "integration": "02633522fe139ab607049ee212fb8dbaf04cdded",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-02633522fe139ab607049ee212fb8dbaf04cdded-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:02:54.756Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "integration": "02633522fe139ab607049ee212fb8dbaf04cdded",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-02633522fe139ab607049ee212fb8dbaf04cdded-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-B-investigation-v66-unpaid-food-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:02:54.756Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "integration": "02633522fe139ab607049ee212fb8dbaf04cdded",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-prayer-lava-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T18:03:17.892Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-175878f8c73e66816d5d5a8510360820bc16d0c1",
+        "type": "ready",
+        "at": "2026-10-14T18:03:48.547Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
+        "delivery": "175878f8c73e66816d5d5a8510360820bc16d0c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-sighted-wizard-clone-followup-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T18:04:20.872Z",
+        "task": "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v63-clone-followup-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T18:04:29.594Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the remaining v63 Wizard-of-Yendor clone mismatch after accepted source fixes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v67-angry-shop-continuation-action11-20261014",
+        "type": "assign",
+        "at": "2026-10-14T18:04:46.037Z",
+        "task": "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v66-prayer-lava-rescue-action3-20261014",
+        "type": "implement",
+        "at": "2026-10-14T18:04:53.968Z",
+        "task": "A2-investigation-v66-prayer-lava-rescue-action3-20261014",
+        "goal": "divergence-fix-prayer-lava-rescue-v66-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-angry-shop-active-20261014-r1",
+        "type": "turn",
+        "at": "2026-10-14T18:06:54.154Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-60ec59edfe6b5dba0e95a5171b9312496c9d0a6a",
+        "type": "ready",
+        "at": "2026-10-14T18:09:31.087Z",
+        "task": "A2-investigation-v66-prayer-lava-rescue-action3-20261014",
+        "delivery": "60ec59edfe6b5dba0e95a5171b9312496c9d0a6a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-prayer-delivery-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T18:10:38.969Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Waiting for integration or a refreshed queue. The v64 stair-shipped case has a parked makemon dependency and v48 short-version has an unresolved build-profile blocker; all other current candidates are already owned."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-angry-shop-make-happy-20261014",
+        "type": "implement",
+        "at": "2026-10-14T18:11:21.919Z",
+        "task": "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014",
+        "goal": "B-v67-angry-shop-settlement-make-happy-shk-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-7209f79f8a461df73f4beaf5c591a67678462c64",
+        "type": "received",
+        "at": "2026-10-14T18:12:40.733Z",
+        "task": "A2-investigation-v65-options-help-file-action3-20261014",
+        "delivery": "7209f79f8a461df73f4beaf5c591a67678462c64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b4be5a969120a6b24f3924945928e4bb95c0b5ee",
+        "type": "received",
+        "at": "2026-10-14T18:12:43.911Z",
+        "task": "C-investigation-v65-runtime-customsymbols-reset-action1-20261014",
+        "delivery": "b4be5a969120a6b24f3924945928e4bb95c0b5ee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v63-clone-warning-scope-20261014-retry1",
+        "type": "implement",
+        "at": "2026-10-14T18:12:47.105Z",
+        "task": "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014",
+        "goal": "fix-display-warning-invisible-memory-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-175878f8c73e66816d5d5a8510360820bc16d0c1",
+        "type": "received",
+        "at": "2026-10-14T18:12:50.259Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
+        "delivery": "175878f8c73e66816d5d5a8510360820bc16d0c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-60ec59edfe6b5dba0e95a5171b9312496c9d0a6a",
+        "type": "received",
+        "at": "2026-10-14T18:12:53.383Z",
+        "task": "A2-investigation-v66-prayer-lava-rescue-action3-20261014",
+        "delivery": "60ec59edfe6b5dba0e95a5171b9312496c9d0a6a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-dea0e40b35e50d90965fa7569cf4b199ca75cb23",
+        "type": "ready",
+        "at": "2026-10-14T18:17:32.789Z",
+        "task": "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014",
+        "delivery": "dea0e40b35e50d90965fa7569cf4b199ca75cb23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-billing-static-await-38612021079-A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T18:17:38.337Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-billing-static-await-38612021079-A2-investigation-v67-shop-damage-repair-continuation-action12-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T18:17:38.337Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-billing-static-await-38612021079-C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T18:17:38.337Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-billing-static-await-38612021079-C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T18:17:38.337Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-billing-static-await-38612021079-C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T18:17:38.337Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-billing-static-await-38612021079-C-investigation-v66-favourable-prayer-crown-action12-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T18:17:38.337Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-billing-static-await-38612021079-B-investigation-v66-unpaid-food-action3-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T18:17:38.337Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "delivery": "2c717f1fe73c086135341c0427b8e94b9177dd53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v63-warning-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T18:18:39.490Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Ready correction submitted; waiting for a released source or new independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-dea0e40b35e50d90965fa7569cf4b199ca75cb23",
+        "type": "received",
+        "at": "2026-10-14T18:24:35.733Z",
+        "task": "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014",
+        "delivery": "dea0e40b35e50d90965fa7569cf4b199ca75cb23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a82acfb7748417e39fbaac8c8b9ab7dcf03bb226",
+        "type": "ready",
+        "at": "2026-10-14T18:25:00.613Z",
+        "task": "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014",
+        "delivery": "a82acfb7748417e39fbaac8c8b9ab7dcf03bb226"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-unpaid-food-static-test-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T18:26:01.534Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a82acfb7748417e39fbaac8c8b9ab7dcf03bb226",
+        "type": "received",
+        "at": "2026-10-14T18:29:08.039Z",
+        "task": "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014",
+        "delivery": "a82acfb7748417e39fbaac8c8b9ab7dcf03bb226"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-04f3ed763803e2ed6d8fa64bb155c4614d65d817",
+        "type": "ready",
+        "at": "2026-10-14T18:29:20.159Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "delivery": "04f3ed763803e2ed6d8fa64bb155c4614d65d817"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-04f3ed763803e2ed6d8fa64bb155c4614d65d817",
+        "type": "received",
+        "at": "2026-10-14T18:30:05.058Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "delivery": "04f3ed763803e2ed6d8fa64bb155c4614d65d817"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2d494323239769911f012087ece7c41ca0fe2cee",
+        "type": "ready",
+        "at": "2026-10-14T18:31:30.605Z",
+        "task": "Prep34",
+        "delivery": "2d494323239769911f012087ece7c41ca0fe2cee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92dd522455f1b4309973280d93c5fb72a3257997-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:31:46.145Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "integration": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92dd522455f1b4309973280d93c5fb72a3257997-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:31:46.145Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "integration": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92dd522455f1b4309973280d93c5fb72a3257997-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:31:46.145Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "integration": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92dd522455f1b4309973280d93c5fb72a3257997-5c5b17edee261a03d2dce459150c4ac7020f679e068962008d6f22d48284e2af-B-investigation-v66-unpaid-food-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T18:31:46.145Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "integration": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "validationGroup": [
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-prep34-2d494323239769911f012087ece7c41ca0fe2cee",
+        "type": "received",
+        "at": "2026-10-14T18:34:35.850Z",
+        "task": "Prep34",
+        "delivery": "2d494323239769911f012087ece7c41ca0fe2cee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep35-v71-20261014",
+        "type": "assign",
+        "at": "2026-10-14T18:35:06.667Z",
+        "task": "Prep35",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v67-shop-damage-repair-continuation-action12-20261014-92dd522455f1b4309973280d93c5fb72a3257997-validated",
+        "type": "validated",
+        "at": "2026-10-14T18:41:01.027Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014-92dd522455f1b4309973280d93c5fb72a3257997-validated",
+        "type": "validated",
+        "at": "2026-10-14T18:41:01.027Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-favourable-prayer-crown-action12-20261014-92dd522455f1b4309973280d93c5fb72a3257997-validated",
+        "type": "validated",
+        "at": "2026-10-14T18:41:01.027Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v66-unpaid-food-action3-20261014-92dd522455f1b4309973280d93c5fb72a3257997-validated",
+        "type": "validated",
+        "at": "2026-10-14T18:41:01.027Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v67-shop-damage-repair-continuation-action12-20261014-92dd522455f1b4309973280d93c5fb72a3257997-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T18:41:33.170Z",
+        "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014-92dd522455f1b4309973280d93c5fb72a3257997-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T18:41:33.170Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-favourable-prayer-crown-action12-20261014-92dd522455f1b4309973280d93c5fb72a3257997-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T18:41:33.170Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v66-unpaid-food-action3-20261014-92dd522455f1b4309973280d93c5fb72a3257997-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T18:41:33.170Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014"
       }
     ]
   },
@@ -122044,14 +122725,84 @@
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
-        "worker": "C",
-        "goal": "fix-thrown-boulder-placement-v65-20261014",
+        "task": "A2-investigation-v65-options-help-file-action3-20261014",
+        "worker": "A2",
+        "goal": "divergence-fix-options-doset-menu-help-v65-20261014",
         "kind": "implementation",
-        "status": "changes-required",
-        "delivery": "8475c19ab61b35c07bf7eb2a2ada25f3b70d9773",
-        "since": "2026-10-14T16:35:57.276Z",
+        "status": "ready",
+        "delivery": "7209f79f8a461df73f4beaf5c591a67678462c64",
+        "since": "2026-10-14T18:01:32.295Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v65-runtime-customsymbols-reset-action1-20261014",
+        "worker": "C",
+        "goal": "fix-utf8map-customsymbols-reset-v65-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b4be5a969120a6b24f3924945928e4bb95c0b5ee",
+        "since": "2026-10-14T18:02:49.215Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
+        "worker": "B",
+        "goal": "fix-rogue-blind-probe-draft-message-v67-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "175878f8c73e66816d5d5a8510360820bc16d0c1",
+        "since": "2026-10-14T18:03:48.547Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v66-prayer-lava-rescue-action3-20261014",
+        "worker": "A2",
+        "goal": "divergence-fix-prayer-lava-rescue-v66-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "60ec59edfe6b5dba0e95a5171b9312496c9d0a6a",
+        "since": "2026-10-14T18:09:31.087Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014",
+        "worker": "C",
+        "goal": "fix-display-warning-invisible-memory-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "dea0e40b35e50d90965fa7569cf4b199ca75cb23",
+        "since": "2026-10-14T18:17:32.789Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014",
+        "worker": "B",
+        "goal": "B-v67-angry-shop-settlement-make-happy-shk-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a82acfb7748417e39fbaac8c8b9ab7dcf03bb226",
+        "since": "2026-10-14T18:25:00.613Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep34",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "2d494323239769911f012087ece7c41ca0fe2cee",
+        "batch": "v70",
+        "since": "2026-10-14T18:31:30.605Z",
+        "blockedBy": [
+          "Prep32",
+          "Prep33"
+        ],
         "unblocks": 0
       }
     ],
@@ -123237,723 +123988,217 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014": {
-        "id": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+      "A2-investigation-v65-options-help-file-action3-20261014": {
+        "id": "A2-investigation-v65-options-help-file-action3-20261014",
         "worker": "A2",
-        "status": "working",
-        "seed": "synthetic/v67/v67-shop-damage-repair-action11",
+        "status": "ready",
+        "seed": "synthetic/v65/v65-options-help-file-action3",
         "reservations": [
-          "session:synthetic/v67/v67-shop-damage-repair-action11",
-          "source:shk.c:repair_damage",
-          "source:shk.c:litter_getpos",
-          "source:shk.c:litter_scatter",
-          "source:shk.c:litter_newsyms",
-          "source:shk.c:discard_damage_struct",
-          "source:shk.c:fix_shop_damage",
-          "source:shk.c:shk_fixes_damage",
-          "source:allmain.c:allmain",
-          "source:allmain.c:moveloop_preamble",
-          "source:do.c:goto_level",
-          "source:bones.c:getbones",
-          "source:bones.c:drop_upon_death",
-          "source:mklev.c:mklev"
+          "session:synthetic/v65/v65-options-help-file-action3",
+          "source:options.c:doset",
+          "source:pager.c:dispfile_optmenu"
         ]
       },
-      "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014": {
-        "id": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+      "C-investigation-v65-runtime-customsymbols-reset-action1-20261014": {
+        "id": "C-investigation-v65-runtime-customsymbols-reset-action1-20261014",
         "worker": "C",
-        "status": "changes-required",
-        "seed": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
+        "status": "ready",
+        "seed": "synthetic/v65/v65-runtime-customsymbols-reset-action1",
         "reservations": [
-          "session:synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
-          "source:dothrow.c:throwit"
+          "session:synthetic/v65/v65-runtime-customsymbols-reset-action1",
+          "source:utf8map.c:free_all_glyphmap_u",
+          "source:utf8map.c:reset_customsymbols",
+          "source:options.c:reset_needed_visuals"
         ]
       },
-      "C-investigation-v66-favourable-prayer-crown-action12-20261014": {
-        "id": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
-        "worker": "C",
-        "status": "working",
-        "seed": "synthetic/v66/v66-favourable-prayer-crown-action12",
-        "reservations": [
-          "session:synthetic/v66/v66-favourable-prayer-crown-action12",
-          "source:pray.c:gcrownu",
-          "source:pray.c:pleased",
-          "source:topl.c:update_topl"
-        ]
-      },
-      "B-investigation-v66-unpaid-food-action3-20261014": {
-        "id": "B-investigation-v66-unpaid-food-action3-20261014",
+      "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014": {
+        "id": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
         "worker": "B",
-        "status": "working",
-        "seed": "synthetic/v66/v66-unpaid-food-action3",
+        "status": "ready",
+        "seed": "synthetic/v67/v67-rogue-blind-probing-action7",
         "reservations": [
-          "session:synthetic/v66/v66-unpaid-food-action3",
-          "source:mkobj.c:costly_alteration",
-          "source:eat.c:touchfood",
-          "source:eat.c:use_tin",
-          "source:do.c:obj_no_longer_held",
-          "source:dogmove.c:dog_eat",
-          "source:zap.c:cancel_item",
-          "source:zap.c:drain_item",
-          "source:potion.c:H2Opotion_dip",
-          "source:potion.c:potion_dip",
-          "source:wield.c:chwepon",
-          "source:trap.c:erode_obj",
-          "source:read.c:seffect_enchant_weapon",
-          "source:apply.c:use_cream_pie",
-          "source:apply.c:do_break_wand",
-          "source:invent.c:add_to_container",
-          "source:mon.c:extract_from_minvent",
-          "source:mkobj.c:place_object",
-          "source:mkobj.c:add_to_container",
-          "source:mkobj.c:mkobj_at",
-          "source:mkobj.c:mksobj_at",
-          "source:mkobj.c:mkbox_cnts",
-          "source:mkobj.c:mksobj_init",
-          "source:mkobj.c:recreate_pile_at",
-          "source:mkobj.c:hornoplenty",
-          "source:apply.c:use_whip",
-          "source:ball.c:placebc_core",
-          "source:ball.c:set_bc",
-          "source:ball.c:move_bc",
-          "source:bones.c:give_to_nearby_mon",
-          "source:dig.c:dig",
-          "source:dig.c:buried_ball_to_freedom",
-          "source:dig.c:unearth_objs",
-          "source:do.c:dropz",
+          "session:synthetic/v67/v67-rogue-blind-probing-action7",
+          "source:dig.c:draft_message",
+          "source:zap.c:zap_map"
+        ]
+      },
+      "A2-investigation-v66-prayer-lava-rescue-action3-20261014": {
+        "id": "A2-investigation-v66-prayer-lava-rescue-action3-20261014",
+        "worker": "A2",
+        "status": "ready",
+        "seed": "synthetic/v66/v66-prayer-lava-rescue-action3",
+        "reservations": [
+          "session:synthetic/v66/v66-prayer-lava-rescue-action3",
+          "source:pray.c:fix_worst_trouble"
+        ]
+      },
+      "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014": {
+        "id": "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v63/v63-sighted-wizard-clone-action4",
+        "reservations": [
+          "session:synthetic/v63/v63-sighted-wizard-clone-action4",
+          "source:display.c:newsym",
+          "source:display.c:display_warning",
+          "source:display.c:show_mon_or_warn",
+          "source:display.c:display_monster"
+        ]
+      },
+      "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014": {
+        "id": "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v67/v67-angry-shop-settlement-action10",
+        "reservations": [
+          "session:synthetic/v67/v67-angry-shop-settlement-action10",
+          "source:shk.c:make_happy_shk",
+          "source:shk.c:make_happy_shoppers",
+          "source:shk.c:dopay",
           "source:dog.c:tamedog",
-          "source:dokick.c:really_kick_object",
-          "source:dokick.c:obj_delivery",
-          "source:dothrow.c:throw_gold",
-          "source:end.c:done_in_by",
-          "source:explode.c:scatter",
-          "source:hack.c:moverock_core",
-          "source:hack.c:movobj",
-          "source:invent.c:hold_another_object",
-          "source:lock.c:breakchestlock",
-          "source:makemon.c:m_initinv",
-          "source:mklev.c:fill_ordinary_room",
-          "source:mklev.c:mineralize",
-          "source:mklev.c:mktrap_victim",
-          "source:mkmaze.c:mv_bubble",
-          "source:mkroom.c:fill_zoo",
-          "source:mon.c:meatbox",
-          "source:mon.c:monstone",
-          "source:mon.c:xkilled",
-          "source:mon.c:newcham",
-          "source:mthrowu.c:drop_throw",
-          "source:mthrowu.c:return_from_mtoss",
-          "source:muse.c:mloot_container",
-          "source:muse.c:use_misc",
-          "source:objnam.c:readobjnam",
-          "source:pickup.c:reverse_loot",
-          "source:pickup.c:in_container",
-          "source:pickup.c:tipcontainer",
-          "source:pray.c:give_spell",
-          "source:read.c:drop_boulder_on_player",
-          "source:read.c:drop_boulder_on_monster",
-          "source:restore.c:find_lev_obj",
-          "source:sp_lev.c:create_object",
-          "source:steal.c:mdrop_obj",
-          "source:teleport.c:rloco",
-          "source:trap.c:mk_trap_statue",
-          "source:trap.c:keep_saddle_with_steedcorpse",
-          "source:trap.c:trapeffect_arrow_trap",
-          "source:trap.c:trapeffect_dart_trap",
-          "source:trap.c:trapeffect_rocktrap",
-          "source:trap.c:force_launch_placement",
-          "source:trap.c:launch_obj",
-          "source:trap.c:mkroll_launch",
-          "source:trap.c:fire_damage",
-          "source:trap.c:cnv_trap_obj",
-          "source:uhitm.c:hmon_hitmon_misc_obj",
-          "source:vault.c:move_gold",
-          "source:vault.c:paygd",
-          "source:weapon.c:possibly_unwield",
-          "source:worn.c:m_lose_armor",
-          "source:worn.c:extract_from_minvent",
-          "source:zap.c:stone_to_flesh_obj",
-          "source:zap.c:fracture_rock",
-          "source:zap.c:break_statue",
-          "source:zap.c:bhito",
-          "source:uhitm.c:mhitm_ad_ench",
-          "source:uhitm.c:passive_obj",
-          "source:mhitu.c:passiveum",
-          "source:mhitm.c:passivemm"
+          "source:dog.c:losedogs",
+          "source:dokick.c:ghitm",
+          "source:shk.c:kops_gone",
+          "source:shk.c:angry_shk_exists"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v67/v67-shop-damage-repair-action11": {
+      "session:synthetic/v65/v65-options-help-file-action3": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "A2-investigation-v65-options-help-file-action3-20261014"
         ]
       },
-      "source:shk.c:repair_damage": {
+      "source:options.c:doset": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "A2-investigation-v65-options-help-file-action3-20261014"
         ]
       },
-      "source:shk.c:litter_getpos": {
+      "source:pager.c:dispfile_optmenu": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "A2-investigation-v65-options-help-file-action3-20261014"
         ]
       },
-      "source:shk.c:litter_scatter": {
+      "session:synthetic/v65/v65-runtime-customsymbols-reset-action1": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "C-investigation-v65-runtime-customsymbols-reset-action1-20261014"
         ]
       },
-      "source:shk.c:litter_newsyms": {
+      "source:utf8map.c:free_all_glyphmap_u": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "C-investigation-v65-runtime-customsymbols-reset-action1-20261014"
         ]
       },
-      "source:shk.c:discard_damage_struct": {
+      "source:utf8map.c:reset_customsymbols": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "C-investigation-v65-runtime-customsymbols-reset-action1-20261014"
         ]
       },
-      "source:shk.c:fix_shop_damage": {
+      "source:options.c:reset_needed_visuals": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "C-investigation-v65-runtime-customsymbols-reset-action1-20261014"
         ]
       },
-      "source:shk.c:shk_fixes_damage": {
+      "session:synthetic/v67/v67-rogue-blind-probing-action7": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014"
         ]
       },
-      "source:allmain.c:allmain": {
+      "source:dig.c:draft_message": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014"
         ]
       },
-      "source:allmain.c:moveloop_preamble": {
+      "source:zap.c:zap_map": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014"
         ]
       },
-      "source:do.c:goto_level": {
+      "session:synthetic/v66/v66-prayer-lava-rescue-action3": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "A2-investigation-v66-prayer-lava-rescue-action3-20261014"
         ]
       },
-      "source:bones.c:getbones": {
+      "source:pray.c:fix_worst_trouble": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "A2-investigation-v66-prayer-lava-rescue-action3-20261014"
         ]
       },
-      "source:bones.c:drop_upon_death": {
+      "session:synthetic/v63/v63-sighted-wizard-clone-action4": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014"
         ]
       },
-      "source:mklev.c:mklev": {
+      "source:display.c:newsym": {
         "tasks": [
-          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
+          "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014"
         ]
       },
-      "session:synthetic/v65/v65-sokoban-thrown-pit-fill-action1": {
+      "source:display.c:display_warning": {
         "tasks": [
-          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014"
+          "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014"
         ]
       },
-      "source:dothrow.c:throwit": {
+      "source:display.c:show_mon_or_warn": {
         "tasks": [
-          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014"
+          "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014"
         ]
       },
-      "session:synthetic/v66/v66-favourable-prayer-crown-action12": {
+      "source:display.c:display_monster": {
         "tasks": [
-          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+          "C-investigation-v63-sighted-wizard-clone-followup-action4-20261014"
         ]
       },
-      "source:pray.c:gcrownu": {
+      "session:synthetic/v67/v67-angry-shop-settlement-action10": {
         "tasks": [
-          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
-      "source:pray.c:pleased": {
+      "source:shk.c:make_happy_shk": {
         "tasks": [
-          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
-      "source:topl.c:update_topl": {
+      "source:shk.c:make_happy_shoppers": {
         "tasks": [
-          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
-      "session:synthetic/v66/v66-unpaid-food-action3": {
+      "source:shk.c:dopay": {
         "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:costly_alteration": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:eat.c:touchfood": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:eat.c:use_tin": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:do.c:obj_no_longer_held": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:dogmove.c:dog_eat": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:zap.c:cancel_item": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:zap.c:drain_item": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:potion.c:H2Opotion_dip": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:potion.c:potion_dip": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:wield.c:chwepon": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:erode_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:read.c:seffect_enchant_weapon": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:apply.c:use_cream_pie": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:apply.c:do_break_wand": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:invent.c:add_to_container": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mon.c:extract_from_minvent": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:place_object": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:add_to_container": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:mkobj_at": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:mksobj_at": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:mkbox_cnts": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:mksobj_init": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:recreate_pile_at": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkobj.c:hornoplenty": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:apply.c:use_whip": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:ball.c:placebc_core": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:ball.c:set_bc": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:ball.c:move_bc": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:bones.c:give_to_nearby_mon": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:dig.c:dig": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:dig.c:buried_ball_to_freedom": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:dig.c:unearth_objs": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:do.c:dropz": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
       "source:dog.c:tamedog": {
         "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
-      "source:dokick.c:really_kick_object": {
+      "source:dog.c:losedogs": {
         "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
-      "source:dokick.c:obj_delivery": {
+      "source:dokick.c:ghitm": {
         "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
-      "source:dothrow.c:throw_gold": {
+      "source:shk.c:kops_gone": {
         "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       },
-      "source:end.c:done_in_by": {
+      "source:shk.c:angry_shk_exists": {
         "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:explode.c:scatter": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:hack.c:moverock_core": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:hack.c:movobj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:invent.c:hold_another_object": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:lock.c:breakchestlock": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:makemon.c:m_initinv": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mklev.c:fill_ordinary_room": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mklev.c:mineralize": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mklev.c:mktrap_victim": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkmaze.c:mv_bubble": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mkroom.c:fill_zoo": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mon.c:meatbox": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mon.c:monstone": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mon.c:xkilled": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mon.c:newcham": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mthrowu.c:drop_throw": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mthrowu.c:return_from_mtoss": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:muse.c:mloot_container": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:muse.c:use_misc": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:objnam.c:readobjnam": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:pickup.c:reverse_loot": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:pickup.c:in_container": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:pickup.c:tipcontainer": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:pray.c:give_spell": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:read.c:drop_boulder_on_player": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:read.c:drop_boulder_on_monster": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:restore.c:find_lev_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:sp_lev.c:create_object": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:steal.c:mdrop_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:teleport.c:rloco": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:mk_trap_statue": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:keep_saddle_with_steedcorpse": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:trapeffect_arrow_trap": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:trapeffect_dart_trap": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:trapeffect_rocktrap": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:force_launch_placement": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:launch_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:mkroll_launch": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:fire_damage": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:trap.c:cnv_trap_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:uhitm.c:hmon_hitmon_misc_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:vault.c:move_gold": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:vault.c:paygd": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:weapon.c:possibly_unwield": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:worn.c:m_lose_armor": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:worn.c:extract_from_minvent": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:zap.c:stone_to_flesh_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:zap.c:fracture_rock": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:zap.c:break_statue": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:zap.c:bhito": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:uhitm.c:mhitm_ad_ench": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:uhitm.c:passive_obj": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mhitu.c:passiveum": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
-        ]
-      },
-      "source:mhitm.c:passivemm": {
-        "tasks": [
-          "B-investigation-v66-unpaid-food-action3-20261014"
+          "B-investigation-v67-angry-shop-settlement-continuation-action11-20261014"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
-    "measuredAt": "2026-10-14T17:33:29.552Z",
+    "executionCommit": "92dd522455f1b4309973280d93c5fb72a3257997",
+    "measuredAt": "2026-10-14T18:37:13.494Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

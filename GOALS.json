@@ -309553,7 +309553,7 @@
     {
       "id": "fix-prayer-crown-reward-v66-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement gcrownu, pleased from pray.c",
       "cFile": "pray.c",
       "sessions": [
@@ -309563,15 +309563,105 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92dd522455f1b4309973280d93c5fb72a3257997",
       "delivered": null,
       "function": "gcrownu",
-      "session": "synthetic/v66/v66-favourable-prayer-crown-action12"
+      "session": "synthetic/v66/v66-favourable-prayer-crown-action12",
+      "closeStanding": {
+        "sha": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "target": "synthetic/v66/v66-favourable-prayer-crown-action12",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92dd522455f1b4309973280d93c5fb72a3257997/run-hosted-bnL6iE/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "gcrownu",
+            "sourceFile": "pray.c",
+            "implementation": "js/pray.js",
+            "symbol": "gcrownu",
+            "sourceReview": "Read all of pray.c:gcrownu() at lines 805-996. Ported the alignment-specific Hand of Elbereth update and verbal gifts, wizard/monk spellbook selection, artifact handling, weapon improvement, inventory refresh, and skill credit in source order. Reused existing JS owners for godvoice/verbalize, object creation and naming, blessing, dropping, artifact discovery, inventory, and weapon skills; no new note_unported() substitute remains on this branch.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:pleased() calls gcrownu() from cases 7 and 8 of the pat_on_head reward switch, `switch (rn2((Luck + 6) >> 1))`, when alignment record is at least PIOUS and no prior Hand of Elbereth exists."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-favourable-prayer-crown-action12",
+                "segment": 0,
+                "fromStep": 1742,
+                "throughStep": 1817,
+                "source": "The recorded #pray command enters pray.c:dopray()/prayer_done(), then pat_on_head cases 7/8 of `switch (rn2((Luck + 6) >> 1))` in pleased() call gcrownu(); the full segment remains matched through completion."
+              }
+            ]
+          },
+          {
+            "name": "pleased",
+            "sourceFile": "pray.c",
+            "implementation": "js/pray.js",
+            "symbol": "pleased",
+            "sourceReview": "Read all of pray.c:pleased() at lines 1071-1381. Matched the no-trouble/high-alignment pat-on-the-head branch and its weapon reward to the source-owned global uwep slot, represented by state.uwep in JS; the prior u.uwep lookup was undefined and skipped the visible reward and its More boundary. The same function routes cases 7/8 of the pat_on_head reward `switch (rn2((Luck + 6) >> 1))` to gcrownu().",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:prayer_done() calls pleased() after successful prayer completion."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-favourable-prayer-crown-action12",
+                "segment": 0,
+                "fromStep": 1519,
+                "throughStep": 1817,
+                "source": "The #pray command reaches pray.c:pleased() pat_on_head weapon reward at step 1523 and later the pat_on_head cases 7/8 of `switch (rn2((Luck + 6) >> 1))` leading to gcrownu(); the full segment remains matched through completion."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active production entry point is the #pray command: js/cmd.js dispatches to dopray(), whose after-move callback runs prayer_done(), then pleased(); the successful high-alignment no-trouble path exercises the wielded-weapon reward and the later crown path calls gcrownu(). Neither selected function is excluded from the recorder build. The cited admitted v66 case reaches both branches.",
+        "entryPoints": [
+          {
+            "name": "#pray successful high-alignment reward and crown",
+            "functions": [
+              "pleased",
+              "gcrownu"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-favourable-prayer-crown-action12",
+                "segment": 0,
+                "fromStep": 1519,
+                "throughStep": 1817,
+                "source": "The #pray command reaches pray.c:pleased() pat-on-the-head weapon reward and later the gcrownu() branch; the full segment remains matched through completion."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-shk-repair-damage-shop-catchup-v67-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement discard_damage_struct, shk_fixes_damage, litter_getpos, litter_scatter, litter_newsyms, repair_damage, fix_shop_damage from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -309581,7 +309671,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92dd522455f1b4309973280d93c5fb72a3257997",
       "delivered": null,
       "functions": [
         {
@@ -309673,12 +309763,226 @@
           "declared": true,
           "sourceFile": "mklev.c"
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "target": "synthetic/v67/v67-shop-damage-repair-action11",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92dd522455f1b4309973280d93c5fb72a3257997/run-hosted-bnL6iE/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "discard_damage_struct",
+            "implementation": "js/shk.js",
+            "symbol": "discard_damage_struct",
+            "sourceReview": "Read shk.c:4509-4528 in full. The helper unlinks the requested damage node from the level list, clears the node's next pointer, and releases it; JavaScript preserves the list mutation and relies on garbage collection for storage release.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "shk_fixes_damage",
+                "source": "shk.c:shk_fixes_damage 4576"
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "fix_shop_damage",
+                "source": "shk.c:fix_shop_damage 4871"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-shop-damage-repair-action11",
+                "segment": 0,
+                "fromStep": 1151,
+                "throughStep": 1151,
+                "source": "shk.c:shk_move -> shk_fixes_damage -> discard_damage_struct after door repair"
+              }
+            ]
+          },
+          {
+            "name": "shk_fixes_damage",
+            "implementation": "js/shk.js",
+            "symbol": "shk_fixes_damage",
+            "sourceReview": "Read shk.c:4556-4577 in full. It selects eligible damage, emits the visible or audible incantation message, calls repair_damage with catchup false, then discards the record regardless of repair_damage's return value, matching the discarded C result.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "shk_move",
+                "source": "shk.c:shk_move -> shk_fixes_damage"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk-move.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-shop-damage-repair-action11",
+                "segment": 0,
+                "fromStep": 1148,
+                "throughStep": 1151,
+                "source": "shk.c:shk_move -> shk_fixes_damage -> repair_damage"
+              }
+            ]
+          },
+          {
+            "name": "repair_damage",
+            "implementation": "js/shk.js",
+            "symbol": "repair_damage",
+            "sourceReview": "Read shk.c:4732-4847 in full. The port preserves eligibility, trap conversion/removal, terrain and door-flag restoration, litter placement, engraving and vision updates, catch-up silence, visible or audible repair feedback, occupation stopping, redraw order, return dispositions, and RNG order. No source callee whose return value is discarded is replaced by a fabricated effect.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "shk_fixes_damage",
+                "source": "shk.c:shk_fixes_damage 4574"
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "fix_shop_damage",
+                "source": "shk.c:fix_shop_damage 4870"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-shop-damage-repair-action11",
+                "segment": 0,
+                "fromStep": 1150,
+                "throughStep": 1151,
+                "source": "shk.c:shk_move -> shk_fixes_damage -> repair_damage restores the shop door"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Active entry points are ordinary shopkeeper repair through shk.c:shk_move, existing-level arrival through do.c:goto_level, save restoration through allmain.c:moveloop_preamble, and bones-level restoration through mklev.c:mklev -> bones.c:getbones. The admitted v67 case matches ordinary repair through segment 0 step 1199 and reaches shk_fixes_damage, repair_damage, and damage-list removal at step 1151. It has no object on the doorway, so the litter search and redraw helpers do not exercise their placement branches. The level-return recipe is blocked before catch-up by priest.c:move_special at segment 1 step 255 (C rn2(1), JavaScript rn2(5)); its later screen mismatch is at boundary 395. The independent direct-scatter recipe diverges before repair in teleport.c:dotele/getpos, or in wizcmds.c:wiz_map when #wizmap is added. No matching recording currently reaches the restored-save or bones-level callers; those paths remain unverified. The async caller dependency from invent.c:add_to_container is also awaited in bones.c:drop_upon_death before container weight is recomputed; scripts/bones.test.mjs pins the source and JavaScript ordering. This caller adjustment does not provide runtime evidence for shop repair entry points. Required caller units are also listed as incomplete where their specific runtime path remains unverified: allmain.c:moveloop_preamble requires saved-game resumption; do.c:goto_level is blocked by the earlier priest.c:move_special mismatch; bones.c:getbones and mklev.c:mklev require a valid bones file; bones.c:drop_upon_death container insertion requires the statue-transition call with cont. Each blocker has a committed recipe under its source file directory.",
+        "entryPoints": [
+          {
+            "name": "ordinary shopkeeper repair",
+            "functions": [
+              "shk_fixes_damage",
+              "repair_damage",
+              "discard_damage_struct",
+              "litter_getpos",
+              "litter_newsyms"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-shop-damage-repair-action11",
+                "segment": 0,
+                "fromStep": 1148,
+                "throughStep": 1151,
+                "source": "shk.c:shk_move -> shk_fixes_damage -> repair_damage -> discard_damage_struct"
+              }
+            ]
+          },
+          {
+            "name": "existing-level arrival shop catch-up",
+            "functions": [
+              "fix_shop_damage",
+              "repair_damage",
+              "discard_damage_struct",
+              "litter_scatter"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "save restoration shop catch-up",
+            "functions": [
+              "fix_shop_damage",
+              "repair_damage",
+              "discard_damage_struct",
+              "litter_scatter"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "bones-level restoration shop catch-up",
+            "functions": [
+              "fix_shop_damage",
+              "repair_damage",
+              "discard_damage_struct",
+              "litter_scatter"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "incompleteFunctions": [
+          {
+            "name": "litter_getpos",
+            "reason": "The admitted range calls litter_getpos only when the restored doorway has no object pile, so its adjacent-square search branch is not reached. The independent item-scatter recipe diverges earlier in teleport.c:dotele/getpos, and the map-based variant diverges in wizcmds.c:wiz_map.",
+            "blockedRecipe": "recipes/shk.c/repair-door-d2-teleport-cfirst.session.json"
+          },
+          {
+            "name": "litter_scatter",
+            "reason": "The admitted range restores a doorway without objects, so C does not enter litter_scatter. The independent scatter recipe cannot reach shop handling in the current JavaScript replay because its controlled teleport setup diverges in teleport.c:dotele/getpos.",
+            "blockedRecipe": "recipes/shk.c/repair-door-d2-teleport-cfirst.session.json"
+          },
+          {
+            "name": "litter_newsyms",
+            "reason": "The admitted range calls litter_newsyms with no LITTER_UPDATE flags because no object is scattered. The only independent item-scatter route is blocked before shop handling in teleport.c:dotele/getpos.",
+            "blockedRecipe": "recipes/shk.c/repair-door-d2-teleport-cfirst.session.json"
+          },
+          {
+            "name": "fix_shop_damage",
+            "reason": "The admitted case reaches ordinary shk_fixes_damage, not off-level catch-up. The independent level-return recipe first diverges in priest.c:move_special at segment 1 step 255, before the return reaches fix_shop_damage.",
+            "blockedRecipe": "recipes/shk.c/repair-catchup-level-return-probe.session.json"
+          },
+          {
+            "sourceFile": "allmain.c",
+            "name": "moveloop_preamble",
+            "reason": "The C catch-up call is inside the resuming branch. The independent input-only recipe starts a new game and cannot supply a saved game state, so it never reaches allmain.c:moveloop_preamble with resuming true.",
+            "blockedRecipe": "recipes/allmain.c/shop-repair-save-restore-blocked.session.json"
+          },
+          {
+            "sourceFile": "do.c",
+            "name": "goto_level",
+            "reason": "The independent level-return recipe first diverges in priest.c:move_special at segment 1 step 255, before the return reaches do.c:goto_level shop catch-up.",
+            "blockedRecipe": "recipes/do.c/shop-repair-existing-level-return-blocked.session.json"
+          },
+          {
+            "sourceFile": "bones.c",
+            "name": "getbones",
+            "reason": "The C catch-up branch runs only after a valid bones file opens and its level is restored. The fresh input-only recipe cannot carry a prior game’s bones file into the new process.",
+            "blockedRecipe": "recipes/bones.c/shop-repair-bones-restore-blocked.session.json"
+          },
+          {
+            "sourceFile": "bones.c",
+            "name": "drop_upon_death",
+            "reason": "The container branch requires the statue-transition caller to supply cont. The preserved C-first bones probe diverges in do.c:goto_level -> mklev.c:mklev/getbones before reaching the save-bones death path; the source-pinned ordering test does not establish runtime execution.",
+            "blockedRecipe": "recipes/bones.c/shop-repair-drop-upon-death-blocked.session.json"
+          },
+          {
+            "sourceFile": "mklev.c",
+            "name": "mklev",
+            "reason": "The C caller reaches getbones, but shop catch-up requires getbones to open a valid bones file for the arriving level; this fresh input-only recipe cannot provide that file.",
+            "blockedRecipe": "recipes/mklev.c/shop-repair-bones-entry-blocked.session.json"
+          }
+        ]
+      }
     },
     {
       "id": "fix-thrown-boulder-placement-v65-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement throwit from dothrow.c",
       "cFile": "dothrow.c",
       "sessions": [
@@ -309688,15 +309992,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92dd522455f1b4309973280d93c5fb72a3257997",
       "delivered": null,
       "function": "throwit",
-      "session": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1"
+      "session": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
+      "closeStanding": {
+        "sha": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "target": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92dd522455f1b4309973280d93c5fb72a3257997/run-hosted-bnL6iE/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "throwit",
+            "sourceFile": "dothrow.c",
+            "implementation": "js/dothrow.js",
+            "symbol": "throwit",
+            "sourceReview": "Read the complete dothrow.c:throwit body at 1510-1854 and the corresponding JavaScript implementation. This bounded fix addresses the ordinary landing tail after flooreffects() returns false: C clears gt.thrownobj and calls mkobj.c:place_object(), whose BOULDER arm invokes vision.c:block_point(). The JS caller supplied state but omitted the already implemented block_point hook required by js/obj.js:place_object(), so placement stopped before linking the object. The fix supplies that existing operation to the throwit placement call. It changes no RNG order or message path. Other existing throwit source branches and note_unported callees remain outside this divergence credit. A follow-on caller correction now awaits obj_no_longer_held(obj, { state }) at the same source boundary; the state argument preserves the invoking Game state and await preserves C ordering if object lifecycle billing yields. This addition does not alter the boulder placement proof or the selected recording.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "C dothrow.c:dothrow() selects the object and calls throw_obj(); throw_obj() frees the missile and calls throwit() at line 270. JS dothrow() calls throw_obj(), whose volley loop calls throwit(). dofire() also reaches the same throw_obj() placement path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-sokoban-thrown-pit-fill-action1",
+                "segment": 0,
+                "fromStep": 504,
+                "throughStep": 504,
+                "source": "dothrow.c:dothrow -> throw_obj -> throwit; after flooreffects returns false, throwit places the boulder through mkobj.c:place_object -> vision.c:block_point."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected recorded entry is the hero throw command: dothrow.c:dothrow -> throw_obj -> throwit. dofire() also reaches throwit through throw_obj(), and the changed placement tail is shared; this delivery cites the recorded dothrow route only. The throwit() call occurs after the boulder survives floor effects and is placed on the floor. At this recorded boundary the boulder lands at (45,11), so the case does not establish filling the intervening pit.",
+        "entryPoints": [
+          {
+            "name": "Hero throws a boulder that lands on the floor",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-sokoban-thrown-pit-fill-action1",
+                "segment": 0,
+                "fromStep": 504,
+                "throughStep": 504,
+                "source": "dothrow.c:dothrow -> throw_obj -> throwit; after flooreffects returns false, throwit places the boulder through mkobj.c:place_object -> vision.c:block_point."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-costly-alteration-shop-billing-v66-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement costly_alteration from mkobj.c",
       "cFile": "mkobj.c",
       "sessions": [
@@ -309706,10 +310074,154 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92dd522455f1b4309973280d93c5fb72a3257997",
       "delivered": null,
       "function": "costly_alteration",
-      "session": "synthetic/v66/v66-unpaid-food-action3"
+      "session": "synthetic/v66/v66-unpaid-food-action3",
+      "closeStanding": {
+        "sha": "92dd522455f1b4309973280d93c5fb72a3257997",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "095108659186c34ffbff02f40aec70be90dd4e8e",
+        "target": "synthetic/v66/v66-unpaid-food-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92dd522455f1b4309973280d93c5fb72a3257997/run-hosted-bnL6iE/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "costly_alteration",
+            "implementation": "js/obj.js",
+            "symbol": "costly_alteration",
+            "sourceReview": "Compared nethack-c/upstream/src/mkobj.c:752-826 with js/obj.js. The carried/free branch tests unpaid state; floor objects resolve their location with get_obj_location(CONTAINED_TOO), check costly_spot, determine the shop with in_rooms, and ask billable before output. C updates bknown for unbless/uncurse before the message, distinguishes carried/free wording from floor wording, then calls bill_dummy_object after verbalize; the floor path instead uses stolen_value when the hero is not in the owning shop. The unbilled OBJ_FREE/OBJ_INVENT path returns synchronously. The async continuation is awaited by the crysknife lifecycle before transformation, insertion, or container attachment. Generation callers keep this path synchronous because mkobj.c zeroobj/mksobj initialization clears unpaid.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "obj_no_longer_held",
+                "source": "do.c:obj_no_longer_held calls costly_alteration(COST_DEGRD) before changing a degraded crysknife to a worm tooth."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "touchfood",
+                "source": "eat.c:touchfood calls costly_alteration(COST_BITE) before assigning first-bite nutrition."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "costly_tin",
+                "source": "eat.c:use_tin calls costly_alteration(COST_OPEN/COST_DSTROY) before using up the tin."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_eat",
+                "source": "dogmove.c:dog_eat bills an unpaid object before clearing rust-monster erosion proof."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "cancel_item",
+                "source": "zap.c:cancel_item bills each affected object before applying its cancellation mutation."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "drain_item",
+                "source": "zap.c:drain_item bills by-you changes before decrementing charges or worn bonuses."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "H2Opotion_dip",
+                "source": "potion.c:H2Opotion_dip calls costly_alteration before changing an unpaid target."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potion_dip",
+                "source": "potion.c:potion_dip bills neutralization before changing the single potion."
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "chwepon",
+                "source": "wield.c:chwepon bills before transforming an unpaid crysknife or changing enchantment."
+              },
+              {
+                "path": "js/trap_erode_obj.js",
+                "symbol": "erode_obj",
+                "source": "trap.c:erode_obj calls costly_alteration in its EF_PAY branches before changing or destroying the object."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "sourceCostlyAlteration",
+                "source": "read.c recharge and scroll effects call costly_alteration before charge, erosion-proof, or curse state changes."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_cream_pie",
+                "source": "apply.c:use_cream_pie bills before extracting and deleting the pie."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:do_break_wand bills before the wand break continuation."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "breakchestlock",
+                "source": "lock.c:breakchestlock bills the chest before clearing its lock state."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_anti_magic",
+                "source": "trap.c:trapeffect_anti_magic bills before draining worn footwear charges."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/object-substrate.test.mjs",
+              "scripts/shop-billing.test.mjs",
+              "scripts/zap-drain-item.test.mjs",
+              "scripts/trap-erode-obj.test.mjs",
+              "scripts/read.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/wield.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/dogmove.test.mjs",
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-unpaid-food-action3",
+                "segment": 0,
+                "fromStep": 250,
+                "throughStep": 271,
+                "source": "eat.c:doeat -> touchfood -> mkobj.c:costly_alteration(COST_BITE) -> shk.c:bill_dummy_object"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected divergence entry point is the first bite of unpaid tripe ration in the shop. C enters eat.c:doeat -> touchfood -> mkobj.c:costly_alteration(COST_BITE), prints the payment line, then creates the dummy bill item before first-bite state changes. The rest of the task updates the existing costly_alteration callers to await only its possible billing continuation; callers that create new objects retain the synchronous path because mksobj initializes unpaid to false. Caller propagation that transfers existing objects is covered by focused tests. The v66 range provides production replay evidence for the source-reported billing regression.",
+        "entryPoints": [
+          {
+            "name": "first bite of unpaid floor food in a shop",
+            "functions": [
+              "costly_alteration"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-unpaid-food-action3",
+                "segment": 0,
+                "fromStep": 250,
+                "throughStep": 271,
+                "source": "eat.c:doeat -> touchfood -> mkobj.c:costly_alteration(COST_BITE) -> shk.c:bill_dummy_object"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
