@@ -1,0 +1,83 @@
+{
+  "session": "synthetic/v64/v64-wielded-polymorph-potion-action3",
+  "remainingScreens": 3,
+  "recordedSteps": 269,
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-wielded-polymorph-potion-action3",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingSha256": "939b17f90b50b8ba8cd4c06b3ed9f23fb26b9f1390747b365d0c9de4ccc1239d",
+  "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
+  "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+  "status": "complete",
+  "commit": "33a7b6f6115178babd878c2701e12ee0b1449af2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v64",
+    "caseId": "v64-wielded-polymorph-potion-action3",
+    "session": "synthetic/v64/v64-wielded-polymorph-potion-action3",
+    "manifestPath": "challenges/manifests/v64.json",
+    "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+    "recording": "challenges/cases/v64/v64-wielded-polymorph-potion-action3.session.json",
+    "recordingPath": "challenges/cases/v64/v64-wielded-polymorph-potion-action3.session.json",
+    "recordingSha256": "939b17f90b50b8ba8cd4c06b3ed9f23fb26b9f1390747b365d0c9de4ccc1239d",
+    "recipe": "challenges/cases/v64/v64-wielded-polymorph-potion-action3.recipe.session.json",
+    "recipeSha256": "67f9805032a5f162f44e8e303e6b27dc90689e2827705aabd5c19a02071c9476",
+    "replayInputSha256": "47a86a704e8b420034b309cf02c6b1bd8e87a3b9b5e2adcd99aab8fb19c640f6",
+    "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
+    "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+    "remainingScreens": 3,
+    "recordedSteps": 269,
+    "previousScreensMatched": 266,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 266, "total": 269 },
+      "rng": { "matched": 3135, "total": 3135 },
+      "cursors": { "matched": 268, "total": 269 }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 251,
+        "location": { "segmentIndex": 0, "stepIndex": 251, "key": "\n" },
+        "kind": "ch",
+        "row": 15,
+        "column": 10,
+        "cCell": { "ch": ":", "color": 11, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": ".", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 252,
+        "location": { "segmentIndex": 0, "stepIndex": 252, "key": " " },
+        "cCursor": [75, 0, 1],
+        "jsCursor": [78, 0, 1]
+      }
+    },
+    "step": 251,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "potion.c:dodrink() skips its pre-effect remove_worn_item() call when a singly worn potion is selected. JavaScript leaves the potion in state.uwep; the following polymorph then emits an extra weapon-drop message and consumes an extra More boundary.",
+  "source": {
+    "file": "potion.c",
+    "branch": "When getobj() selects a potion with owornmask set and quan == 1, C calls remove_worn_item() before setting in_use and dispatching dopotion().",
+    "functions": ["dodrink"],
+    "callers": ["potion.c:cmd_quaff/dodrink command dispatch"],
+    "dependencies": ["steal.c:remove_worn_item"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C potion.c:dodrink() lines 579-600 calls remove_worn_item(otmp, FALSE) for a singly worn potion before otmp->in_use = TRUE; js/potion.js:dodrink() lines 2264-2270 records note_unported('steal.c remove_worn_item') instead.",
+    "The existing js/steal.js:remove_worn_item() clears W_WEAPONS through uwepgone() and setnotworn(), matching C steal.c:remove_worn_item(). The caller omission leaves the potion in state.uwep.",
+    "The v64 selected recording matches screen 251's polymorph message, then C shows three newt attacks on step 252 while JavaScript first adds 'You find you must drop your potion!' and shows only one attack before More. RNG totals still match exactly (3135/3135), identifying the extra prompt boundary as the divergence.",
+    "Keep the implementation scope in potion.c:dodrink() and js/potion.js; call the existing remove_worn_item() without changing its body, which is reserved by A2's worn-amulet task."
+  ]
+}
