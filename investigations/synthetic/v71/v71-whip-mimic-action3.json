@@ -14,8 +14,8 @@
   "recordedSteps": 247,
   "remainingScreens": 247,
   "status": "complete",
-  "commit": "490e6ad3e5aa4723d33dfe21bd1180ca1684379b",
-  "summary": "The v71 mimic-whip case stops because apply.js calls stumble_onto_mimic from its use_whip branch without importing the already-ported helper. The C source calls the same uhitm.c function when the bullwhip targets an undiscovered mimic.",
+  "commit": "c870e94f44db0dc7b8f112f88f49ee6e45bf334f",
+  "summary": "The admitted v71 baseline stops because apply.js calls stumble_onto_mimic from use_whip without importing the already-ported helper. The fix adds that import; the baseline evaluation below remains the pre-fix measurement.",
   "mismatch": {
     "session": "synthetic/v71/v71-whip-mimic-action3",
     "remainingScreens": 247,
@@ -41,6 +41,9 @@
   "evidence": [
     "The admitted v71 baseline evaluation stops before any screen, RNG call, or cursor match with ReferenceError: stumble_onto_mimic is not defined.",
     "The source-directed recipe selects a disguised small mimic with a wielded bullwhip, then applies the whip toward the C-observed mimic square; it records the target at (68,16), northwest of the hero at (69,17), and documents the earlier wrong-direction probe.",
-    "Read complete upstream apply.c:use_whip (2955-3271), including its BULLWHIP dispatch, mimic detection branch, call to stumble_onto_mimic, do_snap update, force_attack, wakeup, and return order. The matching JS branch calls the helper but its uhitm.js import list omits it."
+    "Read complete upstream apply.c:use_whip (2955-3271), including its BULLWHIP dispatch, mimic detection branch, call to stumble_onto_mimic, do_snap update, force_attack, wakeup, and return order. The matching JS branch calls the helper but its uhitm.js import list omits it.",
+    "After the import fix, scripts/scan-sessions.mjs replayed the admitted v71 recording with all 247 screens, RNG calls, and cursor positions matching through the full recording; the scan returned no error.",
+    "scripts/synthetic-range-evidence.mjs verified the production entry point through segment 0, step 246.",
+    "The focused apply/pole/whip test file passed all 9 tests, and npm run lint passed."
   ]
 }
