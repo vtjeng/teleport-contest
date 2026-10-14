@@ -177,6 +177,20 @@ function shrink_worm(wnum, rawEnv = {}) {
     toss_wsegs([tail], true, env);
 }
 
+// C ref: worm.c worm_nomove() (288-297). A long worm that fails to move
+// loses its last tail segment and may lose hit points based on its remaining
+// visible segment count. C leaves mhpmax unchanged.
+export function worm_nomove(worm, rawEnv = {}) {
+    const env = wormEnvironment(rawEnv);
+    const { state, random } = env;
+
+    shrink_worm(worm.wormno, env);
+    if (worm.mhp > count_wsegs(worm, state)) {
+        worm.mhp -= random.d(2, 2);
+        if (worm.mhp < 1) worm.mhp = 1;
+    }
+}
+
 // C ref: worm.c worm_move(). Call after the head has moved in the monster map.
 // The final node in level.worms[wormno].segments is the hidden head tracker;
 // moving it exposes the old head square as a new tail segment.
