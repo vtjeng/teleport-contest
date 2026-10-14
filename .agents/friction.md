@@ -949,3 +949,11 @@ triage decisions or fix references.
 - The next group again hit a missing-base investigation conflict at the prayer
   implementation commit. Root restored that exact worker report snapshot and
   continued the cherry-pick; source code needed no merge edits.
+
+### 2026-10-14 — hosted lookup, bounded previews and delivery provenance
+
+- Root initially queried a nonexistent checkpoint.yml workflow; the query returned HTTP404. The documented project workflow is checkpoint-trial.yml. Root used that file to identify the existing candidate run and retained one watch.
+- A Prep plan preview entered the bounded runner inside the sandbox and failed to launch flock. Its saved receipt was inspected; integration then ran outside the sandbox under the full bounded wrapper. No duplicate validation ran.
+- A one-case worker scan automatically acquired the shared full validation slot and briefly blocked Root integration before any integration edits. Its receipt confirmed successful completion and reaping. Root retried the integration and directed future one-case scans through the focused bounded wrapper.
+- The resumed v64 report verifier required its exact accepted evaluation in the delivery head. Root permitted one provenance path containing the unchanged accepted evaluation blob; the worker preserved its source and diagnosis commits and recorded no new score.
+- The next seven-source group had a shop-module header comment conflict between accepted repair names and the incoming settlement names. Root preserved both lists; no executable source required a conflict edit.
