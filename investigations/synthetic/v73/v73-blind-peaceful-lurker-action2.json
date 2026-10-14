@@ -99,12 +99,15 @@
       "js/hack.js: domove_core now calls domove_swap_with_pet only for a safe destination monster that is not a still-undetected hider, matching hack.c:2921-2926 before spoteffects and mnexto relocation.",
       "js/hack.js: spoteffects uses the existing sensemon helper for the blind surprise message."
     ],
-    "regressionTest": "scripts/hack.test.mjs: unknown ceiling hider follows C movement without an attack; the production domove path reaches spoteffects and relocates the hider.",
+    "regressionTest": "scripts/hack.test.mjs: unknown ceiling hider follows C movement without an attack; scripts/cmd.test.mjs: simple hero movement reaches an undetected monster destination; scripts/closed-door-autoopen.test.mjs: an undetected monster on a closed door reaches test_move.",
     "checks": {
       "focusedTest": "node scripts/run-bounded.mjs focused -- node --test scripts/hack.test.mjs passed (75 tests).",
       "lint": "npm run lint passed.",
       "independentRecording": "recipes/hack.c/v73-hidden-tame-lurker-arrival.session.json recorded as recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json; seed 2026101403 now matches C/JS completely (2300 RNG values, 221 screens, 221 cursors, animation frames).",
-      "admittedRange": "v73/v73-blind-peaceful-lurker-action2 segment 0 matches through step 275, including the hider arrival and collect_coords relocation; verified by scripts/synthetic-range-evidence.mjs."
-    }
+      "admittedRange": "v73/v73-blind-peaceful-lurker-action2 segment 0 matches through step 275, including the hider arrival and collect_coords relocation; verified by scripts/synthetic-range-evidence.mjs.",
+      "correctionFocusedTest": "node scripts/run-bounded.mjs focused -- node --test scripts/closed-door-autoopen.test.mjs scripts/cmd.test.mjs passed (139 tests; run-FEM15b).",
+      "correctionLint": "node scripts/run-bounded.mjs focused -- npm run lint passed (run-PLzlcJ)."
+    },
+    "ciCorrection": "The hosted failures came from stale tests that still expected every undetected monster to stop before movement. hack.c:domove_attackmon_at() skips do_attack() for unsensed, undetected non-eel/non-hides-under monsters; the corrected tests cover both continued movement and the later closed-door refusal. No production code changed."
   }
 }

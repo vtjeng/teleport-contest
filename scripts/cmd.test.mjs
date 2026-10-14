@@ -1265,20 +1265,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 };
             },
         },
-        // An ordinary hostile at the destination is no longer an admission
-        // case at all: hack.c domove_core() hands it to uhitm.c do_attack(),
-        // which spends the turn. What is still refused ahead of every
-        // mutation is a target the hero has not detected, which C decides at
-        // domove_attackmon_at():1968 before do_attack() is called.
-        {
-            name: 'hidden monster at destination',
-            reason: 'attacking a hidden monster (ceiling hider or other)',
-            setup: ({ x, y }) => {
-                game.level.monsters[x][y] = {
-                    mx: x, my: y, mhp: 1, mundetected: 1,
-                };
-            },
-        },
     ];
 
     for (const admissionCase of cases) {
@@ -1308,6 +1294,30 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             );
         }
     }
+});
+
+test('simple hero movement reaches an undetected monster destination', async () => {
+    const target = await prepareHeroMoveAdmission();
+    // PM_NEWT is an ordinary non-hider, so the arrival clears its hidden flag
+    // without entering the ceiling-hider surprise branch.
+    const monster = newMonster({
+        mx: target.x,
+        my: target.y,
+        mhp: 1,
+        data: game.mons[PM_NEWT],
+    });
+    monster.mundetected = 1;
+    game.level.monsters[target.x][target.y] = monster;
+    game.level.monlist = monster;
+
+    // hack.c:domove_attackmon_at() does not attack this hidden target, then
+    // domove_core() proceeds through test_move() and spoteffects(). A non-hider
+    // is simply revealed when the hero arrives on its square.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await domove(game);
+
+    assert.deepEqual([game.u.ux, game.u.uy], [target.x, target.y]);
+    assert.equal(monster.mundetected, 0);
 });
 
 test('levitating movement enters lava with a pile through the walking gate', async () => {

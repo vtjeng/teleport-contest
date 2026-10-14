@@ -39,7 +39,7 @@ import {
 import { commandKeyCode } from '../js/command_bindings.js';
 import { moveloop_core } from '../js/allmain.js';
 import { newMonster } from '../js/monst.js';
-import { S_FELINE } from '../js/monsters.js';
+import { PM_NEWT } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { acurr } from '../js/attrib.js';
@@ -917,9 +917,9 @@ test('a suppressed pull skips doopen_indir effects and prompts', async () => {
 });
 
 // These cases exercise caller branches that precede test_move(): a mounted
-// hero reaches steed.c, a held hero reaches trapmove(), and an undetected
-// monster is rejected by domove_attackmon_at(). They must not be mistaken for
-// closed-door behavior merely because the destination is a closed door.
+// hero reaches steed.c and a held hero reaches trapmove(). They must not be
+// mistaken for closed-door behavior merely because the destination is a
+// closed door.
 test('caller branches precede the closed-door test_move arm', async () => {
     const base = loadAutoopenSuppressedRecipe().segments[0];
     const walkWest = commandKeyCode(base.moves[0]);
@@ -933,31 +933,6 @@ test('caller branches precede the closed-door test_move arm', async () => {
             }],
         ['held hero', 'held hero movement',
             (state) => { state.u.utrap = 3; }],
-        // Not 'monster on a closed door': preflightDomoveDestination()'s
-        // `if (destinationMonster)` arm precedes its closed_door() arm, so the
-        // seam claims a monster-occupied door for the combat path and the
-        // m_at() guard inside requireAutoopenClosedDoor() is shadowed end to
-        // end. The guard is defensive for the test_move() call inside
-        // domove(). This case pins the shadowing, so removing the seam's
-        // monster arm shows up here rather than silently changing which
-        // refusal a player sees.
-        //
-        // The target is undetected, which is the one destination monster the
-        // seam still refuses outright: C decides it at
-        // domove_attackmon_at():1968 and never calls do_attack(). A spotted
-        // hostile would be attacked instead, and the attack draws, which is
-        // what the zero-draw assertion below would then catch.
-        ['monster on the door', 'attacking a hidden monster (ceiling hider or other)',
-            (state, door) => {
-                const monster = newMonster({
-                    mx: door.x, my: door.y, mhp: 3,
-                    data: { pmnames: ['newt', 'newt', 'newt'], mlet: S_FELINE,
-                        mflags1: 0, mflags2: 0, mflags3: 0 },
-                });
-                monster.mundetected = 1;
-                state.level.monsters[door.x] ??= [];
-                state.level.monsters[door.x][door.y] = monster;
-            }],
     ];
 
     for (const [label, reason, apply] of refusals) {
@@ -983,4 +958,33 @@ test('caller branches precede the closed-door test_move arm', async () => {
         assert.equal(replay.getRngLog().length, drawsBefore, label);
         assert.equal(cell.flags, D_CLOSED, label);
     }
+});
+
+test('an undetected monster on a closed door reaches test_move', async () => {
+    const base = loadAutoopenSuppressedRecipe().segments[0];
+    const walkWest = commandKeyCode(base.moves[0]);
+    const replay = await runSegment({ ...base, moves: '' });
+    const door = { x: game.u.ux - 1, y: game.u.uy };
+    const cell = game.level.at(door.x, door.y);
+    assert.equal(cell.flags, D_CLOSED);
+
+    // C's domove_attackmon_at() skips do_attack() for an undetected, unsensed
+    // target that neither hides under objects nor is an eel. Movement then
+    // reaches test_move(), whose closed-door arm handles this square.
+    const monster = newMonster({
+        mx: door.x, my: door.y, mhp: 3,
+        data: game.mons[PM_NEWT],
+    });
+    monster.mundetected = 1;
+    game.level.monsters[door.x] ??= [];
+    game.level.monsters[door.x][door.y] = monster;
+    const drawsBefore = replay.getRngLog().length;
+
+    game.nhDisplay.pushKey(walkWest);
+    await moveloop_core();
+
+    assert.equal(game.nhDisplay.topMessage, 'That door is closed.');
+    assert.equal(replay.getRngLog().length, drawsBefore);
+    assert.equal(cell.flags, D_CLOSED);
+    assert.equal(monster.mundetected, 1);
 });
