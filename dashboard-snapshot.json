@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T21:36:45.694Z",
+  "capturedAt": "2026-10-14T21:54:03.896Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -126731,6 +126731,446 @@
         "type": "accepted",
         "at": "2026-10-14T21:35:02.429Z",
         "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-27e37148e8a28aef6697b64cc75f93c2d9002c13",
+        "type": "ready",
+        "at": "2026-10-14T21:36:46.066Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "delivery": "27e37148e8a28aef6697b64cc75f93c2d9002c13"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v71-hero-pit-boulder-action2-20261014-e5ed81c95fad071151c6657895076cae45b72b25",
+        "type": "published",
+        "at": "2026-10-14T21:36:58.755Z",
+        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+        "commit": "e5ed81c95fad071151c6657895076cae45b72b25"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v71-npc-striking-shop-ray-action9-20261014-e5ed81c95fad071151c6657895076cae45b72b25",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T21:37:02.781Z",
+        "task": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+        "commit": "e5ed81c95fad071151c6657895076cae45b72b25",
+        "knownBy": "2026-10-14T21:36:58.755Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v69-blocked-boots-action3-followup-20261014-e5ed81c95fad071151c6657895076cae45b72b25",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T21:37:04.099Z",
+        "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "commit": "e5ed81c95fad071151c6657895076cae45b72b25",
+        "knownBy": "2026-10-14T21:36:58.755Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v72-clinger-27e3714",
+        "type": "received",
+        "at": "2026-10-14T21:37:09.977Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "delivery": "27e37148e8a28aef6697b64cc75f93c2d9002c13"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v72-blind-deaf-sink-scout1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:37:16.911Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-cube-e44e619-20261014",
+        "type": "park",
+        "at": "2026-10-14T21:38:06.105Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "reason": "Preserved partial source/tests 9c9dbc118 and report e44e6192c9953eaa563d13dc31e319e57e241251 in C clean worktree; all commands terminal. Current v70 replay matches348/351 screens,3081/3081 RNG,350/351 cursors. New impure m_consume_obj transformation lacks independent matching runtime evidence at its output boundary299-301. Resume to create the smallest independent matching recipe/recording after queued teleporter metadata correction; do not claim this branch completed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3388bd61b064d2b388222dd74b915d9082bbf1c4",
+        "type": "ready",
+        "at": "2026-10-14T21:38:10.914Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "delivery": "3388bd61b064d2b388222dd74b915d9082bbf1c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v72-adornment-3388bd6",
+        "type": "received",
+        "at": "2026-10-14T21:38:34.292Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "delivery": "3388bd61b064d2b388222dd74b915d9082bbf1c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v72-blind-deaf-sink-scout1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:38:52.900Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "goal": "fix-blind-deaf-sink-face-import-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-teleporter-metadata-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T21:39:11.971Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-teleporter-metadata-correction-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:39:22.017Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Submitting the queued metadata correction for the accepted-range v71 teleporter implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep37-seven-provisional-resumed-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:39:25.250Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep37 is recording additional source routes after seven provisional distinct failures. Matching prefixes, independent C replays and coverage comparisons are preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-engulfed-aklys-assign-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:39:29.945Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-419265b7807aac8837e52f31ad148b839efadc45",
+        "type": "ready",
+        "at": "2026-10-14T21:40:11.645Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "delivery": "419265b7807aac8837e52f31ad148b839efadc45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-engulfed-aklys-implement-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:40:18.766Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "goal": "fix-dothrow-throwit-tether-display-import-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v70-cube-independent-recording-20261014",
+        "type": "resume",
+        "at": "2026-10-14T21:40:22.303Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v70-cube-recipe-evidence-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:40:28.663Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Preparing independent runtime evidence for the v70 green-glob digestion transformation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-36d65f62fb43ac185029aced436908928ce1f85f",
+        "type": "ready",
+        "at": "2026-10-14T21:40:34.132Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "delivery": "36d65f62fb43ac185029aced436908928ce1f85f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v72-elf-bow-shot-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:41:08.005Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-10293385acd9a12af43aa7bcab20f4a5d5a83cff",
+        "type": "ready",
+        "at": "2026-10-14T21:41:37.049Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "delivery": "10293385acd9a12af43aa7bcab20f4a5d5a83cff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-boots-ice-assign-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:42:02.942Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-boots-ice-implement-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:42:23.449Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "goal": "fix-hack-slippery-ice-objdescr-import-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5d5175831fe80d94668cb8a45fd91505b4f64e6a-2b2e4311464e5a4bd3b420ad13df491e04a2a2e0c2df43e9d7158b187e52b05a-B-investigation-v72-opening-pet-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:42:40.122Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "integration": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "validationGroup": [
+          "B-investigation-v72-opening-pet-action2-20261014",
+          "A2-investigation-v72-frost-horn-self-action4-20261014",
+          "B-investigation-v72-floating-eye-passive-action2-20261014",
+          "B-investigation-v72-clinger-attributes-action2-20261014",
+          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5d5175831fe80d94668cb8a45fd91505b4f64e6a-2b2e4311464e5a4bd3b420ad13df491e04a2a2e0c2df43e9d7158b187e52b05a-A2-investigation-v72-frost-horn-self-action4-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:42:40.122Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "integration": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "validationGroup": [
+          "B-investigation-v72-opening-pet-action2-20261014",
+          "A2-investigation-v72-frost-horn-self-action4-20261014",
+          "B-investigation-v72-floating-eye-passive-action2-20261014",
+          "B-investigation-v72-clinger-attributes-action2-20261014",
+          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5d5175831fe80d94668cb8a45fd91505b4f64e6a-2b2e4311464e5a4bd3b420ad13df491e04a2a2e0c2df43e9d7158b187e52b05a-B-investigation-v72-floating-eye-passive-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:42:40.122Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "integration": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "validationGroup": [
+          "B-investigation-v72-opening-pet-action2-20261014",
+          "A2-investigation-v72-frost-horn-self-action4-20261014",
+          "B-investigation-v72-floating-eye-passive-action2-20261014",
+          "B-investigation-v72-clinger-attributes-action2-20261014",
+          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5d5175831fe80d94668cb8a45fd91505b4f64e6a-2b2e4311464e5a4bd3b420ad13df491e04a2a2e0c2df43e9d7158b187e52b05a-B-investigation-v72-clinger-attributes-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:42:40.122Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "integration": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "validationGroup": [
+          "B-investigation-v72-opening-pet-action2-20261014",
+          "A2-investigation-v72-frost-horn-self-action4-20261014",
+          "B-investigation-v72-floating-eye-passive-action2-20261014",
+          "B-investigation-v72-clinger-attributes-action2-20261014",
+          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5d5175831fe80d94668cb8a45fd91505b4f64e6a-2b2e4311464e5a4bd3b420ad13df491e04a2a2e0c2df43e9d7158b187e52b05a-A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:42:40.122Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "integration": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "validationGroup": [
+          "B-investigation-v72-opening-pet-action2-20261014",
+          "A2-investigation-v72-frost-horn-self-action4-20261014",
+          "B-investigation-v72-floating-eye-passive-action2-20261014",
+          "B-investigation-v72-clinger-attributes-action2-20261014",
+          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v72-elf-bow-shot-action2-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:43:12.460Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "goal": "fix-elf-bow-damage-constant-import-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d69e6fb34cae4226f28acd13d27db017b3e6cece",
+        "type": "ready",
+        "at": "2026-10-14T21:43:39.962Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "delivery": "d69e6fb34cae4226f28acd13d27db017b3e6cece"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-teleporter-corrected-419265b",
+        "type": "received",
+        "at": "2026-10-14T21:43:42.766Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "delivery": "419265b7807aac8837e52f31ad148b839efadc45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-queue-exhausted-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:43:58.513Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Waiting for fresh admitted implementation cases; current candidate groups are assigned or parked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-176fe5bca71c505bfa438a28f6212111aa2f8fee",
+        "type": "ready",
+        "at": "2026-10-14T21:44:21.019Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "delivery": "176fe5bca71c505bfa438a28f6212111aa2f8fee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-36d65f62fb43ac185029aced436908928ce1f85f",
+        "type": "received",
+        "at": "2026-10-14T21:44:29.207Z",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
+        "delivery": "36d65f62fb43ac185029aced436908928ce1f85f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-10293385acd9a12af43aa7bcab20f4a5d5a83cff",
+        "type": "received",
+        "at": "2026-10-14T21:44:32.491Z",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
+        "delivery": "10293385acd9a12af43aa7bcab20f4a5d5a83cff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-d69e6fb34cae4226f28acd13d27db017b3e6cece",
+        "type": "received",
+        "at": "2026-10-14T21:44:35.770Z",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "delivery": "d69e6fb34cae4226f28acd13d27db017b3e6cece"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-v72-elf-bow-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:44:48.797Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Submitted v72 sink and elf-bow fixes. Waiting for an unowned case after the current v72 workers complete their assignments."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v72-elf-bow-176fe5b",
+        "type": "received",
+        "at": "2026-10-14T21:45:09.368Z",
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "delivery": "176fe5bca71c505bfa438a28f6212111aa2f8fee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep37-final-ten-adjudication-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:51:16.641Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep37 has ten provisional distinct failures and fourteen proposed controls with added reached coverage. The final source crosswalk and accepted-source comparisons are ready for reduced-batch review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-opening-pet-action2-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:51:51.940Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-frost-horn-self-action4-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:51:51.940Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-floating-eye-passive-action2-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:51:51.940Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-clinger-attributes-action2-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:51:51.940Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-adornment-cancel-scout1-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:51:51.940Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-opening-pet-action2-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:52:30.955Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-frost-horn-self-action4-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:52:30.955Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-floating-eye-passive-action2-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:52:30.955Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v72-clinger-attributes-action2-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:52:30.955Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v72-adornment-cancel-scout1-20261014-5d5175831fe80d94668cb8a45fd91505b4f64e6a-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:52:30.955Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5d8999029961dd9d72bfd724c31fb2e26edb301e",
+        "type": "ready",
+        "at": "2026-10-14T21:53:48.798Z",
+        "task": "Prep37",
+        "delivery": "5d8999029961dd9d72bfd724c31fb2e26edb301e"
       }
     ]
   },
@@ -126741,42 +127181,65 @@
         "worker": "C",
         "goal": "port-monster-level-teleporter-trap-branch-v71-20261014",
         "kind": "implementation",
-        "status": "changes-required",
-        "delivery": "87daae69df649b82ce22cd15f85ea216e131f009",
-        "since": "2026-10-14T21:02:33.291Z",
+        "status": "ready",
+        "delivery": "419265b7807aac8837e52f31ad148b839efadc45",
+        "since": "2026-10-14T21:40:11.645Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "task": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
         "worker": "B",
-        "goal": "fix-unsaddled-steed-opening-wand-saddle-lookup-v72-20261014",
+        "goal": "fix-blind-deaf-sink-face-import-v72-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "c9c9104f918e0042ad28e85969531882036c1526",
-        "since": "2026-10-14T21:28:51.552Z",
+        "delivery": "36d65f62fb43ac185029aced436908928ce1f85f",
+        "since": "2026-10-14T21:40:34.132Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "task": "A2-investigation-v72-engulfed-aklys-action2-20261014",
         "worker": "A2",
-        "goal": "fix-music-do-improvisation-killed-by-reference-v72-20261014",
+        "goal": "fix-dothrow-throwit-tether-display-import-v72-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "ceb972ed894081aeebfed44e781d16526dc9d9ec",
-        "since": "2026-10-14T21:29:57.237Z",
+        "delivery": "10293385acd9a12af43aa7bcab20f4a5d5a83cff",
+        "since": "2026-10-14T21:41:37.049Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
-        "worker": "B",
-        "goal": "fix-floating-eye-passive-reflection-lookup-v72-20261014",
+        "task": "A2-investigation-v72-boots-ice-scout1-20261014",
+        "worker": "A2",
+        "goal": "fix-hack-slippery-ice-objdescr-import-v72-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "2b8b98c31e92057e320e77b3735678a131a27603",
-        "since": "2026-10-14T21:32:16.249Z",
+        "delivery": "d69e6fb34cae4226f28acd13d27db017b3e6cece",
+        "since": "2026-10-14T21:43:39.962Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v72-elf-bow-shot-action2-20261014",
+        "worker": "B",
+        "goal": "fix-elf-bow-damage-constant-import-v72-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "176fe5bca71c505bfa438a28f6212111aa2f8fee",
+        "since": "2026-10-14T21:44:21.019Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep37",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "5d8999029961dd9d72bfd724c31fb2e26edb301e",
+        "batch": "v73",
+        "since": "2026-10-14T21:53:48.798Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -127945,7 +128408,7 @@
       "C-investigation-v71-monster-leveltele-action2-20261014": {
         "id": "C-investigation-v71-monster-leveltele-action2-20261014",
         "worker": "C",
-        "status": "changes-required",
+        "status": "ready",
         "seed": "synthetic/v71/v71-monster-leveltele-action2",
         "reservations": [
           "session:synthetic/v71/v71-monster-leveltele-action2",
@@ -127965,54 +128428,44 @@
           "source:mon.c:meatobj"
         ]
       },
-      "B-investigation-v72-opening-pet-action2-20261014": {
-        "id": "B-investigation-v72-opening-pet-action2-20261014",
+      "B-investigation-v72-blind-deaf-sink-scout1-20261014": {
+        "id": "B-investigation-v72-blind-deaf-sink-scout1-20261014",
         "worker": "B",
         "status": "ready",
-        "seed": "synthetic/v72/v72-opening-pet-action2",
+        "seed": "synthetic/v72/v72-blind-deaf-sink-scout1",
         "reservations": [
-          "session:synthetic/v72/v72-opening-pet-action2",
-          "source:zap.c:bhitm"
+          "session:synthetic/v72/v72-blind-deaf-sink-scout1",
+          "source:fountain.c:sink_backs_up"
         ]
       },
-      "A2-investigation-v72-frost-horn-self-action4-20261014": {
-        "id": "A2-investigation-v72-frost-horn-self-action4-20261014",
+      "A2-investigation-v72-engulfed-aklys-action2-20261014": {
+        "id": "A2-investigation-v72-engulfed-aklys-action2-20261014",
         "worker": "A2",
         "status": "ready",
-        "seed": "synthetic/v72/v72-frost-horn-self-action4",
+        "seed": "synthetic/v72/v72-engulfed-aklys-action2",
         "reservations": [
-          "session:synthetic/v72/v72-frost-horn-self-action4",
-          "source:music.c:do_improvisation"
+          "session:synthetic/v72/v72-engulfed-aklys-action2",
+          "source:dothrow.c:throwit"
         ]
       },
-      "B-investigation-v72-floating-eye-passive-action2-20261014": {
-        "id": "B-investigation-v72-floating-eye-passive-action2-20261014",
+      "B-investigation-v72-elf-bow-shot-action2-20261014": {
+        "id": "B-investigation-v72-elf-bow-shot-action2-20261014",
         "worker": "B",
         "status": "ready",
-        "seed": "synthetic/v72/v72-floating-eye-passive-action2",
+        "seed": "synthetic/v72/v72-elf-bow-shot-action2",
         "reservations": [
-          "session:synthetic/v72/v72-floating-eye-passive-action2",
-          "source:uhitm.c:passive"
+          "session:synthetic/v72/v72-elf-bow-shot-action2",
+          "source:uhitm.c:hmon_hitmon_weapon_melee"
         ]
       },
-      "A2-investigation-v72-adornment-cancel-scout1-20261014": {
-        "id": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+      "A2-investigation-v72-boots-ice-scout1-20261014": {
+        "id": "A2-investigation-v72-boots-ice-scout1-20261014",
         "worker": "A2",
-        "status": "working",
-        "seed": "synthetic/v72/v72-adornment-cancel-scout1",
+        "status": "ready",
+        "seed": "synthetic/v72/v72-boots-ice-scout1",
         "reservations": [
-          "session:synthetic/v72/v72-adornment-cancel-scout1",
-          "source:zap.c:cancel_item"
-        ]
-      },
-      "B-investigation-v72-clinger-attributes-action2-20261014": {
-        "id": "B-investigation-v72-clinger-attributes-action2-20261014",
-        "worker": "B",
-        "status": "working",
-        "seed": "synthetic/v72/v72-clinger-attributes-action2",
-        "reservations": [
-          "session:synthetic/v72/v72-clinger-attributes-action2",
-          "source:insight.c:attributes_enlightenment"
+          "session:synthetic/v72/v72-boots-ice-scout1",
+          "source:hack.c:slippery_ice_fumbling"
         ]
       }
     },
@@ -128052,61 +128505,51 @@
           "C-investigation-v70-cube-glob-scout2-followup-20261014"
         ]
       },
-      "session:synthetic/v72/v72-opening-pet-action2": {
+      "session:synthetic/v72/v72-blind-deaf-sink-scout1": {
         "tasks": [
-          "B-investigation-v72-opening-pet-action2-20261014"
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014"
         ]
       },
-      "source:zap.c:bhitm": {
+      "source:fountain.c:sink_backs_up": {
         "tasks": [
-          "B-investigation-v72-opening-pet-action2-20261014"
+          "B-investigation-v72-blind-deaf-sink-scout1-20261014"
         ]
       },
-      "session:synthetic/v72/v72-frost-horn-self-action4": {
+      "session:synthetic/v72/v72-engulfed-aklys-action2": {
         "tasks": [
-          "A2-investigation-v72-frost-horn-self-action4-20261014"
+          "A2-investigation-v72-engulfed-aklys-action2-20261014"
         ]
       },
-      "source:music.c:do_improvisation": {
+      "source:dothrow.c:throwit": {
         "tasks": [
-          "A2-investigation-v72-frost-horn-self-action4-20261014"
+          "A2-investigation-v72-engulfed-aklys-action2-20261014"
         ]
       },
-      "session:synthetic/v72/v72-floating-eye-passive-action2": {
+      "session:synthetic/v72/v72-elf-bow-shot-action2": {
         "tasks": [
-          "B-investigation-v72-floating-eye-passive-action2-20261014"
+          "B-investigation-v72-elf-bow-shot-action2-20261014"
         ]
       },
-      "source:uhitm.c:passive": {
+      "source:uhitm.c:hmon_hitmon_weapon_melee": {
         "tasks": [
-          "B-investigation-v72-floating-eye-passive-action2-20261014"
+          "B-investigation-v72-elf-bow-shot-action2-20261014"
         ]
       },
-      "session:synthetic/v72/v72-adornment-cancel-scout1": {
+      "session:synthetic/v72/v72-boots-ice-scout1": {
         "tasks": [
-          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+          "A2-investigation-v72-boots-ice-scout1-20261014"
         ]
       },
-      "source:zap.c:cancel_item": {
+      "source:hack.c:slippery_ice_fumbling": {
         "tasks": [
-          "A2-investigation-v72-adornment-cancel-scout1-20261014"
-        ]
-      },
-      "session:synthetic/v72/v72-clinger-attributes-action2": {
-        "tasks": [
-          "B-investigation-v72-clinger-attributes-action2-20261014"
-        ]
-      },
-      "source:insight.c:attributes_enlightenment": {
-        "tasks": [
-          "B-investigation-v72-clinger-attributes-action2-20261014"
+          "A2-investigation-v72-boots-ice-scout1-20261014"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
-    "measuredAt": "2026-10-14T21:30:45.774Z",
+    "executionCommit": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+    "measuredAt": "2026-10-14T21:48:40.991Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

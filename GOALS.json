@@ -313359,7 +313359,7 @@
     {
       "id": "fix-unsaddled-steed-opening-wand-saddle-lookup-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement bhitm from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -313369,15 +313369,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
       "delivered": null,
       "function": "bhitm",
-      "session": "synthetic/v72/v72-opening-pet-action2"
+      "session": "synthetic/v72/v72-opening-pet-action2",
+      "closeStanding": {
+        "sha": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "target": "synthetic/v72/v72-opening-pet-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/5d5175831fe80d94668cb8a45fd91505b4f64e6a/run-hosted-BN8BZH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "bhitm",
+            "implementation": "js/zap.js",
+            "symbol": "bhitm",
+            "sourceReview": "Read zap.c:160-573, including the complete WAN_OPENING/SPE_KNOCK arm at 382-434. After holder and trap handling, C checks which_armor(mtmp, W_SADDLE) and drops a saddle only when present. dog.c:makedog:219-275 confirms the pauper guard excludes the starting pony saddle. The JS branch at js/zap.js:3344-3702 already follows the same control flow but its const.js import list omitted W_SADDLE; js/const.js exports the constant. This task adds only that missing import and exercises the production dispatcher.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects dispatches aimed rays through bhit with bhitm as callback."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit invokes bhitm when the ray reaches a monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-opening-pet-action2",
+                "segment": 0,
+                "fromStep": 149,
+                "throughStep": 173,
+                "source": "zap.c:weffects -> bhit -> bhitm -> WAN_OPENING W_SADDLE lookup"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected impure entry point is the player’s opening-wand ray. C zap.c:weffects dispatches the ray through bhit with bhitm as its monster callback; JS js/zap.js:weffects -> bhit -> bhitm mirrors that path. At step 149, the eastward ray reaches the pauper Knight’s unsaddled pony. dog.c:makedog omits a starting saddle for paupers, so bhitm’s W_SADDLE lookup returns no object and makes no saddle change. The path stops in JS only because W_SADDLE was not imported. No other entry points are in the selected scope.",
+        "entryPoints": [
+          {
+            "name": "Opening wand ray hits the pauper Knight’s unsaddled starting pony",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-opening-pet-action2",
+                "segment": 0,
+                "fromStep": 149,
+                "throughStep": 173,
+                "source": "zap.c:weffects -> bhit -> bhitm -> WAN_OPENING W_SADDLE lookup"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-music-do-improvisation-killed-by-reference-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement do_improvisation from music.c",
       "cFile": "music.c",
       "sessions": [
@@ -313387,15 +313455,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
       "delivered": null,
       "function": "do_improvisation",
-      "session": "synthetic/v72/v72-frost-horn-self-action4"
+      "session": "synthetic/v72/v72-frost-horn-self-action4",
+      "closeStanding": {
+        "sha": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "target": "synthetic/v72/v72-frost-horn-self-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/5d5175831fe80d94668cb8a45fd91505b4f64e6a/run-hosted-BN8BZH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "do_improvisation",
+            "implementation": "js/music.js",
+            "symbol": "do_improvisation",
+            "sourceReview": "music.c:do_improvisation (503-730), frost/fire horn self-direction arm (607-625). After zapyourself returns nonzero damage, C calls losehp(damage, buf, KILLED_BY). The JavaScript branch made the same call but omitted KILLED_BY from its const.js import, so the branch stopped with ReferenceError before losehp ran. Importing the existing constant preserves the source call and death-message format.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument calls do_improvisation for the selected instrument; the admitted sequence invokes the frost horn on the hero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-frost-horn-self-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 277,
+                "source": "music.c:do_play_instrument -> music.c:do_improvisation -> zapyourself -> hack.c:losehp for the self-directed frost horn"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted frost-horn case exercises the complete instrument command through the self-directed damage branch. It matches through the end of segment 0 after the import correction.",
+        "entryPoints": [
+          {
+            "name": "self-directed frost horn damage",
+            "functions": [
+              "do_improvisation"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-frost-horn-self-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 277,
+                "source": "music.c:do_play_instrument -> music.c:do_improvisation -> zapyourself -> hack.c:losehp for the self-directed frost horn"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-floating-eye-passive-reflection-lookup-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement passive from uhitm.c",
       "cFile": "uhitm.c",
       "sessions": [
@@ -313405,15 +313536,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
       "delivered": null,
       "function": "passive",
-      "session": "synthetic/v72/v72-floating-eye-passive-action2"
+      "session": "synthetic/v72/v72-floating-eye-passive-action2",
+      "closeStanding": {
+        "sha": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "target": "synthetic/v72/v72-floating-eye-passive-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/5d5175831fe80d94668cb8a45fd91505b4f64e6a/run-hosted-BN8BZH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "passive",
+            "implementation": "js/uhitm.js",
+            "symbol": "passive",
+            "sourceReview": "Read the complete C function uhitm.c:5865-6124, checking first AT_NONE selection and early return, initial damage roll, first damage-type switch, and separate living/uncancelled rn2(3) gate. In AD_PLYS, the visible floating-eye branch calls ureflects before Hallucination and Free_action. C callers discard the return bitmask but the function’s RNG, output, and state effects are live. The JS port mirrors the source, including await ureflects at js/uhitm.js:8100, but omitted the binding. Existing muse.c:ureflects is implemented by js/muse.js; nearby uhitm code uses dynamic imports for muse helpers, so use that cycle-safe pattern.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hitum",
+                "source": "uhitm.c:hitum calls passive after the monster attack; the admitted route is domove -> do_attack -> hitum -> passive."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-floating-eye-passive-action2",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 313,
+                "source": "uhitm.c:hitum -> passive -> AD_PLYS -> ureflects then Free_action"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected production entry point is the hero striking a visible floating eye. C uhitm.c:hitum calls passive after the attack; JS domove -> do_attack -> hitum -> passive mirrors that route. In the living, uncancelled passive follow-up gate, C calls ureflects before Hallucination and Free_action. The admitted case reaches that call at step 263 and stops in JS because the binding is missing. Existing muse.c:ureflects is already implemented and exported from js/muse.js; this task wires that callee into the existing passive branch using the module loading pattern suited to the current cycle.",
+        "entryPoints": [
+          {
+            "name": "Unarmed hit triggers visible floating-eye paralysis passive with Free_action",
+            "functions": [
+              "passive"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-floating-eye-passive-action2",
+                "segment": 0,
+                "fromStep": 263,
+                "throughStep": 313,
+                "source": "uhitm.c:hitum -> passive -> AD_PLYS -> ureflects then Free_action"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-clinger-attributes-enlightenment-ceiling-import-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement attributes_enlightenment from insight.c",
       "cFile": "insight.c",
       "sessions": [
@@ -313423,15 +313617,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
       "delivered": null,
       "function": "attributes_enlightenment",
-      "session": "synthetic/v72/v72-clinger-attributes-action2"
+      "session": "synthetic/v72/v72-clinger-attributes-action2",
+      "closeStanding": {
+        "sha": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "target": "synthetic/v72/v72-clinger-attributes-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/5d5175831fe80d94668cb8a45fd91505b4f64e6a/run-hosted-BN8BZH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "attributes_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "attributes_enlightenment",
+            "sourceReview": "Read complete insight.c:1487-2005. The clinger branch at 1739-1752 calls has_ceiling(&u.uz), then reports present clinging only when there is a ceiling and the hero is not in water; otherwise it uses the same result in conditional disclosure. JS insight.js:1480-2005 mirrors this logic and calls has_ceiling(u.uz, state), but its dungeon.js import omits that existing function. js/dungeon.js:753 already ports the C helper.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "doattributes",
+                "source": "insight.c:doattributes -> enlightenment -> attributes_enlightenment; the ^X command dispatches doattributes."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "insight.c:enlightenment invokes attributes_enlightenment for the attributes section."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-clinger-attributes-action2",
+                "segment": 0,
+                "fromStep": 124,
+                "throughStep": 148,
+                "source": "insight.c:doattributes -> enlightenment -> attributes_enlightenment -> has_ceiling"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected production entry point is the ^X attributes command. C doattributes -> enlightenment -> attributes_enlightenment evaluates the clinger ceiling disclosure; JS doattributes -> enlightenment -> attributes_enlightenment mirrors it. C has_ceiling is already ported in js/dungeon.js. The admitted corrected wumpus is a clinger, and the replay stops only because insight.js does not import that existing helper.",
+        "entryPoints": [
+          {
+            "name": "^X attributes reports ceiling clinging for a clinger form",
+            "functions": [
+              "attributes_enlightenment"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-clinger-attributes-action2",
+                "segment": 0,
+                "fromStep": 124,
+                "throughStep": 148,
+                "source": "insight.c:doattributes -> enlightenment -> attributes_enlightenment -> has_ceiling"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-zap-cancel-item-charisma-reference-v72-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement cancel_item from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -313441,10 +313703,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
       "delivered": null,
       "function": "cancel_item",
-      "session": "synthetic/v72/v72-adornment-cancel-scout1"
+      "session": "synthetic/v72/v72-adornment-cancel-scout1",
+      "closeStanding": {
+        "sha": "5d5175831fe80d94668cb8a45fd91505b4f64e6a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "target": "synthetic/v72/v72-adornment-cancel-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/5d5175831fe80d94668cb8a45fd91505b4f64e6a/run-hosted-BN8BZH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "cancel_item",
+            "implementation": "js/zap.js",
+            "symbol": "cancel_item",
+            "sourceReview": "Read upstream zap.c:cancel_item (1239-1362), including the inventory-item switch and subsequent object cancellation, corpse timer, unbless, and uncurse behavior. The worn RIN_ADORNMENT case subtracts obj->spe from ABON(A_CHA) and sets disp.botl. JS already mirrored this branch but referenced A_CHA without importing it; the fix imports the existing constant. The source callers zapyourself -> cancel_monst self-cancel inventory traversal -> cancel_item were traced.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "cancel_item",
+                "source": "C zap.c:zapyourself -> zap.c:cancel_monst -> zap.c:cancel_item; JS zap.js:zapyourself -> zap.js:cancel_monst -> zap.js:cancel_item."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-adornment-cancel-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 271,
+                "source": "C zap.c:zapyourself -> zap.c:cancel_monst(self_cancel=TRUE) -> zap.c:cancel_item; JS zap.js:zapyourself -> zap.js:cancel_monst -> zap.js:cancel_item. The entire admitted segment matches, including the worn +3 ring charisma decrement at step 211."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The recorded self-zap of a cancellation wand traverses the hero inventory while wearing a +3 adornment ring. The replay matches through the segment end and reaches cancel_item through zapyourself and cancel_monst.",
+        "entryPoints": [
+          {
+            "name": "Self-zap cancellation while wearing an adornment ring",
+            "functions": [
+              "cancel_item"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v72",
+                "caseId": "v72-adornment-cancel-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 271,
+                "source": "C zap.c:zapyourself -> zap.c:cancel_monst(self_cancel=TRUE) -> zap.c:cancel_item; JS zap.js:zapyourself -> zap.js:cancel_monst -> zap.js:cancel_item. The entire admitted segment matches, including the worn +3 ring charisma decrement at step 211."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
