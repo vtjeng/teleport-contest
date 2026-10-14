@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66101423,
+      "datetime": "20860424195341",
+      "nethackrc": "OPTIONS=name:V66SortExtra,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics\nOPTIONS=sortdiscoveries:a\n",
+      "moves": "     #wizidentify\n.\n                    #known\n "
+    }
+  ]
+}

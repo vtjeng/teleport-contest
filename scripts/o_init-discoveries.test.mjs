@@ -9,11 +9,12 @@ import {
     init_objects,
     oclass_to_name,
     sortloot_descr,
-    UnsupportedDiscoveryDisplayError,
 } from '../js/o_init.js';
 import { ECMD_OK, MENU_TRADITIONAL, TOPLINE_NON_EMPTY } from '../js/const.js';
 import {
     objects_globals_init,
+    OBJ_NAME,
+    POT_HEALING,
     POT_WATER,
     POTION_CLASS,
     SCR_MAIL,
@@ -108,24 +109,59 @@ test('dodiscovered heads each class and marks unencountered types', async () => 
     assert.equal(body[2].text, 'Potions');
 });
 
-test('dodiscovered stops on the three orders it does not sort', async () => {
-    // Only 'o' needs no disco_output_sorted(); 's', 'c' and 'a' all buffer
-    // their lines for it, and it is not ported.
-    //
-    // Each case discovers a type first. C does not consult the sort order
-    // until it has gathered, so with nothing discovered it reaches its
-    // `ct == 0` arm and prints the "nothing yet" answer instead; a fixture
-    // that discovers nothing would assert against a state C never sorts.
-    for (const discosort of ['s', 'c', 'a']) {
-        const sorted = discoveryState({ discosort });
-        discover(sorted, POT_WATER);
-        await assert.rejects(
-            () => run(sorted),
-            (error) => error instanceof UnsupportedDiscoveryDisplayError
-                && error.branch === 'disco_output_sorted()',
-            `discosort ${discosort}`,
-        );
-    }
+test('dodiscovered renders sortloot, class-alphabetical, and global-alphabetical orders', async () => {
+    const alphabetical = discoveryState({
+        discosort: 'a',
+        inv_order: [SCROLL_CLASS, POTION_CLASS],
+    });
+    discover(alphabetical, POT_WATER);
+    discover(alphabetical, SCR_MAIL);
+    discover(alphabetical, POT_HEALING);
+    let { messages, windows } = await run(alphabetical);
+    assert.deepEqual(messages, []);
+    assert.deepEqual(windows[0].slice(2).map((line) =>
+        line.text.replace(/ \([^)]*\)$/u, '')),
+    [
+        '* potion of healing',
+        '* potion of water',
+        '* scroll of mail',
+    ]);
+    assert.ok(windows[0].slice(2).every((line) => !line.heading));
+
+    const byClass = discoveryState({
+        discosort: 'c',
+        inv_order: [POTION_CLASS],
+    });
+    discover(byClass, POT_WATER);
+    discover(byClass, POT_HEALING);
+    ({ messages, windows } = await run(byClass));
+    assert.deepEqual(messages, []);
+    assert.deepEqual(windows[0].slice(2).map((line) =>
+        line.text.replace(/ \([^)]*\)$/u, '')),
+    [
+        'Potions',
+        '* potion of healing',
+        '* potion of water',
+    ]);
+
+    const sortloot = discoveryState({
+        discosort: 's',
+        inv_order: [POTION_CLASS],
+    });
+    discover(sortloot, POT_WATER);
+    discover(sortloot, POT_HEALING);
+    ({ messages, windows } = await run(sortloot));
+    assert.deepEqual(messages, []);
+    assert.equal(windows.length, 1);
+    assert.equal(windows[0][2].text, 'Potions');
+    const lootTypes = [POT_WATER, POT_HEALING].sort((first, second) =>
+        discovered_cmp(
+            `* ${sortloot_descr(first, sortloot)}potion of ${OBJ_NAME(sortloot.objects[first], sortloot)}`,
+            `* ${sortloot_descr(second, sortloot)}potion of ${OBJ_NAME(sortloot.objects[second], sortloot)}`,
+        ));
+    assert.deepEqual(windows[0].slice(3).map((line) =>
+        line.text.replace(/ \([^)]*\)$/u, '')),
+        lootTypes.map((otyp) => `* potion of ${OBJ_NAME(sortloot.objects[otyp], sortloot)}`));
 
     // An unrecognized letter is not a stop: C falls back to 'o'.
     const state = discoveryState({ discosort: 'z' });

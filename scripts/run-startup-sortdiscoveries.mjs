@@ -2,8 +2,8 @@
 
 // Record and replay options.c optfn_sortdiscoveries() from configuration-file
 // startup through o_init.c dodiscovered(), the real `\`/known command.  The
-// passing matrix selects only discovery order; the checked-in deferred recipe
-// preserves the first sorted-output case at the next behavior boundary.
+// passing matrix selects discovery order and exercises the real text-window
+// command after startup configures it.
 
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -59,16 +59,6 @@ export const STARTUP_SORTDISCOVERIES_CASES = Object.freeze([
     }),
 ]);
 
-// This one case sits immediately outside the covered behavior: parsing reaches `s`, and
-// the known command stops at o_init.c disco_output_sorted().  Keeping replay
-// inputs here makes the follow-up behavior reproducible without admitting expected
-// failure into the passing fresh matrix.
-export const SORTED_DISCOVERIES_DEFERRED_CASE = Object.freeze({
-    label: 'sortloot discovery order',
-    optionLines: Object.freeze(['OPTIONS=sortdiscoveries:1-tail']),
-    expected: 's',
-});
-
 function nethackrc(entry) {
     return [
         'OPTIONS=name:DiscoSort,role:Healer,race:human,gender:female,'
@@ -94,13 +84,6 @@ export function loadStartupSortdiscoveriesRecipe() {
         version: 5,
         segments: STARTUP_SORTDISCOVERIES_CASES.map(segmentFor),
     }, 'startup sortdiscoveries recipe');
-}
-
-export function loadSortedDiscoveriesDeferredRecipe() {
-    return validateCleanRecipe({
-        version: 5,
-        segments: [segmentFor(SORTED_DISCOVERIES_DEFERRED_CASE)],
-    }, 'sorted discoveries deferred recipe');
 }
 
 function caseFor(segment) {

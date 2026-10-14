@@ -525,16 +525,6 @@ export function observe_object(obj, state = game) {
     return obj;
 }
 
-// Thrown where o_init.c reaches a discoveries branch this port has not
-// reached yet.
-export class UnsupportedDiscoveryDisplayError extends Error {
-    constructor(branch) {
-        super(`discovery display requires ${branch}`);
-        this.name = 'UnsupportedDiscoveryDisplayError';
-        this.branch = branch;
-    }
-}
-
 // C ref: o_init.c interesting_to_discover(). A Samurai sees the Japanese-named
 // types as pre-discovered; every other type qualifies once it has been named
 // or encountered and has a randomized description to reveal.
@@ -608,6 +598,17 @@ export async function choose_disco_sort(mode, state = game) {
 // C refs: o_init.c discovered_cmp(), sortloot_descr(), and oclass_to_name().
 export function discovered_cmp(first, second) {
     return strncmpi(first.slice(2), second.slice(2), -1);
+}
+
+// C ref: o_init.c disco_output_sorted(). qsort() compares after the two-byte
+// encounter marker. Sortloot rows carry a six-byte key after that marker;
+// C overwrites its final digit with the marker, then advances six bytes to
+// show the marker and typename while keeping the key out of the text window.
+function disco_output_sorted(lines, lootsort) {
+    const sorted = [...lines].sort(discovered_cmp);
+    return lootsort
+        ? sorted.map((line) => line[0] + line.slice(7))
+        : sorted;
 }
 
 export function sortloot_descr(otyp, state = game) {
@@ -869,9 +870,8 @@ function disco_fmt_uniq(uidx, state) {
         ? `${outbuf} spellbook` : outbuf;
 }
 
-// C ref: o_init.c dodiscovered(), bound to '\'. Covers the default discovery
-// order, which needs no sorted output. Returns whether the command took game
-// time, which for this one is never.
+// C ref: o_init.c dodiscovered(), bound to '\'. Returns whether the command
+// took game time, which for this one is never.
 //
 // C interleaves its putstr() calls with the walk that produces them. Nothing
 // between them waits for input or draws, so this collects the lines first and
@@ -890,11 +890,9 @@ export async function dodiscovered(
     if (state.iflags.menu_requested
         && await choose_disco_sort(1, state) < 0)
         return false;
-    // The three remaining orders all buffer their lines for
-    // disco_output_sorted() remains unported. Its comparison and sortloot
-    // helpers are available to the class-discovery command above.
-    if (state.flags.discosort !== 'o')
-        throw new UnsupportedDiscoveryDisplayError('disco_output_sorted()');
+    const alphabyclass = state.flags.discosort === 'c';
+    const alphabetized = state.flags.discosort === 'a' || alphabyclass;
+    const lootsort = state.flags.discosort === 's';
     const sortindx = DISCO_ORDER_LET.indexOf(state.flags.discosort);
 
     const lines = [];
@@ -923,6 +921,7 @@ export async function dodiscovered(
     if (!classes.includes(VENOM_CLASS)) classes.push(VENOM_CLASS);
 
     let ct = uniq_ct + arti_ct;
+    let sortedLines = [];
     for (const oclass of classes) {
         let prev_class = oclass + 1; /* forced different from oclass */
         for (let i = state.svb.bases[oclass];
@@ -931,11 +930,24 @@ export async function dodiscovered(
             if (dis !== 0 && interesting_to_discover(dis, state)) {
                 ct++;
                 if (oclass !== prev_class) {
-                    putstr(true, let_to_name(oclass, false, false));
-                    prev_class = oclass;
+                    if ((alphabyclass || lootsort) && sortedLines.length) {
+                        for (const line of disco_output_sorted(
+                            sortedLines, lootsort,
+                        ))
+                            putstr(false, line);
+                        sortedLines = [];
+                    }
+                    if (!alphabetized || alphabyclass) {
+                        putstr(true, let_to_name(oclass, false, false));
+                        prev_class = oclass;
+                    }
                 }
                 const buf = state.objects[dis].oc_encountered ? '  ' : '* ';
-                putstr(false, disco_append_typename(buf, dis, state));
+                const prefix = buf + (lootsort
+                    ? sortloot_descr(dis, state) : '');
+                const line = disco_append_typename(prefix, dis, state);
+                if (!alphabetized && !lootsort) putstr(false, line);
+                else sortedLines.push(line);
             }
         }
     }
@@ -945,6 +957,14 @@ export async function dodiscovered(
         // which draws nothing when nothing was put in it.
         await message("You haven't discovered anything yet...", state);
     } else {
+        if (sortedLines.length) {
+            // Global alphabetical mode has no class headings, except when
+            // the pseudo-class rows above need a heading of their own.
+            if ((uniq_ct || arti_ct) && alphabetized && !alphabyclass)
+                putstr(true, 'Discovered items');
+            for (const line of disco_output_sorted(sortedLines, lootsort))
+                putstr(false, line);
+        }
         await textWindow(lines, state);
     }
     return false;

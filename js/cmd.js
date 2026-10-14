@@ -282,7 +282,7 @@ import {
     UnsupportedEnlightenmentError,
 } from './insight.js';
 import {
-    doclassdisco, dodiscovered, UnsupportedDiscoveryDisplayError,
+    doclassdisco, dodiscovered,
 } from './o_init.js';
 import { donameFresh } from './objnam.js';
 import {
@@ -2883,7 +2883,6 @@ export function failClosedCommandRefusals() {
         // the forgotten-spell, amulet-drain, and non-healing spell paths
         // that this port has not reached.
         UnsupportedSpellCastError,
-        UnsupportedDiscoveryDisplayError,
         UnsupportedEnlightenmentError,
         UnsupportedShopError,
         // end.c really_done() calls paybill() and paygd() on every death, so
