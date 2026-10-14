@@ -1,0 +1,132 @@
+{
+  "session": "synthetic/v64/v64-castle-hole-gotohell-action1",
+  "remainingScreens": 73,
+  "recordedSteps": 368,
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-castle-hole-gotohell-action1",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingSha256": "c89b04de6d96bebc2226c11643d1f38f48d308af0d224261fa2cc7cb0cade2d3",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "status": "complete",
+  "commit": "3728818ac9000eb73180cb2c98689d6ee9fa4961",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v64",
+    "caseId": "v64-castle-hole-gotohell-action1",
+    "session": "synthetic/v64/v64-castle-hole-gotohell-action1",
+    "manifestPath": "challenges/manifests/v64.json",
+    "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+    "recording": "challenges/cases/v64/v64-castle-hole-gotohell-action1.session.json",
+    "recordingPath": "challenges/cases/v64/v64-castle-hole-gotohell-action1.session.json",
+    "recordingSha256": "c89b04de6d96bebc2226c11643d1f38f48d308af0d224261fa2cc7cb0cade2d3",
+    "recipe": "challenges/cases/v64/v64-castle-hole-gotohell-action1.recipe.session.json",
+    "recipeSha256": "a9533ecf0134da1cc6e8f52ae68acd24c6e26dc43e0f3c0ec0b2efe931297c7d",
+    "replayInputSha256": "289ac83827a2f4443808bda199ce7436f3328c05a00359909ea1b93f953ef145",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "evaluationArtifact": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+    "evaluationUtc": "2026-10-14T02:33:34.540Z",
+    "remainingScreens": 73,
+    "recordedSteps": 368,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 295,
+        "total": 368
+      },
+      "rng": {
+        "matched": 14249,
+        "total": 30150
+      },
+      "cursors": {
+        "matched": 302,
+        "total": 368
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 295,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 295,
+          "key": ">"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 14221,
+        "cEntry": "rn2(100)=13",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(3)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 295,
+          "key": ">"
+        },
+        "stepIndex": 295
+      },
+      "cursor": {
+        "index": 295,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 295,
+          "key": ">"
+        },
+        "cCursor": [
+          33,
+          0,
+          1
+        ],
+        "jsCursor": [
+          47,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 295,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 1469
+  },
+  "summary": "At step 295, do.c goto_level calls trap.c fill_pit on the departing square. C extracts the floor boulder and calls do.c flooreffects(\"settle\"), which consumes delobj’s rn2(100) and prints the boulder message; js/trap.js extracts it and records note_unported(\"do.c flooreffects\"), so JavaScript reaches rn2(3) instead. The Stronghold caller also exposes a separate dungeon.c goto_hell gap, but implementing that helper does not change this replay’s first mismatch.",
+  "source": {
+    "file": "trap.c",
+    "branch": "When the departing hero square contains a boulder over a pit or hole, fill_pit extracts the boulder and passes it to do.c flooreffects with verb \"settle\".",
+    "functions": [
+      "fill_pit"
+    ],
+    "callers": [
+      "do.c goto_level() after a falling transition",
+      "do.c dodown() may select goto_hell(FALSE, TRUE) for a Stronghold hole"
+    ],
+    "dependencies": [
+      "do.c flooreffects() existing JS boulder/pit branch in js/do.js",
+      "dungeon.c goto_hell() is a separate caller gap and does not cause the first mismatch in this case"
+    ]
+  }
+}
