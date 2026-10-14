@@ -1,0 +1,45 @@
+{
+  "session": "synthetic/v65/v65-samurai-home-action3",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-samurai-home-action3",
+  "remainingScreens": 29,
+  "recordedSteps": 153,
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingSha256": "91e977d0269292c0603c3abd5fcb458efd7ebd244467aaaee479f9217b53973f",
+  "evaluationPath": "challenges/evaluations/accepted-c26376cb4a84cb9b7ef59da92192b70fc0d4282d-v65.json",
+  "evaluationCommit": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+  "status": "complete",
+  "commit": "a3ce4c57482dcb6af8f4e16b48510cdc573beb55",
+  "mismatch": {
+    "session": "synthetic/v65/v65-samurai-home-action3",
+    "remainingScreens": 29,
+    "firstMismatch": {
+      "kind": "source-traced-first-mismatch",
+      "segment": 0,
+      "step": 124,
+      "owner": "dat/Sam-strt.lua",
+      "source": "dat/Sam-strt.lua whole program -> quest-level special loader registry -> mklev.c:load_special",
+      "behavior": "The Samurai quest-home transition requests special level Sam-strt. The C recorder loads its map and contents; the JavaScript registry has no Sam-strt loader and makelevel raises UnsupportedLevelChangeError at step 124."
+    }
+  },
+  "summary": "The first mismatch is the missing Samurai quest-home special-level program. `Sam-strt.lua` defines the 76-by-20 map, lighting and throne regions, branch arrival, down stair, ten doors, Lord Sato with a custom inventory, his chest, eight roshi guards, nondiggable map, six random traps, and the ordered siege monsters. `js/quest_levels.js` registers other Samurai quest levels but omits Sam-strt, so `mklev.js:load_special` cannot execute this program.",
+  "source": {
+    "file": "dat/Sam-strt.lua",
+    "functions": ["Sam-strt.lua"],
+    "branch": "The complete top-level Sam-strt.lua program is run when makelevel loads the Samurai quest-home special-level prototype.",
+    "callers": [
+      "js/mklev.js:makelevel -> load_special -> SPECIAL_LEVEL_LOADERS['Sam-strt']",
+      "C mklev.c:makelevel -> load_special -> quest special-level Lua program dat/Sam-strt.lua"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "The accepted v65 evaluation reports 124/153 screens, 2731/3788 RNG entries, and 124/153 cursors for this case; the first unmatched input boundary is segment 0, step 124.",
+    "At js/mklev.js:691-736, makelevel calls ensureSpecialLevelLoaders and throws when slev.proto has no loader. At js/mklev.js:1947-1977, the registry combines quest-level loaders; js/quest_levels.js:3399-3403 registers Sam-loca and Sam-filb but no Sam-strt.",
+    "nethack-c/upstream/dat/Sam-strt.lua lines 17-97 contain the whole source program and ordered descriptors, including the inventory callback on Lord Sato. The corresponding special-level descriptor operations are implemented by mklev.js lspo_* handlers; lspo_monster awaits inventory callbacks after monster creation.",
+    "The task will add the complete program as a quest-level loader, generate its fixed map and descriptor tables deterministically from Sam-strt.lua, and test both generated values and delayed descriptor completion in source order."
+  ]
+}
