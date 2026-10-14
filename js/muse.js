@@ -149,7 +149,7 @@ import { add_to_container, carrying, freeinv, hands_obj, obfree, obj_extract_sel
 import { game } from './gstate.js';
 import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
-import { makemon } from './makemon_create.js';
+import { makemon, makemon_runtime } from './makemon_create.js';
 import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { awaken_soldiers } from './music.js';
 import { m_next2u } from './mhitu.js';
@@ -966,7 +966,9 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         const cc = enexto(mtmp.mx, mtmp.my, pm, { state });
         if (!cc) return 0;
         await mzapwand(mtmp, otmp, false, state);
-        const mon = makemon(null, cc.x, cc.y, NO_MM_FLAGS, { state });
+        const mon = await makemon_runtime(
+            null, cc.x, cc.y, NO_MM_FLAGS, { ...env, state },
+        );
         if (mon && canspotmon(mon, state) && oseen)
             discover_object(O.WAN_CREATE_MONSTER, true, true, true, state);
         return 2;
@@ -991,7 +993,9 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         while (cnt-- > 0) {
             const cc = enexto(mtmp.mx, mtmp.my, fish, { state });
             if (!cc) break;
-            const mon = makemon(pm, cc.x, cc.y, NO_MM_FLAGS, { state });
+            const mon = await makemon_runtime(
+                pm, cc.x, cc.y, NO_MM_FLAGS, { ...env, state },
+            );
             if (mon && canspotmon(mon, state))
                 known = true;
         }

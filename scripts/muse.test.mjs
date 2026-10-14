@@ -120,6 +120,7 @@ import {
     POT_POLYMORPH,
     POT_SPEED,
     SCR_EARTH,
+    SCR_CREATE_MONSTER,
     SCR_FIRE,
     SCR_SCARE_MONSTER,
     TIN,
@@ -127,6 +128,7 @@ import {
     UNICORN_HORN,
     WAN_COLD,
     WAN_CANCELLATION,
+    WAN_CREATE_MONSTER,
     WAN_DEATH,
     WAN_DIGGING,
     WAN_FIRE,
@@ -476,6 +478,69 @@ test('the defensive bugle caller wakes the soldier group and consumes its turn',
         [false, 0, 0, 1],
     );
 });
+
+test('use_defensive awaits the runtime tail for scroll-created monsters',
+    async () => {
+        const state = await offensiveHero();
+        for (let i = 0; i < 20; ++i) state.nhDisplay.pushKey(32);
+        const scroll = carried(state, SCR_CREATE_MONSTER, {
+            where: OBJ_MINVENT,
+            dknown: true,
+        });
+        const reader = offensiveMonster(state, PM_GOBLIN, scroll, {
+            m_id: 7101,
+            mx: state.u.ux + 2,
+            my: state.u.uy,
+            mhp: 8,
+            mhpmax: 8,
+        });
+        scroll.v = reader;
+        scroll.ocarry = reader;
+        reader.nmon = state.level.monlist ?? null;
+        state.level.monlist = reader;
+        place_monster(reader, reader.mx, reader.my, state);
+
+        const previousHead = state.level.monlist;
+        assert.equal(await use_defensive(reader, {
+            kind: 'create monster scroll',
+            object: scroll,
+        }, state), 2);
+
+        const created = [];
+        for (let mon = state.level.monlist; mon && mon !== previousHead;
+            mon = mon.nmon) {
+            created.push(mon);
+        }
+        assert.ok(created.length >= 1,
+            'the create-monster scroll places its monsters on the live level');
+        assert.ok(created.every((mon) => state.level.monsters[mon.mx][mon.my]
+            === mon));
+
+        const wand = carried(state, WAN_CREATE_MONSTER, {
+            where: OBJ_MINVENT,
+            spe: 3,
+        });
+        const wandUser = offensiveMonster(state, PM_GOBLIN, wand, {
+            m_id: 7102,
+            mx: state.u.ux + 3,
+            my: state.u.uy,
+            mhp: 8,
+            mhpmax: 8,
+        });
+        wand.v = wandUser;
+        wand.ocarry = wandUser;
+        wandUser.nmon = state.level.monlist;
+        state.level.monlist = wandUser;
+        place_monster(wandUser, wandUser.mx, wandUser.my, state);
+
+        const previousWandHead = state.level.monlist;
+        assert.equal(await use_defensive(wandUser, {
+            kind: 'create monster wand',
+            object: wand,
+        }, state), 2);
+        assert.notEqual(state.level.monlist, previousWandHead,
+            'the create-monster wand also awaits its runtime creation tail');
+    });
 
 test('find_defensive with tryescape skips the distance and health gates', () => {
     const state = makeSelectionState();
