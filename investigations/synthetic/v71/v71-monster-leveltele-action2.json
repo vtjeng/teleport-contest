@@ -1,0 +1,77 @@
+{
+  "session": "synthetic/v71/v71-monster-leveltele-action2",
+  "corpus": "synthetic",
+  "batch": "v71",
+  "caseId": "v71-monster-leveltele-action2",
+  "remainingScreens": 86,
+  "recordedSteps": 415,
+  "manifestPath": "challenges/manifests/v71.json",
+  "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+  "recordingSha256": "29326f4f7c4f6db577334cf7947fef008902c3b23f89a6d60684ab3ebb2928ae",
+  "evaluationPath": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+  "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
+  "evaluationArtifact": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+  "status": "complete",
+  "commit": "2a53848da7b8d89c800a476a49d9aa1db3ccd2da",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v71",
+    "caseId": "v71-monster-leveltele-action2",
+    "session": "synthetic/v71/v71-monster-leveltele-action2",
+    "manifestPath": "challenges/manifests/v71.json",
+    "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+    "recording": "challenges/cases/v71/v71-monster-leveltele-action2.session.json",
+    "recordingPath": "challenges/cases/v71/v71-monster-leveltele-action2.session.json",
+    "recordingSha256": "29326f4f7c4f6db577334cf7947fef008902c3b23f89a6d60684ab3ebb2928ae",
+    "recipe": "challenges/cases/v71/v71-monster-leveltele-action2.recipe.session.json",
+    "recipeSha256": "a35c8eb461bf8552a2a60aeb1b5876283c390cf1397ecc48c260e9828d70c587",
+    "replayInputSha256": "03db1402ff16b2e692f31b3792380cbc1ba1eb9e8ea83285638eddc6fa20f15d",
+    "evaluationPath": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+    "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
+    "evaluationArtifact": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+    "evaluationUtc": "2026-10-14T20:35:40.099Z",
+    "remainingScreens": 86,
+    "recordedSteps": 415,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 329, "total": 415 },
+      "rng": { "matched": 2445, "total": 2480 },
+      "cursors": { "matched": 329, "total": 415 }
+    },
+    "firstMismatch": {
+      "kind": "command",
+      "step": 329,
+      "message": "UnsupportedPositionCheckError: non-hole monster level teleportation"
+    },
+    "step": 329,
+    "kind": "command",
+    "sourceFile": "teleport.c",
+    "function": "mlevel_tele_trap",
+    "message": "non-hole monster level teleportation"
+  },
+  "goalKind": "file-port",
+  "summary": "The admitted pet crosses a LEVEL_TELEP trap, but the JS mlevel_tele_trap() still refused this C branch as non-hole monster level teleportation. Port the LEVEL_TELEP arm from teleport.c:mlevel_tele_trap(), including random destination selection, same-level shudder, migration type, visibility message, trap discovery, and teleport-control confusion. Pass the caller RNG into random_teleport_level() so preflight uses its cloned stream instead of advancing the live RNG.",
+  "source": {
+    "file": "teleport.c",
+    "branch": "mlevel_tele_trap():2048-2072 handles LEVEL_TELEP and NO_TRAP after hole and portal cases. For LEVEL_TELEP it refuses amulet carriers/endgame monsters, calls random_teleport_level(), shudders if the destination depth is unchanged, otherwise calls get_level() and later migrates with MIGR_RANDOM. A visible monster disappears out of sight, reveals the trap, and becomes confused without teleport control.",
+    "functions": ["mlevel_tele_trap", "random_teleport_level"],
+    "callers": [
+      "trap.c:dotrap() dispatches monster trap effects to teleport.c:mlevel_tele_trap(); js/trap_effects.js:trapeffect_selector() uses js/teleport.js:mlevel_tele_trap().",
+      "teleport.c:mlevel_tele_trap() calls random_teleport_level(); its JS caller passes the active RNG, including the cloned RNG used during elapsed-turn planning."
+    ],
+    "dependencies": [
+      "teleport.c:random_teleport_level() and the caller-owned rn2/rnd stream",
+      "teleport.c:get_level() and dog.c:migrate_to_level() existing destination and migration helpers"
+    ]
+  },
+  "evidence": [
+    "The admitted v71 baseline evaluation at 62083786357189a4660adb0b96d92609e3d885b7 reports 329/415 screens, 2445/2480 RNG calls and 329/415 cursors before refusing step 329 with UnsupportedPositionCheckError: non-hole monster level teleportation. The v71 manifest SHA is f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703 and the case recording SHA is 29326f4f7c4f6db577334cf7947fef008902c3b23f89a6d60684ab3ebb2928ae.",
+    "Upstream nethack-c/upstream/src/teleport.c:2006-2086 shows mlevel_tele_trap() branch order: hole/trapdoor, portal, then LEVEL_TELEP/NO_TRAP. The new branch uses random_teleport_level(), calls get_level() only when destination depth changes, and continues through the shared visible disappearance, seetrap, confusion, and random migration tail.",
+    "The first post-port scan exposed a planning RNG leak: mlevel_tele_trap() reached random_teleport_level() in the cloned elapsed-turn plan, but that helper used module-global rn2/rnd. The level-teleporter caller now passes its RNG into random_teleport_level(), which preserves its existing default live stream for other callers.",
+    "The source-pinned scripts/teleport-monster-traps.test.mjs test verifies the LEVEL_TELEP branch uses injected rn2 bounds [5,3], migrates to the selected next level, marks the trap seen, emits the C disappearance message, and sets confusion when the monster lacks teleport control.",
+    "After the RNG-routing fix, bounded exact replay run-XXamzL of the unchanged admitted recording matches all 415 screens, 2480 RNG calls and 415 cursor positions with no replay error. Focused test run-RDFZKp passes 11/11 tests; npm run lint exits 0."
+  ]
+}
