@@ -50,6 +50,7 @@ import {
     PM_KITTEN,
     PM_KOBOLD,
     PM_OWLBEAR,
+    PM_PONY,
 } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { float_vs_flight } from '../js/polyself.js';
@@ -798,22 +799,31 @@ test('the wounded-legs timeout counts down and then reaches heal_legs',
         assert.equal(game._ttyToplines, 'Your leg feels better.');
     });
 
-test('preflight_dotrap keeps bear refusal and admits a pit after dismount',
+test('mounted bear-trap branch catches the steed without wounding the hero',
     async () => {
         await heroOnLevelOne();
         const trap = { tx: game.u.ux, ty: game.u.uy, ttyp: BEAR_TRAP,
             tseen: false, madeby_u: 0 };
         assert.doesNotThrow(() => preflight_dotrap(trap, game));
 
-        // trap.c:1507-1511 gives the wound to the steed and names it through
-        // s_suffix(mon_nam()). hack.c domove() refuses a ride before this, so
-        // no matrix segment can reach it.
-        game.u.usteed = { mx: game.u.ux, my: game.u.uy };
-        assert.throws(
-            () => preflight_dotrap(trap, game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'a bear trap closing on a steed',
-        );
+        // trap.c:1506-1512 gives the already rolled damage to the mounted
+        // monster, then exercises Dexterity; the hero receives no leg wound
+        // or HP loss. Keep the steed healthy so thitm() avoids the death arm.
+        const steed = newMonster({
+            data: game.mons[PM_PONY], mnum: PM_PONY, m_id: 700,
+            mx: game.u.ux, my: game.u.uy, mhp: 30, mhpmax: 30,
+            mcansee: true, mcanmove: true,
+        });
+        game.u.usteed = steed;
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        const heroHp = game.u.uhp;
+        await dotrap(trap, 0, game);
+        assert.equal(game.u.utraptype, TT_BEARTRAP);
+        assert.equal(game.u.uhp, heroHp);
+        assert.equal(woundedLegs().extrinsic, 0);
+        assert.equal(steed.mhp < 30, true);
+        assert.match(game._ttyToplines, /^A bear trap closes on .*!$/u);
         game.u.usteed = null;
 
         // trap.c trapeffect_pit() handles an unmounted hero directly; the
