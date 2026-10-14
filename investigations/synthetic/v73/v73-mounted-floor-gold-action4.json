@@ -43,7 +43,7 @@
     "JavaScript js/steal.js:1242-1271 follows the same floorGold branch and calls y_monnam(who,state,env), while its do_name.js import list includes Adjmonnam, Monnam and Some_Monnam but omits y_monnam.",
     "The admitted v73 case is designed with a mounted hero, no carried gold, a floor gold pile and an adjacent leprechaun. The retained C/JS comparison matches 385 screens and 2319 RNG calls before the step-385 ReferenceError; the case queue records the resulting stop error and zero complete session outputs.",
     "The new regression test exercises the production uhitm.c:mhitm_ad_sgld -> steal.c:stealgold route with a mounted hero. Its fixture confirms floor-stack transfer, the C-derived steed possessive message and the single post-message rn2(5) call.",
-    "After importing y_monnam, the admitted replay matches the complete v73-mounted-floor-gold-action4 recording: segment 0 through step 456, 457 screens, 2432 RNG calls and 457 cursor positions."
+    "After importing y_monnam, replay run-behtAX on committed tree c7f2efa01ab3fc1a92886fb9eaadb1d384605e70 matches the complete v73-mounted-floor-gold-action4 recording: segment 0 through step 456, 457 screens, 2432 RNG calls and 457 cursor positions."
   ],
   "baselineMetrics": {
     "screens": {
@@ -83,7 +83,7 @@
   },
   "postFixVerification": {
     "command": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v73/v73-mounted-floor-gold-action4",
-    "runId": "run-mQQANZ",
+    "runId": "run-behtAX",
     "passed": true,
     "case": "v73-mounted-floor-gold-action4",
     "segment": 0,
@@ -106,6 +106,7 @@
         "js": 0
       }
     },
-    "error": null
+    "error": null,
+    "replayCommit": "c7f2efa01ab3fc1a92886fb9eaadb1d384605e70"
   }
 }
