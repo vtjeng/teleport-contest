@@ -117,6 +117,7 @@ import { TOU_LOCA_DOORS, TOU_LOCA_LEVEL_MAP } from './tou_loca_level_data.js';
 import { l_selection_or, l_selection_sub } from './nhlsel.js';
 import { SAM_LOCA_LEVEL_MAP, SAM_LOCA_LEVEL_DOORS,
     SAM_LOCA_LEVEL_OBJECTS, SAM_LOCA_LEVEL_MONSTERS } from './sam_loca_level_data.js';
+import { SAM_FILB_LEVEL_MAP } from './sam_filb_level_data.js';
 import {
     TOU_GOAL_LEVEL_DOORS, TOU_GOAL_LEVEL_MAP, TOU_GOAL_LEVEL_MONSTERS,
 } from './tou_goal_level_data.js';
@@ -3374,8 +3375,30 @@ async function samLoca(des) {
     for (const monster of SAM_LOCA_LEVEL_MONSTERS) await des.monster(...monster);
 }
 
+// C ref: complete dat/Sam-filb.lua. Preserve the generated fixed map,
+// unlit region, and source-ordered doors, stairs, and random contents.
+async function samFilb(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(SAM_FILB_LEVEL_MAP);
+    await des.region(selection_area(0, 0, 59, 15), 'unlit');
+    await des.door('closed', 16, 7);
+    await des.door('closed', 16, 8);
+    await des.door('closed', 43, 7);
+    await des.door('closed', 43, 8);
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 9; ++i) await des.object();
+    await des.monster('d');
+    for (let i = 0; i < 4; ++i) await des.monster('wolf');
+    for (let i = 0; i < 3; ++i) await des.monster('stalker');
+    for (let i = 0; i < 4; ++i) await des.trap();
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Sam-loca': samLoca,
+    'Sam-filb': samFilb,
     'Rog-loca': rogLoca,
     'Rog-goal': rogGoal,
     'Mon-loca': monLoca,
