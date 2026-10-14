@@ -693,3 +693,35 @@ triage decisions or fix references.
   interface requires a changed tracked path.
 - Outcome: the correction was accepted as 12 failures and three controls.
   The unchanged C gameplay remains pinned to the original delivery.
+
+### 2026-10-14 — automatic ancestry blocked independent deliveries
+
+- Context: new v63 Newman and v64 unseen-web deliveries after admission.
+- Friction: submissions inherited pending deliveries from worker branch history,
+  although workers verified that their actual callees were already accepted.
+  Retrying the same head with explicit dependencies failed because its ready
+  event ID already held a different immutable payload.
+- Evidence: original Newman delivery `71ee68b3f5e9c8f51c1acb021abe76b195d4f87e`
+  and corrected `33bc476444fa070644192ba4580b2a8d8b12e40d`; original unseen-web
+  `d3b5e011b3c22850716b4aebdbcaf15d806249b0` and corrected
+  `54d792a7d77979db73f93694d202eb0c6003f733`. Both corrections preserve code,
+  tests and saved replay evidence, with no pending dependencies.
+- Reason: the loop permits independent tasks after submission and requires
+  preserving immutable deliveries and real dependencies.
+- Outcome: workers preserved their advanced branches, made empty metadata
+  commits from the original deliveries, submitted new packets, then merged the
+  preserved histories back. Future initial submissions need explicit actual
+  dependencies to avoid unrelated ancestry delaying integration.
+
+### 2026-10-14 — approval review misclassified an accepted worker sync
+
+- Context: C's clean-boundary merge of accepted Main `02a098f2e3bf8dab3c52e27f90b3fd1adacc6260`.
+- Friction: automatic approval review rejected the merge as coordinator-only
+  integration, leaving C doing read-only work.
+- Evidence: the checkout was clean; `.cache/b-drawbridge-accept.json` retained
+  the exact acceptance receipt. `.agents/loop.md`, "Merge requests", explicitly
+  permits workers to merge accepted Main at clean boundaries.
+- Reason: workers must retain pending source commits while syncing accepted code.
+- Outcome: the coordinator supplied those checks with the same merge request;
+  review allowed it. The clean merge is `1eef11bf5cb52b871d5c0361e2adbd092b821aba`,
+  and C resumed work. Submitted source history was preserved.
