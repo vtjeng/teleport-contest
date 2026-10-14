@@ -268,7 +268,7 @@ function contextFreePatchId(root, commit, cache) {
     return cache.get(commit);
 }
 
-function replacedCacheDelivery(root, state, task) {
+export function replacedCacheDelivery(root, state, task) {
     const latest = state.deliveries[task.deliveries.at(-1)];
     const packet = readDelivery(latest);
     const replacement = packet.context?.replacementPackaging;

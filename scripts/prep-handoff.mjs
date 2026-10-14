@@ -11,6 +11,7 @@ import {readCheckpointResult} from './checkpoint-results.mjs';
 import {digest} from './challenge-results.mjs';
 import {publishTask} from './task-handoff.mjs';
 import {boundedMain} from './run-bounded.mjs';
+import {integrateTaskCommits} from './integration-commits.mjs';
 
 const USAGE = `Usage: node scripts/prep-handoff.mjs <plan|integrate|accept|publish> --ledger <shared-ledger>
   publish: --admission <hosted-receipt> [--queue <saved-work-queue>]
@@ -154,12 +155,7 @@ export function integratePrepGroup(options, root = process.cwd()) {
     checkGroupFiles(ctx, plan, head, false);
     if (plan.tasks.some(member => ctx.state.tasks[member.task].status !== 'ready'))
         throw new Error('finish the requested Prep corrections before retrying the group');
-    for (const member of plan.tasks) {
-        const delivery = latest(ctx.state, ctx.state.tasks[member.task]);
-        const missing = new Set(git(ctx.root, 'cherry', 'HEAD', delivery.delivery, delivery.base)
-            .split('\n').filter(row => row.startsWith('+')).map(row => row.slice(2)));
-        for (const commit of member.commits) if (missing.has(commit)) git(ctx.root, 'cherry-pick', commit);
-    }
+    for (const member of plan.tasks) integrateTaskCommits(ctx.root, ctx.state, member.task);
     const commit = git(ctx.root, 'rev-parse', 'HEAD');
     ctx = context(options, ctx.root);
     checkGroupFiles(ctx, plan, commit, true);

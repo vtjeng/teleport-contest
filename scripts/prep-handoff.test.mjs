@@ -116,6 +116,33 @@ test('a failed shared checkpoint accepts none of the Prep group', t => {
     assert.equal(readFileSync(join(f.root, f.options.ledger), 'utf8'), before);
 });
 
+test('a correction submitted before first integration retains the original Prep case files', t => {
+    const f = fixture(t);
+    // The correction is only a later delta; Main has not integrated any v3 files yet.
+    f.send({type: 'feedback', task: 'Prep-v3', delivery: f.deliveries[1], reason: 'Correct saved inventory evidence.'});
+    f.send({type: 'resume', task: 'Prep-v3'});
+    f.git('switch', '-q', 'worker/prep');
+    const base = f.git('rev-parse', 'HEAD');
+    const original = f.state().deliveries[f.deliveries[1]], packet = JSON.parse(readFileSync(original.evidence));
+    const entry = packet.manifest.cases[0], recording = JSON.parse(readFileSync(join(f.root, entry.recording)));
+    recording.segments[0].steps[0].screen = 'corrected inventory';
+    entry.recordingSha256 = f.save(entry.recording, recording);
+    f.git('add', entry.recording); f.git('commit', '-qm', 'Correct v3 inventory');
+    packet.git = deliveryGit(f.root, base, 'HEAD');
+    const bytes = JSON.stringify(packet), evidence = `.cache/${digest(bytes)}.json`;
+    f.save(evidence, bytes);
+    f.send({type: 'ready', task: 'Prep-v3', delivery: packet.git.head, base, commits: packet.git.commits,
+        paths: packet.git.paths, evidence: join(f.root, evidence), dependencies: [f.deliveries[0]]});
+    f.send({type: 'received', task: 'Prep-v3', delivery: packet.git.head});
+    f.git('switch', '-q', 'main');
+    const group = integratePrepGroup(f.options, f.root);
+    assert.equal(group.preflight.every(result => result.passed), true);
+    assert.equal(digest(readFileSync(join(f.root, entry.recipe))), entry.recipeSha256);
+    assert.equal(digest(readFileSync(join(f.root, entry.recording))), entry.recordingSha256);
+    f.checkpoint(group.commit); acceptPrepGroup(f.options, f.root);
+    assert.equal(f.state().tasks['Prep-v3'].status, 'accepted');
+});
+
 test('a changed submission stops frozen-group recovery without accepting or dropping it', t => {
     const f = fixture(t), group = integratePrepGroup(f.options, f.root);
     const plan = JSON.parse(readFileSync(join(f.root, '.cache/prep-group.json')));
