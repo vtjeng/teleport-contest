@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T22:51:43.841Z",
+  "capturedAt": "2026-10-14T23:06:16.625Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -128339,44 +128339,253 @@
         "type": "accepted",
         "at": "2026-10-14T22:49:09.287Z",
         "task": "A2-investigation-v73-sick-nurse-scout1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v73-quit-vanquished-q-action6-20261014-66de3954458e8f202311645e2983876bf9b75584",
+        "type": "published",
+        "at": "2026-10-14T22:51:57.978Z",
+        "task": "A2-investigation-v73-quit-vanquished-q-action6-20261014",
+        "commit": "66de3954458e8f202311645e2983876bf9b75584"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v73-archon-monster-gaze-scout1-20261014-66de3954458e8f202311645e2983876bf9b75584",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T22:52:01.863Z",
+        "task": "A2-investigation-v73-archon-monster-gaze-scout1-20261014",
+        "commit": "66de3954458e8f202311645e2983876bf9b75584",
+        "knownBy": "2026-10-14T22:51:57.978Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v73-nonsteed-bear-farlook-action2-20261014-66de3954458e8f202311645e2983876bf9b75584",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T22:52:03.320Z",
+        "task": "A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+        "commit": "66de3954458e8f202311645e2983876bf9b75584",
+        "knownBy": "2026-10-14T22:51:57.978Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v73-mounted-floor-gold-action4-20261014-66de3954458e8f202311645e2983876bf9b75584",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T22:52:04.683Z",
+        "task": "C-investigation-v73-mounted-floor-gold-action4-20261014",
+        "commit": "66de3954458e8f202311645e2983876bf9b75584",
+        "knownBy": "2026-10-14T22:51:57.978Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v73-sick-nurse-scout1-20261014-66de3954458e8f202311645e2983876bf9b75584",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T22:52:06.051Z",
+        "task": "A2-investigation-v73-sick-nurse-scout1-20261014",
+        "commit": "66de3954458e8f202311645e2983876bf9b75584",
+        "knownBy": "2026-10-14T22:51:57.978Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v70-cube-glob-residual-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T22:52:23.811Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the remaining v70 cube-glob movement boundary from the admitted recording and NetHack source."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-third-v73-0450bcd485a0a24f58913fe8242b4d481abcf7ba",
+        "type": "activity",
+        "at": "2026-10-14T22:53:04.470Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "phase": "review",
+        "reason": "Checking saved submission scope, dependencies and runtime evidence before the next combined hosted candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-third-v73-cb6ed9364a04f4a6a84d75d5eb8f35df3b0073f8",
+        "type": "activity",
+        "at": "2026-10-14T22:53:07.940Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "phase": "review",
+        "reason": "Checking saved submission scope, dependencies and runtime evidence before the next combined hosted candidate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-355088faebe743139e7c31eca805d0f26c4d8513-fc02f18bc341d7aed20d263ff1591508a09f01208d9f7ebb67d0a9c71c766329-C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:54:48.570Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "integration": "355088faebe743139e7c31eca805d0f26c4d8513",
+        "validationGroup": [
+          "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+          "B-investigation-v73-helmet-npc-earth-action5-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-355088faebe743139e7c31eca805d0f26c4d8513-fc02f18bc341d7aed20d263ff1591508a09f01208d9f7ebb67d0a9c71c766329-B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T22:54:48.570Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "integration": "355088faebe743139e7c31eca805d0f26c4d8513",
+        "validationGroup": [
+          "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+          "B-investigation-v73-helmet-npc-earth-action5-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-355088f-C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:56:09.507Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined two-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-hosted-wait-355088f-B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "type": "activity",
+        "at": "2026-10-14T22:56:13.219Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "phase": "waiting",
+        "reason": "Waiting for the exact combined two-source hosted checkpoint; workers continue independent v73 tasks."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4126d6c18e8d704bf7c7ab96ec3147ca53901512",
+        "type": "ready",
+        "at": "2026-10-14T22:57:05.579Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "delivery": "4126d6c18e8d704bf7c7ab96ec3147ca53901512"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-potion-correction-20261014-1",
+        "type": "turn",
+        "at": "2026-10-14T22:57:16.825Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-4126d6c18e8d704bf7c7ab96ec3147ca53901512",
+        "type": "received",
+        "at": "2026-10-14T22:57:49.669Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "delivery": "4126d6c18e8d704bf7c7ab96ec3147ca53901512"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-earth-correction-20261014-1",
+        "type": "resume",
+        "at": "2026-10-14T22:58:48.727Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4f483cdd37802ba73469f69f65bc7d455cc2378b",
+        "type": "ready",
+        "at": "2026-10-14T22:58:55.490Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "delivery": "4f483cdd37802ba73469f69f65bc7d455cc2378b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-4f483cdd37802ba73469f69f65bc7d455cc2378b",
+        "type": "received",
+        "at": "2026-10-14T22:59:39.196Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "delivery": "4f483cdd37802ba73469f69f65bc7d455cc2378b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C-idle-after-v73-corrections-4f483cdd",
+        "type": "turn",
+        "at": "2026-10-14T22:59:42.560Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Waiting for new independent work after submitting the bear-trap and potion fixes. Main is validating the next group and has v74 prepared."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-49de4c7f982cf06363bf5e7928d2b9f604c8cb3f",
+        "type": "ready",
+        "at": "2026-10-14T23:00:53.749Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-49de4c7f982cf06363bf5e7928d2b9f604c8cb3f",
+        "type": "received",
+        "at": "2026-10-14T23:01:50.009Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A2-idle-after-hider-49de4c7f",
+        "type": "turn",
+        "at": "2026-10-14T23:01:53.274Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Waiting for new independent work after submitting the hidden-monster fix. Main has v74 prepared for the next boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep38-priority-after-active-38650826747",
+        "type": "activity",
+        "at": "2026-10-14T23:02:24.111Z",
+        "task": "Prep38",
+        "phase": "waiting",
+        "reason": "Saved v74 evidence verified. With A and C finished and no independent unreserved work, integrate this prepared batch after the active two-fix hosted checkpoint and publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v73-hurtle-iron-rust-action4-20261014-355088faebe743139e7c31eca805d0f26c4d8513-validated",
+        "type": "validated",
+        "at": "2026-10-14T23:04:10.441Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v73-helmet-npc-earth-action5-20261014-355088faebe743139e7c31eca805d0f26c4d8513-validated",
+        "type": "validated",
+        "at": "2026-10-14T23:04:10.441Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v73-hurtle-iron-rust-action4-20261014-355088faebe743139e7c31eca805d0f26c4d8513-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T23:04:40.657Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v73-helmet-npc-earth-action5-20261014-355088faebe743139e7c31eca805d0f26c4d8513-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T23:04:40.657Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep39-two-first-causes-held-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:05:03.248Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep39 has two independently reproduced source failures with matching prefixes. The potion reversal route is recorded, and a missed blindness-potion setup is being corrected from source. New comparisons wait for Main’s brief acceptance window; source review and backups continue."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
-        "worker": "C",
-        "goal": "fix-v73-thrown-potion-next2u-distance-20261014",
-        "kind": "implementation",
-        "status": "changes-required",
-        "delivery": "b38d20168355afdbf3a906b6cf516eabf392c92e",
-        "since": "2026-10-14T22:24:28.184Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
-        "worker": "C",
-        "goal": "fix-v73-hurtle-iron-rust-trap-nonliving-binding-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0450bcd485a0a24f58913fe8242b4d481abcf7ba",
-        "since": "2026-10-14T22:39:11.823Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
-        "worker": "B",
-        "goal": "fix-v73-helmet-earth-mon-nam-import-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "cb6ed9364a04f4a6a84d75d5eb8f35df3b0073f8",
-        "since": "2026-10-14T22:41:43.907Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "Prep38",
         "worker": "Prep",
@@ -128386,6 +128595,39 @@
         "delivery": "9e340362669f0ed2d8997918db6c632c796c939f",
         "batch": "v74",
         "since": "2026-10-14T22:44:57.269Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "worker": "C",
+        "goal": "trap-mounted-bear-trap-steed-branch-v73",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4126d6c18e8d704bf7c7ab96ec3147ca53901512",
+        "since": "2026-10-14T22:57:05.579Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "worker": "C",
+        "goal": "fix-v73-thrown-potion-next2u-distance-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4f483cdd37802ba73469f69f65bc7d455cc2378b",
+        "since": "2026-10-14T22:58:55.490Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "worker": "A2",
+        "goal": "domove-hidden-ceiling-hider-v73",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f",
+        "since": "2026-10-14T23:00:53.749Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -129554,40 +129796,17 @@
       "C-investigation-v73-confused-npc-earth-action4-20261014": {
         "id": "C-investigation-v73-confused-npc-earth-action4-20261014",
         "worker": "C",
-        "status": "changes-required",
+        "status": "ready",
         "seed": "synthetic/v73/v73-confused-npc-earth-action4",
         "reservations": [
           "session:synthetic/v73/v73-confused-npc-earth-action4",
           "source:dothrow.c:breakobj"
         ]
       },
-      "B-investigation-v73-helmet-npc-earth-action5-20261014": {
-        "id": "B-investigation-v73-helmet-npc-earth-action5-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v73/v73-helmet-npc-earth-action5",
-        "reservations": [
-          "session:synthetic/v73/v73-helmet-npc-earth-action5",
-          "source:muse.c:use_offensive",
-          "source:read.c:drop_boulder_on_player",
-          "source:read.c:drop_boulder_on_monster"
-        ]
-      },
-      "C-investigation-v73-hurtle-iron-rust-action4-20261014": {
-        "id": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v73/v73-hurtle-iron-rust-action4",
-        "reservations": [
-          "session:synthetic/v73/v73-hurtle-iron-rust-action4",
-          "source:trap.c:trapeffect_rust_trap",
-          "source:mon.c:mlifesaver"
-        ]
-      },
       "A2-investigation-v73-blind-peaceful-lurker-action2-20261014": {
         "id": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
         "worker": "A2",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v73/v73-blind-peaceful-lurker-action2",
         "reservations": [
           "session:synthetic/v73/v73-blind-peaceful-lurker-action2",
@@ -129603,7 +129822,7 @@
       "C-investigation-v73-trapped-mastodon-farlook-action3-20261014": {
         "id": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
         "worker": "C",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v73/v73-trapped-mastodon-farlook-action3",
         "reservations": [
           "session:synthetic/v73/v73-trapped-mastodon-farlook-action3",
@@ -129629,41 +129848,6 @@
       "source:dothrow.c:breakobj": {
         "tasks": [
           "C-investigation-v73-confused-npc-earth-action4-20261014"
-        ]
-      },
-      "session:synthetic/v73/v73-helmet-npc-earth-action5": {
-        "tasks": [
-          "B-investigation-v73-helmet-npc-earth-action5-20261014"
-        ]
-      },
-      "source:muse.c:use_offensive": {
-        "tasks": [
-          "B-investigation-v73-helmet-npc-earth-action5-20261014"
-        ]
-      },
-      "source:read.c:drop_boulder_on_player": {
-        "tasks": [
-          "B-investigation-v73-helmet-npc-earth-action5-20261014"
-        ]
-      },
-      "source:read.c:drop_boulder_on_monster": {
-        "tasks": [
-          "B-investigation-v73-helmet-npc-earth-action5-20261014"
-        ]
-      },
-      "session:synthetic/v73/v73-hurtle-iron-rust-action4": {
-        "tasks": [
-          "C-investigation-v73-hurtle-iron-rust-action4-20261014"
-        ]
-      },
-      "source:trap.c:trapeffect_rust_trap": {
-        "tasks": [
-          "C-investigation-v73-hurtle-iron-rust-action4-20261014"
-        ]
-      },
-      "source:mon.c:mlifesaver": {
-        "tasks": [
-          "C-investigation-v73-hurtle-iron-rust-action4-20261014"
         ]
       },
       "session:synthetic/v73/v73-blind-peaceful-lurker-action2": {
@@ -129724,8 +129908,8 @@
     }
   },
   "development": {
-    "executionCommit": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
-    "measuredAt": "2026-10-14T22:43:22.017Z",
+    "executionCommit": "355088faebe743139e7c31eca805d0f26c4d8513",
+    "measuredAt": "2026-10-14T23:00:13.964Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

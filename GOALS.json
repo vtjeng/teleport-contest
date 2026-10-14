@@ -314852,7 +314852,7 @@
     {
       "id": "fix-v73-hurtle-iron-rust-trap-nonliving-binding-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement trapeffect_rust_trap from trap.c",
       "cFile": "trap.c",
       "sessions": [
@@ -314862,15 +314862,114 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "355088faebe743139e7c31eca805d0f26c4d8513",
       "delivered": null,
       "function": "trapeffect_rust_trap",
-      "session": "synthetic/v73/v73-hurtle-iron-rust-action4"
+      "session": "synthetic/v73/v73-hurtle-iron-rust-action4",
+      "closeStanding": {
+        "sha": "355088faebe743139e7c31eca805d0f26c4d8513",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
+        "target": "synthetic/v73/v73-hurtle-iron-rust-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/355088faebe743139e7c31eca805d0f26c4d8513/run-hosted-EKyS21/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "trapeffect_rust_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_rust_trap",
+            "sourceReview": "Read trap.c:trapeffect_rust_trap() in full (1595-1727), including the hero rust-damage branches, monster water-damage side effects, completelyrusts versus gremlin splitting, mlifesaver wording, monkilled(AD_RUST), and result sentinels. The admitted play enters the monster completelyrusts branch at the final FORCEBUNGLE landing. JavaScript already follows the source call order but omitted the nonliving import used by the rust-trap lifesaver check.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c:mintrap dispatches the final landing's rust-trap type to trapeffect_rust_trap(); the JS mintrap dispatcher calls the corresponding selector. In the admitted case dothrow.c:mhurtle_step supplies the FORCEBUNGLE landing after the airborne path bypasses the intermediate trap."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-rust-trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-hurtle-iron-rust-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 267,
+                "source": "wizcmds.c:wiz_telekinesis -> dothrow.c:mhurtle_step -> trap.c:mintrap -> trap.c:trapeffect_rust_trap; the final iron-golem landing triggers a rust trap."
+              }
+            ]
+          },
+          {
+            "name": "mlifesaver",
+            "sourceFile": "mon.c",
+            "implementation": "js/trap_effects.js",
+            "symbol": "rustTrapMonsterLifesaver",
+            "sourceReview": "Read mon.c:mlifesaver() (2827-2841). Its nonliving(mon->data) or is_vampshifter(mon) guard controls whether it searches for an Amulet of Life Saving. The local JS helper mirrors that check; the missing nonliving import prevented the guard from evaluating for a completely rustable iron golem.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "rustTrapMonsterLifesaver",
+                "source": "trap.c:trapeffect_rust_trap calls mlifesaver(mtmp) to choose between the C 'falls' and 'starts to fall' message before monkilled()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-rust-trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-hurtle-iron-rust-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 267,
+                "source": "The visible iron golem reaches the completelyrusts branch and evaluates the mlifesaver/nonliving check before the death message."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted entry point is a visible iron golem hurtled onto a rust trap. wizcmds.c:wiz_telekinesis invokes dothrow.c:mhurtle_step; the airborne intermediate square is skipped and the final landing dispatches through trap.c:mintrap to trapeffect_rust_trap. Its completelyrusts branch evaluates mlifesaver for the death wording, then monkilled(AD_RUST). The committed replay matches all 268 steps.",
+        "entryPoints": [
+          {
+            "name": "A hurled iron golem lands on a rust trap",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapeffect_rust_trap"
+              },
+              {
+                "sourceFile": "mon.c",
+                "name": "mlifesaver"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-hurtle-iron-rust-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 267,
+                "source": "wizcmds.c:wiz_telekinesis -> dothrow.c:mhurtle_step -> trap.c:mintrap -> trap.c:trapeffect_rust_trap -> mon.c:mlifesaver; complete admitted segment."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v73-helmet-earth-mon-nam-import-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement use_offensive from muse.c",
       "cFile": "muse.c",
       "sessions": [
@@ -314880,10 +314979,151 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "355088faebe743139e7c31eca805d0f26c4d8513",
       "delivered": null,
       "function": "use_offensive",
-      "session": "synthetic/v73/v73-helmet-npc-earth-action5"
+      "session": "synthetic/v73/v73-helmet-npc-earth-action5",
+      "closeStanding": {
+        "sha": "355088faebe743139e7c31eca805d0f26c4d8513",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
+        "target": "synthetic/v73/v73-helmet-npc-earth-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/355088faebe743139e7c31eca805d0f26c4d8513/run-hosted-EKyS21/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_offensive",
+            "implementation": "js/muse.js",
+            "symbol": "use_offensive",
+            "sourceReview": "muse.c:use_offensive (1824-2032) reads the scroll, identifies it, emits the ceiling message, consumes it, then visits the Earth neighborhood in x-major/y-major order and may hit the player. The original missing mon_nam import is fixed. The action now passes the caller's cloned random stream to discover_object and its message owner through mreadmsg and the rumble branch.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "useOffensiveItem",
+                "source": "mattacku invokes the useOffensiveItem adapter for the monster scroll action; the adapter calls use_offensive with the caller environment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-helmet-npc-earth-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 631,
+                "source": "muse.c:muse -> use_offensive -> MUSE_SCR_EARTH"
+              }
+            ]
+          },
+          {
+            "name": "drop_boulder_on_monster",
+            "sourceFile": "read.c",
+            "implementation": "js/read.js",
+            "symbol": "drop_boulder_on_monster",
+            "sourceReview": "read.c:drop_boulder_on_monster (2341-2414) creates a rock, handles the monster hit, wakes nearby monsters, applies floor effects, places/stacks the rock, and calls newsym. The port keeps that order while routing message and redraw operations through the caller; planning supplies a silent message owner and no-op redraw because the cloned level shares the live terminal.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "use_offensive",
+                "source": "muse.c:use_offensive calls drop_boulder_on_monster for each eligible neighborhood square."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "drop_boulder_on_player",
+                "source": "read.c:drop_boulder_on_monster redirects a swallowed-player hit to drop_boulder_on_player."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-earth.test.mjs",
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-helmet-npc-earth-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 631,
+                "source": "muse.c:use_offensive -> read.c:drop_boulder_on_monster"
+              }
+            ]
+          },
+          {
+            "name": "drop_boulder_on_player",
+            "sourceFile": "read.c",
+            "implementation": "js/read.js",
+            "symbol": "drop_boulder_on_player",
+            "sourceReview": "read.c:drop_boulder_on_player (2294-2338) redirects swallowed-player handling as needed, applies damage and helmet protection, wakes nearby monsters, applies floor effects, places/stacks the rock, calls newsym, then applies HP loss. The port preserves this order and routes output/redraw through the caller so the planning clone stays isolated.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "use_offensive",
+                "source": "muse.c:use_offensive calls drop_boulder_on_player when the reader is adjacent and the scroll is not cursed."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "drop_boulder_on_monster",
+                "source": "read.c:drop_boulder_on_monster redirects a swallowed-player hit to drop_boulder_on_player."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-earth.test.mjs",
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-helmet-npc-earth-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 631,
+                "source": "muse.c:use_offensive -> read.c:drop_boulder_on_player"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted v73 route runs muse.c:muse -> use_offensive -> MUSE_SCR_EARTH. During elapsed-turn preflight it simulates the same source action on a planning clone, including discover_object/exerciseAttribute and read.c:drop_boulder_on_monster/drop_boulder_on_player, before the live pass repeats the action. The implementation forwards clone RNG, message and redraw owners so the planner cannot alter live state or display.",
+        "entryPoints": [
+          {
+            "name": "A visible hostile dwarf reads a scroll of earth and drops boulders beside the hero",
+            "functions": [
+              "use_offensive",
+              {
+                "name": "drop_boulder_on_monster",
+                "sourceFile": "read.c"
+              },
+              {
+                "name": "drop_boulder_on_player",
+                "sourceFile": "read.c"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-helmet-npc-earth-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 631,
+                "source": "muse.c:muse -> use_offensive -> read.c:drop_boulder_on_monster -> drop_boulder_on_player"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
