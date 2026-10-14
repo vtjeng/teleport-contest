@@ -64,7 +64,7 @@
     "functions": ["use_offensive", "drop_boulder_on_player", "drop_boulder_on_monster"],
     "callers": [
       "muse.c:muse -> use_offensive",
-      "js/muse.js:muse -> use_offensive",
+      "js/unported_monster_actions.js:useOffensiveItem -> use_offensive",
       "muse.c:use_offensive -> read.c:drop_boulder_on_monster",
       "muse.c:use_offensive -> read.c:drop_boulder_on_player"
     ],
