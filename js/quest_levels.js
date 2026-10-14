@@ -19,7 +19,7 @@
 //         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua, dat/Val-fila.lua,
 //         dat/Mon-fila.lua, dat/Mon-filb.lua,
 //         dat/tower1.lua, dat/tower2.lua,
-//         dat/tower3.lua, dat/Val-strt.lua.
+//         dat/tower3.lua, dat/Val-strt.lua, dat/Val-filb.lua.
 
 import {
     COLNO, FEMALE, G_GENOD, ROOM, ROWNO,
@@ -3094,6 +3094,26 @@ async function valStrt(des, state, lua) {
     await des.monster({ id: 'fire giant', x: 10, y: 16, peaceful: 0 });
 }
 
+// C ref: complete dat/Val-filb.lua. Keep its lava Mines terrain options and
+// the source-ordered descriptors for the later Valkyrie quest filler.
+async function valFilb(des) {
+    await des.level_init({ style: 'solidfill', fg: 'L' });
+    await des.level_flags('mazelevel', 'icedpools', 'noflip');
+    await des.level_init({ style: 'mines', fg: '.', bg: 'L', smoothed: true,
+        joined: true, lit: 1, walled: false });
+
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 11; ++i) await des.object();
+    for (let i = 0; i < 3; ++i) await des.monster('fire ant');
+    await des.monster('a');
+    for (let i = 0; i < 3; ++i)
+        await des.monster({ id: 'fire giant', peaceful: 0 });
+    for (let i = 0; i < 5; ++i) await des.trap('fire');
+    await des.trap();
+    await des.trap();
+}
+
 async function valLoca(des) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
     await des.level_flags('mazelevel', 'hardfloor', 'icedpools', 'noflip');
@@ -3344,6 +3364,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Ran-strt': ranStrt,
     'Rog-strt': rogStrt,
     'Val-loca': valLoca,
+    'Val-filb': valFilb,
     'Val-fila': valFila,
     'Val-strt': valStrt,
     'Hea-strt': heaStrt,
