@@ -4151,9 +4151,9 @@ async function eatspecial(state, env) {
         uswapwepgone({ state });
 
     if (otmp === state.uball)
-        unpunish(state, { ...env, random });
+        unpunish(state, env);
     if (otmp === state.uchain) {
-        unpunish(state, { ...env, random });
+        unpunish(state, env);
     } else if (carried(otmp)) {
         await useup(otmp, env);
     } else {
