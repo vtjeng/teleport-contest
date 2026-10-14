@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked runtime evidence for bones.c:getbones shop catch-up. C calls fix_shop_damage only after a valid bones file opens and its level is restored. This fresh input-only recipe cannot carry the prior game’s bones file into the new process, so its level-entry route does not exercise the restore branch.",
+  "segments": [
+    {
+      "seed": 58143027,
+      "datetime": "20480517131100",
+      "nethackrc": "OPTIONS=name:B224BonesProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017leash\naph\u00164\n\u0017wand of death\nzq.  yy  y    y"
+    }
+  ]
+}

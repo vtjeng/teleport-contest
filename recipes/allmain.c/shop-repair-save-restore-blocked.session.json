@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71294513,
+      "datetime": "20830417120500",
+      "nethackrc": "OPTIONS=name:RestoreProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "."
+    }
+  ],
+  "comment": "Blocked runtime evidence for allmain.c:moveloop_preamble shop catch-up. The source calls fix_shop_damage only when resuming a saved game. This independent input-only session starts a new game and carries no saved game state, so it cannot enter the resuming branch or establish catch-up parity."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920051,
+      "datetime": "20260910101500",
+      "nethackrc": "OPTIONS=name:VaultSearchA,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " "
+    }
+  ],
+  "comment": "Blocked runtime evidence for mklev.c:mklev bones-level shop catch-up. The caller reaches getbones, but the source repair branch requires a valid bones file for the arriving level; this fresh input-only recipe cannot provide one, so it does not establish the getbones restore path."
+}

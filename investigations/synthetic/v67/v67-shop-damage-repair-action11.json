@@ -156,7 +156,34 @@
       ],
       "focusedTests": "node scripts/run-bounded.mjs focused -- node --test scripts/bones.test.mjs scripts/shk-move.test.mjs passed 15/15 tests on the final focused-test tree; log /tmp/teleport-validation-1000/run-KO0v9x/stdout.log.",
       "lint": "node scripts/run-bounded.mjs focused -- npm run lint passed on the final focused-test tree; log /tmp/teleport-validation-1000/run-qTdITi/stdout.log.",
-      "syntheticPrefix": "node scripts/run-bounded.mjs focused -- node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json passed on the final execution tree; v67/v67-shop-damage-repair-action11 segment 0 matched through step 1151, with receipt /tmp/teleport-validation-1000/run-BXcXBt/receipt.json. The earlier post-implementation scan matched the complete 1200-step target."
+      "syntheticPrefix": "node scripts/run-bounded.mjs focused -- node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json passed after the caller-blocker update; v67/v67-shop-damage-repair-action11 segment 0 matched through step 1151, with receipt /tmp/teleport-validation-1000/run-3ZBaLY/receipt.json. The earlier post-implementation scan matched the complete 1200-step target.",
+      "callerBlockedRecipes": [
+        {
+          "recipe": "recipes/allmain.c/shop-repair-save-restore-blocked.session.json",
+          "source": "allmain.c:moveloop_preamble",
+          "blocker": "Blocked runtime evidence for allmain.c:moveloop_preamble shop catch-up. The source calls fix_shop_damage only when resuming a saved game. This independent input-only session starts a new game and carries no saved game state, so it cannot enter the resuming branch or establish catch-up parity."
+        },
+        {
+          "recipe": "recipes/do.c/shop-repair-existing-level-return-blocked.session.json",
+          "source": "do.c:goto_level",
+          "blocker": "Blocked runtime evidence for do.c:goto_level shop catch-up. This independent C-first level-return route reaches its first C/JavaScript mismatch in priest.c:move_special at segment 1 step 255, before the return reaches fix_shop_damage; it cannot establish existing-level arrival parity."
+        },
+        {
+          "recipe": "recipes/bones.c/shop-repair-bones-restore-blocked.session.json",
+          "source": "bones.c:getbones",
+          "blocker": "Blocked runtime evidence for bones.c:getbones shop catch-up. C calls fix_shop_damage only after a valid bones file opens and its level is restored. This fresh input-only recipe cannot carry the prior game’s bones file into the new process, so its level-entry route does not exercise the restore branch."
+        },
+        {
+          "recipe": "recipes/mklev.c/shop-repair-bones-entry-blocked.session.json",
+          "source": "mklev.c:mklev",
+          "blocker": "Blocked runtime evidence for mklev.c:mklev bones-level shop catch-up. The caller reaches getbones, but the source repair branch requires a valid bones file for the arriving level; this fresh input-only recipe cannot provide one, so it does not establish the getbones restore path."
+        },
+        {
+          "recipe": "recipes/bones.c/shop-repair-drop-upon-death-blocked.session.json",
+          "source": "bones.c:drop_upon_death",
+          "blocker": "Blocked runtime evidence for bones.c:drop_upon_death container insertion. C reaches the container branch only when a container is supplied for the statue transition; the preserved C-first bones probe diverges in do.c:goto_level -> mklev.c:mklev/getbones before reaching the save-bones death path. The ordering adjustment is source-pinned by scripts/bones.test.mjs but is not claimed as runtime verified."
+        }
+      ]
     },
     "runtimeEvidenceLimits": [
       "The admitted v67 range covers ordinary shk_fixes_damage and door restoration, but the case has no item on the repaired wall and does not exercise litter_scatter moving objects.",
