@@ -69,7 +69,9 @@
     "kind": "rng",
     "sourceFile": "mkobj.c",
     "function": "next_ident",
-    "line": 521
+    "line": 521,
+    "session": "synthetic/v66/v66-unpaid-food-action3",
+    "remainingScreens": 3
   },
   "summary": "At segment 0 step 250, selecting the floor tripe ration reaches C eat.c:doeat -> touchfood -> mkobj.c:costly_alteration(COST_BITE). The floor-object path checks costly_spot and billable, prints “You bite that, you pay for it!”, then calls bill_dummy_object. JavaScript costly_alteration currently returns only for unbilled free or inventory objects and routes the remaining cases to an injected unported hook, so the floor food is not billed and the message is absent. The reported next_ident RNG mismatch is a consequence of the missing dummy-object billing path, not the cause.",
   "source": {
