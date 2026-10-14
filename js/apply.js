@@ -960,8 +960,8 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                 await setmnotwielded(monster, object, { state });
                 switch (rn2(proficient + 1)) {
                 case 2: {
-                    await ttyPline(`You yank ${yname(object, state)} to the ${surface(u.ux, u.uy, state)}!`, state);
-                    const placement = place_object(object, u.ux, u.uy, { state });
+                    await ttyPline(`You yank ${yname(object, state)} to the ${surface(state.u.ux, state.u.uy, state)}!`, state);
+                    const placement = place_object(object, state.u.ux, state.u.uy, { state });
                     if (placement && typeof placement.then === 'function')
                         await placement;
                     stackobj(object, { state });
@@ -980,7 +980,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                         if (!saved) {
                             await ttyPline(`Snatching ${an(objectName, state)} is a fatal mistake.`, state);
                             const placement = place_object(
-                                object, u.ux, u.uy, { state },
+                                object, state.u.ux, state.u.uy, { state },
                             );
                             if (placement && typeof placement.then === 'function')
                                 await placement;
