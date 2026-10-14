@@ -1,0 +1,78 @@
+{
+  "session": "synthetic/v59/v59-stone-to-flesh-stone-text-action2",
+  "corpus": "synthetic",
+  "batch": "v59",
+  "caseId": "v59-stone-to-flesh-stone-text-action2",
+  "manifestPath": "challenges/manifests/v59.json",
+  "manifestSha256": "2f55f6f34298abb9bb979d1586361bbf220ac4367059378a60717c31158bbfdf",
+  "recordingPath": "challenges/cases/v59/v59-stone-to-flesh-stone-text-action2.session.json",
+  "recordingSha256": "2fda6e35f5e77611a61bc7a2dcb83fa0bd1fba1a54ae4b36260b49a0f66c5d48",
+  "evaluationPath": "challenges/evaluations/accepted-b368ad83d90f19d943f33c72c28736baf527fae9-v59.json",
+  "evaluationCommit": "b368ad83d90f19d943f33c72c28736baf527fae9",
+  "remainingScreens": 1,
+  "recordedSteps": 207,
+  "status": "complete",
+  "commit": "dbed1ef9b44f6386cfd872d34b1f619df1535424",
+  "mismatch": {
+    "screen": {
+      "index": 165,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 165,
+        "key": ">"
+      },
+      "kind": "ch",
+      "row": 0,
+      "column": 0,
+      "cCell": {
+        "ch": "T",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": " ",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 2637,
+      "cEntry": "d(2,4)=6",
+      "cCaller": "zap_map(zap.c:3673)",
+      "jsEntry": "rn2(5)=4",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 165,
+        "key": ">"
+      },
+      "stepIndex": 165
+    },
+    "cursor": null,
+    "session": "synthetic/v59/v59-stone-to-flesh-stone-text-action2",
+    "remainingScreens": 1
+  },
+  "summary": "A downward stone-to-flesh spell hits a non-headstone floor engraving. C reports that the floor edges smooth and wipes the engraving with d(2,4); zap_map in JavaScript omits this spell arm, so it leaves the engraving unchanged and skips the damage roll.",
+  "source": {
+    "file": "zap.c",
+    "branch": "zap_map(): for u.dz > 0, when the target has a non-headstone engraving and the object is SPE_STONE_TO_FLESH, C acts only on ENGRAVE: it prints the hallucination-dependent smoothing message and wipes d(2,4) characters. Other engraving types are unchanged.",
+    "functions": [
+      "zap_map"
+    ],
+    "callers": [
+      "zap.c:zap_updown() -> zap_map() after the downward spell's floor-pile handling",
+      "zap.c:weffects() -> zap_updown()",
+      "js/zap.js:zap_updown() -> zap_map()"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/zap.c:3670-3676: the downward engraving switch handles SPE_STONE_TO_FLESH only when e->engr_type == ENGRAVE, prints the smoothing message, and calls wipe_engr_at(x, y, d(2,4), TRUE).",
+    "js/zap.js:4040-4075: zap_map() has the downward and non-headstone gates but no SPE_STONE_TO_FLESH arm, so it neither emits the message nor calls wipe_engr_at or consumes the d(2,4) roll.",
+    "challenges/cases/v59/v59-stone-to-flesh-stone-text-action2.recipe.session.json: the wizard engraves a floor, casts stone to flesh downward at it, then looks at the tile; issued command evidence in .cache/C-v59-stone-to-flesh-before.log shows #wizcast at step 148 and look at step 186.",
+    ".cache/C-v59-stone-to-flesh-before.log: focused replay at dbed1ef9b44f6386cfd872d34b1f619df1535424 emitted all 207 screens and reached the same first mismatch at step 165, with C d(2,4)=6 and JavaScript rn2(5)=4 at zap_map; the target replay had no command refusal or boundary error.",
+    ".cache/C-v59-stone-to-flesh-before-receipt.json: records the focused admitted-case replay command and completion receipt."
+  ]
+}

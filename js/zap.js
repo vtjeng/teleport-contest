@@ -3923,7 +3923,7 @@ export async function maybe_explode_trap(
 
 export async function zap_map(
     x, y, wand, state = game,
-    random = { rn2, rn2_on_display_rng }, rawEnv = {},
+    random = { d, rn2, rn2_on_display_rng }, rawEnv = {},
 ) {
     const trapLearn = { value: false };
     await maybe_explode_trap(
@@ -4067,6 +4067,24 @@ export async function zap_map(
     case SPE_CANCELLATION:
     case WAN_MAKE_INVISIBLE:
         del_engr_at(x, y, state);
+        break;
+    case SPE_STONE_TO_FLESH:
+        if (engraving.engr_type === ENGRAVE) {
+            await ttyPline(
+                Hallucination(state)
+                    ? 'The floor runs like butter!'
+                    : 'The edges on the floor get smoother.',
+                state,
+                rawEnv,
+            );
+            await wipe_engr_at(
+                x,
+                y,
+                random.d(2, 4),
+                true,
+                { ...rawEnv, state, random },
+            );
+        }
         break;
     }
     if (trapLearn.value) learnwand(wand, state);
@@ -6266,7 +6284,7 @@ export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv
 // probing, knock/opening, striking/force bolt, locking/wizard lock, and stone
 // to flesh before the shared floor-pile/map or ceiling-hiding behavior.
 export async function zap_updown(obj, state = game,
-    random = { rn2, rnd }, rawEnv = {}) {
+    random = { d, rn2, rnd }, rawEnv = {}) {
     const x = state.u.ux;
     const y = state.u.uy;
     let xx = x;
