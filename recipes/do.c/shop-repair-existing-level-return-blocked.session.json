@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked runtime evidence for do.c:goto_level shop catch-up. This independent C-first level-return route reaches its first C/JavaScript mismatch in priest.c:move_special at segment 1 step 255, before the return reaches fix_shop_damage; it cannot establish existing-level arrival parity.",
+  "segments": [
+    {
+      "seed": 67110079,
+      "datetime": "20900101145920",
+      "nethackrc": "OPTIONS=name:RepairProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #wizlevelport\n2\n\u0017pick-axe\nwo_  D.aol_  D.aol_  d.#wizcast\nh  _  llllllllllllllllllllllllk._  @llllllllllllllllllllllllk._  @llllllllllllllllllllllk._  @llllllllllllllllllll.\u0017wand of teleportation\nzp.lllllllllllllllllllll._  @llllllllllllllljjjjjjjj.aolaolaolaolaolaolaolaolaol                                        \u0017wand of digging\nzql \u00171000 gold pieces\np  l dghm.m.m.m.m.#wizlevelport\n1\nm.m.m.m.m.#wizlevelport\n2\n"
+    }
+  ]
+}
