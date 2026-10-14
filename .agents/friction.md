@@ -806,11 +806,11 @@ triage decisions or fix references.
 
 ### 2026-10-14 — ready split was blocked by held corrections
 
-- Context: five-delivery candidate68d2aee failed hosted run38526616796.
+- Context: five-delivery candidate `68d2aee` failed hosted run `38526616796`.
   The saved logs identify two affected tasks; three deliveries remain ready.
 - Friction: split required every original task to be ready, including the two
   held corrections, so independent source work could not reach a fresh gate.
-- Outcome: correctiona4ffd876 changes that check to the selected tasks. Its
+- Outcome: correction `a4ffd876` changes that check to the selected tasks. Its
   13 focused tests preserve dependency rejection, held statuses and submissions,
   original base and baseline, and fresh-checkpoint acceptance. Root exercised
   the split with Invocation, cancellation and rolling-trap deliveries; preflight
