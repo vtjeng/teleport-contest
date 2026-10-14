@@ -2385,7 +2385,7 @@ async function shrinking_glob_gone(obj, env = {}) {
 // about the brightness change.
 export async function maybe_adjust_light(obj, old_range, env = {}) {
     const state = env.state ?? game;
-    const message = env.message ?? (async () => {});
+    const message = env.message ?? ((text) => ttyPline(text, state));
     const new_range = arti_light_radius(obj, state);
     const delta = new_range - old_range;
 
