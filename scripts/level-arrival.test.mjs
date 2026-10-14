@@ -997,7 +997,8 @@ test('losedogs delivers returning shopkeepers and independent migrants', async (
     assert.equal(shopState.level.rooms[0].resident, shopkeeper);
     assert.equal(shopkeeper.mextra.eshk.dismiss_kops, false);
     assert.equal(shopkeeper.mstate & (MON_MIGRATING | MON_STILL_ARRIVING), 0);
-    assert.ok(shopState.unported.has('shk.c make_happy_shoppers'));
+    // dog.c:losedogs calls make_happy_shoppers when dismissKops is positive.
+    assert.equal(shopState.unported?.has('shk.c make_happy_shoppers') ?? false, false);
 
     const migrantState = arrivalState();
     migrantState.moves = 100;
