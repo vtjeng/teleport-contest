@@ -165,6 +165,21 @@ test('a failed checkpoint or one unchanged target accepts none and writes no clo
     assert.equal(readRows(join(f.root, 'SCORE.tsv')).length, 0);
 });
 
+test('publication resumes when interrupted after switching main but before committing closure reports', t => {
+    const f = fixture(t), group = integrateImplementationGroup(f.options, f.root);
+    f.checkpoint(group.commit); acceptImplementationGroup(f.options, f.root);
+    f.git('init', '--bare', '-q', join(f.parent, 'remote.git'));
+    f.git('remote', 'add', 'origin', join(f.parent, 'remote.git'));
+    f.git('push', '-q', 'origin', `${f.base}:refs/heads/main`); // Disposable local remote only.
+    assert.throws(() => publishImplementationGroup(f.options, f.root,
+        {checkCI: () => {throw new Error('simulated interruption before report commit');}}), /simulated interruption/);
+    assert.equal(f.git('branch', '--show-current'), 'main');
+    assert.ok(f.git('status', '--porcelain').includes('GOALS.json'), 'valid closure reports remain uncommitted');
+    const published = publishImplementationGroup(f.options, f.root,
+        {checkCI: () => ({checked: 0, pending: [], completed: [], failed: false})});
+    for (const sha of f.deliveries) assert.equal(f.state().deliveries[sha].publishedCommit, published.commit);
+});
+
 test('split rebuilds from accepted base, preserves failed candidate and leaves other submissions ready', t => {
     const f = fixture(t), original = integrateImplementationGroup(f.options, f.root);
     f.checkpoint(original.commit, f.names, false);
