@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v70 source-designed C-only first attempt, frozen before JavaScript gameplay comparison. C turns hero into stone golem and clears timer",
+  "segments": [
+    {
+      "seed": 70104003,
+      "datetime": "20920416132700",
+      "nethackrc": "OPTIONS=name:v70stonedclayscout1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    #wizintrinsic\n:petrifying\n\n #polyself\nclay golem\n                    #attributes\n                    "
+    }
+  ]
+}

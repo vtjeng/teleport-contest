@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source/C-designed v70 next scout frozen during Root hold, before own gameplay comparison. Source do.c:boulder_hits_pool adjacent lava splash: boots make terrain wish safe, then grounded fire giant throws boulder west onto lava. C actual positions and thrown slot must be checked; source Fire resistance reduces splash damage. Cheap C-only map correction: west had newt, east was wall. Decoded C map shows north floor; k terrain wish, j return, throw north k. Preserve original fatal lava setup miss unchanged. C/source-only cheap continuation before own JS: C direction prompt canceled by space; direct tbk throws north. C/source landing geometry correction: giant boulder range20 passes the first lava. Actual C282 ends at10,5 under north wall; move kk to wish lava on that landing cell and return j adjacent10,6, then throw north. Source dothrow.c1661 defines giant range20. No seed change. C-only clear-actor setup: C168 j was blocked by newt that followed into10,6, leaving hero on lava. Source normal blessed scroll removes initial NPCs before boots and circuit; letters now boots b/boulder c. Geometry/seed unchanged; original missing-splash/fatal pair retained. C-only sole-armor correction: C297 T automatically removes the only boots, without selector. Following b was a southwest move, breaking adjacent geometry. Remove b; preserve prior C pair.",
+  "segments": [
+    {
+      "seed": 70104009,
+      "datetime": "20920418143700",
+      "nethackrc": "OPTIONS=name:v70lavaboulderscout1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    ra *\n                    \u0017uncursed boots of levitation\n                    Wb                    kk\u0017lava\n                    j                    T                    #polyself\nfire giant\n                    \u0017boulder\n                    tck                    "
+    }
+  ]
+}

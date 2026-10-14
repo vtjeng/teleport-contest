@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-supported boulder_hits_pool adjacent fire-resistant splash variation using timed intrinsic Levitation instead of worn boots. Original booted case reaches FIRE_RES but earlier C297 takeoff wording mismatch blocks it as first cause; all originals retained. Source wizcmds.c wiz_polyself is ECMD_OK, wiz_intrinsic sets explicit timeout; four Levitation turns protect kk terrain setup/j return, then m. expires it on floor before throwing. Fire giant boulder range20 backs up at north wall to adjacent lava. This is a different source setup, not fixture editing; frozen before own C/JS comparison.",
+  "segments": [
+    {
+      "seed": 70104009,
+      "datetime": "20920418143700",
+      "nethackrc": "OPTIONS=name:V70TimedLava,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017blessed scroll of genocide\n                    #wizidentify\n.\n                    ra *\n                    #polyself\nfire giant\n                    #wizintrinsic\n4q\n                    kk\u0017lava\n                    j                    m.                    \u0017boulder\n                    tbk                    #attributes\n                    "
+    }
+  ]
+}

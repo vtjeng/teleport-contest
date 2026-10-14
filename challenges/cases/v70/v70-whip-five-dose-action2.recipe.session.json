@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-supported proficiency variation, frozen before own C/JS: C original six blessed gain-ability doses yield Dex16. Potion.c1040 loops each attribute for blessed potion; five doses target Dex15, with Archeologist bonus1 -> proficiency2. Keep original seed/clock/role; state/actions differ. Previous negative-ring probes used nonexistent ring name and do not establish Dex change. First scout confirms actual C stats and NPC location before directional action. C-only actual position continuation: Soldier71,8 vs hero70,9 is northeast u. First wielded-whip b lash should anger and allow source monmove.c weapon activation; second lash inspects actual MON_WEP. C observation alone determines reached outcome.",
+  "segments": [
+    {
+      "seed": 70104010,
+      "datetime": "20920418143700",
+      "nethackrc": "OPTIONS=name:v70whiparmedscout1,role:Archeologist,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u00175 blessed potions of gain ability\n                    qa                    qa                    qa                    qa                    qa                    \u0017uncursed bullwhip\n                    wb                    #wizgenesis\npeaceful soldier\n                    .                    #attributes\n                    i                    abu                    abu                    i                    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source/C-designed v70 next scout frozen during Root hold, before own gameplay comparison. Source use_whip disarm hero placement mission; first C scout establishes dexterity proficiency, actual weapon inventory, armed NPC position. No whip direction guessed before C map.",
+  "segments": [
+    {
+      "seed": 70104010,
+      "datetime": "20920418143700",
+      "nethackrc": "OPTIONS=name:v70whiparmedscout1,role:Archeologist,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u00176 blessed potions of gain ability\n                    qa                    qa                    qa                    qa                    qa                    qa                    \u0017uncursed bullwhip\n                    wb                    #wizgenesis\npeaceful soldier\n                    .                    #attributes\n                    i                    "
+    }
+  ]
+}

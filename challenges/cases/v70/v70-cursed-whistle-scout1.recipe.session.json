@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source/C-designed v70 next scout frozen during Root hold, before own gameplay comparison. Cursed source humming second rn2 gate with actual starting cat; eight ordinary whistle actions, not seed search. Prior v14 humming alone is matching and cannot prove second gate without saved C RNG.",
+  "segments": [
+    {
+      "seed": 70104008,
+      "datetime": "20920418143700",
+      "nethackrc": "OPTIONS=name:v70cursedwhistlescout1,role:Valkyrie,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:cat,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u0017cursed magic whistle\n                    aa                    aa                    aa                    aa                    aa                    aa                    aa                    aa                    #attributes\n                    "
+    }
+  ]
+}

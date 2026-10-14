@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed v70 C-only scout. Hidden eel must actually occupy pool and retain hidden state; cube must reach loose green glob without any container; inventory split must request count for five-item stack. C observations determine reached state, not comments.",
+  "segments": [
+    {
+      "seed": 70104007,
+      "datetime": "20920417142700",
+      "nethackrc": "OPTIONS=name:v70itemsplitscout1,role:Tourist,race:human,gender:male,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    \u00175 arrows\n                    miaI2 b                    i                    "
+    }
+  ]
+}

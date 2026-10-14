@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-based cheap use_whip proficiency variation, frozen before own C/JS. Original peaceful->angry Soldier disarm rn2(4)=1 placed weapon beneath NPC. Source apply.c2996 proficiency Archer1 + (DEX-14): six blessed gain-ability doses yield observed16, uncursed -1 Dexterity ring targets15/proficiency2, while direct hostile NPC gets actual weapon on first turn. Normal high level gives HP to survive; no random seed reroll. First scout establishes C stats and NPC/weapon before lashing. C/source correction: high-level hero actual Dex16 with -1 ring means base17; -2 ring should reach Dex15/proficiency2. C479 ordinary . is blocked by safe_wait; use documented m. force rest so hostile Soldier wields before lash. C458 actual Soldier71,10 vs hero70,9 is southeast n. Source proficient bonus is Archeologist (not Archer); original comment typo preserved with this correction.",
+  "segments": [
+    {
+      "seed": 70104010,
+      "datetime": "20920418143700",
+      "nethackrc": "OPTIONS=name:V70WhipProf2,role:Archeologist,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                    #levelchange\n20\n                    \u00176 blessed potions of gain ability\n                    qa                    qa                    qa                    qa                    qa                    qa                    \u0017uncursed -2 ring of gain dexterity\n                    Pbr                    \u0017uncursed bullwhip\n                    wc                    #wizgenesis\nhostile soldier\n                    m.                    #attributes\n                    i                    acn                    i                    "
+    }
+  ]
+}
