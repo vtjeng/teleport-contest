@@ -23,6 +23,7 @@ import {
 import { init_objects } from '../js/o_init.js';
 import { newObject, weight, bless } from '../js/obj.js';
 import { timeout_globals_init, start_timer, peek_timer } from '../js/timeout.js';
+import { GameDisplay } from '../js/game_display.js';
 
 function makeState() {
     const state = {
@@ -111,9 +112,13 @@ test('bless stops the transformation timer on a carried timed figurine', () => {
 });
 
 test('bless adjusts carried artifact light after the BUC mutation', async () => {
-    // mkobj.c saves arti_light_radius() before changing BUC, then emits the
-    // brightness message only after the new radius has been calculated.
+    // mkobj.c saves arti_light_radius() before changing BUC. Its production
+    // path uses pline() when the caller supplies no message callback.
     const state = makeState();
+    state.nhDisplay = new GameDisplay(null);
+    state.iflags = { cbreak: true };
+    state._pending_message = '';
+    state._ttyToplines = '';
     const armor = object(state, GOLD_DRAGON_SCALE_MAIL, {
         where: OBJ_INVENT,
         owornmask: W_ARM,
@@ -122,18 +127,10 @@ test('bless adjusts carried artifact light after the BUC mutation', async () => 
         dknown: true,
     });
     state.invent = armor;
-    const messages = [];
-    const pending = bless(armor, {
-        state,
-        message: async (text) => {
-            assert.equal(armor.blessed, true);
-            messages.push(text);
-        },
-    });
+    const pending = bless(armor, { state });
 
     assert.equal(typeof pending?.then, 'function');
     await pending;
     assert.equal(armor.cursed, false);
-    assert.equal(messages.length, 1);
-    assert.match(messages[0], /shines much brighter\.$/);
+    assert.match(state.nhDisplay.topMessage, /shines much brighter\.$/);
 });

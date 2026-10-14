@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Wield an observed Sunsword, then read a blessed light scroll. This independent variation reaches the artifact-light blessing/dip branch when the Sunsword does not resist.",
+  "segments": [
+    {
+      "seed": 58010407,
+      "datetime": "20640202131415",
+      "nethackrc": "OPTIONS=name:V58LightPrep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #levelchange\n20\n                    \u0017uncursed Sunsword\n                    \u0017blessed scroll of light\n                    i                    #wizmap\nwp                    rq                    i                    "
+    }
+  ]
+}
