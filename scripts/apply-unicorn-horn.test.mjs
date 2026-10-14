@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import { A_CON, DEAF, SICK, TIMEOUT } from '../js/const.js';
 import { use_unicorn_horn } from '../js/apply.js';
+import { shuffle_int_array } from '../js/rnd.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { UNICORN_HORN, TOOL_CLASS } from '../js/objects.js';
@@ -47,6 +48,49 @@ test('use_unicorn_horn routes existing Vomiting through eat.c:vomit', () => {
     assert.match(cCase, /if \(Vomiting\)\s+vomit\(\);/u);
     assert.match(jsCase,
         /if \(intrinsic\(VOMITING\)\)\s+await vomit\(state, \{ \.\.\.env, message \}\);/u);
+});
+
+test('shuffle_int_array follows rnd.c draw and swap order', () => {
+    const rndC = readFileSync(
+        new URL('../nethack-c/upstream/src/rnd.c', import.meta.url), 'utf8',
+    );
+    const start = rndC.indexOf('shuffle_int_array(int *indices, int count)');
+    const end = rndC.indexOf('\n}\n', start) + 2;
+    const cShuffle = rndC.slice(start, end);
+    assert.ok(start >= 0 && end > start);
+    assert.match(cShuffle, /for \(i = count - 1; i > 0; i--\)/u);
+    assert.match(cShuffle, /rn2\(i \+ 1\)\) == i/u);
+
+    // A zero draw swaps two timed troubles; the list order affects which one
+    // the blessed horn cures first in v64-multi-trouble-horn-action2.
+    const troubles = [1, 2];
+    const draws = [];
+    shuffle_int_array(troubles, troubles.length, (bound) => {
+        draws.push(bound);
+        return 0;
+    });
+    assert.deepEqual(draws, [2]);
+    assert.deepEqual(troubles, [2, 1]);
+
+    // A one-trouble list has no shuffle draw, matching C's i > 0 loop bound.
+    const singleTrouble = [1];
+    shuffle_int_array(singleTrouble, singleTrouble.length, () => {
+        assert.fail('one trouble must not call rn2');
+    });
+    assert.deepEqual(singleTrouble, [1]);
+});
+
+test('use_unicorn_horn shuffles multiple troubles before its cure-count roll', () => {
+    const cStart = APPLY_C.indexOf('use_unicorn_horn(struct obj **optr)');
+    const cEnd = APPLY_C.indexOf('\n}\n\n/*\n * Timer callback', cStart) + 2;
+    const cBody = APPLY_C.slice(cStart, cEnd);
+    const jsStart = APPLY_JS.indexOf('export async function use_unicorn_horn(');
+    const jsEnd = APPLY_JS.indexOf('\n}\n', jsStart) + 2;
+    const jsBody = APPLY_JS.slice(jsStart, jsEnd);
+    assert.match(cBody,
+        /trouble_count > 1\)\s*shuffle_int_array\(trouble_list, trouble_count\);[\s\S]*?val_limit = rn2/u);
+    assert.match(jsBody,
+        /troubles\.length > 1\)\s*shuffle_int_array\(troubles, troubles\.length, rn2\);\s*let valLimit/u);
 });
 
 test('doapply dispatches a cursed unicorn horn through use_unicorn_horn',
