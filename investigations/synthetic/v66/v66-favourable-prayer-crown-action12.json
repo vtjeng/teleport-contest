@@ -11,7 +11,7 @@
   "recipeSha256": "a30601309f465e14e9ca6230ccfce52c0b3f57ddb58b50693241710fd0d84ab2",
   "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v66.json",
   "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
-  "status": "complete",
+  "status": "partial",
   "commit": "2edfa5ee49f500dddade7a6cb6e5fb271b9291b1",
   "mismatch": {
     "corpus": "synthetic",
@@ -29,95 +29,46 @@
     "remainingScreens": 9,
     "recordedSteps": 1818,
     "metrics": {
-      "screens": {
-        "matched": 1809,
-        "total": 1818
-      },
-      "rng": {
-        "matched": 61686,
-        "total": 61695
-      },
-      "cursors": {
-        "matched": 1814,
-        "total": 1818
-      }
+      "screens": { "matched": 1809, "total": 1818 },
+      "rng": { "matched": 61686, "total": 61695 },
+      "cursors": { "matched": 1814, "total": 1818 }
     },
     "firstMismatch": {
-      "location": {
-        "segmentIndex": 0,
-        "stepIndex": 1523,
-        "key": " "
-      },
+      "location": { "segmentIndex": 0, "stepIndex": 1523, "key": " " },
       "kind": "ch",
       "row": 0,
       "column": 35,
-      "cCell": {
-        "ch": "-",
-        "color": 8,
-        "attr": 0,
-        "decgfx": 0
-      },
-      "jsCell": {
-        "ch": " ",
-        "color": 8,
-        "attr": 0,
-        "decgfx": 0
-      },
+      "cCell": { "ch": "-", "color": 8, "attr": 0, "decgfx": 0 },
+      "jsCell": { "ch": " ", "color": 8, "attr": 0, "decgfx": 0 },
       "sourceFile": "pray.c",
       "function": "pleased",
-      "line": 1193
+      "line": 1343
     }
   },
-  "summary": "The initial screen mismatch at step 1523 came from pray.c:pleased() reading the game-level wielded-object slot incorrectly in JS: C uses global uwep, represented by state.uwep, while the old JS branch looked at u.uwep and skipped the pat-on-the-head weapon reward. After correcting that mapping, the same admitted play reached the genuine pleased() action-7/8 crown branch at step 1746; implementing pray.c:gcrownu() then made the complete 1818-step segment match.",
+  "summary": "The fourth successful prayer reaches a PIOUS-or-better crown. At step 1519, #pray enters pray.c:pleased()'s action-7/8 branch and calls gcrownu(); JavaScript records note_unported('pray.c gcrownu') and stops matching at step 1523. The RNG mismatch later in the recording is downstream of the missing crown behavior.",
   "source": {
     "file": "pray.c",
-    "branch": "pleased() no-trouble high-alignment pat-on-the-head weapon reward, followed later by action 7/8 with PIOUS-or-better alignment record and no previous Hand of Elbereth crown",
-    "functions": [
-      "pleased",
-      "gcrownu"
-    ],
+    "branch": "pleased() pat-on-head action 7/8 with u.ualign.record >= PIOUS and no prior Hand of Elbereth crown",
+    "functions": [ "gcrownu" ],
     "dependencies": [
-      "The weapon reward reads the game-level C uwep global, represented by state.uwep in JavaScript; u.uwep is not the C owner.",
-      "gcrownu() reuses the existing JS source owners for deity messages, object creation and naming, blessing, dropping, artifact discovery, inventory refresh, and weapon-skill updates."
+      "pray.c:pleased() already routes this branch to a gap marker; the task must replace that marker with the complete gcrownu() behavior.",
+      "The crown's deity voice, artifact/book creation and gifting, weapon-skill updates, inventory update, and prayer timeout helpers must be reused from their existing source owners or explicitly recorded as unported when the C call's return is discarded."
     ],
     "callers": [
-      "js/cmd.js dispatches #pray to js/pray.js:dopray(); pray.c:prayer_done() invokes pleased() after a successful prayer.",
-      "pray.c:pleased() invokes gcrownu() for action 7/8 when alignment record is at least PIOUS and the hero has not already received a Hand of Elbereth."
+      "js/pray.js:pleased -> pray.c:pleased case 7/8 -> pray.c:gcrownu",
+      "js/pray.js:dopray -> js/pray.js:pleased"
     ],
     "relevantSource": {
-      "caller": "pray.c:pleased() lines 1071-1381. At the initial mismatch, no trouble and high alignment set pat_on_head; the recorded rn2(9)=1 selects the weapon reward in case 1.",
-      "helper": "pray.c:gcrownu() lines 805-996 grants the alignment-specific Hand of Elbereth, messages or spellbook/artifact gift, eligible weapon enhancement, inventory refresh, and an extra weapon-skill credit.",
-      "js": "js/pray.js:pleased() now uses state.uwep for the pat-on-the-head weapon reward and calls the ported gcrownu() from the eligible case 7/8 branch."
+      "caller": "pray.c:pleased() action cases 7 and 8 call gcrownu() when alignment record is at least PIOUS and uhand_of_elbereth is false.",
+      "helper": "pray.c:gcrownu() at lines 805-995 grants alignment-specific Hand of Elbereth status, deity messages, eligible class spellbook or artifact gifts, weapon enhancement, inventory refresh, and an extra weapon-skill slot.",
+      "js": "js/pray.js:pleased() reaches the same record/crown guard but calls note_unported('pray.c gcrownu') instead of performing the source behavior."
     }
   },
   "evidence": [
-    "The admitted baseline is unchanged: recording SHA b7110997075e6b608967a17e7700f6859da935e09183c98662928935ff0bbd2c, with 1809/1818 screens, 61686/61695 RNG calls, and 1814/1818 cursors matched.",
-    "The first mismatch at segment 0, step 1523 is a screen and cursor boundary: C displays the --More-- prompt before the pat-on-the-head weapon message; the original JS used u.uwep, which was undefined, so it skipped the wielded-weapon reward.",
-    "The initial crown explanation at step 1523 was counter-evidence, not the cause: the recorded rn2(9)=1 belongs to pleased() pat_on_head, and C action 7/8 plus gcrownu() is reached later. Once the wielded-slot read was corrected, replay advanced to a new first mismatch at step 1746 with the actual unported gcrownu() marker.",
-    "After porting gcrownu() and correcting pleased() to state.uwep, bounded replay run-FnXgIQ matched all 1818 recorded steps, including screens, cursors, RNG calls, and input boundary; it reported no refusal or unported markers. The admitted recording and recipe were not changed.",
-    "Focused prayer tests passed 68/68 in bounded run-pOUUc5; npm run lint passed in bounded run-8WPejo."
+    "The accepted v66 baseline identifies recording SHA b7110997075e6b608967a17e7700f6859da935e09183c98662928935ff0bbd2c and reports 1809/1818 screens, 61686/61695 RNG calls, and 1814/1818 cursors matched.",
+    "Fresh bounded replay from worker HEAD 2edfa5ee49f500dddade7a6cb6e5fb271b9291b1 reaches all 1818 steps and reproduces the first screen mismatch at step 1523 after the #pray command at step 1519. C writes a glyph at row 0 column 35; JS leaves that cell blank.",
+    "The replay records unported marker 'pray.c gcrownu'. C's pleased() action-7/8 guard calls gcrownu() for a PIOUS-or-better hero who has not been crowned; JS's corresponding branch records the marker and falls through without the crown effects.",
+    "The later RNG divergence at step 1746 is downstream of the crown branch and is not attributed as the first cause."
   ],
-  "goalKind": "divergence-fix",
-  "implementationResult": {
-    "replayCommand": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v66/v66-favourable-prayer-crown-action12",
-    "replayRun": "run-FnXgIQ",
-    "matchedSteps": 1818,
-    "recordedSteps": 1818,
-    "firstMismatch": null,
-    "commandRefusal": false,
-    "unported": [],
-    "checks": [
-      {
-        "command": "node --test scripts/pray.test.mjs scripts/pray-give-spell.test.mjs",
-        "run": "run-pOUUc5",
-        "result": "68 passed, 0 failed"
-      },
-      {
-        "command": "npm run lint",
-        "run": "run-8WPejo",
-        "result": "passed"
-      }
-    ],
-    "diagnostic": "Source and JS runtime tracing established the branch order and owner; no instrumented C capture was necessary. Temporary JS trace statements were removed before final replay."
-  }
+  "goalKind": "divergence-fix"
 }
