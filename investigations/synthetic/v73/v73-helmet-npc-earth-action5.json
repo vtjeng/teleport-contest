@@ -13,6 +13,8 @@
   "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
   "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
   "status": "complete",
+  "remainingScreens": 632,
+  "recordedSteps": 632,
   "commit": "bedab330ee245f3cf1d00c2e6c4dc8e954350654",
   "mismatch": {
     "corpus": "synthetic",
