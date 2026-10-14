@@ -38,3 +38,11 @@ test('apply.c do_break_wand sends adjacent monsters hit by WAN_TELEPORTATION thr
         '../challenges/cases/v55/v55-broken-teleport-wand-ogre-action3.session.json',
     );
 });
+
+// This admitted v64 case checks the same adjacent-monster callback for a
+// broken speed wand, whose bhitm arm performs the resistance draw.
+test('apply.c do_break_wand sends adjacent monsters hit by WAN_SPEED_MONSTER through bhitm', async () => {
+    await assertSessionMatches(
+        '../challenges/cases/v64/v64-broken-speed-wand-action3.session.json',
+    );
+});
