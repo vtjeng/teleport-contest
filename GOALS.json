@@ -314384,6 +314384,96 @@
           }
         ]
       }
+    },
+    {
+      "id": "A2-fix-v73-vanquished-quit-stopprint-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement list_vanquished from insight.c",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v73/v73-quit-vanquished-q-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v73-quit-vanquished-q-action6-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "list_vanquished",
+      "session": "synthetic/v73/v73-quit-vanquished-q-action6"
+    },
+    {
+      "id": "A2-fix-v73-archon-gazemm-ad-blnd-import-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement gazemm from mhitm.c",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "synthetic/v73/v73-archon-monster-gaze-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v73-archon-monster-gaze-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "gazemm",
+      "session": "synthetic/v73/v73-archon-monster-gaze-scout1"
+    },
+    {
+      "id": "pager-trapped-monster-description-v73",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement look_at_monster from pager.c",
+      "cFile": "pager.c",
+      "sessions": [
+        "synthetic/v73/v73-nonsteed-bear-farlook-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v73-nonsteed-bear-farlook-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "look_at_monster",
+      "session": "synthetic/v73/v73-nonsteed-bear-farlook-action2"
+    },
+    {
+      "id": "fix-v73-mounted-floor-gold-y-monnam-import-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement stealgold from steal.c",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v73/v73-mounted-floor-gold-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v73-mounted-floor-gold-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "stealgold",
+      "session": "synthetic/v73/v73-mounted-floor-gold-action4"
+    },
+    {
+      "id": "uhitm-nurse-sick-clear-v73",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement mhitm_ad_heal from uhitm.c",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v73/v73-sick-nurse-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v73-sick-nurse-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mhitm_ad_heal",
+      "session": "synthetic/v73/v73-sick-nurse-scout1"
     }
   ]
 }
