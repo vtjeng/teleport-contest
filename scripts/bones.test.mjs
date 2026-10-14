@@ -57,6 +57,27 @@ test('bones restoration completes shop catch-up before mklev returns', async () 
     assert.match(jsMklev, /ok = await loadBones\(state\);/u);
 });
 
+test('drop_upon_death awaits container insertion before updating container weight', async () => {
+    const cBones = await readFile(
+        new URL('../nethack-c/upstream/src/bones.c', import.meta.url), 'utf8',
+    );
+    const jsBones = await readFile(
+        new URL('../js/bones.js', import.meta.url), 'utf8',
+    );
+    const cStart = cBones.indexOf('\ndrop_upon_death(');
+    const cEnd = cBones.indexOf('\nstaticfn boolean\nfixuporacle', cStart);
+    const jsStart = jsBones.indexOf('export async function drop_upon_death(');
+    const jsEnd = jsBones.indexOf('\nexport ', jsStart + 1);
+    assert.ok(cStart >= 0 && cEnd > cStart, 'C drop_upon_death definition is present');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JavaScript drop_upon_death definition is present');
+    const cFunction = cBones.slice(cStart, cEnd);
+    const jsFunction = jsBones.slice(jsStart, jsEnd);
+    assert.match(cFunction,
+        /else if \(cont\)\s*\(void\) add_to_container\(cont, otmp\);[\s\S]*?cont->owt = weight\(cont\);/u);
+    assert.match(jsFunction,
+        /else if \(cont\)\s*\{\s*await add_to_container\(cont, otmp\);\s*\}[\s\S]*?if \(cont\) cont\.owt = weight\(cont/u);
+});
+
 test('ghostly restoration recomputes monster attitude for the new hero', () => {
     // restore.c:getlev() resets peacefulness after loading a bones level. A
     // dwarf that was peaceful for a lawful dead hero is hostile to this
