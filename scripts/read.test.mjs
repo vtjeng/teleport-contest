@@ -67,6 +67,24 @@ const JS_LIGHT = readFileSync(
     new URL('../js/light.js', import.meta.url), 'utf8',
 );
 
+test('create_particular hides eels only on pool terrain', () => {
+    const cStart = READ_C.indexOf('staticfn boolean\ncreate_particular_creation(');
+    const cEnd = READ_C.indexOf('\n/*\n * Make a new monster with the type controlled by the user.', cStart);
+    const jsStart = JS_READ.indexOf('async function create_particular_creation(');
+    const jsEnd = JS_READ.indexOf('// C ref: read.c create_particular()', jsStart);
+    const cFunction = READ_C.slice(cStart, cEnd);
+    const jsFunction = JS_READ.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart, 'C create_particular_creation exists');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JS create_particular_creation exists');
+    assert.match(cFunction,
+        /d->hidden\s*&&\s*\(\(is_hider\(mtmp->data\).*?mtmp->data->mlet == S_EEL && is_pool\(mx, my\)\)\)/su);
+    assert.match(jsFunction,
+        /d\.hidden\s*&&\s*\(\(is_hider\(mtmp\.data\).*?mtmp\.data\.mlet === S_EEL && is_pool\(mx, my, state\)\)\)/su);
+    assert.match(JS_READ,
+        /import \{ is_pool \} from '\.\/dbridge\.js';/u);
+});
+
 test('read.c set_lit delegates burning-source checks to obj_is_burning', () => {
     const cSetLitStart = READ_C.indexOf('set_lit(coordxy x, coordxy y, genericptr_t val)');
     const cSetLitEnd = READ_C.indexOf('\n}\n', cSetLitStart);

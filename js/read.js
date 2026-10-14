@@ -107,6 +107,7 @@ import {
     plur,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { is_pool } from './dbridge.js';
 import {
     PM_SAMURAI,
     PM_NINJA,
