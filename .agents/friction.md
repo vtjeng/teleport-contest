@@ -921,3 +921,31 @@ triage decisions or fix references.
 - The helper reported that an earlier artifact search exceeded its requested
   recipe scope and emitted a larger case payload. It stopped the search and made
   no edits, recordings or replays. Later help used only the assigned source scope.
+
+### 2026-10-14 — coordinator records after group registration
+
+- Root added a required friction record after the three-source group was already
+  registered. The integration helper rejected retrying at that descendant; a
+  direct registration also rejected the occupied slot. An attempted bounded
+  Node heredoc did not forward stdin and performed no registration. Root saved
+  the command in a cache file, released the old registration, then reran the
+  supported integration helper at the exact hosted candidate. Preflight passed;
+  the same hosted checkpoint was imported and accepted, without a duplicate run.
+
+### 2026-10-14 — source-ready repair handoff and prayer packaging
+
+- A's ordinary shop repair matches the admitted v67 case, while independent
+  scatter and catch-up recipes hit earlier getpos or priest movement differences.
+  Root reread the existing worker rule allowing verified functions plus explicit
+  incomplete functions and committed blocked recipes. A submitted those blockers
+  instead of claiming complete runtime coverage. The first submission exposed
+  required caller units needing their own blocker records; A added them.
+- C's prayer investigation initially attributed the first mismatch to crowning.
+  The trace instead identified the ordinary reward's wielded-weapon state slot;
+  fixing it reached the later genuine crown branch. The complete case then
+  matched. C preserved the failed explanation as counter-evidence and corrected
+  the report schema, reward-switch wording and delivery base so its separate
+  diagnosis commit is included.
+- The next group again hit a missing-base investigation conflict at the prayer
+  implementation commit. Root restored that exact worker report snapshot and
+  continued the cherry-pick; source code needed no merge edits.
