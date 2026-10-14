@@ -90,6 +90,7 @@ import {
     engulfing_u,
     Upolyd,
     u_at,
+    is_xport,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -728,17 +729,19 @@ export async function mlevel_tele_trap(
     const { random, state } = env;
     const trapType = trap?.ttyp ?? NO_TRAP;
     const portal = trapType === MAGIC_PORTAL;
+    const levelTeleporter = trapType === LEVEL_TELEP;
     if (monster === state.u?.ustuck) return 'finished';
     if (monster === state.u?.usteed) return 'finished';
     if (!await teleport_pet(monster, forceIt, env)) return 'finished';
-    if (!portal && trapType !== HOLE && trapType !== TRAPDOOR) {
+    if (!portal && !levelTeleporter
+        && trapType !== HOLE && trapType !== TRAPDOOR) {
         throw new UnsupportedPositionCheckError(
             'non-hole monster level teleportation',
         );
     }
-    if (!trap.dst
+    if (!levelTeleporter && (!trap.dst
         || !Number.isInteger(trap.dst.dnum)
-        || !Number.isInteger(trap.dst.dlevel)) {
+        || !Number.isInteger(trap.dst.dlevel))) {
         throw new TypeError(
             'monster level teleport requires a destination level',
         );
@@ -765,7 +768,7 @@ export async function mlevel_tele_trap(
     // trap.c passes the clamped destination by value to migrate_to_level();
     // never rewrite trap->dst because the trap remains in the source level's
     // data until that level is saved.
-    const destination = { ...trap.dst };
+    let destination = levelTeleporter ? null : { ...trap.dst };
     let migrationType = MIGR_RANDOM;
     if (portal) {
         // teleport.c:2034-2044. A monster carrying the Amulet, a home
@@ -788,7 +791,39 @@ export async function mlevel_tele_trap(
             return 'finished';
         }
         migrationType = MIGR_PORTAL;
-    } else if (state.stronghold_level
+    } else if (levelTeleporter) {
+        // teleport.c:2048-2072. A level teleporter chooses a destination
+        // independently of trap->dst. Amulet carriers and monsters in the
+        // endgame stop before random_teleport_level() is called.
+        if (mon_has_amulet(monster) || inEndgame(state)) {
+            if (inSight) {
+                await message(messageAt(
+                    `${capitalizedMonsterName(monster, state)} `
+                        + 'seems very disoriented for a moment.',
+                    monster.mx,
+                    monster.my,
+                    state,
+                ), state);
+            }
+            return 'finished';
+        }
+        const newLevel = random_teleport_level(state, { random });
+        if (newLevel === depth(state.u.uz, state)) {
+            if (inSight) {
+                await message(messageAt(
+                    `${capitalizedMonsterName(monster, state)} `
+                        + 'shudders for a moment.',
+                    monster.mx,
+                    monster.my,
+                    state,
+                ), state);
+            }
+            return 'finished';
+        }
+        destination = {};
+        get_level(destination, newLevel, state);
+    } else if ((trapType === HOLE || trapType === TRAPDOOR)
+        && state.stronghold_level
         && on_level(state.u?.uz, state.stronghold_level)) {
         destination.dnum = state.valley_level?.dnum;
         destination.dlevel = state.valley_level?.dlevel;
@@ -819,7 +854,7 @@ export async function mlevel_tele_trap(
     }
     if (inSight) {
         await message(messageAt(
-            portal
+            portal || levelTeleporter
                 ? `Suddenly, ${mon_nam(monster, state)} disappears out of sight.`
                 : `Suddenly, ${monsterCommonName(monster, state)} `
                     + `${trapType === HOLE
@@ -831,7 +866,8 @@ export async function mlevel_tele_trap(
         ), state);
         seeTrap(trap, env);
     }
-    if (portal && !control_teleport(monster.data)) monster.mconf = 1;
+    if (is_xport(trapType) && !control_teleport(monster.data))
+        monster.mconf = 1;
     await migrateToLevel(
         monster,
         ledger_no(destination, state),
@@ -2084,11 +2120,15 @@ export function cAtoi(text) {
 // the single-level-branch early return, and the endgame early return all hand
 // back cur_depth, which makes the caller's same-level shudder check fire
 // whenever no other level is reachable.
-export function random_teleport_level(state = game) {
+export function random_teleport_level(
+    state = game,
+    rawEnv = {},
+) {
+    const random = rawEnv.random ?? { rn2, rnd };
     const cur_depth = depth(state.u.uz, state);
 
     /* [the endgame case can only occur in wizard mode] */
-    if (!rn2(5) || single_level_branch(state.u.uz, state)
+    if (!random.rn2(5) || single_level_branch(state.u.uz, state)
         || inEndgame(state)) {
         return cur_depth;
     }
@@ -2115,19 +2155,19 @@ export function random_teleport_level(state = game) {
 
     /* Get a random value relative to the current dungeon */
     /* Range is 1 to current+3, current not counting */
-    let nlev = rn2(cur_depth + 3 - min_depth) + min_depth;
+    let nlev = random.rn2(cur_depth + 3 - min_depth) + min_depth;
     if (nlev >= cur_depth) nlev++;
 
     if (nlev > max_depth) {
         nlev = max_depth;
         /* teleport up if already on bottom */
         if (Is_botlevel(state.u.uz))
-            nlev -= rnd(3);
+            nlev -= random.rnd(3);
     }
     if (nlev < min_depth) {
         nlev = min_depth;
         if (nlev === cur_depth) {
-            nlev += rnd(3);
+            nlev += random.rnd(3);
             if (nlev > max_depth)
                 nlev = max_depth;
         }

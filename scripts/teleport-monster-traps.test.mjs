@@ -5,6 +5,7 @@ import {
     BOLT_LIM,
     COLNO,
     HOLE,
+    LEVEL_TELEP,
     MAGIC_PORTAL,
     MIGR_PORTAL,
     MIGR_RANDOM,
@@ -315,6 +316,59 @@ test('mlevel_tele_trap hands an ordinary hole to dog.c migration',
         assert.equal(game.level.monsters[old.x][old.y], null);
         assert.equal(trap.tseen, true);
         assert.match(messages.at(-1), / falls into a hole\.$/u);
+    });
+
+test('mlevel_tele_trap chooses and migrates from a level teleporter',
+    async () => {
+        const monster = await initializedMonster(
+            982440,
+            'LevelTeleMigration',
+        );
+        useJackalSpecies(monster);
+        const old = { x: monster.mx, y: monster.my };
+        const sourceLevel = { ...game.u.uz };
+        const trap = {
+            tseen: false,
+            ttyp: LEVEL_TELEP,
+            tx: old.x,
+            ty: old.y,
+        };
+        const messages = [];
+        const env = portalEnv(messages, [1, 0]);
+
+        // The level teleporter ignores trap.dst. These injected values take
+        // the non-shudder branch and choose the next main-dungeon level.
+        const result = await mlevel_tele_trap(
+            monster,
+            trap,
+            false,
+            true,
+            {
+                ...env,
+                migrateToLevel: migrate_to_level,
+            },
+        );
+
+        assert.equal(result, 'moved');
+        assert.deepEqual(env.bounds, [5, 3]);
+        assert.equal(game.gm.migrating_mons, monster);
+        assert.equal(monster.mstate & MON_MIGRATING, MON_MIGRATING);
+        assert.deepEqual([monster.mx, monster.my], [0, 0]);
+        assert.deepEqual([monster.mux, monster.muy], [
+            sourceLevel.dnum,
+            2,
+        ]);
+        assert.deepEqual(monster.mtrack.slice(0, 2), [
+            { x: MIGR_RANDOM, y: 0 },
+            old,
+        ]);
+        assert.equal(game.level.monsters[old.x][old.y], null);
+        assert.equal(monster.mconf, 1,
+                     'C confuses monsters without teleport control');
+        assert.equal(trap.tseen, true);
+        assert.deepEqual(messages, [
+            'Suddenly, the jackal disappears out of sight.',
+        ]);
     });
 
 test('the selector sends an ordinary monster through a magic portal',
