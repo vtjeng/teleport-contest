@@ -67,6 +67,24 @@ import {
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
 const JS_SOURCE = readFileSync('js/polyself.js', 'utf8');
 
+test('polymon imports and calls the source poly_when_stoned predicate', () => {
+    const cStart = C_SOURCE.indexOf('polymon(int mntmp)');
+    const cEnd = C_SOURCE.indexOf('\n}\n', cStart);
+    const jsStart = JS_SOURCE.indexOf('export async function polymon(');
+    const jsEnd = JS_SOURCE.indexOf('\n}', jsStart);
+    const cFunction = C_SOURCE.slice(cStart, cEnd);
+    const jsFunction = JS_SOURCE.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart, 'C polymon source range exists');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JS polymon source range exists');
+    assert.match(cFunction,
+        /if \(Stoned && poly_when_stoned\(&mons\[mntmp\]\)\)\s*\{\s*\/\* poly_when_stoned already checked stone golem genocide \*\//u);
+    assert.match(jsFunction,
+        /if \(u\.uprops\[STONED\]\.intrinsic\s*&& poly_when_stoned\(mdat, state\)\)\s*\{[\s\S]{0,100}mntmp = M\.PM_STONE_GOLEM;/u);
+    assert.match(JS_SOURCE,
+        /import \{[^}]*\bpoly_when_stoned\b[^}]*\} from '\.\/mondata\.js';/su);
+});
+
 test('break_armor imports and applies the source is_flimsy predicate for horns', () => {
     const cStart = C_SOURCE.indexOf('break_armor(void)');
     const cEnd = C_SOURCE.indexOf('\nstaticfn void\ndrop_weapon', cStart);
