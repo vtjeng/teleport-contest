@@ -98,7 +98,7 @@
     "Focused prayer tests passed 68/68 in bounded run-pOUUc5; npm run lint passed in bounded run-8WPejo."
   ],
   "goalKind": "divergence-fix",
-  "resolution": {
+  "implementationResult": {
     "replayCommand": "node scripts/run-bounded.mjs focused -- node scripts/scan-sessions.mjs --json --synthetic v66/v66-favourable-prayer-crown-action12",
     "replayRun": "run-FnXgIQ",
     "matchedSteps": 1818,
