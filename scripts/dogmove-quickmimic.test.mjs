@@ -10,8 +10,10 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     MMOVE_MOVED,
+    OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
+    OBJ_MINVENT,
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
@@ -33,7 +35,7 @@ import {
     GLYPH_PET_FEM_OFF,
     GLYPH_PET_MALE_OFF,
 } from '../js/glyph_offsets.js';
-import { m_consume_obj } from '../js/mon.js';
+import { m_consume_obj, meatbox } from '../js/mon.js';
 import { place_monster } from '../js/monst.js';
 import {
     MZ_GIGANTIC,
@@ -47,6 +49,7 @@ import {
     PM_LITTLE_DOG,
     PM_NEWT,
     PM_NURSE,
+    PM_GELATINOUS_CUBE,
     PM_SMALL_MIMIC,
     PM_STALKER,
     PM_WRAITH,
@@ -65,6 +68,7 @@ import {
     LEASH,
     objects_globals_init,
     TOOL_CLASS,
+    SACK,
     TRIPE_RATION,
     WEAPON_CLASS,
 } from '../js/objects.js';
@@ -236,6 +240,39 @@ function eatingEnv(state, messages = [], redraws = []) {
         waitMap: async () => {},
     };
 }
+
+test('meatbox transfers a gelatinous cube’s container contents to its inventory',
+    async () => {
+        const { monster, state } = quickState(false);
+        // C meatbox compares the monster data pointer with mons[PM_GELATINOUS_CUBE].
+        monster.data = state.mons[PM_GELATINOUS_CUBE];
+        const sack = newObject({
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: state.objects[SACK].oc_weight,
+            quan: 1,
+        });
+        const ration = newObject({
+            oclass: FOOD_CLASS,
+            otyp: TRIPE_RATION,
+            owt: state.objects[TRIPE_RATION].oc_weight,
+            quan: 1,
+            where: OBJ_CONTAINED,
+            ocontainer: sack,
+        });
+        sack.cobj = ration;
+
+        await meatbox(monster, sack, { state });
+
+        assert.equal(sack.cobj, null,
+            'C meatbox extracts each child before mpickobj');
+        assert.equal(ration.ocarry, monster,
+            'C obj_extract_self and mpickobj replace the container owner');
+        assert.equal(ration.where, OBJ_MINVENT,
+            'C mpickobj transfers the child into monster inventory');
+        assert.equal(monster.minvent, ration,
+            'the gelatinous cube receives the sack contents');
+    });
 
 test('dog_nutrition scales a whole mimic corpse for every pet size', () => {
     const { monster, state } = quickState(false);
