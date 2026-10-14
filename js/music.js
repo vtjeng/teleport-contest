@@ -9,7 +9,7 @@ import {
     HALF_PHDAM, HALLUC, HALLUC_RES, IS_DRAWBRIDGE,
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
-    SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT,
+    SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG,
     UNCHANGING, has_mgivenname, is_pit, plur, u_at,
 } from './const.js';
 import { isok } from './cmd_isok.js';
@@ -34,7 +34,7 @@ import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
 import { Amonnam, a_monnam, Monnam, mon_nam, x_monnam } from './do_name.js';
 import { tamedog } from './dog.js';
 import { m_at } from './monst.js';
-import { seemimic, wakeup } from './mon.js';
+import { seemimic, wakeup, xkilled } from './mon.js';
 import { discover_object } from './o_init.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
 import {
@@ -254,9 +254,8 @@ export function musicMaybeHalfPhys(damage, state) {
         ? Math.trunc((damage + 1) / 2) : damage;
 }
 
-// C ref: music.c do_pit() (221-338). This file owns the earthquake pit call
-// path; discarded floor/touch/kill effects remain named gaps at their C call
-// sites until those source units are ported.
+// C ref: music.c do_pit() (221-338). Discarded floor/touch effects remain
+// named gaps at their C call sites until those source units are ported.
 export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
     const random = env.random ?? musicRandom;
@@ -318,7 +317,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
                             : mon_nam(mtmp, state, env);
                         await message(`You destroy ${name}!`, state);
                     }
-                    note_unported('mon.c xkilled');
+                    await xkilled(mtmp, XKILL_NOMSG, state, env);
                 }
             }
         }
