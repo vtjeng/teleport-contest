@@ -3081,7 +3081,13 @@ function* apply_newcham_steps(
             object = next;
         }
     }
-    if (monster === state.u?.usteed) note_unported('steed.c poly_steed');
+    if (monster === state.u?.usteed) {
+        // C mon.c:newcham() calls poly_steed() after armor breakage and waits
+        // for its dismount or saddle-adjustment effects before continuing.
+        yield import('./steed.js').then(({ poly_steed }) => poly_steed(
+            monster, olddata, state, normalized,
+        ));
+    }
 
     if (state.context?.mon_moving) {
         if (!u_at(monster.mux, monster.muy)) set_apparxy(monster, normalized);

@@ -9,6 +9,7 @@ import {
     A_DEX,
     A_WIS,
     ARTICLE_A,
+    ARTICLE_YOUR,
     BLINDED,
     BOTH_SIDES,
     CONFUSION,
@@ -54,6 +55,7 @@ import {
     SUPPRESS_HALLUCINATION,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
+    SUPPRESS_SADDLE,
     TELEDS_ALLOW_DRAG,
     TELEPAT,
     TEST_MOVE,
@@ -345,6 +347,26 @@ export function can_ride(mtmp, state = game) {
     return Boolean(mtmp.mtame) && humanoid(you)
         && !verysmall(you) && !bigmonst(you)
         && (!state.u.uinwater || is_swimmer(mtmp.data));
+}
+
+// C ref: steed.c poly_steed() (852-877). newcham() calls this after the
+// changed steed has completed mon_break_armor().
+export async function poly_steed(steed, oldshape, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    if (!can_saddle(steed) || !can_ride(steed, state)) {
+        await dismount_steed(DISMOUNT_FELL, state, env);
+        return;
+    }
+
+    let name = x_monnam(
+        steed, ARTICLE_YOUR, null, SUPPRESS_SADDLE, false, state, env,
+    );
+    if (oldshape !== steed.data)
+        name = name.replace('your ', 'your new ');
+    await (env.message ?? ttyPline)(
+        `You adjust yourself in the saddle on ${name}.`, state,
+    );
+    steed_vs_stealth(state);
 }
 
 // C ref: steed.c use_saddle() (36-139). doapply() consumes ECMD_CANCEL,
