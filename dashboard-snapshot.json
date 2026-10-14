@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T16:13:32.574Z",
+  "capturedAt": "2026-10-14T17:20:47.006Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -121002,6 +121002,792 @@
         "at": "2026-10-14T16:09:17.083Z",
         "worker": "C",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v66-alphabetical-discoveries-action2-20261014-b4eee962c6f4b40f314f85e3581aae9653832e01",
+        "type": "published",
+        "at": "2026-10-14T16:13:53.315Z",
+        "task": "C-investigation-v66-alphabetical-discoveries-action2-20261014",
+        "commit": "b4eee962c6f4b40f314f85e3581aae9653832e01"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v65-astral-priest-hostility-action3-20261014-b4eee962c6f4b40f314f85e3581aae9653832e01",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T16:13:58.448Z",
+        "task": "A2-investigation-v65-astral-priest-hostility-action3-20261014",
+        "commit": "b4eee962c6f4b40f314f85e3581aae9653832e01",
+        "knownBy": "2026-10-14T16:13:53.315Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a3ce4c57482dcb6af8f4e16b48510cdc573beb55",
+        "type": "ready",
+        "at": "2026-10-14T16:14:10.331Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "delivery": "a3ce4c57482dcb6af8f4e16b48510cdc573beb55"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v66-swallowed-nurse-cure-action7-20261014",
+        "type": "implement",
+        "at": "2026-10-14T16:14:46.966Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "goal": "fix-engulfer-digests-nurse-blindness-v66-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v65-samurai-home-action3-20261014",
+        "type": "assign",
+        "at": "2026-10-14T16:14:54.666Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v65-samurai-home-20261014T1624Z",
+        "type": "turn",
+        "at": "2026-10-14T16:15:03.504Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-sam-strt-20261014",
+        "type": "implement",
+        "at": "2026-10-14T16:18:33.908Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "goal": "port-sam-strt-lua-v65-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e42506a6a6ce1d0943d7839bd7b147bd1ccbb429",
+        "type": "ready",
+        "at": "2026-10-14T16:23:09.524Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "delivery": "e42506a6a6ce1d0943d7839bd7b147bd1ccbb429"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-203bab1b2f448b21cccdf6f2a37020bc4af7f279",
+        "type": "ready",
+        "at": "2026-10-14T16:23:15.585Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "delivery": "203bab1b2f448b21cccdf6f2a37020bc4af7f279"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T16:24:17.110Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v67-angry-shop-continuation-20261014",
+        "type": "assign",
+        "at": "2026-10-14T16:24:54.273Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep33-reduced-draft-review-20261014",
+        "type": "activity",
+        "at": "2026-10-14T16:27:23.898Z",
+        "task": "Prep33",
+        "phase": "review",
+        "reason": "Reviewing the 16 planned v69 routes, current recordings, distinct first failures, and matching-control coverage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep33-reduced-packaging-approved-20261014",
+        "type": "activity",
+        "at": "2026-10-14T16:27:27.435Z",
+        "task": "Prep33",
+        "phase": "done",
+        "reason": "Approved reduced v69 packaging: 12 cases, four distinct failures and eight controls, after 33 current first recordings and 13 replay rows. Preserve 16 plans and unavailable historical attempts; lost proof does not count."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d4a3a9b17f84987c41797763f32205b1772969b5",
+        "type": "ready",
+        "at": "2026-10-14T16:29:23.020Z",
+        "task": "Prep33",
+        "delivery": "d4a3a9b17f84987c41797763f32205b1772969b5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v65-sokoban-throwit-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T16:29:44.225Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v65-thrown-boulder-place-20261014",
+        "type": "implement",
+        "at": "2026-10-14T16:30:23.693Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "goal": "fix-thrown-boulder-placement-v65-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a3ce4c57482dcb6af8f4e16b48510cdc573beb55-20261014",
+        "type": "received",
+        "at": "2026-10-14T16:32:09.643Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "delivery": "a3ce4c57482dcb6af8f4e16b48510cdc573beb55"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-e42506a6a6ce1d0943d7839bd7b147bd1ccbb429-20261014",
+        "type": "received",
+        "at": "2026-10-14T16:32:12.968Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "delivery": "e42506a6a6ce1d0943d7839bd7b147bd1ccbb429"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-203bab1b2f448b21cccdf6f2a37020bc4af7f279-20261014",
+        "type": "received",
+        "at": "2026-10-14T16:32:16.056Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "delivery": "203bab1b2f448b21cccdf6f2a37020bc4af7f279"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-d4a3a9b17f84987c41797763f32205b1772969b5-20261014",
+        "type": "received",
+        "at": "2026-10-14T16:32:19.130Z",
+        "task": "Prep33",
+        "delivery": "d4a3a9b17f84987c41797763f32205b1772969b5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep34-v70-20261014",
+        "type": "assign",
+        "at": "2026-10-14T16:32:40.081Z",
+        "task": "Prep34",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v70"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8475c19ab61b35c07bf7eb2a2ada25f3b70d9773",
+        "type": "ready",
+        "at": "2026-10-14T16:35:57.276Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "delivery": "8475c19ab61b35c07bf7eb2a2ada25f3b70d9773"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v66-protected-bell-drop-action6-20261014",
+        "type": "assign",
+        "at": "2026-10-14T16:37:06.497Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v66-protected-bell-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T16:37:14.741Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-db36ea92ca69caf04950fa5a5fa536cf6b0ac5af-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-A2-investigation-v65-spell-practice-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T16:40:37.976Z",
+        "task": "A2-investigation-v65-spell-practice-action2-20261014",
+        "integration": "db36ea92ca69caf04950fa5a5fa536cf6b0ac5af",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-db36ea92ca69caf04950fa5a5fa536cf6b0ac5af-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T16:40:37.976Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "integration": "db36ea92ca69caf04950fa5a5fa536cf6b0ac5af",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-db36ea92ca69caf04950fa5a5fa536cf6b0ac5af-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-C-investigation-v58-artifact-light-buc-action2-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T16:40:37.976Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "integration": "db36ea92ca69caf04950fa5a5fa536cf6b0ac5af",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-db36ea92ca69caf04950fa5a5fa536cf6b0ac5af-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T16:40:37.976Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "integration": "db36ea92ca69caf04950fa5a5fa536cf6b0ac5af",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-db36ea92ca69caf04950fa5a5fa536cf6b0ac5af-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T16:40:37.976Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "integration": "db36ea92ca69caf04950fa5a5fa536cf6b0ac5af",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-db36ea92ca69caf04950fa5a5fa536cf6b0ac5af-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-B-investigation-v65-samurai-home-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T16:40:37.976Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "integration": "db36ea92ca69caf04950fa5a5fa536cf6b0ac5af",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v66-protected-bell-drop-20261014",
+        "type": "implement",
+        "at": "2026-10-14T16:44:29.434Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "goal": "fix-protected-object-drop-genocide-v66-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v67-shop-hot-pursuit-20261014",
+        "type": "implement",
+        "at": "2026-10-14T16:48:23.756Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "goal": "fix-shk-hot-pursuit-rob-shop-v67-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2edfa5ee49f500dddade7a6cb6e5fb271b9291b1",
+        "type": "ready",
+        "at": "2026-10-14T16:52:42.326Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "delivery": "2edfa5ee49f500dddade7a6cb6e5fb271b9291b1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ddcf7cf4bdf1218534dd68d7c2cb07426aa5809c",
+        "type": "ready",
+        "at": "2026-10-14T16:53:05.096Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "delivery": "ddcf7cf4bdf1218534dd68d7c2cb07426aa5809c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v66-favourable-prayer-crown-action12-20261014",
+        "type": "assign",
+        "at": "2026-10-14T16:53:29.932Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v66-favourable-prayer-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T16:53:35.811Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v66-favourable-prayer-crown-20261014",
+        "type": "implement",
+        "at": "2026-10-14T16:54:56.472Z",
+        "task": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
+        "goal": "fix-prayer-crown-reward-v66-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v66-prayer-crown-implement-20261014",
+        "type": "turn",
+        "at": "2026-10-14T16:55:03.422Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-8475c19ab61b35c07bf7eb2a2ada25f3b70d9773",
+        "type": "received",
+        "at": "2026-10-14T16:59:25.048Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "delivery": "8475c19ab61b35c07bf7eb2a2ada25f3b70d9773"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-2edfa5ee49f500dddade7a6cb6e5fb271b9291b1",
+        "type": "received",
+        "at": "2026-10-14T16:59:28.378Z",
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "delivery": "2edfa5ee49f500dddade7a6cb6e5fb271b9291b1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-ddcf7cf4bdf1218534dd68d7c2cb07426aa5809c",
+        "type": "received",
+        "at": "2026-10-14T16:59:31.466Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "delivery": "ddcf7cf4bdf1218534dd68d7c2cb07426aa5809c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-A2-investigation-v65-spell-practice-action2-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "A2-investigation-v65-spell-practice-action2-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-A2-investigation-v65-spell-practice-action2-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "A2-investigation-v65-spell-practice-action2-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-C-investigation-v58-artifact-light-buc-action2-20261013",
+        "type": "feedback",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-C-investigation-v58-artifact-light-buc-action2-20261013-released",
+        "type": "ready",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-B-investigation-v65-ordinary-giant-pit-drop-action2-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-C-investigation-v66-swallowed-nurse-cure-action7-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-B-investigation-v65-samurai-home-action3-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-rogue-db36-38601150821-B-investigation-v65-samurai-home-action3-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T16:59:34.611Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-rogue-memory-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T16:59:52.198Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep33-proof-review-20261014",
+        "type": "activity",
+        "at": "2026-10-14T17:01:15.336Z",
+        "task": "Prep33",
+        "phase": "review",
+        "reason": "Verifying saved committed recipes, C recordings, independent replays and source/control rationale before future admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep33-proof-done-20261014",
+        "type": "activity",
+        "at": "2026-10-14T17:01:18.375Z",
+        "task": "Prep33",
+        "phase": "done",
+        "reason": "Saved proof verification passed: 66 case files, 33 first C recordings, 13 independent replays, including all 12 prepared cases. Eight matching controls and four distinct provisional mismatches retained; unadmitted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-following-group-correction-wait-20261014",
+        "type": "activity",
+        "at": "2026-10-14T17:01:41.096Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "phase": "waiting",
+        "reason": "B is correcting seven incomplete hero fixtures exposed by the hosted display-path test failures. Coordinator generated-file assertion correction passed 36 focused tests and is committed; frozen six-task candidate will be rebuilt after the correction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-91f913cc4a66e388ae8ac8661ed838eb9c909f8a",
+        "type": "ready",
+        "at": "2026-10-14T17:02:19.975Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "delivery": "91f913cc4a66e388ae8ac8661ed838eb9c909f8a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v65-customcolors-reset-20261014",
+        "type": "assign",
+        "at": "2026-10-14T17:03:05.648Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v65-customcolors-investigation-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T17:03:20.998Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v65 options-menu custom-colors reset mismatch and tracing its C implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-91f913cc4a66e388ae8ac8661ed838eb9c909f8a",
+        "type": "received",
+        "at": "2026-10-14T17:03:27.859Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "delivery": "91f913cc4a66e388ae8ac8661ed838eb9c909f8a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eb40144922a4de224724a0b8616f97e5c3ae90b4-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-A2-investigation-v65-spell-practice-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:03:46.344Z",
+        "task": "A2-investigation-v65-spell-practice-action2-20261014",
+        "integration": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eb40144922a4de224724a0b8616f97e5c3ae90b4-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:03:46.344Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "integration": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eb40144922a4de224724a0b8616f97e5c3ae90b4-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-C-investigation-v58-artifact-light-buc-action2-20261013",
+        "type": "integrating",
+        "at": "2026-10-14T17:03:46.344Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "integration": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eb40144922a4de224724a0b8616f97e5c3ae90b4-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:03:46.344Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "integration": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eb40144922a4de224724a0b8616f97e5c3ae90b4-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:03:46.344Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "integration": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eb40144922a4de224724a0b8616f97e5c3ae90b4-e8cb9ccf982ba50051e28c8a3be3a894c7de5392faa0b51bd8ae36b00c8951a3-B-investigation-v65-samurai-home-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T17:03:46.344Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "integration": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "validationGroup": [
+          "A2-investigation-v65-spell-practice-action2-20261014",
+          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+          "C-investigation-v58-artifact-light-buc-action2-20261013",
+          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+          "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+          "B-investigation-v65-samurai-home-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v65-customcolors-reset-20261014",
+        "type": "implement",
+        "at": "2026-10-14T17:04:31.300Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "goal": "fix-glyphs-reset-customcolors-options-v65-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cc6f3c42e31cda941807d85ae28c66b3555ac167",
+        "type": "ready",
+        "at": "2026-10-14T17:07:46.644Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "delivery": "cc6f3c42e31cda941807d85ae28c66b3555ac167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-cc6f3c42e31cda941807d85ae28c66b3555ac167",
+        "type": "received",
+        "at": "2026-10-14T17:08:28.408Z",
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "delivery": "cc6f3c42e31cda941807d85ae28c66b3555ac167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v66-unpaid-food-20261014",
+        "type": "assign",
+        "at": "2026-10-14T17:08:37.321Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v66-unpaid-food-investigation-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T17:08:43.312Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v66 unpaid-food first mismatch at object identification and tracing its C source owner."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-thrown-caller-costly-alteration-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T17:15:08.097Z",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "delivery": "8475c19ab61b35c07bf7eb2a2ada25f3b70d9773"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v66-unpaid-food-costly-alteration-20261014",
+        "type": "implement",
+        "at": "2026-10-14T17:15:14.072Z",
+        "task": "B-investigation-v66-unpaid-food-action3-20261014",
+        "goal": "fix-costly-alteration-shop-billing-v66-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v65-spell-practice-action2-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:15:17.217Z",
+        "task": "A2-investigation-v65-spell-practice-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-rogue-blind-probing-continuation-action8-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:15:17.217Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v58-artifact-light-buc-action2-20261013-eb40144922a4de224724a0b8616f97e5c3ae90b4-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:15:17.217Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v65-ordinary-giant-pit-drop-action2-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:15:17.217Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-swallowed-nurse-cure-action7-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:15:17.217Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v65-samurai-home-action3-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-validated",
+        "type": "validated",
+        "at": "2026-10-14T17:15:17.217Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v65-spell-practice-action2-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:15:55.768Z",
+        "task": "A2-investigation-v65-spell-practice-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-rogue-blind-probing-continuation-action8-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:15:55.768Z",
+        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v58-artifact-light-buc-action2-20261013-eb40144922a4de224724a0b8616f97e5c3ae90b4-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:15:55.768Z",
+        "task": "C-investigation-v58-artifact-light-buc-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v65-ordinary-giant-pit-drop-action2-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:15:55.768Z",
+        "task": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-swallowed-nurse-cure-action7-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:15:55.768Z",
+        "task": "C-investigation-v66-swallowed-nurse-cure-action7-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v65-samurai-home-action3-20261014-eb40144922a4de224724a0b8616f97e5c3ae90b4-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T17:15:55.768Z",
+        "task": "B-investigation-v65-samurai-home-action3-20261014"
       }
     ]
   },
@@ -121017,38 +121803,63 @@
         "batch": "v68",
         "since": "2026-10-14T08:40:53.157Z",
         "blockedBy": [],
-        "unblocks": 0
+        "unblocks": 1
       },
       {
-        "task": "A2-investigation-v65-spell-practice-action2-20261014",
-        "worker": "A2",
-        "goal": "port-weapon-skill-notifications-v65-spell-practice-action2-20261014",
-        "kind": "implementation",
+        "task": "Prep33",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "3e27b8b0bf6887606f17c45e963f2eb117b776fa",
-        "since": "2026-10-14T15:54:36.354Z",
-        "blockedBy": [],
+        "delivery": "d4a3a9b17f84987c41797763f32205b1772969b5",
+        "batch": "v69",
+        "since": "2026-10-14T16:29:23.020Z",
+        "blockedBy": [
+          "Prep32"
+        ],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
-        "worker": "B",
-        "goal": "fix-display-newsym-blind-tactile-memory-v67-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ece1377b3ca245bae65053b9a535e668df7e337d",
-        "since": "2026-10-14T16:04:23.562Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v58-artifact-light-buc-action2-20261013",
+        "task": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
         "worker": "C",
-        "goal": "fix-artifact-light-scroll-buc-transition-v58-20261014",
+        "goal": "fix-thrown-boulder-placement-v65-20261014",
+        "kind": "implementation",
+        "status": "changes-required",
+        "delivery": "8475c19ab61b35c07bf7eb2a2ada25f3b70d9773",
+        "since": "2026-10-14T16:35:57.276Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "worker": "C",
+        "goal": "fix-protected-object-drop-genocide-v66-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "c67b5bcfef01e6666fab984d360ffd591ddb9696",
-        "since": "2026-10-14T16:05:21.523Z",
+        "delivery": "2edfa5ee49f500dddade7a6cb6e5fb271b9291b1",
+        "since": "2026-10-14T16:52:42.326Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "worker": "B",
+        "goal": "fix-shk-hot-pursuit-rob-shop-v67-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "ddcf7cf4bdf1218534dd68d7c2cb07426aa5809c",
+        "since": "2026-10-14T16:53:05.096Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "worker": "B",
+        "goal": "fix-glyphs-reset-customcolors-options-v65-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "cc6f3c42e31cda941807d85ae28c66b3555ac167",
+        "since": "2026-10-14T17:07:46.644Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -122185,18 +122996,6 @@
         ],
         "reason": "Diagnosis is committed at 5e8801ffe. The fix is a missing WAN_OPENING/SPE_KNOCK down branch in zap.c:zap_updown, already reserved by A2’s ready v58 ceiling-strike delivery. Resume this follow-on after that delivery is accepted and the queue confirms this case remains unmatched."
       },
-      "C-investigation-v58-artifact-light-buc-action2-20261013": {
-        "id": "C-investigation-v58-artifact-light-buc-action2-20261013",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v58/v58-artifact-light-buc-action2",
-        "reservations": [
-          "session:synthetic/v58/v58-artifact-light-buc-action2",
-          "source:read.c:litroom",
-          "source:potion.c:impact_arti_light",
-          "source:mkobj.c:maybe_adjust_light"
-        ]
-      },
       "C-investigation-v64-stair-shipped-object-arrival-action3-20261014": {
         "id": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
         "worker": "C",
@@ -122247,35 +123046,6 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014": {
-        "id": "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v67/v67-rogue-blind-probing-action7",
-        "reservations": [
-          "session:synthetic/v67/v67-rogue-blind-probing-action7",
-          "source:display.c:newsym"
-        ]
-      },
-      "A2-investigation-v65-spell-practice-action2-20261014": {
-        "id": "A2-investigation-v65-spell-practice-action2-20261014",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v65/v65-spell-practice-action2",
-        "reservations": [
-          "session:synthetic/v65/v65-spell-practice-action2",
-          "source:weapon.c:give_may_advance_msg",
-          "source:weapon.c:use_skill",
-          "source:weapon.c:add_weapon_skill",
-          "source:spell.c:spelleffects",
-          "source:uhitm.c:hmon_hitmon_dmg_recalc",
-          "source:dokick.c:dokick",
-          "source:steed.c:exercise_steed",
-          "source:hack.c:domove_core",
-          "source:attrib.c:adjabil",
-          "source:cmd.c:rhack"
-        ]
-      },
       "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014": {
         "id": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
         "worker": "A2",
@@ -122292,117 +123062,95 @@
           "source:shk.c:shk_fixes_damage",
           "source:allmain.c:allmain",
           "source:do.c:goto_level",
-          "source:bones.c:getbones"
+          "source:bones.c:getbones",
+          "source:mklev.c:mklev"
         ]
       },
-      "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014": {
-        "id": "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014",
-        "worker": "B",
-        "status": "working",
-        "seed": "synthetic/v65/v65-ordinary-giant-pit-drop-action2",
+      "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014": {
+        "id": "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014",
+        "worker": "C",
+        "status": "changes-required",
+        "seed": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
         "reservations": [
-          "session:synthetic/v65/v65-ordinary-giant-pit-drop-action2",
-          "source:do.c:dropx",
-          "source:do.c:dropz",
-          "source:do.c:flooreffects"
+          "session:synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
+          "source:dothrow.c:throwit"
         ]
       },
-      "C-investigation-v66-swallowed-nurse-cure-action7-20261014": {
-        "id": "C-investigation-v66-swallowed-nurse-cure-action7-20261014",
+      "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014": {
+        "id": "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v67/v67-angry-shop-settlement-action10",
+        "reservations": [
+          "session:synthetic/v67/v67-angry-shop-settlement-action10",
+          "source:shk.c:rob_shop",
+          "source:shk.c:hot_pursuit"
+        ]
+      },
+      "C-investigation-v66-protected-bell-drop-action6-20261014": {
+        "id": "C-investigation-v66-protected-bell-drop-action6-20261014",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v66/v66-protected-bell-drop-action6",
+        "reservations": [
+          "session:synthetic/v66/v66-protected-bell-drop-action6",
+          "source:steal.c:mdrop_special_objs",
+          "source:mon.c:mongone",
+          "source:mon.c:migrate_mon",
+          "source:dog.c:keepdogs",
+          "source:steed.c:dismount_steed"
+        ]
+      },
+      "C-investigation-v66-favourable-prayer-crown-action12-20261014": {
+        "id": "C-investigation-v66-favourable-prayer-crown-action12-20261014",
         "worker": "C",
         "status": "working",
-        "seed": "synthetic/v66/v66-swallowed-nurse-cure-action7",
+        "seed": "synthetic/v66/v66-favourable-prayer-crown-action12",
         "reservations": [
-          "session:synthetic/v66/v66-swallowed-nurse-cure-action7"
+          "session:synthetic/v66/v66-favourable-prayer-crown-action12",
+          "source:pray.c:gcrownu",
+          "source:pray.c:pleased",
+          "source:topl.c:update_topl"
+        ]
+      },
+      "B-investigation-v65-runtime-customcolors-reset-action1-20261014": {
+        "id": "B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v65/v65-runtime-customcolors-reset-action1",
+        "reservations": [
+          "session:synthetic/v65/v65-runtime-customcolors-reset-action1",
+          "source:glyphs.c:reset_customcolors",
+          "source:options.c:reset_needed_visuals"
+        ]
+      },
+      "B-investigation-v66-unpaid-food-action3-20261014": {
+        "id": "B-investigation-v66-unpaid-food-action3-20261014",
+        "worker": "B",
+        "status": "working",
+        "seed": "synthetic/v66/v66-unpaid-food-action3",
+        "reservations": [
+          "session:synthetic/v66/v66-unpaid-food-action3",
+          "source:mkobj.c:costly_alteration",
+          "source:eat.c:touchfood",
+          "source:eat.c:use_tin",
+          "source:do.c:obj_no_longer_held",
+          "source:dogmove.c:dog_eat",
+          "source:zap.c:cancel_item",
+          "source:zap.c:drain_item",
+          "source:potion.c:H2Opotion_dip",
+          "source:potion.c:potion_dip",
+          "source:wield.c:chwepon",
+          "source:trap.c:erode_obj",
+          "source:read.c:seffect_enchant_weapon",
+          "source:apply.c:use_cream_pie",
+          "source:apply.c:do_break_wand",
+          "source:invent.c:add_to_container",
+          "source:mon.c:extract_from_minvent"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v58/v58-artifact-light-buc-action2": {
-        "tasks": [
-          "C-investigation-v58-artifact-light-buc-action2-20261013"
-        ]
-      },
-      "source:read.c:litroom": {
-        "tasks": [
-          "C-investigation-v58-artifact-light-buc-action2-20261013"
-        ]
-      },
-      "source:potion.c:impact_arti_light": {
-        "tasks": [
-          "C-investigation-v58-artifact-light-buc-action2-20261013"
-        ]
-      },
-      "source:mkobj.c:maybe_adjust_light": {
-        "tasks": [
-          "C-investigation-v58-artifact-light-buc-action2-20261013"
-        ]
-      },
-      "session:synthetic/v67/v67-rogue-blind-probing-action7": {
-        "tasks": [
-          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014"
-        ]
-      },
-      "source:display.c:newsym": {
-        "tasks": [
-          "B-investigation-v67-rogue-blind-probing-continuation-action8-20261014"
-        ]
-      },
-      "session:synthetic/v65/v65-spell-practice-action2": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:weapon.c:give_may_advance_msg": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:weapon.c:use_skill": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:weapon.c:add_weapon_skill": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:spell.c:spelleffects": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:uhitm.c:hmon_hitmon_dmg_recalc": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:dokick.c:dokick": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:steed.c:exercise_steed": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:hack.c:domove_core": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:attrib.c:adjabil": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
-      "source:cmd.c:rhack": {
-        "tasks": [
-          "A2-investigation-v65-spell-practice-action2-20261014"
-        ]
-      },
       "session:synthetic/v67/v67-shop-damage-repair-action11": {
         "tasks": [
           "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
@@ -122458,36 +123206,191 @@
           "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
         ]
       },
-      "session:synthetic/v65/v65-ordinary-giant-pit-drop-action2": {
+      "source:mklev.c:mklev": {
         "tasks": [
-          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014"
+          "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014"
         ]
       },
-      "source:do.c:dropx": {
+      "session:synthetic/v65/v65-sokoban-thrown-pit-fill-action1": {
         "tasks": [
-          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014"
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014"
         ]
       },
-      "source:do.c:dropz": {
+      "source:dothrow.c:throwit": {
         "tasks": [
-          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014"
+          "C-investigation-v65-sokoban-thrown-pit-fill-action1-20261014"
         ]
       },
-      "source:do.c:flooreffects": {
+      "session:synthetic/v67/v67-angry-shop-settlement-action10": {
         "tasks": [
-          "B-investigation-v65-ordinary-giant-pit-drop-action2-20261014"
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014"
         ]
       },
-      "session:synthetic/v66/v66-swallowed-nurse-cure-action7": {
+      "source:shk.c:rob_shop": {
         "tasks": [
-          "C-investigation-v66-swallowed-nurse-cure-action7-20261014"
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014"
+        ]
+      },
+      "source:shk.c:hot_pursuit": {
+        "tasks": [
+          "B-investigation-v67-angry-shop-settlement-action10-continuation-20261014"
+        ]
+      },
+      "session:synthetic/v66/v66-protected-bell-drop-action6": {
+        "tasks": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014"
+        ]
+      },
+      "source:steal.c:mdrop_special_objs": {
+        "tasks": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014"
+        ]
+      },
+      "source:mon.c:mongone": {
+        "tasks": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014"
+        ]
+      },
+      "source:mon.c:migrate_mon": {
+        "tasks": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014"
+        ]
+      },
+      "source:dog.c:keepdogs": {
+        "tasks": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014"
+        ]
+      },
+      "source:steed.c:dismount_steed": {
+        "tasks": [
+          "C-investigation-v66-protected-bell-drop-action6-20261014"
+        ]
+      },
+      "session:synthetic/v66/v66-favourable-prayer-crown-action12": {
+        "tasks": [
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+        ]
+      },
+      "source:pray.c:gcrownu": {
+        "tasks": [
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+        ]
+      },
+      "source:pray.c:pleased": {
+        "tasks": [
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+        ]
+      },
+      "source:topl.c:update_topl": {
+        "tasks": [
+          "C-investigation-v66-favourable-prayer-crown-action12-20261014"
+        ]
+      },
+      "session:synthetic/v65/v65-runtime-customcolors-reset-action1": {
+        "tasks": [
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      "source:glyphs.c:reset_customcolors": {
+        "tasks": [
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      "source:options.c:reset_needed_visuals": {
+        "tasks": [
+          "B-investigation-v65-runtime-customcolors-reset-action1-20261014"
+        ]
+      },
+      "session:synthetic/v66/v66-unpaid-food-action3": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mkobj.c:costly_alteration": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:eat.c:touchfood": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:eat.c:use_tin": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:do.c:obj_no_longer_held": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:dogmove.c:dog_eat": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:zap.c:cancel_item": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:zap.c:drain_item": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:potion.c:H2Opotion_dip": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:potion.c:potion_dip": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:wield.c:chwepon": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:trap.c:erode_obj": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:read.c:seffect_enchant_weapon": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:apply.c:use_cream_pie": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:apply.c:do_break_wand": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:invent.c:add_to_container": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
+        ]
+      },
+      "source:mon.c:extract_from_minvent": {
+        "tasks": [
+          "B-investigation-v66-unpaid-food-action3-20261014"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
-    "measuredAt": "2026-10-14T15:49:57.510Z",
+    "executionCommit": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+    "measuredAt": "2026-10-14T17:09:11.017Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

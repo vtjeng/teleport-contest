@@ -308350,7 +308350,7 @@
     {
       "id": "port-weapon-skill-notifications-v65-spell-practice-action2-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement give_may_advance_msg, use_skill, add_weapon_skill from weapon.c",
       "cFile": "weapon.c",
       "sessions": [
@@ -308360,7 +308360,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
       "delivered": null,
       "functions": [
         {
@@ -308559,12 +308559,182 @@
       "range": {
         "from": 76,
         "to": 1452
+      },
+      "closeStanding": {
+        "sha": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "target": "synthetic/v65/v65-spell-practice-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/eb40144922a4de224724a0b8616f97e5c3ae90b4/run-hosted-4mTei0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "give_may_advance_msg",
+            "implementation": "js/weapon.js",
+            "symbol": "give_may_advance_msg",
+            "sourceReview": "Read weapon.c:76-84. The helper selects no prefix for P_NONE, 'weapon ' through P_LAST_WEAPON, 'spell casting ' through P_LAST_SPELL, and 'fighting ' otherwise; You_feel emits the confidence message, then handle_tip(TIP_ENHANCE) runs and its boolean result is discarded. The JavaScript preserves that order and uses heroUnaware for You_feel's dream variant. handle_tip is already implemented in hack.c/js/hack.js. No RNG or other unported callee is used.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "use_skill",
+                "source": "weapon.c:1432-1433 calls give_may_advance_msg(skill) only when practice newly makes can_advance true."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "add_weapon_skill",
+                "source": "weapon.c:1449-1450 calls give_may_advance_msg(P_NONE) only when added slots increase the number of currently advanceable skills."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-spell-practice-action2",
+                "segment": 0,
+                "fromStep": 528,
+                "throughStep": 529,
+                "source": "spell.c:spelleffects -> weapon.c:use_skill -> weapon.c:give_may_advance_msg; successful Force Bolt practice threshold emits the spell-casting confidence message."
+              },
+              {
+                "batch": "v65",
+                "caseId": "v65-spell-practice-action2",
+                "segment": 0,
+                "fromStep": 92,
+                "throughStep": 128,
+                "source": "attrib.c:adjabil -> weapon.c:add_weapon_skill -> weapon.c:give_may_advance_msg during #levelchange."
+              }
+            ]
+          },
+          {
+            "name": "use_skill",
+            "implementation": "js/weapon.js",
+            "symbol": "use_skill",
+            "sourceReview": "Read weapon.c:1423-1434. For a non-P_NONE unrestricted skill, use_skill captures can_advance(skill, FALSE), adds degree to P_ADVANCE, and notifies only if that increment changes can_advance from false to true. Restricted skills and P_NONE have no effect. The JavaScript preserves this order and awaits the helper before the source caller continues. C callers include spell.c:spelleffects, uhitm.c:hmon_hitmon_dmg_recalc, dokick.c:dokick, steed.c:exercise_steed, and hack.c:domove_fight_web. JavaScript awaits the call from the first four corresponding implemented paths. hack.c:domove_fight_web remains behind its existing UnsupportedHeroMoveBoundaryError because that caller body is not yet ported; no fake call is added. There is no RNG call in use_skill.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:1597-1599 calls use_skill after a successful non-forced spell cast."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_dmg_recalc",
+                "source": "uhitm.c:1498 calls use_skill after a qualifying monster hit."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:122 calls use_skill when a kick advances a weapon skill."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "exercise_steed",
+                "source": "steed.c:395 calls use_skill(P_RIDING, 1) after the riding practice counter reaches its threshold."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon.test.mjs",
+              "scripts/spell-cast-effects.test.mjs",
+              "scripts/mounted-move.test.mjs",
+              "scripts/hostile-melee-hit.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-spell-practice-action2",
+                "segment": 0,
+                "fromStep": 528,
+                "throughStep": 529,
+                "source": "spell.c:spelleffects -> weapon.c:use_skill -> weapon.c:give_may_advance_msg after the recorded successful Force Bolt cast."
+              }
+            ]
+          },
+          {
+            "name": "add_weapon_skill",
+            "implementation": "js/weapon.js",
+            "symbol": "add_weapon_skill",
+            "sourceReview": "Read weapon.c:1436-1450. The function counts skills currently advanceable before and after adding n to u.weapon_slots, using can_advance(i, FALSE) in ascending skill order; it calls give_may_advance_msg(P_NONE) only when the after count is larger. JavaScript retains the two complete counting passes and awaits the message helper. attrib.c:adjabil is wired and tested through the recorded #levelchange path. pray.c:gcrownu is another C caller but remains unported in JavaScript; the gap is retained rather than fabricating a call or state transition.",
+            "callers": [
+              {
+                "path": "js/attrib.js",
+                "symbol": "adjabil",
+                "source": "attrib.c:1069-1070 calls add_weapon_skill(newlevel - oldlevel) when experience level increases."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon.test.mjs",
+              "scripts/level-change.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-spell-practice-action2",
+                "segment": 0,
+                "fromStep": 92,
+                "throughStep": 128,
+                "source": "#levelchange -> attrib.c:adjabil -> weapon.c:add_weapon_skill; newly available skill slots trigger give_may_advance_msg."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The implemented behavior is reached by successful spell casts through spell.c:spelleffects -> weapon.c:use_skill -> weapon.c:give_may_advance_msg, and by level increases through attrib.c:adjabil -> weapon.c:add_weapon_skill -> weapon.c:give_may_advance_msg. The v65 recording reaches both paths: a Force Bolt cast crosses the spell practice threshold at segment 0 step 529, and #levelchange reaches adjabil during steps 92-128. Other C callers of use_skill/add_weapon_skill remain distinct: combat hit, kicking, and riding reach JavaScript implementations and are wired to await use_skill; hack.c:domove_fight_web remains behind its existing unsupported hero-move boundary, and pray.c:gcrownu remains unported. Those blocked callers are recorded in the source findings and are not claimed as covered by this recording.",
+        "entryPoints": [
+          {
+            "name": "Successful spell casting crosses a skill-practice threshold",
+            "functions": [
+              "use_skill",
+              "give_may_advance_msg"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-spell-practice-action2",
+                "segment": 0,
+                "fromStep": 528,
+                "throughStep": 529,
+                "source": "spell.c:spelleffects -> weapon.c:use_skill -> weapon.c:give_may_advance_msg."
+              }
+            ]
+          },
+          {
+            "name": "A level increase adds an available skill slot",
+            "functions": [
+              "add_weapon_skill",
+              "give_may_advance_msg"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-spell-practice-action2",
+                "segment": 0,
+                "fromStep": 92,
+                "throughStep": 128,
+                "source": "#levelchange -> attrib.c:adjabil -> weapon.c:add_weapon_skill -> weapon.c:give_may_advance_msg."
+              }
+            ]
+          }
+        ]
       }
     },
     {
       "id": "fix-display-newsym-blind-tactile-memory-v67-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement newsym from display.c",
       "cFile": "display.c",
       "sessions": [
@@ -308574,15 +308744,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
       "delivered": null,
       "function": "newsym",
-      "session": "synthetic/v67/v67-rogue-blind-probing-action7"
+      "session": "synthetic/v67/v67-rogue-blind-probing-action7",
+      "closeStanding": {
+        "sha": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "target": "synthetic/v67/v67-rogue-blind-probing-action7",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/eb40144922a4de224724a0b8616f97e5c3ae90b4/run-hosted-4mTei0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "newsym",
+            "implementation": "js/display.js",
+            "symbol": "newsym",
+            "sourceReview": "For this divergence fix, traced the complete C not-visible branch of display.c:newsym() at lines 1041-1099 and the corresponding hero-square early branch in js/display.js. C calls feel_location(u.ux,u.uy) before conditionally calling display_self() when the hero square is not physically visible. The JavaScript hero-square branch previously returned before feeling the location, then the generic Rogue memory path darkened S_room to S_stone. The fix calls the existing display.c:feel_location() port before display_self() and returns so the tactile map-memory write is retained. feel_location() is already ported in js/display.js; no unported callee or new state/RNG behavior was added.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "newsym",
+                "source": "The ordinary game display update dispatches newsym() for changed map squares; the admitted v67 Rogue replay exercises that production path when the blind hero moves onto the selected square. display.c:newsym() handles the hero's non-visible square by calling feel_location() before display_self()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-rogue-blind-probing-action7",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 502,
+                "source": "Rogue level movement/refresh -> display.c:newsym() not-visible hero-square branch -> display.c:feel_location() -> display_self()"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This divergence fix covers the active runtime entry through display.c:newsym() when the hero's own square is not physically visible. Its production dispatcher is the ordinary map display update; the admitted v67 blind Rogue movement case reaches this branch. The changed branch calls the existing feel_location() implementation, and no separate entry point or unported callee was introduced.",
+        "entryPoints": [
+          {
+            "name": "blind hero square display update",
+            "functions": [
+              "newsym"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-rogue-blind-probing-action7",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 502,
+                "source": "Rogue movement -> display.c:newsym() -> display.c:feel_location()"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-artifact-light-scroll-buc-transition-v58-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement litroom from read.c",
       "cFile": "read.c",
       "sessions": [
@@ -308592,15 +308825,152 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
       "delivered": null,
       "function": "litroom",
-      "session": "synthetic/v58/v58-artifact-light-buc-action2"
+      "session": "synthetic/v58/v58-artifact-light-buc-action2",
+      "closeStanding": {
+        "sha": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "target": "synthetic/v58/v58-artifact-light-buc-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/eb40144922a4de224724a0b8616f97e5c3ae90b4/run-hosted-4mTei0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "litroom",
+            "implementation": "js/read.js",
+            "symbol": "litroom",
+            "sourceReview": "Read the complete read.c:litroom() body at 2491-2634 in C statement order. For cursed darkening, carried lit non-artifacts are snuffed while carried lit artifact lights call impact_arti_light(obj, TRUE, !Blind) and stay lit. For blessed light, the same artifact-light test calls impact_arti_light(obj, FALSE, !Blind) before the field-light message. The JavaScript implementation preserves traversal order, no-op checks, lighting radius, vision recalculation, and the source's separate cursed and blessed helper arguments. It has one production caller, seffect_light(), reached from the read command. No C callee return is replaced or ignored differently.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_light",
+                "source": "read.c:seffect_light() calls litroom(!scursed, sobj); the JavaScript read command dispatches through seffect_light()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/artifact-light-blessed-buc-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-artifact-light-buc-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 218,
+                "source": "read.c:seffect_light() -> litroom(FALSE, cursed scroll) -> impact_arti_light() for the carried lit Sunsword"
+              }
+            ],
+            "sourceFile": "read.c"
+          },
+          {
+            "name": "impact_arti_light",
+            "implementation": "js/potion.js",
+            "symbol": "impact_arti_light",
+            "sourceReview": "Read potion.c:impact_arti_light() at 1595-1618. It returns for an already-worst/already-best BUC state or when obj_resists(obj, 25, 75) succeeds; otherwise it creates a temporary water potion, curses or blesses it, calls H2Opotion_dip() with the artifact-specific glow phrase when visible, frees the temporary potion, and returns. JavaScript follows the same order and awaits the dip's visible feedback. obj_resists()'s result is used and is implemented; H2Opotion_dip()'s result is discarded in C and is awaited only for its source effects in JavaScript.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "litroom",
+                "source": "read.c:litroom() calls impact_arti_light() for each carried lit artifact light in cursed and blessed light-scroll branches."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/artifact-light-blessed-buc-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-artifact-light-buc-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 218,
+                "source": "read.c:litroom() -> potion.c:impact_arti_light(); the cursed target reaches obj_resists() at step 177"
+              }
+            ],
+            "sourceFile": "potion.c"
+          },
+          {
+            "name": "maybe_adjust_light",
+            "implementation": "js/obj.js",
+            "symbol": "maybe_adjust_light",
+            "sourceReview": "Read the complete mkobj.c:maybe_adjust_light() at 1703-1736. It compares the old and new artifact light radii, updates the radius when it changes, and when sighted reports the source-defined brighter or less-brightly message using the object's location and prior glow message. JavaScript preserves the message rules and now defaults production calls to ttyPline(text, state), matching C pline() when no test or caller callback is injected. The void obj_adjust_light_radius() result remains explicitly recorded with note_unported(), as permitted because C discards it.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "bless",
+                "source": "mkobj.c:bless() saves the artifact light radius, changes BUC state, then calls maybe_adjust_light(); potion.c:H2Opotion_dip() invokes bless() on the lit artifact."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "curse",
+                "source": "mkobj.c:curse() saves the artifact light radius, changes BUC state, then calls maybe_adjust_light(); potion.c:H2Opotion_dip() invokes curse() on the lit artifact."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkobj-bless.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/artifact-light-blessed-buc-independent.session.json"
+            ],
+            "synthetic": [],
+            "sourceFile": "mkobj.c"
+          }
+        ],
+        "entryPointReview": "The active player entry point is reading a cursed or blessed scroll of light while wielding or wearing a lit artifact light. The selected admitted cursed-scroll case reaches read.c:litroom() and its artifact-resistance branch; the independent recipe uses a blessed light scroll and a Sunsword whose C obj_resists() draw is 76, so it proceeds through potion creation, H2Opotion_dip(), bless(), maybe_adjust_light(), and the field-light update. Both recordings are complete. The helper's only allowed gap is light.c:obj_adjust_light_radius(), whose return type is void and whose C call result is discarded.",
+        "entryPoints": [
+          {
+            "name": "read a cursed or blessed scroll of light with a carried lit artifact light",
+            "functions": [
+              {
+                "sourceFile": "read.c",
+                "name": "litroom"
+              },
+              {
+                "sourceFile": "potion.c",
+                "name": "impact_arti_light"
+              },
+              {
+                "sourceFile": "mkobj.c",
+                "name": "maybe_adjust_light"
+              }
+            ],
+            "recordings": [
+              "recordings/read.c/artifact-light-blessed-buc-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-artifact-light-buc-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 218,
+                "source": "read.c:seffect_light() -> litroom(FALSE) -> impact_arti_light()"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-drop-boulder-pit-floor-effects-v65-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement flooreffects, dropx from do.c",
       "cFile": "do.c",
       "sessions": [
@@ -308610,15 +308980,108 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
       "delivered": null,
       "function": "flooreffects",
-      "session": "synthetic/v65/v65-ordinary-giant-pit-drop-action2"
+      "session": "synthetic/v65/v65-ordinary-giant-pit-drop-action2",
+      "closeStanding": {
+        "sha": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "target": "synthetic/v65/v65-ordinary-giant-pit-drop-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/eb40144922a4de224724a0b8616f97e5c3ae90b4/run-hosted-4mTei0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dropx",
+            "implementation": "js/do.js",
+            "symbol": "dropx",
+            "sourceReview": "Read do.c:dropx() lines 785-797 and its caller in do.c:drop(). C frees inventory, attempts shipping, handles an altar, then proceeds through dropy/dropz to the floor effect. The JS dropx() follows the same shipping and altar order; its preflight helper had been rejecting a boulder at every trap, including a pit or hole handled by the already-ported flooreffects(). The correction allows only the C boulder pit/hole arm through this gate. No other source branch or state transition is substituted.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "do.c:drop() calls dropx() after selection and the drop message; js/do.js:drop() calls dropx() for the ordinary floor path. The admitted session enters via do.c:dodrop() / js/cmd.js:runDropCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-ordinary-giant-pit-drop-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 362,
+                "source": "do.c:dodrop -> drop -> dropx -> dropy -> dropz -> flooreffects"
+              }
+            ]
+          },
+          {
+            "name": "flooreffects",
+            "implementation": "js/do.js",
+            "symbol": "flooreffects",
+            "sourceReview": "Read the full do.c:flooreffects() range, lines 161-357, preserving branch order and effects. The boulder_hits_pool() arm runs first; a boulder on PIT or HOLE then reports the landing, removes any remaining floor trap, consumes the boulder through useupf(), buries objects, redraws, and returns TRUE before the later hero pit-edge/shaft arm. The existing JS flooreffects() implements this path. The defect was the JS-only preflight refusal that prevented dropx() from reaching it; the fix narrows that refusal to the remaining C shipping/hero-edge cases. invent.c:delobj_core() remains the existing callee and consumes its source obj_resists rn2(100) draw.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropzAdmitted",
+                "source": "do.c:dropz() calls flooreffects() before place_object(); the JS ordinary drop tail calls the same flooreffects() port from dropzAdmitted() after dropx() has passed admission."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/flooreffects.test.mjs",
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-ordinary-giant-pit-drop-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 362,
+                "source": "do.c:dropz -> flooreffects boulder/PIT branch; JS js/do.js:dropzAdmitted -> flooreffects"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected runtime entry point is the ordinary drop command. In C, do.c:dodrop() obtains the selected item and reaches drop()/dropx(); dropx() passes it through dropy()/dropz() to flooreffects(). In JavaScript, cmd.js:runDropCommand dispatches to do.js:dodrop() and drop(), then dropx() reaches the existing dropzAdmitted()/flooreffects() tail after source-ordered shipping and altar handling. The v65 admitted case executes this path and its boulder-on-pit branch; no C recorder rerun is required.",
+        "entryPoints": [
+          {
+            "name": "ordinary drop command filling a pit",
+            "functions": [
+              "dropx",
+              "flooreffects"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-ordinary-giant-pit-drop-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 362,
+                "source": "cmd.c drop key -> do.c:dodrop -> drop -> dropx -> dropy -> dropz -> flooreffects"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-engulfer-digests-nurse-blindness-v66-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement engulfer_digests_food from do.c",
       "cFile": "do.c",
       "sessions": [
@@ -308628,15 +309091,112 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
       "delivered": null,
       "function": "engulfer_digests_food",
-      "session": "synthetic/v66/v66-swallowed-nurse-cure-action7"
+      "session": "synthetic/v66/v66-swallowed-nurse-cure-action7",
+      "closeStanding": {
+        "sha": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "target": "synthetic/v66/v66-swallowed-nurse-cure-action7",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/eb40144922a4de224724a0b8616f97e5c3ae90b4/run-hosted-4mTei0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "engulfer_digests_food",
+            "implementation": "js/do.js",
+            "symbol": "engulfer_digests_food",
+            "sourceReview": "Read do.c:849-884 and traced dropx -> dropy -> dropz -> engulfer_digests_food. In the corpse arm, PM_NURSE sets could_heal; the function prints the digestion message, calls healmon(u.ustuck, u.ustuck->mhpmax, 0), calls mcureblindness(u.ustuck, FALSE), and then deletes the corpse. This fix wires the existing cure helper at that exact position and preserves FALSE verbosity. The selected entry point is impure; other branches are unchanged.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropz",
+                "source": "do.c:dropz -> engulfer_digests_food"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engulfer-digests-food.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-swallowed-nurse-cure-action7",
+                "segment": 0,
+                "fromStep": 531,
+                "throughStep": 554,
+                "source": "do.c:dropx -> dropy -> dropz -> engulfer_digests_food -> muse.c:mcureblindness"
+              }
+            ]
+          },
+          {
+            "name": "mcureblindness",
+            "implementation": "js/muse.js",
+            "symbol": "mcureblindness",
+            "sourceReview": "Read muse.c:2872-2881. The helper sets mcansee=1 and mblinded=0 when the monster cannot see, and emits a cure message only when verbos is true and the monster has eyes. Its existing JavaScript implementation is reused with verbos=false, matching this do.c call.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "engulfer_digests_food",
+                "source": "do.c:engulfer_digests_food -> muse.c:mcureblindness"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-swallowed-nurse-cure-action7",
+                "segment": 0,
+                "fromStep": 531,
+                "throughStep": 554,
+                "source": "do.c:dropz -> engulfer_digests_food -> muse.c:mcureblindness"
+              }
+            ],
+            "sourceFile": "muse.c"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is a swallowed hero's corpse drop through do.c:dropx -> dropy -> dropz. A digesting holder swallowing a nurse corpse reaches engulfer_digests_food's nurse arm, then muse.c:mcureblindness. The admitted v66 replay exercises this path at segment 0 steps 531-554. No compile-time excluded caller branch is part of this bounded fix.",
+        "entryPoints": [
+          {
+            "name": "swallowed nurse corpse drop",
+            "functions": [
+              {
+                "sourceFile": "do.c",
+                "name": "engulfer_digests_food"
+              },
+              {
+                "sourceFile": "muse.c",
+                "name": "mcureblindness"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-swallowed-nurse-cure-action7",
+                "segment": 0,
+                "fromStep": 531,
+                "throughStep": 554,
+                "source": "do.c:dropx -> dropy -> dropz -> engulfer_digests_food -> muse.c:mcureblindness"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-sam-strt-lua-v65-20261014",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement Sam-strt.lua from Sam-strt.lua",
       "luaFile": "Sam-strt.lua",
       "sessions": [
@@ -308646,7 +309206,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
       "delivered": null,
       "functions": [
         {
@@ -308654,7 +309214,75 @@
           "line": 1,
           "endLine": 98
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "eb40144922a4de224724a0b8616f97e5c3ae90b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "target": "synthetic/v65/v65-samurai-home-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/eb40144922a4de224724a0b8616f97e5c3ae90b4/run-hosted-4mTei0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "Sam-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "samStrt",
+            "sourceReview": "Read and ported all 98 lines of nethack-c/upstream/dat/Sam-strt.lua in top-level order: solid-fill initialization; mazelevel, noteleport, and hardfloor flags; all 20 map rows; the whole-level lit region and throne region; branch arrival region and down stair; ten ordered doors; Lord Sato and his awaited two-object inventory callback; his chest; eight roshi guards; whole-map nondiggable descriptor; six random traps; and thirteen ordered siege monsters. The fixed map and descriptor tables are generated deterministically from the Lua source. The special-level descriptors are implemented by mklev.js and no unported callee is skipped. Registration in QUEST_LEVEL_LOADERS wires the program through makelevel and load_special.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "makelevel ensures the special-level loader registry, then load_special looks up SPECIAL_LEVEL_LOADERS by the Sam-strt prototype and executes the registered loader through the special-level API, matching mklev.c:makelevel -> load_special -> Lua program loading."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The quest loader registry maps Sam-strt to samStrt; ensureSpecialLevelLoaders combines this registry with other special-level loader groups before makelevel dispatches the program."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sam-strt-level.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-samurai-home-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 152,
+                "source": "Samurai quest transition -> mklev.c:makelevel/load_special -> dat/Sam-strt.lua whole program -> ordered special-level descriptors and Lord Sato inventory callback"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Sam-strt.lua has one active entry point: quest-level special-level loading. The source program executes when the Samurai quest-home level is generated; the JavaScript path is makelevel -> load_special -> QUEST_LEVEL_LOADERS['Sam-strt'] -> samStrt. The admitted Samurai-home case exercises this path. Individual descriptor callbacks are awaited in program order, including Lord Sato's custom inventory callback.",
+        "entryPoints": [
+          {
+            "name": "Samurai quest-home special-level generation",
+            "functions": [
+              "Sam-strt.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-samurai-home-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 152,
+                "source": "dungeon transition -> makelevel -> load_special -> QUEST_LEVEL_LOADERS['Sam-strt'] -> samStrt"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
