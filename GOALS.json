@@ -311086,6 +311086,314 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-apply-jump-conflict-property-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement jump from undefined",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v70/v70-tame-grip-jump-scout2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v70-tame-grip-jump-scout2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "jump",
+      "session": "synthetic/v70/v70-tame-grip-jump-scout2"
+    },
+    {
+      "id": "fix-whipattack-state-binding-v70-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement use_whip from apply.c",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v70/v70-whip-five-dose-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v70-whip-five-dose-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_whip",
+      "session": "synthetic/v70/v70-whip-five-dose-action2"
+    },
+    {
+      "id": "fix-gelatinous-cube-meatbox-constant-v69-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement meatbox from mon.c",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v69/v69-cube-contents-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v69-cube-contents-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "meatbox",
+      "session": "synthetic/v69/v69-cube-contents-action4"
+    },
+    {
+      "id": "do-boulder-hits-pool-fire-resistance-v70-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement boulder_hits_pool from do.c",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v70/v70-lava-timed-levitation-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v70-lava-timed-levitation-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "boulder_hits_pool",
+      "session": "synthetic/v70/v70-lava-timed-levitation-scout1"
+    },
+    {
+      "id": "fix-eatspecial-unpunish-environment-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement eatspecial from undefined",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v70/v70-eat-ball-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v70-eat-ball-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "eatspecial",
+      "session": "synthetic/v70/v70-eat-ball-scout1"
+    },
+    {
+      "id": "fix-break-armor-flimsy-helper-binding-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement break_armor from undefined",
+      "cFile": "polyself.c",
+      "sessions": [
+        "synthetic/v70/v70-horn-fedora-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v70-horn-fedora-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "break_armor",
+      "session": "synthetic/v70/v70-horn-fedora-scout1"
+    },
+    {
+      "id": "mon-newcham-swallowed-light-symbol-v70-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement newcham from mon.c",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v70/v70-swallowed-poly-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v70-swallowed-poly-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "newcham",
+      "session": "synthetic/v70/v70-swallowed-poly-action3"
+    },
+    {
+      "id": "lock-picklock-master-key-wisdom-v68-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement picklock from lock.c",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v68/v68-master-key-trap-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v68-master-key-trap-action5-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "picklock",
+      "session": "synthetic/v68/v68-master-key-trap-action5"
+    },
+    {
+      "id": "fix-cursed-whistle-noteleport-import-v70-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement use_magic_whistle from apply.c",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v70/v70-cursed-whistle-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v70-cursed-whistle-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_magic_whistle",
+      "session": "synthetic/v70/v70-cursed-whistle-scout1"
+    },
+    {
+      "id": "fix-create-particular-hidden-eel-pool-predicate-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement create_particular_creation from undefined",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v70/v70-hidden-eel-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v70-hidden-eel-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "create_particular_creation",
+      "session": "synthetic/v70/v70-hidden-eel-scout1"
+    },
+    {
+      "id": "dig-rot-organic-buried-container-port",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement rot_organic from dig.c",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v68/v68-buried-filled-sack-action8"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v68-buried-filled-sack-action8-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rot_organic",
+          "line": 2125,
+          "endLine": 2145,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2125,
+        "to": 2145
+      }
+    },
+    {
+      "id": "fix-look-here-ice-decoration-helper-binding-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement look_here from undefined",
+      "cFile": "invent.c",
+      "sessions": [
+        "synthetic/v70/v70-blind-ice-decor-on-scout2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v70-blind-ice-decor-on-scout2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "look_here",
+      "session": "synthetic/v70/v70-blind-ice-decor-on-scout2"
+    },
+    {
+      "id": "fix-item-split-count-flag-import-v70-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement adjust_split from invent.c",
+      "cFile": "invent.c",
+      "sessions": [
+        "synthetic/v70/v70-item-split-scout2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v70-item-split-scout2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "adjust_split",
+      "session": "synthetic/v70/v70-item-split-scout2"
+    },
+    {
+      "id": "fix-polymon-stoning-helper-import-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement polymon from undefined",
+      "cFile": "polyself.c",
+      "sessions": [
+        "synthetic/v70/v70-stoned-clay-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v70-stoned-clay-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "polymon",
+      "session": "synthetic/v70/v70-stoned-clay-scout1"
+    },
+    {
+      "id": "port-teleds-swallowed-relocation-v69-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement teleds from teleport.c",
+      "cFile": "teleport.c",
+      "sessions": [
+        "synthetic/v69/v69-swallowed-break-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v69-swallowed-break-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "teleds",
+          "line": 448,
+          "endLine": 577,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 448,
+        "to": 577
+      }
+    },
+    {
+      "id": "admit-iron-bars-monster-destination-v68-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement mfndpos from mon.c",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v68/v68-npc-rust-bars-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v68-npc-rust-bars-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mfndpos",
+      "session": "synthetic/v68/v68-npc-rust-bars-action4"
     }
   ]
 }
