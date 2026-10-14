@@ -30,7 +30,7 @@ import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import { choose_classes_menu } from '../js/windows.js';
 import {
     COULD_SEE, ECMD_OK, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
-    MENU_COMBINATION, MENU_TRADITIONAL, PICK_ANY,
+    MENU_COMBINATION, MENU_TRADITIONAL, PICK_ANY, PRIMARYSET,
     SYM_NOTHING,
 } from '../js/const.js';
 import {
@@ -615,20 +615,15 @@ test('reset_needed_visuals() clears the prompt style and refreshes status',
         assert.equal(state.disp.botlx, false);
     });
 
-test('reset_needed_visuals() stops on each unported repair', async () => {
+test('reset_needed_visuals() stops on the unported custom-symbol repair', async () => {
     const state = await startStockGame();
-    for (const [flag, what] of [
-        ['opt_reset_customcolors', 'reset_customcolors()'],
-        ['opt_reset_customsymbols', 'reset_customsymbols()'],
-    ]) {
-        state.go = { [flag]: true };
-        await assert.rejects(
-            reset_needed_visuals(state),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === what,
-            what,
-        );
-    }
+    state.go = { opt_reset_customsymbols: true };
+    await assert.rejects(
+        reset_needed_visuals(state),
+        (error) => error instanceof UnsupportedOptionMenuError
+            && error.what === 'reset_customsymbols()',
+        'reset_customsymbols()',
+    );
     // change_palette() sits behind CHANGE_COLOR, which is not compiled, so
     // its flag only clears itself -- but it still opens the branch that
     // repaints, so docrt() runs and bot() spends the botlx it raises.
@@ -639,6 +634,42 @@ test('reset_needed_visuals() stops on each unported repair', async () => {
     assert.equal(state.go.opt_update_basic_palette, false);
     assert.equal(state.disp.botlx, false);
 });
+
+test('customcolors reset clears stale colors and reapplies the active set',
+    async () => {
+        for (const enabled of [false, true]) {
+            const state = await startStockGame();
+            const whichSet = state.gc?.currentgraphics ?? PRIMARYSET;
+            state.gg ??= {};
+            state.gg.glyph_customizations = Array(12).fill(null);
+            state.gs ??= {};
+            state.gs.sym_customizations ??= [];
+            state.gs.sym_customizations[whichSet] ??= {
+                unicode: { name: null, details: [] },
+                color: { name: null, details: [] },
+            };
+            state.iflags.customcolors = enabled;
+            state.gg.glyph_customizations[10] = {
+                nhcolor: 0x123456,
+                displayCh: 'x',
+            };
+            state.gg.glyph_customizations[11] = { nhcolor: 0x654321 };
+            state.gs.sym_customizations[whichSet].color.details = [
+                { glyph: 10, value: 0xABCDEF },
+            ];
+
+            state.go = { opt_reset_customcolors: true };
+            await reset_needed_visuals(state);
+
+            assert.equal(
+                state.gg.glyph_customizations[10].nhcolor,
+                enabled ? 0xABCDEF : undefined,
+            );
+            assert.equal(state.gg.glyph_customizations[10].displayCh, 'x');
+            assert.equal(state.gg.glyph_customizations[11].nhcolor, undefined);
+            assert.equal(state.go.opt_reset_customcolors, false);
+        }
+    });
 
 // C ref: options.c reset_needed_visuals()'s reset_glyphmap(gm_optionchange)
 // and the docrt() below it. C rebuilds glyphmap[] and repaints, so a square

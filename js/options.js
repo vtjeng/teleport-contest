@@ -282,6 +282,7 @@ import {
     glyphrep_to_custom_map_entries,
     fill_glyphid_cache, free_glyphid_cache, glyphid_cache_status,
     inspect_glyphrep,
+    reset_customcolors,
 } from './glyphs.js';
 import { choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow, menuTitleStyle } from './tty_menu.js';
@@ -8460,8 +8461,7 @@ export async function reset_needed_visuals(state) {
             // build defines, so C clears the flag and does nothing else.
             go.opt_update_basic_palette = false;
         }
-        if (go.opt_reset_customcolors)
-            throw new UnsupportedOptionMenuError('reset_customcolors()');
+        if (go.opt_reset_customcolors) reset_customcolors(state);
         if (go.opt_reset_customsymbols)
             throw new UnsupportedOptionMenuError('reset_customsymbols()');
         if (go.opt_need_redraw) {

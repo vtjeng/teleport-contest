@@ -476,6 +476,17 @@ export function clear_all_glyphmap_colors(state) {
     }
 }
 
+// C ref: glyphs.c reset_customcolors(). Rebuild only color overrides for the
+// active graphics set; Unicode symbol customizations remain untouched.
+export function reset_customcolors(state = game) {
+    clear_all_glyphmap_colors(state);
+    apply_customizations(
+        state.gc?.currentgraphics ?? PRIMARYSET,
+        state,
+        { symbols: false, colors: true },
+    );
+}
+
 export function clear_all_glyphmap_unicode(state) {
     const entries = state.gg?.glyph_customizations;
     if (!entries) return;
