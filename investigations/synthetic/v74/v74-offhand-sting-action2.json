@@ -1,0 +1,53 @@
+{
+  "session": "synthetic/v74/v74-offhand-sting-action2",
+  "remainingScreens": 390,
+  "recordedSteps": 390,
+  "corpus": "synthetic",
+  "batch": "v74",
+  "caseId": "v74-offhand-sting-action2",
+  "manifestPath": "challenges/manifests/v74.json",
+  "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c0bafb",
+  "recordingSha256": "f67ad7750d7295db9ce8dccbab0d54ef8850d1edd225d9fd5bd1aa5aa5b4f125",
+  "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+  "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
+  "status": "complete",
+  "mismatch": {
+    "remainingScreens": 1,
+    "previousScreensMatched": 389,
+    "regression": false,
+    "passed": false,
+    "metrics": {
+      "screens": { "matched": 389, "total": 390 },
+      "rng": { "matched": 2325, "total": 2325 },
+      "cursors": { "matched": 390, "total": 390 }
+    },
+    "firstMismatch": {
+      "kind": "screen",
+      "step": 340,
+      "key": "\\n",
+      "location": { "segmentIndex": 0, "stepIndex": 340 },
+      "c": "You can no longer wield two weapons at once.",
+      "javascript": ""
+    }
+  },
+  "summary": "Naming Sting on the offhand correctly ends two-weapon combat, but the JavaScript caller cleared the mode directly and skipped the source message. Route the artifact naming branch through the existing untwoweapon() implementation so it performs the message, state change, and inventory update in C order.",
+  "source": {
+    "file": "do_name.c",
+    "branch": "oname() successfully creates an artifact while the named object is uswapwep; call untwoweapon() before updating any primary-weapon intrinsic, unpaid cost, literacy record, or carried inventory display.",
+    "functions": [ "oname" ],
+    "callers": [
+      "do_name.c:oname() is reached by the #name command; this v74 recording names the elven dagger Sting while it is in uswapwep and twoweap is true."
+    ],
+    "dependencies": [
+      "wield.c:untwoweapon() is already implemented in js/wield.js and owns the message, u.twoweap transition, and inventory refresh."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v74 baseline reports 389/390 screens, all 2325 RNG calls, and all 390 cursor positions matched; the first difference is step 340 on the newline after entering the artifact name. C prints 'You can no longer wield two weapons at once.'; JavaScript leaves the cell blank.",
+    "nethack-c/upstream/src/do_name.c:397-405 calls untwoweapon() when obj == uswapwep after artifact_exists() succeeds. nethack-c/upstream/src/wield.c:906-914 prints the message, clears u.twoweap through set_twoweap(FALSE), and updates inventory.",
+    "Before the fix, js/do_name.js:oname_steps mirrored only the state clear and recorded note_unported('wield.c untwoweapon() message'). The source call's result is not discarded; its output and inventory update are required in the same order.",
+    "After the fix, js/do_name.js:oname_steps yields the existing untwoweapon(state) helper. The focused test covers successful Sting creation in uswapwep, the message, and twoweap becoming false.",
+    "Post-fix replay of the admitted v74/v74-offhand-sting-action2 case matches all 390 recorded screens, 2325 RNG calls, 390 cursors, and the input boundary; no unported calls remain."
+  ]
+}
