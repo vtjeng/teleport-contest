@@ -3481,7 +3481,7 @@ test('its_dead uses the supplied monster catalog for tiny statues',
         }
     });
 
-test('ustatusline stops for every clause it would have to name', async () => {
+test('ustatusline reports supported clauses and stops for unported clauses', async () => {
     await runSegment({ ...segmentFor('ac.'), moves: '.' });
     // insight.c:3406-3484 appends one fragment per condition, in this order.
     // A starting hero carries none of them, so each is set by hand and then
@@ -3497,7 +3497,6 @@ test('ustatusline stops for every clause it would have to name', async () => {
         [CONFUSION, 'the confused clause'],
         [BLINDED, 'the blind clause'],
         [STUNNED, 'the stunned clause'],
-        [WOUNDED_LEGS, 'the injured-leg clause'],
         [GLIB, 'fingers_or_gloves()'],
         [FAST, 'the fast clause'],
         [INVIS, 'the invisible clause'],
@@ -3508,16 +3507,11 @@ test('ustatusline stops for every clause it would have to name', async () => {
         game.u.uprops[propidx].extrinsic = 0;
     }
 
-    // The two remaining conditions live outside u.uprops.
-    for (const [field, value, branch] of [
-        ['utrap', 3, 'the trapped clause'],
-        ['uundetected', 1, 'the concealed clause'],
-    ]) {
-        game.u[field] = value;
-        await assert.rejects(() => ustatusline(game),
-            (error) => error.branch === branch, branch);
-        game.u[field] = 0;
-    }
+    // The concealed condition lives outside u.uprops.
+    game.u.uundetected = 1;
+    await assert.rejects(() => ustatusline(game),
+        (error) => error.branch === 'the concealed clause');
+    game.u.uundetected = 0;
     game.youmonst.m_ap_type = 1; /* M_AP_FURNITURE */
     await assert.rejects(() => ustatusline(game),
         (error) => error.branch === 'the disguised clause');
@@ -3539,10 +3533,29 @@ test('ustatusline stops for every clause it would have to name', async () => {
     // region and not some state the stub left behind.
     game.level.regions = [];
 
+    // insight.c:3442-3450 masks EWounded_legs to the side bits and appends
+    // trapped after the injured-leg clause. LEFT_SIDE stays singular; assert
+    // the exact C-derived status line and clause order.
+    game.u.uprops[WOUNDED_LEGS].extrinsic = LEFT_SIDE;
+    // Any nonzero u.utrap value takes C's trapped clause.
+    game.u.utrap = 3;
+    // The earlier refusals leave the previous topline awaiting acknowledgement.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await ustatusline(game);
+    const statusLine = () => game._ttyToplines || pendingTopLine() || topLine();
+    assert.equal(
+        statusLine(),
+        'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  '
+        + 'AC 8, injured leg, trapped.',
+    );
+    game.u.uprops[WOUNDED_LEGS].extrinsic = 0;
+    game.u.utrap = 0;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+
     // With every clause cleared the report is the one line the command draws.
     await ustatusline(game);
     assert.equal(
-        pendingTopLine(),
+        statusLine(),
         'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  AC 8.',
     );
 
@@ -3556,7 +3569,7 @@ test('ustatusline stops for every clause it would have to name', async () => {
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     await ustatusline(game);
     assert.equal(
-        pendingTopLine(),
+        statusLine(),
         'Status of Stetho (insufficiently neutral):  Level 1  HP 13(13)  '
         + 'AC 8.',
     );
