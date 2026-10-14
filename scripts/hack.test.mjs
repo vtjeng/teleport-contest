@@ -90,6 +90,7 @@ import {
     maybe_smudge_engr,
     monstinroom,
     nomul,
+    domove_attackmon_at,
     notice_mons_cmp,
     monst_to_any,
     obj_to_any,
@@ -116,6 +117,7 @@ import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_GRID_BUG, PM_HUMAN,
+    PM_LURKER_ABOVE,
     PM_IRON_PIERCER, PM_SOLDIER, PM_XORN,
     S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
@@ -1108,6 +1110,62 @@ test('a secret door reaches test_move instead of preflight refusal', async () =>
         await test_move(10, 10, 1, 0, DO_MOVE, state),
         false,
     );
+});
+
+test('unknown ceiling hider follows C movement without an attack', async () => {
+    // hack.c domove_attackmon_at():1968-1972 skips do_attack() when the target
+    // is still mundetected, unsensed, and neither a hides-under monster nor an
+    // eel. hack.c domove_core():2921-2926 also skips pet displacement for a
+    // still-undetected hider; spoteffects() then surprises it and calls
+    // mnexto(). The independent seed keeps this fixture's setup repeatable.
+    await runSegment({
+        seed: 2026101401,
+        datetime: '20451014101500',
+        nethackrc: 'OPTIONS=name:HiddenLurker,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,!acoustics,!autopickup',
+        moves: ' ',
+    });
+    const state = game;
+    state.u.uprops[BLINDED] = { intrinsic: 10, extrinsic: 0, blocked: 0 };
+    state.flags.safe_dog = true;
+    state.flags.pickup = false;
+    state.level.monlist = null;
+    state.level.traps = [];
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    state.level.at(x, y).typ = ROOM;
+    state.level.monsters[x][y] = null;
+    state.level.objects[x][y] = null;
+    const lurker = newMonster({
+        data: state.mons[PM_LURKER_ABOVE],
+        mhp: 20,
+        mhpmax: 20,
+        mcanmove: true,
+        mcansee: true,
+        mpeaceful: true,
+        mundetected: true,
+    });
+    place_monster(lurker, x, y, state);
+    state.context.move = 1;
+    state.context.run = 0;
+    state.u.dx = 1;
+    state.u.dy = 0;
+    state.domoveAttempting = DOMOVE_WALK;
+
+    assert.doesNotThrow(
+        () => preflightDomoveDestination(x, y, state),
+        'preflight must leave this C no-attack movement branch available',
+    );
+    assert.deepEqual(
+        await domove_attackmon_at(lurker, x, y, state),
+        { used: false, displace: false },
+    );
+    await domove(state);
+    assert.deepEqual([state.u.ux, state.u.uy], [x, y]);
+    assert.equal(lurker.mundetected, 0);
+    assert.equal(lurker.mpeaceful, 0);
+    assert.notDeepEqual([lurker.mx, lurker.my], [x, y]);
 });
 
 test('liquid admission follows test_move mode and m-prefix source order', async () => {
