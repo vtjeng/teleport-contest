@@ -309283,6 +309283,60 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-protected-object-drop-genocide-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement mdrop_special_objs from steal.c",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v66/v66-protected-bell-drop-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v66-protected-bell-drop-action6-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mdrop_special_objs",
+      "session": "synthetic/v66/v66-protected-bell-drop-action6"
+    },
+    {
+      "id": "fix-shk-hot-pursuit-rob-shop-v67-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement rob_shop from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v67/v67-angry-shop-settlement-action10"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v67-angry-shop-settlement-action10-continuation-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "rob_shop",
+      "session": "synthetic/v67/v67-angry-shop-settlement-action10"
+    },
+    {
+      "id": "fix-glyphs-reset-customcolors-options-v65-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement reset_customcolors from glyphs.c",
+      "cFile": "glyphs.c",
+      "sessions": [
+        "synthetic/v65/v65-runtime-customcolors-reset-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v65-runtime-customcolors-reset-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "reset_customcolors",
+      "session": "synthetic/v65/v65-runtime-customcolors-reset-action1"
     }
   ]
 }
