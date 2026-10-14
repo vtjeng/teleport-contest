@@ -27,7 +27,9 @@ import {
 import {
     _tutorialLevelInternals,
     loadTutorialLevel,
+    loadTutorialSecondLevel,
     TUTORIAL_MAP,
+    TUTORIAL_SECOND_LEVEL_MAP,
 } from '../js/tutorial_level.js';
 
 function tutorialState(keys = '', overrides = {}) {
@@ -143,6 +145,24 @@ function recordTutorialDescriptor({
         level: new GameMap(),
     });
     assert.deepEqual(percentageResults, []);
+    return log;
+}
+
+function recordTutorialSecondLevel(state = tutorialState()) {
+    const log = [];
+    const record = (name, ...args) => {
+        log.push([name, ...args.map(descriptorValue)]);
+    };
+    loadTutorialSecondLevel({
+        level_init: (...args) => record('level_init', ...args),
+        level_flags: (...args) => record('level_flags', ...args),
+        map: (...args) => record('map', ...args),
+        region: (...args) => record('region', ...args),
+        stair: (...args) => record('stair', ...args),
+        engraving: (...args) => record('engraving', ...args),
+        trap: (...args) => record('trap', ...args),
+        non_diggable: (...args) => record('non_diggable', ...args),
+    }, state);
     return log;
 }
 
@@ -414,6 +434,61 @@ test('tutorial menu uses the source config-file fallback text', () => {
 test('tutorial map preserves the source 75 by 18 descriptor', () => {
     assert.equal(TUTORIAL_MAP.length, 18);
     assert.ok(TUTORIAL_MAP.every((row) => row.length === 75));
+});
+
+test('tut-2 descriptor follows its Lua statements and active up binding', () => {
+    const log = recordTutorialSecondLevel();
+    // These rows are the dat/tut-2.lua:7-14 map, centred by des.map().
+    const sourceMap = [
+        '--------------',
+        '|............|',
+        '|............|',
+        '|............|',
+        '|............|',
+        '|............|',
+        '|............|',
+        '--------------',
+    ];
+    assert.deepEqual(TUTORIAL_SECOND_LEVEL_MAP, sourceMap);
+    assert.ok(sourceMap.every((row) => row.length === 14));
+    assert.deepEqual(log, [
+        // dat/tut-2.lua:2-4 selects these exact solid-fill and maze flags.
+        ['level_init', { style: 'solidfill', fg: ' ' }],
+        ['level_flags', 'mazelevel', 'noflip', 'nomongen', 'nodeathdrops',
+            'noautosearch'],
+        ['map', sourceMap],
+        // dat/tut-2.lua:18 lights the full 73 by 16 interior rectangle.
+        ['region', {
+            selection: {
+                absolute: false,
+                bounds: { lx: 1, ly: 1, hx: 73, hy: 16 },
+                // (73 - 1 + 1) * (16 - 1 + 1) interior cells.
+                numpoints: 1168,
+            },
+        }, 'lit'],
+        // dat/tut-2.lua:20 places its fixed up stair at this coordinate.
+        ['stair', { coord: [2, 2], dir: 'up' }],
+        // dat/tut-2.lua:22 engraves the active key returned by nh.eckey.
+        ['engraving', {
+            coord: [1, 1], type: 'burn',
+            text: "Use '<' to go up the stairs", degrade: false,
+        }],
+        // dat/tut-2.lua:25 places the one visible portal trap.
+        ['trap', { coord: [11, 5], seen: true, type: 'magic portal' }],
+        // dat/tut-2.lua:27 marks all level squares non-diggable.
+        ['non_diggable'],
+    ]);
+
+    const rebound = recordTutorialSecondLevel(tutorialState('', {
+        // OPTIONS bind changes the extcmdlist key returned by nh.eckey('up').
+        commandOperations: [{
+            type: 'bind', key: 'U'.charCodeAt(0), command: 'up',
+        }],
+    }));
+    assert.equal(
+        rebound.find(([name]) => name === 'engraving')[1].text,
+        "Use 'U' to go up the stairs",
+    );
 });
 
 test('tutorial descriptor retains the complete source call sequence', () => {

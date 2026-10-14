@@ -1964,6 +1964,7 @@ async function ensureSpecialLevelLoaders() {
     const { WIZARD2_LEVEL_LOADERS } = await import('./wizard2_levels.js');
     const { WIZARD3_LEVEL_LOADERS } = await import('./wizard3_levels.js');
     const { KNOX_LEVEL_LOADERS } = await import('./knox_levels.js');
+    const { TUTORIAL_LEVEL_LOADERS } = await import('./tutorial_level.js');
     SPECIAL_LEVEL_LOADERS = {
         ...BIGRM_LOADERS,
         ...QUEST_LEVEL_LOADERS,
@@ -1986,6 +1987,7 @@ async function ensureSpecialLevelLoaders() {
         ...WIZARD2_LEVEL_LOADERS,
         ...WIZARD3_LEVEL_LOADERS,
         ...KNOX_LEVEL_LOADERS,
+        ...TUTORIAL_LEVEL_LOADERS,
     };
     // Val-strt is the first translated level to use the Lua selection global.
     // Keep the established loader signature for every other level, including

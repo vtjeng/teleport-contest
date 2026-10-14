@@ -56,6 +56,17 @@ export const TUTORIAL_MAP = Object.freeze([
     '---------------------------------------------------------------------------',
 ]);
 
+export const TUTORIAL_SECOND_LEVEL_MAP = Object.freeze([
+    '--------------',
+    '|............|',
+    '|............|',
+    '|............|',
+    '|............|',
+    '|............|',
+    '|............|',
+    '--------------',
+]);
+
 function tutorialCommandKey(command, model) {
     let nonPrintable = 0;
     for (const binding of model.bindings) {
@@ -522,3 +533,32 @@ export function loadTutorialLevel(des, state) {
         coord: [72, 2], id: POT_OBJECT_DETECTION, buc: 'blessed',
     });
 }
+
+// Port of dat/tut-2.lua. The level uses the normal special-level registry,
+// unlike tut-1.lua, which is loaded directly during tutorial startup.
+export function loadTutorialSecondLevel(des, state) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags(
+        'mazelevel',
+        'noflip',
+        'nomongen',
+        'nodeathdrops',
+        'noautosearch',
+    );
+    des.map(TUTORIAL_SECOND_LEVEL_MAP);
+    des.region(selection_area(1, 1, 73, 16), 'lit');
+    des.stair({ dir: 'up', coord: [2, 2] });
+    des.engraving({
+        coord: [1, 1],
+        type: 'burn',
+        text: `Use '${tutorialCommandKey('up', createCommandBindingModel(state))}'`
+            + ' to go up the stairs',
+        degrade: false,
+    });
+    des.trap({ type: 'magic portal', coord: [11, 5], seen: true });
+    des.non_diggable();
+}
+
+export const TUTORIAL_LEVEL_LOADERS = Object.freeze({
+    'tut-2': loadTutorialSecondLevel,
+});
