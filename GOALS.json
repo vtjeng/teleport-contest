@@ -313083,7 +313083,7 @@
     {
       "id": "fix-flooreffects-killer-prefix-import-v71-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement flooreffects from do.c",
       "cFile": "do.c",
       "sessions": [
@@ -313093,15 +313093,111 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
       "delivered": null,
       "function": "flooreffects",
-      "session": "synthetic/v71/v71-hero-pit-boulder-action2"
+      "session": "synthetic/v71/v71-hero-pit-boulder-action2",
+      "closeStanding": {
+        "sha": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "9ad548afd8dea4e171324ffaee1d61abca681cc9",
+        "target": "synthetic/v71/v71-hero-pit-boulder-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34/run-hosted-a6vOOa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "flooreffects",
+            "implementation": "js/do.js",
+            "symbol": "flooreffects",
+            "sourceReview": "Read upstream do.c:flooreffects (161-357), including the trapped-hero boulder branch and its `goto deletedwithboulder`. The branch calls losehp with NO_KILLER_PREFIX, prints the trapped boulder message with vtense(NULL, verb), and skips the later generic pit-fill message after squishing the hero. JS now imports the C constant, conjugates the message, and preserves the source jump before trap and boulder cleanup.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropzAdmitted",
+                "source": "C wiz_wish -> makewish -> hold_another_object -> dropx/dropy/dropz -> flooreffects; JS wiz_wish -> makewish -> hold_another_object/gotoDrop -> dropx/dropzAdmitted -> flooreffects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/flooreffects.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-hero-pit-boulder-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 305,
+                "source": "C wizcmds.c:wiz_wish -> zap.c:makewish -> invent.c:hold_another_object/dropx -> do.c:flooreffects; JS wizcmds.js:wiz_wish -> zap.js:makewish -> invent.js:hold_another_object/dropx -> do.js:dropzAdmitted/flooreffects. The complete admitted replay matches through segment end, including the trapped-hero boulder damage, conjugated message and source goto cleanup."
+              }
+            ]
+          },
+          {
+            "sourceFile": "trap.c",
+            "name": "trapeffect_pit",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_pit",
+            "sourceReview": "Read upstream trap.c:trapeffect_pit (1824-2010). After ordinary pit damage and ball handling, C calls selftouch(\"Falling, you\") unless the pits are conjoined, then recalculates vision and exercises strength and dexterity. JS now awaits the existing trap.c:selftouch port at the same point. The focused test drives the ordinary pit branch with a wielded cockatrice corpse to its stoning-planning boundary.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "C dotrap -> trapeffect_selector -> trapeffect_pit; JS dotrap -> trapeffect_selector -> trapeffect_pit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-pit-selftouch.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-hero-pit-boulder-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 305,
+                "source": "C movement -> dotrap -> trapeffect_selector -> trap.c:trapeffect_pit; JS movement -> dotrap -> trapeffect_selector -> trap_effects.js:trapeffect_pit. The admitted replay matches through segment end, including the pit entry before the boulder floor-effect branch."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected runtime path enters a floor pit, then resolves a boulder landing while the hero is trapped there. The final committed replay matches all 306 screens, RNG calls, cursors and input boundaries. It reaches both trap.c:trapeffect_pit and do.c:flooreffects; neither function is cited from the earlier 0-264 prefix alone.",
+        "entryPoints": [
+          {
+            "name": "Resolve a boulder landing in the trapped hero pit",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapeffect_pit"
+              },
+              "flooreffects"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-hero-pit-boulder-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 305,
+                "source": "C wizcmds.c:wiz_wish -> zap.c:makewish -> invent.c:hold_another_object/dropx -> do.c:flooreffects, then movement -> trap.c:dotrap/trapeffect_selector/trapeffect_pit; JS wizcmds.js:wiz_wish -> zap.js:makewish -> invent.js:hold_another_object/dropx -> do.js:flooreffects, with movement -> trap_effects.js:dotrap/trapeffect_selector/trapeffect_pit. Complete replay match exercises both the pit selftouch boundary and trapped-hero boulder cleanup."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-monster-wand-shop-door-damage-v71-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mbhit from undefined",
       "cFile": "muse.c",
       "sessions": [
@@ -313111,15 +313207,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
       "delivered": null,
       "function": "mbhit",
-      "session": "synthetic/v71/v71-npc-striking-shop-ray-action9"
+      "session": "synthetic/v71/v71-npc-striking-shop-ray-action9",
+      "closeStanding": {
+        "sha": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "9ad548afd8dea4e171324ffaee1d61abca681cc9",
+        "target": "synthetic/v71/v71-npc-striking-shop-ray-action9",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34/run-hosted-a6vOOa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mbhit",
+            "implementation": "js/muse.js",
+            "symbol": "mbhit",
+            "sourceReview": "Reviewed muse.c:1734-1814 and its complete ray loop. In the door branch, C calls doorlock, calls makeknown(otyp) only when gz.zap_oseen, and records zero-cost shop damage only when the door is broken and in a shop. The port now references the corresponding state.gb.bhitpos and forwards rawEnv to discover_object, preserving the cloned random context during planner simulation. C hack.h:1530 defines makeknown as discover_object(...).",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "use_offensive",
+                "source": "muse.c:use_offensive calls mbhit for the monster offensive wand ray."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-npc-striking-shop-ray-action9",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 558,
+                "source": "muse.c:use_offensive -> mbhit -> doorlock/makeknown/add_damage"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is a monster using a wand of striking along a ray that reaches a shop door. In muse.c:use_offensive the monster attack reaches mbhit; the door branch calls doorlock, conditionally makes the wand known, and records zero-cost shop damage. The matching v71 recording reaches this branch and matches through step 558.",
+        "entryPoints": [
+          {
+            "name": "monster striking-wand ray breaks a shop door",
+            "functions": [
+              "mbhit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-npc-striking-shop-ray-action9",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 558,
+                "source": "muse.c:use_offensive -> mbhit -> doorlock/makeknown/add_damage"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-boots-simple-name-no-match-truthiness-v69-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement boots_simple_name from objnam.c",
       "cFile": "objnam.c",
       "sessions": [
@@ -313129,10 +313288,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
       "delivered": null,
       "function": "boots_simple_name",
-      "session": "synthetic/v69/v69-blocked-boots-action3"
+      "session": "synthetic/v69/v69-blocked-boots-action3",
+      "closeStanding": {
+        "sha": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "9ad548afd8dea4e171324ffaee1d61abca681cc9",
+        "target": "synthetic/v69/v69-blocked-boots-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34/run-hosted-a6vOOa/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "boots_simple_name",
+            "implementation": "js/objnam.js",
+            "symbol": "boots_simple_name",
+            "sourceReview": "objnam.c:boots_simple_name (5551-5567) returns \"shoes\" only when the description contains that word or a known actual name contains it; otherwise it returns \"boots\". The helper is pure. JS strstri returns the match offset and -1 for no match, so both conditions must test for a nonnegative result instead of using C pointer truthiness.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "armor_simple_name",
+                "source": "objnam.c:armor_simple_name dispatches ARM_BOOTS to boots_simple_name; js/objnam.js:armor_simple_name has the corresponding ARM_BOOTS call."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-blocked-boots-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 416,
+                "source": "steal.c:steal -> objnam.c:armor_simple_name -> objnam.c:boots_simple_name during water-nymph seduction of worn levitation boots"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected range is one pure naming helper, not a separate command entry point. Its production route is a water-nymph seduction in steal.c:steal, which calls armor_simple_name; objnam.c:armor_simple_name then calls boots_simple_name for ARM_BOOTS. The admitted v69 replay exercises this entire route.",
+        "entryPoints": [
+          {
+            "name": "water-nymph seduction removing worn boots",
+            "functions": [
+              "boots_simple_name"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v69",
+                "caseId": "v69-blocked-boots-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 416,
+                "source": "steal.c:steal -> objnam.c:armor_simple_name -> objnam.c:boots_simple_name during water-nymph seduction of worn levitation boots"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

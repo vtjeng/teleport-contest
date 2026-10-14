@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T21:24:05.421Z",
+  "capturedAt": "2026-10-14T21:36:45.694Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -126490,22 +126490,252 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep37 has five provisional source failures after fifteen matching routes. New captures await Main’s baseline import and queue refresh; source comparisons and durable backups continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep36-3170be134b3c9dd71787d0218d23621edbc421e6",
+        "type": "published",
+        "at": "2026-10-14T21:24:11.843Z",
+        "task": "Prep36",
+        "commit": "3170be134b3c9dd71787d0218d23621edbc421e6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-frost-horn-turn-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:24:35.453Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v72-opening-pet-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:24:41.280Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-investigation-v72-frost-horn-self-action4-20261014-assign",
+        "type": "assign",
+        "at": "2026-10-14T21:24:49.113Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-177ad07bccbf70ed7187589d7f3e35f8738fb1bc81b447bb1c4dc67c242aadbf-A2-investigation-v71-hero-pit-boulder-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:25:04.889Z",
+        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+        "integration": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "validationGroup": [
+          "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+          "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+          "A2-investigation-v69-blocked-boots-action3-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-177ad07bccbf70ed7187589d7f3e35f8738fb1bc81b447bb1c4dc67c242aadbf-B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:25:04.889Z",
+        "task": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+        "integration": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "validationGroup": [
+          "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+          "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+          "A2-investigation-v69-blocked-boots-action3-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-177ad07bccbf70ed7187589d7f3e35f8738fb1bc81b447bb1c4dc67c242aadbf-A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T21:25:04.889Z",
+        "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "integration": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+        "validationGroup": [
+          "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+          "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+          "A2-investigation-v69-blocked-boots-action3-followup-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-frost-horn-source-scope-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:25:15.788Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "goal": "fix-music-do-improvisation-killed-by-reference-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v72-opening-pet-bhitm-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:25:35.619Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "goal": "fix-unsaddled-steed-opening-wand-saddle-lookup-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v72-opening-pet-action2-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:28:38.570Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c9c9104f918e0042ad28e85969531882036c1526",
+        "type": "ready",
+        "at": "2026-10-14T21:28:51.552Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "delivery": "c9c9104f918e0042ad28e85969531882036c1526"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ceb972ed894081aeebfed44e781d16526dc9d9ec",
+        "type": "ready",
+        "at": "2026-10-14T21:29:57.237Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "delivery": "ceb972ed894081aeebfed44e781d16526dc9d9ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v72-floating-eye-passive-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:30:00.636Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v72-opening-pet-c9c9104",
+        "type": "received",
+        "at": "2026-10-14T21:30:20.331Z",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
+        "delivery": "c9c9104f918e0042ad28e85969531882036c1526"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-investigation-v72-adornment-cancel-scout1-20261014-assign",
+        "type": "assign",
+        "at": "2026-10-14T21:30:42.322Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v72-frost-horn-ceb972e",
+        "type": "received",
+        "at": "2026-10-14T21:30:45.772Z",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "delivery": "ceb972ed894081aeebfed44e781d16526dc9d9ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v72-floating-eye-passive-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:31:10.116Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "goal": "fix-floating-eye-passive-reflection-lookup-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v72-adornment-cancel-source-scope-v2-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:32:02.957Z",
+        "task": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "goal": "fix-zap-cancel-item-charisma-reference-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2b8b98c31e92057e320e77b3735678a131a27603",
+        "type": "ready",
+        "at": "2026-10-14T21:32:16.249Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "delivery": "2b8b98c31e92057e320e77b3735678a131a27603"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v72-floating-eye-2b8b98c",
+        "type": "received",
+        "at": "2026-10-14T21:32:46.370Z",
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "delivery": "2b8b98c31e92057e320e77b3735678a131a27603"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v72-clinger-attributes-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:32:50.163Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v72-clinger-attributes-enlightenment-20261014",
+        "type": "implement",
+        "at": "2026-10-14T21:33:31.130Z",
+        "task": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "goal": "fix-clinger-attributes-enlightenment-ceiling-import-v72-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v71-hero-pit-boulder-action2-20261014-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:34:31.484Z",
+        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v71-npc-striking-shop-ray-action9-20261014-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:34:31.484Z",
+        "task": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v69-blocked-boots-action3-followup-20261014-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:34:31.484Z",
+        "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v71-hero-pit-boulder-action2-20261014-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:35:02.429Z",
+        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v71-npc-striking-shop-ray-action9-20261014-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:35:02.429Z",
+        "task": "B-investigation-v71-npc-striking-shop-ray-action9-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v69-blocked-boots-action3-followup-20261014-17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:35:02.429Z",
+        "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
-        "worker": "A2",
-        "goal": "fix-flooreffects-killer-prefix-import-v71-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a14ca0b3013e86f346eb205c08d0f21a9714ee8d",
-        "since": "2026-10-14T21:01:03.029Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v71-monster-leveltele-action2-20261014",
         "worker": "C",
@@ -126518,24 +126748,35 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+        "task": "B-investigation-v72-opening-pet-action2-20261014",
         "worker": "B",
-        "goal": "fix-monster-wand-shop-door-damage-v71-20261014",
+        "goal": "fix-unsaddled-steed-opening-wand-saddle-lookup-v72-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "d72d19646c9485eda9592a994e6226b633c72d8a",
-        "since": "2026-10-14T21:04:18.005Z",
+        "delivery": "c9c9104f918e0042ad28e85969531882036c1526",
+        "since": "2026-10-14T21:28:51.552Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "task": "A2-investigation-v72-frost-horn-self-action4-20261014",
         "worker": "A2",
-        "goal": "fix-boots-simple-name-no-match-truthiness-v69-20261014",
+        "goal": "fix-music-do-improvisation-killed-by-reference-v72-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "43571cde36d4eb25ed22118a0dfbab45681eab8d",
-        "since": "2026-10-14T21:15:30.245Z",
+        "delivery": "ceb972ed894081aeebfed44e781d16526dc9d9ec",
+        "since": "2026-10-14T21:29:57.237Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "worker": "B",
+        "goal": "fix-floating-eye-passive-reflection-lookup-v72-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2b8b98c31e92057e320e77b3735678a131a27603",
+        "since": "2026-10-14T21:32:16.249Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -127701,16 +127942,6 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "B-investigation-v71-npc-striking-shop-ray-action9-20261014": {
-        "id": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v71/v71-npc-striking-shop-ray-action9",
-        "reservations": [
-          "session:synthetic/v71/v71-npc-striking-shop-ray-action9",
-          "source:muse.c:mbhit"
-        ]
-      },
       "C-investigation-v71-monster-leveltele-action2-20261014": {
         "id": "C-investigation-v71-monster-leveltele-action2-20261014",
         "worker": "C",
@@ -127722,27 +127953,6 @@
           "source:teleport.c:random_teleport_level"
         ]
       },
-      "A2-investigation-v71-hero-pit-boulder-action2-20261014": {
-        "id": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v71/v71-hero-pit-boulder-action2",
-        "reservations": [
-          "session:synthetic/v71/v71-hero-pit-boulder-action2",
-          "source:do.c:flooreffects",
-          "source:trap.c:trapeffect_pit"
-        ]
-      },
-      "A2-investigation-v69-blocked-boots-action3-followup-20261014": {
-        "id": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v69/v69-blocked-boots-action3",
-        "reservations": [
-          "session:synthetic/v69/v69-blocked-boots-action3",
-          "source:objnam.c:boots_simple_name"
-        ]
-      },
       "C-investigation-v70-cube-glob-scout2-followup-20261014": {
         "id": "C-investigation-v70-cube-glob-scout2-followup-20261014",
         "worker": "C",
@@ -127751,21 +127961,62 @@
         "reservations": [
           "session:synthetic/v70/v70-cube-glob-scout2",
           "source:mon.c:m_consume_obj",
-          "source:cmd.c:get_count"
+          "source:cmd.c:get_count",
+          "source:mon.c:meatobj"
+        ]
+      },
+      "B-investigation-v72-opening-pet-action2-20261014": {
+        "id": "B-investigation-v72-opening-pet-action2-20261014",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v72/v72-opening-pet-action2",
+        "reservations": [
+          "session:synthetic/v72/v72-opening-pet-action2",
+          "source:zap.c:bhitm"
+        ]
+      },
+      "A2-investigation-v72-frost-horn-self-action4-20261014": {
+        "id": "A2-investigation-v72-frost-horn-self-action4-20261014",
+        "worker": "A2",
+        "status": "ready",
+        "seed": "synthetic/v72/v72-frost-horn-self-action4",
+        "reservations": [
+          "session:synthetic/v72/v72-frost-horn-self-action4",
+          "source:music.c:do_improvisation"
+        ]
+      },
+      "B-investigation-v72-floating-eye-passive-action2-20261014": {
+        "id": "B-investigation-v72-floating-eye-passive-action2-20261014",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v72/v72-floating-eye-passive-action2",
+        "reservations": [
+          "session:synthetic/v72/v72-floating-eye-passive-action2",
+          "source:uhitm.c:passive"
+        ]
+      },
+      "A2-investigation-v72-adornment-cancel-scout1-20261014": {
+        "id": "A2-investigation-v72-adornment-cancel-scout1-20261014",
+        "worker": "A2",
+        "status": "working",
+        "seed": "synthetic/v72/v72-adornment-cancel-scout1",
+        "reservations": [
+          "session:synthetic/v72/v72-adornment-cancel-scout1",
+          "source:zap.c:cancel_item"
+        ]
+      },
+      "B-investigation-v72-clinger-attributes-action2-20261014": {
+        "id": "B-investigation-v72-clinger-attributes-action2-20261014",
+        "worker": "B",
+        "status": "working",
+        "seed": "synthetic/v72/v72-clinger-attributes-action2",
+        "reservations": [
+          "session:synthetic/v72/v72-clinger-attributes-action2",
+          "source:insight.c:attributes_enlightenment"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v71/v71-npc-striking-shop-ray-action9": {
-        "tasks": [
-          "B-investigation-v71-npc-striking-shop-ray-action9-20261014"
-        ]
-      },
-      "source:muse.c:mbhit": {
-        "tasks": [
-          "B-investigation-v71-npc-striking-shop-ray-action9-20261014"
-        ]
-      },
       "session:synthetic/v71/v71-monster-leveltele-action2": {
         "tasks": [
           "C-investigation-v71-monster-leveltele-action2-20261014"
@@ -127779,31 +128030,6 @@
       "source:teleport.c:random_teleport_level": {
         "tasks": [
           "C-investigation-v71-monster-leveltele-action2-20261014"
-        ]
-      },
-      "session:synthetic/v71/v71-hero-pit-boulder-action2": {
-        "tasks": [
-          "A2-investigation-v71-hero-pit-boulder-action2-20261014"
-        ]
-      },
-      "source:do.c:flooreffects": {
-        "tasks": [
-          "A2-investigation-v71-hero-pit-boulder-action2-20261014"
-        ]
-      },
-      "source:trap.c:trapeffect_pit": {
-        "tasks": [
-          "A2-investigation-v71-hero-pit-boulder-action2-20261014"
-        ]
-      },
-      "session:synthetic/v69/v69-blocked-boots-action3": {
-        "tasks": [
-          "A2-investigation-v69-blocked-boots-action3-followup-20261014"
-        ]
-      },
-      "source:objnam.c:boots_simple_name": {
-        "tasks": [
-          "A2-investigation-v69-blocked-boots-action3-followup-20261014"
         ]
       },
       "session:synthetic/v70/v70-cube-glob-scout2": {
@@ -127820,12 +128046,67 @@
         "tasks": [
           "C-investigation-v70-cube-glob-scout2-followup-20261014"
         ]
+      },
+      "source:mon.c:meatobj": {
+        "tasks": [
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
+      },
+      "session:synthetic/v72/v72-opening-pet-action2": {
+        "tasks": [
+          "B-investigation-v72-opening-pet-action2-20261014"
+        ]
+      },
+      "source:zap.c:bhitm": {
+        "tasks": [
+          "B-investigation-v72-opening-pet-action2-20261014"
+        ]
+      },
+      "session:synthetic/v72/v72-frost-horn-self-action4": {
+        "tasks": [
+          "A2-investigation-v72-frost-horn-self-action4-20261014"
+        ]
+      },
+      "source:music.c:do_improvisation": {
+        "tasks": [
+          "A2-investigation-v72-frost-horn-self-action4-20261014"
+        ]
+      },
+      "session:synthetic/v72/v72-floating-eye-passive-action2": {
+        "tasks": [
+          "B-investigation-v72-floating-eye-passive-action2-20261014"
+        ]
+      },
+      "source:uhitm.c:passive": {
+        "tasks": [
+          "B-investigation-v72-floating-eye-passive-action2-20261014"
+        ]
+      },
+      "session:synthetic/v72/v72-adornment-cancel-scout1": {
+        "tasks": [
+          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+        ]
+      },
+      "source:zap.c:cancel_item": {
+        "tasks": [
+          "A2-investigation-v72-adornment-cancel-scout1-20261014"
+        ]
+      },
+      "session:synthetic/v72/v72-clinger-attributes-action2": {
+        "tasks": [
+          "B-investigation-v72-clinger-attributes-action2-20261014"
+        ]
+      },
+      "source:insight.c:attributes_enlightenment": {
+        "tasks": [
+          "B-investigation-v72-clinger-attributes-action2-20261014"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "9ad548afd8dea4e171324ffaee1d61abca681cc9",
-    "measuredAt": "2026-10-14T21:13:09.847Z",
+    "executionCommit": "17570e43f70ae6e29409fcfe6d9b3c4f5b2c2c34",
+    "measuredAt": "2026-10-14T21:30:45.774Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
