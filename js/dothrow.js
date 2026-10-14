@@ -224,7 +224,7 @@ import {
     switch_terrain,
     weight_cap,
 } from './hack.js';
-import { distmin, ordin, sgn, s_suffix } from './hacklib.js';
+import { dist2, distmin, ordin, sgn, s_suffix } from './hacklib.js';
 import {
     addinv,
     addinv_before,
@@ -1816,8 +1816,10 @@ export async function breakobj(
     return 1;
 }
 
-function next2u(x, y, state) {
-    return distmin(x, y, state.u?.ux, state.u?.uy) <= 2;
+export function next2u(x, y, state = game) {
+    // you.h next2u(px,py) is distu((px),(py)) <= 2; distu is squared
+    // Euclidean distance, so an orthogonal square two cells away is outside.
+    return dist2(x, y, state.u?.ux, state.u?.uy) <= 2;
 }
 
 // C ref: dothrow.c ok_to_throw() (295-317), "common to dothrow() and
