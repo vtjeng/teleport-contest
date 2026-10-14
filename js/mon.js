@@ -361,6 +361,7 @@ import {
     vegan,
     verysmall,
     set_mon_data,
+    slimeproof,
     dead_species,
     olfaction,
 } from './mondata.js';

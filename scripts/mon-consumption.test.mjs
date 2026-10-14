@@ -1,7 +1,26 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { FIRE_RES, ROWNO, COLNO, ROOM } from '../js/const.js';
+
+const C_MON_SOURCE = readFileSync('nethack-c/upstream/src/mon.c', 'utf8');
+const JS_MON_SOURCE = readFileSync('js/mon.js', 'utf8');
+
+test('meatobj imports and applies source slimeproof for green slime glob', () => {
+    const cStart = C_MON_SOURCE.indexOf('meatobj(struct monst *mtmp)');
+    const cEnd = C_MON_SOURCE.indexOf('\n#undef mstoning', cStart);
+    const jsStart = JS_MON_SOURCE.indexOf('export async function meatobj(');
+    const jsEnd = JS_MON_SOURCE.indexOf('\n}', jsStart);
+    const cFunction = C_MON_SOURCE.slice(cStart, cEnd);
+    const jsFunction = JS_MON_SOURCE.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart, 'C meatobj source range exists');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'JS meatobj source range exists');
+    assert.match(cFunction, /GLOB_OF_GREEN_SLIME[\s\S]{0,80}slimeproof\(mtmp->data\)/u);
+    assert.match(jsFunction, /GLOB_OF_GREEN_SLIME && !slimeproof\(mtmp\.data\)/u);
+    assert.match(JS_MON_SOURCE, /import \{[\s\S]*?\bslimeproof\b[\s\S]*?\} from '\.\/mondata\.js';/u);
+});
 import { GameMap } from '../js/game.js';
 import {
     meatcorpse,
