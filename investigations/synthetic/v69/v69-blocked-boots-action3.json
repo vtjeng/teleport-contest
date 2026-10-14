@@ -12,7 +12,7 @@
   "remainingScreens": 18,
   "recordedSteps": 417,
   "status": "complete",
-  "commit": "3111b052a98d35333fe7713090f8de007b193909",
+  "commit": "31f7521897c9b207f0fa4e056c45c0b138970a46",
   "mismatch": {
     "session": "synthetic/v69/v69-blocked-boots-action3",
     "batch": "v69",
@@ -20,7 +20,7 @@
     "remainingScreens": 18,
     "recordingPath": "challenges/cases/v69/v69-blocked-boots-action3.session.json"
   },
-  "summary": "When levitation boots activate while the hero is caught in a web, C's trap.c:float_up compares u.utraptype (TT_WEB=3) to WEB (18), so that condition is false and C prints the generic leg-still-stuck message. JavaScript compared against TT_WEB instead and printed a web-specific message, causing the first screen mismatch at segment 0 step 219. The correction preserves C's accidental enum comparison and matches through step 326. The replay then exposes a separate water-nymph message mismatch at step 327: C says 'boots' while JS says 'shoes'.",
+  "summary": "When levitation boots activate while the hero is caught in a web, C's trap.c:float_up compares u.utraptype (TT_WEB=3) to WEB (18), so that condition is false and C prints the generic leg-still-stuck message. JavaScript compared against TT_WEB instead and printed a web-specific message, causing the first screen mismatch at segment 0 step 219. The correction preserves C's accidental enum comparison and matches through step 326. The replay then exposes a separate water-nymph message mismatch at step 327: C says 'boots' while JS says 'shoes'. Follow-up task A2-investigation-v69-blocked-boots-action3-followup-20261014 fixed the subsequent boots/shoes mismatch in objnam.c:boots_simple_name; the admitted recording now matches all screens, RNG calls, cursors, and input boundaries through step 416.",
   "fix": {
     "commit": "3111b052a98d35333fe7713090f8de007b193909",
     "files": [
@@ -64,5 +64,72 @@
     "The v58 blocked-levitation bear-trap case exercises reset_utrap followed by float_up after the bear trap is removed; the hero is no longer trapped there. It does not cover this caught-web enum comparison. The v69 case reaches the different still-trapped branch.",
     "scripts/hero-bear-trap.test.mjs passed 22 tests and npm run lint passed.",
     "The corrected replay matches 327 screens/cursors and all 3315 RNG calls through step 326; the synthetic range verifier confirms segment 0 through step 326. The new first mismatch at step 327 is the separate boots-versus-shoes message recorded in followOnMismatch."
-  ]
+  ],
+  "followup": {
+    "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
+    "goal": "fix-boots-simple-name-no-match-truthiness-v69-20261014",
+    "base": "4c0628d7956b8e7bdbbe66def26b1fb792941b51",
+    "sourceCommit": "31f7521897c9b207f0fa4e056c45c0b138970a46",
+    "baselineEvaluation": {
+      "path": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v69.json",
+      "commit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+      "screens": {
+        "matched": 400,
+        "total": 417
+      },
+      "rng": {
+        "matched": 3315,
+        "total": 3315
+      },
+      "cursors": {
+        "matched": 417,
+        "total": 417
+      }
+    },
+    "mismatch": {
+      "segment": 0,
+      "step": 327,
+      "key": ".",
+      "kind": "screen",
+      "row": 0,
+      "column": 60,
+      "c": "b",
+      "javascript": "s",
+      "rngMatchedAtBoundary": true,
+      "cursorMatchedAtBoundary": true
+    },
+    "diagnosis": "The charm branch in steal.c:steal and js/steal.js:steal both call armor_simple_name on the worn levitation boots. The C boots_simple_name() tests strstri() pointers for truth; JS strstri() returns a numeric offset and -1 for no match. Treating -1 as truthy made the JS helper return \"shoes\" for the shuffled \"mud boots\" description and known name \"levitation boots\".",
+    "source": {
+      "file": "objnam.c",
+      "function": "boots_simple_name",
+      "lines": "5551-5567",
+      "javascript": "js/objnam.js:boots_simple_name",
+      "callerPath": "steal.c:steal -> objnam.c:armor_simple_name -> objnam.c:boots_simple_name; JS js/steal.js:steal -> js/objnam.js:armor_simple_name -> boots_simple_name"
+    },
+    "fix": "Test both strstri() results with >= 0, preserving the C rule that \"shoes\" is selected only when the description or known name actually contains that substring. Added a pure-function regression assertion for known levitation boots with the nonmatching \"snow boots\" appearance.",
+    "evidence": {
+      "replayRun": "run-RkbHDz",
+      "replayCommit": "4c0628d7956b8e7bdbbe66def26b1fb792941b51",
+      "replayInputSha256": "1cc921667e409435db8f585c3de8efbf5f77e56f475b6093220e4f23bfbf2166",
+      "recording": {
+        "screens": 417,
+        "matched": 417,
+        "rngMatched": 3315,
+        "rngTotal": 3315,
+        "cursorsMatched": 417,
+        "cursorsTotal": 417,
+        "inputBoundaryMatched": true,
+        "throughStep": 416
+      },
+      "rangeEvidenceRun": "run-olg1W7",
+      "focusedTest": {
+        "run": "run-8OeLbO",
+        "passed": 104
+      },
+      "lint": {
+        "run": "run-5pZdj2",
+        "passed": true
+      }
+    }
+  }
 }
