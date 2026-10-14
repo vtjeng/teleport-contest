@@ -1,0 +1,74 @@
+{
+  "session": "synthetic/v72/v72-elf-bow-shot-action2",
+  "remainingScreens": 362,
+  "recordedSteps": 362,
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-elf-bow-shot-action2",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingSha256": "40a28e6bb2b13947613a1bc497a09f7c8840fe810833a5eac44b9caa467adffa",
+  "recipeSha256": "a477506888d47075eb30c6ae48d9cd441162b4129badad68ff61dcac63b00450",
+  "replayInputSha256": "cdeab14314d49a490fec105d2f77c8141a6c762ccc06e6cb99ad84af1cb26336",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "status": "complete",
+  "commit": "36d65f62fb43ac185029aced436908928ce1f85f",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v72",
+    "caseId": "v72-elf-bow-shot-action2",
+    "session": "synthetic/v72/v72-elf-bow-shot-action2",
+    "manifestPath": "challenges/manifests/v72.json",
+    "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+    "recording": "challenges/cases/v72/v72-elf-bow-shot-action2.session.json",
+    "recordingPath": "challenges/cases/v72/v72-elf-bow-shot-action2.session.json",
+    "recordingSha256": "40a28e6bb2b13947613a1bc497a09f7c8840fe810833a5eac44b9caa467adffa",
+    "recipe": "challenges/cases/v72/v72-elf-bow-shot-action2.recipe.session.json",
+    "recipeSha256": "a477506888d47075eb30c6ae48d9cd441162b4129badad68ff61dcac63b00450",
+    "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+    "remainingScreens": 362,
+    "recordedSteps": 362,
+    "previousScreensMatched": 0,
+    "regression": false,
+    "passed": false,
+    "error": "ELVEN_BOW is not defined",
+    "metrics": {
+      "screens": { "matched": 0, "total": 362 },
+      "rng": { "matched": 0, "total": 2145 },
+      "cursors": { "matched": 0, "total": 362 }
+    },
+    "firstMismatch": {
+      "kind": "ReferenceError",
+      "message": "ELVEN_BOW is not defined",
+      "step": 310
+    },
+    "step": 310,
+    "kind": "ReferenceError",
+    "sourceFile": "uhitm.c",
+    "function": "hmon_hitmon_weapon_melee",
+    "message": "ELVEN_BOW is not defined",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": 1057
+  },
+  "summary": "An Elf Ranger fires runed arrows from an elven bow. When the second volley arrow hits an iron golem, the JS hmon_hitmon_weapon_melee path evaluates ELVEN_BOW for C's elven launcher damage bonus but the constant is not imported, stopping the replay.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "hmon_hitmon_weapon_melee checks thrown ammunition after the melee damage setup. For a thrown elven arrow, it verifies the elf race and ELVEN_ARROW, then checks whether the hero's launcher is ELVEN_BOW before adding one damage. C declares this branch at uhitm.c:1053-1058; JS mirrors it but leaves ELVEN_BOW out of its objects.js imports.",
+    "functions": ["hmon_hitmon_weapon_melee"],
+    "callers": [
+      "uhitm.c:hmon_hitmon_weapon -> hmon_hitmon_weapon_melee",
+      "js/uhitm.js:hmon_hitmon_weapon -> hmon_hitmon_weapon_melee",
+      "dothrow.c:throwit -> thitmonst -> hmon -> hmon_hitmon"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read nethack-c/upstream/src/uhitm.c:933-1067. The thrown ammunition arm at 1050-1063 uses Race_if(PM_ELF), ELVEN_ARROW and ELVEN_BOW in order, adding one damage only when ammo_and_launcher succeeds.",
+    "Read js/uhitm.js:2753-2885. Its corresponding thrown-arrow arm already mirrors those conditions and reads ELVEN_ARROW, but ELVEN_BOW is absent from the objects.js import list. js/objects.js exports ELVEN_BOW.",
+    "The admitted prefix receipt matches 310 screens and cursors and 2099 RNG values before the error at step 310. The evaluation records the stopped replay as 0 complete matches across 362 screens, 2145 RNG values and 362 cursors. Its C outcome shows the second runed arrow hitting the iron golem; the production path reaches hmon_hitmon_weapon_melee through hmon_hitmon_weapon -> hmon_hitmon -> hmon -> thitmonst -> throwit."
+  ]
+}
