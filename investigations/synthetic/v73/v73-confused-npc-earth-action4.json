@@ -67,7 +67,9 @@
     "owner": "B",
     "source": "muse.c:use_offensive",
     "jsFile": "js/muse.js",
-    "finding": "After the corrected breakobj action, a full replay reaches the later Earth-scroll action and stops at ReferenceError: mon_nam is not defined in js/muse.js:2861. This continuation is beyond this task’s corrected boundary and overlaps B’s active use_offensive reservation. The official v73 baseline error remains null; this local post-fix continuation error is reported separately."
+    "finding": "After the corrected breakobj action, a full replay reaches the later Earth-scroll action and stops at ReferenceError: mon_nam is not defined in js/muse.js:2861. This continuation is beyond this task’s corrected boundary and overlaps B’s active use_offensive reservation. The official v73 baseline error remains null; this local post-fix continuation error is reported separately.",
+    "dependencyDelivery": "cb6ed9364a04f4a6a84d75d5eb8f35df3b0073f8",
+    "dependencyTask": "B-investigation-v73-helmet-npc-earth-action5-20261014"
   },
   "partialVerification": {
     "command": "node scripts/run-bounded.mjs focused -- node .cache/v73-next2u-prefix-check.mjs",
