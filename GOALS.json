@@ -312918,7 +312918,7 @@
     {
       "id": "fix-endgame-quantum-cat-species-reference-v71-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement really_done from end.c",
       "cFile": "end.c",
       "sessions": [
@@ -312928,15 +312928,81 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "da8a3b85c842abd5c56506a233c0015fe2639d52",
       "delivered": null,
       "function": "really_done",
-      "session": "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8"
+      "session": "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8",
+      "closeStanding": {
+        "sha": "da8a3b85c842abd5c56506a233c0015fe2639d52",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+        "target": "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/da8a3b85c842abd5c56506a233c0015fe2639d52/run-hosted-XXu3wO/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "really_done",
+            "implementation": "js/end.js",
+            "symbol": "really_done",
+            "sourceReview": "Read the complete upstream definition at nethack-c/upstream/src/end.c:1130-1593. In the ESCAPED/ASCENDED score branch, C checks Schroedingers_cat and computes adj_lev(&mons[PM_HOUSECAT]); JS had the corresponding state.mons[PM_HOUSECAT] lookup but did not import PM_HOUSECAT. The fix adds that import; no gameplay logic, call order, or random calls change.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "done",
+                "source": "end.c:done calls really_done for the completed escape path; js/end.js:done awaits the same finalizer."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/end-really-done.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-quantum-box-escape-no-disclosure-action8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 717,
+                "source": "end.c:done -> end.c:really_done live quantum-cat score lookup -> adj_lev(&mons[PM_HOUSECAT])"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected v71 recording resolves a live cat from a genuine quantum box, escapes with disclose:none, and reaches really_done's pet-score branch. The admitted case initially stopped at the missing JS PM_HOUSECAT binding. After importing it, the unchanged recording matches its full 718-step runtime trace.",
+        "entryPoints": [
+          {
+            "name": "Escape finalization when quantum-box resolution leaves a live cat",
+            "functions": [
+              {
+                "sourceFile": "end.c",
+                "name": "really_done"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-quantum-box-escape-no-disclosure-action8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 717,
+                "source": "end.c:done -> end.c:really_done live quantum-cat score lookup -> adj_lev(&mons[PM_HOUSECAT])"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-use-whip-mimic-import-v71-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement use_whip from apply.c",
       "cFile": "apply.c",
       "sessions": [
@@ -312946,10 +313012,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "da8a3b85c842abd5c56506a233c0015fe2639d52",
       "delivered": null,
       "function": "use_whip",
-      "session": "synthetic/v71/v71-whip-mimic-action3"
+      "session": "synthetic/v71/v71-whip-mimic-action3",
+      "closeStanding": {
+        "sha": "da8a3b85c842abd5c56506a233c0015fe2639d52",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+        "target": "synthetic/v71/v71-whip-mimic-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/da8a3b85c842abd5c56506a233c0015fe2639d52/run-hosted-XXu3wO/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_whip",
+            "implementation": "js/apply.js",
+            "symbol": "use_whip",
+            "sourceReview": "Read complete upstream apply.c:use_whip (2955-3271), including wielding, targeting, proficiency, floor object, mimic attack, and return branches. This divergence fix covers the branch where a wielded bullwhip targets a disguised monster when Protection from shape changers is inactive and sensemon is false. C calls uhitm.c:stumble_onto_mimic(mtmp), discards its return, sets do_snap false, conditionally calls force_attack, and wakes the monster. JavaScript already implements that same branch and awaits the existing uhitm.js:stumble_onto_mimic helper; adding the missing named import restores its runtime binding. No function behavior or random ordering changed. Other use_whip branches remain outside this branch correction.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply dispatches the BULLWHIP object to apply.c:use_whip; js/apply.js:doapply dispatches BULLWHIP to js/apply.js:use_whip after cmd.js routes the apply command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-whip-mimic-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 246,
+                "source": "C apply.c:doapply BULLWHIP -> apply.c:use_whip disguised-mimic branch -> uhitm.c:stumble_onto_mimic; JS cmd.js apply command -> apply.js:doapply -> apply.js:use_whip/whipattack -> uhitm.js:stumble_onto_mimic."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected active entry point is applying a wielded bullwhip toward an undiscovered mimic. The complete admitted v71 recording matches through step 246, including the C use_whip -> stumble_onto_mimic branch and the source call ordering. The fix only adds the missing helper import; it does not certify all branches of apply.c:use_whip.",
+        "entryPoints": [
+          {
+            "name": "Apply a wielded bullwhip to an undiscovered mimic",
+            "functions": [
+              "use_whip"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v71",
+                "caseId": "v71-whip-mimic-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 246,
+                "source": "apply.c:doapply -> use_whip -> stumble_onto_mimic and continued whip completion, exercised through production JS command dispatch."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

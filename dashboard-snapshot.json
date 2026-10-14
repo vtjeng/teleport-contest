@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T20:53:55.236Z",
+  "capturedAt": "2026-10-14T21:06:40.570Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -126121,33 +126121,193 @@
         "type": "accepted",
         "at": "2026-10-14T20:51:59.329Z",
         "task": "C-investigation-v69-vanq-sort-recovered4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v69-blocked-boots-action3-20261014-29a696b7cc9f05dd2d7df7a8169441847930ff6e",
+        "type": "published",
+        "at": "2026-10-14T20:54:09.969Z",
+        "task": "B-investigation-v69-blocked-boots-action3-20261014",
+        "commit": "29a696b7cc9f05dd2d7df7a8169441847930ff6e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v70-cube-glob-scout2-20261014-29a696b7cc9f05dd2d7df7a8169441847930ff6e",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:54:14.181Z",
+        "task": "A2-investigation-v70-cube-glob-scout2-20261014",
+        "commit": "29a696b7cc9f05dd2d7df7a8169441847930ff6e",
+        "knownBy": "2026-10-14T20:54:09.969Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v69-vanq-sort-recovered4-20261014-29a696b7cc9f05dd2d7df7a8169441847930ff6e",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T20:54:15.554Z",
+        "task": "C-investigation-v69-vanq-sort-recovered4-20261014",
+        "commit": "29a696b7cc9f05dd2d7df7a8169441847930ff6e",
+        "knownBy": "2026-10-14T20:54:09.969Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-da8a3b85c842abd5c56506a233c0015fe2639d52-cf1f2975bdff67987ae3144cfe1397e73f9bf496c17fe233486d5348b4a7354d-C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T20:54:46.054Z",
+        "task": "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
+        "integration": "da8a3b85c842abd5c56506a233c0015fe2639d52",
+        "validationGroup": [
+          "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
+          "A2-investigation-v71-whip-mimic-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-da8a3b85c842abd5c56506a233c0015fe2639d52-cf1f2975bdff67987ae3144cfe1397e73f9bf496c17fe233486d5348b4a7354d-A2-investigation-v71-whip-mimic-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T20:54:46.054Z",
+        "task": "A2-investigation-v71-whip-mimic-action3-20261014",
+        "integration": "da8a3b85c842abd5c56506a233c0015fe2639d52",
+        "validationGroup": [
+          "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
+          "A2-investigation-v71-whip-mimic-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a14ca0b3013e86f346eb205c08d0f21a9714ee8d",
+        "type": "ready",
+        "at": "2026-10-14T21:01:03.029Z",
+        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+        "delivery": "a14ca0b3013e86f346eb205c08d0f21a9714ee8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a14ca0b3013e86f346eb205c08d0f21a9714ee8d",
+        "type": "received",
+        "at": "2026-10-14T21:01:24.083Z",
+        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+        "delivery": "a14ca0b3013e86f346eb205c08d0f21a9714ee8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-v71-boulder-submit-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:01:28.892Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Boulder correction submitted with a complete matching replay; waiting for an independently available case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-87daae69df649b82ce22cd15f85ea216e131f009",
+        "type": "ready",
+        "at": "2026-10-14T21:02:33.291Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "delivery": "87daae69df649b82ce22cd15f85ea216e131f009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-87daae69df649b82ce22cd15f85ea216e131f009",
+        "type": "received",
+        "at": "2026-10-14T21:03:00.207Z",
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "delivery": "87daae69df649b82ce22cd15f85ea216e131f009"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:03:37.680Z",
+        "task": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v69-followup-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:03:47.697Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014-da8a3b85c842abd5c56506a233c0015fe2639d52-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:03:53.850Z",
+        "task": "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v71-whip-mimic-action3-20261014-da8a3b85c842abd5c56506a233c0015fe2639d52-validated",
+        "type": "validated",
+        "at": "2026-10-14T21:03:53.850Z",
+        "task": "A2-investigation-v71-whip-mimic-action3-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d72d19646c9485eda9592a994e6226b633c72d8a",
+        "type": "ready",
+        "at": "2026-10-14T21:04:18.005Z",
+        "task": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+        "delivery": "d72d19646c9485eda9592a994e6226b633c72d8a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014-da8a3b85c842abd5c56506a233c0015fe2639d52-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:04:24.060Z",
+        "task": "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v71-whip-mimic-action3-20261014-da8a3b85c842abd5c56506a233c0015fe2639d52-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T21:04:24.060Z",
+        "task": "A2-investigation-v71-whip-mimic-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v71-teleporter-submitted-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:04:41.918Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Submitted v71 monster-level teleporter fix; awaiting acceptance and the next independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v70-cube-glob-scout2-followup-20261014",
+        "type": "assign",
+        "at": "2026-10-14T21:05:43.024Z",
+        "task": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep37-root-hold-20261014-2110",
+        "type": "turn",
+        "at": "2026-10-14T21:05:52.473Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep37 has fourteen fully matching independent replays and is planning further source routes. New captures await Main’s acceptance and queue refresh; source checks and durable backups continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-shop-ray-20261014",
+        "type": "turn",
+        "at": "2026-10-14T21:05:57.868Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Shop-ray fix submitted with matching v71 replay; no independent current queue case remains after assignment and accepted-source checks."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
-        "worker": "C",
-        "goal": "fix-endgame-quantum-cat-species-reference-v71-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "651fa445333722c5b4809fa07c6e4fec7594b1a3",
-        "since": "2026-10-14T20:44:46.367Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v71-whip-mimic-action3-20261014",
-        "worker": "A2",
-        "goal": "fix-use-whip-mimic-import-v71-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "6212b32a84b5162bfe077fe802fd09564ccfcb53",
-        "since": "2026-10-14T20:45:41.028Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "Prep36",
         "worker": "Prep",
@@ -126157,6 +126317,39 @@
         "delivery": "ed245e77790b270a812a7e67cbc7a577d1ded223",
         "batch": "v72",
         "since": "2026-10-14T20:47:44.589Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
+        "worker": "A2",
+        "goal": "fix-flooreffects-killer-prefix-import-v71-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "a14ca0b3013e86f346eb205c08d0f21a9714ee8d",
+        "since": "2026-10-14T21:01:03.029Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v71-monster-leveltele-action2-20261014",
+        "worker": "C",
+        "goal": "port-monster-level-teleporter-trap-branch-v71-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "87daae69df649b82ce22cd15f85ea216e131f009",
+        "since": "2026-10-14T21:02:33.291Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+        "worker": "B",
+        "goal": "fix-monster-wand-shop-door-damage-v71-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d72d19646c9485eda9592a994e6226b633c72d8a",
+        "since": "2026-10-14T21:04:18.005Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -127322,68 +127515,58 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "A2-investigation-v71-whip-mimic-action3-20261014": {
-        "id": "A2-investigation-v71-whip-mimic-action3-20261014",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v71/v71-whip-mimic-action3",
-        "reservations": [
-          "session:synthetic/v71/v71-whip-mimic-action3",
-          "source:apply.c:use_whip"
-        ]
-      },
       "B-investigation-v71-npc-striking-shop-ray-action9-20261014": {
         "id": "B-investigation-v71-npc-striking-shop-ray-action9-20261014",
         "worker": "B",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v71/v71-npc-striking-shop-ray-action9",
         "reservations": [
           "session:synthetic/v71/v71-npc-striking-shop-ray-action9",
           "source:muse.c:mbhit"
         ]
       },
-      "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014": {
-        "id": "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8",
-        "reservations": [
-          "session:synthetic/v71/v71-quantum-box-escape-no-disclosure-action8",
-          "source:end.c:really_done"
-        ]
-      },
       "C-investigation-v71-monster-leveltele-action2-20261014": {
         "id": "C-investigation-v71-monster-leveltele-action2-20261014",
         "worker": "C",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v71/v71-monster-leveltele-action2",
         "reservations": [
           "session:synthetic/v71/v71-monster-leveltele-action2",
-          "source:teleport.c:mlevel_tele_trap"
+          "source:teleport.c:mlevel_tele_trap",
+          "source:teleport.c:random_teleport_level"
         ]
       },
       "A2-investigation-v71-hero-pit-boulder-action2-20261014": {
         "id": "A2-investigation-v71-hero-pit-boulder-action2-20261014",
         "worker": "A2",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v71/v71-hero-pit-boulder-action2",
         "reservations": [
           "session:synthetic/v71/v71-hero-pit-boulder-action2",
-          "source:do.c:flooreffects"
+          "source:do.c:flooreffects",
+          "source:trap.c:trapeffect_pit"
+        ]
+      },
+      "A2-investigation-v69-blocked-boots-action3-followup-20261014": {
+        "id": "A2-investigation-v69-blocked-boots-action3-followup-20261014",
+        "worker": "A2",
+        "status": "working",
+        "seed": "synthetic/v69/v69-blocked-boots-action3",
+        "reservations": [
+          "session:synthetic/v69/v69-blocked-boots-action3"
+        ]
+      },
+      "C-investigation-v70-cube-glob-scout2-followup-20261014": {
+        "id": "C-investigation-v70-cube-glob-scout2-followup-20261014",
+        "worker": "C",
+        "status": "working",
+        "seed": "synthetic/v70/v70-cube-glob-scout2",
+        "reservations": [
+          "session:synthetic/v70/v70-cube-glob-scout2"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v71/v71-whip-mimic-action3": {
-        "tasks": [
-          "A2-investigation-v71-whip-mimic-action3-20261014"
-        ]
-      },
-      "source:apply.c:use_whip": {
-        "tasks": [
-          "A2-investigation-v71-whip-mimic-action3-20261014"
-        ]
-      },
       "session:synthetic/v71/v71-npc-striking-shop-ray-action9": {
         "tasks": [
           "B-investigation-v71-npc-striking-shop-ray-action9-20261014"
@@ -127394,22 +127577,17 @@
           "B-investigation-v71-npc-striking-shop-ray-action9-20261014"
         ]
       },
-      "session:synthetic/v71/v71-quantum-box-escape-no-disclosure-action8": {
-        "tasks": [
-          "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014"
-        ]
-      },
-      "source:end.c:really_done": {
-        "tasks": [
-          "C-investigation-v71-quantum-box-escape-no-disclosure-action8-20261014"
-        ]
-      },
       "session:synthetic/v71/v71-monster-leveltele-action2": {
         "tasks": [
           "C-investigation-v71-monster-leveltele-action2-20261014"
         ]
       },
       "source:teleport.c:mlevel_tele_trap": {
+        "tasks": [
+          "C-investigation-v71-monster-leveltele-action2-20261014"
+        ]
+      },
+      "source:teleport.c:random_teleport_level": {
         "tasks": [
           "C-investigation-v71-monster-leveltele-action2-20261014"
         ]
@@ -127423,12 +127601,27 @@
         "tasks": [
           "A2-investigation-v71-hero-pit-boulder-action2-20261014"
         ]
+      },
+      "source:trap.c:trapeffect_pit": {
+        "tasks": [
+          "A2-investigation-v71-hero-pit-boulder-action2-20261014"
+        ]
+      },
+      "session:synthetic/v69/v69-blocked-boots-action3": {
+        "tasks": [
+          "A2-investigation-v69-blocked-boots-action3-followup-20261014"
+        ]
+      },
+      "session:synthetic/v70/v70-cube-glob-scout2": {
+        "tasks": [
+          "C-investigation-v70-cube-glob-scout2-followup-20261014"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
-    "measuredAt": "2026-10-14T20:46:23.006Z",
+    "executionCommit": "da8a3b85c842abd5c56506a233c0015fe2639d52",
+    "measuredAt": "2026-10-14T21:00:48.813Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
