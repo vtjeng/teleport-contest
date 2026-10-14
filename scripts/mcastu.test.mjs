@@ -141,6 +141,28 @@ function scriptedRandom(values, dice = 6, rndValue = 33) {
 const AD_CLRC_ATTACK = { aatyp: AT_MAGC, adtyp: AD_CLRC, damn: 0, damd: 0 };
 const AD_SPEL_ATTACK = { aatyp: AT_MAGC, adtyp: AD_SPEL, damn: 0, damd: 0 };
 
+test('clone Wizard spell dispatch reaches clonewiz in source order', () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cStart = c.indexOf('\nmcast_clone_wiz(struct monst *mtmp)');
+    const cEnd = c.indexOf('\nstaticfn void\nmcast_summon_mons', cStart);
+    const cClone = c.slice(cStart, cEnd);
+    const jsStart = js.indexOf('\nasync function mcast_clone_wiz(mtmp, rawEnv = {})');
+    const jsEnd = js.indexOf('\n// C ref: mcastu.c mcast_summon_mons', jsStart);
+    const jsClone = js.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cClone, /mtmp->iswiz && svc\.context\.no_of_wizards == 1/u);
+    assert.ok(cClone.indexOf('pline("Double Trouble...")')
+        < cClone.indexOf('clonewiz()'));
+    assert.match(js, /case MCAST_CLONE_WIZ:\s*await mcast_clone_wiz\(mtmp, env\);/u);
+    assert.match(jsClone, /mtmp\?\.iswiz && state\.context\?\.no_of_wizards === 1/u);
+    assert.ok(jsClone.indexOf("await message('Double Trouble...'")
+        < jsClone.indexOf('await clonewiz(state, rawEnv)'));
+    assert.doesNotMatch(js, /case MCAST_CLONE_WIZ:\s*recordMcastGap\('mcastu\.c mcast_clone_wiz'/u);
+});
+
 test('mcast_insects preserves the ant probe, census, and extra spawn iteration', async () => {
     const state = makeState({ flags: { acoustics: true } });
     const caster = makeCaster({ m_lev: 1, mux: 4, muy: 5 });

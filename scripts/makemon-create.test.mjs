@@ -28,6 +28,7 @@ import {
     MM_NOEXCLAM,
     MM_NOGRP,
     MM_NOMSG,
+    MM_NOWAIT,
     MON_DETACH,
     MFAST,
     MS_BRIBE,
@@ -61,6 +62,7 @@ import {
     W_ARMS,
     W_ARMU,
     W_SADDLE,
+    STRAT_WAITMASK,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
@@ -117,6 +119,7 @@ import {
     PM_CHAMELEON,
     PM_COYOTE,
     PM_CYCLOPS,
+    PM_WIZARD_OF_YENDOR,
     PM_DOPPELGANGER,
     PM_DOG,
     PM_ASMODEUS,
@@ -3068,6 +3071,50 @@ test('explicit runtime red-dragon creation reaches makemon without a species '
     assert.equal(state.level.monsters[x][y], monster);
     assert.equal(state.mvitals[PM_RED_DRAGON].born, 1);
     assert.ok(random.calls.length > 0);
+});
+
+test('wizard clone makemon call uses its hero-square MM_NOWAIT source shape', async () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.context.no_of_wizards = 1;
+    state.u.uhave.amulet = true;
+    state.u.ux = MON_X;
+    state.u.uy = MON_Y;
+    for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+            if (dx || dy)
+                state.level.at(state.u.ux + dx, state.u.uy + dy).typ = ROOM;
+        }
+    }
+    const random = recordingRandom();
+    const clone = await makemon_runtime(
+        state.mons[PM_WIZARD_OF_YENDOR],
+        state.u.ux,
+        state.u.uy,
+        MM_NOWAIT,
+        {
+            state,
+            random: random.random,
+            _cloneWizard: true,
+            message: async () => {},
+            norepMessage: async () => {},
+            redraw: () => {},
+        },
+    );
+
+    assert.ok(clone);
+    assert.equal(clone.iswiz, true);
+    assert.equal(state.context.no_of_wizards, 2);
+    assert.notDeepEqual([clone.mx, clone.my], [state.u.ux, state.u.uy]);
+    assert.equal(clone.mstrategy & STRAT_WAITMASK, 0);
+    assert.ok(random.calls.length > 0);
+
+    const start = MAKEMON_C_SOURCE.indexOf('\nmakemon(');
+    const end = MAKEMON_C_SOURCE.indexOf('\nunmakemon(', start);
+    const cMakemon = MAKEMON_C_SOURCE.slice(start, end);
+    assert.ok(start >= 0 && end > start);
+    assert.match(cMakemon, /MM_NOWAIT/u);
+    assert.match(cMakemon, /enexto(?:_core)?\(/u);
 });
 
 test('makemon admits an explicit inventoryless hero-square species by source shape',

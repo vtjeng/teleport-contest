@@ -10,8 +10,10 @@ import {
     G_GENOD,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    M_AP_MONSTER,
     Is_rogue_level,
     NO_MM_FLAGS,
+    PROT_FROM_SHAPE_CHANGERS,
     RLOC_MSG,
     STRAT_APPEARMSG,
     STRAT_GOAL,
@@ -24,6 +26,7 @@ import {
     STRAT_WAITMASK,
     STRAT_WAITFORU,
     MM_NOMSG,
+    MM_NOWAIT,
     LARGEST_INT,
     u_at,
     helpless,
@@ -45,6 +48,18 @@ import {
     G_NOHELL,
     PM_ARCH_LICH,
     PM_ARCHON,
+    PM_COCKATRICE,
+    PM_FLOATING_EYE,
+    PM_GUARDIAN_NAGA,
+    PM_HUMAN,
+    PM_RED_DRAGON,
+    PM_TROLL,
+    PM_TRAPPER,
+    PM_UMBER_HULK,
+    PM_VAMPIRE,
+    PM_WATER_DEMON,
+    PM_XAN,
+    PM_XORN,
     PM_WIZARD_OF_YENDOR,
     S_ANGEL,
     S_DEMON,
@@ -54,7 +69,7 @@ import { NASTIES } from './nasties_data.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
 import {
     AMULET_OF_YENDOR, BELL_OF_OPENING, CANDELABRUM_OF_INVOCATION,
-    SPE_BOOK_OF_THE_DEAD,
+    FAKE_AMULET_OF_YENDOR, SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
 import { com_pager, is_quest_artifact } from './questpgr.js';
 import { mon_aligntyp } from './priest.js';
@@ -64,6 +79,8 @@ import { monster_census, msummon } from './minion.js';
 import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
 import { distant_name, donameFresh } from './objnam.js';
+import { add_to_minv } from './invent.js';
+import { mksobj } from './obj.js';
 import { messageAt } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
@@ -72,6 +89,13 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canspotmon } from './display.js';
 import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
 import { verbalize } from './pline.js';
+
+// C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
+const WIZARD_APPEARANCES = Object.freeze([
+    PM_HUMAN, PM_WATER_DEMON, PM_VAMPIRE, PM_RED_DRAGON,
+    PM_TROLL, PM_UMBER_HULK, PM_XORN, PM_XAN,
+    PM_COCKATRICE, PM_FLOATING_EYE, PM_GUARDIAN_NAGA, PM_TRAPPER,
+]);
 
 // monflag.h M3_WANTS* values. They are kept here with wizard.c's consumers
 // so the strategy bits cannot silently drift from the source masks.
@@ -162,6 +186,47 @@ function wizardAppearanceMessage(monster, state, displayRandom) {
         monster.my,
         state,
     );
+}
+
+// C ref: wizard.c clonewiz() (517-533), called by mcastu.c's
+// mcast_clone_wiz(). The Wizard is created through makemon() at the hero's
+// square; its source-owned placement branch relocates it before construction.
+export async function clonewiz(state = game, rawEnv = {}) {
+    const createMonster = rawEnv.makemon ?? makemon_runtime;
+    const random = rawEnv.random ?? { rn2 };
+    const species = state.mons?.[PM_WIZARD_OF_YENDOR];
+    if (!species)
+        throw new Error('clonewiz requires the Wizard monster record');
+
+    const env = { ...rawEnv, state, random, _cloneWizard: true };
+    const monster = await createMonster(
+        species,
+        state.u.ux,
+        state.u.uy,
+        MM_NOWAIT,
+        env,
+    );
+    if (!monster) return null;
+
+    monster.msleeping = false;
+    monster.mtame = 0;
+    monster.mpeaceful = false;
+    if (!state.u.uhave?.amulet && random.rn2(2)) {
+        const fake = mksobj(FAKE_AMULET_OF_YENDOR, true, false, env);
+        add_to_minv(monster, fake, env);
+    }
+
+    const property = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
+    if (!(property?.intrinsic || property?.extrinsic)) {
+        monster.m_ap_type = M_AP_MONSTER;
+        monster.mappearance = WIZARD_APPEARANCES[
+            random.rn2(WIZARD_APPEARANCES.length)
+        ];
+    }
+    const redraw = rawEnv.redraw ?? rawEnv.redrawSquare;
+    if (typeof redraw === 'function')
+        await redraw(monster.mx, monster.my, state, rawEnv);
+    return monster;
 }
 
 // C ref: wizard.c resurrect() (715-780), new-Wizard arm. The generic
