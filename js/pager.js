@@ -2175,7 +2175,7 @@ async function dispfile_optionfile(state) {
     await display_file('opthelp', state);
 }
 
-async function dispfile_optmenu(state) {
+export async function dispfile_optmenu(state = game) {
     await display_file('optmenu', state);
 }
 

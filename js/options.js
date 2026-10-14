@@ -8553,34 +8553,53 @@ export async function doset(state, helpers) {
     }
     // options.c:8781 sets go.opt_phase = play_opt, which only the
     // configuration-file error reporter reads.
-    const skiphelp = !state.iflags?.cmdassist;
-    const items = dosetMenuItems(state, helpers, skiphelp);
-    // options.c:8944-8946: end_menu(), then the two flags
-    // reset_needed_visuals() consumes, cleared before select_menu() can run a
-    // handler that raises either.
-    state.go ??= {};
-    state.go.opt_need_redraw = false;
-    state.go.opt_need_glyph_reset = false;
+    let skiphelp = !state.iflags?.cmdassist;
+    let gavehelp = false;
+    for (;;) {
+        const items = dosetMenuItems(state, helpers, skiphelp);
+        // options.c:8944-8946: end_menu(), then the two flags
+        // reset_needed_visuals() consumes, cleared before select_menu() can
+        // run a handler that raises either.
+        state.go ??= {};
+        state.go.opt_need_redraw = false;
+        state.go.opt_need_glyph_reset = false;
 
-    const picks = await helpers.menu(items, 'Set what options?', PICK_ANY);
-    const pick_list = Array.isArray(picks) ? picks : [];
-    /*
-     * Walk down the selection list and either invert the booleans or prompt
-     * for new values.  In most cases, call parseoptions() to take care of
-     * options that require special attention, like redraws.
-     */
-    for (let pick_idx = 0; pick_idx < pick_list.length; ++pick_idx) {
-        // options.c:8908-8912 answers '?' with display_file(OPTMENUHELP), then
-        // re-runs the whole menu when '?' was the only pick.  Both the help
-        // file and that second pass stop here.
-        if (pick_list[pick_idx].value - 1 === HELP_IDX)
-            throw new UnsupportedOptionMenuError('display_file(OPTMENUHELP)');
-        // options.c:8913-8914 corrects an a_int below -1, which only the
-        // PREFIXES_IN_USE entries produce and that block is not compiled;
-        // doset_add_menu() gives every selectable entry an a_int of at least
-        // two.  INDEXOFFSET is the 1 doset() adds at options.c:8830.
-        const opt_indx = pick_list[pick_idx].value - 1 - DOSET_INDEXOFFSET;
-        await applyOptionMenuPick(state, allopt[opt_indx], helpers);
+        const picks = await helpers.menu(items, 'Set what options?', PICK_ANY);
+        const pick_list = Array.isArray(picks) ? picks : [];
+        /*
+         * Walk down the selection list and either invert the booleans or
+         * prompt for new values. In most cases, call parseoptions() to take
+         * care of options that require special attention, like redraws.
+         */
+        for (let pick_idx = 0; pick_idx < pick_list.length; ++pick_idx) {
+            if (pick_list[pick_idx].value - 1 === HELP_IDX) {
+                // options.c:8911 calls display_file(OPTMENUHELP, FALSE).
+                // pager.c already owns the generated optmenu text and TTY
+                // window behavior; defer the cycle edge until this branch,
+                // as pager.js imports cmd.js for command descriptions.
+                const { dispfile_optmenu } = await import('./pager.js');
+                await dispfile_optmenu(state);
+                gavehelp = true;
+                continue;
+            }
+            // options.c:8913-8914 corrects an a_int below -1, which only the
+            // PREFIXES_IN_USE entries produce and that block is not
+            // compiled; doset_add_menu() gives each selectable entry an
+            // a_int of at least two. INDEXOFFSET is doset()'s extra 1.
+            const opt_indx = pick_list[pick_idx].value - 1
+                - DOSET_INDEXOFFSET;
+            await applyOptionMenuPick(state, allopt[opt_indx], helpers);
+        }
+
+        // options.c:8973-8979 makes the help-only choice a second pass with
+        // '?' suppressed. If any real option was selected alongside '?', C
+        // applies it during this pass and does not repeat the menu.
+        if (pick_list.length === 1 && gavehelp) {
+            skiphelp = true;
+            gavehelp = false;
+            continue;
+        }
+        break;
     }
     // destroy_nhwindow(tmpwin) at options.c:8971: the window port dismissed
     // the menu as select_menu() answered, and this port creates no window

@@ -766,16 +766,30 @@ test('doset() applies its picks in menu order and answers ECMD_OK',
         assert.match(status, /Xp:1\/0 T:1$/u);
     });
 
-test('doset() continues past a cancelled generic compound prompt', async () => {
+test('doset() handles help, cancelled values, and unsupported handlers', async () => {
     const state = await startStockGame();
     // HELP_IDX is SIZE(allopt), and the '?' entry's a_int is one more again.
-    await assert.rejects(
-        doset(state, menuHelpers([
-            { value: allopt.length + 2, count: -1 },
-        ])),
-        (error) => error instanceof UnsupportedOptionMenuError
-            && error.what === 'display_file(OPTMENUHELP)',
-    );
+    const menus = [];
+    let menuCall = 0;
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    assert.equal(await doset(state, {
+        headingStyle: { attr: ATR_INVERSE, color: NO_COLOR },
+        countBindKeys: () => 0,
+        menu: (items, prompt, how) => {
+            assert.equal(prompt, 'Set what options?');
+            assert.equal(how, PICK_ANY);
+            menus.push(items);
+            return menuCall++ === 0
+                ? [{ value: allopt.length + 2, count: -1 }]
+                : [];
+        },
+    }), ECMD_OK);
+    assert.equal(menus.length, 2);
+    assert.ok(menus[0].some(({ value }) => value === allopt.length + 2));
+    assert.ok(!menus[1].some(({ value }) => value === allopt.length + 2));
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+
     // 'boulder' is a compound option with no handler, so doset() prompts for a
     // replacement value with getlin(). Escape leaves it unchanged and lets
     // the menu finish, as options.c:8951-8952 specifies.
@@ -797,6 +811,30 @@ test('doset() continues past a cancelled generic compound prompt', async () => {
         (error) => error.what === "optfn_runmode()'s do_handler request",
     );
 });
+
+test('doset() applies other picks selected with help without a second menu',
+    async () => {
+        const state = await startStockGame();
+        const menus = [];
+        // The optmenu file spans two pages and needs two dismissals.
+        for (let i = 0; i < 2; ++i)
+            state.nhDisplay.pushKey(' '.charCodeAt(0));
+        assert.equal(state.flags.showexp, false);
+        assert.equal(await doset(state, {
+            headingStyle: { attr: ATR_INVERSE, color: NO_COLOR },
+            countBindKeys: () => 0,
+            menu: (items) => {
+                menus.push(items);
+                return [
+                    { value: allopt.length + 2, count: -1 },
+                    { value: menuValue('showexp'), count: -1 },
+                ];
+            },
+        }), ECMD_OK);
+        assert.equal(menus.length, 1);
+        assert.equal(state.flags.showexp, true);
+        assert.equal(state.nhDisplay.inputQueueLength, 0);
+    });
 
 // C ref: options.c handler_pickup_types() (6114-6121) and
 // optfn_pickup_types()'s do_set arm (3320-3390). This is the pick seed0007
