@@ -20,6 +20,7 @@ import {
     D_CLOSED,
     D_LOCKED,
     DEAF,
+    DISMOUNT_POLY,
     DISMOUNT_THROWN,
     DOGFOOD,
     HALLUC,
@@ -186,7 +187,12 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_sink } from './symbols.js';
 import { mpickobj, relobj } from './steal.js';
 import { gettrack } from './track.js';
-import { dismissPendingTtyMessage, ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    TOPLINE_EMPTY,
+    TOPLINE_NEED_MORE,
+    ttyPline,
+} from './tty_message.js';
 import {
     t_at,
 } from './trap.js';
@@ -668,12 +674,11 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
             state,
             quickMimic: async (subject, env) => {
                 // mon.c:m_consume_obj discards this result. Leashed pets now
-                // run quickmimic's C leashability check; only its steed
-                // dismount remains outside this caller's implemented path.
-                if (subject === state.u.usteed) {
-                    if (!env.planning) note_unported('steed.c dismount_steed');
-                    return;
-                }
+                // follow quickmimic's source-ordered dismount and appearance
+                // path whether the pet is ordinary or currently the steed.
+                // The monster-turn planner replays this caller to predict the
+                // move. Keep the live steed and TTY untouched until execution.
+                if (subject === state.u.usteed && env.planning) return;
                 await quickmimic(subject, env);
             },
         });
@@ -705,12 +710,16 @@ export async function quickmimic(mtmp, rawEnv = {}) {
     const wasLeashed = mtmp.mleashed;
     if (activeHeroProperty(state, PROT_FROM_SHAPE_CHANGERS)
         || !mtmp.meating) return;
-    const unsupported = rawEnv.unsupported;
-    const stop = (reason) => {
-        if (typeof unsupported === 'function') unsupported(reason);
-        throw new TypeError(`quickmimic requires ${reason}`);
-    };
-    if (mtmp === state.u?.usteed) stop('a non-steed pet');
+    if (mtmp === state.u?.usteed) {
+        // C dismounts the original monster before it changes the appearance.
+        // steed.js imports finish_meating from this module, so keep this call
+        // dynamic to avoid a static cycle.
+        let dismountSteed = rawEnv.dismountSteed;
+        if (typeof dismountSteed !== 'function') {
+            ({ dismount_steed: dismountSteed } = await import('./steed.js'));
+        }
+        await dismountSteed(DISMOUNT_POLY, state, rawEnv);
+    }
     const random = rawEnv.random ?? { rn2 };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('quickmimic random injection requires rn2');
@@ -777,8 +786,13 @@ export async function quickmimic(mtmp, rawEnv = {}) {
                 state,
             );
         }
-        const waitMap = rawEnv.waitMap
-            ?? ((waitState) => dismissPendingTtyMessage(waitState));
+        const waitMap = rawEnv.waitMap ?? (async (waitState) => {
+            // C's tty_display_nhwindow(WIN_MAP, TRUE) first forces an occupied
+            // topline into NEED_MORE, then displays the message window.
+            if (waitState.nhDisplay?.toplin !== TOPLINE_EMPTY)
+                waitState.nhDisplay.toplin = TOPLINE_NEED_MORE;
+            await displayPendingTtyMessageWindow(waitState);
+        });
         await waitMap(state);
     }
 }

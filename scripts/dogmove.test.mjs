@@ -11,10 +11,10 @@ import {
     COULD_SEE,
     IN_SIGHT,
     ROWNO,
-    M_AP_NOTHING,
     M_AP_OBJECT,
     CONFLICT,
     DEAF,
+    DISMOUNT_POLY,
     DISMOUNT_THROWN,
     DOGFOOD,
     HALLUC,
@@ -2072,14 +2072,17 @@ test('dog_move retains raw fallback coordinates and rejected region', async () =
 });
 
 // dogmove.c:341 discards m_consume_obj's result, and mon.c:1447 discards
-// quickmimic's result. Leashed pets run its appearance and leashability path;
-// the mounted-pet branch still stops at steed.c:dismount_steed.
-test('dog_eat reaches quickmimic for leashed pets and keeps the steed gap', async () => {
+// quickmimic's result. Both leashed and mounted pets run the source behavior;
+// a steed dismounts before quickmimic consumes its choice-table randomness.
+test('dog_eat reaches quickmimic for leashed pets and mounted steeds', async () => {
     for (const mounted of [false, true]) {
         const {state, monster} = activePetState();
         state.context = {};
         state.flags = {};
         state.iflags = {};
+        state.u.uprops = Array.from({length: 64}, () => ({
+            intrinsic: 0, extrinsic: 0, blocked: false,
+        }));
         state.viz_array = Array.from({length: ROWNO}, () => Array(COLNO).fill(0));
         objects_globals_init(state);
         init_objects(state, () => 0);
@@ -2100,16 +2103,25 @@ test('dog_eat reaches quickmimic for leashed pets and keeps the steed gap', asyn
         game.unported.delete('dogmove.c quickmimic');
         game.unported.delete('steed.c dismount_steed');
         const bounds = [];
+        const dismounts = [];
         assert.equal(await dog_eat(monster, corpse, monster.mx, monster.my, false, {
             state, random: {rn2: bound => (bounds.push(bound), 1)},
             redraw: () => {}, message: () => {},
+            waitMap: async () => {},
+            dismountSteed: async (reason, dismountState) => {
+                dismounts.push(reason);
+                dismountState.u.usteed = null;
+                bounds.push(2);
+            },
         }), MMOVE_MOVED);
         assert.equal(state.level.objects[monster.mx][monster.my], null);
         if (mounted) {
-            assert.equal(game.unported.has('steed.c dismount_steed'), true);
-            assert.equal(monster.m_ap_type ?? M_AP_NOTHING, M_AP_NOTHING);
-            // Dogfood and delobj draw obj_resists(100); dismount stops before qm.
-            assert.deepEqual(bounds, [100, 100]);
+            assert.equal(game.unported.has('steed.c dismount_steed'), false);
+            assert.equal(state.u.usteed, null);
+            assert.equal(monster.m_ap_type, M_AP_OBJECT);
+            assert.deepEqual(dismounts, [DISMOUNT_POLY]);
+            assert.ok(bounds.indexOf(9) > bounds.indexOf(2),
+                'dismount landing draws precede quickmimic choice draws');
         } else {
             assert.equal(game.unported.has('dogmove.c quickmimic'), false);
             assert.equal(game.unported.has('steed.c dismount_steed'), false);

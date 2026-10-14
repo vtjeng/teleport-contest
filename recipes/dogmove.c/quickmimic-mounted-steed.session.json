@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent production witness for dogmove.c:dog_eat -> mon.c:m_consume_obj -> dogmove.c:quickmimic while the pet is the steed. A wished small mimic corpse and wizard generated saddled leocrotta provide a separate setup; map and mount prompts determine the actual adjacent direction. Seed, date, female gender and lawful alignment are independently selected.",
+  "segments": [
+    {
+      "seed": 58140127,
+      "datetime": "20940518141327",
+      "nethackrc": "OPTIONS=name:CQuickMimic,role:Knight,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!verbose,acoustics\n",
+      "moves": "\u0017small mimic corpse\n \u0007tame saddled leocrotta\n#wizmap\ni #ride\nhy                    di                    #wizmap\n....                    "
+    }
+  ]
+}
