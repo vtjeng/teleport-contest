@@ -58,7 +58,7 @@
       "line": 1824
     }
   },
-  "summary": "The throw at step 504 reaches dothrow.c:throwit()'s ordinary landing path. JavaScript's flooreffects() returns false for the boulder's final landing square, then throwit() calls place_object() without the blockPoint hook required for boulders. The call stops at obj.js:place_object()'s fail-closed hook check. C's dothrow.c:throwit() calls mkobj.c:place_object(), whose boulder arm invokes vision.c:block_point(). Wire that existing operation into the throwit caller.",
+  "summary": "The throw at step 504 reaches dothrow.c:throwit()'s ordinary landing path. JavaScript's flooreffects() returns false for the boulder's final landing square, then throwit() calls place_object() without the blockPoint hook required for boulders. The call stops at obj.js:place_object()'s fail-closed hook check. C's dothrow.c:throwit() calls mkobj.c:place_object(), whose boulder arm invokes vision.c:block_point(). Wire that existing operation into the throwit caller. The throwit landing tail also now awaits obj_no_longer_held(obj, { state }) after flooreffects() returns false, preserving the caller Game state and source ordering before shopkeeper pickup or floor placement.",
   "source": {
     "file": "dothrow.c",
     "branch": "throwit()'s final placement after flooreffects() returns false",
@@ -66,7 +66,8 @@
       "throwit"
     ],
     "dependencies": [
-      "mkobj.c:place_object() and vision.c:block_point() are already implemented; this task wires their existing behavior and does not change either source unit."
+      "mkobj.c:place_object() and vision.c:block_point() are already implemented; this task wires their existing behavior and does not change either source unit.",
+      "dothrow.c:throwit() forwards its supplied state and awaits do.c:obj_no_longer_held() before continuing the landing tail."
     ],
     "callers": [
       "dothrow.c:dothrow -> throw_obj -> throwit",
@@ -79,7 +80,7 @@
       "vision": "vision.c:block_point() updates the blocked-vision state."
     },
     "js": {
-      "throwit": "js/dothrow.js:2606 calls flooreffects(), then place_object(obj,bx,by,{state}) at line 2919.",
+      "throwit": "js/dothrow.js:2606 calls flooreffects(), then place_object(obj,bx,by,{state}) at line 2919. It awaits obj_no_longer_held(obj, { state }) at line 2895 before shopkeeper pickup and later placement.",
       "placement": "js/obj.js:2887-2924 requires and invokes hooks.blockPoint for BOULDER.",
       "existingHelper": "js/vision.js exports block_point(x,y,state)."
     }
@@ -89,7 +90,10 @@
     "Fresh bounded replay at worker HEAD e29f1be60f8e8ad8f649b971783381794c0e8b01 emits 504 screens and reaches its first unported boundary on input key 'l' at step 504: blockPoint is not available for otyp 475 (BOULDER). This is the recorded eastward throw's landing path.",
     "A read-only prefix replay through step 504 shows hero position (41,11) and throw landing bhitpos (45,11); the selected target pit at (42,11) is not the final landing square. The boulder does not enter a pit at this step, so no pit-fill behavior is claimed by this diagnosis.",
     "Upstream dothrow.c:throwit() (1510-1848) calls flooreffects() before place_object() (1824). Upstream mkobj.c:place_object() (2305-2333) calls block_point(x,y) for BOULDER. JavaScript throwit() calls place_object(obj,bx,by,{state}), while js/obj.js requires a blockPoint hook for BOULDER; js/vision.js already exports block_point().",
-    "The failure is the missing caller operation at dothrow.c:throwit(), not a missing mkobj.c place_object or vision.c block_point implementation."
+    "The failure is the missing caller operation at dothrow.c:throwit(), not a missing mkobj.c place_object or vision.c block_point implementation.",
+    "Focused dothrow tests passed 74/74 in bounded run-vdGC8V, including a thrown unpaid crysknife whose supplied state has mon_moving=true; the caller forwards that state so the helper takes the C no-billing branch.",
+    "The selected 533-step v65 recording matched completely at committed correction 5b906545dd78f78ff31ad2d0d3b7c994d11be8ad in bounded run-eI2U82, with input boundary matched and no command refusal. The unrelated sounds.c SoundAchievement marker remains.",
+    "npm run lint passed in bounded run-a9iTRR."
   ],
   "goalKind": "divergence-fix"
 }
