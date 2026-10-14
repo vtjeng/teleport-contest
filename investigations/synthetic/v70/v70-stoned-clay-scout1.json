@@ -27,11 +27,17 @@
   },
   "source": {
     "file": "polyself.c",
-    "functions": ["polymon"],
+    "functions": [
+      "polymon"
+    ],
     "branch": "Upstream polyself.c:polymon (735-1071) checks Stoned && poly_when_stoned(&mons[mntmp]); when the helper approves the target form, it selects PM_STONE_GOLEM and calls make_stoned in source order.",
     "javascript": "js/polyself.js:polymon already mirrors this branch, but the named import list omitted poly_when_stoned exported by js/mondata.js, causing a ReferenceError at the branch.",
-    "callers": ["cmd.c:#polyself -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:polymon; corresponding JavaScript dispatch through js/cmd.js, js/wizcmds.js, and js/polyself.js"],
-    "dependencies": ["The existing js/mondata.js poly_when_stoned implementation is used without behavior changes."],
+    "callers": [
+      "cmd.c:doextcmd #polyself -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:polymon; js/cmd.js:runPolyselfCommand -> js/wizcmds.js:wiz_polyself -> js/polyself.js:polyself -> polymon"
+    ],
+    "dependencies": [
+      "The existing js/mondata.js poly_when_stoned implementation is used without behavior changes."
+    ],
     "resolution": "Add the existing poly_when_stoned helper to polyself.js's named imports and pin the source guard and import in scripts/polyself.test.mjs."
   },
   "evidence": [
@@ -39,6 +45,12 @@
     "Upstream polyself.c:polymon checks Stoned with poly_when_stoned(&mons[mntmp]); when approved it sets PM_STONE_GOLEM and calls make_stoned. The JavaScript branch already had this order; the missing named import was the defect.",
     "After the import, the focused bounded scan matched all 169/169 screens, RNG calls, cursors, and the input boundary through segment 0 step 168. No unported callees were reached."
   ],
-  "verifiedReplay": {"segment": 0, "throughStep": 168, "recordingMatched": true, "inputBoundaryMatched": true, "replayCommit": "44483173f71fb2c1d6e0461ee9546c4161284437"},
+  "verifiedReplay": {
+    "segment": 0,
+    "throughStep": 168,
+    "recordingMatched": true,
+    "inputBoundaryMatched": true,
+    "replayCommit": "44483173f71fb2c1d6e0461ee9546c4161284437"
+  },
   "goalKind": "divergence-fix"
 }
