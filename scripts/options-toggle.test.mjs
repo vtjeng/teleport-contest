@@ -30,7 +30,7 @@ import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import { choose_classes_menu } from '../js/windows.js';
 import {
     COULD_SEE, ECMD_OK, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
-    MENU_COMBINATION, MENU_TRADITIONAL, PICK_ANY, PRIMARYSET,
+    H_UTF8, MENU_COMBINATION, MENU_TRADITIONAL, PICK_ANY, PRIMARYSET,
     SYM_NOTHING,
 } from '../js/const.js';
 import {
@@ -615,15 +615,51 @@ test('reset_needed_visuals() clears the prompt style and refreshes status',
         assert.equal(state.disp.botlx, false);
     });
 
-test('reset_needed_visuals() stops on the unported custom-symbol repair', async () => {
+test('customsymbols reset clears stale Unicode glyphs and reapplies active-set symbols',
+    async () => {
+        // Both C states matter: disabling symbols leaves the Unicode map
+        // clear, while enabling them rebuilds the selected graphics set.
+        for (const enabled of [false, true]) {
+            const state = await startStockGame();
+            const whichSet = state.gc?.currentgraphics ?? PRIMARYSET;
+            state.gg ??= {};
+            state.gg.glyph_customizations = Array(12).fill(null);
+            state.gs ??= {};
+            state.gs.sym_customizations ??= [];
+            state.gs.sym_customizations[whichSet] ??= {
+                unicode: { name: null, details: [] },
+                color: { name: null, details: [] },
+            };
+            state.gs.symset ??= [];
+            state.gs.symset[whichSet] ??= {};
+            state.gs.symset[whichSet].handling = H_UTF8;
+            state.iflags.customsymbols = enabled;
+            // Glyphs 10 and 11 distinguish a replaced entry from a stale
+            // entry; ☃ is the active set's source customization value.
+            state.gg.glyph_customizations[10] = {
+                displayCh: 'x',
+                nhcolor: 0x123456,
+            };
+            state.gg.glyph_customizations[11] = { displayCh: 'y' };
+            state.gs.sym_customizations[whichSet].unicode.details = [
+                { glyph: 10, value: '☃' },
+            ];
+
+            state.go = { opt_reset_customsymbols: true };
+            await reset_needed_visuals(state);
+
+            assert.equal(
+                state.gg.glyph_customizations[10].displayCh,
+                enabled ? '☃' : undefined,
+            );
+            assert.equal(state.gg.glyph_customizations[10].nhcolor, 0x123456);
+            assert.equal(state.gg.glyph_customizations[11].displayCh, undefined);
+            assert.equal(state.go.opt_reset_customsymbols, false);
+        }
+    });
+
+test('reset_needed_visuals() clears the disabled palette update flag', async () => {
     const state = await startStockGame();
-    state.go = { opt_reset_customsymbols: true };
-    await assert.rejects(
-        reset_needed_visuals(state),
-        (error) => error instanceof UnsupportedOptionMenuError
-            && error.what === 'reset_customsymbols()',
-        'reset_customsymbols()',
-    );
     // change_palette() sits behind CHANGE_COLOR, which is not compiled, so
     // its flag only clears itself -- but it still opens the branch that
     // repaints, so docrt() runs and bot() spends the botlx it raises.

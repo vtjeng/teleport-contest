@@ -284,6 +284,7 @@ import {
     inspect_glyphrep,
     reset_customcolors,
 } from './glyphs.js';
+import { reset_customsymbols } from './utf8map.js';
 import { choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow, menuTitleStyle } from './tty_menu.js';
 import { note_unported } from './unported.js';
@@ -8462,8 +8463,7 @@ export async function reset_needed_visuals(state) {
             go.opt_update_basic_palette = false;
         }
         if (go.opt_reset_customcolors) reset_customcolors(state);
-        if (go.opt_reset_customsymbols)
-            throw new UnsupportedOptionMenuError('reset_customsymbols()');
+        if (go.opt_reset_customsymbols) reset_customsymbols(state);
         if (go.opt_need_redraw) {
             // botl.c:check_gold_symbol() runs before the status line redraw.
             check_gold_symbol(state);
