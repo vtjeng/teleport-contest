@@ -803,3 +803,15 @@ triage decisions or fix references.
   submission. Workers preserved old commits, normalized fields from recorded
   values, and used accepted-tree ancestry bridges with scoped restored blobs.
   They validated the complete reports before submission.
+
+### 2026-10-14 — ready split was blocked by held corrections
+
+- Context: five-delivery candidate68d2aee failed hosted run38526616796.
+  The saved logs identify two affected tasks; three deliveries remain ready.
+- Friction: split required every original task to be ready, including the two
+  held corrections, so independent source work could not reach a fresh gate.
+- Outcome: correctiona4ffd876 changes that check to the selected tasks. Its
+  13 focused tests preserve dependency rejection, held statuses and submissions,
+  original base and baseline, and fresh-checkpoint acceptance. Root exercised
+  the split with Invocation, cancellation and rolling-trap deliveries; preflight
+  passed. The failed branch and both corrections remain preserved.
