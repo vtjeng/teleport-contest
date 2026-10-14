@@ -146,6 +146,7 @@ import { m_at, place_monster, remove_monster } from './monst.js';
 import { update_monster_region } from './region.js';
 import {
     AD_ACID,
+    AD_BLND,
     AD_CORR,
     AD_RBRE,
     AD_RUST,
