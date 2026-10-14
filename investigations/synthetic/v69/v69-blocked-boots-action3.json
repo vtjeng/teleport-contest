@@ -1,0 +1,51 @@
+{
+  "session": "synthetic/v69/v69-blocked-boots-action3",
+  "corpus": "synthetic",
+  "batch": "v69",
+  "caseId": "v69-blocked-boots-action3",
+  "manifestPath": "challenges/manifests/v69.json",
+  "manifestSha256": "12a5d44891f8681f06d1c769bbee98f7851412aa1f53402ac106a9046acf7bd9",
+  "recordingPath": "challenges/cases/v69/v69-blocked-boots-action3.session.json",
+  "recordingSha256": "3ac6c75fbcef368fe711cdf8f4ab1e4cfbe5358ff6c99e7decbf2f9c6e0494dc",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v69.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "remainingScreens": 18,
+  "recordedSteps": 417,
+  "status": "complete",
+  "commit": "e35609903fe130b619439dd05d8c88c2463b7b98",
+  "mismatch": {
+    "session": "synthetic/v69/v69-blocked-boots-action3",
+    "batch": "v69",
+    "caseId": "v69-blocked-boots-action3",
+    "remainingScreens": 18,
+    "recordingPath": "challenges/cases/v69/v69-blocked-boots-action3.session.json"
+  },
+  "summary": "When levitation boots activate while the hero is caught in a web, C's trap.c:float_up compares u.utraptype (TT_WEB=3) to WEB (18), so that condition is false and C prints the generic leg-still-stuck message. JavaScript compares against TT_WEB instead and prints a web-specific message, causing the first screen mismatch at segment 0 step 219. This is an accidental but observable C enum mismatch; preserve it. The accepted v69 evaluation has 399/417 screens matched, all 3315 RNG calls and 417 cursors matched.",
+  "source": {
+    "file": "trap.c",
+    "branch": "float_up's u.utrap branch compares TT_PIT, TT_LAVA, TT_INFLOOR, and TT_BURIEDBALL by their trap-type values. The following accidental comparison uses WEB, a terrain/trap enum value, rather than TT_WEB, so an actual web restraint reaches the generic bear-trap-style leg message.",
+    "functions": [
+      "float_up"
+    ],
+    "callers": [
+      "do_wear.c:Boots_on -> trap.c:float_up",
+      "potion.c:peffect_levitation -> trap.c:float_up",
+      "artifact.c:arti_invoke -> trap.c:float_up",
+      "eat.c:eataccessory -> trap.c:float_up"
+    ],
+    "dependencies": [
+      "you.h:TT_WEB=3",
+      "trap.h:WEB=18",
+      "trap.c:float_vs_flight"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v69 manifest identifies trap.c:float_up's WEB-versus-TT_WEB accidental branch. Its source trace records a caught hero wearing levitation boots; C prints the generic leg-still-stuck line at step 219, then continues through the nymph's charm and theft.",
+    "The accepted v69 evaluation and saved local comparison report 399/417 screens matched, 417/417 cursors, and 3315/3315 RNG calls. The first mismatch is a screen character at row 0, column 30 on segment 0 step 219, key space; C's message contains 'your leg is still stuck', while JS says the hero remains stuck in a web.",
+    "Upstream trap.c:3937-4009 has the source comparison `u.utraptype == WEB` in the u.utrap message branch. you.h defines TT_WEB as 3; trap.h defines WEB as 18. The web trap setup stores TT_WEB, so the comparison is false and execution reaches the generic else branch.",
+    "js/trap.js:1922-1967 currently tests `u.utraptype === TT_WEB` and prints a web-specific message. Match the C comparison to WEB in float_up; leave other correctly typed TT_WEB checks in trap.c/trap.js unchanged.",
+    "The v58 blocked-levitation bear-trap case exercises reset_utrap followed by float_up after the bear trap is removed; the hero is no longer trapped there. It does not cover this caught-web enum comparison. The v69 case reaches the different still-trapped branch.",
+    "The source report's tested base is the current accepted worker history; the exact diagnosis is based on the admitted C recording and evaluation."
+  ]
+}
