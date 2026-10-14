@@ -6,8 +6,10 @@ import {
     ALTAR,
     BLINDED,
     CORR,
+    FLYING,
     IN_SIGHT,
     LAVAPOOL,
+    LEVITATION,
     OBJ_FLOOR,
     OBJ_DELETED,
     OBJ_LUAFREE,
@@ -15,6 +17,7 @@ import {
     PIT,
     POOL,
     ROOM,
+    STEALTH,
     THRONE,
 } from '../js/const.js';
 import { boulder_hits_pool, flooreffects } from '../js/do.js';
@@ -245,6 +248,49 @@ test('boulder_hits_pool sinks in lava on rn2(10) zero and consumes the boulder',
         wakeNear: async () => {},
     }), true);
     assert.deepEqual(calls, [10]);
+    assert.notEqual(boulder.where, OBJ_FREE);
+});
+
+// do.c:flooreffects damages a trapped hero when a boulder lands in their pit.
+test('a boulder landing in the hero pit applies the source damage branch', async () => {
+    const state = fixture();
+    state.u.ux = DROP_X;
+    state.u.uy = DROP_Y;
+    state.u.utrap = 1;
+    state.u.utraptype = PIT;
+    state.u.uhp = 21; // Above the maximum 15-point die so the damage stays nonfatal.
+    state.u.uhpmax = 21;
+    state.u.uprops = {
+        [FLYING]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+        [LEVITATION]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+        [STEALTH]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+    };
+    state.level.traps = [{ ttyp: PIT, tx: DROP_X, ty: DROP_Y, tseen: true }];
+    init_objects(state, () => 0);
+
+    const calls = [];
+    const boulder = object({
+        otyp: BOULDER,
+        ox: DROP_X,
+        oy: DROP_Y,
+    });
+    assert.match(C_DO,
+        /losehp\(Maybe_Half_Phys\(rnd\(15\)\),\s*"squished under a boulder",\s*NO_KILLER_PREFIX\)/u);
+
+    assert.equal(await land(state, boulder, DROP_X, DROP_Y, {
+        random: {
+            // This fixed result keeps the follow-up object-resistance draw stable.
+            rn2: (bound) => { calls.push(bound); return 1; },
+            // C's rnd(15)=1 yields one point of damage in this trapped-hero case.
+            rnd: (sides) => { calls.push(sides); return 1; },
+        },
+        message: async () => {},
+        newsym: () => {},
+    }), true);
+
+    assert.ok(calls.includes(15), 'rnd(15) determines trapped-hero damage');
+    assert.equal(state.u.uhp, 20, 'the selected rnd(15)=1 lowers HP from 21 to 20');
+    assert.equal(state.level.traps.length, 0);
     assert.notEqual(boulder.where, OBJ_FREE);
 });
 

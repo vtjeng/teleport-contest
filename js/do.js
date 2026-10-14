@@ -84,6 +84,7 @@ import {
     NON_PM,
     NC_SHOW_MSG,
     NO_NC_FLAGS,
+    NO_KILLER_PREFIX,
     OBJ_INVENT,
     OBJ_MINVENT,
     OBJ_CONTAINED,
