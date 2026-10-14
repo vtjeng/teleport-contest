@@ -54,6 +54,7 @@ import {
     F_LOOTED,
     FOUNTAIN,
     FUMBLING,
+    FIRE_RES,
     GETOBJ_ALLOWCNT,
     GETOBJ_PROMPT,
     GRAVE,
