@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first D:2 shop-discovery setup probe for shk.c ordinary repair. This input has not yet established a shopkeeper or repaired doorway; its monster-detection selection flow remains incomplete. It is not runtime evidence for shk.c:repair_damage or litter_scatter.",
+  "segments": [
+    {
+      "seed": 77124011,
+      "datetime": "20910407091522",
+      "nethackrc": "OPTIONS=name:ShopRouteProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #wizlevelport\n2\n#wizmap\n#wizcast\n:detect monsters\n \u001b#wizmap\n"
+    }
+  ]
+}

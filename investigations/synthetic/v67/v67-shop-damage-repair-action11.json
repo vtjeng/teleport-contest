@@ -96,5 +96,72 @@
       "segment": 0,
       "step": 1150
     }
+  },
+  "continuation": {
+    "task": "A2-investigation-v67-shop-damage-repair-continuation-action12-20261014",
+    "goal": "port-shk-repair-damage-shop-catchup-v67-20261014",
+    "summary": "Ported repair_damage and its shop catch-up wiring. The admitted v67 case now matches its full 1200-step recording, including the repaired door at step 1151. Separate repair and catch-up entry points still lack matching recording evidence.",
+    "source": {
+      "file": "shk.c",
+      "functions": [
+        "repair_damage",
+        "litter_getpos",
+        "litter_scatter",
+        "litter_newsyms",
+        "discard_damage_struct",
+        "fix_shop_damage",
+        "shk_fixes_damage"
+      ],
+      "callerFunctions": [
+        "allmain.c:allmain",
+        "do.c:goto_level",
+        "bones.c:getbones",
+        "mklev.c:mklev"
+      ],
+      "notes": [
+        "do.c:goto_level awaits fix_shop_damage before fall damage and pickup on the existing-level arrival path.",
+        "allmain.c:allmain awaits fix_shop_damage after restore and before the resumed move loop.",
+        "bones.c:getbones awaits fix_shop_damage after restoring objects and before returning the bones level; mklev.c:mklev awaits getbones.",
+        "bones.c:getbones awaits add_to_container because B's pending invent.c:add_to_container port makes it asynchronous.",
+        "shk.c:litter_scatter awaits place_object before setting the destination's redraw flag because the pending object-placement billing path is asynchronous."
+      ]
+    },
+    "validation": {
+      "target": {
+        "batch": "v67",
+        "caseId": "v67-shop-damage-repair-action11",
+        "segment": 0,
+        "fromStep": 0,
+        "throughStep": 1199,
+        "source": "shk.c:shk_fixes_damage -> repair_damage -> litter_getpos/litter_scatter/litter_newsyms; C step 1151 restores the shop door"
+      },
+      "levelReturnProbe": {
+        "recipe": "recipes/shk.c/repair-catchup-level-return-probe.session.json",
+        "command": [
+          "node",
+          "scripts/diff-fresh.mjs",
+          "recipes/shk.c/repair-catchup-level-return-probe.session.json"
+        ],
+        "result": "First mismatch at segment 1 step 255: C calls rn2(1) from priest.c:move_special while JavaScript calls rn2(5). Later screen and cursor mismatch at boundary 395. This probe does not establish shop-repair catch-up parity."
+      },
+      "directScatterProbes": [
+        {
+          "recipe": "recipes/shk.c/repair-door-d2-teleport-cfirst.session.json",
+          "blocker": "The controlled teleport setup diverges before shop damage handling in teleport.c:dotele/getpos; adding #wizmap moves the first mismatch earlier to wizcmds.c:wiz_map."
+        },
+        {
+          "recipe": "recipes/shk.c/repair-door-independent-probe.session.json",
+          "blocker": "The probe has not established a shopkeeper or repaired doorway; its monster-detection selection flow remains incomplete."
+        }
+      ],
+      "focusedTests": "Previously passed scripts/bones.test.mjs and scripts/shk-move.test.mjs (14 tests total).",
+      "lint": "Previously passed npm run lint.",
+      "syntheticPrefix": "scripts/synthetic-range-evidence.mjs verified the v67 target through segment 0 step 1199."
+    },
+    "runtimeEvidenceLimits": [
+      "The admitted v67 range covers ordinary shk_fixes_damage and door restoration, but the case has no item on the repaired wall and does not exercise litter_scatter moving objects.",
+      "The level-return catch-up path lacks a matching recording because its independent recipe stops earlier in priest.c:move_special.",
+      "The bones restoration path lacks a matching recording; it requires a bones-enabled recorder route that reaches mklev.c:mklev -> bones.c:getbones -> fix_shop_damage."
+    ]
   }
 }

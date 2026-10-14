@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first probe for the shk.c:fix_shop_damage -> repair_damage catch-up path. On a fresh Wizard debug game, visit D2, reveal and navigate the generated shop by ordinary exploration, raze its entrance with a wished digging wand, pay the angry shopkeeper, step onto the open doorway, drop a healing potion there, move to D1, then return to D2 so mklev.c:mklev runs getbones and repair catch-up. Its JavaScript differential is blocked earlier by priest.c:move_special at segment 1 step 255; the later C scatter is not matching runtime evidence.",
+  "segments": [
+    {
+      "seed": 67110079,
+      "datetime": "20900101145920",
+      "nethackrc": "OPTIONS=name:RepairProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #wizlevelport\n2\n\u0017pick-axe\nwo_  D.aol_  D.aol_  d.#wizcast\nh  _  llllllllllllllllllllllllk._  @llllllllllllllllllllllllk._  @llllllllllllllllllllllk._  @llllllllllllllllllll.\u0017wand of teleportation\nzp.lllllllllllllllllllll._  @llllllllllllllljjjjjjjj.aolaolaolaolaolaolaolaolaol                                        \u0017wand of digging\nzql \u00171000 gold pieces\np  l dghm.m.m.m.m.#wizlevelport\n1\nm.m.m.m.m.#wizlevelport\n2\n"
+    }
+  ]
+}

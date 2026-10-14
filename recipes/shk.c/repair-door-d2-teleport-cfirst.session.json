@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only ordinary shop entrance and litter_scatter probe for shk.c. A Wizard ports to the generated D:2 level, controlled-teleports to the west side of its shop entrance, and prepares a digging wand, healing potion, and gold. Its JavaScript differential is blocked before shop handling by teleport.c:dotele/getpos; adding #wizmap shifts the first mismatch earlier to wizcmds.c:wiz_map. Do not use this probe as matching repair_damage evidence.",
+  "segments": [
+    {
+      "seed": 67110079,
+      "datetime": "20900101145920",
+      "nethackrc": "OPTIONS=name:RepairProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "     #wizlevelport\n2\n#wizmap\n\u0014  lllllllllllllllllllllllllllllllllllllllllkkkk.\u0017wand of digging\n\u0017potion of healing\n \u00171000 gold pieces\nzol yldgh......"
+    }
+  ]
+}
