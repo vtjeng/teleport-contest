@@ -3,7 +3,7 @@
   "corpus": "synthetic",
   "batch": "v71",
   "caseId": "v71-quantum-box-escape-no-disclosure-action8",
-  "remainingScreens": 0,
+  "remainingScreens": 718,
   "recordedSteps": 718,
   "manifestPath": "challenges/manifests/v71.json",
   "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
@@ -12,7 +12,7 @@
   "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
   "evaluationArtifact": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
   "status": "complete",
-  "commit": "8e6af7cc825d22dd644f2158aefe13b338ac880e",
+  "commit": "48ab676a1d969b1c268b2ef0c9c332482186eebd",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v71",
@@ -34,26 +34,41 @@
     "recordedSteps": 718,
     "previousScreensMatched": null,
     "regression": false,
-    "passed": true,
-    "error": null,
+    "passed": false,
+    "error": "PM_HOUSECAT is not defined",
     "metrics": {
-      "screens": {"matched": 718, "total": 718},
-      "rng": {"matched": 3684, "total": 3684},
-      "cursors": {"matched": 718, "total": 718}
+      "screens": {
+        "matched": 0,
+        "total": 718
+      },
+      "rng": {
+        "matched": 0,
+        "total": 3684
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 718
+      }
     },
-    "firstMismatch": null,
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: PM_HOUSECAT is not defined",
+      "step": null
+    },
     "step": null,
-    "kind": null,
+    "kind": "stop",
     "sourceFile": null,
     "function": null,
-    "message": null
+    "message": "Replay error: PM_HOUSECAT is not defined"
   },
   "goalKind": "divergence-fix",
   "summary": "The accepted baseline stopped on ReferenceError: PM_HOUSECAT is not defined while end.c:really_done() scored a live quantum cat. JS already preserved the source branch and species lookup but omitted the imported constant. Importing PM_HOUSECAT restores the completed escape output; the unchanged admitted recording now matches in full.",
   "source": {
     "file": "end.c",
     "branch": "really_done()'s ESCAPED/ASCENDED score block checks Schroedingers_cat, obtains adj_lev(&mons[PM_HOUSECAT]), rolls d(m_lev, 8), adds the hit points to u.urexp, and appends the cat to the displayed pet list.",
-    "functions": ["really_done"],
+    "functions": [
+      "really_done"
+    ],
     "callers": [
       "end.c:done calls really_done after the escape state is finalized",
       "js/end.js:done reaches really_done for the corresponding ESCAPED ending"
