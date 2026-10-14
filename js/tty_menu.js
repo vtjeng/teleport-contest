@@ -135,9 +135,12 @@ function writeRecorderTtyWindowLine(
     display,
     column,
     row,
-    byteString,
+    line,
 ) {
-    const bytes = encodeUtf8ByteString(byteString);
+    const text = typeof line === 'string' ? line : String(line?.text ?? '');
+    const color = line?.color ?? NO_COLOR;
+    const attr = line?.attr ?? 0;
+    const bytes = encodeUtf8ByteString(text);
     for (let index = 0; index !== bytes.length; ++index) {
         const byte = bytes[index];
         let cell = null;
@@ -148,8 +151,8 @@ function writeRecorderTtyWindowLine(
                 column + index,
                 row,
                 cell,
-                NO_COLOR,
-                0,
+                color,
+                attr,
             );
         }
     }
@@ -388,7 +391,9 @@ export function ttyTextWindowData(lines, columns) {
 // C refs: tty_display_nhwindow(NHW_MENU) and process_text_window(). A menu
 // with cw->data follows the text-window line loop but retains menu geometry.
 export function ttyMenuTextLayout(display, rawLines, overlay = true) {
-    const data = ttyMenuTextData(rawLines, display.cols);
+    // C tty_putstr() stores each NHW_MENU row's attribute and color alongside
+    // its compressed text; keep that metadata until process_text_window draws.
+    const data = ttyTextWindowData(rawLines, display.cols);
     const maxrow = data.lines.length;
     let offx = Math.min(
         82,

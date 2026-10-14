@@ -16,7 +16,7 @@ import { parseNethackrc } from '../js/options.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { tty_getlin } from '../js/getline.js';
 import { tty_yn_function } from '../js/topl.js';
-import { NO_COLOR } from '../js/terminal.js';
+import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
@@ -311,6 +311,8 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
         };
     };
 
+    // This class-heading label exercises the same styled-row shape used by
+    // #vanquished; the chosen style makes metadata loss visible in setCell.
     await displayTtyMenuTextWindow(state, [
         'Things that are here:',
         // X, Y, and Z follow two-, three-, and four-byte code points. Their
@@ -335,6 +337,29 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
     assert.equal(boundary.leadingHighRow[start], 'C');
     assert.equal(boundary.leadingHighRow[start + 1], ' ');
     assert.equal(boundary.leadingHighRow[start + 2], 'X');
+});
+
+test('NHW_MENU text applies each source line attribute', async () => {
+    const state = menuState(' ');
+    const writes = [];
+    const setCell = state.nhDisplay.setCell.bind(state.nhDisplay);
+    state.nhDisplay.setCell = (column, row, ch, color, attr) => {
+        // The first row starts at column 41; capture its first three glyphs
+        // to pin the supplied color 8 and inverse attribute.
+        if (row === 0 && column >= 41 && column <= 43
+            && attr === ATR_INVERSE) writes.push({ ch, color, attr });
+        return setCell(column, row, ch, color, attr);
+    };
+
+    await displayTtyMenuTextWindow(state, [
+        { text: 'Dog or other canine', attr: ATR_INVERSE, color: 8 },
+    ]);
+
+    assert.deepEqual(writes.slice(-3), [
+        { ch: 'D', color: 8, attr: ATR_INVERSE },
+        { ch: 'o', color: 8, attr: ATR_INVERSE },
+        { ch: 'g', color: 8, attr: ATR_INVERSE },
+    ]);
 });
 
 test('NHW_MENU text honors disabled overlays and paginates full-screen text',

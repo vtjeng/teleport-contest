@@ -1,0 +1,55 @@
+{
+  "session": "synthetic/v69/v69-vanq-sort-recovered4",
+  "corpus": "synthetic",
+  "batch": "v69",
+  "caseId": "v69-vanq-sort-recovered4",
+  "manifestPath": "challenges/manifests/v69.json",
+  "manifestSha256": "12a5d44891f8681f06d1c769bbee98f7851412aa1f53402ac106a9046acf7bd9",
+  "recordingSha256": "6d8b519a0d960208d28b5d44aee3cc8eae3518999682f19bc971008e5dbb64bd",
+  "evaluationPath": "challenges/evaluations/accepted-99cc21c54b87286aa660ab80537c0a22e6b39faa-v69.json",
+  "evaluationCommit": "99cc21c54b87286aa660ab80537c0a22e6b39faa",
+  "remainingScreens": 1,
+  "recordedSteps": 288,
+  "status": "complete",
+  "commit": "5f1593cdc2a4c0a5c1b0c4d07a20b98098beca17",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v69/v69-vanq-sort-recovered4"
+    ],
+    "remainingScreens": 1,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 266,
+    "caseId": "v69-vanq-sort-recovered4",
+    "batch": "v69",
+    "recordingPath": "challenges/cases/v69/v69-vanq-sort-recovered4.session.json",
+    "session": "synthetic/v69/v69-vanq-sort-recovered4",
+    "recordedSteps": 288
+  },
+  "summary": "The only remaining v69 mismatch is the menu-heading attribute for the “Dog or other canine” line in #vanquished at segment 0 step 266. C records inverse attribute on the class heading while JavaScript records no attribute; text, RNG, cursor, and input sequence otherwise match. C wintty.c:tty_putstr() stores each NHW_MENU line attribute with the text and process_text_window() reapplies it. JavaScript insight.js passes the attribute, but js/tty_menu.js discarded row metadata in ttyMenuTextLayout() and its recorder writer always painted attribute 0. Preserve the row metadata through layout and apply the source style when drawing each recorder cell."
+  "source": {
+    "file": "wintty.c",
+    "branch": "For NHW_MENU/NHW_TEXT rows, tty_putstr() stores attr+1 in the first data byte; process_text_window() decodes it and brackets line output with term_start_attr()/term_end_attr(). The v69 #vanquished path supplies a nonzero menu_headings attribute for class headers.",
+    "functions": [
+      "tty_putstr",
+      "process_text_window"
+    ],
+    "callers": [
+      "insight.c:list_vanquished() passes iflags.menu_headings.attr for class headers when ask is false.",
+      "wintty.c:tty_display_nhwindow() dispatches the NHW_MENU display to process_text_window().",
+      "JavaScript path: insight.js:list_vanquished() -> tty_menu.js:displayTtyMenuTextWindow() -> ttyWindowTextData() -> writeRecorderTtyWindowLine()."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v69 evaluation accepted at 99cc21c records this case at 287/288 screens, 3110/3110 RNG calls, and 288/288 cursors, with no error. Its recording SHA is 6d8b519a0d960208d28b5d44aee3cc8eae3518999682f19bc971008e5dbb64bd.",
+    "A fresh replay on 5f1593cdc2a4c0a5c1b0c4d07a20b98098beca17 reproduces the sole first mismatch at segment 0, step 266, key c: screen cell row 2 column 41 is D with C attr 1 and JS attr 0; RNG and cursor match at the boundary. Diagnostic log: /tmp/teleport-validation-1000/run-PQ2zln/stdout.log.",
+    "In upstream win/tty/wintty.c:2365-2417, tty_putstr() stores attr+1 with NHW_MENU/NHW_TEXT row contents. At win/tty/wintty.c:1771-1848, process_text_window() reads data[i][0]-1 and applies that attribute before writing the row.",
+    "In js/insight.js:2472-2477, list_vanquished() attaches the configured class-heading attribute. In js/tty_menu.js, ttyWindowTextData(..., false) currently strips source line objects and writeRecorderTtyWindowLine() writes every cell with attribute 0; this removes the style before display."
+  ]
+}
