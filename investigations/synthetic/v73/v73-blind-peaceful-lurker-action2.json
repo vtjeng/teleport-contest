@@ -18,7 +18,9 @@
     "sourceFile": "hack.c",
     "cFile": "hack.c",
     "luaFile": null,
-    "sessions": ["synthetic/v73/v73-blind-peaceful-lurker-action2"],
+    "sessions": [
+      "synthetic/v73/v73-blind-peaceful-lurker-action2"
+    ],
     "remainingScreens": 276,
     "remainingScreensUpperBound": null,
     "caseId": "v73-blind-peaceful-lurker-action2",
@@ -30,17 +32,79 @@
   "source": {
     "file": "hack.c",
     "branch": "domove_attackmon_at() enters its attack path only for forcefight, a non-mundetected target, a sensed target, or a non-safe hides-under/eel target. An unknown unsensed ceiling hider satisfies none of these conditions. domove_core() therefore continues through test_move(), commits movement, and reaches spoteffects().",
-    "functions": ["domove_attackmon_at", "domove_core"],
+    "functions": [
+      "domove_attackmon_at",
+      "domove_core"
+    ],
     "callers": [
       "hack.c:domove_core calls domove_attackmon_at(mtmp, x, y, &displaceu) before test_move and movement/spoteffects",
+      "hack.c:domove_core calls spoteffects(TRUE) after committing a moved hero",
+      "hack.c:spoteffects calls mon.c:mnexto(mtmp) after handling a hidden resident monster",
+      "mon.c:mnexto calls teleport.c:enexto; enexto calls enexto_core; enexto_core uses collect_coords for its shuffled destination rings",
       "cmd.c:domove dispatches the hero movement command into hack.c:domove_core"
     ],
-    "dependencies": ["display.h:is_safemon", "mon.c:sensemon", "mondata.h:hides_under"]
+    "dependencies": [
+      "display.h:is_safemon",
+      "mon.c:sensemon",
+      "mondata.h:hides_under"
+    ]
+  },
+  "arrivalFollowup": {
+    "sourceFunctions": [
+      {
+        "file": "hack.c",
+        "name": "spoteffects",
+        "lines": "3312-3462"
+      },
+      {
+        "file": "mon.c",
+        "name": "mnexto",
+        "lines": "3955-3990"
+      },
+      {
+        "file": "teleport.c",
+        "name": "enexto",
+        "lines": "196-204"
+      },
+      {
+        "file": "teleport.c",
+        "name": "enexto_core",
+        "lines": "219-276"
+      },
+      {
+        "file": "teleport.c",
+        "name": "collect_coords",
+        "lines": "578-712"
+      }
+    ],
+    "finding": "After the hero enters a hidden hider's square, hack.c:spoteffects clears mundetected/msleeping, handles the surprise message, and calls mnexto. Before arrival, hack.c:domove_core swaps only a safe destination monster that is not still an undetected hider (2921-2926). JavaScript called domove_swap_with_pet for every destination monster, so the newly reached path took a different actor-movement route and diverged during relocation RNG. The implementation now applies the C safe-monster and undetected-hider gate at that caller.",
+    "failedIndependentEvidence": {
+      "recipe": "recipes/hack.c/v73-hidden-tame-lurker-arrival.session.json",
+      "recording": "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json",
+      "results": [
+        "Before the domove_core caller correction, seed 2026101403 diverged at the arrival boundary in collect_coords: C rn2(8)=0, JavaScript rn2(5)=3."
+      ],
+      "status": "superseded by the matching replay documented under implementation"
+    }
   },
   "goalKind": "divergence-fix",
   "evidence": [
     "The accepted v73 evaluation for case v73-blind-peaceful-lurker-action2 reports the first C/JavaScript boundary at segment 0 step 213, key h: C shows 'You surprise something!' and continues to 276 screens, while JavaScript stops at 213 screens after 2929 of 2996 RNG calls.",
     "The corresponding source target is hack.c:domove_attackmon_at() at lines 1955-1992. Its predicate is forcefight || !mundetected || sensemon || ((hides_under || eel) && !is_safemon). The target in this recording is an unknown unsensed ceiling hider, so the predicate is false and C does not call do_attack().",
-    "js/hack.js:preflightDomoveDestination() and domove_core() both call requireSupportedDestinationMonster() before domove_attackmon_at(). That seam calls requireOrdinaryHostileMelee() for a hidden target when is_safemon() is false; the guard throws 'attacking a hidden monster (ceiling hider or other)' even though the C gate skips the attack and permits normal movement. The source fix must preserve the C gate and allow the caller to continue without inventing an attack or RNG draw."
-  ]
+    "js/hack.js:preflightDomoveDestination() and domove_core() both call requireSupportedDestinationMonster() before domove_attackmon_at(). That seam called requireOrdinaryHostileMelee() for a hidden target when is_safemon() was false; the guard threw 'attacking a hidden monster (ceiling hider or other)' even though the C gate skips the attack and permits normal movement. The source fix preserves the C gate and allows the caller to continue without inventing an attack or RNG draw."
+  ],
+  "implementation": {
+    "sourceChanges": [
+      "js/hack.js: requireSupportedDestinationMonster now returns for the source mundetected/unsensed/non-eel/non-hides-under no-attack case, while preserving forcefight handling.",
+      "js/hack.js: domove_core now calls domove_swap_with_pet only for a safe destination monster that is not a still-undetected hider, matching hack.c:2921-2926 before spoteffects and mnexto relocation.",
+      "js/hack.js: spoteffects uses the existing sensemon helper for the blind surprise message."
+    ],
+    "regressionTest": "scripts/hack.test.mjs: unknown ceiling hider follows C movement without an attack; the production domove path reaches spoteffects and relocates the hider.",
+    "checks": {
+      "focusedTest": "node scripts/run-bounded.mjs focused -- node --test scripts/hack.test.mjs passed (75 tests).",
+      "lint": "npm run lint passed.",
+      "independentRecording": "recipes/hack.c/v73-hidden-tame-lurker-arrival.session.json recorded as recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json; seed 2026101403 now matches C/JS completely (2300 RNG values, 221 screens, 221 cursors, animation frames).",
+      "admittedRange": "v73/v73-blind-peaceful-lurker-action2 segment 0 matches through step 275, including the hider arrival and collect_coords relocation; verified by scripts/synthetic-range-evidence.mjs."
+    }
+  }
 }
