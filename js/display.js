@@ -1456,16 +1456,7 @@ function display_monster(x, y, monster, sightflags, wormTail, state = game) {
             presented, state, detected,
         );
 
-        // C show_mon_or_warn() clears the remembered invisible marker before
-        // remembering a visible object beneath the monster.
-        const location = state.level.at(x, y);
-        if (glyph_is_invisible(location.remembered_glyph?.glyph)) {
-            unmap_object(x, y, state);
-            const object = vobj_at(x, y, state);
-            if (cansee(x, y, state) && object)
-                map_object(object, false, state);
-        }
-        show_glyph_cell(x, y, glyph);
+        show_mon_or_warn(x, y, glyph, state);
         monster.meverseen = 1;
     }
 }
@@ -1520,6 +1511,34 @@ function warningGlyphInfo(monster, state) {
         'warning',
         `warning:${warningLevel}`,
         { type: 'warning', index: warningLevel },
+    );
+}
+
+// C ref: display.c show_mon_or_warn() (482-500). Both a monster and its
+// warning glyph replace a remembered invisible marker; restore the known
+// square contents first, including an object visible beneath the overlay.
+function show_mon_or_warn(x, y, glyph, state = game) {
+    if (state !== game)
+        throw new Error('show_mon_or_warn requires the active display state');
+    const location = state.level?.at(x, y);
+    if (glyph_is_invisible(location?.remembered_glyph?.glyph)) {
+        unmap_object(x, y, state);
+        const object = vobj_at(x, y, state);
+        if (cansee(x, y, state) && object)
+            map_object(object, false, state);
+    }
+    show_glyph_cell(x, y, glyph);
+}
+
+// C ref: display.c display_warning() (630-649). newsym() calls this only for
+// a warning-bearing monster; the same source helper handles its memory and
+// screen update for both in-sight and out-of-sight warning glyphs.
+function display_warning(monster, state = game) {
+    show_mon_or_warn(
+        monster.mx,
+        monster.my,
+        warningGlyphInfo(monster, state),
+        state,
     );
 }
 
@@ -3955,7 +3974,7 @@ export function newsym(x, y) {
                 wormTail,
             );
         } else if (monsterWarning) {
-            show_glyph_cell(x, y, warningGlyphInfo(monster, game));
+            display_warning(monster, game);
         } else {
             show_glyph_cell(x, y, underlying);
         }
@@ -3973,7 +3992,7 @@ export function newsym(x, y) {
         );
     } else if (outOfSightWarning) {
         // display.c:1055-1056, display_warning() for out-of-sight monster
-        show_glyph_cell(x, y, warningGlyphInfo(outOfSightMon, game));
+        display_warning(outOfSightMon, game);
     } else if (loc.remembered_glyph) {
         // display.c:1077-1097, the tail of newsym()'s "can't see the
         // location" arm. A square remembered as lit that the hero cannot see
