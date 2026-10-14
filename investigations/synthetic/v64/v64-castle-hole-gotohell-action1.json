@@ -128,5 +128,10 @@
       "do.c flooreffects() existing JS boulder/pit branch in js/do.js",
       "dungeon.c goto_hell() is a separate caller gap and does not cause the first mismatch in this case"
     ]
-  }
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Accepted v64 source evaluation shows the first mismatch at step 295: C follows do.c goto_level to trap.c fill_pit, where a floor boulder over a hole is extracted and passed to do.c flooreffects(\"settle\"); JavaScript skips that call and diverges in RNG and screen output.",
+    "The JS change awaits the existing flooreffects call after boulder removal and propagates completion through production fill_pit callers, including mon.c mon_leaving_level and dog migration callers. Focused checks cover the migration boulder path; accepted v42 and v43 full replay ranges cover ordinary pet transfer and steed arrival caller paths."
+  ]
 }
