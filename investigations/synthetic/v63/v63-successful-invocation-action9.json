@@ -6,28 +6,242 @@
   "manifestPath": "challenges/manifests/v63.json",
   "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
   "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
-  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
-  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
-  "remainingScreens": 325,
+  "evaluationPath": "challenges/evaluations/accepted-41f0b9fdd4e3a7743344ba85f44b57f987d501d7-v63.json",
+  "evaluationCommit": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
+  "remainingScreens": 108,
   "recordedSteps": 785,
   "status": "complete",
-  "commit": "36d9515674347e9367c38905d076023a9b3bb873",
+  "commit": "00c16d417d749309c6bae191d1a31651fe9388d1",
   "mismatch": {
-    "kind": "stop",
+    "kind": "rng",
     "corpus": "synthetic",
-    "sourceFile": "trap.c",
-    "cFile": "trap.c",
+    "sourceFile": "spell.c",
+    "cFile": "spell.c",
     "luaFile": null,
     "sessions": [
       "synthetic/v63/v63-successful-invocation-action9"
     ],
-    "remainingScreens": 325,
+    "remainingScreens": 108,
     "remainingScreensUpperBound": null,
     "caseId": "v63-successful-invocation-action9",
     "batch": "v63",
     "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
     "session": "synthetic/v63/v63-successful-invocation-action9",
-    "originalQueueEntry": {
+    "firstMismatch": {
+      "kind": "rng",
+      "step": 677,
+      "message": "spell.c deadbook d(2,6) versus JavaScript rnd(6)"
+    },
+    "baseline": {
+      "screens": "677/785",
+      "rng": "19951/19957",
+      "cursors": "782/785"
+    }
+  },
+  "summary": "The current accepted replay reaches the successful Invocation arm of spell.c:deadbook at step 677. The source mismatch is both the wrong random wrapper and the skipped mklev.c:mkinvokearea call. Port the entire mkinvokearea/mkinvpos/mkinvk_check_wall family and await it from deadbook in source order; this creates the stairwell and updates the Invocation event before deadbook continues.",
+  "source": {
+    "file": "mklev.c",
+    "functions": [
+      "mkinvokearea",
+      "mkinvpos",
+      "mkinvk_check_wall"
+    ],
+    "branch": "spell.c:deadbook() makes one d(2,6) roll, then on a successful invocation calls mklev.c:mkinvokearea(). That function counts nearby stone walls for its message, waits for the message window, releases any hero trap, rebuilds the center and six terrain rings through mkinvpos(), flushes and delays after each ring, places down stairs under the hero, redraws the tile, and requests a full vision recalculation. mkinvpos() deletes traps, removes or fractures boulders, resets location and vision fields, makes a visible fire-trap ring and moat, resolves monsters on altered terrain, updates vision blocking, and redraws. mkinvk_check_wall() is a pure bounded query for stone walls or iron bars.",
+    "callers": [
+      "spell.c:read -> spell.c:study_book -> spell.c:deadbook -> mklev.c:mkinvokearea -> mklev.c:mkinvpos / mklev.c:mkinvk_check_wall.",
+      "js/read.js -> js/spell.js:study_book -> js/spell.js:deadbook -> js/mklev.js:mkinvokearea -> mkinvpos / mkinvk_check_wall (caller wiring to complete in this task)."
+    ],
+    "dependencies": [
+      "dig.c:buried_ball_to_punishment() is already implemented in js/dig.js and must be awaited when clearing TT_BURIEDBALL, including its redraw and engraving effects.",
+      "trap.c:deltrap() and maketrap() already exist in js/trap.js; mkinvpos() uses them to remove traps and create/reveal FIRE_TRAPs.",
+      "zap.c:fracture_rock(), mon.c:mintrap(), mon.c:minliquid(), mon.c:seemimic(), vision.c:does_block()/unblock_point(), display.c:newsym()/flush_screen(), hack.c:nh_delay_output(), tty message-window display, and mklev.c:mkstairs() have existing JavaScript owners; inspect their actual supported paths and keep source order."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The accepted v63 evaluation at 41f0b9fdd4e3a7743344ba85f44b57f987d501d7 records this case at 677/785 screens, 19951/19957 RNG calls, and 782/785 cursors; its first divergence is step 677.",
+    "Upstream spell.c:deadbook() line 287 calls d(2,6), then line 290 calls mkinvokearea() before setting invoked and demigod flags. js/spell.js currently substitutes rnd(6)+rnd(6) and records note_unported for mkinvokearea.",
+    "Read upstream mklev.c:mkinvokearea(), mkinvpos(), and mkinvk_check_wall() in full and traced the deadbook production caller. The three functions form one source family; mkinvk_check_wall() is pure and needs source-pinned tests."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-successful-invocation-action9",
+    "session": "synthetic/v63/v63-successful-invocation-action9",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recording": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+    "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+    "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+    "recipe": "challenges/cases/v63/v63-successful-invocation-action9.recipe.session.json",
+    "recipeSha256": "a94a2b9d6fb1c5522fe719b2b3e87e0eb2221cb1116ea1cff992d388af792f8b",
+    "evaluationPath": "challenges/evaluations/accepted-41f0b9fdd4e3a7743344ba85f44b57f987d501d7-v63.json",
+    "evaluationCommit": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
+    "remainingScreens": 108,
+    "recordedSteps": 785,
+    "metrics": {
+      "screens": {
+        "matched": 677,
+        "total": 785
+      },
+      "rng": {
+        "matched": 19951,
+        "total": 19957
+      },
+      "cursors": {
+        "matched": 782,
+        "total": 785
+      }
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 677,
+      "key": " ",
+      "source": "spell.c:deadbook",
+      "reason": "C d(2,6) produces 8; JS rnd(6) produces 4 before mkinvokearea is skipped."
+    }
+  },
+  "previousAcceptedInvestigation": {
+    "session": "synthetic/v63/v63-successful-invocation-action9",
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-successful-invocation-action9",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "remainingScreens": 325,
+    "recordedSteps": 785,
+    "status": "complete",
+    "commit": "36d9515674347e9367c38905d076023a9b3bb873",
+    "mismatch": {
+      "kind": "stop",
+      "corpus": "synthetic",
+      "sourceFile": "trap.c",
+      "cFile": "trap.c",
+      "luaFile": null,
+      "sessions": [
+        "synthetic/v63/v63-successful-invocation-action9"
+      ],
+      "remainingScreens": 325,
+      "remainingScreensUpperBound": null,
+      "caseId": "v63-successful-invocation-action9",
+      "batch": "v63",
+      "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+      "session": "synthetic/v63/v63-successful-invocation-action9",
+      "originalQueueEntry": {
+        "corpus": "synthetic",
+        "batch": "v63",
+        "caseId": "v63-successful-invocation-action9",
+        "session": "synthetic/v63/v63-successful-invocation-action9",
+        "manifestPath": "challenges/manifests/v63.json",
+        "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+        "recording": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+        "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+        "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+        "recipe": "challenges/cases/v63/v63-successful-invocation-action9.recipe.session.json",
+        "recipeSha256": "a94a2b9d6fb1c5522fe719b2b3e87e0eb2221cb1116ea1cff992d388af792f8b",
+        "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+        "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+        "evaluationArtifact": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+        "evaluationUtc": "2026-10-14T02:33:34.540Z",
+        "remainingScreens": 325,
+        "recordedSteps": 785,
+        "previousScreensMatched": null,
+        "regression": false,
+        "passed": false,
+        "error": null,
+        "metrics": {
+          "screens": {
+            "matched": 460,
+            "total": 785
+          },
+          "rng": {
+            "matched": 19743,
+            "total": 19957
+          },
+          "cursors": {
+            "matched": 460,
+            "total": 785
+          }
+        },
+        "firstMismatch": {
+          "caseId": "v63-successful-invocation-action9",
+          "title": "Reach the vibrating square and perform the invocation",
+          "segment": 0,
+          "step": 460,
+          "firstOwner": "trap.c:dotrap hero VIBRATING_SQUARE admission",
+          "source": "teleport.c:teleds568 -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_vibrating_square2725-2779; later hack.c:invocation_message3064-3085 and spell.c:deadbook287-301",
+          "javascript": "js/trap_effects.js3909 preflight_dotrap omits VIBRATING_SQUARE even though trapeffect_vibrating_square3777 already implements the hero feeltrap arm. Dynamic boundary is trap activation at teleds, before invocation_message; the latter has a separate later refusal.",
+          "observed": "Own C RNG pins the real invocation square; controlled teleport reaches it, candles glow, Bell is rung, and after source-supported removal of ritual attackers the book creates the stairwell at C680. The first JS stop is earlier at460.",
+          "closestEarlierCases": [
+            "v62-sokoban-original-boulder-fill-action6",
+            "v58-opening-wand-hero-beartrap-action6"
+          ],
+          "causalDifference": "This is hero admission for the special vibrating-square trap type, with an already implemented effect. Rolling boulder launch and held-trap opening use different trap types and active callers. No earlier prepared case found with this reached square/admission behavior.",
+          "runtimeDiagnostic": {
+            "caseId": "v63-successful-invocation-action9",
+            "base": "0489d77c5d50b99720ad7baf7e3111dfe2e88599",
+            "boundaries": [
+              {
+                "name": "UnsupportedHeroMoveBoundaryError",
+                "message": "unsupported hero move: trap activation",
+                "stack": "UnsupportedHeroMoveBoundaryError: unsupported hero move: trap activation\n    at preflight_dotrap (file:///tmp/teleport-score-861U4Y/js/trap_effects.js:3909:15)\n    at requireSimpleHeroDestination (file:///tmp/teleport-score-861U4Y/js/hack.js:1628:26)\n    at teleds (file:///tmp/teleport-score-861U4Y/js/teleport.js:1822:5)\n    at scrolltele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1522:23)\n    at async tele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1543:5)\n    at async dotele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1766:13)\n    at async dotelecmd (file:///tmp/teleport-score-861U4Y/js/teleport.js:1628:24)\n    at async rhack (file:///tmp/teleport-score-861U4Y/js/cmd.js:6490:25)\n    at async moveloop_core (file:///tmp/teleport-score-861U4Y/js/allmain.js:1804:9)\n    at async runSegment (file:///tmp/teleport-score-861U4Y/js/jsmain.js:784:13)"
+              }
+            ],
+            "screens": 460,
+            "rng": 19743
+          }
+        },
+        "investigation": {
+          "status": "missing",
+          "path": "investigations/synthetic/v63/v63-successful-invocation-action9.json"
+        }
+      },
+      "baseline": {
+        "screens": "460/785",
+        "rng": "19743/19957",
+        "cursors": "460/785"
+      },
+      "firstMismatch": {
+        "kind": "stop",
+        "message": "unsupported hero move: trap activation",
+        "step": 460
+      },
+      "step": 460,
+      "function": "dotrap",
+      "message": "unsupported hero move: trap activation",
+      "line": 3909,
+      "helper": null
+    },
+    "summary": "The vibrating-square activation now passes the source-backed dotrap preflight and the run advances to a separate fail-closed boundary in hack.c:invocation_message() on the Invocation level. That function is in the same recorded teleds caller path and is required to emit the C clue and allow the selected target to improve.",
+    "source": {
+      "file": "trap.c",
+      "branch": "teleport.c:teleds() can land the hero on the invocation square, and hack.c:spoteffects() calls trap.c:dotrap(). C admits VIBRATING_SQUARE to the trap effect selector; that effect calls feeltrap() for the hero and does not refuse based on the trap type. JavaScript already ports trapeffect_vibrating_square(), but preflight_dotrap() omits the type from its supported hero traps. Because trap.h:undestroyable_trap() includes VIBRATING_SQUARE, the existing seen-trap escape check already preserves C behavior once admission is added. Mounted-hero preflight must also allow this trap, matching dotrap() which passes the hero to the same effect. After this trap guard is corrected, the same run reaches hack.c:invocation_message(), which C calls from teleport.c:teleds() on the Invocation level; JavaScript currently refuses that complete clue-producing branch, so it is included as the next source unit in this bounded entry-path task.",
+      "functions": [
+        "dotrap"
+      ],
+      "callers": [
+        "teleport.c:teleds() -> hack.c:spoteffects() -> trap.c:dotrap() -> trap.c:trapeffect_selector() -> trap.c:trapeffect_vibrating_square().",
+        "js/teleport.js:teleds() -> js/hack.js:requireSimpleHeroDestination() -> js/trap_effects.js:preflight_dotrap(); then js/trap_effects.js:dotrap() -> trapeffect_selector() -> trapeffect_vibrating_square().",
+        "teleport.c:teleds() -> hack.c:invocation_message() on the Invocation level; js/teleport.js:teleds() already calls js/hack.js:invocation_message()."
+      ],
+      "dependencies": [
+        "trap.h:undestroyable_trap(VIBRATING_SQUARE) is already represented by js/trap_effects.js:undestroyable_trap().",
+        "trap.c:trapeffect_vibrating_square() is already ported in js/trap_effects.js and implements the hero feeltrap() arm.",
+        "hack.c:invocation_message() is the next required C source function in this selected entry path and remains unreserved."
+      ]
+    },
+    "goalKind": "divergence-fix",
+    "evidence": [
+      "The published v63 admission evaluation 3fc2021644e79e564fb762bc2038139c3241ff42 records 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors for this case; its manifest identifies step 460 as trap.c:dotrap hero VIBRATING_SQUARE admission.",
+      "A single-case replay from 36d9515674347e9367c38905d076023a9b3bb873 reproduces 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors.",
+      "Upstream trap.c:dotrap() calls trapeffect_selector() after its force/escape checks. trap.c:trapeffect_vibrating_square() calls feeltrap() for the hero; trap.h:undestroyable_trap() includes VIBRATING_SQUARE.",
+      "js/trap_effects.js:preflight_dotrap() rejects VIBRATING_SQUARE in the initial supported-type guard and in the mounted-hero guard. The selector and effect already handle this trap, so admitting it in both guards preserves the existing source behavior.",
+      "After admitting VIBRATING_SQUARE in the local preflight, a direct single-segment run reaches the separate UnsupportedHeroMoveBoundaryError in js/hack.js:invocation_message() at the Invocation level, with 460 screens, 19,743 RNG calls, and 460 cursors captured. The manifest already identifies this later refusal; this task now includes the whole hack.c:invocation_message() function so the delivered target can improve."
+    ],
+    "provenance": {
       "corpus": "synthetic",
       "batch": "v63",
       "caseId": "v63-successful-invocation-action9",
@@ -40,15 +254,11 @@
       "recipe": "challenges/cases/v63/v63-successful-invocation-action9.recipe.session.json",
       "recipeSha256": "a94a2b9d6fb1c5522fe719b2b3e87e0eb2221cb1116ea1cff992d388af792f8b",
       "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
-      "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
       "evaluationArtifact": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+      "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
       "evaluationUtc": "2026-10-14T02:33:34.540Z",
       "remainingScreens": 325,
       "recordedSteps": 785,
-      "previousScreensMatched": null,
-      "regression": false,
-      "passed": false,
-      "error": null,
       "metrics": {
         "screens": {
           "matched": 460,
@@ -90,181 +300,75 @@
           "screens": 460,
           "rng": 19743
         }
-      },
-      "investigation": {
-        "status": "missing",
-        "path": "investigations/synthetic/v63/v63-successful-invocation-action9.json"
       }
     },
-    "baseline": {
-      "screens": "460/785",
-      "rng": "19743/19957",
-      "cursors": "460/785"
-    },
-    "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero move: trap activation",
-      "step": 460
-    },
-    "step": 460,
-    "function": "dotrap",
-    "message": "unsupported hero move: trap activation",
-    "line": 3909,
-    "helper": null
-  },
-  "summary": "The vibrating-square activation now passes the source-backed dotrap preflight and the run advances to a separate fail-closed boundary in hack.c:invocation_message() on the Invocation level. That function is in the same recorded teleds caller path and is required to emit the C clue and allow the selected target to improve.",
-  "source": {
-    "file": "trap.c",
-    "branch": "teleport.c:teleds() can land the hero on the invocation square, and hack.c:spoteffects() calls trap.c:dotrap(). C admits VIBRATING_SQUARE to the trap effect selector; that effect calls feeltrap() for the hero and does not refuse based on the trap type. JavaScript already ports trapeffect_vibrating_square(), but preflight_dotrap() omits the type from its supported hero traps. Because trap.h:undestroyable_trap() includes VIBRATING_SQUARE, the existing seen-trap escape check already preserves C behavior once admission is added. Mounted-hero preflight must also allow this trap, matching dotrap() which passes the hero to the same effect. After this trap guard is corrected, the same run reaches hack.c:invocation_message(), which C calls from teleport.c:teleds() on the Invocation level; JavaScript currently refuses that complete clue-producing branch, so it is included as the next source unit in this bounded entry-path task.",
-    "functions": [
-      "dotrap"
-    ],
-    "callers": [
-      "teleport.c:teleds() -> hack.c:spoteffects() -> trap.c:dotrap() -> trap.c:trapeffect_selector() -> trap.c:trapeffect_vibrating_square().",
-      "js/teleport.js:teleds() -> js/hack.js:requireSimpleHeroDestination() -> js/trap_effects.js:preflight_dotrap(); then js/trap_effects.js:dotrap() -> trapeffect_selector() -> trapeffect_vibrating_square().",
-      "teleport.c:teleds() -> hack.c:invocation_message() on the Invocation level; js/teleport.js:teleds() already calls js/hack.js:invocation_message()."
-    ],
-    "dependencies": [
-      "trap.h:undestroyable_trap(VIBRATING_SQUARE) is already represented by js/trap_effects.js:undestroyable_trap().",
-      "trap.c:trapeffect_vibrating_square() is already ported in js/trap_effects.js and implements the hero feeltrap() arm.",
-      "hack.c:invocation_message() is the next required C source function in this selected entry path and remains unreserved."
-    ]
-  },
-  "goalKind": "divergence-fix",
-  "evidence": [
-    "The published v63 admission evaluation 3fc2021644e79e564fb762bc2038139c3241ff42 records 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors for this case; its manifest identifies step 460 as trap.c:dotrap hero VIBRATING_SQUARE admission.",
-    "A single-case replay from 36d9515674347e9367c38905d076023a9b3bb873 reproduces 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors.",
-    "Upstream trap.c:dotrap() calls trapeffect_selector() after its force/escape checks. trap.c:trapeffect_vibrating_square() calls feeltrap() for the hero; trap.h:undestroyable_trap() includes VIBRATING_SQUARE.",
-    "js/trap_effects.js:preflight_dotrap() rejects VIBRATING_SQUARE in the initial supported-type guard and in the mounted-hero guard. The selector and effect already handle this trap, so admitting it in both guards preserves the existing source behavior.",
-    "After admitting VIBRATING_SQUARE in the local preflight, a direct single-segment run reaches the separate UnsupportedHeroMoveBoundaryError in js/hack.js:invocation_message() at the Invocation level, with 460 screens, 19,743 RNG calls, and 460 cursors captured. The manifest already identifies this later refusal; this task now includes the whole hack.c:invocation_message() function so the delivered target can improve."
-  ],
-  "provenance": {
-    "corpus": "synthetic",
-    "batch": "v63",
-    "caseId": "v63-successful-invocation-action9",
-    "session": "synthetic/v63/v63-successful-invocation-action9",
-    "manifestPath": "challenges/manifests/v63.json",
-    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
-    "recording": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
-    "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
-    "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
-    "recipe": "challenges/cases/v63/v63-successful-invocation-action9.recipe.session.json",
-    "recipeSha256": "a94a2b9d6fb1c5522fe719b2b3e87e0eb2221cb1116ea1cff992d388af792f8b",
-    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
-    "evaluationArtifact": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
-    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
-    "evaluationUtc": "2026-10-14T02:33:34.540Z",
-    "remainingScreens": 325,
-    "recordedSteps": 785,
-    "metrics": {
-      "screens": {
-        "matched": 460,
-        "total": 785
+    "followupDiagnostic": {
+      "commit": "36d9515674347e9367c38905d076023a9b3bb873",
+      "boundary": {
+        "name": "UnsupportedHeroMoveBoundaryError",
+        "message": "invocation_message() on the Invocation level",
+        "file": "js/hack.js",
+        "function": "invocation_message",
+        "line": 5627
       },
-      "rng": {
-        "matched": 19743,
-        "total": 19957
-      },
-      "cursors": {
-        "matched": 460,
-        "total": 785
-      }
+      "screens": 460,
+      "rng": 19743,
+      "cursors": 460
     },
-    "firstMismatch": {
-      "caseId": "v63-successful-invocation-action9",
-      "title": "Reach the vibrating square and perform the invocation",
-      "segment": 0,
-      "step": 460,
-      "firstOwner": "trap.c:dotrap hero VIBRATING_SQUARE admission",
-      "source": "teleport.c:teleds568 -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_vibrating_square2725-2779; later hack.c:invocation_message3064-3085 and spell.c:deadbook287-301",
-      "javascript": "js/trap_effects.js3909 preflight_dotrap omits VIBRATING_SQUARE even though trapeffect_vibrating_square3777 already implements the hero feeltrap arm. Dynamic boundary is trap activation at teleds, before invocation_message; the latter has a separate later refusal.",
-      "observed": "Own C RNG pins the real invocation square; controlled teleport reaches it, candles glow, Bell is rung, and after source-supported removal of ritual attackers the book creates the stairwell at C680. The first JS stop is earlier at460.",
-      "closestEarlierCases": [
-        "v62-sokoban-original-boulder-fill-action6",
-        "v58-opening-wand-hero-beartrap-action6"
+    "postImplementationReplay": {
+      "commit": "6f65784f0",
+      "source": "hack.c:invocation_message() (3064-3085), reached from teleport.c:teleds() after teleds destination effects",
+      "changes": [
+        "preflight_dotrap() admits the already implemented VIBRATING_SQUARE effect in the supported-type, seen-trap, and mounted-hero guards, following trap.c:dotrap() and trap.h:undestroyable_trap().",
+        "invocation_message() now follows hack.c message and state order; teleds() awaits its output."
       ],
-      "causalDifference": "This is hero admission for the special vibrating-square trap type, with an already implemented effect. Rolling boulder launch and held-trap opening use different trap types and active callers. No earlier prepared case found with this reached square/admission behavior.",
-      "runtimeDiagnostic": {
+      "focusedReplay": {
+        "command": "replayChallengeCases() for v63-successful-invocation-action9 at commit 6f65784f0",
+        "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+        "baseline": {
+          "screens": "460/785",
+          "rng": "19743/19957",
+          "cursors": "460/785",
+          "error": null
+        },
+        "result": {
+          "screens": "677/785",
+          "rng": "19951/19957",
+          "cursors": "782/785",
+          "error": null
+        },
+        "targetImproved": true,
+        "firstRemainingMismatch": {
+          "step": 677,
+          "key": " ",
+          "cCaller": "deadbook(spell.c:287)",
+          "rng": "C d(2,6)=8; JS rnd(6)=4",
+          "screen": "C horizontal line at row 0 column 45; JS blank",
+          "cursor": "C [53,0,1]; JS [26,13,1]"
+        }
+      },
+      "verifiedPrefix": {
+        "batch": "v63",
         "caseId": "v63-successful-invocation-action9",
-        "base": "0489d77c5d50b99720ad7baf7e3111dfe2e88599",
-        "boundaries": [
-          {
-            "name": "UnsupportedHeroMoveBoundaryError",
-            "message": "unsupported hero move: trap activation",
-            "stack": "UnsupportedHeroMoveBoundaryError: unsupported hero move: trap activation\n    at preflight_dotrap (file:///tmp/teleport-score-861U4Y/js/trap_effects.js:3909:15)\n    at requireSimpleHeroDestination (file:///tmp/teleport-score-861U4Y/js/hack.js:1628:26)\n    at teleds (file:///tmp/teleport-score-861U4Y/js/teleport.js:1822:5)\n    at scrolltele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1522:23)\n    at async tele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1543:5)\n    at async dotele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1766:13)\n    at async dotelecmd (file:///tmp/teleport-score-861U4Y/js/teleport.js:1628:24)\n    at async rhack (file:///tmp/teleport-score-861U4Y/js/cmd.js:6490:25)\n    at async moveloop_core (file:///tmp/teleport-score-861U4Y/js/allmain.js:1804:9)\n    at async runSegment (file:///tmp/teleport-score-861U4Y/js/jsmain.js:784:13)"
-          }
-        ],
-        "screens": 460,
-        "rng": 19743
-      }
+        "segment": 0,
+        "fromStep": 460,
+        "throughStep": 676,
+        "source": "teleport.c:teleds -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_vibrating_square -> feeltrap; then teleport.c:teleds -> hack.c:invocation_message"
+      },
+      "focusedChecks": {
+        "node scripts/dismount-steed.test.mjs": {
+          "exitCode": 0,
+          "summary": "60 tests passed"
+        },
+        "node scripts/hero-vibrating-square.test.mjs": {
+          "exitCode": 0,
+          "summary": "1 test passed"
+        },
+        "npm run lint": {
+          "exitCode": 0
+        }
+      },
+      "remainingScope": "The target now matches through step 676. Step 677 enters spell.c:deadbook(), which this task did not reserve or implement. The target retains a null runner error and improves each saved matched metric."
     }
-  },
-  "followupDiagnostic": {
-    "commit": "36d9515674347e9367c38905d076023a9b3bb873",
-    "boundary": {
-      "name": "UnsupportedHeroMoveBoundaryError",
-      "message": "invocation_message() on the Invocation level",
-      "file": "js/hack.js",
-      "function": "invocation_message",
-      "line": 5627
-    },
-    "screens": 460,
-    "rng": 19743,
-    "cursors": 460
-  },
-  "postImplementationReplay": {
-    "commit": "6f65784f0",
-    "source": "hack.c:invocation_message() (3064-3085), reached from teleport.c:teleds() after teleds destination effects",
-    "changes": [
-      "preflight_dotrap() admits the already implemented VIBRATING_SQUARE effect in the supported-type, seen-trap, and mounted-hero guards, following trap.c:dotrap() and trap.h:undestroyable_trap().",
-      "invocation_message() now follows hack.c message and state order; teleds() awaits its output."
-    ],
-    "focusedReplay": {
-      "command": "replayChallengeCases() for v63-successful-invocation-action9 at commit 6f65784f0",
-      "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
-      "baseline": {
-        "screens": "460/785",
-        "rng": "19743/19957",
-        "cursors": "460/785",
-        "error": null
-      },
-      "result": {
-        "screens": "677/785",
-        "rng": "19951/19957",
-        "cursors": "782/785",
-        "error": null
-      },
-      "targetImproved": true,
-      "firstRemainingMismatch": {
-        "step": 677,
-        "key": " ",
-        "cCaller": "deadbook(spell.c:287)",
-        "rng": "C d(2,6)=8; JS rnd(6)=4",
-        "screen": "C horizontal line at row 0 column 45; JS blank",
-        "cursor": "C [53,0,1]; JS [26,13,1]"
-      }
-    },
-    "verifiedPrefix": {
-      "batch": "v63",
-      "caseId": "v63-successful-invocation-action9",
-      "segment": 0,
-      "fromStep": 460,
-      "throughStep": 676,
-      "source": "teleport.c:teleds -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_vibrating_square -> feeltrap; then teleport.c:teleds -> hack.c:invocation_message"
-    },
-    "focusedChecks": {
-      "node scripts/dismount-steed.test.mjs": {
-        "exitCode": 0,
-        "summary": "60 tests passed"
-      },
-      "node scripts/hero-vibrating-square.test.mjs": {
-        "exitCode": 0,
-        "summary": "1 test passed"
-      },
-      "npm run lint": {
-        "exitCode": 0
-      }
-    },
-    "remainingScope": "The target now matches through step 676. Step 677 enters spell.c:deadbook(), which this task did not reserve or implement. The target retains a null runner error and improves each saved matched metric."
   }
 }
