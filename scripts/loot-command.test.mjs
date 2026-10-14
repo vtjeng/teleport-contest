@@ -28,7 +28,7 @@ import { isContainer, mksobj } from '../js/obj.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { rhack } from '../js/cmd.js';
+import { ext_func_tab_from_func, rhack } from '../js/cmd.js';
 
 function loadLockedFloorBoxRecipe() {
     return JSON.parse(readFileSync(
@@ -311,6 +311,11 @@ test('#loot queues #force only for a forceable weapon and one locked container',
         state.uwep = mksobj(LONG_SWORD, false, false, { state });
         clearTtyMessageWindow(state);
 
+        const forceEntry = ext_func_tab_from_func('doforce');
+        assert.equal(forceEntry?.ef_txt, 'force',
+            'cmd.c ext_func_tab_from_func resolves the source command name');
+        assert.equal(forceEntry?.ef_funct, 'doforce',
+            'the resolved row retains its source function pointer');
         assert.equal(await doloot(state), ECMD_OK,
             'queueing #force itself does not spend the current command');
         assert.equal(chest.lknown, 1,
