@@ -12,6 +12,7 @@
   "remainingScreens": 105,
   "recordedSteps": 545,
   "status": "complete",
+  "commit": "8e25e275272dde3c6766043d7629a1905856b7d6",
   "mismatch": {
     "session": "synthetic/v68/v68-npc-rust-bars-action4",
     "batch": "v68",
