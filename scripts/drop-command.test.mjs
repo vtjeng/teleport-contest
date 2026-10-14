@@ -1169,32 +1169,44 @@ test('engraving drop recipes reach the live command with preserved text and time
     }
 });
 
-// The bounded ordinary floor fix keeps trap and liquid paths outside admission.
-test('boulders at a pit or pool stop before inventory removal', async () => {
-    for (const [hazard, refusal] of [
-        // Direct dropx has no floor-reachability gate; the trap owner remains unported here.
-        ['pit', /shipping or floor effects at a trap/u],
-        ['pool', /liquid terrain/u],
-    ]) {
-        const state = await startedGame();
-        const { ux, uy } = state.u;
-        const boulder = addinv(mksobj(BOULDER, false, false, { state }), { state });
-        if (hazard === 'pit') {
-            // do.c:flooreffects has a separate boulder/pit consumption branch.
-            state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
-        } else {
-            // do.c:boulder_hits_pool runs rn2(10), unlike the dry-floor arm.
-            state.level.at(ux, uy).typ = POOL;
-        }
-        const rngBefore = getRngLog().length;
-        assert.throws(() => preflight_dropx(boulder, dropCommandEnv(state)),
-            error => error instanceof UnsupportedDropError
-                && refusal.test(error.message));
-        assert.equal(boulder.where, OBJ_INVENT);
-        assert.ok(letters(state).includes(boulder.invlet));
-        assert.ok(!pileAt(state, ux, uy).includes(boulder));
-        assert.equal(getRngLog().length, rngBefore);
-    }
+// do.c:dropx -> dropy -> dropz -> flooreffects consumes a boulder on a pit
+// before the ordinary hero pit-edge arm; pool boulders retain their own gate.
+test('dropping a boulder fills a pit and removes its trap', async () => {
+    const state = await startedGame();
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = ROOM;
+    const boulder = addinv(mksobj(BOULDER, false, false, { state }), { state });
+    state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
+    const rngBefore = getRngLog().length;
+
+    await dropx(boulder, dropCommandEnv(state));
+
+    assert.notEqual(boulder.where, OBJ_INVENT,
+        'flooreffects consumes the dropped boulder');
+    assert.notEqual(boulder.where, OBJ_FLOOR,
+        'the filled pit does not retain the boulder');
+    assert.ok(!letters(state).includes(boulder.invlet));
+    assert.equal(state.level.traps.length, 0,
+        'flooreffects deletes the pit after filling it');
+    assert.match(state._ttyToplines, /The boulder fills a pit\./u);
+    assert.equal(getRngLog().length, rngBefore + 1,
+        'invent.c delobj_core spends obj_resists before consuming the boulder');
+    assert.match(getRngLog().at(-1), /^rn2\(100\)=\d+$/u);
+});
+
+test('a boulder at a pool remains outside ordinary drop admission', async () => {
+    const state = await startedGame();
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = POOL;
+    const boulder = addinv(mksobj(BOULDER, false, false, { state }), { state });
+    const rngBefore = getRngLog().length;
+    assert.throws(() => preflight_dropx(boulder, dropCommandEnv(state)),
+        error => error instanceof UnsupportedDropError
+            && /liquid terrain/u.test(error.message));
+    assert.equal(boulder.where, OBJ_INVENT);
+    assert.ok(letters(state).includes(boulder.invlet));
+    assert.ok(!pileAt(state, ux, uy).includes(boulder));
+    assert.equal(getRngLog().length, rngBefore);
 });
 
 // dig.c calls dropx(uwep), so do.c dropz clears the primary slot after
@@ -1345,14 +1357,13 @@ test('direct dropx owns no floor-reach gate and dropz maps blind levitation afte
     assert.match(js, /stackobj\(obj, normalized\);\s*if \(heroIsBlind\(normalized\.state\) && Levitation\(normalized\.state\)\) \{\s*map_object\(obj, 0, normalized\.state\);[\s\S]*requiredDropHook\(normalized, 'newsym'\)/);
 });
 
-// do.c:flooreffects boulder/pit-hole and hero-edge arms, plus down_gate's
-// seen-shaft branch, remain outside this ordinary nonboulder admission.
-test('inert-trap admission retains boulder, pit-edge and shaft limits', async () => {
-    for (const [otyp, ttyp, seen] of [
-        [BOULDER, WEB, true], // Every boulder trap path remains bounded.
-        [RUBY, PIT, true], // Free hero stands on the known pit edge.
-        [RUBY, HOLE, true], // Shipping can consume the object.
-        [RUBY, HOLE, false], // Unseen shafts remain outside this fix too.
+// The boulder pit/hole arm precedes the hero pit-edge/shaft arm in C.
+test('inert boulder traps pass while nonboulder pit edges and shafts stay bounded', async () => {
+    for (const [otyp, ttyp, seen, admitted] of [
+        [BOULDER, WEB, true, true], // Non-pit boulder traps are inert in flooreffects.
+        [RUBY, PIT, true, false], // Free hero stands on the known pit edge.
+        [RUBY, HOLE, true, false], // Shipping can consume the object.
+        [RUBY, HOLE, false, false], // Unseen shafts remain outside this fix too.
     ]) {
         const state = await startedGame();
         const { ux, uy } = state.u;
@@ -1361,9 +1372,13 @@ test('inert-trap admission retains boulder, pit-edge and shaft limits', async ()
         state.level.traps.push({ tx: ux, ty: uy, ttyp, tseen: seen });
         const obj = addinv(mksobj(otyp, false, false, { state }), { state });
         const draws = getRngLog().length;
-        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
-            error => error instanceof UnsupportedDropError
-                && /shipping or floor effects at a trap/u.test(error.message));
+        if (admitted) {
+            assert.doesNotThrow(() => preflight_dropx(obj, dropCommandEnv(state)));
+        } else {
+            assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
+                error => error instanceof UnsupportedDropError
+                    && /shipping or floor effects at a trap/u.test(error.message));
+        }
         assert.equal(obj.where, OBJ_INVENT);
         assert.equal(getRngLog().length, draws);
     }
@@ -1377,5 +1392,6 @@ test('inert-trap admission uses the source pit-edge and shaft predicates', () =>
     assert.match(trapC, /!\(u\.utrap && u\.utraptype == TT_PIT\)/u);
     const js = readFileSync('js/do.js', 'utf8');
     const preflight = js.slice(js.indexOf('export function preflight_dropx'), js.indexOf('function consumeDropAdmission'));
-    assert.match(preflight, /obj\.otyp === BOULDER \|\| is_hole\(trap\.ttyp\)[\s\S]*uteetering_at_seen_pit\(trap, state\)[\s\S]*uescaped_shaft\(trap, state\)/u);
+    assert.match(preflight, /const boulderFillsTrap = obj\.otyp === BOULDER && trap[\s\S]*is_pit\(trap\.ttyp\) \|\| is_hole\(trap\.ttyp\)/u);
+    assert.match(preflight, /trap && !boulderFillsTrap[\s\S]*uteetering_at_seen_pit\(trap, state\)[\s\S]*uescaped_shaft\(trap, state\)/u);
 });
