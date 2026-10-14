@@ -100,8 +100,13 @@ import {
     CHEST,
     CREDIT_CARD,
     LARGE_BOX,
+    FLESH,
+    GLASS,
     PAPER,
     POTION_CLASS,
+    VEGGY,
+    WAX,
+    WOOD,
     LOCK_PICK,
     ROCK_CLASS,
     SKELETON_KEY,
@@ -278,13 +283,8 @@ async function chest_shatter_msg(otmp, state = game) {
         }
         return;
     }
-    if (objectType(otmp, state).oc_material !== PAPER) {
-        throw new UnsupportedLockError(
-            'chest_shatter_msg() for a non-PAPER object',
-        );
-    }
-    // C temporarily sets HBlinded while naming the item so xname() neither
-    // observes it nor includes a visual description such as "white".
+    // lock.c:1290-1317 hides the item's visual description while naming it,
+    // then selects the shattering message from its source material.
     const blindness = state.u.uprops[BLINDED] ??= {
         intrinsic: 0,
         extrinsic: 0,
@@ -301,8 +301,35 @@ async function chest_shatter_msg(otmp, state = game) {
         if (oldBlocked === undefined) delete blindness.blocked;
         else blindness.blocked = oldBlocked;
     }
+    let disposition;
+    switch (objectType(otmp, state).oc_material) {
+    case PAPER:
+        disposition = 'is torn to shreds';
+        break;
+    case WAX:
+        disposition = 'is crushed';
+        break;
+    case VEGGY:
+        disposition = 'is pulped';
+        break;
+    case FLESH:
+        disposition = 'is mashed';
+        break;
+    case GLASS:
+        disposition = 'shatters';
+        break;
+    case WOOD:
+        disposition = 'splinters to fragments';
+        break;
+    default:
+        disposition = 'is destroyed';
+        break;
+    }
     const subject = an(thing);
-    await ttyPline(`${subject[0].toUpperCase()}${subject.slice(1)} is torn to shreds!`, state);
+    await ttyPline(
+        `${subject[0].toUpperCase()}${subject.slice(1)} ${disposition}!`,
+        state,
+    );
 }
 
 // C ref: lock.c breakchestlock() (162-212). Called after the hero forces a
@@ -313,10 +340,10 @@ async function chest_shatter_msg(otmp, state = game) {
 // cleans up the lock-picking context.
 //
 // Covered: the destroyit=false arm and the destroyit=true arm for an ordinary
-// non-shop CHEST with PAPER or potion contents, including potion vapor effects,
-// quantity-one obfree(), the survivor placement/stacking path, chest deletion,
-// and lock cleanup. Deferred: shop billing, other material messages, ICE_BOX
-// corpse timers, and the multi-quantity useup branch.
+// non-shop CHEST with potion or non-potion material contents, including potion
+// vapor effects, quantity-one obfree(), survivor placement/stacking, chest
+// deletion, and lock cleanup. Deferred: shop billing, ICE_BOX corpse timers, and
+// the multi-quantity useup branch.
 export async function breakchestlock(box, destroyit, state = game) {
     if (destroyit) {
         // The shopkeeper lookup and stolen_value() accounting in C are outside

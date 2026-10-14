@@ -64,6 +64,13 @@ const FORCE_POTION_SHATTER_RECIPE = JSON.parse(readFileSync(new URL(
     '../recipes/lock.c/potionbreathe-forced-chest-sickness-c54-seed-8421103-complete.session.json',
     import.meta.url,
 ), 'utf8'));
+// This admitted input recipe reaches lock.c:chest_shatter_msg() with a WOOD
+// flute at C step 747; keep the recipe in its challenge directory and use it
+// to pin the production #force message without copying its recording.
+const FORCE_WOODEN_FLUTE_SHATTER_RECIPE = JSON.parse(readFileSync(new URL(
+    '../challenges/cases/v66/v66-chest-shatter-material-action9.recipe.session.json',
+    import.meta.url,
+), 'utf8'));
 
 // Seed 9400016 puts a plain closed door one square west of a Valkyrie's
 // starting position, which is the state hack.c test_move()'s autoopen arm
@@ -890,6 +897,19 @@ test('#loot autounlock enters the same picklock occupation callback', async () =
         'picklock retains the box pointer as C does');
     assert.equal(game.xlock.usedtime, 0,
         'the callback clears the occupation counter');
+});
+
+test('destroying a locked chest reports the material of its contents', async () => {
+    const [segment] = FORCE_WOODEN_FLUTE_SHATTER_RECIPE.segments;
+    assert.equal(Object.hasOwn(segment, 'steps'), false,
+        'the test replays the input recipe without embedded C output');
+
+    const replay = await runSegment(segment);
+    const screens = replay.getScreens();
+    // The source recording reaches the WOOD arm at zero-based C step 747.
+    // This exact line comes from lock.c:1310-1311 for a wooden flute.
+    assert.equal(screens[747].split('\n')[0],
+        'A flute splinters to fragments!');
 });
 
 test('destroying a locked chest always shatters potion contents', async () => {
