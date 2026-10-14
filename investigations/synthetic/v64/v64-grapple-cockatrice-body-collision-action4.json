@@ -1,0 +1,53 @@
+{
+  "session": "synthetic/v64/v64-grapple-cockatrice-body-collision-action4",
+  "remainingScreens": 3,
+  "recordedSteps": 423,
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-grapple-cockatrice-body-collision-action4",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "5ee6106367aa36b4d0619c1c71081129ab0354766cf1deb37cc34887bf12aa02",
+  "recordingSha256": "bb4da3342099201db16d4e547e391c0739338c75f8a5f4fa1f9f348178daef57",
+  "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
+  "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+  "status": "complete",
+  "commit": "da7ef8b0fbb3b725ee33338be104d5a1c01b947d",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "session": "synthetic/v64/v64-grapple-cockatrice-body-collision-action4",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v64/v64-grapple-cockatrice-body-collision-action4"
+    ],
+    "remainingScreens": 3,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 383,
+    "caseId": "v64-grapple-cockatrice-body-collision-action4",
+    "batch": "v64",
+    "recordingPath": "challenges/cases/v64/v64-grapple-cockatrice-body-collision-action4.session.json"
+  },
+  "summary": "During a grapple-induced hero recoil, dothrow.c hurtle_step calls trap.c instapetrify when the hero bumps into a touch-petrifying monster without body armor. JS sets the killer string but records instapetrify as unported, so the C stoning message and death path do not run.",
+  "source": {
+    "file": "dothrow.c",
+    "branch": "In hurtle_step's monster-collision branch, after waking and angering the monster, C calls instapetrify when the monster touch-petrifies and the hero has no body armor.",
+    "functions": [
+      "hurtle_step"
+    ],
+    "callers": [
+      "apply.c:use_grapple calls hurtle toward the selected floor square; hurtle reaches hurtle_step for each traversed square.",
+      "dothrow.c:hurtle and dothrow.c:jump also use hurtle_step through walk_path; dokick.c, uhitm.c, and timeout.c call hurtle for their own recoil paths."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify is already implemented in js/trap.js and is reserved by another task. This fix only calls the existing helper; it does not edit its implementation."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The admitted v64 recipe reaches the grappling-hook surface path after removing the hero's torso armor. The C recording has 420 of 423 screens and 3401 of 3401 RNG calls at evaluation commit 6533e0a; the worker replay first differs at boundary 384 after the grapple collision.",
+    "Read nethack-c/upstream/src/dothrow.c:773-972. In hurtle_step's collision branch, C sets the killer string and calls instapetrify after the body-armor guard. At examined commit da7ef8b, js/dothrow.js:1011-1017 set that string but call note_unported('trap.c instapetrify') instead.",
+    "Read nethack-c/upstream/src/trap.c:3844-3855 and js/trap.js:369-388. The existing instapetrify helper checks stone resistance, stone-golem polymorph, the stoning message, killer state, and final death handling, so the caller can wire it without editing the reserved callee."
+  ]
+}
