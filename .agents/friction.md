@@ -971,3 +971,12 @@ triage decisions or fix references.
 
 - The sixteen-task acceptance helper automatically used the focused120-second profile and timed out after writing closure records. Its saved receipt confirmed the process was reaped. Root retried idempotent acceptance at the same tested commit under the full bounded profile, recovered the receipts, and refreshed the queue without rerunning tests or evaluations. The longer profile is needed for similarly sized acceptance and publication groups.
 - The v71 saved-proof verifier hit sandbox spawnSync git EPERM. Root reran that read-only hash verification outside the sandbox; all102 preserved files and ten included independent replay proofs passed.
+
+### 2026-10-14 — provenance handoff and remaining-case ownership
+
+- The v71 checkpoint watch exited on a GitHub jobs API404. Root collected its handle and used one recovery query to confirm successful completion at the exact commit; no workflow was rerun.
+- Workers merged the admitted manifest commit before publication, then submission required the evaluation committed by publication. Root authorized copying only that exact published evaluation blob into each affected delivery. Workers preserved source commits and measurements; no gameplay checks were repeated for provenance alone. Future handoffs must distinguish the manifest commit from its published baseline evidence.
+- The three-task integration encountered live ledger collisions after applying its commits. The supported idempotent helper retry succeeded without changing source or removing locks. Root used the established lock-only retry limit.
+- A and C initially treated the accepted meatobj fix as completion of the v70 cube case. The saved queue still contained a later mismatch. Root reran the ownership helper, corrected the mistaken idle reports, and assigned fresh investigations without reopening accepted task history.
+- B's temporary C diagnostic build initially used an older installed binary because incremental compilation did not reinstall it. B installed the instrumented binary and checked its output against both the admitted and uninstrumented recordings; all559 step keys, screens, cursors and RNG sequences matched after normalizing source line numbers.
+- Root tried a nonexistent fetch-hosted-admission.mjs help command. The documented importer is fetch-admission.mjs; the failed lookup changed no task state.
