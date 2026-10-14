@@ -131,6 +131,46 @@
     "The retained session recording challenges/cases/v65/v65-spell-practice-action2.session.json shows step 528 selecting force bolt, with prompt “In what direction?”, and step 529 displaying “You feel more confident in your spell casting skills.--More--” in C after direction h. Its step 528/529 RNG entries are attributed to spell.c:spelleffects_check, attrib.c:exercise, and zap.c:weffects; the relevant message is the post-cast skill notification rather than a new random branch.",
     "Upstream spell.c:1599 calls use_skill(skill, spellev(spell)) after a successful non-forced spell. weapon.c:1424-1434 increments P_ADVANCE and calls give_may_advance_msg only when the increase newly makes can_advance true. weapon.c:76-84 formats the message as “spell casting skills” for spell skills and follows it with handle_tip(TIP_ENHANCE).",
     "JavaScript spell.js:1938 already calls use_skill after a successful cast. In js/weapon.js:1921-1927, use_skill updates the skill record but replaces the C notification with note_unported; add_weapon_skill has a second placeholder at js/weapon.js:1937-1947. js/hack.js:622-650 already implements handle_tip(TIP_ENHANCE), so its return may be ignored while preserving the printed tip when enabled.",
-    "Upstream callers of the source functions include spell.c:spelleffects, uhitm.c:hmon_hitmon_dmg_recalc, dokick.c:dokick, steed.c:exercise_steed and hack.c:domove_core for use_skill; attrib.c:adjabil and pray.c:gcrownu call add_weapon_skill. JavaScript has an existing adjabil call, while gcrownu remains an explicit note_unported gap in js/pray.js. The eventual async notification must be awaited through implemented JavaScript caller paths to keep the source message before subsequent game output."
-  ]
+    "Upstream callers of the source functions include spell.c:spelleffects, uhitm.c:hmon_hitmon_dmg_recalc, dokick.c:dokick, steed.c:exercise_steed and hack.c:domove_fight_web for use_skill; attrib.c:adjabil and pray.c:gcrownu call add_weapon_skill. JavaScript has an existing adjabil call, while gcrownu remains an explicit note_unported gap in js/pray.js. The eventual async notification must be awaited through implemented JavaScript caller paths to keep the source message before subsequent game output.",
+    "Implementation commit 429835fc6cc2a6b6cb57694f29606da1fe4d5e32 implements the three selected weapon.c functions and awaits their notification through the wired JavaScript caller paths. It removes the UnsupportedWeaponSkillError refusal and updates affected tests.",
+    "Focused tests passed across scripts/weapon.test.mjs, spell-cast-effects, enhance-command, level-change, mounted-move, uhitm-hmon, hostile-melee-hit, cmd and insight. Focused ESLint passed for the changed implementation and test files.",
+    "The post-merge fresh replay at 642d8945b0b204348fbe7349e9e014b6cdc2eb16 has no divergence and matches all 603 screens and input steps. The remaining sounds.c SoundAchievement item is an unrelated explicit unported source gap.",
+    "The matching replay ranges verify the successful spell-practice notification at segment 0 steps 528-529 and add_weapon_skill through #levelchange at steps 92-128. See .cache/task-evidence.json for function and entry-point attestations."
+  ],
+  "implementation": {
+    "commit": "429835fc6cc2a6b6cb57694f29606da1fe4d5e32",
+    "testedHead": "642d8945b0b204348fbe7349e9e014b6cdc2eb16",
+    "summary": "Implemented weapon.c give_may_advance_msg, use_skill and add_weapon_skill. The confidence message now precedes handle_tip(TIP_ENHANCE), and asynchronous callers await it. Caller gaps at hack.c:domove_fight_web and pray.c:gcrownu remain explicit and were not fabricated.",
+    "focusedTests": "9 test files passed; see .cache/A2-spell-practice-focused.log.",
+    "lint": "Passed for changed implementation and test files; see .cache/A2-spell-practice-lint.log.",
+    "freshReplay": {
+      "commit": "642d8945b0b204348fbe7349e9e014b6cdc2eb16",
+      "artifact": ".cache/A2-spell-practice-fresh.json",
+      "divergence": null,
+      "screens": "603/603",
+      "recordedSteps": "603/603",
+      "inputBoundaryMatched": true,
+      "unported": [
+        "sounds.c SoundAchievement"
+      ]
+    },
+    "matchingRanges": [
+      {
+        "batch": "v65",
+        "caseId": "v65-spell-practice-action2",
+        "segment": 0,
+        "fromStep": 528,
+        "throughStep": 529,
+        "source": "spell.c:spelleffects -> weapon.c:use_skill -> weapon.c:give_may_advance_msg"
+      },
+      {
+        "batch": "v65",
+        "caseId": "v65-spell-practice-action2",
+        "segment": 0,
+        "fromStep": 92,
+        "throughStep": 128,
+        "source": "attrib.c:adjabil -> weapon.c:add_weapon_skill -> weapon.c:give_may_advance_msg during #levelchange"
+      }
+    ]
+  }
 }
