@@ -12,9 +12,11 @@
   "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
   "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
   "recordedSteps": 616,
+  "remainingScreens": 0,
   "status": "complete",
+  "commit": "69bea223b716d97c7f0c74a7a07daaec40282210",
   "summary": "The admitted tame-grip-jump recording reached apply.c:jump's tame-captor escape condition, where JavaScript threw because CONFLICT was referenced but not imported. Importing the existing constant restores the source branch; the full 616-step recording now matches.",
-  "mismatch": {"kind": "stop", "step": 562, "message": "ReferenceError: CONFLICT is not defined", "sourceFile": "apply.c", "function": "jump"},
+  "mismatch": {"session": "synthetic/v70/v70-tame-grip-jump-scout2", "remainingScreens": 0, "kind": "stop", "step": 562, "message": "ReferenceError: CONFLICT is not defined", "sourceFile": "apply.c", "function": "jump"},
   "source": {
     "file": "apply.c",
     "functions": ["jump"],
