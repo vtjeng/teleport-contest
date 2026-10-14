@@ -11,7 +11,7 @@
   "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
   "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
   "status": "complete",
-  "commit": "da4432aa4f63435e47fad21fe3ed1c7212cbbef1",
+  "commit": "fc3fb21107d816c9f2dc20932746244229c063bc",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v67",
@@ -83,5 +83,6 @@
       "The exact upstream cause is shk.c:rob_shop() line 717 calling shk.c:hot_pursuit(); hot_pursuit() calls rile_shk() before setting customer/following and clearing no-charge flags. js/shk.js:rob_shop() previously recorded note_unported(\"shk.c hot_pursuit\") instead of calling its existing hot_pursuit() implementation.",
       "After wiring the existing hot_pursuit() helper in rob_shop(), the focused shop-billing test asserts keeper anger, surcharge, following/customer state, and absence of the unported marker. The admitted v67 replay now matches screens, RNG and cursor through segment 0 step 934."
     ]
-  }
+  },
+  "priorSourceCommit": "da4432aa4f63435e47fad21fe3ed1c7212cbbef1"
 }
