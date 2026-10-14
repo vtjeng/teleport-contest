@@ -372,7 +372,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
             if (unchain_ball)
                 unpunish(state, env);
         } else if (obj.owornmask) {
-            await setnotworn(obj, { state });
+            await setnotworn(obj, setwornEnv(state, env));
         }
 
         if (obj.where === OBJ_DELETED)

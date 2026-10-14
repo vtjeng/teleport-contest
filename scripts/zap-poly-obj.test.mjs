@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
     OBJ_INVENT,
     W_ARM,
+    W_AMUL,
     W_RINGL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -18,6 +19,9 @@ import { runSegment } from '../js/jsmain.js';
 import { setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
 import {
+    AMULET_OF_ESP,
+    AMULET_OF_LIFE_SAVING,
+    AMULET_OF_REFLECTION,
     CRYSTAL_PLATE_MAIL,
     RIN_REGENERATION,
     RIN_WARNING,
@@ -41,7 +45,14 @@ const JS_FUNCTION = JS_SOURCE.slice(JS_START, JS_END);
 
 const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 
-test('poly_obj removes supported worn items before restoring them in C order', () => {
+function queueMoreResponses() {
+    // The direct polymorph tests can emit several independent --More-- pages;
+    // leave enough blank responses in the display-owned queue to finish them.
+    for (const key of '                ')
+        game.nhDisplay.terminal.pushKey(key.charCodeAt(0));
+}
+
+test('poly_obj removes worn items before restoring them in C order', () => {
     // zap.c:1930 and 1945-1949 remove the old item before assigning the
     // replacement, then call set_wear and reread the slot.
     const cPolyToSetWorn = C_SOURCE.slice(
@@ -63,11 +74,12 @@ test('poly_obj removes supported worn items before restoring them in C order', (
         'await setworn(replacement, newWornMask, env);',
     );
     assert.ok(jsRemoveCall >= 0 && jsRemoveCall < jsSetWorn);
-    assert.match(JS_FUNCTION, /if \(newWornMask & \(W_RING \| W_ARMOR\)\)/u);
     assert.match(
         JS_FUNCTION,
         /await set_wear\(state, replacement, \{ \.\.\.rawEnv, random \}\);/u,
     );
+    assert.doesNotMatch(JS_FUNCTION, /note_unported\('steal\.c remove_worn_item'\)/u);
+    assert.doesNotMatch(JS_FUNCTION, /note_unported\('do_wear\.c set_wear'\)/u);
     assert.match(JS_FUNCTION, /replacement = wearmask_to_obj\(newWornMask, state\);/u);
     assert.ok(JS_FUNCTION.indexOf('await set_wear(')
         < JS_FUNCTION.indexOf('replacement = wearmask_to_obj('));
@@ -107,6 +119,82 @@ test('poly_obj removes and restores worn armor around polymorph', async () => {
     assert.equal(game.unported.has('steal.c remove_worn_item'), false);
     assert.equal(game.unported.has('do_wear.c set_wear'), false);
 });
+
+test('poly_obj removes and restores a worn ESP amulet around polymorph',
+    async () => {
+        // This independent wizard setup reaches zap.c:poly_obj's W_AMUL arm;
+        // the explicit replacement keeps the test focused on worn-slot order.
+        const segment = {
+            seed: 9102475,
+            datetime: '20330708101112',
+            nethackrc: [
+                'OPTIONS=name:AmuletSwap,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+                '',
+            ].join('\n'),
+            moves: '.',
+        };
+        await runSegment(segment);
+        queueMoreResponses();
+
+        const oldAmulet = mksobj(
+            AMULET_OF_ESP, false, false, { state: game, ...random },
+        );
+        addinv(oldAmulet, { state: game });
+        setworn(oldAmulet, W_AMUL, setwornEnv(game));
+
+        const replacement = await poly_obj(
+            oldAmulet,
+            AMULET_OF_LIFE_SAVING,
+            game,
+            random,
+            { state: game },
+        );
+
+        assert.equal(replacement.otyp, AMULET_OF_LIFE_SAVING);
+        assert.equal(game.uamul, replacement);
+        assert.equal(replacement.owornmask, W_AMUL);
+        assert.equal(oldAmulet.owornmask, 0);
+        assert.equal(game.unported.has('steal.c remove_worn_item'), false);
+        assert.equal(game.unported.has('do_wear.c set_wear'), false);
+    });
+
+test('poly_obj preserves worn hooks while removing an amulet with no off callback',
+    async () => {
+        // Life saving has no Amulet_off slot-clearing arm, so the generic
+        // remove_worn_item/setnotworn path must retain do_wear's injected hooks.
+        const segment = {
+            seed: 9102476,
+            datetime: '20330708101112',
+            nethackrc: [
+                'OPTIONS=name:AmuletRemoval,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+                '',
+            ].join('\n'),
+            moves: '.',
+        };
+        await runSegment(segment);
+        queueMoreResponses();
+
+        const oldAmulet = mksobj(
+            AMULET_OF_LIFE_SAVING, false, false, { state: game, ...random },
+        );
+        addinv(oldAmulet, { state: game });
+        setworn(oldAmulet, W_AMUL, setwornEnv(game));
+
+        const replacement = await poly_obj(
+            oldAmulet,
+            AMULET_OF_REFLECTION,
+            game,
+            random,
+            { state: game },
+        );
+
+        assert.equal(replacement.otyp, AMULET_OF_REFLECTION);
+        assert.equal(game.uamul, replacement);
+        assert.equal(replacement.owornmask, W_AMUL);
+        assert.equal(oldAmulet.owornmask, 0);
+    });
 
 test('poly_obj cancels a replacement egg timer before making it generic', () => {
     const cStart = C_SOURCE.indexOf('poly_obj(struct obj *obj, int id)\n{');
