@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v66/v66-chest-shatter-material-action9",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-chest-shatter-material-action9",
+  "remainingScreens": 279,
+  "recordedSteps": 1025,
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingSha256": "841e926eb97551cdfd8580ce82d7b8f072beec56694a221e9fa13a44db03897f",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "status": "complete",
+  "commit": "46fc4a43432fb7077a9201ccbf5d7385d26f4df5",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v66",
+    "caseId": "v66-chest-shatter-material-action9",
+    "session": "synthetic/v66/v66-chest-shatter-material-action9",
+    "manifestPath": "challenges/manifests/v66.json",
+    "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+    "recording": "challenges/cases/v66/v66-chest-shatter-material-action9.session.json",
+    "recordingPath": "challenges/cases/v66/v66-chest-shatter-material-action9.session.json",
+    "recordingSha256": "841e926eb97551cdfd8580ce82d7b8f072beec56694a221e9fa13a44db03897f",
+    "recipe": "challenges/cases/v66/v66-chest-shatter-material-action9.recipe.session.json",
+    "recipeSha256": "085c9cec9227c0ccfa9321647c909af2b2f451519fa14372d249c4f81e40b9de",
+    "replayInputSha256": "24336a5d90159f882868e57479093b4edd27696446ff23d8df1aa8c82c193b0e",
+    "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+    "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+    "evaluationArtifact": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+    "evaluationUtc": "2026-10-14T08:04:20.148Z",
+    "remainingScreens": 279,
+    "recordedSteps": 1025,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 746,
+        "total": 1025
+      },
+      "rng": {
+        "matched": 2536,
+        "total": 2545
+      },
+      "cursors": {
+        "matched": 746,
+        "total": 1025
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "an occupation reached picking a lock requires chest_shatter_msg() for a non-PAPER object",
+      "step": 746
+    },
+    "step": 746,
+    "kind": "stop",
+    "sourceFile": "lock.c",
+    "function": "chest_shatter_msg",
+    "message": "an occupation reached picking a lock requires chest_shatter_msg() for a non-PAPER object",
+    "cFile": "lock.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The #force case destroys a chest containing a wooden flute. C reaches lock.c:chest_shatter_msg and prints “A flute splinters to fragments!”; the JavaScript port stops at the same operation because it implements the potion and PAPER arms but rejects every other material. The source function also has distinct WAX, VEGGY, FLESH, GLASS, WOOD, and default dispositions.",
+  "source": {
+    "file": "lock.c",
+    "branch": "After breakchestlock extracts an item, a successful rn2(3) destruction roll (or the potion-class override) calls chest_shatter_msg. For a non-potion item, the source temporarily enables hero blindness while naming it, then chooses the disposition from objects[otyp].oc_material. The recorded wooden flute reaches WOOD.",
+    "functions": [
+      "chest_shatter_msg"
+    ],
+    "callers": [
+      "lock.c:breakchestlock:187 calls chest_shatter_msg after the destruction gate; lock.c:forcelock:252 reaches this arm when #force destroys a chest.",
+      "js/lock.js:breakchestlock calls chest_shatter_msg; js/lock.js:forcelock awaits breakchestlock on the production #force occupation path."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved v66 evaluation admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json, based on evaluation commit 979a3f3967638748dc19cf8b6ea8851736ade63e, records 746/1025 screens, 2536/2545 RNG calls, and 746/1025 cursors before the JavaScript stop at step 746: “chest_shatter_msg() for a non-PAPER object.” The original manifest SHA is 4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c and recording SHA is 841e926eb97551cdfd8580ce82d7b8f072beec56694a221e9fa13a44db03897f.",
+    "The immutable recipe challenges/cases/v66/v66-chest-shatter-material-action9.recipe.session.json creates a wooden flute (C inventory class/object setup), transfers it into a chest through #loot, locks the chest, and forces it with a mace. In the recording, segment 0 step 746 logs rn2(3)=0 at breakchestlock(lock.c:186); step 747 prints “A flute splinters to fragments!” after chest_shatter_msg processes the wooden flute.",
+    "Upstream nethack-c/upstream/src/lock.c:1276-1318 implements potion handling followed by blind naming and a material switch: PAPER “is torn to shreds”, WAX “is crushed”, VEGGY “is pulped”, FLESH “is mashed”, GLASS “shatters”, WOOD “splinters to fragments”, and a default “is destroyed”. Upstream nethack-c/upstream/include/objects.h:981-982 defines a wooden flute with WOOD material.",
+    "The current js/lock.js:267-305 implements the potion and PAPER cases, then throws UnsupportedLockError for every material other than PAPER. The earliest current source gap is therefore the WOOD arm; the complete function port should preserve every other material arm and its naming/blindness behavior as well.",
+    "Related saved coverage reaches the same breakchestlock path for a PAPER spellbook and matches its existing PAPER disposition: sessions/seed0014-dequa-fountain-explore.session.json segment 0 step 47; recordings/dothrow.c/thitmonst-cream-pie.session.json segment 0 step 47; recordings/trap.c/monster-rolling-boulder-trap.session.json segment 0 step 47. Those cases do not exercise WOOD or the other unimplemented material dispositions. Potion shattering is separately covered by scripts/lock.test.mjs and does not exercise this non-potion naming branch."
+  ]
+}
