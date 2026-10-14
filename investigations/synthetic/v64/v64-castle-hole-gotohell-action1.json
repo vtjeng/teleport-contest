@@ -133,5 +133,19 @@
   "evidence": [
     "Accepted v64 source evaluation shows the first mismatch at step 295: C follows do.c goto_level to trap.c fill_pit, where a floor boulder over a hole is extracted and passed to do.c flooreffects(\"settle\"); JavaScript skips that call and diverges in RNG and screen output.",
     "The JS change awaits the existing flooreffects call after boulder removal and propagates completion through production fill_pit callers, including mon.c mon_leaving_level and dog migration callers. Focused checks cover the migration boulder path; accepted v42 and v43 full replay ranges cover ordinary pet transfer and steed arrival caller paths."
-  ]
+  ],
+  "correction": {
+    "cause": "Making fill_pit async unconditionally made mon_leaving_level, m_detach, and mongone asynchronous even when the source fill_pit branch had no boulder to settle. That broke synchronous callers and tests. Separate production migration callers also continued before dog.c migrate_to_level finished.",
+    "changes": [
+      "fill_pit returns synchronously when the C pit-or-hole-and-boulder condition is false, and returns flooreffects' promise after extracting a matching boulder.",
+      "mon_leaving_level keeps C's synchronous no-op teardown and awaits floor effects only when fill_pit returns a promise.",
+      "clearpriests, mlevel_tele_trap, and wiz_migrate_mons now wait for promise-returning monster removal or migration before continuing. really_done awaits clearpriests.",
+      "The existing mongone/m_detach synchronous assertions remain intact; the planning-boundary test now expects the source-synchronous throw on the no-settle path."
+    ],
+    "checks": [
+      "Focused hosted-failure test selection: 361/361 passed across paybill-end-cleanup, sp-lev-object, themeroom-fill, makemon-create, teleport-monster-traps, mktrap-orchestration, wizard-migration, and mon-kill tests.",
+      "npm run lint passed.",
+      "recordings/wizcmds.c/migration-negative-limit.session.json matched its JavaScript replay: 2927/2927 RNG calls, 55/55 screens, and 55/55 cursors."
+    ]
+  }
 }

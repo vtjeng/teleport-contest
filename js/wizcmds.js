@@ -1380,8 +1380,15 @@ export async function wiz_migrate_mons(state = game, env = {}) {
         } else {
             monster = state.level.monlist;
         }
-        if (monster)
-            (env.migrate ?? migrate_to_level)(monster, ledger_no(destination, state), MIGR_RANDOM, null, { ...env, state });
+        if (monster) {
+            await (env.migrate ?? migrate_to_level)(
+                monster,
+                ledger_no(destination, state),
+                MIGR_RANDOM,
+                null,
+                { ...env, state },
+            );
+        }
         count--;
     }
     state.iflags.debug_mongen = savedMongen;

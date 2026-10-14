@@ -4640,7 +4640,16 @@ export function mon_leaving_level(mon, state = game, env = {}) {
     /* "to prevent an infinite relobj-flooreffects-hmon-killed loop" */
     mon.mtrapped = 0;
     /* "mon is not swallowing or holding you nor held by you" */
-    const finishLeaving = async () => {
+    const finishAfterSettling = () => {
+        if (onmap) killRedraw(mx, my, { ...env, state });
+        /* "if mon is a remembered target, forget it since it isn't here anymore".
+           apply.c use_pole() is the only C writer that stores a monster here and
+           none of it is ported, so in production this pointer is null and the
+           test cannot hold. */
+        if (state.context?.polearm?.hitmon === mon)
+            state.context.polearm.hitmon = null;
+    };
+    const finishLeaving = () => {
         /* "vault guard might be at <0,0>" */
         if (onmap || mon === m_at(0, 0, state)) {
             if (mon.wormno) remove_worm(mon, { ...env, state });
@@ -4655,15 +4664,11 @@ export function mon_leaving_level(mon, state = game, env = {}) {
                 && M_AP_TYPE(mon) !== M_AP_MONSTER)
                 requiredKillOperation(env, 'unsupported')('unhiding a mimic');
             /* "if mon is pinned by a boulder, removing mon lets boulder drop" */
-            await fill_pit(mx, my, state, env);
-            killRedraw(mx, my, { ...env, state });
+            const settling = fill_pit(mx, my, state, env);
+            if (settling && typeof settling.then === 'function')
+                return settling.then(finishAfterSettling);
         }
-        /* "if mon is a remembered target, forget it since it isn't here anymore".
-           apply.c use_pole() is the only C writer that stores a monster here and
-           none of it is ported, so in production this pointer is null and the
-           test cannot hold. */
-        if (state.context?.polearm?.hitmon === mon)
-            state.context.polearm.hitmon = null;
+        return finishAfterSettling();
     };
     const release = unstuck(mon, state, env);
     return release && typeof release.then === 'function'

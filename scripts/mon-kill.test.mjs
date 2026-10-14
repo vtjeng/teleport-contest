@@ -1946,8 +1946,10 @@ test('a planned dead-steed detach stops for live replay', async () => {
     // mon.c m_detach() calls dismount_steed() after leaving the monster map.
     // Its float_down()/drown() tail can print and damage the hero's inventory,
     // so the clone must stop there for the source-ordered live scan to replay.
-    await assert.rejects(
-        m_detach(plannedSteed, plannedSteed.data, false, planned, {
+    // This square has no boulder over a pit, so fill_pit() has no asynchronous
+    // floor effect and the planning boundary throws synchronously.
+    assert.throws(
+        () => m_detach(plannedSteed, plannedSteed.data, false, planned, {
             ...killEnv(),
             planning: true,
             requestPlanningInput(operation) {

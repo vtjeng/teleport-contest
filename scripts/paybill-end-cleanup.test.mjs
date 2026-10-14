@@ -265,7 +265,7 @@ test('paygd returns for a broke hero even with a guard on the level', () => {
     assert.equal(state.level.monlist, guard);
 });
 
-test('clearpriests keeps a priest whose shrine is on this level', () => {
+test('clearpriests keeps a priest whose shrine is on this level', async () => {
     // C ref: priest.c clearpriests():922-928. on_level() matches, so the
     // priest is not discarded and mongone() never runs.
     const state = makeState();
@@ -275,12 +275,12 @@ test('clearpriests keeps a priest whose shrine is on this level', () => {
     };
     state.level.monlist = priest;
 
-    clearpriests(state);
+    await clearpriests(state);
     assert.equal(priest.mhp, 30);
     assert.equal(state.level.monlist, priest);
 });
 
-test('clearpriests skips a dead priest before reading its shrine', () => {
+test('clearpriests skips a dead priest before reading its shrine', async () => {
     // C ref: priest.c clearpriests():925-926 DEADMONSTER() continues before
     // the on_level() test. The shrine is off-level (dlevel 7 against the
     // hero's 2), so a live priest would be discarded; this fixture has no
@@ -293,7 +293,7 @@ test('clearpriests skips a dead priest before reading its shrine', () => {
     };
     state.level.monlist = priest;
 
-    clearpriests(state);
+    await clearpriests(state);
     assert.equal(state.level.monlist, priest);
 });
 
@@ -341,7 +341,7 @@ test('clearpriests discards a priest whose shrine is on another level',
         priest.nmon = game.level.monlist;
         game.level.monlist = priest;
 
-        clearpriests(game);
+        await clearpriests(game);
 
         assert.equal(m_at(x, y, game), null);
         assert.equal(priest.mhp, 0);

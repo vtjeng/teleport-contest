@@ -833,7 +833,7 @@ export async function mlevel_tele_trap(
         seeTrap(trap, env);
     }
     if (portal && !control_teleport(monster.data)) monster.mconf = 1;
-    migrateToLevel(
+    await migrateToLevel(
         monster,
         ledger_no(destination, state),
         migrationType,

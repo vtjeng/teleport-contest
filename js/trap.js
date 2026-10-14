@@ -2004,7 +2004,7 @@ export async function float_up(state = game) {
 
 // C ref: trap.c fill_pit() (4010-4021). A boulder resting on a pit or hole
 // settles into it when the hero leaves the square.
-export async function fill_pit(x, y, state = game, rawEnv = {}) {
+export function fill_pit(x, y, state = game, rawEnv = {}) {
     const trap = t_at(x, y, state);
     const boulder = sobj_at(BOULDER, x, y, state);
     if (trap && (is_pit(trap.ttyp) || is_hole(trap.ttyp)) && boulder) {
@@ -2016,8 +2016,8 @@ export async function fill_pit(x, y, state = game, rawEnv = {}) {
                     recalc_block_point(bx, by, env.state),
             },
         });
-        const { flooreffects } = await import('./do.js');
-        await flooreffects(boulder, x, y, 'settle', { ...rawEnv, state });
+        return import('./do.js').then(({ flooreffects }) =>
+            flooreffects(boulder, x, y, 'settle', { ...rawEnv, state }));
     }
 }
 

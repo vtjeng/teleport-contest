@@ -123,6 +123,35 @@ test('negative count rereads canonical level.monlist, including an empty remaind
     assert.deepEqual(moved, [1, 2]);
     assert.equal(s.iflags.debug_mongen, true);
 });
+test('negative count waits for the source migration before finishing', async () => {
+    // Count -1 selects exactly one existing monster; ID 3 keeps this fixture
+    // distinct from the IDs used by the neighboring migration cases.
+    const s = state(), monster = mon(3), env = io('-1'), events = [];
+    s.level.monlist = monster;
+    let releaseMigration;
+    let migrationStarted;
+    const started = new Promise(resolve => { migrationStarted = resolve; });
+    const migrationGate = new Promise(resolve => { releaseMigration = resolve; });
+    env.migrate = async (migrating) => {
+        assert.equal(migrating, monster);
+        events.push('migration');
+        migrationStarted();
+        await migrationGate;
+        events.push('migration-finished');
+    };
+
+    const command = wiz_migrate_mons(s, env);
+    await started;
+    // C calls migrate_to_level before decrementing the count and restoring
+    // debug_mongen, so both remain pending while that source call is pending.
+    assert.deepEqual(events, ['migration']);
+    assert.equal(s.iflags.debug_mongen, false);
+
+    releaseMigration();
+    assert.equal(await command, ECMD_OK);
+    assert.deepEqual(events, ['migration', 'migration-finished']);
+    assert.equal(s.iflags.debug_mongen, true);
+});
 test('source upper limit clamps creation, and stronghold selects the valley', async () => {
     assert.match(source, /\(COLNO - 1\) \* ROWNO/u);
     const s = state(), env = io(String((COLNO - 1) * ROWNO + 1));

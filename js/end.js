@@ -1314,7 +1314,7 @@ async function really_done(how, state) {
     }
     if (how !== PANICKED) {
         paygd(silently, state);
-        clearpriests(state);
+        await clearpriests(state);
     }
 
     // C end.c really_done() displays WIN_MESSAGE at 1247 before disclosure.

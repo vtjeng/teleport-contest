@@ -349,11 +349,19 @@ export function free_epri(monster) {
 // before bones are saved: a priest whose shrine is on another level would be
 // impossible to restore, so it is discarded. Its own priest stays.
 export function clearpriests(state = game) {
-    for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
-        if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
-        if (mtmp.ispriest && !on_level(mtmp.mextra?.epri?.shrlevel, state.u.uz))
-            mongone(mtmp, { state });
-    }
+    const clearNext = (mtmp) => {
+        while (mtmp) {
+            const next = mtmp.nmon;
+            if (mtmp.mhp >= 1 && mtmp.ispriest
+                && !on_level(mtmp.mextra?.epri?.shrlevel, state.u.uz)) {
+                const removal = mongone(mtmp, { state });
+                if (removal && typeof removal.then === 'function')
+                    return removal.then(() => clearNext(next));
+            }
+            mtmp = next;
+        }
+    };
+    return clearNext(state.level?.monlist ?? null);
 }
 
 // C ref: priest.c p_coaligned(). True when the hero's alignment matches the
