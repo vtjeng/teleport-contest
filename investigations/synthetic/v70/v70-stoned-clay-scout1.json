@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v70/v70-stoned-clay-scout1",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-stoned-clay-scout1",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingPath": "challenges/cases/v70/v70-stoned-clay-scout1.session.json",
+  "recordingSha256": "973266e2aaf63b6ef3aba91ba638a25842287c8036a033a1023c34adc3f9fcdb",
+  "recipePath": "challenges/cases/v70/v70-stoned-clay-scout1.recipe.session.json",
+  "recipeSha256": "04751ba270464e7430b101942f0d184e90c3ee12c125b607bb6c775ae52adf88",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "recordedSteps": 169,
+  "remainingScreens": 169,
+  "status": "complete",
+  "commit": "5496f456b2c6a5d5e40eb07a99a6d3e7cc7db107",
+  "summary": "The admitted stoned-clay case reached polyself.c:polymon's active-stoning branch, where JavaScript threw because the already-implemented poly_when_stoned helper was not imported.",
+  "mismatch": {
+    "session": "synthetic/v70/v70-stoned-clay-scout1",
+    "remainingScreens": 169,
+    "kind": "stop",
+    "step": 116,
+    "message": "ReferenceError: poly_when_stoned is not defined",
+    "sourceFile": "polyself.c",
+    "function": "polymon"
+  },
+  "source": {
+    "file": "polyself.c",
+    "functions": ["polymon"],
+    "branch": "Upstream polyself.c:polymon (735-1071) checks Stoned && poly_when_stoned(&mons[mntmp]); when the helper approves the target form, it selects PM_STONE_GOLEM and calls make_stoned in source order.",
+    "javascript": "js/polyself.js:polymon already mirrors this branch, but the named import list omitted poly_when_stoned exported by js/mondata.js, causing a ReferenceError at the branch.",
+    "callers": ["cmd.c:#polyself -> wizcmds.c:wiz_polyself -> polyself.c:polyself -> polyself.c:polymon; corresponding JavaScript dispatch through js/cmd.js, js/wizcmds.js, and js/polyself.js"],
+    "dependencies": ["The existing js/mondata.js poly_when_stoned implementation is used without behavior changes."],
+    "resolution": "Add the existing poly_when_stoned helper to polyself.js's named imports and pin the source guard and import in scripts/polyself.test.mjs."
+  },
+  "evidence": [
+    "The admitted v70 evaluation reports 0/169 screens matched and ReferenceError: poly_when_stoned is not defined in polyself.c:polymon at step 116.",
+    "Upstream polyself.c:polymon checks Stoned with poly_when_stoned(&mons[mntmp]); when approved it sets PM_STONE_GOLEM and calls make_stoned. The JavaScript branch already had this order; the missing named import was the defect.",
+    "After the import, the focused bounded scan matched all 169/169 screens, RNG calls, cursors, and the input boundary through segment 0 step 168. No unported callees were reached."
+  ],
+  "verifiedReplay": {"segment": 0, "throughStep": 168, "recordingMatched": true, "inputBoundaryMatched": true, "replayCommit": "44483173f71fb2c1d6e0461ee9546c4161284437"},
+  "goalKind": "divergence-fix"
+}
