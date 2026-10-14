@@ -1,0 +1,46 @@
+{
+  "session": "synthetic/v71/v71-whip-mimic-action3",
+  "corpus": "synthetic",
+  "batch": "v71",
+  "caseId": "v71-whip-mimic-action3",
+  "manifestPath": "challenges/manifests/v71.json",
+  "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+  "recordingPath": "challenges/cases/v71/v71-whip-mimic-action3.session.json",
+  "recordingSha256": "58b4cec58b0cc318e94e50f743fcd169820742cc03ab829866c516105fd5e37c",
+  "recipePath": "challenges/cases/v71/v71-whip-mimic-action3.recipe.session.json",
+  "recipeSha256": "5747813e71f6d017feb55c24e730873a5197a9a90a1fefbdad131a24c3254046",
+  "evaluationPath": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+  "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
+  "recordedSteps": 247,
+  "remainingScreens": 247,
+  "status": "complete",
+  "commit": "490e6ad3e5aa4723d33dfe21bd1180ca1684379b",
+  "summary": "The v71 mimic-whip case stops because apply.js calls stumble_onto_mimic from its use_whip branch without importing the already-ported helper. The C source calls the same uhitm.c function when the bullwhip targets an undiscovered mimic.",
+  "mismatch": {
+    "session": "synthetic/v71/v71-whip-mimic-action3",
+    "remainingScreens": 247,
+    "kind": "stop",
+    "message": "ReferenceError: stumble_onto_mimic is not defined",
+    "sourceFile": "apply.c",
+    "function": "use_whip"
+  },
+  "source": {
+    "file": "apply.c",
+    "functions": [
+      "use_whip"
+    ],
+    "branch": "When the wielded bullwhip targets a monster disguised with M_AP_TYPE, the hero lacks Protection from shape changers, and sensemon is false, apply.c:use_whip calls uhitm.c:stumble_onto_mimic(mtmp), sets do_snap false, then continues through force_attack/wakeup in source order. js/apply.js:use_whip already has the same condition and call but omits stumble_onto_mimic from its js/uhitm.js import list.",
+    "callers": [
+      "C cmd.c:doapply -> apply.c:doapply BULLWHIP case -> apply.c:use_whip -> uhitm.c:stumble_onto_mimic; JS cmd.js apply command -> apply.js:doapply -> apply.js:use_whip -> uhitm.js:stumble_onto_mimic."
+    ],
+    "dependencies": [
+      "The existing uhitm.c:stumble_onto_mimic port in js/uhitm.js is called; this task only repairs the missing apply.js import."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v71 baseline evaluation stops before any screen, RNG call, or cursor match with ReferenceError: stumble_onto_mimic is not defined.",
+    "The source-directed recipe selects a disguised small mimic with a wielded bullwhip, then applies the whip toward the C-observed mimic square; it records the target at (68,16), northwest of the hero at (69,17), and documents the earlier wrong-direction probe.",
+    "Read complete upstream apply.c:use_whip (2955-3271), including its BULLWHIP dispatch, mimic detection branch, call to stumble_onto_mimic, do_snap update, force_attack, wakeup, and return order. The matching JS branch calls the helper but its uhitm.js import list omits it."
+  ]
+}
