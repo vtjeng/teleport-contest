@@ -25,6 +25,7 @@ import {
     D_CLOSED,
     D_LOCKED,
     DEAF,
+    EXPL_FIERY,
     DRAWBRIDGE_UP,
     EDOG,
     FAINTED,
@@ -3448,7 +3449,9 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
             dmg = Math.trunc((2 * (random.rn1(3, 3) + 2 * bcsign(obj)) + 1) / 3);
             await m_useup(mon, obj, actionEnv);
             /* -11 => monster's fireball */
-            note_unported('explode.c explode');
+            const { explode } = await import('./explode.js');
+            await explode(mon.mx, mon.my, -11, dmg, O.SCROLL_CLASS,
+                by_you ? -EXPL_FIERY : EXPL_FIERY, state, actionEnv);
             dmg = 0; /* damage has been applied by explode() */
         }
     } else if (otyp === O.POT_OIL) {
