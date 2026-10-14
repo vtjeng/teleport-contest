@@ -7,11 +7,11 @@
   "manifestSha256": "2f55f6f34298abb9bb979d1586361bbf220ac4367059378a60717c31158bbfdf",
   "recordingPath": "challenges/cases/v59/v59-cancellation-magic-trap-action2.session.json",
   "recordingSha256": "10b7aee5de76ed60982b7fee4f32992ae0ec4d7a22b811d661871eb1c7f9daa2",
-  "evaluationPath": "challenges/evaluations/accepted-56a0d96069756b3ea2c7b447b441e2765be3a904-v59.json",
-  "evaluationCommit": "56a0d96069756b3ea2c7b447b441e2765be3a904",
-  "remainingScreens": 29,
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v59.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+  "remainingScreens": 0,
   "recordedSteps": 309,
-  "status": "complete",
+  "status": "resolved",
   "commit": "51b2152ddf36e693950fc7cc924d325e0132ffcf",
   "mismatch": {
     "screen": {
@@ -53,7 +53,7 @@
     "session": "synthetic/v59/v59-cancellation-magic-trap-action2",
     "remainingScreens": 29
   },
-  "summary": "A downward cancellation wand hitting a magical trap reaches zap.c:zap_map, which first calls maybe_explode_trap to explode the trap for 20+d(3,6), delete it and redraw its square. The JS zap_map path omits that call, so the beam reaches its later continuation without the trap explosion; the first recorded RNG and screen divergence is reported at step 280. The helper and caller belong to the reserved zap_map scope in B’s active Castle pass-tune delivery.",
+  "summary": "Implemented zap.c:maybe_explode_trap in js/zap.js and wired it into zap_map. The admitted v59 cancellation magic-trap case now matches all 309 screens, 2325 RNG calls, and 309 cursor positions. The separate cancellation engraving mismatch remains a follow-on.",
   "source": {
     "file": "zap.c",
     "functions": [
@@ -62,7 +62,7 @@
     "branch": "A cancellation wand or spell hits an undestroyable portal trap or a magical trap. Undestroyable traps display the shield effect and can teach the wand when visible; other magical traps explode for 20+d(3,6), are deleted, redrawn, and teach the wand when visible. Ordinary non-magical traps and non-cancellation objects leave this helper without effects.",
     "callers": [
       "zap.c:zap_map calls maybe_explode_trap(ttmp,obj,&learn_it) before refreshing ttmp and before the downward engraving switch.",
-      "js/zap.js:zap_map is already reached from js/zap.js:bhit and js/zap.js:zap_updown; adding the call requires editing zap_map, which B currently reserves as source:zap.c:zap_map."
+      "js/zap.js:zap_map now calls maybe_explode_trap before its direction and engraving branches, reacquires the trap after the helper may delete it, and applies learnwand when indicated."
     ],
     "dependencies": [
       "include/trap.h:undestroyable_trap and is_magical_trap classification macros are already represented by js/const.js.",
@@ -78,5 +78,18 @@
     "C nethack-c/upstream/src/zap.c:zap_map (3625 onward) calls maybe_explode_trap before its direction/engraving switch and reacquires the trap with t_at because it may have been removed. The JavaScript js/zap.js:zap_map currently starts with the WAN_PROBING branch, then returns for upward zaps or processes only selected downward engravings; it has no cancellation-trap helper call.",
     "The saved v59 case contains a downward cancellation-zap sequence at input steps 278-280; at step 280, C random call 2309 is d(3,6)=7 from maybe_explode_trap(zap.c:3616), while JavaScript consumes rn2(5)=3, and the next screen differs at row 0 column 0. A replay at accepted worker base 51b2152ddf36e693950fc7cc924d325e0132ffcf reproduces that exact first divergence with 280 of 309 screens matching.",
     "Implementation requires changing js/zap.js:zap_map to call the helper before its existing partial arms. The shared ledger currently reserves source:zap.c:zap_map for B’s v58 Castle pass-tune task, so this worker cannot claim or edit the caller until Root resolves the overlap."
-  ]
+  ],
+  "resolution": {
+    "goal": "port-zap-maybe-explode-trap-v59-20261014",
+    "base": "49572710a2979d507c1b08a0515a075054bbbb11",
+    "implementationCommit": "55b6dbfb23a538243284d9b6c70143258188be42",
+    "matched": {
+      "screens": "309/309",
+      "rng": "2325/2325",
+      "cursors": "309/309"
+    },
+    "sourceRange": "zap.c:maybe_explode_trap (3594-3623)",
+    "callerRange": "zap.c:zap_map (3625-3825)",
+    "separateFollowOn": "Cancellation engraving deletion in zap_map, diagnosed by C, is not part of this selected helper."
+  }
 }
