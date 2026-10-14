@@ -643,7 +643,7 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
 
     if (mtmp.data?.pmidx === PM_RUST_MONSTER && obj.oerodeproof) {
         if (obj.unpaid)
-            costly_alteration(obj, COST_DEGRD, { ...rawEnv, state });
+            await costly_alteration(obj, COST_DEGRD, { ...rawEnv, state });
         obj.oerodeproof = 0;
         mtmp.mstun = 1;
         if (canseemon(mtmp, state)) {

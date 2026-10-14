@@ -560,7 +560,9 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
             let monster = monsterAt(x, y, state);
             broken = Boolean(await floorEffects(obj, x, y, 'fall', env));
             if (!broken) {
-                placeObject(obj, x, y, env);
+                const placement = placeObject(obj, x, y, env);
+                if (placement && typeof placement.then === 'function')
+                    await placement;
                 if (!monster && u_at(x, y, state)) monster = state.youmonst;
                 if (monster && ohit) await passiveObject(monster, obj, null, env);
                 stackObject(obj, env);
@@ -1385,7 +1387,9 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                     }
                     return;
                 }
-                place_object(otmp, x, y, env);
+                const placement = place_object(otmp, x, y, env);
+                if (placement && typeof placement.then === 'function')
+                    await placement;
                 stackobj(otmp, env);
             }
             if (!Deaf(state) && !state.u?.uinwater) {

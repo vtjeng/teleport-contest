@@ -3228,10 +3228,11 @@ async function in_container(obj, state) {
         await sellobj(obj, state.gc.current_container.ox,
             state.gc.current_container.oy, state);
     }
-    add_to_container(state.gc.current_container, obj, {
+    const addition = add_to_container(state.gc.current_container, obj, {
         state,
         hooks: { objectNoLongerHeld: obj_no_longer_held },
     });
+    if (addition && typeof addition.then === 'function') await addition;
     state.gc.current_container.owt = weight(
         state.gc.current_container, { state });
 
@@ -3833,7 +3834,8 @@ export async function reverse_loot(state = game, rawEnv = {}) {
             // sndprocs.h:276 makes SetVoice empty in the recorder build.
             await verbalize('Thank you for your contribution to reduce the debt.', state, { message });
             await freeinv(goldob, env);
-            add_to_container(coffers, goldob, env);
+            const addition = add_to_container(coffers, goldob, env);
+            if (addition && typeof addition.then === 'function') await addition;
             coffers.owt = weight(coffers, env);
             coffers.cknown = 0;
             if (!coffers.olocked)
@@ -4209,7 +4211,8 @@ async function tipcontainer(box, state) {
                 nobj = null;
                 await losehp(d(6, 6), 'magical explosion', KILLED_BY_AN, state);
             } else {
-                add_to_container(targetbox, otmp, { state });
+                const addition = add_to_container(targetbox, otmp, { state });
+                if (addition && typeof addition.then === 'function') await addition;
             }
         } else if (highdrop) {
             otmp.how_lost = LOST_DROPPED;

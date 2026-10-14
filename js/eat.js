@@ -265,7 +265,7 @@ function tinContext(state = game) {
     return state.context.tin;
 }
 
-function costly_tin(alterType, state = game) {
+async function costly_tin(alterType, state = game) {
     const context = tinContext(state);
     let tin = context.tin;
     if (!tin) return tin;
@@ -280,9 +280,7 @@ function costly_tin(alterType, state = game) {
         context.tin = tin;
         context.o_id = tin.o_id;
     }
-    // mkobj.c costly_alteration() is a discarded void callee whose billed
-    // shop path still needs its own port. Keep the source gap explicit.
-    note_unported('mkobj.c costly_alteration');
+    await costly_alteration(tin, alterType, { state });
     return tin;
 }
 
@@ -1018,7 +1016,7 @@ async function consume_tin(mesg, state = game, env = {}) {
     if (tin.otrapped
         || (tin.cursed && variety !== HOMEMADE_TIN && !random.rn2(8))) {
         await b_trapped('tin', NO_PART, state, { ...eatEnv, random, message });
-        tin = costly_tin(COST_DSTROY, state);
+        tin = await costly_tin(COST_DSTROY, state);
         await use_up_tin(tin, state);
         return;
     }
@@ -1035,7 +1033,7 @@ async function consume_tin(mesg, state = game, env = {}) {
             }
             observe_object(tin, state);
             tin.known = true;
-            tin = costly_tin(COST_OPEN, state);
+            tin = await costly_tin(COST_OPEN, state);
             await use_up_tin(tin, state);
             if (alwaysEat) await lesshungry(5, state, eatEnv);
             return;
@@ -1068,7 +1066,7 @@ async function consume_tin(mesg, state = game, env = {}) {
                     observe_object(tin, state);
                     tin.known = true;
                 }
-                tin = costly_tin(COST_OPEN, state);
+                tin = await costly_tin(COST_OPEN, state);
                 await use_up_tin(tin, state);
                 return;
             }
@@ -1084,7 +1082,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         await eating_conducts(monster, state);
         observe_object(tin, state);
         tin.known = true;
-        tin = context.tin = costly_tin(COST_OPEN, state);
+        tin = context.tin = await costly_tin(COST_OPEN, state);
         // C calls cprefx after setting the opened tin's charge and before
         // cpostfx; both are discarded-void calls in that source order.
         await cprefx(monsterNumber, state, eatEnv);
@@ -1130,7 +1128,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         if (!alwaysEat && await y_n('Eat it?', state) === 'n'.charCodeAt(0)) {
             if (state.flags?.verbose)
                 await message('You discard the open tin.', state);
-            tin = costly_tin(COST_OPEN, state);
+            tin = await costly_tin(COST_OPEN, state);
             await use_up_tin(tin, state);
             return;
         }
@@ -1153,7 +1151,7 @@ async function consume_tin(mesg, state = game, env = {}) {
             encumberMessage: (target) => encumber_msg(target, { message }),
         });
 
-        tin = context.tin = costly_tin(COST_OPEN, state);
+        tin = context.tin = await costly_tin(COST_OPEN, state);
         let nutrition;
         if (tin.blessed) nutrition = 600;
         else if (!tin.cursed) nutrition = 400 + random.rnd(200);
@@ -1637,7 +1635,7 @@ async function touchfood(otmp, env) {
         else otmp = splitobj(otmp, 1, env);
     }
     if (!otmp.oeaten) {
-        costly_alteration(otmp, COST_BITE, env);
+        await costly_alteration(otmp, COST_BITE, env);
         otmp.oeaten = obj_nutrition(otmp, state);
     }
     if (carried(otmp)) {
@@ -3451,16 +3449,14 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
         // ate off the floor; and timeout.c obj_stop_timers(), which
         // done_eating() reaches through useup() -> obfree() for a corpse,
         // whose ROT_CORPSE timer mkobj.c start_corpse_timeout() hung on it.
-        // Billing a bite is a discarded-return mkobj.c call; retain its gap
-        // explicitly until costly_alteration is implemented. Floor ownership
-        // and full-pack drops use the ordinary inventory/display hooks.
+        // Billing a bite is a discarded-return mkobj.c call; the direct
+        // costly_alteration() call owns its output and billing continuation.
         hooks: {
             eatenStat: eaten_stat,
             extractExternalObject: remove_object,
             stopObjectTimers: (obj, hookEnv) => {
                 obj_stop_timers(obj, hookEnv.state, hookEnv);
             },
-            costlyAlteration: () => note_unported('mkobj.c costly_alteration'),
             newsym,
             encumberMessage: encumber_msg,
         },

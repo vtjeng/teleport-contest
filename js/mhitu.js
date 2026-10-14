@@ -3467,8 +3467,10 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
         return M_ATTK_HIT;
     }
     case M.AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
-        if (env.mon_currwep)
-            drain_item(env.mon_currwep, true, state, env);
+        if (env.mon_currwep) {
+            const drained = drain_item(env.mon_currwep, true, state, env);
+            if (drained && typeof drained.then === 'function') await drained;
+        }
         return M_ATTK_HIT;
     default:
         break;

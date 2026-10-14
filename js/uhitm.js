@@ -8264,10 +8264,14 @@ export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
             await erode_obj(obj, null, ERODE_CORRODE, EF_GREASE, effectEnv);
         }
         break;
-    case AD_ENCH:
-        if (!mon.mcan
-            && drain_item(obj, true, state, effectEnv)
-            && carried(obj)
+    case AD_ENCH: {
+        let drained = false;
+        if (!mon.mcan) {
+            const result = drain_item(obj, true, state, effectEnv);
+            drained = result && typeof result.then === 'function'
+                ? await result : result;
+        }
+        if (drained && carried(obj)
             && (obj.known || obj.oclass === ARMOR_CLASS)) {
             const message = env.message
                 ?? (env.planning ? async () => {} : ttyPline);
@@ -8278,6 +8282,7 @@ export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
             );
         }
         break;
+    }
     default:
         break;
     }

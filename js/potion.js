@@ -3688,7 +3688,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
                 state, env) + ' ';
         const singlePotion = potion.quan > 1
             ? splitobj(potion, 1, env) : potion;
-        costly_alteration(singlePotion, COST_NUTRLZ, env);
+        await costly_alteration(singlePotion, COST_NUTRLZ, env);
         singlePotion.otyp = mixture;
         singlePotion.blessed = 0;
         if (mixture === POT_WATER) {

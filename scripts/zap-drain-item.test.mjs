@@ -8,7 +8,6 @@ import {
     OBJ_INVENT,
     W_ARM,
     W_RING,
-    COST_DRAIN,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -128,28 +127,18 @@ test('drain_item leaves unrelated worn armor status clean', async () => {
     assert.deepEqual(draws.bounds, [100]);
 });
 
-test('drain_item preserves the by-you shop hook before changing a floor object',
-    async () => {
+test('drain_item keeps an outside-shop floor drain synchronous', async () => {
         const state = await startGame();
-        // A positive helm is an eligible armor object placed on the floor so
-        // costly_alteration must use its injected source owner.
+        // A positive armor object outside a shop reaches costly_alteration,
+        // whose source floor branch returns before billing.
         const armor = mksobj(LEATHER_ARMOR, false, false, { state });
         armor.spe = 2;
         armor.where = OBJ_FLOOR;
         armor.owornmask = W_ARM;
         const draws = ordinaryDraws([99]); // Avoid the ordinary resistance branch.
-        const order = [];
-        const hooks = {
-            costlyAlteration(obj, alterType) {
-                assert.equal(obj, armor);
-                assert.equal(alterType, COST_DRAIN);
-                assert.equal(obj.spe, 2); // C bills before decrementing enchantment.
-                order.push('alteration');
-            },
-        };
-
-        assert.equal(drain_item(armor, true, state, { random: draws, hooks }), true);
-        assert.deepEqual(order, ['alteration']);
+        const drained = drain_item(armor, true, state, { random: draws });
+        assert.equal(drained, true);
+        assert.equal(typeof drained?.then, 'undefined');
         assert.equal(armor.spe, 1);
         assert.deepEqual(draws.bounds, [100]);
         assert.equal(draws.remaining(), 0);

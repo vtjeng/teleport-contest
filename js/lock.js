@@ -8,6 +8,7 @@ import {
     AUTOUNLOCK_APPLY_KEY,
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
+    COST_BRKLCK,
     CONFUSION,
     CQ_CANNED,
     D_BROKEN,
@@ -88,6 +89,7 @@ import { PM_ORACLE, PM_ROGUE, PM_WIZARD } from './monsters.js';
 import { obj_resists } from './bury.js';
 import {
     greatest_erosion,
+    costly_alteration,
     newObject,
     is_blade,
     is_pick,
@@ -333,8 +335,8 @@ async function chest_shatter_msg(otmp, state = game) {
 }
 
 // C ref: lock.c breakchestlock() (162-212). Called after the hero forces a
-// chest lock open, and by really_kick_object(false). The false arm records
-// the missing costly_alteration billing and toggles the source lock flags.
+// chest lock open, and by really_kick_object(false). The false arm bills
+// before it toggles the source lock flags.
 // When destroyit is true,
 // this slice destroys an ordinary non-shop chest, scatters its contents, and
 // cleans up the lock-picking context.
@@ -377,7 +379,11 @@ export async function breakchestlock(box, destroyit, state = game) {
                 // slice does not admit multi-quantity witnesses yet.
                 await useup(otmp, { state });
             }
-            place_object(otmp, state.u.ux, state.u.uy, { state });
+            const placement = place_object(
+                otmp, state.u.ux, state.u.uy, { state },
+            );
+            if (placement && typeof placement.then === 'function')
+                await placement;
             stackobj(otmp, {
                 state,
                 hooks: { extractExternalObject: remove_object },
@@ -396,9 +402,9 @@ export async function breakchestlock(box, destroyit, state = game) {
     /* bill for the box but not for its contents */
     const hideContents = box.cobj;
     box.cobj = null;
-    // C discards this unported billing result. Continue the source lock
-    // updates after recording the gap; no hook stands in for shop behavior.
-    note_unported('mkobj.c costly_alteration');
+    // C discards the return but completes its message and bill before changing
+    // the chest's lock state.
+    await costly_alteration(box, COST_BRKLCK, { state });
     box.cobj = hideContents;
     box.olocked = 0;
     box.obroken = 1;

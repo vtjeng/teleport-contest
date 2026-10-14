@@ -4810,7 +4810,8 @@ export async function hold_another_object(
         const wasUpolyd = Upolyd(state.u);
 
         /* in case touching this object turns out to be fatal */
-        place_object(obj, state.u.ux, state.u.uy, normalized);
+        const placement = place_object(obj, state.u.ux, state.u.uy, normalized);
+        if (placement && typeof placement.then === 'function') await placement;
 
         if (!await touch_artifact(obj, state.youmonst, normalized)) {
             obj_extract_self(obj, normalized);
@@ -4943,18 +4944,24 @@ export function add_to_container(container, obj, env = {}) {
             'add_to_container: free object retains a chain link',
         );
     }
+    const attach = () => {
+        for (let current = container.cobj; current; current = current.nobj) {
+            if (merged(current, obj, normalized)) return current;
+        }
+        obj.where = OBJ_CONTAINED;
+        obj.ocontainer = container;
+        obj.nobj = container.cobj;
+        container.cobj = obj;
+        return obj;
+    };
     if (container.where !== OBJ_INVENT && container.where !== OBJ_MINVENT) {
-        requiredHook(normalized, 'objectNoLongerHeld', obj)(obj, normalized);
+        const released = requiredHook(normalized, 'objectNoLongerHeld', obj)(
+            obj, normalized,
+        );
+        return released && typeof released.then === 'function'
+            ? released.then(attach) : attach();
     }
-
-    for (let current = container.cobj; current; current = current.nobj) {
-        if (merged(current, obj, normalized)) return current;
-    }
-    obj.where = OBJ_CONTAINED;
-    obj.ocontainer = container;
-    obj.nobj = container.cobj;
-    container.cobj = obj;
-    return obj;
+    return attach();
 }
 
 export function useupall(obj, env = {}) {

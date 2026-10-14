@@ -2574,7 +2574,8 @@ export async function rloco(obj, rawEnv = {}) {
         }
         redraw(otx, oty);
     }
-    place_object(obj, tx, ty, env);
+    const placement = place_object(obj, tx, ty, env);
+    if (placement && typeof placement.then === 'function') await placement;
     redraw(tx, ty);
     return true;
 }

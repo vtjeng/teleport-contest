@@ -4,7 +4,8 @@ import {
     A_CHA, BILLSZ, COST_CONTENTS, DEAF, HALLUC, LAVAPOOL, LL_ACHIEVE,
     MON_MIGRATING,
     NORMAL_SPEED, OBJ_BURIED, OBJ_CONTAINED, OBJ_DELETED, OBJ_FLOOR,
-    OBJ_FREE, OBJ_INVENT, OBJ_MINVENT, OBJ_ONBILL, ROOM, ROOMOFFSET, SHOPBASE,
+    OBJ_FREE, OBJ_INVENT, OBJ_MINVENT, OBJ_ONBILL, ROOM, ROOMOFFSET,
+    SHOPBASE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -19,11 +20,15 @@ import {
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.js';
-import { bill_dummy_object, mksobj_at, newObject } from '../js/obj.js';
+import {
+    bill_dummy_object, mksobj_at, newObject, place_object,
+} from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { donameFresh } from '../js/objnam.js';
-import { BEARTRAP, DART, DIAMOND, FOOD_RATION, GOLD_PIECE, POT_HEALING, SACK,
-    TALLOW_CANDLE } from '../js/objects.js';
+import {
+    BEARTRAP, CRYSKNIFE, DART, DIAMOND, FOOD_RATION, GOLD_PIECE,
+    POT_HEALING, SACK, TALLOW_CANDLE, WORM_TOOTH,
+} from '../js/objects.js';
 import { pick_obj } from '../js/pickup.js';
 import { addtobill, alter_cost, billable, contained_cost, costly_gold,
     picked_container, set_cost, setpaid, subfrombill, u_left_shop,
@@ -356,6 +361,38 @@ test('bill_dummy_object replaces the original bill and preserves its old price',
     setpaid(keeper, state);
     assert.equal(dummy.where, OBJ_DELETED);
     assert.equal(eshk.billct, 0);
+});
+
+test('unpaid crysknife placement waits for billing before mutation and linking', async () => {
+    const { state, eshk, env } = await shop();
+    const knife = object(state, CRYSKNIFE, { oerodeproof: false });
+    await addtobill(knife, false, false, true, state, env);
+    assert.equal(Boolean(knife.unpaid), true);
+
+    let resumeMessage;
+    const messageWait = new Promise(resolve => { resumeMessage = resolve; });
+    const messages = [];
+    const delayedEnv = { ...env, message(text) {
+        messages.push(text);
+        return messageWait;
+    } };
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    const placement = place_object(knife, x, y, delayedEnv);
+    assert.equal(typeof placement?.then, 'function');
+    assert.equal(knife.otyp, CRYSKNIFE);
+    assert.equal(Boolean(knife.unpaid), true);
+    assert.ok(messages[0].includes('you pay for it'));
+    assert.equal(state.level.objects[x][y] ?? null, null);
+
+    resumeMessage();
+    assert.equal(await placement, knife);
+    assert.equal(knife.otyp, WORM_TOOTH);
+    assert.equal(knife.oerodeproof, false);
+    assert.equal(Boolean(knife.unpaid), false);
+    assert.equal(eshk.billct, 1);
+    assert.equal(state.level.objects[x][y], knife);
+    assert.equal(knife.where, OBJ_FLOOR);
 });
 
 test('using an unpaid trap quotes the purchase and bills its used-up copy', async () => {

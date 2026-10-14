@@ -728,7 +728,9 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
             else object().no_charge = 0;
         }
         if (!await flooreffects(object(), u.ux, u.uy, 'fall', env)) {
-            place_object(object(), u.ux, u.uy, env);
+            const placement = place_object(object(), u.ux, u.uy, env);
+            if (placement && typeof placement.then === 'function')
+                await placement;
             impact_disturbs_zombies(object(), true, state);
             stackobj(object(), env);
             redraw(u.ux, u.uy);
@@ -808,7 +810,8 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         if (containedGold > 0)
             await donate_gold(containedGold, keeper, false, state, env);
     }
-    place_object(object(), end.x, end.y, env);
+    const placement = place_object(object(), end.x, end.y, env);
+    if (placement && typeof placement.then === 'function') await placement;
     impact_disturbs_zombies(object(), true, state);
     stackobj(object(), env);
     redraw(object().ox, object().oy);
