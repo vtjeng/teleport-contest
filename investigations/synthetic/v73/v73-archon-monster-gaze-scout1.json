@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v73/v73-archon-monster-gaze-scout1",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-archon-monster-gaze-scout1",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "2743c8302a73812d546b56dbed9eb9d15c552a7d8fdb118b81e4b89b0aaa8b72",
+  "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+  "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+  "remainingScreens": 438,
+  "recordedSteps": 438,
+  "status": "complete",
+  "commit": "c91fcda7f0fca731653580af46f0f7a47257bb87",
+  "mismatch": {
+    "session": "synthetic/v73/v73-archon-monster-gaze-scout1",
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": ["synthetic/v73/v73-archon-monster-gaze-scout1"],
+    "remainingScreens": 438,
+    "remainingScreensUpperBound": null,
+    "earliestStep": null,
+    "caseId": "v73-archon-monster-gaze-scout1",
+    "batch": "v73",
+    "recordingPath": "challenges/cases/v73/v73-archon-monster-gaze-scout1.session.json"
+  },
+  "summary": "The admitted Archon gaze case reaches mhitm.c:gazemm, where JavaScript evaluates AD_BLND to identify the Archon's blind gaze. js/mhitm.js uses that symbol but does not import it from monsters.js, so every gaze dispatch throws ReferenceError before the source branch can run.",
+  "source": {
+    "file": "mhitm.c",
+    "branch": "mattackm dispatches an AT_GAZE attack to gazemm; gazemm checks whether the attacker is an Archon and the attack damage type is AD_BLND before applying Archon blindness and stun behavior.",
+    "functions": ["gazemm"],
+    "callers": ["mhitm.c:mattackm AT_GAZE dispatch", "monmove.c:m_move_aggress"],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v73 C recording and saved admission evaluation identify an unhandled JavaScript exception, `AD_BLND is not defined`, on the Archon-versus-red-dragon case. The source-design recipe creates a tame Archon and hostile red dragon so an actual monster-versus-monster gaze reaches the attack path.",
+    "upstream nethack-c/upstream/src/mhitm.c:736-805 defines gazemm; lines 739-741 compare the attacker to PM_ARCHON and mattk->adtyp to AD_BLND, and lines 789-796 apply blindness and a random stun gate. nethack-c/upstream/src/mhitm.c:about 430 dispatches AT_GAZE to gazemm.",
+    "upstream nethack-c/upstream/src/monmove.c:2097 calls mattackm from m_move_aggress. The corresponding JavaScript path is js/monmove.js:m_move_aggress -> js/mhitm.js:mattackm -> gazemm. js/monsters.js exports AD_BLND, but the js/mhitm.js monsters.js import list omits it while gazemm references it at line 1423."
+  ]
+}
