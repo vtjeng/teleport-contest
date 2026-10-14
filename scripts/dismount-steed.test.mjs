@@ -965,22 +965,40 @@ test('notice_mon_off and notice_mon_on nest and reject an unpaired resume',
     if (before === 0) assert.throws(() => notice_mon_on(state), /blocked<0/u);
 });
 
-test('invocation_message returns off the Invocation level and fails closed on it', () => {
+test('invocation_message reports the Invocation vibration after interrupting travel', async () => {
     // hack.c:3064-3085 calls invocation_pos(), whose first predicate is
     // dungeon.c:2017-2021 Invocation_lev(). Quest is non-hellish even at the
-    // level immediately above its bottom, while the corresponding Gehennom
-    // level reaches the clue branch that this port still rejects.
+    // level immediately above its bottom. The test uses Levitation so the
+    // source selects "beneath you" without requiring a monster anatomy fixture.
+    const messages = [];
     const state = {
-        u: { uz: { dnum: 1, dlevel: 4 } },
+        u: {
+            ux: 4, uy: 7, uz: { dnum: 1, dlevel: 4 },
+            uprops: { [LEVITATION]: { intrinsic: 1 } },
+        },
+        context: { travel: 1, travel1: 1 },
+        command_queue: [[], []],
+        multi: 2,
+        inv_pos: { x: 4, y: 7 },
+        stairs: null,
         dungeons: [
             { flags: { hellish: false }, num_dunlevs: 5 },
-            { flags: { hellish: false }, num_dunlevs: 5 },
+            { flags: { hellish: true }, num_dunlevs: 5 },
         ],
     };
-    assert.doesNotThrow(() => invocation_message(state));
-    state.dungeons[1].flags.hellish = true;
-    assert.throws(() => invocation_message(state),
-                  UnsupportedHeroMoveBoundaryError);
+    await invocation_message(state, {
+        message: async (line) => messages.push(line),
+    });
+    assert.deepEqual(messages, ['You feel a strange vibration beneath you.']);
+    assert.equal(state.u.uevent.uvibrated, 1);
+    assert.equal(state.multi, 0);
+    assert.equal(state.context.travel, 0);
+    state.dungeons[1].flags.hellish = false;
+    messages.length = 0;
+    await invocation_message(state, {
+        message: async (line) => messages.push(line),
+    });
+    assert.deepEqual(messages, []);
 });
 
 test('vault_occupied answers the first vault in a room string', async () => {

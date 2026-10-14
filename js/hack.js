@@ -43,6 +43,7 @@ import {
     HVY_ENCUMBER,
     FAILEDUNTRAP,
     FAST,
+    FOOT,
     FIRE_RES,
     FLYING,
     HOLE,
@@ -189,7 +190,7 @@ import {
     Ugender,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { float_vs_flight, rehumanize } from './polyself.js';
+import { body_part, float_vs_flight, rehumanize } from './polyself.js';
 import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
 import {
     bot,
@@ -347,6 +348,7 @@ import {
     COIN_CLASS,
     CORPSE,
     DWARVISH_MATTOCK,
+    CANDELABRUM_OF_INVOCATION,
     HEAVY_IRON_BALL,
     LEVITATION_BOOTS,
     NUM_OBJECTS,
@@ -513,7 +515,9 @@ import {
 import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects } from './o_init.js';
 import { note_unported } from './unported.js';
-import { livelog_printf } from './pline.js';
+import { heroUnaware, livelog_printf } from './pline.js';
+import { makeplural } from './fruit.js';
+import { On_stairs } from './stairs.js';
 import { select_menu } from './windows.js';
 import { do_attack, explum, is_safemon, stumble_onto_mimic } from './uhitm.js';
 import {
@@ -5618,15 +5622,38 @@ export function invocation_pos(x, y, state = game) {
         && y === state.inv_pos?.y;
 }
 
-// C ref: hack.c invocation_message() (3064-3085). invocation_pos() first
-// checks Invocation_lev(), so non-Invocation levels return without touching
-// movement or message state. The clue-producing Invocation-level branch stays
-// fail-closed until its fixed vibrating-square behavior is ported.
-export function invocation_message(state = game) {
-    if (!Invocation_lev(state.u.uz, state)) return;
-    throw new UnsupportedHeroMoveBoundaryError(
-        'invocation_message() on the Invocation level',
+// C ref: hack.c invocation_message() (3064-3085). This runs after teleds()
+// finishes destination effects. C interrupts travel before its vibration
+// message, sets uvibrated after that message, then reports a lit, fully charged
+// Candelabrum.
+export async function invocation_message(state = game, env = {}) {
+    const { u } = state;
+    if (!invocation_pos(u.ux, u.uy, state)
+        || On_stairs(u.ux, u.uy, state)) return;
+
+    const candelabrum = carrying(CANDELABRUM_OF_INVOCATION, state);
+    nomul(0, state);
+    const beneath = u.usteed
+        ? `beneath ${y_monnam(u.usteed, state)}`
+        : propertyActiveUnblocked(state, LEVITATION) || heroIsFlying(state)
+            ? 'beneath you'
+            : `under your ${makeplural(body_part(FOOT, state.youmonst))}`;
+    const feelPrefix = heroUnaware(state)
+        ? 'You dream that you feel'
+        : 'You feel';
+    await (env.message ?? ttyPline)(
+        `${feelPrefix} a strange vibration ${beneath}.`, state, env,
     );
+    u.uevent ??= {};
+    u.uevent.uvibrated = 1;
+
+    if (candelabrum?.spe === 7 && candelabrum.lamplit) {
+        await (env.message ?? ttyPline)(
+            `${The(xnameFresh(candelabrum, state), state)} ${heroIsBlind(state)
+                ? 'throbs palpably' : 'glows with a strange light'}!`,
+            state, env,
+        );
+    }
 }
 
 // C ref: hack.c maybe_smudge_engr(). Each eligible engraving consumes rnd(5)
