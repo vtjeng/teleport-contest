@@ -172,6 +172,26 @@ test('TROUBLE_REGION reaches region_safety through the prayer completion caller'
     assert.doesNotMatch(jsFix, /note_unported\('region\.c region_safety'\)/u);
 });
 
+test('TROUBLE_LAVA reports the rescue landing through trap.c helper', () => {
+    const cStart = PRAY_C.indexOf('fix_worst_trouble(int trouble)');
+    const cEnd = PRAY_C.indexOf('\n}\n', cStart) + 3;
+    const cFix = PRAY_C.slice(cStart, cEnd);
+    // pray.c reports the landing after its rescue attempt, even when teleport succeeds.
+    assert.match(
+        cFix,
+        /case TROUBLE_LAVA:[\s\S]*?rescued_from_terrain\(DISSOLVED\);/u,
+    );
+
+    const jsStart = PRAY_JS.indexOf('export async function fix_worst_trouble(');
+    const jsEnd = PRAY_JS.indexOf('\n}', jsStart) + 2;
+    const jsFix = PRAY_JS.slice(jsStart, jsEnd);
+    assert.match(
+        jsFix,
+        /case TROUBLE_LAVA:[\s\S]*?await rescued_from_terrain\(DISSOLVED, state\);/u,
+    );
+    assert.doesNotMatch(jsFix, /note_unported\('hack\.c rescued_from_terrain'\)/u);
+});
+
 test('altar_wrath follows pray.c alignment, speech, and luck branches',
     async () => {
     assert.match(PRAY_C, /altar_wrath\(coordxy x, coordxy y\)/u);

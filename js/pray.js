@@ -56,6 +56,7 @@ import {
     ESCAPED,
     ASCENDED,
     DISINT_RES,
+    DISSOLVED,
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
@@ -293,6 +294,7 @@ import {
     Flying,
     Levitation,
     reset_utrap,
+    rescued_from_terrain,
 } from './trap.js';
 import { safe_teleds } from './teleport.js';
 import {
@@ -1493,7 +1495,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
     case TROUBLE_LAVA:
         if (!await safe_teleds(TELEDS_NO_FLAGS, state))
             await reset_utrap(true, state);
-        note_unported('hack.c rescued_from_terrain');
+        await rescued_from_terrain(DISSOLVED, state);
         break;
     case TROUBLE_STARVING:
         // FALLTHROUGH
