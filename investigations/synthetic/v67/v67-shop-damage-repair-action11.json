@@ -154,9 +154,9 @@
           "blocker": "The probe has not established a shopkeeper or repaired doorway; its monster-detection selection flow remains incomplete."
         }
       ],
-      "focusedTests": "Previously passed scripts/bones.test.mjs and scripts/shk-move.test.mjs (14 tests total).",
-      "lint": "Previously passed npm run lint.",
-      "syntheticPrefix": "scripts/synthetic-range-evidence.mjs verified the v67 target through segment 0 step 1199."
+      "focusedTests": "node scripts/run-bounded.mjs focused -- node --test scripts/bones.test.mjs scripts/shk-move.test.mjs passed 14/14 tests on the tree later committed as 415591d67; log /tmp/teleport-validation-1000/run-P9AH8m/stdout.log.",
+      "lint": "node scripts/run-bounded.mjs focused -- npm run lint passed on the tree later committed as 415591d67; log /tmp/teleport-validation-1000/run-1l7Pu8/stdout.log.",
+      "syntheticPrefix": "The earlier scripts/synthetic-range-evidence.mjs run verified the v67 target through segment 0 step 1199. Rerun on the final execution tree before submission."
     },
     "runtimeEvidenceLimits": [
       "The admitted v67 range covers ordinary shk_fixes_damage and door restoration, but the case has no item on the repaired wall and does not exercise litter_scatter moving objects.",
