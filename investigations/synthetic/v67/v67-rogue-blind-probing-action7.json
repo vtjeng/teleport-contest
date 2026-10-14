@@ -11,7 +11,8 @@
   "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
   "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
   "status": "complete",
-  "commit": "d8a47d06e0f459e6de886c1e7ad1277bc388afa5",
+  "commit": "0010f73db83ea96d098e3a36ab031ad4b7ccbd57",
+  "priorCommit": "d8a47d06e0f459e6de886c1e7ad1277bc388afa5",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v67",
