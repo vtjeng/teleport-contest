@@ -159,8 +159,8 @@ export function integratePrepGroup(options, root = process.cwd()) {
     const commit = git(ctx.root, 'rev-parse', 'HEAD');
     ctx = context(options, ctx.root);
     checkGroupFiles(ctx, plan, commit, true);
-    const pendingPrep = new Set(plan.tasks.map(member => member.delivery));
-    const preflight = tasks.map(taskId => preflightDelivery({root: ctx.root, state: ctx.state, taskId, commit, pendingPrep}));
+    const pendingGroup = new Set(plan.tasks.map(member => member.delivery));
+    const preflight = tasks.map(taskId => preflightDelivery({root: ctx.root, state: ctx.state, taskId, commit, pendingGroup}));
     if (preflight.some(result => !result.passed)) throw new Error(`Prep group preflight failed: ${JSON.stringify(preflight)}`);
     updateLedger(ctx.file, ctx.root, ledger => {
         const state = summarizeLedger(ledger);

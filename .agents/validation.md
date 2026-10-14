@@ -138,6 +138,38 @@ competition holdout is outside this workspace.
   changes do not need it when focused tests cover the renderer's input
   contract.
 
+## Implementation acceptance groups
+
+At a safe boundary, acknowledge all ready implementation submissions and
+register their goals from the saved worker contexts. Run
+`node scripts/implementation-handoff.mjs integrate --ledger <shared-ledger>`.
+It freezes all compatible received tasks, with no size cap, in dependency
+order on an `integration-checkpoint/*` candidate branch. Dependencies must be
+accepted or included earlier in the group. Hold concrete scope conflicts and
+missing evidence; do not repeat source review. Local `main` stays unchanged.
+
+Run one hosted checkpoint at the returned commit and import it once. Keep HEAD
+there and run `implementation-handoff.mjs accept --ledger <shared-ledger>`.
+Every assigned target must improve against the same frozen accepted baseline,
+with no fixed or synthetic per-case regressions. Any rejected target accepts
+none of the group. Each task retains its delivery, goal and worker claims.
+Then run `implementation-handoff.mjs publish --ledger <shared-ledger> --queue <saved-queue>`
+for one publication; it fast-forwards local `main`. Follow the existing
+notification policy. New arrivals belong to the next group.
+
+Retry after an interruption. If CI or acceptance fails, preserve its evidence
+and the candidate branch. After the run finishes, use
+`implementation-handoff.mjs split --ledger <shared-ledger> --tasks <ids>` to
+test a smaller group from the original accepted base. Keep required dependencies
+together. Omitted tasks stay ready; never accept a subset from a failed result.
+For corrections, use the usual `feedback` event. It releases sibling tasks;
+after receiving the correction, retry `integrate` to rebuild the frozen group
+with all original and correction commits. Resolve unfinished cherry-picks first.
+
+After a ledger protocol update, workers with older checkouts use the accepted
+Main checkout's `worker-state.mjs` from their own assigned checkout until they
+can merge accepted Main at a clean boundary.
+
 ## Prep acceptance groups
 
 At a safe boundary, acknowledge the ready Prep submissions, then run

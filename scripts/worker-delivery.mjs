@@ -292,7 +292,7 @@ export function replacedCacheDelivery(root, state, task) {
     return original.delivery;
 }
 
-function checkCandidate(root, state, task, commit, visited = new Set(), patchIds = new Map(), pendingPrep = new Set()) {
+function checkCandidate(root, state, task, commit, visited = new Set(), patchIds = new Map(), pendingGroup = new Set()) {
     if (visited.has(task.id)) return;
     visited.add(task.id);
     const accepted = state.deliveries[task.deliveries.at(-1)];
@@ -321,11 +321,11 @@ function checkCandidate(root, state, task, commit, visited = new Set(), patchIds
         for (const dependency of delivery.dependencies) {
             const required = state.tasks[state.deliveries[dependency]?.task];
             check(required && (state.deliveries[required.deliveries.at(-1)]?.acceptedAt
-                || (required.kind === 'challenge-preparation' && pendingPrep.has(required.deliveries.at(-1)))),
+                || pendingGroup.has(required.deliveries.at(-1))),
                 `dependency is not accepted: ${dependency}`);
             // Acceptance of a repair is not enough: this candidate must also
             // contain the repair, including a selectively cherry-picked one.
-            checkCandidate(root, state, required, commit, visited, patchIds, pendingPrep);
+            checkCandidate(root, state, required, commit, visited, patchIds, pendingGroup);
         }
     }
 }
@@ -418,12 +418,14 @@ export function verifyEvent(root, state, input) {
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
     if (event.type === 'feedback' && delivery?.prepGroup) event.prepGroup = delivery.prepGroup;
-    if (event.type === 'prep-integrating') {
+    if (event.type === 'feedback' && delivery?.implementationGroup) event.implementationGroup = delivery.implementationGroup;
+    if (['prep-integrating', 'implementation-integrating'].includes(event.type)) {
+        const preparation = event.type === 'prep-integrating';
         check(event.integration === resolveCommit(root, 'HEAD'), 'integration SHA must be the current combined HEAD');
-        check(Array.isArray(event.tasks) && event.tasks.length > 0, 'Prep group needs tasks');
+        check(Array.isArray(event.tasks) && event.tasks.length > 0, 'integration group needs tasks');
         const included = new Set(event.tasks.map(id => {
             const member = state.tasks[id];
-            check(member?.kind === 'challenge-preparation', 'Prep group may contain only preparation tasks');
+            check(member?.kind === (preparation ? 'challenge-preparation' : 'implementation'), 'integration group kinds differ');
             const submitted = state.deliveries[member.deliveries.at(-1)];
             check(submitted?.receivedAt, 'acknowledge receipt before integrating');
             readDelivery(submitted);
@@ -508,7 +510,7 @@ export function copiedRecipe(recipe, fixed) {
         && segment.moves === reference.moves));
 }
 
-export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previousCheckpoint, pendingPrep = new Set() }) {
+export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previousCheckpoint, pendingGroup = new Set() }) {
     commit = resolveCommit(root, commit);
     const task = state.tasks[taskId];
     check(task?.deliveries.length, 'task has no delivery');
@@ -520,8 +522,8 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
     inspect('Git identity', () => {
         check(isDeepStrictEqual(deliveryGit(root, delivery.base, delivery.delivery), packet.git), 'delivery Git metadata changed');
         checkScope(task, deliveryPaths);
-        const grouped = delivery.integration === commit ? delivery.prepGroup ?? [] : [];
-        const pending = new Set([...pendingPrep, ...grouped.map(id => state.tasks[id]?.deliveries.at(-1))]);
+        const grouped = delivery.integration === commit ? delivery.prepGroup ?? delivery.implementationGroup ?? [] : [];
+        const pending = new Set([...pendingGroup, ...grouped.map(id => state.tasks[id]?.deliveries.at(-1))]);
         checkCandidate(root, state, task, commit, new Set(), new Map(), pending);
     });
     let evidence;

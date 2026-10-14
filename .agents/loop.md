@@ -169,9 +169,10 @@ worker's guide defines the required checks and evidence. Record `received`
 for the exact commit. Follow "Notifications"; a saved submission remains valid
 even if its notification fails.
 
-Take implementation deliveries one at a time, after their dependencies are accepted.
-Group consecutive ready Prep submissions under `.agents/validation.md`,
-"Prep acceptance groups"; dependencies within the group may be pending.
+Group all compatible, received implementation deliveries under
+`.agents/validation.md`, "Implementation acceptance groups".
+Group consecutive ready Prep submissions under "Prep acceptance groups".
+Dependencies must be accepted or included earlier in the group.
 Integrate deliveries that unblock other tasks first, then the oldest ready
 delivery. Do not make an independent delivery wait for an unfinished goal.
 Integrate exact submitted commits rather than a moving branch tip. Merge
@@ -203,8 +204,9 @@ or amend submitted delivery commits.
 
 ## Integration and publication
 
-Work directly on local `main`; push only accepted work. Handle one candidate
-at a time. Workers own source review. Main integrates, runs exact-commit hosted
+Build implementation groups on candidate branches; keep local `main` at its
+accepted commit until the group passes. Handle one candidate at a time and
+push only accepted work to `main`. Workers own source review. Main integrates, runs exact-commit hosted
 CI, accepts, and publishes.
 
 Acceptance checks saved results: an assigned target must improve, and no fixed
@@ -224,15 +226,17 @@ successful CI checks locally.
 
 1. Check the shared ledger. Finish or park the current integration before
    starting another. Preserve queued deliveries.
-2. Check the delivery's task, reserved scope, selection reason, and dependencies.
-   Register its implementation goal from the preserved worker context if needed;
+2. Check each delivery's task, reserved scope, selection reason, and dependencies.
+   Register each implementation goal from the preserved worker context if needed;
    leave it queued. Do not run `open-goal` or repeat task selection for submitted
    work. Preserve the worker's investigation commit and its original measurement.
    If importing it replaces a newer diagnosis, retain the newer diagnosis too.
    Do not rewrite historical counts to describe the current candidate.
    For preparation, verify the saved source-based mission plan, hashes, and
    independent C replays without opening a goal.
-3. Integrate the submitted commits and preserve worker source findings and
+3. For implementation, follow `.agents/validation.md`, "Implementation acceptance
+   groups", for integration, acceptance and publication commands.
+   Integrate the submitted commits and preserve worker source findings and
    evidence. Do not independently certify their functions. For preparation,
    integrate only the case recipes and C recordings. Retain the prepared
    manifest in immutable delivery evidence, outside admitted manifests.
@@ -264,8 +268,8 @@ successful CI checks locally.
    when a delivery is queued. If it fails, preserve the results and wait for
    the run to finish before integrating a correction and testing the new
    candidate.
-5. After importing a passing implementation checkpoint, run
-   `node scripts/task-handoff.mjs accept --task <id> --ledger <shared-ledger>`
+5. After importing a passing implementation checkpoint, run the group acceptance
+   command under `.agents/validation.md`, "Implementation acceptance groups",
    while HEAD still names the tested commit. The helper compares saved fixed
    and synthetic results with accepted evidence, requires improvement on an
    assigned target, and rejects per-case regressions, new or changed non-null
@@ -283,8 +287,8 @@ successful CI checks locally.
    Follow `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
    case files unadmitted and record no challenge score or mismatch-queue entry.
-   Run the same acceptance helper; preparation tasks skip goal closure and
-   synthetic import.
+   Use the Prep group procedure under `.agents/validation.md`; preparation
+   tasks skip goal closure and synthetic import.
    For preparation, review the saved C mission and replay evidence; skip
    implementation-only synthetic regression comparison.
    If acceptance cannot proceed, record the blocker.
@@ -298,12 +302,14 @@ successful CI checks locally.
    worker turn alone does not establish acceptance.
 6. Reconcile the receipt's recorded task and turn with newer worker activity.
    Apply "Notifications" using the updated queue below.
-   Keep local `main` at the tested commit through acceptance. When admission
+   Keep HEAD at the tested candidate through acceptance. The implementation
+   group publisher fast-forwards local `main`. When admission
    adds manifests afterward, pass its hosted receipt to publication as the
    admission procedure specifies. Skip `sync-main`
    in this publication path; it is for fast-forwarding a different local main.
    Refresh the saved combined queue after score import, before publication.
-   Run `node scripts/task-handoff.mjs publish --task <id> --ledger <shared-ledger> --queue <latest-saved-combined-queue.json>`.
+   Use the group's publication command under `.agents/validation.md`;
+   `task-handoff.mjs publish` remains available for other accepted deliveries.
    It generates the dashboard snapshot, commits closure reports by name,
    verifies their contents, pushes the exact report commit, records
    publication, checks CI once, and returns the next-work summary. Retry after

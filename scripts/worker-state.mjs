@@ -62,6 +62,9 @@ by this command, not the caller. Required fields by type:
             records coordinator time only; does not change task/validation state
   feedback: task, delivery, reason (queued correction, not an interrupt)
   integrating: task, integration (exact combined SHA)
+  prep-integrating: tasks (consecutive batches), integration (shared SHA)
+  implementation-integrating: tasks (dependency order), integration (shared SHA)
+  implementation-released: tasks (entire unaccepted group), integration, reason
   validated: task, passed (boolean), checkpoint (absolute summary file)
   accepted: task
   published: task, commit (published SHA, possibly a bookkeeping descendant)
@@ -167,13 +170,15 @@ const FIELDS = {
     feedback: ['task', 'delivery', 'reason'],
     integrating: ['task', 'integration'],
     'prep-integrating': ['tasks', 'integration'],
+    'implementation-integrating': ['tasks', 'integration'],
+    'implementation-released': ['tasks', 'integration', 'reason'],
     validated: ['task', 'passed', 'checkpoint'],
     accepted: ['task'], published: ['task', 'commit'],
     'publication-confirmed': ['task', 'commit', 'knownBy', 'evidenceTask'],
     park: ['task', 'reason'], resume: ['task'],
 };
 const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
-    feedback: ['prepGroup'], turn: ['summary'] };
+    feedback: ['prepGroup', 'implementationGroup'], turn: ['summary'] };
 
 function check(condition, message) {
     if (!condition) throw new Error(message);
@@ -259,29 +264,50 @@ function applyEvent(state, event, at) {
     for (const key of Object.keys(event)) check(allowed.includes(key), `unexpected event field: ${key}`);
     for (const key of ['id', 'type', ...FIELDS[type]]) check(Object.hasOwn(event, key), `missing event field: ${key}`);
     identifier(event.id, 'event id');
-    if (type === 'prep-integrating') {
+    if (type === 'implementation-released') {
+        list(event.tasks, 'tasks', value => identifier(value, 'task'));
+        sha(event.integration, 'integration'); string(event.reason, 'reason');
+        for (const id of event.tasks) {
+            const task = state.tasks[id], delivery = state.deliveries[task?.deliveries.at(-1)];
+            check(task?.kind === 'implementation' && ['integrating', 'validated'].includes(task.status)
+                && !delivery.acceptedAt && delivery.integration === event.integration
+                && isDeepStrictEqual(delivery.implementationGroup, event.tasks),
+            'release requires the entire unaccepted implementation group');
+            task.status = 'ready';
+            delete task.activity;
+        }
+        return;
+    }
+    if (['prep-integrating', 'implementation-integrating'].includes(type)) {
+        const preparation = type === 'prep-integrating', label = preparation ? 'Prep' : 'implementation';
         list(event.tasks, 'tasks', value => identifier(value, 'task'));
         sha(event.integration, 'integration');
         check(!Object.values(state.tasks).some(task => ['integrating', 'validated'].includes(task.status)),
             'integration slot is occupied');
         const deliveries = event.tasks.map(id => {
             const task = state.tasks[id];
-            check(task?.kind === 'challenge-preparation' && task.status === 'ready',
-                'Prep group requires ready preparation tasks');
+            check(task?.kind === (preparation ? 'challenge-preparation' : 'implementation') && task.status === 'ready',
+                `${label} group requires ready tasks`);
             const delivery = state.deliveries[task.deliveries.at(-1)];
-            check(delivery?.receivedAt, 'acknowledge every Prep delivery before integrating');
+            check(delivery?.receivedAt, `acknowledge every ${label} delivery before integrating`);
             return delivery;
         });
-        const versions = event.tasks.map(id => Number(state.tasks[id].reservations[0].split(':v')[1]));
-        check(versions.every((version, i) => !i || version === versions[i - 1] + 1),
-            'Prep group must contain consecutive batches in version order');
-        const included = new Set(deliveries.map(delivery => delivery.delivery));
-        for (const delivery of deliveries) for (const dependency of delivery.dependencies)
-            check(acceptedDependency(state, dependency)
-                || included.has(state.tasks[state.deliveries[dependency]?.task]?.deliveries.at(-1)),
-                `dependency is outside the Prep group and not accepted: ${dependency}`);
+        if (preparation) {
+            const versions = event.tasks.map(id => Number(state.tasks[id].reservations[0].split(':v')[1]));
+            check(versions.every((version, i) => !i || version === versions[i - 1] + 1),
+                'Prep group must contain consecutive batches in version order');
+        }
+        const included = new Set();
         for (const delivery of deliveries) {
-            Object.assign(delivery, {integratingAt: at, integration: event.integration, prepGroup: [...event.tasks]});
+            for (const sha of state.tasks[delivery.task].deliveries) for (const dependency of state.deliveries[sha].dependencies)
+                check(acceptedDependency(state, dependency)
+                    || included.has(state.tasks[state.deliveries[dependency]?.task]?.deliveries.at(-1)),
+                    `dependency is outside the ${label} group or out of order: ${dependency}`);
+            included.add(delivery.delivery);
+        }
+        for (const delivery of deliveries) {
+            Object.assign(delivery, {integratingAt: at, integration: event.integration,
+                [preparation ? 'prepGroup' : 'implementationGroup']: [...event.tasks]});
             state.tasks[delivery.task].status = 'integrating';
         }
         return;
@@ -467,9 +493,10 @@ function applyEvent(state, event, at) {
         requireStatus('ready', 'integrating', 'changes-required');
         check(delivery?.delivery === event.delivery, 'feedback must identify the current delivery SHA');
         string(event.reason, 'reason');
-        if (delivery.prepGroup) for (const id of delivery.prepGroup) {
+        const group = delivery.prepGroup ?? delivery.implementationGroup;
+        if (group) for (const id of group) {
             const sibling = state.tasks[id], submitted = state.deliveries[sibling.deliveries.at(-1)];
-            check(!submitted.acceptedAt, 'cannot withdraw a partially accepted Prep group');
+            check(!submitted.acceptedAt, 'cannot withdraw a partially accepted group');
             if (id !== task.id && submitted.integration === delivery.integration
                 && ['integrating', 'validated'].includes(sibling.status)) sibling.status = 'ready';
         }
@@ -734,8 +761,9 @@ export function main(argv = process.argv.slice(2)) {
         check(current, 'initialize the ledger first');
         const state = summarizeLedger(current);
         const previous = command === 'event' ? current.events.find(event => event.id === input.id) : null;
-        const retry = previous?.prepGroup && input.type === 'feedback'
-            ? {...input, prepGroup: input.prepGroup ?? previous.prepGroup} : input;
+        const groupKey = previous?.prepGroup ? 'prepGroup' : previous?.implementationGroup ? 'implementationGroup' : null;
+        const retry = groupKey && input.type === 'feedback'
+            ? {...input, [groupKey]: input[groupKey] ?? previous[groupKey]} : input;
         const event = command === 'submit' ? submitDelivery({ root, file, state,
             taskId: options['--task'], contextPath: options['--context'], evidencePath: options['--evidence'],
             checksPath: options['--checks'], base: options['--base'], head: options['--head'],

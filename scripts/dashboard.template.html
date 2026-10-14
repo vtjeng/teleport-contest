@@ -1832,7 +1832,7 @@ document.getElementById('stats').innerHTML = [
     const stage = history[point.sourceIndex];
     durationReadout.innerHTML = '<strong>' + esc(name(stage)) + '</strong> · attempt ' + point.attempt
       + (stage.kind === 'challenge-preparation' ? ' · Preparation' : ' · Implementation')
-      + (point.prepGroup ? ' · Shared run: ' + esc(point.prepGroup.join(', ')) : '')
+      + (point.validationGroup || point.prepGroup ? ' · Shared run: ' + esc((point.validationGroup || point.prepGroup).join(', ')) : '')
       + '<br>' + stamp(point.start) + ' – ' + stamp(point.end)
       + ' · ' + (point.durationMs / 60000).toFixed(1) + ' min'
       + ' · Rolling mean ' + (point.rollingMeanMs / 60000).toFixed(1) + ' min (' + point.sampleSize
@@ -1939,8 +1939,9 @@ document.getElementById('stats').innerHTML = [
   const isBlock = segment => ['blocked', 'parked'].includes(segment.phase);
   const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
   const batch = segment => taskById.get(segment.task)?.batch || segment.batch;
-  const barName = segment => segment.phase === 'integrating' && segment.prepGroup
-    ? 'Prep group · ' + segment.prepGroup.length + ' tasks'
+  const barName = segment => segment.phase === 'integrating' && (segment.validationGroup || segment.prepGroup)
+    ? (segment.kind === 'challenge-preparation' ? 'Prep' : 'Implementation') + ' group · '
+      + (segment.validationGroup || segment.prepGroup).length + ' tasks'
     : name(segment) + (batch(segment) ? ' · ' + batch(segment) : '');
   let describedTask = null;
   const detailScroll = new Map();
@@ -1967,7 +1968,8 @@ document.getElementById('stats').innerHTML = [
       + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
       + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
       + (batch(segment) ? '<dt>Batch</dt><dd>Synthetic local holdout ' + esc(batch(segment)) + '</dd>' : '')
-      + (segment.prepGroup ? '<dt>Shared CI run</dt><dd>' + esc(segment.prepGroup.join(', ')) + '</dd>' : '')
+      + (segment.validationGroup || segment.prepGroup ? '<dt>Shared CI run</dt><dd>'
+        + esc((segment.validationGroup || segment.prepGroup).join(', ')) + '</dd>' : '')
       + (task?.publishedAt ? '<dt>Published</dt><dd>' + stamp(task.publishedAt) + '</dd>'
         : task?.publicationKnownBy ? '<dt>Published by</dt><dd>' + stamp(task.publicationKnownBy) + ' · exact time unknown</dd>' : '') + '</dl>'
       + (segment.reason ? '<p><strong>' + reasonLabel + '</strong>' + esc(segment.reason) + '</p>' : '')
