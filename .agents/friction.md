@@ -966,3 +966,8 @@ triage decisions or fix references.
 - Root omitted goal registration before the seven-task acceptance. The helper rejected the otherwise passing candidate because its goals were absent. Registering the preserved worker contexts and retrying acceptance at the same tested commit succeeded without another checkpoint. Root registered all sixteen received goals before the next integration.
 - Hosted checkpoint38627114768 failed two old timeout tests that expected ROT_ORGANIC to remain unported. The completed callback reached their incomplete object fixtures instead. Root preserved the failed checkpoint and requested an additive correction from the owning worker after its current task; all44 fixed sessions and all1991 regression recordings passed.
 - The first receipt for B's levitation-trap delivery encountered the live ledger lock. Root retried the identical event under the established lock-only retry rule; no lock was removed.
+
+### 2026-10-14 — acceptance receipt timeout
+
+- The sixteen-task acceptance helper automatically used the focused120-second profile and timed out after writing closure records. Its saved receipt confirmed the process was reaped. Root retried idempotent acceptance at the same tested commit under the full bounded profile, recovered the receipts, and refreshed the queue without rerunning tests or evaluations. The longer profile is needed for similarly sized acceptance and publication groups.
+- The v71 saved-proof verifier hit sandbox spawnSync git EPERM. Root reran that read-only hash verification outside the sandbox; all102 preserved files and ten included independent replay proofs passed.
