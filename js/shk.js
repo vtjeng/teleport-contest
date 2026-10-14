@@ -1023,8 +1023,8 @@ export async function remote_burglary(
         await call_kops(shopkeeper, false, state, { message });
 }
 
-// C ref: shk.c rob_shop() (684-719). This out-of-scope call site still marks
-// hot_pursuit as a gap; the robbery chronicle event stays in pline.c's owner.
+// C ref: shk.c rob_shop() (684-719). The robbery chronicle event stays in
+// pline.c's owner; an actual theft also starts the keeper's hot pursuit.
 async function rob_shop(
     shopkeeper,
     state = game,
@@ -1062,7 +1062,7 @@ async function rob_shop(
     );
     if (state.urole?.mnum !== PM_ROGUE)
         adjalign(-sgn(state.u.ualign.type), state);
-    note_unported('shk.c hot_pursuit');
+    await hot_pursuit(shopkeeper, state);
     return true;
 }
 

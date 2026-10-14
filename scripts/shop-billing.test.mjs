@@ -257,7 +257,7 @@ test('remote pick_obj inserts the acquired item before burglary clears its bill'
 });
 
 test('u_left_shop records an unpaid robbery and calls the Kops on level exit', async () => {
-    const { state, eshk, messages } = await shop();
+    const { state, keeper, eshk, messages } = await shop();
     eshk.debit = 80;
     state.gamelog = [];
     state.u.ushops0 = [ROOMOFFSET, 0, 0, 0, 0];
@@ -272,7 +272,11 @@ test('u_left_shop records an unpaid robbery and calls the Kops on level exit', a
     assert.equal(state.gamelog[0].flags, LL_ACHIEVE);
     assert.match(state.gamelog[0].text, /^stole 80 /u);
     assert.ok(messages.includes('The Keystone Kops are after you!'));
-    assert.equal(state.unported.has('shk.c hot_pursuit'), true);
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(eshk.surcharge, true);
+    assert.equal(eshk.following, true);
+    assert.equal(eshk.customer, state.plname);
+    assert.equal(state.unported.has('shk.c hot_pursuit'), false);
     assert.equal(state.unported.has('wizard.c choose_stairs'), false);
     assert.equal(state.unported.has('shk.c makekops'), false);
     assert.ok(kopsOnLevel(state) > 0);

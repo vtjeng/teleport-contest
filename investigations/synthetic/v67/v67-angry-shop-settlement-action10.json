@@ -59,5 +59,29 @@
     "Upstream nethack-c/upstream/src/shk.c:579-625 returns only when the hero remains strictly inside or the prior location was already an edge. After finding an in-shop keeper with bill or debit, a non-muted empty-leavestring branch prints a warning (speech or descriptive pline depending on Deaf) and returns. A muted keeper bypasses that arm and reaches rob_shop. An explicit leavestring departure also reaches rob_shop and call_kops.",
     "Before correction, js/shk.js:744-774 threw from preflight_shop_transition for any debt departure before hack.js:domove_core could commit movement, and u_left_shop also threw for an empty-leavestring boundary. The retained v67 replay after the boundary-warning correction then reached step 932 and exposed the same preflight refusal on the subsequent departure. Upstream shk.c:579-625 instead commits the move and sends nonempty leavestring departures through rob_shop() and call_kops().",
     "After removing the stale preflight refusal, the committed JavaScript replay matches the admitted v67 case through step 933, including the warning at step 919 and departure at step 932. Its first later mismatch is step 934 in muse.c:use_offensive, outside this task; synthetic-range-evidence confirms the full 0-933 prefix."
-  ]
+  ],
+  "continuation": {
+    "commit": "022b144eeae006449bc8ccaa2105b5f707d76749",
+    "step": 934,
+    "summary": "After the u_left_shop correction, the first remaining mismatch is that C shows Sneem using an offensive wand after the debtor robbery, while JavaScript does not. shk.c:rob_shop calls hot_pursuit after a real theft; hot_pursuit calls rile_shk, making the keeper hostile and setting following/customer state. JavaScript rob_shop stopped at note_unported(\"shk.c hot_pursuit\"), so the keeper remained peaceful and muse.c:find_offensive rejected its wand. The Raven then advanced before the expected wand action.",
+    "source": {
+      "file": "shk.c",
+      "branch": "When rob_shop settles less credit than the bill and debit total, it marks the amount robbed, applies alignment loss where applicable, calls hot_pursuit, and returns TRUE. hot_pursuit requires a shopkeeper, calls rile_shk to clear peacefulness and apply surcharge, records the customer and following state, then clears shop floor and pet no-charge flags.",
+      "functions": [
+        "rob_shop",
+        "hot_pursuit"
+      ],
+      "callers": [
+        "shk.c:u_left_shop calls rob_shop for an indebted shopkeeper after the hero leaves.",
+        "shk.c:remote_burglary calls rob_shop when an indebted shop is robbed remotely."
+      ],
+      "dependencies": []
+    },
+    "evidence": [
+      "A temporary instrumented C build replayed the unchanged v67 recipe. At recorded step 934, shopkeeper id 292 (Sneem) had movement allocated and was awake/can-move; after moving, its two distfleeck calls immediately preceded use_offensive for that same monster. The recorded step ends at RNG call 15159. Raven id 286 was also movement-eligible, but its first distfleeck occurred after that step boundary. New Kops in the traversal had zero movement.",
+      "A separate temporary JavaScript replay showed the same monster-list ordering and both keeper and Raven allocated movement. The keeper remained peaceful, while the Raven was hostile. muse.c:find_offensive and the JavaScript find_offensive both reject a peaceful monster, explaining why JavaScript omitted Sneem’s wand and let the Raven act.",
+      "The exact upstream cause is shk.c:rob_shop() line 717 calling shk.c:hot_pursuit(); hot_pursuit() calls rile_shk() before setting customer/following and clearing no-charge flags. js/shk.js:rob_shop() previously recorded note_unported(\"shk.c hot_pursuit\") instead of calling its existing hot_pursuit() implementation.",
+      "After wiring the existing hot_pursuit() helper in rob_shop(), the focused shop-billing test asserts keeper anger, surcharge, following/customer state, and absence of the unported marker. The admitted v67 replay now matches screens, RNG and cursor through segment 0 step 934."
+    ]
+  }
 }
