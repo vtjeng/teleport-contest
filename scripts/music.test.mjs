@@ -9,6 +9,7 @@ from '../js/const.js';
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
     charm_snakes, calm_nymphs, do_improvisation, do_play_instrument,
     do_earthquake, do_pit, generic_lvl_desc, improvised_notes,
@@ -17,6 +18,15 @@ import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
 import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
     PM_NEWT, PM_WOOD_NYMPH } from '../js/monsters.js';
 import { DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS, WOODEN_FLUTE } from '../js/objects.js';
+
+test('music.c do_improvisation matches the admitted self-directed frost-horn recording', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v72/v72-frost-horn-self-action4.session.json', import.meta.url,
+    ), 'utf8'));
+    const javascript = await runJsSession(recording, process.cwd());
+    const comparison = compareSessionOutputs(recording, javascript);
+    assert.equal(comparison.passed, true, JSON.stringify(comparison));
+});
 
 // Fixed fixture seed, selected before inspection; these source-pinned tests
 // replace only local objects/monsters, never the recorded C input stream.
