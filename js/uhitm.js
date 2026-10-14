@@ -8097,6 +8097,7 @@ export async function passive(
             if (ptr === state.mons[PM_FLOATING_EYE]) {
                 if (!canseemon(mon, state)) break;
                 if (mon.mcansee) {
+                    const { ureflects } = await import('./muse.js');
                     if (await ureflects(
                         '%s gaze is reflected by your %s.',
                         s_suffix(Monnam(mon, state, effectEnv)),

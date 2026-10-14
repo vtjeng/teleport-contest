@@ -54,6 +54,7 @@ import {
 } from '../js/hack.js';
 import { poisoned as applyPoison } from '../js/attrib.js';
 import { runSegment } from '../js/jsmain.js';
+import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
@@ -2502,4 +2503,14 @@ test('mhitm_mgc_atk_negated does not message a merely sensed defender',
     assert.deepEqual(bounds, ['rn2(10)']);
     assert.equal(negated, true);
     assert.deepEqual(lines, []);
+});
+
+test('uhitm.c passive resolves a floating-eye gaze before Free_action', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v72/v72-floating-eye-passive-action2.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
 });
