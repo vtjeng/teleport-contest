@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T23:25:52.939Z",
+  "capturedAt": "2026-10-14T23:56:03.595Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -128723,52 +128723,652 @@
         "task": "Prep38",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v74-tin-stack-20261014-1",
+        "type": "turn",
+        "at": "2026-10-14T23:25:52.986Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v74-glib-tin-stack-action1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T23:25:57.303Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v74-jelly-burial-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:26:00.988Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v74-jelly-carrier-burial-action6-20261014",
+        "type": "assign",
+        "at": "2026-10-14T23:26:04.990Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v74-cockatrice-trapper-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:26:11.809Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v74 cockatrice and trapper engulf path; source scope will be claimed after the first cause is verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v74-cockatrice-trapper-engulf-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T23:26:16.096Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v74-glib-tin-stack-action1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T23:26:44.089Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "goal": "wire-eat-start-tin-drop-environment-v74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v74-jelly-carrier-burial-action6-20261014",
+        "type": "implement",
+        "at": "2026-10-14T23:26:59.984Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "goal": "fix-mon-xkilled-buried-corpse-v74-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep38-3b0d29b2e708e42f246bf09853b9d86d86008383",
+        "type": "published",
+        "at": "2026-10-14T23:27:07.260Z",
+        "task": "Prep38",
+        "commit": "3b0d29b2e708e42f246bf09853b9d86d86008383"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v74-cockatrice-trapper-engulf-action2-20261014",
+        "type": "implement",
+        "at": "2026-10-14T23:27:54.168Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "goal": "fix-v74-trapper-cockatrice-engulf-stoning-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-60c9002c79375f083437f1ca0bdbfcdd9b8e77d3",
+        "type": "ready",
+        "at": "2026-10-14T23:30:59.396Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "delivery": "60c9002c79375f083437f1ca0bdbfcdd9b8e77d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5188ea64ff3ce59c538beca3cc39ece1cbe2ac30-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:31:16.441Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "integration": "5188ea64ff3ce59c538beca3cc39ece1cbe2ac30",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5188ea64ff3ce59c538beca3cc39ece1cbe2ac30-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-C-investigation-v73-confused-npc-earth-action4-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:31:16.441Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "integration": "5188ea64ff3ce59c538beca3cc39ece1cbe2ac30",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5188ea64ff3ce59c538beca3cc39ece1cbe2ac30-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:31:16.441Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "integration": "5188ea64ff3ce59c538beca3cc39ece1cbe2ac30",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-5188ea64ff3ce59c538beca3cc39ece1cbe2ac30-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-B-investigation-v70-cube-glob-residual-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:31:16.441Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "integration": "5188ea64ff3ce59c538beca3cc39ece1cbe2ac30",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v74-wield-quiver-20261014-1",
+        "type": "turn",
+        "at": "2026-10-14T23:31:31.718Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v74-wield-quiver-split-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T23:31:35.760Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v74-wield-quiver-split-action2-20261014",
+        "type": "implement",
+        "at": "2026-10-14T23:31:52.506Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "goal": "fix-wield-quivered-stack-split-v74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v74-tin-60c9002c",
+        "type": "received",
+        "at": "2026-10-14T23:31:58.739Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "delivery": "60c9002c79375f083437f1ca0bdbfcdd9b8e77d3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8bd6904346b67cbb1f800a69f22682fe422ce358",
+        "type": "ready",
+        "at": "2026-10-14T23:32:09.173Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "delivery": "8bd6904346b67cbb1f800a69f22682fe422ce358"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep39-reduced-v75-review-20261014",
+        "type": "activity",
+        "at": "2026-10-14T23:32:18.161Z",
+        "task": "Prep39",
+        "phase": "review",
+        "reason": "Reviewing saved source coverage, prior-case comparisons and replay evidence for reduced v75 membership."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-92fafeaba839fbbf7f68d0e466d65db2bf24437d",
+        "type": "ready",
+        "at": "2026-10-14T23:32:35.359Z",
+        "task": "Prep39",
+        "delivery": "92fafeaba839fbbf7f68d0e466d65db2bf24437d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B-v74-engulf-8bd69043",
+        "type": "received",
+        "at": "2026-10-14T23:32:43.193Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "delivery": "8bd6904346b67cbb1f800a69f22682fe422ce358"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep40-v76-20261014",
+        "type": "assign",
+        "at": "2026-10-14T23:33:11.914Z",
+        "task": "Prep40",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-Prep39-92fafeab",
+        "type": "received",
+        "at": "2026-10-14T23:33:15.992Z",
+        "task": "Prep39",
+        "delivery": "92fafeaba839fbbf7f68d0e466d65db2bf24437d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-754ee98c817fdb436a80317a1ebab25a1586f4da",
+        "type": "ready",
+        "at": "2026-10-14T23:34:01.976Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "delivery": "754ee98c817fdb436a80317a1ebab25a1586f4da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v74-sting-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:34:26.563Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A2-v74-burial-754ee98c",
+        "type": "received",
+        "at": "2026-10-14T23:34:35.042Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "delivery": "754ee98c817fdb436a80317a1ebab25a1586f4da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v74-sting-investigation-20261014",
+        "type": "assign",
+        "at": "2026-10-14T23:34:41.085Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-v74-burial-754ee98c-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:34:57.808Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2b4144ab4a6e473970b0a53cae76110c80a07d76",
+        "type": "ready",
+        "at": "2026-10-14T23:35:30.044Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "delivery": "2b4144ab4a6e473970b0a53cae76110c80a07d76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v74-sting-oname-20261014",
+        "type": "implement",
+        "at": "2026-10-14T23:35:35.022Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "goal": "fix-v74-offhand-sting-oname-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-after-v74-wield-quiver-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:35:45.557Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v74-quiver-2b4144ab",
+        "type": "received",
+        "at": "2026-10-14T23:35:48.539Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "delivery": "2b4144ab4a6e473970b0a53cae76110c80a07d76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v74-counted-wield-stack-action1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T23:36:19.870Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-counted-wield-diagnosis-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:37:04.071Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep40-v76-source-plan-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:37:41.643Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v76: sixteen source routes planned; checking earlier coverage before independent recordings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-hider-5188ea64-tests-20261014-C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T23:39:52.486Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-hider-5188ea64-tests-20261014-C-investigation-v73-trapped-mastodon-farlook-action3-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T23:39:52.486Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-hider-5188ea64-tests-20261014-C-investigation-v73-confused-npc-earth-action4-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T23:39:52.486Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-hider-5188ea64-tests-20261014-C-investigation-v73-confused-npc-earth-action4-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T23:39:52.486Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-hider-5188ea64-tests-20261014-A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T23:39:52.486Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-hider-5188ea64-tests-20261014-B-investigation-v70-cube-glob-residual-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T23:39:52.486Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-hider-5188ea64-tests-20261014-B-investigation-v70-cube-glob-residual-20261014-released",
+        "type": "ready",
+        "at": "2026-10-14T23:39:52.486Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v73-hider-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T23:40:19.761Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ab61515dfebb44ad5f2135129835a11c1652f38d",
+        "type": "ready",
+        "at": "2026-10-14T23:40:52.613Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "delivery": "ab61515dfebb44ad5f2135129835a11c1652f38d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B-v74-Sting-ab61515d",
+        "type": "received",
+        "at": "2026-10-14T23:41:10.373Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "delivery": "ab61515dfebb44ad5f2135129835a11c1652f38d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v74-sting-idle-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:41:19.173Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Submitted a complete v74 offhand Sting fix; waiting for the refreshed independent queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-C-blocked-counted-quiver-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:42:19.114Z",
+        "worker": "C",
+        "state": "blocked",
+        "reason": "Counted-stack diagnosis is complete. Implementation waits for Main to accept the submitted quiver fix and release dowield."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-A2-active-hider-correction-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:42:22.600Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2a63b7dffa57d2401dd340b4f14b114d642bb3c0",
+        "type": "ready",
+        "at": "2026-10-14T23:44:09.299Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "delivery": "2a63b7dffa57d2401dd340b4f14b114d642bb3c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A2-hider-correction-2a63b7df",
+        "type": "received",
+        "at": "2026-10-14T23:44:31.215Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "delivery": "2a63b7dffa57d2401dd340b4f14b114d642bb3c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92f45949d990083333ce0c73ebca374f9d3fbe48-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:44:43.477Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "integration": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92f45949d990083333ce0c73ebca374f9d3fbe48-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-C-investigation-v73-confused-npc-earth-action4-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:44:43.477Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "integration": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92f45949d990083333ce0c73ebca374f9d3fbe48-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:44:43.477Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "integration": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-92f45949d990083333ce0c73ebca374f9d3fbe48-b762cdd0e629776457422391b3cdd711e0a8b21afdf9062d0a6c8c0f44224fb6-B-investigation-v70-cube-glob-residual-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T23:44:43.477Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "integration": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "validationGroup": [
+          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+          "C-investigation-v73-confused-npc-earth-action4-20261014",
+          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-hider-correction-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:45:23.543Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Hider correction submitted; current mismatch candidates are assigned or parked. Waiting for an independent queue case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v73-trapped-mastodon-farlook-action3-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-validated",
+        "type": "validated",
+        "at": "2026-10-14T23:53:47.503Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v73-confused-npc-earth-action4-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-validated",
+        "type": "validated",
+        "at": "2026-10-14T23:53:47.503Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v73-blind-peaceful-lurker-action2-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-validated",
+        "type": "validated",
+        "at": "2026-10-14T23:53:47.503Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v70-cube-glob-residual-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-validated",
+        "type": "validated",
+        "at": "2026-10-14T23:53:47.503Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v73-trapped-mastodon-farlook-action3-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T23:54:24.479Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v73-confused-npc-earth-action4-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T23:54:24.479Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v73-blind-peaceful-lurker-action2-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T23:54:24.479Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v70-cube-glob-residual-20261014-92f45949d990083333ce0c73ebca374f9d3fbe48-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T23:54:24.479Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
         "worker": "C",
-        "goal": "trap-mounted-bear-trap-steed-branch-v73",
+        "goal": "wire-eat-start-tin-drop-environment-v74",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "4126d6c18e8d704bf7c7ab96ec3147ca53901512",
-        "since": "2026-10-14T22:57:05.579Z",
+        "delivery": "60c9002c79375f083437f1ca0bdbfcdd9b8e77d3",
+        "since": "2026-10-14T23:30:59.396Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
-        "worker": "C",
-        "goal": "fix-v73-thrown-potion-next2u-distance-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "4f483cdd37802ba73469f69f65bc7d455cc2378b",
-        "since": "2026-10-14T22:58:55.490Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
-        "worker": "A2",
-        "goal": "domove-hidden-ceiling-hider-v73",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f",
-        "since": "2026-10-14T23:00:53.749Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
         "worker": "B",
-        "goal": "fix-v70-cube-glob-planning-message-leak-20261014",
+        "goal": "fix-v74-trapper-cockatrice-engulf-stoning-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "f348c9134b8c26b7663ccbbad81d5c18c9316a10",
-        "since": "2026-10-14T23:14:57.389Z",
+        "delivery": "8bd6904346b67cbb1f800a69f22682fe422ce358",
+        "since": "2026-10-14T23:32:09.173Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "Prep39",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "92fafeaba839fbbf7f68d0e466d65db2bf24437d",
+        "batch": "v75",
+        "since": "2026-10-14T23:32:35.359Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "worker": "A2",
+        "goal": "fix-mon-xkilled-buried-corpse-v74-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "754ee98c817fdb436a80317a1ebab25a1586f4da",
+        "since": "2026-10-14T23:34:01.976Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "worker": "C",
+        "goal": "fix-wield-quivered-stack-split-v74",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2b4144ab4a6e473970b0a53cae76110c80a07d76",
+        "since": "2026-10-14T23:35:30.044Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "worker": "B",
+        "goal": "fix-v74-offhand-sting-oname-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "ab61515dfebb44ad5f2135129835a11c1652f38d",
+        "since": "2026-10-14T23:40:52.613Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -129934,129 +130534,127 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "C-investigation-v73-confused-npc-earth-action4-20261014": {
-        "id": "C-investigation-v73-confused-npc-earth-action4-20261014",
+      "C-investigation-v74-glib-tin-stack-action1-20261014": {
+        "id": "C-investigation-v74-glib-tin-stack-action1-20261014",
         "worker": "C",
         "status": "ready",
-        "seed": "synthetic/v73/v73-confused-npc-earth-action4",
+        "seed": "synthetic/v74/v74-glib-tin-stack-action1",
         "reservations": [
-          "session:synthetic/v73/v73-confused-npc-earth-action4",
-          "source:dothrow.c:breakobj"
+          "session:synthetic/v74/v74-glib-tin-stack-action1",
+          "source:eat.c:start_tin"
         ]
       },
-      "A2-investigation-v73-blind-peaceful-lurker-action2-20261014": {
-        "id": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+      "A2-investigation-v74-jelly-carrier-burial-action6-20261014": {
+        "id": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
         "worker": "A2",
         "status": "ready",
-        "seed": "synthetic/v73/v73-blind-peaceful-lurker-action2",
+        "seed": "synthetic/v74/v74-jelly-carrier-burial-action6",
         "reservations": [
-          "session:synthetic/v73/v73-blind-peaceful-lurker-action2",
-          "source:hack.c:domove_attackmon_at",
-          "source:hack.c:domove_core",
-          "source:hack.c:spoteffects",
-          "source:mon.c:mnexto",
-          "source:teleport.c:enexto",
-          "source:teleport.c:enexto_core",
-          "source:teleport.c:collect_coords"
+          "session:synthetic/v74/v74-jelly-carrier-burial-action6",
+          "source:mon.c:xkilled"
         ]
       },
-      "C-investigation-v73-trapped-mastodon-farlook-action3-20261014": {
-        "id": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v73/v73-trapped-mastodon-farlook-action3",
-        "reservations": [
-          "session:synthetic/v73/v73-trapped-mastodon-farlook-action3",
-          "source:trap.c:trapeffect_bear_trap"
-        ]
-      },
-      "B-investigation-v70-cube-glob-residual-20261014": {
-        "id": "B-investigation-v70-cube-glob-residual-20261014",
+      "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014": {
+        "id": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
         "worker": "B",
         "status": "ready",
-        "seed": "synthetic/v70/v70-cube-glob-scout2",
+        "seed": "synthetic/v74/v74-cockatrice-trapper-engulf-action2",
         "reservations": [
-          "session:synthetic/v70/v70-cube-glob-scout2",
-          "source:mon.c:newcham"
+          "session:synthetic/v74/v74-cockatrice-trapper-engulf-action2",
+          "source:mhitu.c:gulpmu"
+        ]
+      },
+      "C-investigation-v74-wield-quiver-split-action2-20261014": {
+        "id": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v74/v74-wield-quiver-split-action2",
+        "reservations": [
+          "session:synthetic/v74/v74-wield-quiver-split-action2",
+          "source:wield.c:dowield"
+        ]
+      },
+      "B-investigation-v74-offhand-sting-action2-20261014": {
+        "id": "B-investigation-v74-offhand-sting-action2-20261014",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v74/v74-offhand-sting-action2",
+        "reservations": [
+          "session:synthetic/v74/v74-offhand-sting-action2",
+          "source:do_name.c:oname"
+        ]
+      },
+      "C-investigation-v74-counted-wield-stack-action1-20261014": {
+        "id": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "worker": "C",
+        "status": "working",
+        "seed": "synthetic/v74/v74-counted-wield-stack-action1",
+        "reservations": [
+          "session:synthetic/v74/v74-counted-wield-stack-action1"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v73/v73-confused-npc-earth-action4": {
+      "session:synthetic/v74/v74-glib-tin-stack-action1": {
         "tasks": [
-          "C-investigation-v73-confused-npc-earth-action4-20261014"
+          "C-investigation-v74-glib-tin-stack-action1-20261014"
         ]
       },
-      "source:dothrow.c:breakobj": {
+      "source:eat.c:start_tin": {
         "tasks": [
-          "C-investigation-v73-confused-npc-earth-action4-20261014"
+          "C-investigation-v74-glib-tin-stack-action1-20261014"
         ]
       },
-      "session:synthetic/v73/v73-blind-peaceful-lurker-action2": {
+      "session:synthetic/v74/v74-jelly-carrier-burial-action6": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "A2-investigation-v74-jelly-carrier-burial-action6-20261014"
         ]
       },
-      "source:hack.c:domove_attackmon_at": {
+      "source:mon.c:xkilled": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "A2-investigation-v74-jelly-carrier-burial-action6-20261014"
         ]
       },
-      "source:hack.c:domove_core": {
+      "session:synthetic/v74/v74-cockatrice-trapper-engulf-action2": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014"
         ]
       },
-      "source:hack.c:spoteffects": {
+      "source:mhitu.c:gulpmu": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014"
         ]
       },
-      "source:mon.c:mnexto": {
+      "session:synthetic/v74/v74-wield-quiver-split-action2": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "C-investigation-v74-wield-quiver-split-action2-20261014"
         ]
       },
-      "source:teleport.c:enexto": {
+      "source:wield.c:dowield": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "C-investigation-v74-wield-quiver-split-action2-20261014"
         ]
       },
-      "source:teleport.c:enexto_core": {
+      "session:synthetic/v74/v74-offhand-sting-action2": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "B-investigation-v74-offhand-sting-action2-20261014"
         ]
       },
-      "source:teleport.c:collect_coords": {
+      "source:do_name.c:oname": {
         "tasks": [
-          "A2-investigation-v73-blind-peaceful-lurker-action2-20261014"
+          "B-investigation-v74-offhand-sting-action2-20261014"
         ]
       },
-      "session:synthetic/v73/v73-trapped-mastodon-farlook-action3": {
+      "session:synthetic/v74/v74-counted-wield-stack-action1": {
         "tasks": [
-          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014"
-        ]
-      },
-      "source:trap.c:trapeffect_bear_trap": {
-        "tasks": [
-          "C-investigation-v73-trapped-mastodon-farlook-action3-20261014"
-        ]
-      },
-      "session:synthetic/v70/v70-cube-glob-scout2": {
-        "tasks": [
-          "B-investigation-v70-cube-glob-residual-20261014"
-        ]
-      },
-      "source:mon.c:newcham": {
-        "tasks": [
-          "B-investigation-v70-cube-glob-residual-20261014"
+          "C-investigation-v74-counted-wield-stack-action1-20261014"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "4e16b7ab373fa27475cc86b445d8cafe87778af0",
-    "measuredAt": "2026-10-14T23:13:30.858Z",
+    "executionCommit": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+    "measuredAt": "2026-10-14T23:50:07.499Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

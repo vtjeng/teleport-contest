@@ -315128,7 +315128,7 @@
     {
       "id": "trap-mounted-bear-trap-steed-branch-v73",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement trapeffect_bear_trap from trap.c",
       "cFile": "trap.c",
       "sessions": [
@@ -315138,15 +315138,81 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92f45949d990083333ce0c73ebca374f9d3fbe48",
       "delivered": null,
       "function": "trapeffect_bear_trap",
-      "session": "synthetic/v73/v73-trapped-mastodon-farlook-action3"
+      "session": "synthetic/v73/v73-trapped-mastodon-farlook-action3",
+      "closeStanding": {
+        "sha": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4e16b7ab373fa27475cc86b445d8cafe87778af0",
+        "target": "synthetic/v73/v73-trapped-mastodon-farlook-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92f45949d990083333ce0c73ebca374f9d3fbe48/run-hosted-OtgnBK/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "trapeffect_bear_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_bear_trap",
+            "sourceReview": "Read trap.c:trapeffect_bear_trap() in full (1478-1560), including both hero and monster arms and the source evaluation/RNG order. The hero branch rolls d(2,4) at entry, handles levitation/shape/size exits, sets TT_BEARTRAP, then checks u.usteed: it prints the steed possessive/body part, calls thitm with the preserved damage, resets the hero trap only when thitm kills the steed, and always exercises Dexterity. The mounted path does not call the unmounted leg-wound or losehp branch. The JS preflight now admits this source branch; the unmounted iron-shoe refusal remains.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "hack.c:spoteffects calls trap.c:dotrap for a trap under the hero; trap.c:dotrap dispatches the trap to trapeffect_bear_trap. The corresponding JS dotrap calls preflight_dotrap before its selector dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-bear-trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-trapped-mastodon-farlook-action3",
+                "segment": 0,
+                "fromStep": 256,
+                "throughStep": 361,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_bear_trap; the mounted hero triggers the bear trap and the complete admitted segment matches."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The mounted hero entry point is hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_bear_trap. The admitted v73 mastodon recording exercises the mounted BEAR_TRAP branch and then completes the separate farlook route after A’s accepted pager fix. The existing monster-triggered arm is unchanged.",
+        "entryPoints": [
+          {
+            "name": "A mounted hero triggers a bear trap",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "trapeffect_bear_trap"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-trapped-mastodon-farlook-action3",
+                "segment": 0,
+                "fromStep": 256,
+                "throughStep": 361,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_bear_trap; mounted bear-trap arm and complete admitted segment."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v73-thrown-potion-next2u-distance-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement breakobj from dothrow.c",
       "cFile": "dothrow.c",
       "sessions": [
@@ -315156,15 +315222,82 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92f45949d990083333ce0c73ebca374f9d3fbe48",
       "delivered": null,
       "function": "breakobj",
-      "session": "synthetic/v73/v73-confused-npc-earth-action4"
+      "session": "synthetic/v73/v73-confused-npc-earth-action4",
+      "closeStanding": {
+        "sha": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4e16b7ab373fa27475cc86b445d8cafe87778af0",
+        "target": "synthetic/v73/v73-confused-npc-earth-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92f45949d990083333ce0c73ebca374f9d3fbe48/run-hosted-OtgnBK/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "breakobj",
+            "implementation": "js/dothrow.js",
+            "symbol": "breakobj",
+            "sourceReview": "Read dothrow.c:breakobj() in full (2480-2578), including crackable handling, potion and oil branches, camera/egg/boulder cases, shop accounting, object deletion and explosions. The changed potion branch calls next2u before potionbreathe. you.h defines next2u(px,py) as distu(px,py)<=2; hack.h defines distu using dist2, so the helper now uses the C squared-distance threshold. No callee behavior or unrelated branch changed.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:throwit() calls breakobj() after a missed thrown object lands; js/dothrow.js:throwit() calls js/dothrow.js:breakobj() at the corresponding landing point."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow-breakobj.test.mjs",
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-confused-npc-earth-action4",
+                "segment": 0,
+                "fromStep": 545,
+                "throughStep": 545,
+                "source": "dothrow.c:throwit -> breakobj -> you.h:next2u; the thrown potion misses and lands two orthogonal cells from the hero."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The cited range reaches the hero thrown-potion landing path through dothrow.c:throwit into breakobj. It verifies the step-545 action and subsequent C deletion RNG through the admitted boundary. The replay later reaches an independent Earth-scroll continuation in muse.c:use_offensive; B owns that source scope and the local JS run stops there with mon_nam undefined.",
+        "entryPoints": [
+          {
+            "name": "A thrown potion misses and lands two orthogonal cells from the hero",
+            "functions": [
+              {
+                "sourceFile": "dothrow.c",
+                "name": "breakobj"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-confused-npc-earth-action4",
+                "segment": 0,
+                "fromStep": 545,
+                "throughStep": 545,
+                "source": "dothrow.c:throwit -> breakobj -> you.h:next2u"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "domove-hidden-ceiling-hider-v73",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement domove_attackmon_at, domove_core, spoteffects from hack.c",
       "cFile": "hack.c",
       "sessions": [
@@ -315174,15 +315307,286 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92f45949d990083333ce0c73ebca374f9d3fbe48",
       "delivered": null,
       "function": "domove_attackmon_at",
-      "session": "synthetic/v73/v73-blind-peaceful-lurker-action2"
+      "session": "synthetic/v73/v73-blind-peaceful-lurker-action2",
+      "closeStanding": {
+        "sha": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4e16b7ab373fa27475cc86b445d8cafe87778af0",
+        "target": "synthetic/v73/v73-blind-peaceful-lurker-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92f45949d990083333ce0c73ebca374f9d3fbe48/run-hosted-OtgnBK/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "domove_attackmon_at",
+            "implementation": "js/hack.js",
+            "symbol": "domove_attackmon_at",
+            "sourceReview": "Read hack.c:domove_attackmon_at() lines 1955-1992 and its destination dispatch. Preserved the source predicate that skips the attack when a monster remains mundetected and unsensed and is neither a hides-under monster nor eel; forcefight and the source safe-monster/hiding cases keep their existing paths. The preflight now lets this C no-attack movement branch continue without inventing combat or RNG.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c:domove_core calls domove_attackmon_at before test_move and movement"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "preflightDomoveDestination",
+                "source": "hack.c:domove_core destination checks precede domove_attackmon_at; the JavaScript preflight preserves the same C-allowed no-attack path"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "cmd.c:domove -> hack.c:domove_core -> hack.c:domove_attackmon_at; unknown peaceful ceiling hider is not attacked and movement continues"
+              }
+            ]
+          },
+          {
+            "name": "domove_core",
+            "implementation": "js/hack.js",
+            "symbol": "domove_core",
+            "sourceReview": "Read hack.c:domove_core() lines 2712-2993, including the post-move safe-monster displacement gate. C calls domove_swap_with_pet only for a safe monster and skips it when the monster remains an undetected hider. Applied that condition at the production caller so spoteffects sees the monster at the hero's destination and the later mnexto relocation uses the source path and RNG order.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "executeMovement",
+                "source": "cmd.c:rhack dispatches an ordinary movement key to hack.c:domove_core through its movement handler"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c:domove_core calls domove_attackmon_at before movement, then spoteffects after committing movement"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "cmd.c:domove -> hack.c:domove_core; hero enters the unknown hider's square without swapping it first"
+              }
+            ]
+          },
+          {
+            "name": "spoteffects",
+            "implementation": "js/hack.js",
+            "symbol": "spoteffects",
+            "sourceReview": "Read hack.c:spoteffects() lines 3312-3464, including the hidden resident monster branch: clear mundetected and sleeping state, print the blind surprise message, clear peacefulness, then call mnexto. The JavaScript branch uses the existing sensemon helper and follows this order.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c:domove_core calls spoteffects(TRUE) after successful movement"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "hack.c:domove_core -> hack.c:spoteffects handles the hidden monster and calls mon.c:mnexto"
+              }
+            ]
+          },
+          {
+            "name": "mnexto",
+            "implementation": "js/mon.js",
+            "symbol": "mnexto",
+            "sourceReview": "Read mon.c:mnexto() lines 3955-3990. Its production destination selection delegates to enexto and then relocates the monster; this existing implementation is exercised by the newly matched arrival path.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects calls mon.c:mnexto for the revealed monster"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "hack.c:spoteffects -> mon.c:mnexto relocates the revealed ceiling hider"
+              }
+            ],
+            "sourceFile": "mon.c"
+          },
+          {
+            "name": "enexto",
+            "implementation": "js/teleport.js",
+            "symbol": "enexto",
+            "sourceReview": "Read teleport.c:enexto() lines 196-204. The existing helper first tries the scary-position policy and then the ordinary adjacent-position search; the arrival recording exercises this path.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mnexto",
+                "source": "mon.c:mnexto calls teleport.c:enexto"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "mon.c:mnexto -> teleport.c:enexto selects the post-arrival monster square"
+              }
+            ],
+            "sourceFile": "teleport.c"
+          },
+          {
+            "name": "enexto_core",
+            "implementation": "js/teleport.js",
+            "symbol": "enexto_core",
+            "sourceReview": "Read teleport.c:enexto_core() lines 219-276. The existing helper tries the source radius-three ring and fallback search, preserving source candidate and placement checks; this path is covered by the matched relocation recording.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "enexto",
+                "source": "teleport.c:enexto calls enexto_core for both scary-position and ordinary searches"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "teleport.c:enexto -> teleport.c:enexto_core searches a legal relocation square"
+              }
+            ],
+            "sourceFile": "teleport.c"
+          },
+          {
+            "name": "collect_coords",
+            "implementation": "js/teleport.js",
+            "symbol": "collect_coords",
+            "sourceReview": "Read teleport.c:collect_coords() lines 578-712 and preserved its source candidate collection and RNG order in the existing implementation; the complete matching C recording reaches it during hider relocation.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "enexto_core",
+                "source": "teleport.c:enexto_core calls collect_coords for its candidate rings"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "teleport.c:enexto_core -> teleport.c:collect_coords supplies the relocation candidate order and RNG calls"
+              }
+            ],
+            "sourceFile": "teleport.c"
+          }
+        ],
+        "entryPointReview": "The active entry point is an ordinary movement command into an unknown, unsensed peaceful ceiling hider. cmd.c:domove reaches hack.c:domove_core, which preserves the no-attack branch, commits movement, and calls spoteffects; spoteffects reveals the hider and calls mnexto, which relocates through enexto, enexto_core, and collect_coords. The admitted v73 recording and the independent recipe now match every screen, cursor, and RNG call through the complete replay, including this arrival and relocation. No other caller is excluded or claimed by this divergence fix.",
+        "entryPoints": [
+          {
+            "name": "Walk into an unknown peaceful ceiling hider and process its surprise relocation",
+            "functions": [
+              "domove_attackmon_at",
+              "domove_core",
+              "spoteffects",
+              {
+                "sourceFile": "mon.c",
+                "name": "mnexto"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "enexto"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "enexto_core"
+              },
+              {
+                "sourceFile": "teleport.c",
+                "name": "collect_coords"
+              }
+            ],
+            "recordings": [
+              "recordings/hack.c/v73-hidden-tame-lurker-arrival.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-blind-peaceful-lurker-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 275,
+                "source": "cmd.c:domove -> hack.c:domove_core/domove_attackmon_at -> hack.c:spoteffects -> mon.c:mnexto -> teleport.c:enexto/enexto_core/collect_coords"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v70-cube-glob-planning-message-leak-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement newcham from mon.c",
       "cFile": "mon.c",
       "sessions": [
@@ -315192,10 +315596,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "92f45949d990083333ce0c73ebca374f9d3fbe48",
       "delivered": null,
       "function": "newcham",
-      "session": "synthetic/v70/v70-cube-glob-scout2"
+      "session": "synthetic/v70/v70-cube-glob-scout2",
+      "closeStanding": {
+        "sha": "92f45949d990083333ce0c73ebca374f9d3fbe48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "4e16b7ab373fa27475cc86b445d8cafe87778af0",
+        "target": "synthetic/v70/v70-cube-glob-scout2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/92f45949d990083333ce0c73ebca374f9d3fbe48/run-hosted-OtgnBK/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "newcham",
+            "implementation": "js/mon.js",
+            "symbol": "newcham",
+            "sourceReview": "Compared mon.c:newcham() at 5278-5534 with js/mon.js. m_consume_obj reaches newcham(PM_GREEN_SLIME, NC_SHOW_MSG) while the elapsed-turn preflight is scanning a planning clone. The JavaScript newchamEnv previously defaulted its message callback to ttyPline even when planning:true; the fix supplies a silent default only for planning calls and preserves explicit caller callbacks.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_consume_obj",
+                "source": "mon.c:m_consume_obj changes a green-slime glob eater through newcham with visibility-sensitive NC_SHOW_MSG."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug reaches gelcube_digests and m_consume_obj during the planned and live monster scans."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-shape.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-cube-glob-scout2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 350,
+                "source": "allmain.c:moveloop_core planned monster scan -> monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj -> newcham; then the live scan repeats the transformation on game state."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted v70 case reaches the planning and live gelatinous-cube digestion paths. The planning clone now transforms without writing a TTY message; the live scan then emits the source-ordered engulf and transformation messages. Fresh replay run-gWt9Ig reports all 351 frames and the input boundary matched.",
+        "entryPoints": [
+          {
+            "name": "gelatinous cube digests a green-slime glob and transforms during elapsed-turn planning",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-cube-glob-scout2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 350,
+                "source": "allmain.c:moveloop_core -> monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj -> newcham."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
