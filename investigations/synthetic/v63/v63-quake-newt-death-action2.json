@@ -1,0 +1,53 @@
+{
+  "session": "synthetic/v63/v63-quake-newt-death-action2",
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-quake-newt-death-action2",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recording": "challenges/cases/v63/v63-quake-newt-death-action2.session.json",
+  "recordingSha256": "b36e7440bc8ee0a2809f22a2496cf55e79e81e919f803254deeebf13380df552",
+  "recipe": "challenges/cases/v63/v63-quake-newt-death-action2.recipe.session.json",
+  "recipeSha256": "25d22c0da0e040dbf8348558f1206324233fecdac67e4318702dfc15867a263a",
+  "replayInputSha256": "5d8a0d424bda8035238c89e2c08d6d84d98eb2706d483f4c492b6ead514f832f",
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+  "remainingScreens": 414,
+  "recordedSteps": 414,
+  "status": "complete",
+  "commit": "3caae42baae1eb659953ce2a5fb8ef57987bd5a0",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-quake-newt-death-action2",
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: dmonsfree: 1 removed does not match 0 pending",
+    "passed": false,
+    "error": "dmonsfree: 1 removed does not match 0 pending"
+  },
+  "summary": "When music.c do_pit reduces a trapped newt below zero HP after earthquake damage, C calls mon.c xkilled(mtmp, XKILL_NOMSG) to complete death cleanup. js/music.js instead records note_unported('mon.c xkilled') after the HP reduction and message, leaving a dead monster linked without incrementing iflags.purge_monsters. The next planned movemon reaches dmonsfree, which removes one dead node against zero pending and stops the replay. Wire the existing JS xkilled implementation into this lethal branch; the separate boulder, selftouch, and hero-fall gaps remain outside this finding.",
+  "source": {
+    "file": "music.c",
+    "branch": "A monster occupies a square selected by do_earthquake for a new pit, is not a flyer or clinger, survives mselftouch, then the pit damage reduces mhp below one.",
+    "functions": [
+      "do_pit"
+    ],
+    "callers": [
+      "music.c do_earthquake() calls do_pit() for room and other pit-eligible terrain"
+    ],
+    "dependencies": [
+      "mon.c xkilled() existing JS implementation handles ordinary non-unique newt death and m_detach bookkeeping",
+      "mon.c dmonsfree() is the later invariant check that exposes the skipped cleanup"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/music.c:274-290 reduces monster HP, emits the death message, then calls xkilled(mtmp, XKILL_NOMSG). The value is discarded, but xkilled's state changes are required before monster-list cleanup.",
+    "js/music.js:307-322 matches the HP reduction and message but substitutes note_unported('mon.c xkilled'), leaving the dead monster attached.",
+    "The admitted v63 evaluation at 02a098f reports a replay stop before step comparison: dmonsfree removed one monster while purge_monsters was zero. runSegment on worker base 3caae42 reproduces it; the stack runs through js/makemon_create.js:dmonsfree, js/mon.js:movemon, and js/unported_monster_actions.js:planSimpleMonsterTurn.",
+    "The recording's earthquake action starts at input step 382. Its C trace reaches music.c:do_earthquake, music.c:do_pit, and mon.c:xkilled for the newt death; C continues recording all 414 steps."
+  ]
+}
