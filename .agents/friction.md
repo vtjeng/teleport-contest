@@ -661,3 +661,35 @@ triage decisions or fix references.
 - A and C exhausted independent admitted cases while their completed work
   remained queued. Both recorded idle; B remains blocked on zap_updown.
   Root prioritized that dependency chain, then prepared-batch admission.
+
+### 2026-10-14 — corrected Prep group omitted its original case files
+
+- Context: frozen Prep27/v63 and Prep28/v64 integration, corrected delivery
+  `a76fb960f9ed89ad00bf859a13290a0627c6ba5b`.
+- Friction: the group helper cherry-picked the latest correction without the
+  original v64 data commit. Two annotated clay-golem files failed with
+  modify/delete conflicts. The failed integration command exited before repair.
+- Evidence: `.cache/prep-group.json` retains the frozen membership;
+  original delivery `21718f0002e863a511fc027c903c05375400ef78` contains the
+  missing files. The repaired group passed hosted checkpoint `38451492201`.
+- Reason: the loop requires preserving original task commits through corrections
+  and validating the frozen group before admission.
+- Outcome: aborted the unfinished correction cherry-pick, preserved the already
+  integrated v63 commit, then imported original v64 data before its correction.
+  Retrying the same frozen group succeeded. The helper still needs to include
+  original task data when a correction packet lists only later commits.
+
+### 2026-10-14 — unchanged Prep gameplay required new tracked annotations
+
+- Context: Prep28 overlap correction after the accepted blind-floor caller fix.
+- Friction: a metadata-only correction was rejected because its delivery had no
+  changed tracked paths. The worker annotated the recipe and recording, then
+  repeated C recording and independent replay despite unchanged gameplay inputs.
+- Evidence: corrected packet
+  `65477fc42d34472553349ebc43b2a380c8b71fab2fefb1d96dda5816a8f8453d.json`
+  preserves the original revision and byte-identical C replay; Root's saved
+  `.cache/prep28-v64-corrected-verification.json` reports no failed checks.
+- Reason: admission requires corrected overlap classification and the delivery
+  interface requires a changed tracked path.
+- Outcome: the correction was accepted as 12 failures and three controls.
+  The unchanged C gameplay remains pinned to the original delivery.
