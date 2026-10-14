@@ -1296,6 +1296,16 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && isok(x, y)
         && mmflags === NO_MM_FLAGS;
+    // wizard.c:clonewiz() creates a Wizard at the hero's square with
+    // MM_NOWAIT. makemon() relocates that request through enexto_core() and
+    // runs the normal runtime tail; the marker ties this species/flag shape
+    // to the source caller instead of widening generic runtime admission.
+    const cloneWizardCall = !state.in_mklev
+        && normalized._cloneWizard === true
+        && ptr?.pmidx === PM_WIZARD_OF_YENDOR
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === MM_NOWAIT;
     // mkroom.c mkundead() uses explicit-coordinate placement with
     // NO_MINVENT. pickup.c observe_quantum_cat() adds MM_ADJACENTOK and
     // MM_NOMSG for its housecat. Both C call shapes suppress inventory;
@@ -1338,7 +1348,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !(mmflags & ~(MM_NOMSG | MM_ANGRY | MM_MALE | MM_FEMALE));
     if (tutorialLevel && !runtimeRandomNoMsgCall
         && !runtimeExplicitRandomCall && !runtimeGroupCall
-        && !wereSummonCall && !explicitCoordinateNoFlagsRuntimeCall
+        && !wereSummonCall && !cloneWizardCall
+        && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
         && !explicitInventorylessHeroCall && !hatchEggCall
         && !explicitCoordinateRuntimeCall
@@ -1500,7 +1511,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
         || hatchEggCall || explicitCoordinateRuntimeCall
-        || cloneuCall || minionSummonCall
+        || cloneWizardCall || cloneuCall || minionSummonCall
         || familiarCall || wereSummonCall || roamerCall
         // sp_lev.c finalizes topology before filling special rooms.  Those
         // explicit-coordinate calls still belong to level generation and
@@ -1517,7 +1528,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'runtime creation without its async tail owner',
         );
     }
-    if (runtimeCall && !revivalCall && state.go?.occupation
+    if (runtimeCall && !revivalCall && !cloneWizardCall && state.go?.occupation
         && typeof normalized.hooks?.stopOccupation !== 'function') {
         throw new UnsupportedMonsterCreationError(
             'runtime creation while an occupation lacks stopOccupation',
@@ -1572,6 +1583,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitCoordinateNoMinventRuntimeCall
         && !vaultGuardCall
+        && !cloneWizardCall
         && !cloneuCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
@@ -1627,6 +1639,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
+            && !cloneWizardCall
             // summon_minion uses the generic creation lifecycle; C imposes
             // no initial-level species reservoir on this divine caller.
             && !divineMinionCall

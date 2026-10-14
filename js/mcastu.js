@@ -69,6 +69,7 @@ import { mkclass, set_malign } from './makemon.js';
 import { monster_census } from './minion.js';
 import { enexto } from './teleport.js';
 import { healmon } from './mon.js';
+import { clonewiz } from './wizard.js';
 import { make_blinded, make_confused, make_stunned } from './potion.js';
 import {
     cvt_adtyp_to_mseenres,
@@ -845,6 +846,21 @@ async function mcast_paralyze(mtmp, env = {}) {
     return dmg;
 }
 
+// C ref: mcastu.c mcast_clone_wiz() (411-419). The Wizard clones only when
+// the sole current Wizard casts the spell; C's impossible() fallback is a
+// void diagnostic and has no state result.
+async function mcast_clone_wiz(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (mtmp?.iswiz && state.context?.no_of_wizards === 1) {
+        const message = rawEnv.message
+            ?? (rawEnv.planning ? async () => {} : ttyPline);
+        await message('Double Trouble...', state, rawEnv);
+        await clonewiz(state, rawEnv);
+    } else {
+        recordMcastGap('mcastu.c impossible', rawEnv);
+    }
+}
+
 // C ref: mcastu.c mcast_summon_mons() (421-448).  nasty() owns the
 // return-valued creation loop; this helper preserves the source feedback
 // branches after its census result is known.
@@ -1110,7 +1126,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         await mcast_death_touch(mtmp, env);
         break;
     case MCAST_CLONE_WIZ:
-        recordMcastGap('mcastu.c mcast_clone_wiz', env);
+        await mcast_clone_wiz(mtmp, env);
         break;
     case MCAST_SUMMON_MONS:
         await mcast_summon_mons(mtmp, env);

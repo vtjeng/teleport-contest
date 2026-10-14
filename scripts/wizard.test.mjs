@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    MM_NOWAIT,
     NO_MM_FLAGS,
+    PROT_FROM_SHAPE_CHANGERS,
     RLOC_MSG,
     ROOM,
     STRAT_APPEARMSG,
@@ -12,10 +14,11 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
-import { AT_MAGC } from '../js/monsters.js';
+import { AT_MAGC, PM_WIZARD_OF_YENDOR } from '../js/monsters.js';
 import {
     choose_stairs,
     aggravate,
+    clonewiz,
     mon_has_arti,
     on_ground,
     other_mon_has_arti,
@@ -92,6 +95,55 @@ function nastyRandom(values) {
 const M3_WANTSBELL = 0x0002;
 const M3_WANTSARTI = 0x0010;
 const M3_WIZARD = 31;
+
+test('clonewiz uses the source Wizard call shape and clears clone attitudes', async () => {
+    const state = nastyState();
+    state.u.uprops = {
+        [PROT_FROM_SHAPE_CHANGERS]: { intrinsic: true, extrinsic: false },
+    };
+    state.u.uhave.amulet = true;
+    const monster = {
+        mx: 12,
+        my: 13,
+        msleeping: true,
+        mtame: 5,
+        mpeaceful: true,
+    };
+    const calls = [];
+    const env = {
+        makemon: async (...args) => {
+            calls.push(['makemon', ...args]);
+            return monster;
+        },
+        random: { rn2: () => assert.fail('protected clone uses no RNG') },
+        redraw: (...args) => calls.push(['redraw', ...args]),
+    };
+    const clone = await clonewiz(state, env);
+
+    assert.equal(clone, monster);
+    assert.equal(calls[0][0], 'makemon');
+    assert.equal(calls[0][1], state.mons[PM_WIZARD_OF_YENDOR]);
+    assert.deepEqual(calls[0].slice(2, 5), [state.u.ux, state.u.uy, MM_NOWAIT]);
+    assert.equal(calls[0][5].state, state);
+    assert.equal(calls[0][5]._cloneWizard, true);
+    assert.deepEqual(
+        [monster.msleeping, monster.mtame, monster.mpeaceful],
+        [false, 0, false],
+    );
+    assert.equal(calls[1][0], 'redraw');
+    assert.deepEqual(calls[1].slice(1, 4), [12, 13, state]);
+    assert.equal(calls[1][4], env);
+
+    const cStart = WIZARD_C.indexOf('\nclonewiz(void)');
+    const cEnd = WIZARD_C.indexOf('\n/* also used by newcham() */', cStart);
+    const cClone = WIZARD_C.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cClone, /makemon\(&mons\[PM_WIZARD_OF_YENDOR\], u\.ux, u\.uy, MM_NOWAIT\)/u);
+    assert.ok(cClone.indexOf('msleeping = mtmp2->mtame = mtmp2->mpeaceful = 0')
+        < cClone.indexOf('if (!u.uhave.amulet && rn2(2))'));
+    assert.ok(cClone.indexOf('if (!Protection_from_shape_changers)')
+        < cClone.indexOf('newsym(mtmp2->mx, mtmp2->my)'));
+});
 
 test('aggravate follows tower, dead-monster, sleep, and thaw order', () => {
     // C wizard.c:aggravate (494-511) compares the hero and each monster's
