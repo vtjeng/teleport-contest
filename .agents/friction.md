@@ -744,3 +744,22 @@ triage decisions or fix references.
 - Outcome: the candidate branch is preserved, the empty-metadata correction
   is integrated, and a focused retry correction is requested from the tooling
   worker. Both corrections will use the group's exact hosted checkpoint.
+
+### 2026-10-14 — corrected group needs retained integration prerequisites
+
+- Context: candidate `98a56ec0a87a7ca742189a3f045da03d41ee193c`
+  failed hosted run `38515123991`; fixed development and all recording batches passed.
+- Friction: two tests and one input-boundary check failed. Root initially linked
+  the boundary warning to the listed selftouch gap. A2 traced the first screen
+  mismatch to the version banner instead; the cumulative goto_level gap did
+  not establish the cause. B's C comparison confirmed the judge-profile mismatch.
+- Outcome: B submitted planner-isolation and version corrections; A2 retained
+  the separately source-traced disintegrate_arm caller correction. Further
+  goto_level changes were not requested. All original deliveries remain intact.
+- Friction: rebuilding corrected deliveries from the accepted base would lose
+  coordinator tooling fixes, quality assignments and original diagnoses that
+  predate delivery bases. The frozen failed branch preserves those prerequisites.
+- Outcome: helper correction `5509b9ff092c1baf099ca8ce1528d540b149c81b`
+  adds explicit retained commits, applied in history order before submissions.
+  Its 11 focused tests cover corrected rebuild, retry and split; the live group
+  supplies the full checkpoint. The accepted base and failed branch stay intact.
