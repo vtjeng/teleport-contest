@@ -1,0 +1,48 @@
+{
+  "session": "synthetic/v65/v65-runtime-customcolors-reset-action1",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-runtime-customcolors-reset-action1",
+  "remainingScreens": 2,
+  "recordedSteps": 10,
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingSha256": "37aca51db5ea6d36f0b901eecc9713ec100c97a849c71b84e60da2c2241d35d7",
+  "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v65.json",
+  "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+  "status": "complete",
+  "commit": "49360bff89c0633f2ec716cfcf0f81d28f85f69b",
+  "mismatch": {
+    "session": "synthetic/v65/v65-runtime-customcolors-reset-action1",
+    "remainingScreens": 2,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 8,
+      "message": "unsupported hero command: an unported branch of this command: the options menu requires reset_customcolors()"
+    },
+    "kind": "stop",
+    "sourceFile": "glyphs.c",
+    "function": "reset_customcolors"
+  },
+  "summary": "The options-menu customcolors switch updates iflags.customcolors and schedules opt_reset_customcolors. C clears per-glyph color overrides, reapplies the active graphics set’s color customizations, then redraws the map. JavaScript previously stopped in reset_needed_visuals before this reset and redraw.",
+  "source": {
+    "file": "glyphs.c",
+    "functions": [
+      "reset_customcolors"
+    ],
+    "branch": "glyphs.c:reset_customcolors calls clear_all_glyphmap_colors() and then apply_customizations(gc.currentgraphics, do_custom_colors). The color-only flag keeps Unicode symbol customizations untouched; apply_customizations reapplies color details only while iflags.customcolors is enabled. options.c:reset_needed_visuals consumes opt_reset_customcolors before its map redraw, and both doset() and doset_simple_menu() reach this helper after an option pick.",
+    "callers": [
+      "options.c:doset() calls reset_needed_visuals() after the options menu commits its picks.",
+      "options.c:doset_simple_menu() calls reset_needed_visuals() after each simple-options pass."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v65 recording reaches the page-two customcolors entry and toggles the option at step 8. Before the fix, the JavaScript runner stopped at that step with UnsupportedOptionMenuError while the C session continued to the map redraw.",
+    "Upstream glyphs.c:1179-1183 clears all glyphmap custom colors and applies the active graphics set with do_custom_colors. The existing JavaScript clear_all_glyphmap_colors() and apply_customizations() provide those operations; the new reset_customcolors() wrapper invokes them in C order and disables symbol customization writes.",
+    "options.c:5411-5412 sets opt_reset_customcolors for this option. options.c:8985-9012 consumes it before docrt() and clears the flag; js/options.js now calls reset_customcolors() at that same point instead of throwing.",
+    "The focused options-toggle test verifies stale colors are cleared, active-set color details are restored only when custom colors are enabled, Unicode glyph data remains, and the reset flag is cleared.",
+    "The admitted v65 JavaScript replay now matches C screens, RNG and cursors across segment 0 steps 0-9."
+  ]
+}
