@@ -1681,6 +1681,16 @@ function requireOrdinaryHostileMelee(monster, state) {
 // blow runs js/uhitm.js hmon_hitmon_pet(), which spends the pet's tameness
 // through abuse_dog() and then its monflee() rnd().
 function requireSupportedDestinationMonster(monster, x, y, state) {
+    // C ref: hack.c domove_attackmon_at():1968-1972. Some unknown monsters
+    // occupy the destination without entering the attack path. Ceiling hiders
+    // and other non-eel, non-hides-under monsters are intentionally left for
+    // the movement and arrival path to handle when they are still undetected
+    // and unsensed; the C function simply returns FALSE in that case.
+    if (!state.context?.forcefight && monster.mundetected
+        && !sensemon(monster, state)
+        && !(hides_under(monster.data) || monster.data?.mlet === S_EEL)) {
+        return;
+    }
     if (!is_safemon(monster, state) || state.context?.forcefight) {
         requireOrdinaryHostileMelee(monster, state);
         return;
@@ -4404,7 +4414,15 @@ async function domove_core(state = game) {
         await exercise_steed(state); /* train riding skill */
     }
 
-    if (destinationMonster) {
+    // C ref: hack.c domove_core():2921-2926 swaps a safe monster only when it
+    // is not a still-undetected hider. A ceiling hider remains on its square
+    // so the following spoteffects() call can deliver the surprise and move
+    // it with mnexto(); swapping it here changes both actor positions and the
+    // relocation RNG path.
+    if (destinationMonster
+        && is_safemon(destinationMonster, state)
+        && !(is_hider(destinationMonster.data)
+            && destinationMonster.mundetected)) {
         // C ref: domove_core():2921-2926. A pet that declined the swap leaves
         // the hero where it started, and the steed with it. C's own comment
         // says the steed write "could skip this since we're about to call
@@ -5504,7 +5522,7 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
                     state,
                 );
             } else if (monster.mpeaceful) {
-                const name = heroIsBlind(state) && !sensesMonster(monster, state)
+                const name = heroIsBlind(state) && !sensemon(monster, state)
                     ? 'something'
                     : a_monnam(monster, { ...rawEnv, state });
                 await message(`You surprise ${name}!`, state);

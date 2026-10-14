@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C recording recipe for hack.c:domove_attackmon_at(): an unsensed, undetected tame ceiling hider does not enter the attack path. Taming the hider prevents its immediate hostile action, isolating the movement branch.",
+  "segments": [
+    {
+      "seed": 2026101403,
+      "datetime": "20451014104500",
+      "nethackrc": "OPTIONS=name:IndependentSleepingLurker,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed blindfold\n                        Pa                        #wizgenesis\ntame sleeping hidden lurker above\n                        hjllkkhhj"
+    }
+  ]
+}
