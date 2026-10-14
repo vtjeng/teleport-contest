@@ -180,7 +180,7 @@ test('incoming leprechaun prefers a larger floor-gold stack', async () => {
     const attacker = monster(PM_LEPRECHAUN);
     const purse = findgold(game.invent);
     assert.ok(purse, 'fixture supplies the hero with gold');
-    purse.quan = 50;
+    purse.quan = 50; // The smaller purse forces C's floor-stack preference.
     const floorGold = mksobj_at(GOLD_PIECE, game.u.ux, game.u.uy, false, false, {
         state: game,
     });
@@ -204,6 +204,33 @@ test('incoming leprechaun prefers a larger floor-gold stack', async () => {
     assert.deepEqual(randomCalls, [5], 'only the post-message flee check draws');
     assert.deepEqual(redraws, [[game.u.ux, game.u.uy]]);
     assert.ok(lines.some(line => /quickly snatches some gold from between your feet!/u.test(line)));
+});
+
+test('mounted floor-gold theft uses the steed name before fleeing', async () => {
+    const { monster, lines, env } = await fixture();
+    const attacker = monster(PM_LEPRECHAUN);
+    const steed = monster(PM_DWARF); // A tame steed makes y_monnam say "your dwarf".
+    steed.mtame = 10; // C checks the steed's tame ownership through y_monnam().
+    game.u.usteed = steed;
+    const purse = findgold(game.invent);
+    purse.quan = 50;
+    const floorGold = mksobj_at(GOLD_PIECE, game.u.ux, game.u.uy, false, false, {
+        state: game,
+    });
+    floorGold.quan = 100; // Larger than the purse, so selection consumes no rn2(5).
+    const randomCalls = [];
+
+    await mhitm_adtyping(attacker, mattk, game.youmonst, mhm(), game, {
+        ...env,
+        random: { rn2: bound => { randomCalls.push(bound); return bound - 1; } },
+        teleRestrict: async () => true,
+        monflee: async () => {},
+    });
+
+    assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
+    assert.equal(findgold(attacker.minvent), floorGold);
+    assert.ok(lines.some(line => /quickly snatches some gold from between your dwarf's feet!/u.test(line)));
+    assert.deepEqual(randomCalls, [5], 'only the post-message flee check draws'); 
 });
 
 test('monster-pair cancellation clears damage before leaving gold and strategy alone', async () => {

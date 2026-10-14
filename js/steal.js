@@ -55,6 +55,7 @@ import {
     Adjmonnam,
     Monnam,
     Some_Monnam,
+    y_monnam,
 } from './do_name.js';
 import { droppables } from './dogmove.js';
 import { game } from './gstate.js';
