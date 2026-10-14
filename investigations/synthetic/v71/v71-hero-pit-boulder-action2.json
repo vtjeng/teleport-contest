@@ -15,7 +15,7 @@
   "remainingScreens": 306,
   "status": "complete",
   "commit": "6212b32a84b5162bfe077fe802fd09564ccfcb53",
-  "summary": "A wizard wishes for a boulder while standing in a pit, and the boulder lands on the trapped hero. do.c:flooreffects calls losehp with NO_KILLER_PREFIX; js/do.js has the same branch but does not import that constant, so the replay stops before the case reaches its boulder resolution.",
+  "summary": "The admitted baseline stops in do.c:flooreffects because js/do.js omits its NO_KILLER_PREFIX import. The import is fixed; the committed replay now reaches the trapped-hero boulder branch and matches through step 264, then stops at step 265 on the separate unported trap.c:selftouch path.",
   "mismatch": {
     "session": "synthetic/v71/v71-hero-pit-boulder-action2",
     "remainingScreens": 306,
@@ -40,6 +40,9 @@
     "The admitted v71 evaluation records zero of 306 screens and the stop ReferenceError: NO_KILLER_PREFIX is not defined.",
     "A focused scan of the admitted recording reproduces the error at js/do.js:1065; the call stack is flooreffects -> dropzAdmitted -> dropx -> gotoDrop -> hold_another_object -> makewish -> wiz_wish.",
     "Upstream do.c:flooreffects (161-357) passes NO_KILLER_PREFIX to losehp in the trapped-hero boulder branch. js/const.js exports the same constant; js/do.js references it without importing it.",
-    "The recorded recipe places the Healer in a pit and wishes for a boulder. The boulder lands on the trapped hero and reaches the source branch during hold_another_object drop handling."
+    "The recorded recipe places the Healer in a pit and wishes for a boulder. The boulder lands on the trapped hero and reaches the source branch during hold_another_object drop handling.",
+    "After commit ad0214789823c7d6b2dbe5a6c1260b9589c60712, focused scan run-Ba8OY8 emitted 306 screens and first diverged at zero-based step 265; screens and input matched through step 264. The remaining unported function is trap.c:selftouch, outside this do.c:flooreffects correction.",
+    "scripts/flooreffects.test.mjs passes 15 tests, including a direct trapped-hero boulder test that verifies rnd(15), one point of damage, pit removal, and boulder consumption.",
+    "npm run lint passes after the source import and regression test changes."
   ]
 }
