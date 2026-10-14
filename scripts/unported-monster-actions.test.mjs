@@ -6144,44 +6144,71 @@ test('public planned mail-daemon action isolates message and redraw',
             'the live mail daemon remains for the real movement pass');
     });
 
-// C ref: monmove.c gelcube_digests():424-434. An empty cube, or one carrying
-// only inorganic material, returns -1 and continues through ordinary dochug();
-// an eligible organic object returns 0 and consumes the move, so that action
-// remains behind the special-action boundary.
-test('gelatinous cube admission follows gelcube_digests eligibility',
+// C ref: monmove.c gelcube_digests():424-434 and dochug():867-879. Empty and
+// ineligible inventories continue into ordinary dochug(); an eligible organic
+// object is digested on the planner's cloned state and consumes the move.
+test('gelatinous cube digestion runs during isolated preflight',
     async () => {
         for (const testCase of [
-            { label: 'empty inventory', otyp: null, digestible: false },
-            { label: 'inorganic rock', otyp: ROCK, digestible: false },
+            // No inventory makes gelcube_digests return -1 without a draw.
+            { label: 'empty inventory', otyp: null },
+            // Rock is inorganic, so C skips it and continues the turn scan.
+            { label: 'inorganic rock', otyp: ROCK },
+            // Food ration is organic, so C consumes a move by digesting it.
             {
                 label: 'organic food ration',
                 otyp: FOOD_RATION,
-                digestible: true,
             },
         ]) {
             const target = await prepareSelectedAction({
                 pmidx: PM_GELATINOUS_CUBE,
             });
-            if (testCase.otyp !== null)
-                target.monster.minvent = monsterObject(testCase.otyp);
-            const before = completeSecondTurnSnapshot(game, target.replay);
-
-            if (testCase.digestible) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === 'a special monster action'
-                    ),
-                    testCase.label,
+            if (testCase.otyp !== null) {
+                const object = monsterObject(testCase.otyp);
+                // obj_extract_self() follows ocarry when gelcube_digests
+                // removes an eligible object from the monster's inventory.
+                object.v = target.monster;
+                target.monster.minvent = object;
+                const planned = planningState(game);
+                assert.equal(
+                    planned.level.monlist.minvent.ocarry,
+                    planned.level.monlist,
+                    'the planning clone remaps the carried object to its cube',
                 );
-            } else {
-                await preflightSimpleMonsterActions(game);
+            }
+            const before = completeSecondTurnSnapshot(game, target.replay);
+            const rngBefore = target.replay.getRngLog().length;
+            const screensBefore = target.replay.getScreens().length;
+            let plannedCube = null;
+
+            await preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    plannedCube = planned.level.monlist;
+                    return true;
+                },
+            });
+            if (testCase.otyp === FOOD_RATION) {
+                assert.ok(plannedCube, 'the scan reached cloned turn upkeep');
+                assert.equal(
+                    plannedCube.minvent,
+                    null,
+                    'C digestion removes the ration from the planning cube',
+                );
             }
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
                 before,
                 testCase.label,
+            );
+            assert.equal(
+                target.replay.getRngLog().length,
+                rngBefore,
+                `${testCase.label}: planning RNG stays cloned`,
+            );
+            assert.equal(
+                target.replay.getScreens().length,
+                screensBefore,
+                `${testCase.label}: planning display stays silent`,
             );
         }
     });

@@ -2401,7 +2401,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //                                         at read.c:create_particular_creation
 //   watch_on_duty()                       wired
 //   mind_blast()                          wired for mind flayers
-//   killer bee jelly, gelcube_digests()   wired; the boundary rejects both species
+//   killer bee jelly, gelcube_digests()   wired through dochug()
 //   mon_offmap()                         unreachable on a fresh D:1 level
 //   cuss()                                the source gate and wizard.c:cuss
 //                                         are wired below; com_pager is a
