@@ -313079,6 +313079,60 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-flooreffects-killer-prefix-import-v71-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement flooreffects from do.c",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v71/v71-hero-pit-boulder-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v71-hero-pit-boulder-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "flooreffects",
+      "session": "synthetic/v71/v71-hero-pit-boulder-action2"
+    },
+    {
+      "id": "fix-monster-wand-shop-door-damage-v71-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement mbhit from undefined",
+      "cFile": "muse.c",
+      "sessions": [
+        "synthetic/v71/v71-npc-striking-shop-ray-action9"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v71-npc-striking-shop-ray-action9-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mbhit",
+      "session": "synthetic/v71/v71-npc-striking-shop-ray-action9"
+    },
+    {
+      "id": "fix-boots-simple-name-no-match-truthiness-v69-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement boots_simple_name from objnam.c",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v69/v69-blocked-boots-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v69-blocked-boots-action3-followup-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "boots_simple_name",
+      "session": "synthetic/v69/v69-blocked-boots-action3"
     }
   ]
 }
