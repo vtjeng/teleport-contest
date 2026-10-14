@@ -403,7 +403,9 @@ import { hard_helmet } from './do_wear.js';
 import { dmgval, drain_weapon_skill } from './weapon.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { body_part, mbodypart } from './polyself.js';
-import { make_confused, make_stunned, strange_feeling } from './potion.js';
+import {
+    impact_arti_light, make_confused, make_stunned, strange_feeling,
+} from './potion.js';
 // read.js -> monmove.js -> muse.js -> read.js is a function-body-only cycle:
 // these imported helpers are first read during gameplay.
 import { closed_door, monflee, youHear } from './monmove.js';
@@ -2047,9 +2049,8 @@ function set_lit(x, y, lit, state, gremlins) {
 
 // C ref: read.c litroom() (2491-2634), for the light-scroll call.  The map
 // callback, rogue-room exception, redraw sequencing, and no-op water/swallow
-// guard follow the source.  Artifact-light BUC transitions belong to
-// artifact.c impact_arti_light(); those objects remain lit here, as C's
-// artifact branch does when that helper elects not to extinguish them.
+// guard follow the source.  Carried artifact-light BUC transitions call
+// potion.c impact_arti_light() before the room's light field is updated.
 export async function litroom(on, object, state) {
     const blessedEffect = Boolean(
         object && object.oclass === SCROLL_CLASS && object.blessed,
@@ -2065,6 +2066,12 @@ export async function litroom(on, object, state) {
             if (!current.lamplit) continue;
             if (!artifact_light(current)) {
                 await snuff_lit(current, { state });
+            } else {
+                // C read.c:litroom() calls potion.c:impact_arti_light() for
+                // carried artifact lights when darkening the room.
+                await impact_arti_light(
+                    current, true, !propertyActive(BLINDED, state), state,
+                );
             }
             if (current.lamplit) ++stillLit;
         }
@@ -2077,6 +2084,14 @@ export async function litroom(on, object, state) {
             }
         }
     } else {
+        if (blessedEffect) {
+            for (let current = state.invent; current; current = current.nobj) {
+                if (current.lamplit && artifact_light(current))
+                    await impact_arti_light(
+                        current, false, !propertyActive(BLINDED, state), state,
+                    );
+            }
+        }
         if (swallowed) {
             if (!propertyActive(BLINDED, state)) {
                 const engulfer = state.u.ustuck;
