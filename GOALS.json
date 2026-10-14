@@ -307400,6 +307400,101 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-shk-home-shk-mnearto-v67-shop-damage-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement home_shk from shk.c",
+      "cFile": "shk.c",
+      "sessions": [
+        "synthetic/v67/v67-shop-damage-repair-action11"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v67-shop-damage-repair-action11-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "home_shk",
+      "session": "synthetic/v67/v67-shop-damage-repair-action11"
+    },
+    {
+      "id": "fix-v63-wizard-fumble-naming-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dochug from monmove.c",
+      "cFile": "monmove.c",
+      "sessions": [
+        "synthetic/v63/v63-sighted-wizard-clone-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v63-wizard-fumble-naming-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dochug",
+      "session": "synthetic/v63/v63-sighted-wizard-clone-action4"
+    },
+    {
+      "id": "C-fix-mounted-pet-mimic-steed-dismount-v66-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Preserve dog_eat’s planning boundary and execute quickmimic’s source-ordered steed dismount before appearance RNG.",
+      "cFile": "dogmove.c",
+      "sessions": [
+        "synthetic/v66/v66-mounted-pet-mimic-action5"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v66-mounted-pet-mimic-action5-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dog_eat",
+      "session": "synthetic/v66/v66-mounted-pet-mimic-action5"
+    },
+    {
+      "id": "C-lua-tut2-special-level-v65-20261014",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete tut-2.lua special level and register it in the JavaScript special-level loader.",
+      "luaFile": "tut-2.lua",
+      "sessions": [
+        "synthetic/v65/v65-tutorial-second-level-setup1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v65-tutorial-second-level-setup1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tut-2.lua",
+          "line": 1,
+          "endLine": 27
+        }
+      ]
+    },
+    {
+      "id": "fix-interactive-symset-menu-v65-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement optfn_symset from options.c",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v65/v65-runtime-symbol-switch-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v65-runtime-symbol-switch-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "optfn_symset",
+      "session": "synthetic/v65/v65-runtime-symbol-switch-action2"
     }
   ]
 }
