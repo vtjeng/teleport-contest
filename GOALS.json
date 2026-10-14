@@ -308087,7 +308087,7 @@
     {
       "id": "fix-v66-sorted-discoveries-display-action2-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement disco_output_sorted, dodiscovered from o_init.c",
       "cFile": "o_init.c",
       "sessions": [
@@ -308097,15 +308097,121 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
       "delivered": null,
       "function": "disco_output_sorted",
-      "session": "synthetic/v66/v66-alphabetical-discoveries-action2"
+      "session": "synthetic/v66/v66-alphabetical-discoveries-action2",
+      "closeStanding": {
+        "sha": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "target": "synthetic/v66/v66-alphabetical-discoveries-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/cf20559eac8b7d89d2412d3fed2d8842bdecbf66/run-hosted-zUWfsv/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "disco_output_sorted",
+            "implementation": "js/o_init.js",
+            "symbol": "disco_output_sorted",
+            "sourceReview": "Read the complete static helper at nethack-c/upstream/src/o_init.c:741-760. It qsorts the accumulated char pointers with discovered_cmp(), then writes each row to the text window and frees its allocation. In sortloot mode it restores the encounter marker into byte 6 and advances the pointer by six bytes so the sort key is hidden. JavaScript sorts the complete buffered rows with the existing discovered_cmp() helper, applies the equivalent sortloot prefix/key removal, and returns rows to dodiscovered() for the existing text-window callback. No RNG or state mutation occurs; output is the only side effect. No callee was skipped.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "dodiscovered",
+                "source": "o_init.c:dodiscovered() calls disco_output_sorted() after each class buffer in sortloot and class-alphabetical modes, and after the full cross-class buffer in global alphabetical mode."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/o_init.c/known-extended-command-sortdiscoveries.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-alphabetical-discoveries-action2",
+                "segment": 0,
+                "fromStep": 41,
+                "throughStep": 61,
+                "source": "cmd.c:known '\\\\' command -> o_init.c:dodiscovered() -> disco_output_sorted() in global alphabetical mode"
+              }
+            ]
+          },
+          {
+            "name": "dodiscovered",
+            "implementation": "js/o_init.js",
+            "symbol": "dodiscovered",
+            "sourceReview": "Read the complete source function at nethack-c/upstream/src/o_init.c:764-862 in C statement order. JavaScript preserves sort-option validation and menu selection, unique/relic and artifact gathering, class order plus the venom class, discovery filtering, encountered prefixes, class-header conditions, ct==0 messaging, and display/destroy behavior. The 'o' path writes rows directly; 's' appends sortloot_descr() before disco_append_typename(), flushes one sorted buffer per class, and strips its six-byte key at output; 'c' buffers and sorts each class with headings; 'a' buffers across classes without ordinary class headings and adds the Discovered items heading only when unique/artifact rows require it. The existing implementations of choose_disco_sort(), interesting_to_discover(), disco_fmt_uniq(), disp_artifact_discoveries(), sortloot_descr(), disco_append_typename(), and discovered_cmp() remain the dependencies. The former UnsupportedDiscoveryDisplayError guard and command refusal registration were removed. No new RNG or state operation was added.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runKnownCommand",
+                "source": "cmd.c:cmdlist binds '\\\\' to dodiscovered(), and the known extended command also resolves to dodiscovered; js/cmd.js dispatches both through runKnownCommand(), which supplies ttyPline and displayTtyTextWindow."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/o_init-discoveries.test.mjs",
+              "scripts/startup-sortdiscoveries.test.mjs"
+            ],
+            "recordings": [
+              "recordings/o_init.c/known-extended-command-sortdiscoveries.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-alphabetical-discoveries-action2",
+                "segment": 0,
+                "fromStep": 41,
+                "throughStep": 61,
+                "source": "cmd.c:known '\\\\' command -> js/cmd.js:runKnownCommand() -> o_init.c:dodiscovered()"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected source range has one active display command with two invocation routes: cmd.c's '\\\\'/known key and the known extended-command entry, both of which resolve to dodiscovered(). The admitted v66 recipe exercises the ordinary backslash route; an independent C recording and fresh differential exercise the extended-command route. No compile-time excluded caller or unported callee remains in this selected path. The direct C helper is reached only from dodiscovered() and is not a separate user entry point.",
+        "entryPoints": [
+          {
+            "name": "known command via backslash",
+            "functions": [
+              "dodiscovered",
+              "disco_output_sorted"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-alphabetical-discoveries-action2",
+                "segment": 0,
+                "fromStep": 41,
+                "throughStep": 61,
+                "source": "cmd.c:known '\\\\' -> dodiscovered() -> disco_output_sorted()"
+              }
+            ]
+          },
+          {
+            "name": "known extended command",
+            "functions": [
+              "dodiscovered",
+              "disco_output_sorted"
+            ],
+            "recordings": [
+              "recordings/o_init.c/known-extended-command-sortdiscoveries.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "fix-v65-astral-minion-hostility-action3-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement reset_hostility from priest.c",
       "cFile": "priest.c",
       "sessions": [
@@ -308115,7 +308221,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
       "delivered": null,
       "functions": [
         {
@@ -308137,7 +308243,109 @@
           "declared": false,
           "sourceFile": "do.c"
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "target": "synthetic/v65/v65-astral-priest-hostility-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/cf20559eac8b7d89d2412d3fed2d8842bdecbf66/run-hosted-zUWfsv/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "reset_hostility",
+            "implementation": "js/priest.js",
+            "symbol": "reset_hostility",
+            "sourceReview": "Read priest.c:755-768. The function returns for non-minions and for minions other than PM_ALIGNED_CLERIC and PM_ANGEL. For each eligible monster whose EMIN.min_align differs from u.ualign.type, it clears mpeaceful and mtame, calls set_malign(), then calls newsym() at the monster coordinates. It uses no RNG and preserves the source call order. set_malign() and newsym() are existing ports; there are no unported callees in this function. The former caller note_unported('priest.c reset_hostility') was removed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "final_level",
+                "source": "do.c:2043-2053 calls iter_mons(reset_hostility) before create_mplayers(rn1(4, 3), TRUE) and gain_guardian_angel()."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:1882-1890 calls final_level() on first arrival at a newly created Astral level."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/priest.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-astral-priest-hostility-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 209,
+                "source": "do.c:goto_level -> do.c:final_level -> iter_mons(reset_hostility) -> priest.c:reset_hostility"
+              }
+            ]
+          },
+          {
+            "sourceFile": "do.c",
+            "name": "final_level",
+            "implementation": "js/do.js",
+            "symbol": "final_level",
+            "sourceReview": "Read do.c:2043-2053. final_level() visits monsters with reset_hostility() first, then makes exactly one rn1(4, 3) call as the argument to create_mplayers(), then calls gain_guardian_angel(). The implementation preserves this order and awaits the two asynchronous JavaScript callees. It adds no RNG calls and has no unported callees within this source unit.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c:1882-1890 calls final_level() when new is true and the destination is the Astral level."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-astral-priest-hostility-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 209,
+                "source": "do.c:goto_level -> do.c:final_level"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected source unit has one active production entry point: do.c:goto_level() calls final_level() when the player first enters a newly created Astral level. final_level() traverses the live monster list with reset_hostility() before creating player-monsters and potentially creating the guardian angel. No compile-time condition excludes this path from the tty recorder. The admitted v65 recipe reaches it with #levelchange and wizard-created peaceful Angels that follow the hero onto Astral.",
+        "entryPoints": [
+          {
+            "name": "First arrival on a newly created Astral level",
+            "functions": [
+              {
+                "sourceFile": "do.c",
+                "name": "final_level"
+              },
+              {
+                "sourceFile": "priest.c",
+                "name": "reset_hostility"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-astral-priest-hostility-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 209,
+                "source": "do.c:goto_level -> do.c:final_level -> iter_mons(reset_hostility)"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
