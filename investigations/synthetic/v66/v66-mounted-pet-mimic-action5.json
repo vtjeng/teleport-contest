@@ -114,7 +114,7 @@
     "js/steed.js:880-965: an existing dismount_steed() implementation handles DISMOUNT_POLY and landing_spot().",
     "/tmp/teleport-validation-1000/run-pE3Yn4/receipt.json: current cd3a25bc56078f864660a69ad6b7856706816bd4 replay completed successfully; 221 screens emitted; step-169 screen, RNG and cursor mismatch matches the saved baseline."
   ],
-  "resolution": {
+  "followup": {
     "status": "verified",
     "sourceFinding": "The baseline mismatch entered steed.c:landing_spot because dogmove.c:quickmimic must call dismount_steed(DISMOUNT_POLY) before its appearance-choice RNG. A separate independent recipe exposed a planner-only duplicate: dog_eat() replayed its quickMimic callback while predicting the monster turn, which dismounted the live steed and wrote its message before execution. The callback now returns during planning for the live steed; execution then follows quickmimic() source order.",
     "implementation": "dogmove.c:dog_eat() and quickmimic() now preserve the planning boundary and execute the steed dismount before mimic-choice RNG.",
