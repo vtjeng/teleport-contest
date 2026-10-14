@@ -7154,6 +7154,10 @@ function dosdoor(x, y, aroom, type) {
         } else {
             loc.flags = shdoor ? D_ISOPEN : D_NODOOR;
         }
+        // C's mklev.c:dosdoor clears this mask before the trapped-door mimic
+        // check on Rogue levels; roguecorr() also clears it after carving.
+        if (Is_rogue_level(game.u?.uz))
+            loc.flags = D_NODOOR;
         if (loc.flags & D_TRAPPED) {
             if (level_difficulty() >= 9 && !rn2(5)) {
                 loc.flags = D_NODOOR;
@@ -7493,6 +7497,7 @@ function makecorridors() {
 export {
     add_room,
     dodoor,
+    dosdoor,
     get_free_room_loc,
     get_location,
     get_location_coord,
