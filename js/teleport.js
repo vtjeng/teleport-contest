@@ -1891,7 +1891,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
             }
             : { redraw },
     });
-    fill_pit(u.ux0, u.uy0, state);
+    await fill_pit(u.ux0, u.uy0, state, env);
     if (ball_active && state.uchain?.where === OBJ_FREE)
         await placebc(state);
     update_player_regions(state);

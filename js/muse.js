@@ -915,7 +915,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                     `${capitalizedMonsterName(mtmp, state)} has made a pit in the ${surface(mtmp.mx, mtmp.my, state)}.`,
                     state);
             }
-            fill_pit(mtmp.mx, mtmp.my, state);
+            await fill_pit(mtmp.mx, mtmp.my, state, env);
             recalc_block_point(mtmp.mx, mtmp.my, state);
             return (await mintrap(mtmp, FORCEBUNGLE, { state })) === Trap_Killed_Mon ? 1 : 2;
         }
@@ -938,7 +938,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 state);
             if (heard) await ttyPline(heard, state);
         }
-        fill_pit(mtmp.mx, mtmp.my, state);
+        await fill_pit(mtmp.mx, mtmp.my, state, env);
         await migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
             MIGR_RANDOM, null, { state });
         return 2;

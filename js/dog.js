@@ -109,9 +109,11 @@ import {
     sticks,
 } from './mondata.js';
 import { monnear } from './monmove.js';
-import { restore_cham, wake_nearto } from './mon.js';
 import {
-    m_at, mon_track_clear, place_monster, remove_monster,
+    mon_leaving_level, restore_cham, wake_nearto,
+} from './mon.js';
+import {
+    m_at, mon_track_clear, place_monster,
 } from './monst.js';
 import { livelog_printf, pline_mon } from './pline.js';
 import {
@@ -143,7 +145,6 @@ import { genders } from './roles.js';
 import { picked_container, set_residency } from './shk.js';
 import { place_object } from './obj.js';
 import {
-    BOULDER,
     EXPENSIVE_CAMERA,
     SCROLL_CLASS,
     SPE_CREATE_FAMILIAR,
@@ -815,15 +816,6 @@ function levelMonsterPredecessor(monster, state) {
     return previous;
 }
 
-function floorBoulder(x, y, state) {
-    for (let obj = state.level?.objects?.[x]?.[y] ?? null;
-        obj;
-        obj = obj.nexthere) {
-        if (obj.otyp === BOULDER) return obj;
-    }
-    return null;
-}
-
 function sameLevel(left, right) {
     return Boolean(left && right
         && left.dnum === right.dnum
@@ -863,45 +855,12 @@ function mon_leave(monster, state) {
 // C refs: mon.c relmon() (2558-2594) and mon_leaving_level() (2695-2730),
 // which relmon() runs first. `listName` names the gm list the monster joins:
 // 'mydogs', 'migrating_mons', or dog.c losedogs()'s temporary failed list.
-//
-// 2695-2730 has three JavaScript homes: js/mon.js mon_leaving_level() for the
-// kill path, js/makemon_create.js mongone() with it merged in, and this one.
-// The js/mon.js note above that function states why the first two are separate.
-// This third copy exists because the migration callers own the operations that
-// body performs, while the death callers let it perform them:
-//
-//   2724  fill_pit(). This copy hands the boulder to the caller's injected
-//         `fillPit`, because keepdogs() and migrate_to_level() run while the
-//         hero is between levels; js/mon.js calls trap.js fill_pit() directly.
-//   2725  newsym(). Same split: injected here, killRedraw() there.
-//   2703  unstuck() and 2721-2722's seemimic() are handled by this copy's
-//         callers instead, which refuse a monster holding the hero or wearing
-//         a disguise, so no `unsupported` operation is threaded through here.
-//   2706 and 2717: keep C's on-map gates for failed arrivals too. Those
-//         monsters have mx == 0 and leave the level chain without touching the
-//         map or requesting floor effects/redraws.
-//
-// Every injected operation resolves before the first mutation, so a caller
-// that omits one cannot leave the monster half off the map.
-function relmon(monster, listName, state, env) {
-    const oldX = monster.mx;
-    const oldY = monster.my;
+async function relmon(monster, listName, state, env) {
+    const leavingEnv = typeof env.newsym === 'function'
+        ? { ...env, hooks: { ...env.hooks, newsym: env.newsym } }
+        : env;
+    await mon_leaving_level(monster, state, leavingEnv);
     const previous = levelMonsterPredecessor(monster, state);
-    const onMap = isok(oldX, oldY) && m_at(oldX, oldY, state) === monster;
-    const vaultGuard = oldX === 0 && oldY === 0
-        && m_at(0, 0, state) === monster;
-    const onGrid = onMap || vaultGuard;
-    const boulder = onMap ? floorBoulder(oldX, oldY, state) : null;
-    const fillPit = boulder ? migratingOperation(env, 'fillPit') : null;
-    const redraw = onMap ? migratingOperation(env, 'newsym', newsym) : null;
-
-    monster.mtrapped = false;
-    if (onGrid) remove_monster(oldX, oldY, state);
-    if (onMap) {
-        monster.mundetected = false;
-        if (boulder) fillPit(oldX, oldY, boulder, env);
-        redraw(oldX, oldY, state);
-    }
 
     if (previous) previous.nmon = monster.nmon;
     else state.level.monlist = monster.nmon;
@@ -1017,7 +976,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             }
 
             const num_segs = mon_leave(mtmp, state);
-            relmon(mtmp, 'mydogs', state, env);
+            await relmon(mtmp, 'mydogs', state, env);
             mtmp.mx = 0; /* mx == 0 implies migrating */
             mtmp.my = 0;
             mtmp.wormno = num_segs;
@@ -1311,7 +1270,7 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
         : await rloc(monster, RLOC_NOMSG, env);
     if (!placed) {
         if (!whenIsWizard) {
-            relmon(monster, 'failed_arrivals', state, env);
+            await relmon(monster, 'failed_arrivals', state, env);
         } else {
             // mon.c m_into_limbo() delegates to the still-partial
             // dog.c:migrate_to_level() adapter; C discards the void result.
@@ -1385,7 +1344,7 @@ export function mon_catchup_elapsed_time(monster, nmv, rawEnv = {}) {
 
 // C refs: dog.c mon_leave()/migrate_to_level() and mon.c relmon()/
 // mon_leaving_level(), bounded to ordinary stable-level monsters.
-export function migrate_to_level(
+export async function migrate_to_level(
     monster,
     destinationLedger,
     destinationCode,
@@ -1400,14 +1359,14 @@ export function migrate_to_level(
     };
     if (monster.mleashed) {
         monster.mtame--;
-        return Promise.resolve(m_unleash(monster, true, { ...env, state }))
-            .then(() => migrate_to_level(
+        await m_unleash(monster, true, { ...env, state });
+        return migrate_to_level(
                 monster,
                 destinationLedger,
                 destinationCode,
                 coordinate,
                 rawEnv,
-            ));
+            );
     }
     if (monster.isshk)
         throw new RangeError('shopkeeper migration is future work');
@@ -1447,7 +1406,7 @@ export function migrate_to_level(
         : null;
 
     const num_segs = mon_leave(monster, state);
-    relmon(monster, 'migrating_mons', state, env);
+    await relmon(monster, 'migrating_mons', state, env);
     monster.mstate |= MON_MIGRATING;
 
     let xyFlags = depth(destination, state) < depth(state.u.uz, state)

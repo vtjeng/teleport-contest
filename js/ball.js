@@ -807,7 +807,7 @@ export async function drop_ball(x, y, state = game) {
             break;
         }
         await reset_utrap(true, state);
-        fill_pit(u.ux, u.uy, state);
+        await fill_pit(u.ux, u.uy, state);
     }
 
     u.ux0 = u.ux;

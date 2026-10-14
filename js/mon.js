@@ -4508,9 +4508,8 @@ export function unstuck(mtmp, state = game, env = {}) {
 // C ref: mon.c relmon() (2558-2594), the replacement path used by replmon().
 // dog.c owns the migration variant of this same C helper; this copy keeps the
 // null-list arm that removes an old monster permanently from the live list.
-function relmon(mon, state = game) {
-    mon_leaving_level(mon, state);
-
+async function relmon(mon, state = game) {
+    await mon_leaving_level(mon, state);
     let previous = null;
     let current = state.level?.monlist ?? null;
     while (current && current !== mon) {
@@ -4526,7 +4525,7 @@ function relmon(mon, state = game) {
 // C ref: mon.c replmon() (2515-2556). Replace a live monster record while
 // preserving the inventory and the references held by combat, riding, and
 // swallowing state. Worm segments are moved with the replacement record.
-export function replmon(mtmp, mtmp2, state = game) {
+export async function replmon(mtmp, mtmp2, state = game) {
     for (let obj = mtmp2.minvent; obj; obj = obj.nobj) {
         if (obj.where !== undefined && obj.where !== OBJ_MINVENT)
             throw new Error('replmon: minvent inconsistency');
@@ -4541,7 +4540,7 @@ export function replmon(mtmp, mtmp2, state = game) {
     if (state.context.polearm.hitmon === mtmp)
         state.context.polearm.hitmon = mtmp2;
 
-    relmon(mtmp, state);
+    await relmon(mtmp, state);
 
     if (mtmp !== state.u?.usteed)
         place_monster(mtmp2, mtmp2.mx, mtmp2.my, state);
@@ -4631,8 +4630,8 @@ export function dealloc_monst(mon) {
 // furniture, and revealing it needs mon.c seemimic(), which wakeup() above
 // already records as unported.
 //
-// js/dog.js relmon() holds a separate migration copy of this body; its note
-// says which arms that copy owns.
+// js/dog.js relmon() calls this same lifecycle before transferring the
+// monster between the level and migration lists.
 export function mon_leaving_level(mon, state = game, env = {}) {
     const mx = mon.mx;
     const my = mon.my;
@@ -4641,7 +4640,7 @@ export function mon_leaving_level(mon, state = game, env = {}) {
     /* "to prevent an infinite relobj-flooreffects-hmon-killed loop" */
     mon.mtrapped = 0;
     /* "mon is not swallowing or holding you nor held by you" */
-    const finishLeaving = () => {
+    const finishLeaving = async () => {
         /* "vault guard might be at <0,0>" */
         if (onmap || mon === m_at(0, 0, state)) {
             if (mon.wormno) remove_worm(mon, { ...env, state });
@@ -4656,13 +4655,13 @@ export function mon_leaving_level(mon, state = game, env = {}) {
                 && M_AP_TYPE(mon) !== M_AP_MONSTER)
                 requiredKillOperation(env, 'unsupported')('unhiding a mimic');
             /* "if mon is pinned by a boulder, removing mon lets boulder drop" */
-            fill_pit(mx, my, state);
+            await fill_pit(mx, my, state, env);
             killRedraw(mx, my, { ...env, state });
         }
         /* "if mon is a remembered target, forget it since it isn't here anymore".
            apply.c use_pole() is the only C writer that stores a monster here and
            none of it is ported, so in production this pointer is null and the
-           test cannot hold; js/dog.js relmon() restates the same two lines. */
+           test cannot hold. */
         if (state.context?.polearm?.hitmon === mon)
             state.context.polearm.hitmon = null;
     };

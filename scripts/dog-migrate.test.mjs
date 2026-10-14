@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
     MIGR_EXACT_XY,
     MIGR_RANDOM,
+    HOLE,
+    PIT,
     COLNO,
     ROWNO,
     MON_MIGRATING,
@@ -22,6 +24,8 @@ import {
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { newMonster, place_monster } from '../js/monst.js';
+import { maketrap } from '../js/trap.js';
+import { newObject, place_object } from '../js/obj.js';
 import {
     PM_KITTEN,
     PM_SEWER_RAT,
@@ -30,8 +34,10 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import {
+    BOULDER,
     COIN_CLASS,
     LEASH,
+    ROCK_CLASS,
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
@@ -95,7 +101,7 @@ function onMapMonster(state, pmidx = PM_SEWER_RAT) {
     return { follower, monster };
 }
 
-test('ordinary migration clears charges and transfers the live monster', () => {
+test('ordinary migration clears charges and transfers the live monster', async () => {
     const state = migrationState();
     const { follower, monster } = onMapMonster(state);
     const containedCoin = {
@@ -122,7 +128,7 @@ test('ordinary migration clears charges and transfers the live monster', () => {
     state.context.polearm = { hitmon: monster };
     const events = [];
 
-    migrate_to_level(
+    await migrate_to_level(
         monster,
         ledger_no(CROSS_DUNGEON_DESTINATION, state),
         MIGR_RANDOM,
@@ -161,12 +167,51 @@ test('ordinary migration clears charges and transfers the live monster', () => {
     assert.equal(monster.mlstmv, MIGRATION_TURN);
 });
 
-test('exact upward migration stores coordinates and the upward flag', () => {
+test('migration uses canonical mon_leaving_level boulder landing effects', async () => {
+    const state = migrationState();
+    const { monster } = onMapMonster(state);
+    const { mx, my } = monster;
+    const calls = [];
+    const messages = [];
+    state.context.ident = 1;
+    maketrap(mx, my, PIT, { state });
+    const boulder = newObject({
+        otyp: BOULDER,
+        oclass: ROCK_CLASS,
+        quan: 1,
+    });
+    place_object(boulder, mx, my, {
+        state,
+        hooks: { blockPoint: () => {} },
+    });
+
+    await migrate_to_level(monster, 1, MIGR_RANDOM, null, {
+        state,
+        newsym: () => {},
+        random: {
+            rn2: (bound) => {
+                calls.push(bound);
+                return 13;
+            },
+        },
+        message: async (line) => messages.push(line),
+    });
+
+    assert.deepEqual(calls, [100]);
+    assert.deepEqual(messages, ['You hear a boulder settle.']);
+    assert.equal(state.level.objects[mx][my], null);
+    assert.equal(state.level.traps.some((trap) => trap.tx === mx
+        && trap.ty === my && trap.ttyp === HOLE), false);
+    assert.equal(monster.mtrapped, 0);
+    assert.equal(monster.mx, 0);
+});
+
+test('exact upward migration stores coordinates and the upward flag', async () => {
     const state = migrationState();
     const { monster } = onMapMonster(state);
     const exactDestination = { x: 4, y: 5 };
 
-    migrate_to_level(
+    await migrate_to_level(
         monster,
         ledger_no(UPWARD_DESTINATION, state),
         MIGR_EXACT_XY,
@@ -208,7 +253,7 @@ test('migration releases a leashed monster before moving it', async () => {
     assert.deepEqual([monster.mx, monster.my], [0, 0]);
 });
 
-test('migration rejects other future lifecycle owners before item mutation', () => {
+test('migration rejects other future lifecycle owners before item mutation', async () => {
     for (const [property, value, message] of [
         ['isshk', true, /shopkeeper migration/u],
         ['wormno', 1, /long-worm migration/u],
@@ -225,7 +270,7 @@ test('migration rejects other future lifecycle owners before item mutation', () 
         monster.minvent = carried;
         monster[property] = value;
 
-        assert.throws(
+        await assert.rejects(
             () => migrate_to_level(
                 monster,
                 1,
@@ -289,7 +334,7 @@ test('dog.c mon_catchup_elapsed_time updates conditions, healing, and last move'
 test('dog.c mon_arrive preserves the mounted-steed early return state', async () => {
     const state = migrationState();
     const { monster } = onMapMonster(state);
-    migrate_to_level(
+    await migrate_to_level(
         monster,
         ledger_no(CROSS_DUNGEON_DESTINATION, state),
         MIGR_RANDOM,
@@ -345,9 +390,9 @@ test('dog.c losedogs places exact and random migrants in source order', async ()
     state.level.monlist = second;
     place_monster(second, MONSTER_X + 2, MONSTER_Y, state);
     const destinationLedger = ledger_no(CURRENT_LEVEL, state);
-    migrate_to_level(first, destinationLedger, MIGR_EXACT_XY,
+    await migrate_to_level(first, destinationLedger, MIGR_EXACT_XY,
         { x: MONSTER_X, y: MONSTER_Y }, { state, newsym: () => {} });
-    migrate_to_level(second, destinationLedger, MIGR_RANDOM,
+    await migrate_to_level(second, destinationLedger, MIGR_RANDOM,
         null, { state, newsym: () => {} });
     state.moves += 4;
 
@@ -372,7 +417,7 @@ test('failed dog arrivals record the void limbo boundary without map access', as
     state.gm.mydogs = null;
     const { monster } = onMapMonster(state);
     const destinationLedger = ledger_no(CURRENT_LEVEL, state);
-    migrate_to_level(monster, destinationLedger, MIGR_EXACT_XY,
+    await migrate_to_level(monster, destinationLedger, MIGR_EXACT_XY,
         { x: MONSTER_X, y: MONSTER_Y }, { state, newsym: () => {} });
     state.moves += 2;
 
@@ -393,12 +438,12 @@ test('failed dog arrivals record the void limbo boundary without map access', as
     assert.equal(game.unported.has('dog.c migrate_to_level'), true);
 });
 
-test('a migrating light invalidates vision after leaving the map', () => {
+test('a migrating light invalidates vision after leaving the map', async () => {
     const state = migrationState();
     const { monster } = onMapMonster(state, PM_YELLOW_LIGHT);
     const events = [];
 
-    migrate_to_level(monster, 1, MIGR_RANDOM, null, {
+    await migrate_to_level(monster, 1, MIGR_RANDOM, null, {
         newsym: () => events.push('newsym'),
         state,
         visionRecalc: (control) => {
@@ -499,7 +544,7 @@ test('keepdogs tries a trapped follower before deciding whether it stays', async
     // With no trap under it, trap.c:mintrap() clears C's stale trapped bit.
     await keepdogs(false, { newsym: () => {}, state });
 
-    assert.equal(pet.mtrapped, false);
+    assert.equal(pet.mtrapped, 0);
     assert.equal(state.gm.mydogs, pet);
     assert.equal(state.level.monlist, null);
 });
@@ -555,14 +600,14 @@ test('keepdogs clears pet movement blockers for a pets-only transfer', async () 
     await keepdogs(true, { newsym: () => {}, state });
 
     assert.equal(state.gm.mydogs, pet);
-    assert.equal(pet.mtrapped, false);
+    assert.equal(pet.mtrapped, 0);
     assert.equal(pet.meating, 0);
     assert.equal(pet.msleeping, false);
     assert.equal(pet.mfrozen, 0);
     assert.equal(pet.mcanmove, true);
 });
 
-test('migration clears the trapped and undetected flags', () => {
+test('migration clears the trapped and undetected flags', async () => {
     // mon.c mon_leaving_level():3365 and 3384. A monster that carried either
     // flag off the map would arrive still stuck or still hidden.
     const state = migrationState();
@@ -570,11 +615,11 @@ test('migration clears the trapped and undetected flags', () => {
     monster.mtrapped = true;
     monster.mundetected = true;
 
-    migrate_to_level(monster, 1, MIGR_RANDOM, null,
+    await migrate_to_level(monster, 1, MIGR_RANDOM, null,
         { newsym: () => {}, state });
 
-    assert.equal(monster.mtrapped, false);
-    assert.equal(monster.mundetected, false);
+    assert.equal(monster.mtrapped, 0);
+    assert.equal(monster.mundetected, 0);
 });
 
 test('keepdogs reads both halves of helpless()', async () => {

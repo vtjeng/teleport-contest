@@ -534,7 +534,7 @@ export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
                 extension.bill_p = extension.bill ?? [];
             resolvedDummy.isshk = true;
         }
-        replmon(resolvedDummy, saved, state);
+        await replmon(resolvedDummy, saved, state);
         newsym(saved.mx, saved.my, state);
         await restore_cham(saved, state, env);
         return saved;
@@ -3869,7 +3869,7 @@ export async function bhitpile(wand, tx, ty, state = game,
         previous = previous.nexthere;
     }
     if (hidingunder) maybe_unhide_at(tx, ty, state, rawEnv);
-    fill_pit(tx, ty, state);
+    await fill_pit(tx, ty, state, rawEnv);
     return hitanything;
 }
 

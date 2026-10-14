@@ -1062,7 +1062,7 @@ test('mon_leaving_level leaves a square another monster occupies',
         const y = standing.my;
         const stale = monster(PM_GOBLIN, { mx: x, my: y, m_id: 201 });
 
-        mon_leaving_level(stale, game, killEnv());
+        await mon_leaving_level(stale, game, killEnv());
 
         assert.equal(game.level.monsters[x][y], standing, 'left in place');
         assert.equal(stale.mtrapped, 0);
@@ -1072,9 +1072,9 @@ test('mon_leaving_level leaves a square another monster occupies',
         // svc.context.polearm.hitmon and it is unported -- do.c goto_level()
         // only ever clears it -- so the fixture sets the pointer by hand.
         game.context.polearm = { hitmon: standing };
-        mon_leaving_level(stale, game, killEnv());
+        await mon_leaving_level(stale, game, killEnv());
         assert.equal(game.context.polearm.hitmon, standing, 'a different mon');
-        mon_leaving_level(standing, game, killEnv());
+        await mon_leaving_level(standing, game, killEnv());
         assert.equal(game.context.polearm.hitmon, null, 'forgotten');
     });
 
@@ -1097,7 +1097,7 @@ test('replmon transfers inventory and live monster references', async () => {
     replacement.minvent = carried;
     game.context.polearm = { hitmon: old };
 
-    replmon(old, replacement, game);
+    await replmon(old, replacement, game);
 
     assert.equal(m_at(x, y, game), replacement);
     assert.equal(replacement.minvent, carried);
@@ -1604,10 +1604,15 @@ test('the pit and thrown-missile arms read their own conditions',
         place_object(floorRock, under.mx, under.my,
             { state: game, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
         const covered = killEnv([2, 1]);
+        // flooreffects() prints its settled-boulder message through this
+        // injected operation, so no terminal key is needed to dismiss it.
         await killed(under, game, covered);
-        assert.deepEqual(covered.bounds, []);
+        assert.deepEqual(covered.bounds, ['rn2(100)']);
+        assert.deepEqual(covered.lines, [
+            'You kill the newt!', 'The boulder fills a pit.',
+        ]);
         assert.equal(game.level.objects[under.mx][under.my], null);
-        assert.ok(game.unported.has('do.c flooreffects'));
+        assert.equal(game.unported.has('do.c flooreffects'), false);
         // The boulder is already detached; its next slot is reused by the
         // following fixture's placement.
 
@@ -1941,8 +1946,8 @@ test('a planned dead-steed detach stops for live replay', async () => {
     // mon.c m_detach() calls dismount_steed() after leaving the monster map.
     // Its float_down()/drown() tail can print and damage the hero's inventory,
     // so the clone must stop there for the source-ordered live scan to replay.
-    assert.throws(
-        () => m_detach(plannedSteed, plannedSteed.data, false, planned, {
+    await assert.rejects(
+        m_detach(plannedSteed, plannedSteed.data, false, planned, {
             ...killEnv(),
             planning: true,
             requestPlanningInput(operation) {
