@@ -1013,7 +1013,13 @@ export async function hurtle_step(arg, x, y) {
             && !state.uarmc) {
             state.killer ??= {};
             state.killer.name = `bumping into ${an(pmname(mon.data, NEUTRAL))}`;
-            note_unported('trap.c instapetrify');
+            await instapetrify(state.killer.name, state, {
+                ...arg?.env,
+                random,
+                message,
+                planning,
+                planningDeath: arg?.planningDeath,
+            });
         }
         if (touch_petrifies(state.youmonst?.data)
             && !which_armor(mon, W_ARMU | W_ARM | W_ARMC, state)) {

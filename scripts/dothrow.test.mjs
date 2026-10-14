@@ -703,12 +703,17 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
     assert.ok(cMHurtleStart >= 0 && cMHurtleEnd > cMHurtleStart);
     assert.ok(cThrowStart >= 0 && cThrowEnd > cThrowStart);
     assert.match(cHurtle,
+        /touch_petrifies\(mon->data\)[\s\S]*?!uarmu && !uarm && !uarmc[\s\S]*?instapetrify\(svk\.killer\.name\);/u);
+    assert.match(cHurtle,
         /touch_petrifies\(gy\.youmonst\.data\)[\s\S]*?minstapetrify\(mon, TRUE\);/u);
     assert.equal((cMHurtle.match(/minstapetrify\(/gu) ?? []).length, 3);
     assert.match(cMHurtle,
         /minstapetrify\(mon, !svc\.context\.mon_moving\);[\s\S]*?minstapetrify\(mtmp, !svc\.context\.mon_moving\);[\s\S]*?minstapetrify\(mon, TRUE\);/u);
     assert.match(cThrow,
         /if \(obj->otyp == CORPSE && touch_petrifies\(&mons\[obj->corpsenm\]\)\)[\s\S]*?minstapetrify\(u\.ustuck, TRUE\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj\);/u);
+    assert.match(jsHurtle,
+        /touch_petrifies\(mon\.data\)[\s\S]*?!state\.uarmu && !state\.uarm\s*&&\s*!state\.uarmc[\s\S]*?await instapetrify\(state\.killer\.name, state,/u);
+    assert.doesNotMatch(jsHurtle, /note_unported\('trap\.c instapetrify'\)/u);
     assert.match(jsHurtle,
         /await minstapetrify\(mon, true, state,[\s\S]*?await wake_nearto\(x, y, 10, \{ state, random, message \}\);/u);
     assert.match(jsMHurtle,
