@@ -306525,7 +306525,7 @@
     {
       "id": "fix-lock-chest-shatter-material-v66-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement chest_shatter_msg from lock.c",
       "cFile": "lock.c",
       "sessions": [
@@ -306535,15 +306535,88 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a0cd732525b945d1c2bbd556038f6c057856bd13",
       "delivered": null,
       "function": "chest_shatter_msg",
-      "session": "synthetic/v66/v66-chest-shatter-material-action9"
+      "session": "synthetic/v66/v66-chest-shatter-material-action9",
+      "closeStanding": {
+        "sha": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "target": "synthetic/v66/v66-chest-shatter-material-action9",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a0cd732525b945d1c2bbd556038f6c057856bd13/run-hosted-1Th0If/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "chest_shatter_msg",
+            "implementation": "js/lock.js",
+            "symbol": "chest_shatter_msg",
+            "sourceReview": "Read the complete lock.c:1276-1318 function and both source call sites. Checked that the potion-class branch runs first and returns after potionbreathe, while non-potions are named under temporary HBlinded/BBlinded changes before the source material switch. Ported PAPER, WAX, VEGGY, FLESH, GLASS, WOOD and default dispositions. The existing breakchestlock() and forcelock() callers already await this helper; no unported callee or new caller is required.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "breakchestlock",
+                "source": "lock.c:187 calls chest_shatter_msg after the destruction gate; lock.c:breakchestlock is reached from forcelock at lock.c:252 when #force destroys the chest."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "forcelock",
+                "source": "lock.c:216-256 is the occupation callback that calls breakchestlock with destroyit set after a successful non-blade force."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c ext_func_tab row #force (cmd.c:1727) selects lock.c:doforce; js/cmd.js:doextcmd dispatches the selected row to js/lock.js:doforce."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-chest-shatter-material-action9",
+                "segment": 0,
+                "fromStep": 746,
+                "throughStep": 747,
+                "source": "cmd.c:#force -> lock.c:doforce -> lock.c:forcelock -> lock.c:breakchestlock -> lock.c:chest_shatter_msg (WOOD disposition for wooden flute)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected function has one active destruction entry point: #force can start lock.c:doforce, whose forcelock occupation reaches breakchestlock(destroyit=true) and chest_shatter_msg. dokick.c:really_kick_object calls breakchestlock(FALSE), so it does not reach the selected shatter function. The admitted v66 recipe exercises the production #force path and its WOOD material arm.",
+        "entryPoints": [
+          {
+            "name": "#force destroys a chest containing a non-potion object",
+            "functions": [
+              "chest_shatter_msg"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-chest-shatter-material-action9",
+                "segment": 0,
+                "fromStep": 746,
+                "throughStep": 747,
+                "source": "cmd.c:#force -> lock.c:doforce -> lock.c:forcelock -> lock.c:breakchestlock -> lock.c:chest_shatter_msg"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "muse-unslime-fire-scroll-explosion-v66-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Run the fire-scroll explosion when a monster cures sliming with SCR_FIRE.",
       "cFile": "muse.c",
       "sessions": [
@@ -306553,15 +306626,86 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a0cd732525b945d1c2bbd556038f6c057856bd13",
       "delivered": null,
       "function": "muse_unslime",
-      "session": "synthetic/v66/v66-monster-fire-scroll-cure-action9"
+      "session": "synthetic/v66/v66-monster-fire-scroll-cure-action9",
+      "closeStanding": {
+        "sha": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "target": "synthetic/v66/v66-monster-fire-scroll-cure-action9",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a0cd732525b945d1c2bbd556038f6c057856bd13/run-hosted-1Th0If/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "muse_unslime",
+            "implementation": "js/muse.js",
+            "symbol": "muse_unslime",
+            "sourceReview": "Read nethack-c/upstream/src/muse.c:muse_unslime() in full (3104-3219), including the breath, confused and unconfused fire-scroll, oil, wand/horn, death, discovery, and movement branches. The changed unconfused SCR_FIRE branch now preserves source order: roll damage, consume the scroll, invoke explode() with the source coordinates/type/class/explosion flags, then set dmg=0 because explode() applies effects. The existing js/explode.js implementation handles this scroll-class AD_FIRE path and its monster/hero inventory, damage, and display effects.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_slim",
+                "source": "uhitm.c:mhitm_ad_slim() -> muse.c:munslime(mdef, TRUE) after a successful hero slime attack"
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "munslime",
+                "source": "muse.c:munslime() -> muse_unslime(mon, obj, NULL, by_you) when the monster selects its SCR_FIRE cure"
+              },
+              {
+                "path": "js/explode.js",
+                "symbol": "explode",
+                "source": "muse.c:muse_unslime() -> explode(mon->mx, mon->my, -11, dmg, SCROLL_CLASS, by_you ? -EXPL_FIERY : EXPL_FIERY)"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-monster-fire-scroll-cure-action9",
+                "segment": 0,
+                "fromStep": 532,
+                "throughStep": 532,
+                "source": "uhitm.c:mhitm_ad_slim -> muse.c:munslime -> muse.c:muse_unslime (SCR_FIRE, unconfused) -> explode.c:explode at the monster square"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This divergence fix covers the active non-confused SCR_FIRE cure arm of muse_unslime(). The C function also handles fire breath, confused fire scrolls, burning oil, fire wands/horns, fire traps, and post-use movement/death bookkeeping; those existing branches were read but are not changed or claimed as newly verified by this branch-scoped task. The admitted v66 case exercises the selected successful fire-scroll entry path through the live hero attack and monster-action callers.",
+        "entryPoints": [
+          {
+            "name": "Monster cures sliming with an unconfused fire scroll after a hero slime attack",
+            "functions": [
+              "muse_unslime"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-monster-fire-scroll-cure-action9",
+                "segment": 0,
+                "fromStep": 532,
+                "throughStep": 532,
+                "source": "uhitm.c:mhitm_ad_slim -> muse.c:munslime -> muse.c:muse_unslime (SCR_FIRE, unconfused) -> explode.c:explode at the monster square"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-mklev-dosdoor-rogue-trapped-door-v67-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dosdoor from mklev.c",
       "cFile": "mklev.c",
       "sessions": [
@@ -306571,15 +306715,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a0cd732525b945d1c2bbd556038f6c057856bd13",
       "delivered": null,
       "function": "dosdoor",
-      "session": "synthetic/v67/v67-rogue-blind-probing-action7"
+      "session": "synthetic/v67/v67-rogue-blind-probing-action7",
+      "closeStanding": {
+        "sha": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "target": "synthetic/v67/v67-rogue-blind-probing-action7",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a0cd732525b945d1c2bbd556038f6c057856bd13/run-hosted-1Th0If/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dosdoor",
+            "implementation": "js/mklev.js",
+            "symbol": "dosdoor",
+            "sourceReview": "Read complete upstream mklev.c:615-676. The function sets typ to DOOR, consumes the closed/locked/open and trap RNG calls in C order, then on Is_rogue_level clears the entire doormask to D_NODOOR before testing D_TRAPPED and considering rn2(5), mkclass, and makemon. Added the missing branch at the same point. No placeholder or gap is removed, and the existing mimic implementation remains untouched.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "dodoor",
+                "source": "mklev.c:dodoor calls dosdoor after choosing SDOOR or DOOR."
+              },
+              {
+                "path": "js/extralev.js",
+                "symbol": "roguecorr",
+                "source": "extralev.c:roguecorr calls mklev.c:dodoor while connecting adjacent rooms in makeroguerooms."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mklev-dosdoor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-rogue-blind-probing-action7",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 501,
+                "source": "makelevel -> makeroguerooms -> extralev.c:roguecorr -> mklev.c:dodoor -> mklev.c:dosdoor during Rogue level construction; the remaining cited prefix also replays the selected blind probing actions."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "mklev.c:dosdoor is a static helper called by mklev.c:dodoor. Production callers of dodoor include regular room and niche generation as well as extralev.c:roguecorr during Rogue room generation. The admitted v67 range executes the affected Rogue-level path through the production caller chain. The code change is conditional on Is_rogue_level and leaves non-Rogue generation unchanged.",
+        "entryPoints": [
+          {
+            "name": "Rogue-level corridor door generation",
+            "functions": [
+              "dosdoor"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-rogue-blind-probing-action7",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 501,
+                "source": "makelevel -> makeroguerooms -> extralev.c:roguecorr -> mklev.c:dodoor -> mklev.c:dosdoor"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-trap-killed-steed-dismount-v67-landmine",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Dismount a steed killed by a land mine and move its saddle beside the corpse.",
       "cFile": "trap.c",
       "sessions": [
@@ -306589,15 +306801,103 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a0cd732525b945d1c2bbd556038f6c057856bd13",
       "delivered": null,
       "function": "steedintrap",
-      "session": "synthetic/v67/v67-landmine-steed-saddle-action5"
+      "session": "synthetic/v67/v67-landmine-steed-saddle-action5",
+      "closeStanding": {
+        "sha": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "target": "synthetic/v67/v67-landmine-steed-saddle-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a0cd732525b945d1c2bbd556038f6c057856bd13/run-hosted-1Th0If/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "steedintrap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "steedintrap",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c:steedintrap() in full (3102-3161), including the shared mounted-trap guard, steed coordinate update, arrow/dart/sleep/landmine/pit/poly branches, and return values. The killed-steed branch now calls the existing dismount_steed(DISMOUNT_POLY) implementation and preserves Trap_Killed_Mon.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_landmine",
+                "source": "trap.c:trapeffect_landmine() calls steedintrap() for the mounted hero land mine; after thitm() kills the steed, steedintrap() calls steed.c:dismount_steed(DISMOUNT_POLY)."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-landmine-steed-saddle-action5",
+                "segment": 0,
+                "fromStep": 390,
+                "throughStep": 393,
+                "source": "trap.c:trapeffect_landmine -> trap.c:steedintrap -> steed.c:dismount_steed(DISMOUNT_POLY); then trap.c:keep_saddle_with_steedcorpse moves the saddle onto the steed corpse"
+              }
+            ]
+          },
+          {
+            "name": "keep_saddle_with_steedcorpse",
+            "implementation": "js/trap_effects.js",
+            "symbol": "keep_saddle_with_steedcorpse",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c:keep_saddle_with_steedcorpse() in full (939-963). It searches the level floor object chain recursively through container contents for a corpse carrying the dead steed m_id, obtains its physical location, extracts and places the saddle there, stacks the pile, and returns true when that corpse is found. The JavaScript helper follows the same list and object operations.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_landmine",
+                "source": "trap.c:trapeffect_landmine() calls keep_saddle_with_steedcorpse(steed_mid, fobj, saddle) after blow_up_landmine() when the mount died and the hero is no longer mounted."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-landmine-steed-saddle-action5",
+                "segment": 0,
+                "fromStep": 390,
+                "throughStep": 393,
+                "source": "trap.c:trapeffect_landmine -> trap.c:steedintrap -> steed.c:dismount_steed(DISMOUNT_POLY); then trap.c:keep_saddle_with_steedcorpse moves the saddle onto the steed corpse"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This divergence fix covers the mounted land-mine path when the mine kills a saddled steed: the steed is dismounted through DISMOUNT_POLY and the saddle is moved to its corpse after the explosion. The admitted v67 case exercises the complete trap entry and follow-up placement path.",
+        "entryPoints": [
+          {
+            "name": "Mounted hero triggers an actual land mine that kills a saddled rothe",
+            "functions": [
+              "steedintrap",
+              "keep_saddle_with_steedcorpse"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-landmine-steed-saddle-action5",
+                "segment": 0,
+                "fromStep": 390,
+                "throughStep": 393,
+                "source": "trap.c:trapeffect_landmine -> trap.c:steedintrap -> steed.c:dismount_steed(DISMOUNT_POLY); then trap.c:keep_saddle_with_steedcorpse moves the saddle onto the steed corpse"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-mon-m_detach-quest-leaddead-v65-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port mon.c:m_detach's dying quest-leader call together with required quest.c:leaddead state update.",
       "cFile": "mon.c",
       "sessions": [
@@ -306607,7 +306907,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a0cd732525b945d1c2bbd556038f6c057856bd13",
       "delivered": null,
       "functions": [
         {
@@ -306629,12 +306929,118 @@
           "declared": false,
           "sourceFile": "quest.c"
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "target": "synthetic/v65/v65-quest-leader-death-state-action8",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a0cd732525b945d1c2bbd556038f6c057856bd13/run-hosted-1Th0If/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "mon.c",
+            "name": "m_detach",
+            "symbol": "m_detach",
+            "implementation": "js/mon.js",
+            "pure": false,
+            "sourceReview": "Read all of mon.c:m_detach() (2734-2803), including the leash release, light removal, mon_leaving_level call, due_to_death gates, nemesis and leader handling, inventory drop, thief/shopkeeper/worm cleanup, endgame flag, detach count, and steed release. C calls leaddead() only inside due_to_death when mtmp->data->msound is MS_LEADER, before relobj(). JavaScript now calls quest.js:leaddead in that source position and no longer routes the branch through unsupported(); it also removes m_detach's now-unused required unsupported callback. Existing source-ordered calls remain in place.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "mon.c:mondead() calls m_detach(mtmp, mptr, TRUE) after death bookkeeping; JavaScript awaits m_detach(mtmp, mptr, true, state, detachEnv)."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mongone",
+                "source": "mon.c:mongone() calls m_detach(mon, mon->data, FALSE) for non-death removal; JavaScript calls m_detach(monster, monster.data, false, state, env)."
+              }
+            ],
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-quest-leader-death-state-action8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 181,
+                "source": "hero kill -> mon.c:xkilled -> mondead -> m_detach (due_to_death && MS_LEADER) -> quest.c:leaddead -> relobj; the later do.c:goto_level -> quest.c:ok_to_quest path permits descent. The full 182-step segment matches the admitted C recording."
+              }
+            ]
+          },
+          {
+            "sourceFile": "quest.c",
+            "name": "leaddead",
+            "symbol": "leaddead",
+            "implementation": "js/quest.js",
+            "pure": false,
+            "sourceReview": "Read quest.c:leaddead() (116-122). The function sets Qstat(killed_leader) to TRUE only when it is not already set; its optional pager is commented out. JavaScript applies the same idempotent state update and does not emit a message or draw random values.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c:m_detach() invokes leaddead() for a dying MS_LEADER. JavaScript dynamically imports the helper inside its already-awaited death-effects continuation and calls it before relobj()."
+              }
+            ],
+            "tests": [
+              "scripts/quest-nemesis-death.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-quest-leader-death-state-action8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 181,
+                "source": "hero kill -> mon.c:m_detach -> quest.c:leaddead; the state is consumed by quest.c:ok_to_quest before do.c:goto_level permits descent."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted v65 case kills the Rogue quest leader and then attempts to leave the Quest start level. C runs xkilled -> mondead -> m_detach, where leaddead sets killed_leader; the later goto_level check calls ok_to_quest and allows the descent. JavaScript now runs the same state update and caller order. The final fresh replay at 218dde2e5580cd3b6a6c42f52cd621533755f600 matches all 182 steps, all screen/cursor/RNG boundaries, and the input boundary; it reports no unported calls.",
+        "entryPoints": [
+          {
+            "name": "Kill the quest leader, then descend from Quest home",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "m_detach"
+              },
+              {
+                "sourceFile": "quest.c",
+                "name": "leaddead"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-quest-leader-death-state-action8",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 181,
+                "source": "hero kill -> xkilled -> mondead -> m_detach -> leaddead; later level descent -> goto_level -> ok_to_quest."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-shk-u-left-shop-boundary-warning-v67-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement u_left_shop from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -306644,15 +307050,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a0cd732525b945d1c2bbd556038f6c057856bd13",
       "delivered": null,
       "function": "u_left_shop",
-      "session": "synthetic/v67/v67-angry-shop-settlement-action10"
+      "session": "synthetic/v67/v67-angry-shop-settlement-action10",
+      "closeStanding": {
+        "sha": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "target": "synthetic/v67/v67-angry-shop-settlement-action10",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a0cd732525b945d1c2bbd556038f6c057856bd13/run-hosted-1Th0If/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "u_left_shop",
+            "implementation": "js/shk.js",
+            "symbol": "u_left_shop",
+            "sourceReview": "Read complete upstream shk.c:579-625. Preserved the source guards for an empty leavestring, shop-edge destination, and prior-edge origin; resolved the current in-shop keeper; returned for settled debt; emitted the non-muted boundary warning in speech or Deaf descriptive form; and let muted boundary or explicit-departure paths reach rob_shop() and call_kops(). Removed the obsolete pre-move debt refusal so these side effects occur after movement, in C order.",
+            "callers": [
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "hack.c:check_special_room calls shk.c:u_left_shop() after move_update() whenever the prior shop string is nonempty; hack.c:domove_core reaches check_special_room() after committing movement."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-billing.test.mjs",
+              "scripts/shop-floor-pricing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 933,
+                "source": "hack.c:domove_core -> hack.c:check_special_room -> shk.c:u_left_shop; JS hack.js movement -> rooms.js:check_special_room -> shk.js:u_left_shop, including the empty-leavestring boundary warning at step 919 and indebted leavestring departure at step 932."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Ordinary movement is the active entry point. hack.c:domove_core commits the hero position, then hack.c:check_special_room updates shop membership and calls shk.c:u_left_shop. The admitted v67 range executes both the boundary-warning and unpaid-departure branches through that caller chain. The later step 934 mismatch is in muse.c:use_offensive and lies outside this task.",
+        "entryPoints": [
+          {
+            "name": "Ordinary indebted movement across a shop boundary and exit",
+            "functions": [
+              "u_left_shop"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-angry-shop-settlement-action10",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 933,
+                "source": "hack.c:domove_core -> hack.c:check_special_room -> shk.c:u_left_shop; JS hack.js movement -> rooms.js:check_special_room -> shk.js:u_left_shop, including the empty-leavestring boundary warning at step 919 and indebted leavestring departure at step 932."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-pickup-do-loot-cont-v66-bag-of-tricks-20261014",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete pickup.c:do_loot_cont() function for the floor BAG_OF_TRICKS bite and locked-container autounlock-force branches.",
       "cFile": "pickup.c",
       "sessions": [
@@ -306663,7 +307133,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a0cd732525b945d1c2bbd556038f6c057856bd13",
       "delivered": null,
       "functions": [
         {
@@ -306713,7 +307183,223 @@
           "declared": true,
           "sourceFile": "cmd.c"
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
+        "target": "synthetic/v66/v66-floor-loot-tricks-bite-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/a0cd732525b945d1c2bbd556038f6c057856bd13/run-hosted-1Th0If/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "do_loot_cont",
+            "implementation": "js/pickup.js",
+            "symbol": "do_loot_cont",
+            "sourceReview": "Read pickup.c:2088-2162 in definition order. Verified the null-container return; known and unknown lock messages and lknown update; autounlock key/untrap precedence and its early return; the single-container/forceable-weapon gate and queued doforce call; unlocked-container lknown update; BAG_OF_TRICKS messages, rnd(10), Maybe_Half_Phys rounding, losehp, makeknown, abort flag and ECMD_TIME; and the ordinary use_container return. makeknown resolves to discover_object, which is ported. The JS caller now reaches the queued function through rhack, which dispatches the existing lock.js:doforce implementation. No synthetic-only behavior or missing callee is used.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "doloot_core",
+                "source": "pickup.c:doloot() invokes do_loot_cont from its single-container and multi-container branches at lines 2279 and 2262."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "pickup.c:do_loot_cont queues doforce with cmdq_add_ec at line 2144; cmd.c:rhack pops the queued extcmd and invokes its function pointer at lines 3641-3698."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/loot-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-floor-loot-tricks-bite-action1",
+                "segment": 0,
+                "fromStep": 118,
+                "throughStep": 138,
+                "source": "pickup.c:doloot -> do_loot_cont BAG_OF_TRICKS branch, then same-segment command loop."
+              },
+              {
+                "batch": "v66",
+                "caseId": "v66-loot-auto-force-action2",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 135,
+                "source": "pickup.c:doloot -> do_loot_cont AUTOUNLOCK_FORCE branch -> cmdq_add_ec(doforce) -> cmd.c:rhack queued function dispatch -> lock.c:doforce."
+              }
+            ]
+          },
+          {
+            "sourceFile": "o_init.c",
+            "name": "discover_object",
+            "implementation": "js/o_init.js",
+            "symbol": "discover_object",
+            "sourceReview": "Read o_init.c:454-490 in order. It skips generic objects, determines whether discovery is needed, finds/inserts the object in the class discovery list, marks encounter state, marks type knowledge, optionally credits Wisdom, and performs the source inventory/gem-price updates. In this caller the makeknown(BAG_OF_TRICKS) macro passes TRUE for known, encountered, and Wisdom credit; the port receives those exact arguments.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:do_loot_cont calls makeknown(BAG_OF_TRICKS) at line 2158; hack.h expands makeknown to discover_object(otyp, TRUE, TRUE, TRUE)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/loot-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-floor-loot-tricks-bite-action1",
+                "segment": 0,
+                "fromStep": 118,
+                "throughStep": 138,
+                "source": "pickup.c:do_loot_cont makeknown(BAG_OF_TRICKS) -> o_init.c:discover_object."
+              }
+            ]
+          },
+          {
+            "sourceFile": "lock.c",
+            "name": "u_have_forceable_weapon",
+            "implementation": "js/lock.js",
+            "symbol": "u_have_forceable_weapon",
+            "sourceReview": "Read lock.c:659-670. The predicate returns false without a weapon; for weapons and weapon-tools it rejects skills below dagger, flail, and skills above lance; non-weapons are accepted only for rock class. It reads wielded object class and object skill without changing game state or producing output.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:do_loot_cont tests u_have_forceable_weapon() at line 2142 before queuing doforce."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doforce",
+                "source": "lock.c:doforce() checks u_have_forceable_weapon() at line 692."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/force-lock.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "sourceFile": "lock.c",
+            "name": "doforce",
+            "implementation": "js/lock.js",
+            "symbol": "doforce",
+            "sourceReview": "Read lock.c:676-756. Verified swallowed and invalid-weapon refusals, reachability check, resume branch, floor-box traversal, already-broken/unlocked feedback, force prompt and q/n responses, blade/blunt message selection, xlock setup and occupation, and the final ECMD_TIME return. The queued case uses the same lock.c function pointer C queues; no unported callee or result substitute is used.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "pickup.c:do_loot_cont queues doforce at line 2144; cmd.c:rhack pops the CQ_EXTCMD row and invokes its ef_funct at lines 3641-3698."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/loot-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-loot-auto-force-action2",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 135,
+                "source": "pickup.c:do_loot_cont queues lock.c:doforce; cmd.c:rhack dispatches it; lock.c:doforce prompts and resolves the force attempt."
+              }
+            ]
+          },
+          {
+            "sourceFile": "cmd.c",
+            "name": "cmdq_add_ec",
+            "implementation": "js/cmd.js",
+            "symbol": "cmdq_add_ec",
+            "sourceReview": "Read cmd.c:252-270. It allocates a CMDQ_EXTCMD node, stores the row returned by ext_func_tab_from_func(fn), and appends the node to the selected queue tail, preserving earlier queued commands.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:do_loot_cont calls cmdq_add_ec(CQ_CANNED, doforce) at line 2144."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/loot-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-loot-auto-force-action2",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 135,
+                "source": "pickup.c:do_loot_cont -> cmd.c:cmdq_add_ec -> cmd.c:rhack queued command dispatch."
+              }
+            ]
+          },
+          {
+            "sourceFile": "cmd.c",
+            "name": "ext_func_tab_from_func",
+            "implementation": "js/cmd.js",
+            "symbol": "ext_func_tab_from_func",
+            "sourceReview": "Read cmd.c:3016-3025. It searches extcmdlist in order for the row whose ef_funct equals the supplied function and returns that row, or NULL at the end. It has no output or state mutation.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:cmdq_add_ec calls ext_func_tab_from_func(fn) at line 260 for the doforce function pointer; the JS do_loot_cont names the same extcmd row before enqueueing."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/loot-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "The active entry point is #loot. pickup.c:doloot reaches do_loot_cont from both its single-container branch (line 2279) and multi-container loop (line 2262); both are production paths through js/pickup.js:doloot_core. The force arm schedules a second dispatch: cmd.c:rhack pops CQ_CANNED and calls the queued function pointer, now wired to lock.js:doforce in js/cmd.js. No recorder-build caller branch is excluded. The two cited admitted synthetic ranges exercise the BAG_OF_TRICKS and AUTOUNLOCK_FORCE branches through the production command path; the selected bag and one-container force paths are fully matched.",
+        "entryPoints": [
+          {
+            "name": "#loot floor container interaction",
+            "functions": [
+              "do_loot_cont"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-floor-loot-tricks-bite-action1",
+                "segment": 0,
+                "fromStep": 118,
+                "throughStep": 138,
+                "source": "pickup.c:doloot -> do_loot_cont BAG_OF_TRICKS branch."
+              },
+              {
+                "batch": "v66",
+                "caseId": "v66-loot-auto-force-action2",
+                "segment": 0,
+                "fromStep": 73,
+                "throughStep": 135,
+                "source": "pickup.c:doloot -> do_loot_cont AUTOUNLOCK_FORCE branch -> cmd.c:rhack queued doforce dispatch."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

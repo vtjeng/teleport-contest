@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T08:50:46.536Z",
+  "capturedAt": "2026-10-14T15:21:22.881Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -119809,77 +119809,593 @@
         "task": "Prep32",
         "phase": "done",
         "reason": "Corrected v68 saved evidence verified:128 unique committed case files,65 first-attempt log hashes,18 retained replay rows and13 included byte-identical C replays. Three distinct failures and10 controls retain source/coverage crosswalks; wait for the next dependency-ready preparation boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v58-gremlin-scroll-light-action1-20261014-e13e90fc7168b893fc070ea1012c4192f3d56373",
+        "type": "published",
+        "at": "2026-10-14T08:51:02.391Z",
+        "task": "C-investigation-v58-gremlin-scroll-light-action1-20261014",
+        "commit": "e13e90fc7168b893fc070ea1012c4192f3d56373"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v58-self-stethoscope-held-trap-action1-20261013-e13e90fc7168b893fc070ea1012c4192f3d56373",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T08:51:07.107Z",
+        "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+        "commit": "e13e90fc7168b893fc070ea1012c4192f3d56373",
+        "knownBy": "2026-10-14T08:51:02.391Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v64-castle-hole-gotohell-action1-20261014-e13e90fc7168b893fc070ea1012c4192f3d56373",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T08:51:08.526Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "commit": "e13e90fc7168b893fc070ea1012c4192f3d56373",
+        "knownBy": "2026-10-14T08:51:02.391Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v59-stone-to-flesh-stone-text-action2-20261014-e13e90fc7168b893fc070ea1012c4192f3d56373",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T08:51:09.942Z",
+        "task": "C-investigation-v59-stone-to-flesh-stone-text-action2-20261014",
+        "commit": "e13e90fc7168b893fc070ea1012c4192f3d56373",
+        "knownBy": "2026-10-14T08:51:02.391Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-281399a6cdb36f7cf16d818c8914c73013e93490",
+        "type": "ready",
+        "at": "2026-10-14T08:51:33.356Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-20261014",
+        "delivery": "281399a6cdb36f7cf16d818c8914c73013e93490"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-shop-boundary-281399-20261014",
+        "type": "received",
+        "at": "2026-10-14T08:52:56.484Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-20261014",
+        "delivery": "281399a6cdb36f7cf16d818c8914c73013e93490"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-clone-resume-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T08:55:08.280Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-clone-correction-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T08:55:22.935Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a52825fb0a1f9b748cfed13a8934edde0a08cfbe",
+        "type": "ready",
+        "at": "2026-10-14T09:02:14.979Z",
+        "task": "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014",
+        "delivery": "a52825fb0a1f9b748cfed13a8934edde0a08cfbe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v67-shop-damage-after-castle-20261014",
+        "type": "resume",
+        "at": "2026-10-14T09:03:03.222Z",
+        "task": "A2-investigation-v67-shop-damage-repair-action11-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v67-shop-damage-resumed-20261014",
+        "type": "turn",
+        "at": "2026-10-14T09:03:19.462Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Resumed the shopkeeper restitution and home relocation fix after Castle integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a2-loot-a52825-20261014",
+        "type": "received",
+        "at": "2026-10-14T09:04:04.588Z",
+        "task": "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014",
+        "delivery": "a52825fb0a1f9b748cfed13a8934edde0a08cfbe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v67-home-shk-paybill-async-20261014",
+        "type": "implement",
+        "at": "2026-10-14T09:06:04.119Z",
+        "task": "A2-investigation-v67-shop-damage-repair-action11-20261014",
+        "goal": "fix-shk-home-shk-mnearto-v67-shop-damage-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-saved-review-cd3a25bc56078f864660a69ad6b7856706816bd4",
+        "type": "activity",
+        "at": "2026-10-14T09:06:07.631Z",
+        "task": "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+        "phase": "review",
+        "reason": "Verify immutable worker source findings and saved focused validation before the shared hosted gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-saved-review-4162c0e0b4f4d4b16edf61ae67a6a60c220bf8b0",
+        "type": "activity",
+        "at": "2026-10-14T09:06:08.881Z",
+        "task": "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+        "phase": "review",
+        "reason": "Verify immutable worker source findings and saved focused validation before the shared hosted gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-saved-review-281399a6cdb36f7cf16d818c8914c73013e93490",
+        "type": "activity",
+        "at": "2026-10-14T09:06:10.105Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-20261014",
+        "phase": "review",
+        "reason": "Verify immutable worker source findings and saved focused validation before the shared hosted gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-saved-review-a52825fb0a1f9b748cfed13a8934edde0a08cfbe",
+        "type": "activity",
+        "at": "2026-10-14T09:06:11.306Z",
+        "task": "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014",
+        "phase": "review",
+        "reason": "Verify immutable worker source findings and saved focused validation before the shared hosted gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a0cd732525b945d1c2bbd556038f6c057856bd13-3d949618e3f91a2e786c7f25d9f5bcd474c5ebb0b6626890c9513b4d9c426544-B-investigation-v66-chest-shatter-material-action9-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T09:06:54.777Z",
+        "task": "B-investigation-v66-chest-shatter-material-action9-20261014",
+        "integration": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "validationGroup": [
+          "B-investigation-v66-chest-shatter-material-action9-20261014",
+          "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+          "B-investigation-v67-rogue-blind-probing-action7-20261014",
+          "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+          "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-20261014",
+          "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a0cd732525b945d1c2bbd556038f6c057856bd13-3d949618e3f91a2e786c7f25d9f5bcd474c5ebb0b6626890c9513b4d9c426544-C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T09:06:54.777Z",
+        "task": "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+        "integration": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "validationGroup": [
+          "B-investigation-v66-chest-shatter-material-action9-20261014",
+          "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+          "B-investigation-v67-rogue-blind-probing-action7-20261014",
+          "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+          "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-20261014",
+          "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a0cd732525b945d1c2bbd556038f6c057856bd13-3d949618e3f91a2e786c7f25d9f5bcd474c5ebb0b6626890c9513b4d9c426544-B-investigation-v67-rogue-blind-probing-action7-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T09:06:54.777Z",
+        "task": "B-investigation-v67-rogue-blind-probing-action7-20261014",
+        "integration": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "validationGroup": [
+          "B-investigation-v66-chest-shatter-material-action9-20261014",
+          "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+          "B-investigation-v67-rogue-blind-probing-action7-20261014",
+          "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+          "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-20261014",
+          "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a0cd732525b945d1c2bbd556038f6c057856bd13-3d949618e3f91a2e786c7f25d9f5bcd474c5ebb0b6626890c9513b4d9c426544-C-investigation-v67-landmine-steed-saddle-action5-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T09:06:54.777Z",
+        "task": "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+        "integration": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "validationGroup": [
+          "B-investigation-v66-chest-shatter-material-action9-20261014",
+          "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+          "B-investigation-v67-rogue-blind-probing-action7-20261014",
+          "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+          "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-20261014",
+          "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a0cd732525b945d1c2bbd556038f6c057856bd13-3d949618e3f91a2e786c7f25d9f5bcd474c5ebb0b6626890c9513b4d9c426544-A2-investigation-v65-quest-leader-death-state-action8-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T09:06:54.777Z",
+        "task": "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+        "integration": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "validationGroup": [
+          "B-investigation-v66-chest-shatter-material-action9-20261014",
+          "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+          "B-investigation-v67-rogue-blind-probing-action7-20261014",
+          "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+          "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-20261014",
+          "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a0cd732525b945d1c2bbd556038f6c057856bd13-3d949618e3f91a2e786c7f25d9f5bcd474c5ebb0b6626890c9513b4d9c426544-B-investigation-v67-angry-shop-settlement-action10-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T09:06:54.777Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-20261014",
+        "integration": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "validationGroup": [
+          "B-investigation-v66-chest-shatter-material-action9-20261014",
+          "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+          "B-investigation-v67-rogue-blind-probing-action7-20261014",
+          "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+          "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-20261014",
+          "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-a0cd732525b945d1c2bbd556038f6c057856bd13-3d949618e3f91a2e786c7f25d9f5bcd474c5ebb0b6626890c9513b4d9c426544-A2-investigation-v66-floor-loot-tricks-bite-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T09:06:54.777Z",
+        "task": "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014",
+        "integration": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "validationGroup": [
+          "B-investigation-v66-chest-shatter-material-action9-20261014",
+          "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+          "B-investigation-v67-rogue-blind-probing-action7-20261014",
+          "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+          "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+          "B-investigation-v67-angry-shop-settlement-action10-20261014",
+          "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-29809dc2bcdec7341815af90aaa9ba9f2d019d38",
+        "type": "ready",
+        "at": "2026-10-14T09:10:04.155Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "delivery": "29809dc2bcdec7341815af90aaa9ba9f2d019d38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep33-v69-source-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T09:14:00.157Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-51e47397870480047712c28f946fb04b409a3680",
+        "type": "ready",
+        "at": "2026-10-14T09:15:40.286Z",
+        "task": "A2-investigation-v67-shop-damage-repair-action11-20261014",
+        "delivery": "51e47397870480047712c28f946fb04b409a3680"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-clone-29809d-20261014",
+        "type": "received",
+        "at": "2026-10-14T09:15:44.793Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "delivery": "29809dc2bcdec7341815af90aaa9ba9f2d019d38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v65-runtime-symbol-switch-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T09:17:00.033Z",
+        "task": "A2-investigation-v65-runtime-symbol-switch-action2-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a2-shop-51e473-20261014",
+        "type": "received",
+        "at": "2026-10-14T09:17:39.913Z",
+        "task": "A2-investigation-v67-shop-damage-repair-action11-20261014",
+        "delivery": "51e47397870480047712c28f946fb04b409a3680"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v63-wizard-fumble-naming-20261014",
+        "type": "assign",
+        "at": "2026-10-14T09:20:25.090Z",
+        "task": "B-investigation-v63-wizard-fumble-naming-action4-20261014",
+        "worker": "B",
+        "goal": "fix-v63-wizard-fumble-naming-20261014",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v65-symbol-switch-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T09:21:45.793Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the admitted v65 symbol-set menu mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v65-symbol-switch-seed-continuation-20261014",
+        "type": "park",
+        "at": "2026-10-14T09:23:26.801Z",
+        "task": "A2-investigation-v65-runtime-symbol-switch-action2-20261014",
+        "reason": "Preserved without diagnosis or source edits while Root directs A2 to continue the v67 shop-damage seed or choose another independent queue case; can resume after that boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v65-symbol-switch-after-root-steer-20261014",
+        "type": "resume",
+        "at": "2026-10-14T09:23:53.094Z",
+        "task": "A2-investigation-v65-runtime-symbol-switch-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v65-symbol-switch-resumed-20261014",
+        "type": "turn",
+        "at": "2026-10-14T09:23:59.975Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the admitted v65 symbol-set menu mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-61c91e31e56c2ccc306468cc3ab4581a55148183",
+        "type": "ready",
+        "at": "2026-10-14T09:26:21.944Z",
+        "task": "B-investigation-v63-wizard-fumble-naming-action4-20261014",
+        "delivery": "61c91e31e56c2ccc306468cc3ab4581a55148183"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v65-interactive-symset-menu-20261014",
+        "type": "implement",
+        "at": "2026-10-14T09:27:22.008Z",
+        "task": "A2-investigation-v65-runtime-symbol-switch-action2-20261014",
+        "goal": "fix-interactive-symset-menu-v65-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3ded049f95ad9761730ef9b1da9be26b5272962c",
+        "type": "ready",
+        "at": "2026-10-14T09:29:12.309Z",
+        "task": "C-investigation-v66-mounted-pet-mimic-action5-20261014",
+        "delivery": "3ded049f95ad9761730ef9b1da9be26b5272962c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-wizard-name-61c91e-20261014",
+        "type": "received",
+        "at": "2026-10-14T09:29:19.512Z",
+        "task": "B-investigation-v63-wizard-fumble-naming-action4-20261014",
+        "delivery": "61c91e31e56c2ccc306468cc3ab4581a55148183"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-investigation-v65-tutorial-second-level-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T09:30:58.233Z",
+        "task": "C-investigation-v65-tutorial-second-level-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-lua-tut2-special-level-v65-20261014",
+        "type": "implement",
+        "at": "2026-10-14T09:34:40.954Z",
+        "task": "C-investigation-v65-tutorial-second-level-setup1-20261014",
+        "goal": "C-lua-tut2-special-level-v65-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d2b5c11da561abea2f2f24d7034ff513b18914f0",
+        "type": "ready",
+        "at": "2026-10-14T09:38:55.683Z",
+        "task": "C-investigation-v65-tutorial-second-level-setup1-20261014",
+        "delivery": "d2b5c11da561abea2f2f24d7034ff513b18914f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-investigation-v66-alphabetical-discoveries-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T09:39:54.065Z",
+        "task": "C-investigation-v66-alphabetical-discoveries-action2-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4de56bbde1493a876a505e22c65c88e49b6de1d8",
+        "type": "ready",
+        "at": "2026-10-14T09:39:57.867Z",
+        "task": "A2-investigation-v65-runtime-symbol-switch-action2-20261014",
+        "delivery": "4de56bbde1493a876a505e22c65c88e49b6de1d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v65-astral-priest-hostility-20261014",
+        "type": "assign",
+        "at": "2026-10-14T09:41:32.354Z",
+        "task": "A2-investigation-v65-astral-priest-hostility-action3-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v65-astral-priest-hostility-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T09:41:39.521Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v65 Astral priest hostility mismatch from the saved queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v66-chest-shatter-material-action9-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-validated",
+        "type": "validated",
+        "at": "2026-10-14T09:41:50.961Z",
+        "task": "B-investigation-v66-chest-shatter-material-action9-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-monster-fire-scroll-cure-action9-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-validated",
+        "type": "validated",
+        "at": "2026-10-14T09:41:50.961Z",
+        "task": "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-rogue-blind-probing-action7-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-validated",
+        "type": "validated",
+        "at": "2026-10-14T09:41:50.961Z",
+        "task": "B-investigation-v67-rogue-blind-probing-action7-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v67-landmine-steed-saddle-action5-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-validated",
+        "type": "validated",
+        "at": "2026-10-14T09:41:50.961Z",
+        "task": "C-investigation-v67-landmine-steed-saddle-action5-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v65-quest-leader-death-state-action8-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-validated",
+        "type": "validated",
+        "at": "2026-10-14T09:41:50.961Z",
+        "task": "A2-investigation-v65-quest-leader-death-state-action8-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-angry-shop-settlement-action10-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-validated",
+        "type": "validated",
+        "at": "2026-10-14T09:41:50.961Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v66-floor-loot-tricks-bite-action1-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-validated",
+        "type": "validated",
+        "at": "2026-10-14T09:41:50.961Z",
+        "task": "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-v66-discoveries-implement-20261014",
+        "type": "implement",
+        "at": "2026-10-14T09:42:18.307Z",
+        "task": "C-investigation-v66-alphabetical-discoveries-action2-20261014",
+        "goal": "fix-v66-sorted-discoveries-display-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v66-chest-shatter-material-action9-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T09:42:28.641Z",
+        "task": "B-investigation-v66-chest-shatter-material-action9-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v66-monster-fire-scroll-cure-action9-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T09:42:28.641Z",
+        "task": "C-investigation-v66-monster-fire-scroll-cure-action9-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-rogue-blind-probing-action7-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T09:42:28.641Z",
+        "task": "B-investigation-v67-rogue-blind-probing-action7-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v67-landmine-steed-saddle-action5-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T09:42:28.641Z",
+        "task": "C-investigation-v67-landmine-steed-saddle-action5-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v65-quest-leader-death-state-action8-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T09:42:28.641Z",
+        "task": "A2-investigation-v65-quest-leader-death-state-action8-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v67-angry-shop-settlement-action10-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T09:42:28.641Z",
+        "task": "B-investigation-v67-angry-shop-settlement-action10-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v66-floor-loot-tricks-bite-action1-20261014-a0cd732525b945d1c2bbd556038f6c057856bd13-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T09:42:28.641Z",
+        "task": "A2-investigation-v66-floor-loot-tricks-bite-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-3ded049f95ad9761730ef9b1da9be26b5272962c-20261014",
+        "type": "received",
+        "at": "2026-10-14T09:43:54.684Z",
+        "task": "C-investigation-v66-mounted-pet-mimic-action5-20261014",
+        "delivery": "3ded049f95ad9761730ef9b1da9be26b5272962c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-d2b5c11da561abea2f2f24d7034ff513b18914f0-20261014",
+        "type": "received",
+        "at": "2026-10-14T09:43:57.960Z",
+        "task": "C-investigation-v65-tutorial-second-level-setup1-20261014",
+        "delivery": "d2b5c11da561abea2f2f24d7034ff513b18914f0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-4de56bbde1493a876a505e22c65c88e49b6de1d8-20261014",
+        "type": "received",
+        "at": "2026-10-14T09:44:01.216Z",
+        "task": "A2-investigation-v65-runtime-symbol-switch-action2-20261014",
+        "delivery": "4de56bbde1493a876a505e22c65c88e49b6de1d8"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
-        "worker": "B",
-        "goal": "port-wizard-clone-spell-v63-20261014",
-        "kind": "implementation",
-        "status": "changes-required",
-        "delivery": "20e461f102fde7599d44c27518f70ccc0ada3a17",
-        "since": "2026-10-14T04:50:24.122Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v66-chest-shatter-material-action9-20261014",
-        "worker": "B",
-        "goal": "fix-lock-chest-shatter-material-v66-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "d8a47d06e0f459e6de886c1e7ad1277bc388afa5",
-        "since": "2026-10-14T08:21:44.387Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v66-monster-fire-scroll-cure-action9-20261014",
-        "worker": "C",
-        "goal": "muse-unslime-fire-scroll-explosion-v66-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "1fe394e70e2492094e98de3dcff912aa5c70e6c4",
-        "since": "2026-10-14T08:23:42.940Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v67-rogue-blind-probing-action7-20261014",
-        "worker": "B",
-        "goal": "fix-mklev-dosdoor-rogue-trapped-door-v67-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "da4432aa4f63435e47fad21fe3ed1c7212cbbef1",
-        "since": "2026-10-14T08:31:02.971Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v67-landmine-steed-saddle-action5-20261014",
-        "worker": "C",
-        "goal": "fix-trap-killed-steed-dismount-v67-landmine",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "cd3a25bc56078f864660a69ad6b7856706816bd4",
-        "since": "2026-10-14T08:34:43.999Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v65-quest-leader-death-state-action8-20261014",
-        "worker": "A2",
-        "goal": "port-mon-m_detach-quest-leaddead-v65-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "4162c0e0b4f4d4b16edf61ae67a6a60c220bf8b0",
-        "since": "2026-10-14T08:37:27.503Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "Prep32",
         "worker": "Prep",
@@ -119889,6 +120405,74 @@
         "delivery": "d481cbaad9536f36db36dd0ee4fae92f4a125191",
         "batch": "v68",
         "since": "2026-10-14T08:40:53.157Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "worker": "B",
+        "goal": "port-wizard-clone-spell-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "29809dc2bcdec7341815af90aaa9ba9f2d019d38",
+        "since": "2026-10-14T09:10:04.155Z",
+        "blockedBy": [],
+        "unblocks": 1
+      },
+      {
+        "task": "A2-investigation-v67-shop-damage-repair-action11-20261014",
+        "worker": "A2",
+        "goal": "fix-shk-home-shk-mnearto-v67-shop-damage-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "51e47397870480047712c28f946fb04b409a3680",
+        "since": "2026-10-14T09:15:40.286Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v63-wizard-fumble-naming-action4-20261014",
+        "worker": "B",
+        "goal": "fix-v63-wizard-fumble-naming-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "61c91e31e56c2ccc306468cc3ab4581a55148183",
+        "since": "2026-10-14T09:26:21.944Z",
+        "blockedBy": [
+          "B-investigation-v63-sighted-wizard-clone-action4-20261014"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v66-mounted-pet-mimic-action5-20261014",
+        "worker": "C",
+        "goal": "C-fix-mounted-pet-mimic-steed-dismount-v66-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3ded049f95ad9761730ef9b1da9be26b5272962c",
+        "since": "2026-10-14T09:29:12.309Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v65-tutorial-second-level-setup1-20261014",
+        "worker": "C",
+        "goal": "C-lua-tut2-special-level-v65-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d2b5c11da561abea2f2f24d7034ff513b18914f0",
+        "since": "2026-10-14T09:38:55.683Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v65-runtime-symbol-switch-action2-20261014",
+        "worker": "A2",
+        "goal": "fix-interactive-symset-menu-v65-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4de56bbde1493a876a505e22c65c88e49b6de1d8",
+        "since": "2026-10-14T09:39:57.867Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -120501,23 +121085,12 @@
         "since": "2026-10-14T06:30:28.196Z",
         "blockedBy": [],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
-      },
-      {
-        "task": "A2-investigation-v67-shop-damage-repair-action11-20261014",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-14T08:26:00.782Z",
-        "blockedBy": [],
-        "reason": "Parked after source trace: home_shk/paybill needs coherent async caller wiring through end.c really_done. B owns source:end.c:really_done in the pending v64 Castle-hole task; wait for that Castle delivery to be accepted and the reservation released. No gameplay edits have started."
       }
     ]
   },
   "development": {
-    "executionCommit": "f0581a7656691256c99c2e6deeebfdc57ff7e06c",
-    "measuredAt": "2026-10-14T08:36:37.143Z",
+    "executionCommit": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+    "measuredAt": "2026-10-14T09:14:45.695Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
