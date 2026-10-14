@@ -1,0 +1,62 @@
+{
+  "session": "synthetic/v67/v67-angry-shop-settlement-action10",
+  "corpus": "synthetic",
+  "batch": "v67",
+  "caseId": "v67-angry-shop-settlement-action10",
+  "remainingScreens": 88,
+  "recordedSteps": 1007,
+  "manifestPath": "challenges/manifests/v67.json",
+  "manifestSha256": "81ba9593c8fc99da2c548fe51197cb11d0674f386b21216d1bbfaaf27dfe3196",
+  "recordingSha256": "e31457e4d3cc9df0b7423d7b4ea65f281c2c633b613fce128b42ea90eb53a48d",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "status": "complete",
+  "commit": "da4432aa4f63435e47fad21fe3ed1c7212cbbef1",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v67",
+    "caseId": "v67-angry-shop-settlement-action10",
+    "session": "synthetic/v67/v67-angry-shop-settlement-action10",
+    "manifestPath": "challenges/manifests/v67.json",
+    "manifestSha256": "81ba9593c8fc99da2c548fe51197cb11d0674f386b21216d1bbfaaf27dfe3196",
+    "recording": "challenges/cases/v67/v67-angry-shop-settlement-action10.session.json",
+    "recordingPath": "challenges/cases/v67/v67-angry-shop-settlement-action10.session.json",
+    "recordingSha256": "e31457e4d3cc9df0b7423d7b4ea65f281c2c633b613fce128b42ea90eb53a48d",
+    "recipe": "challenges/cases/v67/v67-angry-shop-settlement-action10.recipe.session.json",
+    "recipeSha256": "b409d32769252a00b68f3dc10a85d6d7f574547769b36757276ac91f838fe9f3",
+    "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
+    "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+    "evaluationArtifact": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
+    "remainingScreens": 88,
+    "recordedSteps": 1007,
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "UnsupportedHeroMoveBoundaryError: u_left_shop() reaching a shop boundary with debt",
+      "step": 919
+    },
+    "step": 919,
+    "kind": "stop",
+    "sourceFile": "shk.c",
+    "function": "u_left_shop"
+  },
+  "summary": "When a debtor steps from strictly inside a shop onto its boundary, C's shk.c:u_left_shop emits the 'Please pay before leaving' message and returns, allowing movement to finish. JavaScript's preflight_shop_transition raises before movement, and u_left_shop also throws for the empty-leavestring boundary branch. Both paths must use the source message-and-return behavior.",
+  "source": {
+    "file": "shk.c",
+    "branch": "When leavestring is empty, the destination is a shop edge, the previous location was strictly inside, a living shopkeeper is present and in-shop, and the keeper has bill or debit debt, C emits the appropriate warning and returns before rob_shop. If the keeper is deaf to speech or muted, C uses a descriptive pline instead. This path does not refuse movement.",
+    "functions": [
+      "u_left_shop"
+    ],
+    "callers": [
+      "hack.c:check_special_room calls shk.c:u_left_shop after move_update on an ordinary move; hack.c:domove_core reaches check_special_room after committing the move. JS follows hack.js:domove -> rooms.js:check_special_room -> shk.js:u_left_shop, while shk.js:preflight_shop_transition currently raises the refusal before movement."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The published v67 manifest identifies C moving from a strictly inside shop square (18,11) to edge square (19,11). The previous square is inside, the destination is a shop edge, and the keeper has outstanding debit.",
+    "The admitted v67 baseline based on 979a3f3967638748dc19cf8b6ea8851736ade63e records 919/1007 matching screens, 14396/15424 RNG entries, and 919/1007 cursors before JavaScript stops at step 919 with UnsupportedHeroMoveBoundaryError for u_left_shop() reaching a shop boundary with debt.",
+    "The immutable C recording's segment 0 step 919 screen begins with \"wizard! Please pay before leaving.\" and its cursor is [19,11,1], confirming that C commits the movement to the edge and prints the warning on that same input.",
+    "Upstream nethack-c/upstream/src/shk.c:579-625 returns only when the hero remains strictly inside or the prior location was already an edge. After finding an in-shop keeper with bill or debit, the empty-leavestring branch prints a warning (speech or descriptive pline depending on muteshk and Deaf) and returns; only explicit leavestring departure reaches rob_shop and call_kops.",
+    "The current js/shk.js:744-774 throws from preflight_shop_transition for debt at a shop boundary before hack.js:domove_core can commit the move. The current js/shk.js:779-808 also throws from u_left_shop for the empty-leavestring boundary case instead of emitting the C warning."
+  ]
+}
