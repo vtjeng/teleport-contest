@@ -89,6 +89,24 @@ test('really_done transfers pets for escaped and ascended endings', () => {
     assert.doesNotMatch(END_JS, /note_unported\('dog\.c keepdogs'\)/u);
 });
 
+test('really_done uses the source housecat index for a resolved quantum cat', () => {
+    // C end.c:1463 indexes mons[PM_HOUSECAT] when the box-resolution branch
+    // leaves Schroedinger's cat alive. The JS score branch must import that
+    // same species constant so the completed escape can reach its final screen.
+    assert.match(
+        END_C,
+        /if \(Schroedingers_cat\)\s*\{\s*int mhp, m_lev = adj_lev\(&mons\[PM_HOUSECAT\]\);/u,
+    );
+    assert.match(
+        END_JS,
+        /import \{[^}]*\bPM_HOUSECAT\b[^}]*\} from '\.\/monsters\.js';/su,
+    );
+    assert.match(
+        END_JS,
+        /const cat = state\.mons\?\.\[PM_HOUSECAT\];/u,
+    );
+});
+
 test('get_valuables recurses through containers and combines glass gems', async () => {
     const state = await freshGame();
     const amulet = newObject({ otyp: AMULET_OF_LIFE_SAVING, quan: 2 });

@@ -127,6 +127,7 @@ import {
     PM_GHOST,
     PM_GHOUL,
     PM_HIGH_CLERIC,
+    PM_HOUSECAT,
     PM_HUMAN,
     PM_TOURIST,
     PM_VAMPIRE,

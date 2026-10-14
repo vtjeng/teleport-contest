@@ -1,0 +1,73 @@
+{
+  "session": "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8",
+  "corpus": "synthetic",
+  "batch": "v71",
+  "caseId": "v71-quantum-box-escape-no-disclosure-action8",
+  "remainingScreens": 0,
+  "recordedSteps": 718,
+  "manifestPath": "challenges/manifests/v71.json",
+  "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+  "recordingSha256": "c7a431e75eaa7cccd5d13a9fdd2e4dbe32d88c6a4f250a70e16024b0bee6544f",
+  "evaluationPath": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+  "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
+  "evaluationArtifact": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+  "status": "complete",
+  "commit": "8e6af7cc825d22dd644f2158aefe13b338ac880e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v71",
+    "caseId": "v71-quantum-box-escape-no-disclosure-action8",
+    "session": "synthetic/v71/v71-quantum-box-escape-no-disclosure-action8",
+    "manifestPath": "challenges/manifests/v71.json",
+    "manifestSha256": "f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703",
+    "recording": "challenges/cases/v71/v71-quantum-box-escape-no-disclosure-action8.session.json",
+    "recordingPath": "challenges/cases/v71/v71-quantum-box-escape-no-disclosure-action8.session.json",
+    "recordingSha256": "c7a431e75eaa7cccd5d13a9fdd2e4dbe32d88c6a4f250a70e16024b0bee6544f",
+    "recipe": "challenges/cases/v71/v71-quantum-box-escape-no-disclosure-action8.recipe.session.json",
+    "recipeSha256": "6ab03c05fd4f3a1d2b80b3df286333f51f8b234787597943c92f2bf9a60a73b1",
+    "replayInputSha256": "1f911c99793c3a371a5411cf7bbb562c2dd780447fc8dd4fd4923ed427aaf7e9",
+    "evaluationPath": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+    "evaluationCommit": "62083786357189a4660adb0b96d92609e3d885b7",
+    "evaluationArtifact": "challenges/evaluations/admission-62083786357189a4660adb0b96d92609e3d885b7-v71.json",
+    "evaluationUtc": "2026-10-14T20:35:40.099Z",
+    "remainingScreens": 718,
+    "recordedSteps": 718,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": true,
+    "error": null,
+    "metrics": {
+      "screens": {"matched": 718, "total": 718},
+      "rng": {"matched": 3684, "total": 3684},
+      "cursors": {"matched": 718, "total": 718}
+    },
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
+    "sourceFile": null,
+    "function": null,
+    "message": null
+  },
+  "goalKind": "divergence-fix",
+  "summary": "The accepted baseline stopped on ReferenceError: PM_HOUSECAT is not defined while end.c:really_done() scored a live quantum cat. JS already preserved the source branch and species lookup but omitted the imported constant. Importing PM_HOUSECAT restores the completed escape output; the unchanged admitted recording now matches in full.",
+  "source": {
+    "file": "end.c",
+    "branch": "really_done()'s ESCAPED/ASCENDED score block checks Schroedingers_cat, obtains adj_lev(&mons[PM_HOUSECAT]), rolls d(m_lev, 8), adds the hit points to u.urexp, and appends the cat to the displayed pet list.",
+    "functions": ["really_done"],
+    "callers": [
+      "end.c:done calls really_done after the escape state is finalized",
+      "js/end.js:done reaches really_done for the corresponding ESCAPED ending"
+    ],
+    "dependencies": [
+      "Existing monsters.js PM_HOUSECAT species index and state.mons entry",
+      "Existing makemon.js adj_lev() implementation",
+      "Existing random d() helper"
+    ]
+  },
+  "evidence": [
+    "The admitted baseline evaluation for v71 reports Replay error: PM_HOUSECAT is not defined. The manifest SHA is f91e637b94dd4224eece47941f88a7f3a3e2d50eb31793ceddf2949b3ff3e703 and the recording SHA is c7a431e75eaa7cccd5d13a9fdd2e4dbe32d88c6a4f250a70e16024b0bee6544f.",
+    "Upstream nethack-c/upstream/src/end.c:1454-1468 checks Schroedingers_cat in really_done(), calls adj_lev(&mons[PM_HOUSECAT]), then d(m_lev, 8) and adds the result to u.urexp before displaying the pet. js/end.js already mirrors this branch at 1521-1525, but its monsters.js imports omitted PM_HOUSECAT, producing the exact ReferenceError.",
+    "The fix adds PM_HOUSECAT to the existing monsters.js imports used by end.js. scripts/end-really-done.test.mjs pins the C species lookup and JS import/use relationship.",
+    "Post-fix bounded replay run-yhpBgQ of the unchanged admitted recording matched all 718 screens, 3684 RNG calls and 718 cursor positions with no error."
+  ]
+}
