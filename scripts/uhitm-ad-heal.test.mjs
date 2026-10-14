@@ -7,6 +7,7 @@ import {
     COLNO,
     ROOM,
     ROWNO,
+    SICK_ALL,
     STRAT_APPEARMSG,
 } from '../js/const.js';
 import { PM_HEALER, PM_NURSE, PM_STONE_GOLEM } from '../js/monsters.js';
@@ -131,6 +132,14 @@ test('mhitm_ad_heal preserves C arm and dispatcher order', () => {
         /export async function mhitm_ad_heal\([\s\S]*?\n\}\n\n\/\/ C ref: uhitm\.c mhitm_adtyping/u,
     )?.[0];
     assert.ok(jsHelper, 'js/uhitm.js contains the complete helper');
+    const constImport = UHITM_JS.match(
+        /import \{[\s\S]*?\} from '\.\/const\.js';/u,
+    )?.[0];
+    assert.ok(constImport);
+    assert.match(constImport, /\bSICK_ALL\b/u);
+    assert.equal(SICK_ALL, 0x03);
+    assert.match(jsHelper,
+        /make_sick\(0, null, false, SICK_ALL, state, env\)/u);
     assert.match(jsHelper,
         /await mongone\(magr, \{ \.\.\.env, state \}\);[\s\S]*?mhm\.done = true/u);
     assert.match(jsHelper,

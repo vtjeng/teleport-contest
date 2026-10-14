@@ -128,6 +128,7 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
     SICK,
+    SICK_ALL,
     SICK_RES,
     SLEEP_RES,
     SLIMED,
