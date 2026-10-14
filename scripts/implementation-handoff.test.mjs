@@ -196,6 +196,47 @@ test('split rebuilds from accepted base, preserves failed candidate and leaves o
     assert.equal(f.state().tasks.A1.status, 'accepted'); assert.equal(f.state().tasks.A3.status, 'ready');
 });
 
+test('ready tasks can split while an independent held task needs correction, but require fresh validation', t => {
+    const f = fixture(t, {dependent: false}), original = integrateImplementationGroup(f.options, f.root);
+    f.checkpoint(original.commit, f.names, false);
+    const originalPlan = JSON.parse(readFileSync(join(f.root, '.cache/implementation-group.json')));
+    // A3's failure must not block independent A1/A2; A4 is held without feedback.
+    f.send(verifyEvent(f.root, f.state(), {id: 'correct-held-A3', type: 'feedback', task: 'A3',
+        delivery: f.deliveries[2], reason: 'Correct the independent third target.'}));
+    const held = f.state();
+    const split = splitImplementationGroup({...f.options, tasks: 'A1,A2'}, f.root);
+    const plan = JSON.parse(readFileSync(join(f.root, '.cache/implementation-group.json')));
+    assert.equal(plan.base, originalPlan.base); assert.equal(plan.baseline, originalPlan.baseline);
+    assert.equal(f.git('rev-parse', original.branch), original.commit);
+    assert.equal(f.git('rev-parse', 'main'), f.base);
+    assert.deepEqual(plan.tasks.map(member => member.task), ['A1', 'A2']);
+    assert.deepEqual(plan.held.map(member => member.task), ['A3', 'A4']);
+    assert.match(f.git('show', 'HEAD:js/f3.js'), /return 0/, 'the held failed patch is absent');
+    assert.throws(() => acceptImplementationGroup(f.options, f.root), /checkpoint/,
+        'the failed full-group result cannot accept the split candidate');
+    f.checkpoint(split.commit, ['f1', 'f2']); acceptImplementationGroup(f.options, f.root);
+    for (const id of ['A1', 'A2']) assert.equal(f.state().tasks[id].status, 'accepted');
+    for (const id of ['A3', 'A4']) {
+        assert.deepEqual(f.state().tasks[id], held.tasks[id], 'held statuses and submission lists remain unchanged');
+        const sha = held.tasks[id].deliveries.at(-1);
+        assert.deepEqual(f.state().deliveries[sha], held.deliveries[sha], 'held delivery evidence remains unchanged');
+    }
+});
+
+test('split rejects a selected correction and a selected task requiring a held correction', t => {
+    const f = fixture(t), original = integrateImplementationGroup(f.options, f.root);
+    // A2 needs correction; dependent A3 cannot bypass it by selecting a smaller group.
+    f.send(verifyEvent(f.root, f.state(), {id: 'correct-required-A2', type: 'feedback', task: 'A2',
+        delivery: f.deliveries[1], reason: 'Correct the prerequisite target.'}));
+    const plan = readFileSync(join(f.root, '.cache/implementation-group.json'), 'utf8');
+    const ledger = readFileSync(join(f.root, f.options.ledger), 'utf8');
+    assert.throws(() => splitImplementationGroup({...f.options, tasks: 'A1,A2'}, f.root), /finish.*corrections/);
+    assert.throws(() => splitImplementationGroup({...f.options, tasks: 'A1,A3'}, f.root), /required dependency/);
+    assert.equal(f.git('rev-parse', 'HEAD'), original.commit);
+    assert.equal(readFileSync(join(f.root, '.cache/implementation-group.json'), 'utf8'), plan);
+    assert.equal(readFileSync(join(f.root, f.options.ledger), 'utf8'), ledger);
+});
+
 test('unreceived tasks and their dependents remain queued rather than dropping or joining the group', t => {
     const f = fixture(t), ledger = JSON.parse(readFileSync(join(f.root, f.options.ledger)));
     ledger.events = ledger.events.filter(event => !(event.type === 'received' && event.task === 'A2'));

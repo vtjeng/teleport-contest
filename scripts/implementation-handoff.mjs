@@ -253,7 +253,7 @@ export function splitImplementationGroup(options, root = process.cwd()) {
         type: 'implementation-released', tasks: ids, integration: git(ctx.root, 'rev-parse', 'HEAD'),
         reason: 'Split failed candidate; submissions remain queued.'}));
     ctx = context(options, ctx.root);
-    if (ids.some(id => ctx.state.tasks[id].status !== 'ready')) throw new Error('finish corrections before splitting');
+    if (requested.some(id => ctx.state.tasks[id].status !== 'ready')) throw new Error('finish selected task corrections before splitting');
     createCandidate(ctx, {...plan, tasks: members(ctx.state, chosen), splitFrom: plan.branch,
         held: [...plan.held, ...ids.filter(id => !requested.includes(id)).map(task => ({task, reason: 'held out of split candidate'}))]});
     return integrateImplementationGroup(options, ctx.root);
