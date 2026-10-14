@@ -9,50 +9,97 @@
   "recordingSha256": "f6a80847d5f4a0caf2840c00fe98bf85cc4b05e5af1b2e3e21df5a0c00025e79",
   "recipePath": "challenges/cases/v70/v70-cube-glob-scout2.recipe.session.json",
   "recipeSha256": "875a6caa1aa1c7062fe14ea1d5f43a14e89b2c589b12799ea00d9d7e514d4a80",
-  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
-  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
-  "status": "complete",
-  "summary": "The v70 cube-glob case exposed a missing slimeproof import in mon.c:meatobj. Importing the existing helper restores the C green-slime resistance predicate; the admitted recording matches through the meatobj action.",
+  "evaluationPath": "challenges/evaluations/accepted-bddad68fdb54a722e031c03e8efcb95d9518a34e-v70.json",
+  "evaluationCommit": "bddad68fdb54a722e031c03e8efcb95d9518a34e",
+  "status": "partial",
+  "summary": "After the accepted meatobj slimeproof import, the replay passes the earlier boundary but stops at step 299. The cube has engulfed the green-slime glob; its next gelcube_digests action reaches m_consume_obj, whose prior JS implementation refused the green-slime transformation.",
   "mismatch": {
     "session": "synthetic/v70/v70-cube-glob-scout2",
-    "remainingScreens": 351,
+    "remainingScreens": 52,
     "kind": "stop",
-    "step": 0,
-    "message": "ReferenceError: slimeproof is not defined",
+    "step": 299,
+    "message": "simple monster action requires a non-slime food item",
     "sourceFile": "mon.c",
-    "function": "meatobj"
+    "function": "m_consume_obj"
   },
   "source": {
     "file": "mon.c",
     "functions": [
-      "meatobj"
+      "m_consume_obj"
     ],
-    "lineRange": "1533-1653",
-    "branch": "The inedible-item condition treats GLOB_OF_GREEN_SLIME as engulfable when slimeproof(mtmp->data) is false. JavaScript had the matching condition but no slimeproof binding.",
-    "javascript": "js/mon.js:meatobj now imports slimeproof from js/mondata.js; no production control flow or caller order changed.",
+    "lineRange": "1392-1453",
+    "branch": "C records slimer for GLOB_OF_GREEN_SLIME, deletes the consumed glob, and calls newcham with PM_GREEN_SLIME and NC_SHOW_MSG only when canseemon was true.",
+    "javascript": "Before this follow-up, js/mon.js:m_consume_obj refused this glob; the correction now deletes it and calls the already ported newcham with the explicit green-slime species.",
     "callers": [
-      "monmove.c:postmov -> mon.c:meatobj; js/monmove.js:postmov -> js/mon.js:meatobj"
+      "monmove.c:dochug -> gelcube_digests -> mon.c:m_consume_obj; js/monmove.js:dochug -> gelcube_digests -> js/mon.js:m_consume_obj"
     ],
-    "dependencies": [
-      "B-investigation-v69-cube-contents-action4-20261014 delivery dc68d29191160d366551c333356564732926bec9; the scoped cube digestion and egg-consumption source commits are included below the tree-identical dependency bridge."
-    ]
+    "dependencies": []
   },
   "evidence": [
-    "Baseline admitted evaluation stops at mon.c:meatobj because slimeproof is not defined.",
-    "Focused source-pinned tests check the green-slime condition against mon.c and verify the helper import.",
-    "On the dependency-complete candidate, the v70 scan has no divergence through step 298; the verifier confirms that prefix matches and exercises the meatobj green-slime branch. The segment later reaches a separate behavioral boundary, so no complete-segment match is claimed."
+    "The accepted v70 evaluation at bddad68f has unchanged manifest/recording identity and records 299/351 screens, 2809/3081 RNG calls, and 299/351 cursors; the first outstanding recorded-screen boundary is zero-based step 299.",
+    "Bounded single-case scan run-2HheWM exits at step 299 with `simple monster action requires a non-slime food item`; no recorded-screen divergence occurs before that stop. Its output is /tmp/teleport-validation-1000/run-2HheWM/stdout.log.",
+    "Upstream monmove.c:424-461 selects the newly inventoried organic glob in gelcube_digests and calls mon.c:m_consume_obj. Upstream mon.c:1392-1453 sets slimer before delobj and invokes newcham(PM_GREEN_SLIME, visible ? NC_SHOW_MSG : NO_NC_FLAGS). The existing JS m_consume_obj branch explicitly refuses this exact item at the corresponding post-delobj effect boundary."
   ],
-  "verifiedReplay": {
-    "segment": 0,
-    "throughStep": 298,
-    "recordingMatched": true,
-    "inputBoundaryMatched": false,
-    "replayCommit": "de8ee9a7dc26dc928ab17067fb39cea273d70409",
-    "scanRun": "run-47A2L9",
-    "rangeEvidenceRun": "run-8O5pNJ"
-  },
   "goalKind": "divergence-fix",
   "recordedSteps": 351,
-  "remainingScreens": 351,
-  "commit": "de8ee9a7dc26dc928ab17067fb39cea273d70409"
+  "remainingScreens": 52,
+  "commit": "fa10f936670126ec9e0ab0f39432da1bc05f67b7",
+  "priorAcceptedInvestigation": {
+    "session": "synthetic/v70/v70-cube-glob-scout2",
+    "corpus": "synthetic",
+    "batch": "v70",
+    "caseId": "v70-cube-glob-scout2",
+    "manifestPath": "challenges/manifests/v70.json",
+    "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+    "recordingPath": "challenges/cases/v70/v70-cube-glob-scout2.session.json",
+    "recordingSha256": "f6a80847d5f4a0caf2840c00fe98bf85cc4b05e5af1b2e3e21df5a0c00025e79",
+    "recipePath": "challenges/cases/v70/v70-cube-glob-scout2.recipe.session.json",
+    "recipeSha256": "875a6caa1aa1c7062fe14ea1d5f43a14e89b2c589b12799ea00d9d7e514d4a80",
+    "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+    "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+    "status": "complete",
+    "summary": "The v70 cube-glob case exposed a missing slimeproof import in mon.c:meatobj. Importing the existing helper restores the C green-slime resistance predicate; the admitted recording matches through the meatobj action.",
+    "mismatch": {
+      "session": "synthetic/v70/v70-cube-glob-scout2",
+      "remainingScreens": 351,
+      "kind": "stop",
+      "step": 0,
+      "message": "ReferenceError: slimeproof is not defined",
+      "sourceFile": "mon.c",
+      "function": "meatobj"
+    },
+    "source": {
+      "file": "mon.c",
+      "functions": [
+        "meatobj"
+      ],
+      "lineRange": "1533-1653",
+      "branch": "The inedible-item condition treats GLOB_OF_GREEN_SLIME as engulfable when slimeproof(mtmp->data) is false. JavaScript had the matching condition but no slimeproof binding.",
+      "javascript": "js/mon.js:meatobj now imports slimeproof from js/mondata.js; no production control flow or caller order changed.",
+      "callers": [
+        "monmove.c:postmov -> mon.c:meatobj; js/monmove.js:postmov -> js/mon.js:meatobj"
+      ],
+      "dependencies": [
+        "B-investigation-v69-cube-contents-action4-20261014 delivery dc68d29191160d366551c333356564732926bec9; the scoped cube digestion and egg-consumption source commits are included below the tree-identical dependency bridge."
+      ]
+    },
+    "evidence": [
+      "Baseline admitted evaluation stops at mon.c:meatobj because slimeproof is not defined.",
+      "Focused source-pinned tests check the green-slime condition against mon.c and verify the helper import.",
+      "On the dependency-complete candidate, the v70 scan has no divergence through step 298; the verifier confirms that prefix matches and exercises the meatobj green-slime branch. The segment later reaches a separate behavioral boundary, so no complete-segment match is claimed."
+    ],
+    "verifiedReplay": {
+      "segment": 0,
+      "throughStep": 298,
+      "recordingMatched": true,
+      "inputBoundaryMatched": false,
+      "replayCommit": "de8ee9a7dc26dc928ab17067fb39cea273d70409",
+      "scanRun": "run-47A2L9",
+      "rangeEvidenceRun": "run-8O5pNJ"
+    },
+    "goalKind": "divergence-fix",
+    "recordedSteps": 351,
+    "remainingScreens": 351,
+    "commit": "de8ee9a7dc26dc928ab17067fb39cea273d70409"
+  }
 }
