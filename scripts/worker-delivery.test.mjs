@@ -374,6 +374,51 @@ test('integration permits changed context only when every delivered edit matches
     });
 });
 
+test('preflight ignores oversized unrelated Prep recordings for exact snapshots and changed-context patches', async t => {
+    for (const proof of ['exact snapshot', 'changed context']) await t.test(proof, t => {
+        const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+        f.success(f.submitArgs, f.workers.A);
+        f.event({type: 'received', task: 'A-1', delivery: head});
+        const path = 'challenges/cases/v2/unrelated.session.json';
+        mkdirSync(join(f.root, 'challenges/cases/v2'), {recursive: true});
+        // One MiB beyond the production 32 MiB Git-output bound reproduces ENOBUFS
+        // if preflight hashes this unrelated commit's full recording patch.
+        writeFileSync(join(f.root, path), JSON.stringify({screen: 'x'.repeat(33 * 1024 * 1024)}));
+        f.git(f.root, 'add', path); f.git(f.root, 'commit', '-qm', 'Unrelated large Prep recording');
+        const source = value => `export function sample() { return ${value}; }\n`
+            + (proof === 'exact snapshot' ? 'export function caller() { return sample(); }\n'
+                : 'export function caller() { /* accepted context */ return sample(); }\n');
+        // A different return (-1) forces snapshot proof; changed caller context
+        // with the original return (0) forces context-free full-patch proof.
+        writeFileSync(join(f.root, 'js/sample.js'), source(proof === 'exact snapshot' ? -1 : 0));
+        f.git(f.root, 'add', 'js/sample.js'); f.git(f.root, 'commit', '-qm', 'New accepted source context');
+        writeFileSync(join(f.root, 'js/sample.js'), source(1));
+        f.git(f.root, 'add', 'js/sample.js'); f.git(f.root, 'commit', '-qm', 'Resolve submitted source edit');
+        assert.match(f.git(f.root, 'cherry', 'HEAD', head, f.base), /^\+/);
+        const result = f.run(['preflight', '--task', 'A-1']);
+        assert.equal(result.status, 0, result.stderr || result.stdout);
+        assert.equal(JSON.parse(result.stdout).passed, true);
+        f.event({type: 'integrating', task: 'A-1', integration: f.git(f.root, 'rev-parse', 'HEAD')});
+    });
+});
+
+test('path-filtered patch identity still rejects a candidate commit with extra edits', t => {
+    const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+    f.success(f.submitArgs, f.workers.A);
+    // Different caller context prevents exact-snapshot proof, so only complete
+    // patch identity can establish this delivery. The extra file changes that identity.
+    const source = value => `export function sample() { return ${value}; }\n`
+        + 'export function caller() { /* accepted context */ return sample(); }\n';
+    writeFileSync(join(f.root, 'js/sample.js'), source(0));
+    f.git(f.root, 'add', 'js/sample.js'); f.git(f.root, 'commit', '-qm', 'New caller context');
+    writeFileSync(join(f.root, 'js/sample.js'), source(1));
+    writeFileSync(join(f.root, 'extra.txt'), 'Unrelated edit in the same commit.\n');
+    f.git(f.root, 'add', 'js/sample.js', 'extra.txt'); f.git(f.root, 'commit', '-qm', 'Mixed source patch');
+    const result = JSON.parse(f.run(['preflight', '--task', 'A-1']).stdout);
+    assert.equal(result.passed, false);
+    assert.match(result.issues.join('\n'), /missing delivered patches/);
+});
+
 test('submission rejects evidence references found only in an uncommitted checkout', (t) => {
     const f = fixture(t); f.assign(); f.artifacts(); f.commit();
     const path = join(f.workers.A, '.cache/evidence.json');

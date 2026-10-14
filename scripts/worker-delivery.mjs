@@ -328,11 +328,19 @@ function checkCandidate(root, state, task, commit, visited = new Set(), patchIds
         const missing = lines(git(root, 'cherry', commit, delivery.delivery, delivery.base))
             .filter(line => line.startsWith('+'));
         if (missing.length && sha !== replaced) {
-            const candidates = lines(git(root, 'rev-list', '--no-merges', `${delivery.base}..${commit}`));
-            const integrated = new Set(candidates.map(sha => contextFreePatchId(root, sha, patchIds)));
             for (const row of missing) {
-                const patch = contextFreePatchId(root, row.slice(2), patchIds);
-                check((patch && integrated.has(patch)) || hasSubmittedSnapshot(root, row.slice(2), delivery.base, commit),
+                const submitted = row.slice(2);
+                if (hasSubmittedSnapshot(root, submitted, delivery.base, commit)) continue;
+                const paths = git(root, 'diff-tree', '--no-commit-id', '--no-renames', '--name-only', '-r', '-z', submitted)
+                    .split('\0').filter(Boolean);
+                // Unrelated Prep recordings can exceed Git's output bound. Filter
+                // history by submitted paths, but compare each candidate's whole
+                // patch so a partial edit cannot pass as a complete delivery.
+                const candidates = paths.length ? lines(git(root, '--literal-pathspecs', 'rev-list', '--full-history', '--no-merges',
+                    `${delivery.base}..${commit}`, '--', ...paths)) : [];
+                const integrated = new Set(candidates.map(sha => contextFreePatchId(root, sha, patchIds)));
+                const patch = contextFreePatchId(root, submitted, patchIds);
+                check(patch && integrated.has(patch),
                     `candidate is missing delivered patches from ${sha}`);
             }
         }
