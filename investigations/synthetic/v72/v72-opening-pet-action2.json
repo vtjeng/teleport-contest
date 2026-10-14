@@ -1,0 +1,73 @@
+{
+  "session": "synthetic/v72/v72-opening-pet-action2",
+  "remainingScreens": 174,
+  "recordedSteps": 174,
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-opening-pet-action2",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingSha256": "6181948803e93304fd5b0fa9c2a4dfe1bfb514b8869b802916fe4e38ea3bc36c",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "status": "complete",
+  "commit": "fa8e0272708403649b2ec5281b201f51d5af89d7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v72",
+    "caseId": "v72-opening-pet-action2",
+    "session": "synthetic/v72/v72-opening-pet-action2",
+    "manifestPath": "challenges/manifests/v72.json",
+    "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+    "recording": "challenges/cases/v72/v72-opening-pet-action2.session.json",
+    "recordingPath": "challenges/cases/v72/v72-opening-pet-action2.session.json",
+    "recordingSha256": "6181948803e93304fd5b0fa9c2a4dfe1bfb514b8869b802916fe4e38ea3bc36c",
+    "recipe": "challenges/cases/v72/v72-opening-pet-action2.recipe.session.json",
+    "recipeSha256": "8848d962136cadc55540b28147f4bec19c787d0f9f85400e327ef747a129e35d",
+    "replayInputSha256": "8f052fd80c88e3b221df2c26fa6968d7128f4ebbb85e8200eb6219a811536a49",
+    "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+    "evaluationArtifact": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "remainingScreens": 174,
+    "recordedSteps": 174,
+    "previousScreensMatched": 0,
+    "regression": false,
+    "passed": false,
+    "error": "W_SADDLE is not defined",
+    "metrics": {
+      "screens": { "matched": 0, "total": 174 },
+      "rng": { "matched": 0, "total": 2981 },
+      "cursors": { "matched": 0, "total": 174 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: W_SADDLE is not defined",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhitm",
+    "message": "Replay error: W_SADDLE is not defined",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 417
+  },
+  "summary": "An opening wand ray that hits a pauper Knight's starting pony exposed an unbound W_SADDLE identifier in the JavaScript port of zap.c:bhitm. The C branch checks which_armor(mtmp, W_SADDLE) and does nothing when the pony has no saddle. The JS branch has the same absence check but js/zap.js omits W_SADDLE from its const.js imports, so replay stops before completing the branch.",
+  "source": {
+    "file": "zap.c",
+    "branch": "In bhitm's WAN_OPENING/SPE_KNOCK arm, after holder and trap handling, C checks which_armor(mtmp, W_SADDLE) and drops a found saddle. The case's pauper Knight pony has no saddle, so that lookup returns null and the branch makes no saddle change.",
+    "functions": ["bhitm"],
+    "callers": [
+      "zap.c:weffects -> bhit -> bhitm",
+      "js/zap.js:weffects -> bhit -> bhitm"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read nethack-c/upstream/src/zap.c:160-620 and verified the WAN_OPENING branch at 382-434: after holder and trap handling, the branch looks up W_SADDLE and drops it only when which_armor returns an object. The C constant is declared in include/prop.h:125.",
+    "Read nethack-c/upstream/src/dog.c:219-275, especially makedog's pauper guard at 262: a pauper Knight's pony receives no starting saddle. The case therefore exercises the absence lookup, not saddle removal.",
+    "Read js/zap.js:3344-3702: bhitm mirrors the C branch and calls which_armor(monster, W_SADDLE, state), but W_SADDLE is missing from its const.js import list even though js/const.js exports it. The admitted C replay stops at this exact ReferenceError."
+  ]
+}
