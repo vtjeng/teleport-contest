@@ -1,0 +1,73 @@
+{
+  "session": "synthetic/v72/v72-clinger-attributes-action2",
+  "remainingScreens": 149,
+  "recordedSteps": 149,
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-clinger-attributes-action2",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingSha256": "ff1546e32d372a1dbe06ef1ad6a52191f94d5a83a2efb1b40b7b5ab16ba2e5f0",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "status": "complete",
+  "commit": "2b8b98c31e92057e320e77b3735678a131a27603",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v72",
+    "caseId": "v72-clinger-attributes-action2",
+    "session": "synthetic/v72/v72-clinger-attributes-action2",
+    "manifestPath": "challenges/manifests/v72.json",
+    "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+    "recording": "challenges/cases/v72/v72-clinger-attributes-action2.session.json",
+    "recordingPath": "challenges/cases/v72/v72-clinger-attributes-action2.session.json",
+    "recordingSha256": "ff1546e32d372a1dbe06ef1ad6a52191f94d5a83a2efb1b40b7b5ab16ba2e5f0",
+    "recipe": "challenges/cases/v72/v72-clinger-attributes-action2.recipe.session.json",
+    "recipeSha256": "f06d611f7929affcc72778a5ad4491dc1328b584c0943679bd12b86cc4b99b64",
+    "replayInputSha256": "8f052fd80c88e3b221df2c26fa6968d7128f4ebbb85e8200eb6219a811536a49",
+    "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+    "evaluationArtifact": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+    "remainingScreens": 149,
+    "recordedSteps": 149,
+    "previousScreensMatched": 0,
+    "regression": false,
+    "passed": false,
+    "error": "has_ceiling is not defined",
+    "metrics": {
+      "screens": { "matched": 0, "total": 149 },
+      "rng": { "matched": 0, "total": 2522 },
+      "cursors": { "matched": 0, "total": 149 }
+    },
+    "firstMismatch": {
+      "kind": "ReferenceError",
+      "message": "has_ceiling is not defined",
+      "step": 124
+    },
+    "step": 124,
+    "kind": "ReferenceError",
+    "sourceFile": "insight.c",
+    "function": "attributes_enlightenment",
+    "message": "has_ceiling is not defined",
+    "cFile": "insight.c",
+    "luaFile": null,
+    "line": 1740
+  },
+  "summary": "The corrected clinger enlightenment case reaches C's attributes_enlightenment ceiling-capability line. The JavaScript port evaluates has_ceiling at the matching source line, but insight.js omitted the import, so the C/JS recording stops at step 124.",
+  "source": {
+    "file": "insight.c",
+    "branch": "attributes_enlightenment reports ceiling clinging for is_clinger(gy.youmonst.data). It calls has_ceiling(&u.uz), then reports current ability only when a lid exists and the hero is not in water; otherwise it builds the conditional/past-tense message using the same has_lid value.",
+    "functions": ["attributes_enlightenment"],
+    "callers": [
+      "insight.c:doattributes -> enlightenment -> attributes_enlightenment",
+      "js/insight.js:doattributes -> enlightenment -> attributes_enlightenment"
+    ],
+    "dependencies": ["dungeon.c:has_ceiling is already ported as js/dungeon.js:has_ceiling"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read nethack-c/upstream/src/insight.c:1487-2005, including the complete attributes_enlightenment source function. Its clinger branch at 1739-1752 calls has_ceiling before selecting the current or conditional disclosure text.",
+    "Read js/insight.js:1480-2005. The corresponding function calls has_ceiling(u.uz, state) at 1747 but the module's dungeon.js import only binds depth, dunlev, endgamelevelname, surface, and ceiling. js/dungeon.js already exports has_ceiling with the source behavior.",
+    "The manifest confirms the actual corrected monster is a clinger and the case reaches the ceiling ability line. Its accepted error-prefix proof matches 124 screens/cursors and 2522 RNG calls through step 123, then stops at step 124 on the missing binding. The production path is doattributes -> enlightenment -> attributes_enlightenment."
+  ]
+}
