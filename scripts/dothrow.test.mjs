@@ -197,6 +197,17 @@ const DOTHROW_JS = readFileSync(
     new URL('../js/dothrow.js', import.meta.url), 'utf8',
 );
 
+test('a swallowed tethered throw uses the source tether display', () => {
+    // dothrow.c:throwit() displays DISP_TETHER before a wielded tethered
+    // weapon hits its swallower. Keep the C call and JS import/call aligned.
+    assert.match(DOTHROW_C,
+        /if \(tethered_weapon\)\s*tmp_at\(DISP_TETHER, obj_to_glyph\(obj, rn2_on_display_rng\)\);/u);
+    assert.match(DOTHROW_JS,
+        /import \{[^}]*\bDISP_TETHER\b[^}]*\} from '\.\/const\.js';/su);
+    assert.match(DOTHROW_JS,
+        /if \(tetheredWeapon\)\s*await tmp_at\(DISP_TETHER, obj_to_glyph\(obj, state\), state\);/u);
+});
+
 function makeState() {
     const state = {};
     objects_globals_init(state);

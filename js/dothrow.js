@@ -56,6 +56,7 @@ import {
     DB_MOAT,
     DISP_END,
     DISP_FLASH,
+    DISP_TETHER,
     DRAWBRIDGE_UP,
     ECMD_CANCEL,
     ECMD_OK,
