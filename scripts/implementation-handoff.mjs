@@ -86,6 +86,7 @@ export function planImplementationGroup(options, root = process.cwd()) {
     if (git(ctx.root, 'branch', '--show-current') !== 'main' || !accepted?.checkpoint
         || !isAncestor(ctx.root, accepted.commit, base))
         throw new Error('start an implementation group from accepted local main');
+    verifyPublicationChanges(ctx.root, accepted.commit, base);
     const pending = pendingMainWork(ctx.state).deliveries.filter(row => row.kind === 'implementation');
     pending.sort((a, b) => b.unblocks - a.unblocks || a.since.localeCompare(b.since));
     const candidates = pending.map(row => ctx.state.tasks[row.task])
@@ -226,7 +227,10 @@ export function publishImplementationGroup(options, root = process.cwd(), depend
     if (tasks.some(id => ctx.state.tasks[id].status !== 'accepted')) throw new Error('accept the entire group before publishing');
     const commit = latest(ctx.state, ctx.state.tasks[tasks[0]]).integration;
     verifyPublicationChanges(ctx.root, commit, git(ctx.root, 'rev-parse', 'HEAD'), options.admission);
-    syncMain(ctx.root, git(ctx.root, 'rev-parse', 'HEAD'));
+    const head = git(ctx.root, 'rev-parse', 'HEAD');
+    // A retry may already be on main with valid, uncommitted closure reports.
+    // Synchronization is unnecessary then and would reject those reports.
+    if (git(ctx.root, 'rev-parse', 'main') !== head) syncMain(ctx.root, head);
     git(ctx.root, 'switch', 'main');
     return {...publishTask({...options, task: tasks[0]}, ctx.root, dependencies), tasks};
 }

@@ -223,31 +223,35 @@ try {
   assert.deepEqual(errors, []);
   if (screenshot) await page.getByRole('heading', { name: 'Worker activity', exact: true }).locator('..').screenshot({ path: screenshot });
   const originalData = await page.evaluate('DATA');
-  // A shared Prep attempt must remain one Main interval and one duration sample.
+  // A shared attempt must remain one Main interval and one duration sample.
   // Four tasks exercise the uncapped group display without running games or CI.
   const groupEnd = originalData.activity.capturedAt;
   const groupStart = new Date(Date.parse(groupEnd) - 5 * 60000).toISOString();
+  for (const preparation of [true, false]) {
   const prepGroup = ['Prep-v58', 'Prep-v59', 'Prep-v60', 'Prep-v61'];
-  const groupSegments = prepGroup.map(task => ({task, worker: 'Prep', lane: 'Main',
-    kind: 'challenge-preparation', phase: 'integrating', integration: 'a'.repeat(40),
-    prepGroup, start: groupStart, end: groupEnd}));
+  const validationGroup = preparation ? prepGroup : ['A1', 'B1', 'C1', 'A2'];
+  const kind = preparation ? 'challenge-preparation' : 'implementation', worker = preparation ? 'Prep' : 'A';
+  const groupSegments = validationGroup.map(task => ({task, worker, lane: 'Main',
+    kind, phase: 'integrating', integration: 'a'.repeat(40),
+    ...(preparation ? {prepGroup} : {validationGroup}), start: groupStart, end: groupEnd}));
   const groupData = {...originalData, activity: {capturedAt: groupEnd, segments: groupSegments,
-    events: [], tasks: prepGroup.map((task, index) => ({id: task, label: task, worker: 'Prep',
-      kind: 'challenge-preparation', batch: `v${58 + index}`, assignedAt: groupStart, status: 'accepted'}))}};
+    events: [], tasks: validationGroup.map((task, index) => ({id: task, label: task, worker, kind,
+      ...(preparation ? {batch: `v${58 + index}`} : {}), assignedAt: groupStart, status: 'accepted'}))}};
   const groupBegin = originalHTML.indexOf('const DATA = '), groupFinish = originalHTML.indexOf('\n', groupBegin);
   const groupHTML = originalHTML.slice(0, groupBegin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(groupData))
     + ';\n' + originalHTML.slice(groupFinish + 1);
   await page.route(url, route => route.fulfill({contentType: 'text/html', body: groupHTML}));
   await page.reload();
-  assert.match(await page.locator('#prepIntegrationDurationSummary').innerText(), /1 attempt/u);
+  assert.match(await page.locator(preparation ? '#prepIntegrationDurationSummary' : '#integrationDurationSummary').innerText(), /1 attempt/u);
   const groupBar = page.locator('.activity-bar.phase-integrating').first();
-  assert.match(await groupBar.getAttribute('aria-label'), /Prep group · 4 tasks/u);
+  assert.match(await groupBar.getAttribute('aria-label'), preparation ? /Prep group · 4 tasks/u : /Implementation group · 4 tasks/u);
   const groupFrame = await page.locator('#timeline').boundingBox();
   await groupBar.click();
   assert.match(await page.locator('#timelineReadout').innerText(), /Shared CI run/u);
-  for (const task of prepGroup) assert.match(await page.locator('#timelineReadout').innerText(), new RegExp(task));
+  for (const task of validationGroup) assert.match(await page.locator('#timelineReadout').innerText(), new RegExp(task));
   assert.deepEqual(await page.locator('#timeline').boundingBox(), groupFrame, 'group selection does not shift the plot');
   await page.unroute(url);
+  }
   await page.reload();
   const emptyFrames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
   // The chart must retain its frame when no duration is measurable, including
