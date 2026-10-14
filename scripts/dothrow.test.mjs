@@ -91,7 +91,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { vision_reset } from '../js/vision.js';
+import { does_block, vision_reset } from '../js/vision.js';
 import { isThrowingWeapon } from '../js/invent.js';
 import { canspotmon, GLYPH_INVISIBLE } from '../js/display.js';
 import { planningState } from '../js/unported_monster_actions.js';
@@ -1151,6 +1151,20 @@ test('throwit() lands a thrown weapon at the end of its range', async () => {
     assert.deepEqual(draws(), ['rn2(100)']);
     // :1823 clears gt.thrownobj once the missile is on the floor.
     assert.equal(state.gt.thrownobj, null);
+});
+
+test('throwit() blocks vision when a boulder lands', async () => {
+    // dothrow.c:1657 sets a boulder's range to 20; this arena ends at column
+    // 12, so the next wall stops the throw and its final floor placement runs.
+    const state = arena({ last: 12 });
+    const boulder = item(state, BOULDER);
+
+    await throwit(boulder, 0, false, null, state);
+
+    // arena() makes column 12 the last floor square on row 4.
+    assert.deepEqual(state.gb.bhitpos, { x: 12, y: 4 });
+    assert.deepEqual(pileAt(state, 12, 4), [boulder]);
+    assert.equal(does_block(12, 4, null, state), true);
 });
 
 test('throwit() names a pick caught by a shopkeeper with the supplied state',
