@@ -14,6 +14,8 @@
   "status": "complete",
   "commit": "fadc60f56e21cad6448fa7b2b5b745ae05d00e41",
   "mismatch": {
+    "session": "synthetic/v58/v58-artifact-light-buc-action2",
+    "remainingScreens": 0,
     "screen": null,
     "rng": {
       "index": 2719,
