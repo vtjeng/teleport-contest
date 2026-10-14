@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v74/v74-cockatrice-trapper-engulf-action2",
+  "remainingScreens": 230,
+  "recordedSteps": 230,
+  "corpus": "synthetic",
+  "batch": "v74",
+  "caseId": "v74-cockatrice-trapper-engulf-action2",
+  "manifestPath": "challenges/manifests/v74.json",
+  "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c3e0bafb",
+  "recordingSha256": "620ab1e64344ebffbe941f8c7984221d26ce34f065b4f61a0bb7ec98ddcda92c",
+  "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+  "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
+  "status": "complete",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v74",
+    "caseId": "v74-cockatrice-trapper-engulf-action2",
+    "session": "synthetic/v74/v74-cockatrice-trapper-engulf-action2",
+    "manifestPath": "challenges/manifests/v74.json",
+    "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c3e0bafb",
+    "recording": "challenges/cases/v74/v74-cockatrice-trapper-engulf-action2.session.json",
+    "recordingPath": "challenges/cases/v74/v74-cockatrice-trapper-engulf-action2.session.json",
+    "recordingSha256": "620ab1e64344ebffbe941f8c7984221d26ce34f065b4f61a0bb7ec98ddcda92c",
+    "recipe": "challenges/cases/v74/v74-cockatrice-trapper-engulf-action2.recipe.session.json",
+    "recipeSha256": "e494457a1c345c3cc4f01eeb410e0cabf44f604ba0a50a0d909295e78d7f188f",
+    "replayInputSha256": "ad80d9adc5a47e27c84f5693d3027d3f2f05ec951a12efd604dddbba5fd52bbf",
+    "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+    "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
+    "evaluationArtifact": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+    "evaluationUtc": "2026-10-14T23:21:07.811Z",
+    "remainingScreens": 230,
+    "recordedSteps": 230,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "env is not defined",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 230
+      },
+      "rng": {
+        "matched": 0,
+        "total": 2271
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 230
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: env is not defined",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: env is not defined",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "When a touch-petrifying hero is engulfed by a non-stone-resistant monster, mhitu.c:gulpmu relocates the attacker to its original square and calls trap.c:minstapetrify before clearing the hero’s stuck link. The JavaScript call passes undeclared `env` from a function whose supplied environment is `rawEnv`, so replay stops at this branch before the C stoning, kill-credit, and release behavior.",
+  "source": {
+    "file": "mhitu.c",
+    "branch": "In gulpmu’s initial-swallow branch, after a successful engulf, when touch_petrifies(gy.youmonst.data) is true and resists_ston(mtmp) is false, restore the attacker to its pre-engulf square, call minstapetrify(mtmp, TRUE), restore a punished ball and chain if present, then clear u.ustuck and return the attack result.",
+    "functions": [
+      "gulpmu"
+    ],
+    "callers": [
+      "mhitu.c:mattacku dispatches AT_ENGL attacks to gulpmu; this v74 case reaches that production caller.",
+      "mhitu.c:gulp_blnd_check also calls gulpmu for the already-swallowed AD_BLND follow-up; it is an independent production caller."
+    ],
+    "dependencies": [
+      "trap.c:minstapetrify is already implemented in js/trap.js; this correction only supplies gulpmu’s existing rawEnv to that helper."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted C recording challenges/cases/v74/v74-cockatrice-trapper-engulf-action2.session.json has 230 input steps. C step 170 prints “The trapper folds itself around you!” and “The trapper is slowing down”; step 171 prints “The trapper turns to stone.” Prep’s unchanged-input prefix reaches the engulf transition at step 170.",
+    "nethack-c/upstream/src/mhitu.c:1289-1380 establishes the call preconditions and order: gulpmu moves the engulfer onto the hero, binds it, emits the engulf message, then checks touch_petrifies(gy.youmonst.data) && !resists_ston(mtmp); on that branch C restores the engulfer’s original coordinates and calls minstapetrify before placebc/set_ustuck(NULL).",
+    "nethack-c/upstream/include/monsters.h:990-998 defines the trapper as AT_ENGL/AD_WRAP with no MR_STONE. The recipe’s hero polymorphs into a cockatrice and creates a hostile trapper, so both sides of the C predicate are source-supported.",
+    "js/mhitu.js:2224 names the supplied callback object rawEnv; js/mhitu.js:2378 instead evaluates `env` at the minstapetrify call. That unresolved identifier throws before the existing js/trap.js:minstapetrify implementation can run. The branch then must preserve the existing source-order ball/chain restoration and set_ustuck cleanup."
+  ],
+  "commit": "b99c08699a1603b881dc16cb31d9ee5b73c7ae54"
+}
