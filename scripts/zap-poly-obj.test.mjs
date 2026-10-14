@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
     OBJ_INVENT,
     W_ARM,
+    W_ARMG,
     W_AMUL,
     W_RINGL,
 } from '../js/const.js';
@@ -16,20 +17,25 @@ import {
     d, rn1, rn2, rnd, rne, rnl, rnz,
 } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
-import { setwornEnv } from '../js/do_wear.js';
+import { disintegrate_arm, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
 import {
     AMULET_OF_ESP,
     AMULET_OF_LIFE_SAVING,
     AMULET_OF_REFLECTION,
     CRYSTAL_PLATE_MAIL,
+    LEATHER_GLOVES,
     RIN_REGENERATION,
     RIN_WARNING,
     STUDDED_LEATHER_ARMOR,
 } from '../js/objects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
+const DO_WEAR_C_SOURCE = readFileSync(
+    'nethack-c/upstream/src/do_wear.c', 'utf8',
+);
 const JS_SOURCE = readFileSync('js/zap.js', 'utf8');
+const DO_WEAR_JS_SOURCE = readFileSync('js/do_wear.js', 'utf8');
 const C_CALL_START = C_SOURCE.indexOf('setworn(otmp, new_wornmask);');
 const C_CALL_END = C_SOURCE.indexOf(
     'otmp = wearmask_to_obj(new_wornmask);',
@@ -84,6 +90,54 @@ test('poly_obj removes worn items before restoring them in C order', () => {
     assert.ok(JS_FUNCTION.indexOf('await set_wear(')
         < JS_FUNCTION.indexOf('replacement = wearmask_to_obj('));
 });
+
+test('disintegrate_arm calls selftouch after gloves are removed', () => {
+    const cStart = DO_WEAR_C_SOURCE.indexOf('disintegrate_arm(struct obj *atmp)\n{');
+    const cEnd = DO_WEAR_C_SOURCE.indexOf('\n/* return ERODE_foo', cStart);
+    const cFunction = DO_WEAR_C_SOURCE.slice(cStart, cEnd);
+    assert.match(
+        cFunction,
+        /wornarm_destroyed\(otmp\);[\s\S]*?if \(losing_gloves\)\s*selftouch\("You"\);[\s\S]*?stop_occupation\(\);/u,
+    );
+
+    const jsStart = DO_WEAR_JS_SOURCE.indexOf(
+        'export async function disintegrate_arm(',
+    );
+    const jsEnd = DO_WEAR_JS_SOURCE.indexOf(
+        '\n}\n\n// C ref: do_wear.c obj_erode_type',
+        jsStart,
+    ) + 2;
+    const jsFunction = DO_WEAR_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(
+        jsFunction,
+        /await wornarm_destroyed\(armor, state\);[\s\S]*?if \(losingGloves\)\s*await selftouch\('You', state, rawEnv\);[\s\S]*?await stop_occupation\(state, \{ message: ttyPline \}\);/u,
+    );
+    assert.doesNotMatch(jsFunction, /note_unported\('trap\.c selftouch'\)/u);
+});
+
+test('disintegrate_arm reaches the existing selftouch helper after glove loss',
+    async () => {
+        await runSegment({
+            seed: 9102477,
+            datetime: '20330708101112',
+            nethackrc: [
+                'OPTIONS=name:ArmorTouch,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics',
+                '',
+            ].join('\n'),
+            moves: '.',
+        });
+
+        const gloves = mksobj(
+            LEATHER_GLOVES, false, false, { state: game, ...random },
+        );
+        addinv(gloves, { state: game });
+        setworn(gloves, W_ARMG, setwornEnv(game));
+
+        assert.equal(await disintegrate_arm(gloves, { state: game, random }), 1);
+        assert.equal(game.uarmg, null);
+        assert.equal(game.unported.has('trap.c selftouch'), false);
+    });
 
 test('poly_obj removes and restores worn armor around polymorph', async () => {
     const segment = {

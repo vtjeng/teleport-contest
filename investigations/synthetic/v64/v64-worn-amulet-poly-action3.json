@@ -18,7 +18,9 @@
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
-    "sessions": ["synthetic/v64/v64-worn-amulet-poly-action3"],
+    "sessions": [
+      "synthetic/v64/v64-worn-amulet-poly-action3"
+    ],
     "remainingScreens": 191,
     "remainingScreensUpperBound": null,
     "earliestStep": null,
@@ -31,9 +33,19 @@
   "source": {
     "file": "zap.c",
     "branch": "Inventory polymorph when old_wornmask includes W_AMUL and wearslot(replacement) preserves W_AMUL; remove the old worn item before assigning the replacement, then call set_wear and reread the slot.",
-    "functions": ["poly_obj"],
-    "callers": ["potion.c:potion_dip (potion.c:2442-2492)"],
-    "dependencies": ["steal.c:remove_worn_item", "do_wear.c:set_wear", "do_wear.c:Amulet_off", "worn.c:setworn", "do_wear.c:cancel_doff"]
+    "functions": [
+      "poly_obj"
+    ],
+    "callers": [
+      "potion.c:potion_dip (potion.c:2442-2492)"
+    ],
+    "dependencies": [
+      "steal.c:remove_worn_item",
+      "do_wear.c:set_wear",
+      "do_wear.c:Amulet_off",
+      "worn.c:setworn",
+      "do_wear.c:cancel_doff"
+    ]
   },
   "goalKind": "file-port",
   "evidence": [
@@ -41,5 +53,19 @@
     "nethack-c/upstream/src/steal.c:213-290 implements remove_worn_item: W_AMUL calls Amulet_off(), then any remaining worn bits go through setnotworn(). do_wear.c:1642-1659 requires cancel_doff() as part of worn-slot changes. js/steal.js:375 currently calls setnotworn(obj, { state }), dropping the hooks from its environment; preserve the do_wear hook environment when enabling this path for other amulet types.",
     "nethack-c/upstream/src/potion.c:2442-2492 calls poly_obj from potion_dip for polymorphing the dipped object. The synthetic input exercises that production path with a worn ESP amulet and a polymorph potion.",
     "The ordinary baseline diagnostic is .cache/A2-v64-worn-amulet-poly-scan.json at replay commit 4c0954db711c705152053bc79650fc35208886a0. It reports the error through potion_dip -> poly_obj -> setworn: worn requires cancelDoff for otyp 201. The accepted v64 manifest records the C step 173 boundary and an observational match through step 172."
-  ]
+  ],
+  "correction": {
+    "hostedCandidate": "98a56ec0a87a7ca742189a3f045da03d41ee193c",
+    "hostedRun": "38515123991",
+    "bridge": "c6fafe647e759ac0c07a9a9da258c25afb859e6a",
+    "correctionScope": [
+      "do_wear.c:disintegrate_arm",
+      "js/do_wear.js",
+      "scripts/zap-poly-obj.test.mjs"
+    ],
+    "sourceOrder": "C calls wornarm_destroyed(otmp), then selftouch(\"You\") only for glove loss, then stop_occupation(). The JS caller now awaits the existing selftouch helper in that order.",
+    "focusedTest": "node --test scripts/zap-poly-obj.test.mjs passed; npx eslint js/do_wear.js scripts/zap-poly-obj.test.mjs passed.",
+    "holdoutReplay": ".cache/A2-group50-correction-holdout-scan.json",
+    "holdoutFinding": "The replay still over-reads after a #version screen mismatch at step 1585 (MacOS C vs Unix JS). Remaining trap.c selftouch is attributed to do.js:3048 goto_level, not disintegrate_arm; other gaps are sounds.c SoundAchievement and shk.c fix_shop_damage. No boundary check was suppressed."
+  }
 }

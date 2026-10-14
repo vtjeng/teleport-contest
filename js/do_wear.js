@@ -223,6 +223,7 @@ import {
     float_down,
     float_up,
     instapetrify,
+    selftouch,
     unconscious,
 } from './trap.js';
 import {
@@ -4215,7 +4216,7 @@ export async function disintegrate_arm(
 
     await wornarm_destroyed(armor, state);
     if (losingGloves)
-        note_unported('trap.c selftouch');
+        await selftouch('You', state, rawEnv);
     const { stop_occupation } = await import('./allmain.js');
     await stop_occupation(state, { message: ttyPline });
     return 1;
