@@ -314388,7 +314388,7 @@
     {
       "id": "A2-fix-v73-vanquished-quit-stopprint-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement list_vanquished from insight.c",
       "cFile": "insight.c",
       "sessions": [
@@ -314398,15 +314398,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
       "delivered": null,
       "function": "list_vanquished",
-      "session": "synthetic/v73/v73-quit-vanquished-q-action6"
+      "session": "synthetic/v73/v73-quit-vanquished-q-action6",
+      "closeStanding": {
+        "sha": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "target": "synthetic/v73/v73-quit-vanquished-q-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba/run-hosted-PWt4pH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "list_vanquished",
+            "implementation": "js/insight.js",
+            "symbol": "list_vanquished",
+            "sourceReview": "Read upstream insight.c:list_vanquished() lines 2784-2952 and traced its final-disclosure caller. When the answer is q and ntypes is nonzero, C increments done_stopprint, which is a macro for program_state.stopprint. The JavaScript branch now calls the same insight.js disclosureStop helper used by list_genocided; there is no RNG call or unported callee in this branch.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c:619-660 calls list_vanquished during final disclosure; end.c:1280 calls disclose from really_done"
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "dovanquished",
+                "source": "insight.c:2769-2775 calls list_vanquished for #vanquished"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-quit-vanquished-q-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 191,
+                "source": "#quit -> end.c:really_done -> end.c:disclose -> insight.c:list_vanquished; real lichen kill creates a nonempty vanquished list and q exercises the stopprint increment"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The changed branch is reached through #quit final disclosure (end.c:really_done/disclose) after at least one monster has been vanquished. The independently reachable #vanquished command calls the same function with ask=false through insight.c:dovanquished but does not exercise this q prompt branch. The DUMPLOG caller is conditional on DUMPLOG and is outside the recorder configuration; this task changes only the active final-disclosure q branch.",
+        "entryPoints": [
+          {
+            "name": "Final disclosure after #quit",
+            "functions": [
+              "list_vanquished"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-quit-vanquished-q-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 191,
+                "source": "end.c:really_done -> end.c:disclose -> insight.c:list_vanquished"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "A2-fix-v73-archon-gazemm-ad-blnd-import-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement gazemm from mhitm.c",
       "cFile": "mhitm.c",
       "sessions": [
@@ -314416,15 +314484,81 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
       "delivered": null,
       "function": "gazemm",
-      "session": "synthetic/v73/v73-archon-monster-gaze-scout1"
+      "session": "synthetic/v73/v73-archon-monster-gaze-scout1",
+      "closeStanding": {
+        "sha": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "target": "synthetic/v73/v73-archon-monster-gaze-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba/run-hosted-PWt4pH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "gazemm",
+            "implementation": "js/mhitm.js",
+            "symbol": "gazemm",
+            "sourceReview": "Read the full upstream mhitm.c:gazemm() function at lines 736-805 and its caller dispatch in mattackm(). The Archon branch compares mattk->adtyp with AD_BLND, then applies blindness and may consume rn2(2) for stun; the JavaScript implementation already follows that behavior but referenced AD_BLND without importing it from monsters.js. This task adds the missing source constant import and does not change evaluation or RNG order.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm AT_GAZE dispatch calls gazemm"
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move_aggress",
+                "source": "monmove.c:m_move_aggress calls mattackm when a monster attacks an occupant"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-archon-monster-gaze-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 437,
+                "source": "debug-created tame Archon and hostile red dragon fight through monmove.c:m_move_aggress -> mhitm.c:mattackm AT_GAZE -> mhitm.c:gazemm; the Archon's AD_BLND gaze applies blindness and its stun gate"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The changed import is consumed only by gazemm's AT_GAZE execution, reached through mattackm's production callers. This admitted recording exercises monmove.c:m_move_aggress with a tame Archon attacking an eyed hostile red dragon; pet and other monster-vs-monster callers share the same mattackm dispatch and are not changed by this fix.",
+        "entryPoints": [
+          {
+            "name": "Monster-versus-monster Archon gaze",
+            "functions": [
+              "gazemm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-archon-monster-gaze-scout1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 437,
+                "source": "monmove.c:m_move_aggress -> mhitm.c:mattackm AT_GAZE -> mhitm.c:gazemm"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "pager-trapped-monster-description-v73",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement look_at_monster from pager.c",
       "cFile": "pager.c",
       "sessions": [
@@ -314434,15 +314568,88 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
       "delivered": null,
       "function": "look_at_monster",
-      "session": "synthetic/v73/v73-nonsteed-bear-farlook-action2"
+      "session": "synthetic/v73/v73-nonsteed-bear-farlook-action2",
+      "closeStanding": {
+        "sha": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "target": "synthetic/v73/v73-nonsteed-bear-farlook-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba/run-hosted-PWt4pH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "look_at_monster",
+            "implementation": "js/pager.js",
+            "symbol": "look_at_monster",
+            "sourceReview": "Read upstream pager.c:look_at_monster() lines 422-552 and the production caller chain through pager.c:do_screen_description() and getpos.c:auto_describe(). For a visible mtrapped monster, C obtains t_at() and uses NO_TRAP when absent; only BEAR_TRAP, is_pit(tt) (PIT or SPIKED_PIT), and WEB add a trapped-in description. The source calls trapname(tt, FALSE), prefixes the result with an article, and marks the actual trap tseen. JavaScript had the same surrounding function and already imported trapname, but instead indexed the undeclared TRAP_DESCRIPTIONS map. The fix selects the source trap types with BEAR_TRAP/is_pit/WEB, uses trapname(ttype, false, state), and mutates tseen only when an actual matching trap exists. Existing trapname implementation is the source.c callee used for its display/RNG behavior; no call is skipped or replaced.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "do_screen_description",
+                "source": "pager.c:do_screen_description calls lookat(), which dispatches a visible monster to look_at_monster()"
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "auto_describe",
+                "source": "getpos.c:auto_describe calls do_screen_description for the selected cursor coordinate"
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "lookat",
+                "source": "pager.c:lookat calls look_at_monster for the selected monster coordinate"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-nonsteed-bear-farlook-action2",
+                "segment": 0,
+                "fromStep": 297,
+                "throughStep": 298,
+                "source": "getpos.c:getpos -> getpos.c:auto_describe -> pager.c:do_screen_description -> pager.c:lookat -> pager.c:look_at_monster; step 297 establishes the bear-trapped mastodon and step 298 produces the trapped-monster farlook description"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The corrected branch is the trapped-monster description within pager.c:look_at_monster. The admitted v73 recipe drives a never-mounted mastodon into a real bear trap, then uses wizard telekinesis/getpos auto-description to exercise the production caller chain. This task changes no other pager entry point; the full admitted recording now matches through its 373 screens.",
+        "entryPoints": [
+          {
+            "name": "Getpos farlook of a visible trapped nonsteed monster",
+            "functions": [
+              "look_at_monster"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-nonsteed-bear-farlook-action2",
+                "segment": 0,
+                "fromStep": 297,
+                "throughStep": 298,
+                "source": "getpos.c:auto_describe -> pager.c:do_screen_description -> pager.c:look_at_monster"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v73-mounted-floor-gold-y-monnam-import-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement stealgold from steal.c",
       "cFile": "steal.c",
       "sessions": [
@@ -314452,15 +314659,114 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
       "delivered": null,
       "function": "stealgold",
-      "session": "synthetic/v73/v73-mounted-floor-gold-action4"
+      "session": "synthetic/v73/v73-mounted-floor-gold-action4",
+      "closeStanding": {
+        "sha": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "target": "synthetic/v73/v73-mounted-floor-gold-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba/run-hosted-PWt4pH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "stealgold",
+            "implementation": "js/steal.js",
+            "symbol": "stealgold",
+            "sourceReview": "Read steal.c:stealgold() in full (58-116), checking lesser-gold skipping, floor-versus-carried stack selection and rn2 ordering, ownership transfer and redraw before the mounted/unmounted message branches, the slithy body-part substitution, conditional relocation/flee, carried-gold splitting and final botl update. JS follows those branches; the mounted branch referenced y_monnam without importing it. The task adds the existing do_name.js binding and changes no branch or RNG order.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sgld",
+                "source": "uhitm.c:mhitm_ad_sgld() calls steal.c:stealgold() after hitmsg when a non-cancelled AD_SGLD monster attacks the hero; js/uhitm.js:mhitm_ad_sgld() calls js/steal.js:stealgold() in that same branch. The cited admitted case reaches the caller with a mounted hero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-sgld.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-mounted-floor-gold-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 456,
+                "source": "uhitm.c:mhitm_ad_sgld -> steal.c:stealgold -> do_name.c:y_monnam; the leprechaun steals floor gold from under the hero’s tame steed."
+              }
+            ]
+          },
+          {
+            "name": "mhitm_ad_sgld",
+            "sourceFile": "uhitm.c",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_sgld",
+            "sourceReview": "Read uhitm.c:mhitm_ad_sgld() in full (2790-2855), checking hero-to-monster, monster-to-hero and monster-pair branches, damage and hitflag updates, cancellation and call order. The changed scenario enters the monster-to-hero branch: it reports the hit, returns for same species, and calls stealgold only when the attacker is not cancelled. JS retains that caller and dispatch order.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping() dispatches AD_SGLD to mhitm_ad_sgld() at its switch; js/uhitm.js:mhitm_adtyping() dispatches the same AD_SGLD value to js/uhitm.js:mhitm_ad_sgld()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-sgld.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-mounted-floor-gold-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 456,
+                "source": "uhitm.c:mhitm_ad_sgld -> steal.c:stealgold -> do_name.c:y_monnam; the leprechaun steals floor gold from under the hero’s tame steed."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted entry point is a non-cancelled leprechaun AD_SGLD attack against a mounted hero who has a larger floor-gold pile under the steed than carried gold. uhitm.c:mhitm_ad_sgld() dispatches to steal.c:stealgold(); the corrected JS import resolves the mounted steed name after the gold transfer, and the replay matches the full recording.",
+        "entryPoints": [
+          {
+            "name": "A leprechaun steals floor gold from beneath a mounted hero",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_sgld"
+              },
+              {
+                "sourceFile": "steal.c",
+                "name": "stealgold"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-mounted-floor-gold-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 456,
+                "source": "uhitm.c:mhitm_ad_sgld -> steal.c:stealgold -> do_name.c:y_monnam; the leprechaun steals floor gold from under the hero’s tame steed."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "uhitm-nurse-sick-clear-v73",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mhitm_ad_heal from uhitm.c",
       "cFile": "uhitm.c",
       "sessions": [
@@ -314470,10 +314776,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
       "delivered": null,
       "function": "mhitm_ad_heal",
-      "session": "synthetic/v73/v73-sick-nurse-scout1"
+      "session": "synthetic/v73/v73-sick-nurse-scout1",
+      "closeStanding": {
+        "sha": "c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "884d8d9e40bc31e62b87b33c23c4ae3f1a855a12",
+        "target": "synthetic/v73/v73-sick-nurse-scout1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c2c8bf3c1abc2a2c68470eadc68b2e7014bfa4ba/run-hosted-PWt4pH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mhitm_ad_heal",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_heal",
+            "sourceReview": "Read the full upstream uhitm.c:mhitm_ad_heal() function at lines 4295-4385, including attacker/defender branches, the weapon and armor refusal, Nurse HP and maximum-HP update order, exercise gates, sickness cure, Nurse departure/flee paths, and monster-versus-monster physical delegation. In the unarmed/unarmored hero branch, C checks Sick and calls make_sick(0L, NULL, FALSE, SICK_ALL); include/you.h defines SICK_ALL as 0x03. js/uhitm.js already implements the same branch and passes that exact argument to make_sick, but did not import SICK_ALL from const.js. This task adds only the missing import and a source-pinned regression assertion; it does not change evaluation order or random draws. make_sick remains the existing implemented callee and no C result is skipped.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_HEAL to mhitm_ad_heal"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku calls mhitm_adtyping for the Nurse's attack on the hero"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-heal.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-sick-nurse-scout1",
+                "segment": 0,
+                "fromStep": 179,
+                "throughStep": 179,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_HEAL) -> uhitm.c:mhitm_ad_heal; the sick, unarmed, unarmored hero receives the Nurse heal and make_sick(..., SICK_ALL) cure"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The changed constant is consumed by the sick-hero branch of the existing Nurse-healing implementation. This admitted v73 case creates an actually sick hero and a hostile Nurse; the production attacker path reaches mhitm_ad_heal at segment 0 step 179. Other mhitm_ad_heal branches are unchanged by this import-only correction.",
+        "entryPoints": [
+          {
+            "name": "A hostile Nurse heals and cures a sick unarmored hero",
+            "functions": [
+              "mhitm_ad_heal"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v73",
+                "caseId": "v73-sick-nurse-scout1",
+                "segment": 0,
+                "fromStep": 179,
+                "throughStep": 179,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_heal"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
