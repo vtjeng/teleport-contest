@@ -12,7 +12,7 @@
   "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
   "remainingScreens": 1,
   "recordedSteps": 165,
-  "status": "blocked",
+  "status": "partial",
   "mismatch": {
     "screen": {
       "index": 137,
@@ -25,7 +25,9 @@
       "jsText": "It cries out in pain!"
     },
     "rng": null,
-    "cursor": null
+    "cursor": null,
+    "session": "synthetic/v58/v58-gremlin-scroll-light-action1",
+    "remainingScreens": 1
   },
   "summary": "The light scroll damages a visible gremlin after the room-lighting temporary-blindness pass, but JavaScript uses the generic pronoun because it does not restore vision before light damage.",
   "source": {
@@ -54,5 +56,6 @@
     "owner": "A2",
     "task": "A2-investigation-v58-swallowed-light-action2-20261013",
     "reason": "The selected mismatch is a distinct branch in the same source function reserved by A2. Keep one owner for the whole C source function until that delivery is accepted or A2 releases it."
-  }
+  },
+  "commit": "ad8183053942d278e39ccbd34341ee3581fdd422"
 }
