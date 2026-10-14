@@ -1,0 +1,103 @@
+{
+  "session": "synthetic/v64/v64-stair-shipped-object-arrival-action3",
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-stair-shipped-object-arrival-action3",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingPath": "challenges/cases/v64/v64-stair-shipped-object-arrival-action3.session.json",
+  "recordingSha256": "c44a8ac5aa0ea15b4677d5ee373a5e5fdc261b781741ff62b3bbf8a21d50ccbf",
+  "evaluationPath": "challenges/evaluations/accepted-92dd522455f1b4309973280d93c5fb72a3257997-v64.json",
+  "evaluationCommit": "92dd522455f1b4309973280d93c5fb72a3257997",
+  "baseline": {
+    "screens": "263/336",
+    "rng": "3899/5115",
+    "cursors": "263/336",
+    "error": null
+  },
+  "firstMismatch": {
+    "segment": 0,
+    "step": 263,
+    "key": ">",
+    "owner": "do.c:goto_level migrating object delivery",
+    "cSource": "dokick.c:ship_object() (1639-1765), dokick.c:obj_delivery() (1769-1845), do.c:goto_level() calls obj_delivery(FALSE) before run_timers() and obj_delivery(TRUE) after the arrival-room messages",
+    "javascript": "js/dokick.js ports ship_object() and migration setup, but js/do.js:obj_delivery() only records note_unported('dokick.c obj_delivery') when migrating objects exist. During the first next-level generation, js/makemon_create.js:makemon() also fails closed on any migrating_objs list before C's supported level generation can finish.",
+    "observed": "The recipe throws three apples down the actual downstairs. C ships the first and third and impact-drops the second; after descent, C places the three surviving apples by the upstairs. At step 263 C starts level generation and records rn2(3)=2 in rndmonst_adj(makemon.c:1716). JavaScript stops before level generation with UnsupportedMonsterCreationError: migrating object delivery.",
+    "replay": {
+      "command": "replayChallengeCases() for v64-stair-shipped-object-arrival-action3",
+      "recordingSha256": "c44a8ac5aa0ea15b4677d5ee373a5e5fdc261b781741ff62b3bbf8a21d50ccbf",
+      "screens": "263/336",
+      "rng": "3899/5115",
+      "cursors": "263/336",
+      "error": null,
+      "firstRngMismatch": "C rn2(3)=2 at rndmonst_adj(makemon.c:1716), step 263",
+      "firstScreenMismatch": "C step 263 exists; JavaScript stops at that command"
+    }
+  },
+  "sourceTrace": {
+    "recipe": "Three independently thrown apples exercise ship_object()'s random ladder/stair drop choice and impact_drop(); following the stair enters do.c:goto_level() with migrated ordinary objects waiting for delivery.",
+    "sourceFunctions": [
+      "dokick.c:obj_delivery",
+      "do.c:goto_level",
+      "makemon.c:makemon (remove the JavaScript-only blanket refusal; C's discarded deliver_obj_to_mon call remains an explicit gap if that callee is not included)"
+    ],
+    "helpersAlreadyPorted": [
+      "stairs.c:stairway_find_from",
+      "obj.c:place_object",
+      "dothrow.c:breaktest",
+      "dothrow.c:breaks",
+      "invent.c:delobj",
+      "invent.c:stackobj",
+      "explode.c:scatter",
+      "teleport.c:rloco"
+    ],
+    "implementationBoundary": "Port the complete dokick.c:obj_delivery() and wire its existing do.c:goto_level() callers. The only dynamic blocker after that is makemon.c:makemon's JavaScript-only refusal; its C void call to dokick.c:deliver_obj_to_mon() can be retained as note_unported if that function remains outside this bounded task."
+  },
+  "status": "complete",
+  "commit": "adc0e4d8871f75080a68a3049f58f0b8b4d5660f",
+  "remainingScreens": 73,
+  "recordedSteps": 336,
+  "priorDiagnosticProvenance": {
+    "manifestSha256": "5ee6106367aa36b4d0619c1c71081129ab0354766cf1deb37cc34887bf12aa02",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "baseline": {
+      "screens": "263/336",
+      "rng": "3899/5115",
+      "cursors": "263/336",
+      "error": null
+    }
+  },
+  "mismatch": {
+    "session": "synthetic/v64/v64-stair-shipped-object-arrival-action3",
+    "remainingScreens": 73,
+    "kind": "stop",
+    "step": 263,
+    "key": ">",
+    "message": "js/dokick.js ports ship_object() and migration setup, but js/do.js:obj_delivery() only records note_unported('dokick.c obj_delivery') when migrating objects exist. During the first next-level generation, js/makemon_create.js:makemon() also fails closed on any migrating_objs list before C's supported level generation can finish."
+  },
+  "evidence": [
+    "The original diagnostic baseline recorded 263/336 screens, 3899/5115 RNG calls, and 263/336 cursors at the first stop in segment 0, step 263. Its recording SHA is unchanged.",
+    "The accepted 92dd v64 baseline retains the same manifest case recording SHA c44a8ac5aa0ea15b4677d5ee373a5e5fdc261b781741ff62b3bbf8a21d50ccbf and the same 263/336 screens, 3899/5115 RNG calls, 263/336 cursors, null error, and step-263 migrating-object-delivery stop. The manifest/evaluation identity changed; the earlier diagnostic provenance is retained separately.",
+    "The recipe sends three apples down the actual downstairs. The selected mismatch occurs in do.c:goto_level() during level transition; dokick.c:obj_delivery() is called before timers and again after arrival messages. makemon.c:makemon() removes no result from deliver_obj_to_mon(); that remaining void callee is recorded with note_unported()."
+  ],
+  "goalKind": "divergence-fix",
+  "source": {
+    "file": "dokick.c",
+    "branch": "obj_delivery() delivers migrating objects whose destination is the level being entered; do.c:goto_level() calls it before away-time timers and after arrival messages.",
+    "functions": [
+      "obj_delivery",
+      "goto_level",
+      "makemon"
+    ],
+    "callers": [
+      "do.c:goto_level() calls dokick.c:obj_delivery(FALSE) before run_timers() and obj_delivery(TRUE) after the room-entry message.",
+      "do.c:dodown() reaches goto_level() for the recorded downstairs input; JavaScript js/do.js:goto_level() now awaits the imported js/dokick.js:obj_delivery() at both source sites.",
+      "makemon.c:makemon() calls dokick.c:deliver_obj_to_mon() after inventory and strategy setup when allow_minvent and gm.migrating_objs are true; this discarded-result callee remains an explicit gap."
+    ],
+    "dependencies": [
+      "dokick.c:deliver_obj_to_mon() is not ported in this bounded task; makemon.c discards its result and JavaScript records note_unported() at the matching call site."
+    ]
+  },
+  "summary": "The downstairs transition stops because dokick.c:obj_delivery() is still a JavaScript gap and makemon.c:makemon() has a blanket refusal for migrating objects. Port the full delivery function and remove that unsupported refusal, preserving the discarded deliver_obj_to_mon() gap according to C call semantics."
+}
