@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-sokoban-thrown-pit-fill-action1",
+  "remainingScreens": 29,
+  "recordedSteps": 533,
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingSha256": "d711a11c657195b69b4eff33d55758ec0f667d191c8ba6f0bd2905439faa42ff",
+  "recipeSha256": "65da6d7511d490c70cec06816262284189e724c21a9a1e308cbd0821a000e277",
+  "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v65.json",
+  "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+  "status": "complete",
+  "commit": "e29f1be60f8e8ad8f649b971783381794c0e8b01",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v65",
+    "caseId": "v65-sokoban-thrown-pit-fill-action1",
+    "session": "synthetic/v65/v65-sokoban-thrown-pit-fill-action1",
+    "manifestPath": "challenges/manifests/v65.json",
+    "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+    "recordingPath": "challenges/cases/v65/v65-sokoban-thrown-pit-fill-action1.session.json",
+    "recordingSha256": "d711a11c657195b69b4eff33d55758ec0f667d191c8ba6f0bd2905439faa42ff",
+    "recipePath": "challenges/cases/v65/v65-sokoban-thrown-pit-fill-action1.recipe.session.json",
+    "recipeSha256": "65da6d7511d490c70cec06816262284189e724c21a9a1e308cbd0821a000e277",
+    "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v65.json",
+    "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+    "remainingScreens": 29,
+    "recordedSteps": 533,
+    "metrics": {
+      "screens": {
+        "matched": 504,
+        "total": 533
+      },
+      "rng": {
+        "matched": 7673,
+        "total": 7680
+      },
+      "cursors": {
+        "matched": 504,
+        "total": 533
+      }
+    },
+    "firstMismatch": {
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 504,
+        "key": "l"
+      },
+      "kind": "boundary",
+      "boundary": "unsupported hero command: an unported branch of this command: blockPoint is not available for otyp 475",
+      "screenMatchedPrefix": 504,
+      "rngMatchedPrefix": 7673,
+      "cursorMatchedPrefix": 504,
+      "sourceFile": "dothrow.c",
+      "function": "throwit",
+      "line": 1824
+    }
+  },
+  "summary": "The throw at step 504 reaches dothrow.c:throwit()'s ordinary landing path. JavaScript's flooreffects() returns false for the boulder's final landing square, then throwit() calls place_object() without the blockPoint hook required for boulders. The call stops at obj.js:place_object()'s fail-closed hook check. C's dothrow.c:throwit() calls mkobj.c:place_object(), whose boulder arm invokes vision.c:block_point(). Wire that existing operation into the throwit caller.",
+  "source": {
+    "file": "dothrow.c",
+    "branch": "throwit()'s final placement after flooreffects() returns false",
+    "functions": [
+      "throwit"
+    ],
+    "callers": [
+      "dothrow.c:dothrow -> throw_obj -> throwit",
+      "dothrow.c:throwit -> flooreffects",
+      "dothrow.c:throwit -> mkobj.c:place_object -> vision.c:block_point"
+    ],
+    "relevantSource": {
+      "dothrow": "dothrow.c:1510-1848 calls flooreffects() at 1804 and place_object() at 1824.",
+      "mkobj": "mkobj.c:2305-2333 places the object and calls block_point(x,y) for BOULDER.",
+      "vision": "vision.c:block_point() updates the blocked-vision state."
+    },
+    "js": {
+      "throwit": "js/dothrow.js:2606 calls flooreffects(), then place_object(obj,bx,by,{state}) at line 2919.",
+      "placement": "js/obj.js:2887-2924 requires and invokes hooks.blockPoint for BOULDER.",
+      "existingHelper": "js/vision.js exports block_point(x,y,state)."
+    }
+  },
+  "evidence": [
+    "The saved v65 evaluation identifies this case by recording SHA d711a11c657195b69b4eff33d55758ec0f667d191c8ba6f0bd2905439faa42ff and reports 504/533 screens, 7673/7680 RNG calls, and 504/533 cursors matched.",
+    "Fresh bounded replay at worker HEAD e29f1be60f8e8ad8f649b971783381794c0e8b01 emits 504 screens and reaches its first unported boundary on input key 'l' at step 504: blockPoint is not available for otyp 475 (BOULDER). This is the recorded eastward throw's landing path.",
+    "A read-only prefix replay through step 504 shows hero position (41,11) and throw landing bhitpos (45,11); the selected target pit at (42,11) is not the final landing square. The boulder does not enter a pit at this step, so no pit-fill behavior is claimed by this diagnosis.",
+    "Upstream dothrow.c:throwit() (1510-1848) calls flooreffects() before place_object() (1824). Upstream mkobj.c:place_object() (2305-2333) calls block_point(x,y) for BOULDER. JavaScript throwit() calls place_object(obj,bx,by,{state}), while js/obj.js requires a blockPoint hook for BOULDER; js/vision.js already exports block_point().",
+    "The failure is the missing caller operation at dothrow.c:throwit(), not a missing mkobj.c place_object or vision.c block_point implementation."
+  ],
+  "goalKind": "divergence-fix"
+}
