@@ -14,6 +14,7 @@
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
 //         dat/Wiz-filb.lua, dat/Wiz-goal.lua, dat/Kni-fila.lua, dat/Sam-fila.lua,
+//         dat/Rog-fila.lua,
 //         dat/Hea-fila.lua,
 //         dat/Hea-filb.lua, dat/Cav-filb.lua, dat/Ran-fila.lua,
 //         dat/Mon-fila.lua, dat/Mon-filb.lua,
@@ -1437,6 +1438,58 @@ async function samFila(des) {
     for (let i = 0; i < 5; ++i) await des.monster('wolf');
     await des.monster('stalker');
     for (let i = 0; i < 4; ++i) await des.trap();
+}
+
+// C ref: complete dat/Rog-fila.lua. Keep all six room callbacks and their
+// source-ordered contents before connecting the Rogue quest filler rooms.
+async function rogFila(des) {
+    await des.room({ type: 'ordinary', async contents() {
+        await des.stair('up');
+        await des.object();
+        await des.monster({ id: 'leprechaun', peaceful: 0 });
+    }});
+
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.object();
+        await des.monster({ id: 'leprechaun', peaceful: 0 });
+        await des.monster({ id: 'guardian naga', peaceful: 0 });
+    }});
+
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.trap();
+        await des.trap();
+        await des.object();
+        await des.monster({ id: 'water nymph', peaceful: 0 });
+    }});
+
+    await des.room({ type: 'ordinary', async contents() {
+        await des.stair('down');
+        await des.object();
+        await des.trap();
+        await des.trap();
+        await des.monster({ class: 'l', peaceful: 0 });
+        await des.monster({ id: 'guardian naga', peaceful: 0 });
+    }});
+
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.object();
+        await des.trap();
+        await des.trap();
+        await des.monster({ id: 'leprechaun', peaceful: 0 });
+    }});
+
+    await des.room({ type: 'ordinary', async contents() {
+        await des.object();
+        await des.trap();
+        await des.trap();
+        await des.monster({ id: 'leprechaun', peaceful: 0 });
+        await des.monster({ id: 'water nymph', peaceful: 0 });
+    }});
+
+    await des.random_corridors();
 }
 
 // C ref: dat/Ran-loca.lua. Preserve the source's map, region, stair, and
@@ -3298,6 +3351,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Tou-goal': touGoal,
     'Kni-fila': kniFila,
     'Sam-fila': samFila,
+    'Rog-fila': rogFila,
     'Kni-loca': kniLoca,
     'Ran-loca': ranLoca,
     'Ran-fila': ranFila,
