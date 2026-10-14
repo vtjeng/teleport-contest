@@ -1,0 +1,52 @@
+{
+  "session": "synthetic/v64/v64-wielded-statue-animation-action4",
+  "remainingScreens": 18,
+  "recordedSteps": 161,
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-wielded-statue-animation-action4",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingSha256": "122943ab948a4fdf8eb1fc750458d7f42b7656e0ff254561a389f232878b00c3",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "status": "complete",
+  "commit": "1719e8f1aa364299e95b7b6041d0f7ae4cc19d74",
+  "mismatch": {
+    "kind": "synthetic",
+    "corpus": "synthetic",
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v64/v64-wielded-statue-animation-action4"
+    ],
+    "remainingScreens": 18,
+    "remainingScreensUpperBound": null,
+    "earliestStep": 143,
+    "caseId": "v64-wielded-statue-animation-action4",
+    "batch": "v64",
+    "recordingPath": "challenges/cases/v64/v64-wielded-statue-animation-action4.session.json"
+  },
+  "summary": "C trap.c:animate_statue removes a worn statue before deleting it. JS recorded that call as unported, leaving a wielded statue in the weapon slot after stone-to-flesh animation. The fix calls the existing steal.js remove_worn_item implementation before delobj; the admitted case now matches completely.",
+  "source": {
+    "file": "trap.c",
+    "branch": "When a statue has a nonzero owornmask, animate_statue calls remove_worn_item(statue, TRUE) after monster inventory setup and before delobj.",
+    "functions": [
+      "animate_statue"
+    ],
+    "callers": [
+      "zap.c:stone_to_flesh_obj calls animate_statue with ANIMATE_SPELL for a statue hit by stone-to-flesh; this is the admitted mismatch path.",
+      "trap.c:activate_statue_trap calls animate_statue for a triggered statue trap."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Read nethack-c/upstream/src/trap.c:888-889: animate_statue removes a worn statue before deleting it. The same function is called by zap.c:stone_to_flesh_obj and trap.c:activate_statue_trap.",
+    "At the examined commit, js/trap.js:3532-3534 called note_unported('steal.c remove_worn_item') before delobj. The existing js/steal.js:330-374 implementation clears W_WEAPONS state through uwepgone and setnotworn.",
+    "The admitted evaluation at challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v64.json recorded 143/161 screens, 2514/2528 RNG calls, and 143/161 cursors. The exact pre-fix fresh replay first lacked output after input step 143; see .cache/B-v64-statue-before.log.",
+    "The source fix awaits remove_worn_item before delobj, and scripts/zapyourself.test.mjs checks the wielded slot and worn mask are cleared. The focused test passed 19/19 and npm run lint passed; see .cache/B-v64-statue-focused.log and .cache/B-v64-statue-lint.log.",
+    "The post-fix fresh replay of challenges/cases/v64/v64-wielded-statue-animation-action4.recipe.session.json matched 2528/2528 RNG calls, 161/161 screens, and 161/161 cursors; see .cache/B-v64-statue-after.log."
+  ]
+}
