@@ -376,7 +376,7 @@ test('unpaid naming uses total billed contents and suppresses prices when reques
     assert.equal(dart.where, OBJ_ONBILL);
 });
 
-test('monster planning owns its bill arrays, bill-object chain, room links and display RNG', async () => {
+test('monster planning owns bill state and keeps ordinary naming RNG-neutral', async () => {
     const { state, keeper, eshk, env } = await shop();
     const dart = object(state, DART, { quan: 3 });
     await addtobill(dart, true, false, true, state, env);
@@ -386,7 +386,7 @@ test('monster planning owns its bill arrays, bill-object chain, room links and d
     keeper.movement = 0; // No monster allocation before the custom turn boundary.
     state.u.umovement = 0;
     state.u.uprops[HALLUC].intrinsic = 10;
-    const rngBefore = structuredClone(state.displayCtx);
+    const displayRngBefore = structuredClone(state.displayCtx);
     const billBefore = structuredClone(eshk.bill_p);
     let reached = false;
     await preflightSimpleMonsterActions(state, {
@@ -402,8 +402,14 @@ test('monster planning owns its bill arrays, bill-object chain, room links and d
             assert.notEqual(plannedShop.bill_p[0], eshk.bill_p[0]);
             assert.notEqual(planned.gb.billobjs, used);
             assert.equal(planned.gb.billobjs.o_id, used.o_id);
+            const displayBeforeName = structuredClone(planned.displayCtx);
             donameFresh(planned.invent, planned);
-            assert.notDeepEqual(planned.displayCtx, rngBefore);
+            // objnam.c:doname_base does not call invent.c:currency or draw
+            // either random stream. The currency ROLL_FROM draw belongs to
+            // invent.c:xprname and uses gameplay rn2, so this ordinary name
+            // must leave the planner's display stream unchanged.
+            assert.notEqual(planned.displayCtx, state.displayCtx);
+            assert.deepEqual(planned.displayCtx, displayBeforeName);
             subfrombill(planned.invent, plannedKeeper, planned, { ...env, state: planned });
             setpaid(plannedKeeper, planned);
             assert.equal(planned.gb.billobjs, null);
@@ -418,7 +424,7 @@ test('monster planning owns its bill arrays, bill-object chain, room links and d
     assert.equal(dart.unpaid, 1);
     assert.equal(eshk.billct, 2);
     assert.deepEqual(eshk.bill_p, billBefore);
-    assert.deepEqual(state.displayCtx, rngBefore);
+    assert.deepEqual(state.displayCtx, displayRngBefore);
 });
 
 test('planned shopkeeper death cannot settle live buried or migrating objects', async () => {
