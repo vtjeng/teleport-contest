@@ -2514,3 +2514,13 @@ test('uhitm.c passive resolves a floating-eye gaze before Free_action', async ()
     const result = compareSessionOutputs(recording, js);
     assert.equal(result.passed, true, JSON.stringify(result));
 });
+
+test('uhitm.c applies the elven-bow bonus on the admitted thrown-arrow hit', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v72/v72-elf-bow-shot-action2.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
+});

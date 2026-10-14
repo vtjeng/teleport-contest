@@ -584,6 +584,7 @@ import {
     DUNCE_CAP,
     EGG,
     ELVEN_ARROW,
+    ELVEN_BOW,
     EXPENSIVE_CAMERA,
     WAN_LIGHT,
     GAUNTLETS_OF_POWER,
