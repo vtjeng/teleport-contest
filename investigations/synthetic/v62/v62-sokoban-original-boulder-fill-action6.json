@@ -31,7 +31,7 @@
     "branch": "At line 3038, a seen rolling-boulder trap reaches the generic escape roll. It is neither a pit nor a hole, so the Sokoban pit/hole branch does not apply. The JS preflight now lets this trap reach the existing dotrap() implementation.",
     "callers": [
       "hack.c:domove_core moves the hero before hack.c:spoteffects() dispatches the destination trap to trap.c:dotrap().",
-      "js/hack.js:preflight_domove_core() asks preflight_dotrap() about the destination before committing the move; this correction admits the C-supported rolling-trap branch."
+      "js/hack.js:preflightDomoveDestination() calls preflight_dotrap() before committing the move; this correction admits the C-supported rolling-trap branch."
     ],
     "dependencies": [
       "The previously accepted hack.c:moverock_core and trap.c:launch_obj port delivers the boulder to the rolling-boulder trap in this recorded path."
