@@ -5,6 +5,7 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    A_WIS,
     AUTOUNLOCK_APPLY_KEY,
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
