@@ -1,0 +1,50 @@
+{
+  "session": "synthetic/v58/v58-artifact-light-buc-action2",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-artifact-light-buc-action2",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingPath": "challenges/cases/v58/v58-artifact-light-buc-action2.session.json",
+  "recordingSha256": "fe6f97a816ad6950215a850c0649c1ff6908d41e82f0bb4cd8b0b3441791c4bc",
+  "evaluationPath": "challenges/evaluations/accepted-cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec-v58.json",
+  "evaluationCommit": "cb8de9975a5fd4c4016df9ae7aebb1a7d42856ec",
+  "remainingScreens": 0,
+  "recordedSteps": 219,
+  "status": "complete",
+  "commit": "fadc60f56e21cad6448fa7b2b5b745ae05d00e41",
+  "mismatch": {
+    "screen": null,
+    "rng": {
+      "index": 2719,
+      "cEntry": "rn2(100)=4",
+      "cCaller": "obj_resists(zap.c:1469)",
+      "jsEntry": "rn2(19)=18",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 177,
+        "key": "o"
+      },
+      "stepIndex": 177
+    },
+    "cursor": null
+  },
+  "summary": "A cursed light scroll darkens the room while the hero wields a lit Sunsword. C passes that artifact light to impact_arti_light() and consumes obj_resists() before deciding whether to change its BUC state. JavaScript's litroom() leaves the artifact light alone without invoking the helper, shifting RNG at the following boundary.",
+  "source": {
+    "file": "potion.c",
+    "branch": "read.c:litroom(), when turning light off for a cursed light scroll, visits carried lit artifact lights and calls impact_arti_light(obj, TRUE, !Blind); that helper skips already-cursed objects or calls obj_resists(obj, 25, 75) before the BUC dip.",
+    "functions": ["impact_arti_light"],
+    "callers": ["read.c:seffect_light() -> litroom() -> impact_arti_light()", "js/read.js:seffect_light() -> litroom() currently omits the helper call"],
+    "dependencies": ["zap.c:obj_resists() (return value used)", "potion.c:H2Opotion_dip() (result discarded)"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/read.c:1741-1755: seffect_light() calls litroom(!scursed, sobj) for an uncursed or cursed, non-confused scroll.",
+    "nethack-c/upstream/src/read.c:2491-2531: litroom(FALSE, obj) walks carried objects; for a lit artifact_light() it calls impact_arti_light(otmp, TRUE, !Blind) and leaves the artifact lit.",
+    "nethack-c/upstream/src/potion.c:1595-1618: impact_arti_light() returns for an already-cursed artifact or calls obj_resists(obj, 25, 75); a non-resisting artifact is dipped in cursed water through H2Opotion_dip().",
+    "js/read.js:2051-2060 and 2080-2090: litroom() comments that artifact BUC transitions belong to impact_arti_light(), but its darkening loop only skips snuff_lit() for artifact lights and never calls the helper.",
+    "challenges/cases/v58/v58-artifact-light-buc-action2.recipe.session.json: independently wields an uncursed Sunsword, creates a cursed scroll of light, and reads it while the Sunsword is lit.",
+    ".cache/C-v58-artifact-light-buc-before.log: exact replay at fadc60f56e21cad6448fa7b2b5b745ae05d00e41 emitted 219/219 screens and matched 219/219 cursors. At step 177, C first draws rn2(19)=8 for the scroll's Wisdom exercise and then rn2(100)=4 in obj_resists(); JavaScript matches the first draw but instead draws rn2(19)=18 for another exercise. The scan records only the pre-existing sounds.c SoundAchievement gap.",
+    ".cache/C-v58-artifact-light-buc-before.log: RNG mismatch is index 2719 at step 177; this is the omitted artifact-light BUC helper path, not an error in obj_resists() itself."
+  ]
+}
