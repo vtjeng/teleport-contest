@@ -1,0 +1,46 @@
+{
+  "session": "synthetic/v65/v65-options-help-file-action3",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-options-help-file-action3",
+  "remainingScreens": 1,
+  "recordedSteps": 21,
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingSha256": "efe0096a9bf0c8e3905102a4f304f59c01cf48fc72c98cfc75a77116425cd023",
+  "evaluationPath": "challenges/evaluations/accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v65.json",
+  "evaluationCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
+  "status": "implemented-and-matched",
+  "mismatch": {
+    "session": "synthetic/v65/v65-options-help-file-action3",
+    "remainingScreens": 1,
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 20,
+      "message": "unsupported hero command: an unported branch of this command: the options menu requires display_file(OPTMENUHELP)"
+    },
+    "kind": "stop",
+    "sourceFile": "options.c",
+    "function": "doset"
+  },
+  "summary": "The recording reaches the novice-help '?' row in #optionsfull, selects it by itself, dismisses the optmenu help text, then continues with the options menu after C hides the '?' row for that second pass. JavaScript stops at the help selection instead of displaying the existing optmenu text and repeating doset().",
+  "source": {
+    "file": "options.c",
+    "functions": ["doset"],
+    "branch": "options.c:doset() constructs HELP_IDX as SIZE(allopt), maps the '?' entry to HELP_IDX+1, and decodes it by subtracting one from the selected value. At the HELP_IDX branch it calls display_file(OPTMENUHELP, FALSE), sets gavehelp, and continues through the selected items. After destroying the menu, if pick_cnt is exactly one and gavehelp is true, C sets skiphelp, clears gavehelp, and jumps to rerun; the second menu therefore omits '?'. If other picks accompany help, C displays help and processes the other picks without rerunning.",
+    "callers": [
+      "cmd.c:doextcmd() dispatches the optionsfull command to options.c:doset(); the JavaScript command dispatcher already wires this entry point.",
+      "pager.c:dispfile_optmenu() uses the same generated optmenu help text and tty text-window display path already implemented by js/pager.js; exporting this helper lets doset invoke the existing display operation without duplicating help rendering."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v65 evaluation has 20/21 screens and 20/21 cursor positions, while all 2378/2378 RNG calls match. The first JavaScript stop is at step 20, after the help row is selected; there is no earlier screen, cursor, or RNG divergence.",
+    "The C recording shows the optmenu text page and its dismissal, then returns to #optionsfull with the '?' choice omitted because it was the sole selection. The remaining recorded input continues in that second menu.",
+    "Upstream options.c:doset() at the HELP_IDX branch displays OPTMENUHELP and marks gavehelp; its post-menu branch reruns only for a sole help selection, with skiphelp set. The current js/options.js:doset() throws UnsupportedOptionMenuError at the corresponding branch.",
+    "The current js/pager.js already owns the generated optmenu text and displayTtyTextWindow path in dispfile_optmenu(); no new text source or pager behavior is needed.",
+    "After the correction, the bounded v65 scan emits all 21 screens with divergence and boundary null, recordingMatched and inputBoundaryMatched true, no command refusal, and no unported functions. Its synthetic range covers segment 0, steps 0-20, through the help dismissal and second menu.",
+    "Focused options tests pass: scripts/options-toggle.test.mjs (41 tests) and scripts/options-menu.test.mjs (40 tests). ESLint passes for the changed production and test files."
+  ]
+}
