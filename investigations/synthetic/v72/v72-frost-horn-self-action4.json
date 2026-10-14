@@ -1,0 +1,80 @@
+{
+  "session": "synthetic/v72/v72-frost-horn-self-action4",
+  "corpus": "synthetic",
+  "batch": "v72",
+  "caseId": "v72-frost-horn-self-action4",
+  "manifestPath": "challenges/manifests/v72.json",
+  "manifestSha256": "bb9ac32460403524f8684b6f46830ce770940344b7214af7c7fdaef0d04f383e",
+  "recordingPath": "challenges/cases/v72/v72-frost-horn-self-action4.session.json",
+  "recordingSha256": "b6010ee6341a1251c6a60cf3ef15985d48ddf7a7916925d5b4e5f86e4f2cd38c",
+  "evaluationPath": "challenges/evaluations/admission-f10ca4e71210cef7240475cc5de5e8689e8ac3f5-v72.json",
+  "evaluationCommit": "f10ca4e71210cef7240475cc5de5e8689e8ac3f5",
+  "evaluationBlob": "d1f964a8b233d32e31f884598a51115662e4ae20",
+  "remainingScreens": 0,
+  "recordedSteps": 278,
+  "status": "complete",
+  "commit": "a93d8ad4367fc8a1dfabf257565342ef566d888a",
+  "mismatch": {
+    "segment": 0,
+    "step": 217,
+    "key": ".",
+    "kind": "ReferenceError",
+    "error": "KILLED_BY is not defined",
+    "source": "music.c:do_improvisation622-624"
+  },
+  "diagnosis": "The admitted sequence activates an unresisted frost horn and directs it at the hero. C reaches music.c:do_improvisation622-624 and calls losehp(damage, buf, KILLED_BY). JavaScript made the same call, but js/music.js omitted KILLED_BY from its const.js imports, so the first self-damage branch stopped with ReferenceError before losehp. The unchanged KILLED_BY constant is already exported by js/const.js.",
+  "source": {
+    "file": "music.c",
+    "function": "do_improvisation",
+    "lines": "503-730; self-directed horn damage 607-625",
+    "javascript": "js/music.js:do_improvisation",
+    "callerPath": "music.c:do_play_instrument -> music.c:do_improvisation -> zap.c:zapyourself -> hack.c:losehp",
+    "cBehavior": "After zapyourself returns nonzero damage, C calls losehp(damage, buf, KILLED_BY).",
+    "jsBeforeFix": "The matching JavaScript branch referenced KILLED_BY but did not import it from const.js."
+  },
+  "fix": "Import KILLED_BY from js/const.js. The existing damage call, state flow, and killer-format value remain unchanged.",
+  "evidence": {
+    "sourceCommit": "a93d8ad4367fc8a1dfabf257565342ef566d888a",
+    "checks": {
+      "focusedTest": {
+        "run": "run-ZBFyas",
+        "log": "/tmp/teleport-validation-1000/run-ZBFyas/stdout.log",
+        "testsPassed": 22
+      },
+      "lint": {
+        "run": "run-c7NDsv",
+        "log": "/tmp/teleport-validation-1000/run-c7NDsv/stdout.log",
+        "passed": true
+      },
+      "scan": {
+        "run": "run-ADdtfu",
+        "log": "/tmp/teleport-validation-1000/run-ADdtfu/stdout.log",
+        "screensEmitted": 278,
+        "recordedSteps": 278,
+        "divergence": null
+      },
+      "differential": {
+        "run": "run-5X6apQ",
+        "log": "/tmp/teleport-validation-1000/run-5X6apQ/stdout.log",
+        "passed": true,
+        "screensMatched": 278,
+        "screensTotal": 278,
+        "rngMatched": 3093,
+        "rngTotal": 3093,
+        "cursorsMatched": 278,
+        "cursorsTotal": 278,
+        "inputBoundaryMatched": true
+      },
+      "syntheticRange": {
+        "run": "run-moIeTN",
+        "log": "/tmp/teleport-validation-1000/run-moIeTN/stdout.log",
+        "segment": 0,
+        "throughStep": 277,
+        "matched": true
+      }
+    },
+    "unrelatedUnported": [
+      "sounds.c SoundAchievement"
+    ]
+  }
+}
