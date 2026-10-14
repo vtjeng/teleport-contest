@@ -138,7 +138,7 @@
     {
       "task": "B-investigation-v67-rogue-blind-probing-continuation-action9-20261014",
       "goal": "fix-rogue-blind-probe-draft-message-v67-20261014",
-      "status": "diagnosed",
+      "status": "verified",
       "observedAtBase": "de49d7d04083301dd9946aae8328580379e7e004",
       "step": 506,
       "segment": 0,
@@ -183,8 +183,10 @@
         "The current saved queue entry is v67/v67-rogue-blind-probing-action7, 1 screen remaining at step 506; accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v67.json records 526/527 screens, 3050/3050 RNG calls, and 527/527 cursors.",
         "A fresh JS replay from the immutable recording at the clean merged worker base de49d7d04083301dd9946aae8328580379e7e004 confirms the first mismatch at step 506, key j, C “You feel a draft.” versus no JS message, with equal RNG and cursor lengths.",
         "Upstream nethack-c/upstream/src/zap.c:3628-3825 calls draft_message(FALSE) in zap_map() after a blind wand-of-probing reveal of a secret door on a Rogue level.",
-        "js/zap.js:3925-3960 has the same WAN_PROBING/SDOOR branch but calls note_unported(\"dig.c draft_message\"); js/dig.js:2214-2244 already implements draft_message() and its hallucination-dependent random message branch."
-      ]
+        "js/zap.js:3925-3960 has the same WAN_PROBING/SDOOR branch but calls note_unported(\"dig.c draft_message\"); js/dig.js:2214-2244 already implements draft_message() and its hallucination-dependent random message branch.",
+        "After 823b2802c, the full JS replay matches all 527 screens, all 3050 RNG calls, and all 527 cursors; scripts/synthetic-range-evidence.mjs verifies the production prefix through the repaired step 506."
+      ],
+      "fixCommit": "823b2802c"
     }
   ]
 }
