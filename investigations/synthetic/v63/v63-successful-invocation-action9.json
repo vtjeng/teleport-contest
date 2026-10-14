@@ -1,0 +1,199 @@
+{
+  "session": "synthetic/v63/v63-successful-invocation-action9",
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-successful-invocation-action9",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "remainingScreens": 325,
+  "recordedSteps": 785,
+  "status": "complete",
+  "commit": "36d9515674347e9367c38905d076023a9b3bb873",
+  "mismatch": {
+    "kind": "stop",
+    "corpus": "synthetic",
+    "sourceFile": "trap.c",
+    "cFile": "trap.c",
+    "luaFile": null,
+    "sessions": [
+      "synthetic/v63/v63-successful-invocation-action9"
+    ],
+    "remainingScreens": 325,
+    "remainingScreensUpperBound": null,
+    "caseId": "v63-successful-invocation-action9",
+    "batch": "v63",
+    "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+    "session": "synthetic/v63/v63-successful-invocation-action9",
+    "originalQueueEntry": {
+      "corpus": "synthetic",
+      "batch": "v63",
+      "caseId": "v63-successful-invocation-action9",
+      "session": "synthetic/v63/v63-successful-invocation-action9",
+      "manifestPath": "challenges/manifests/v63.json",
+      "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+      "recording": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+      "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+      "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+      "recipe": "challenges/cases/v63/v63-successful-invocation-action9.recipe.session.json",
+      "recipeSha256": "a94a2b9d6fb1c5522fe719b2b3e87e0eb2221cb1116ea1cff992d388af792f8b",
+      "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+      "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+      "evaluationArtifact": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+      "evaluationUtc": "2026-10-14T02:33:34.540Z",
+      "remainingScreens": 325,
+      "recordedSteps": 785,
+      "previousScreensMatched": null,
+      "regression": false,
+      "passed": false,
+      "error": null,
+      "metrics": {
+        "screens": {
+          "matched": 460,
+          "total": 785
+        },
+        "rng": {
+          "matched": 19743,
+          "total": 19957
+        },
+        "cursors": {
+          "matched": 460,
+          "total": 785
+        }
+      },
+      "firstMismatch": {
+        "caseId": "v63-successful-invocation-action9",
+        "title": "Reach the vibrating square and perform the invocation",
+        "segment": 0,
+        "step": 460,
+        "firstOwner": "trap.c:dotrap hero VIBRATING_SQUARE admission",
+        "source": "teleport.c:teleds568 -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_vibrating_square2725-2779; later hack.c:invocation_message3064-3085 and spell.c:deadbook287-301",
+        "javascript": "js/trap_effects.js3909 preflight_dotrap omits VIBRATING_SQUARE even though trapeffect_vibrating_square3777 already implements the hero feeltrap arm. Dynamic boundary is trap activation at teleds, before invocation_message; the latter has a separate later refusal.",
+        "observed": "Own C RNG pins the real invocation square; controlled teleport reaches it, candles glow, Bell is rung, and after source-supported removal of ritual attackers the book creates the stairwell at C680. The first JS stop is earlier at460.",
+        "closestEarlierCases": [
+          "v62-sokoban-original-boulder-fill-action6",
+          "v58-opening-wand-hero-beartrap-action6"
+        ],
+        "causalDifference": "This is hero admission for the special vibrating-square trap type, with an already implemented effect. Rolling boulder launch and held-trap opening use different trap types and active callers. No earlier prepared case found with this reached square/admission behavior.",
+        "runtimeDiagnostic": {
+          "caseId": "v63-successful-invocation-action9",
+          "base": "0489d77c5d50b99720ad7baf7e3111dfe2e88599",
+          "boundaries": [
+            {
+              "name": "UnsupportedHeroMoveBoundaryError",
+              "message": "unsupported hero move: trap activation",
+              "stack": "UnsupportedHeroMoveBoundaryError: unsupported hero move: trap activation\n    at preflight_dotrap (file:///tmp/teleport-score-861U4Y/js/trap_effects.js:3909:15)\n    at requireSimpleHeroDestination (file:///tmp/teleport-score-861U4Y/js/hack.js:1628:26)\n    at teleds (file:///tmp/teleport-score-861U4Y/js/teleport.js:1822:5)\n    at scrolltele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1522:23)\n    at async tele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1543:5)\n    at async dotele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1766:13)\n    at async dotelecmd (file:///tmp/teleport-score-861U4Y/js/teleport.js:1628:24)\n    at async rhack (file:///tmp/teleport-score-861U4Y/js/cmd.js:6490:25)\n    at async moveloop_core (file:///tmp/teleport-score-861U4Y/js/allmain.js:1804:9)\n    at async runSegment (file:///tmp/teleport-score-861U4Y/js/jsmain.js:784:13)"
+            }
+          ],
+          "screens": 460,
+          "rng": 19743
+        }
+      },
+      "investigation": {
+        "status": "missing",
+        "path": "investigations/synthetic/v63/v63-successful-invocation-action9.json"
+      }
+    },
+    "baseline": {
+      "screens": "460/785",
+      "rng": "19743/19957",
+      "cursors": "460/785"
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: trap activation",
+      "step": 460
+    },
+    "step": 460,
+    "function": "dotrap",
+    "message": "unsupported hero move: trap activation",
+    "line": 3909,
+    "helper": null
+  },
+  "summary": "The selected replay reaches trap.c:dotrap for the invocation square. The already ported trapeffect_vibrating_square() handles the hero by calling feeltrap(), but js/trap_effects.js:preflight_dotrap() refuses VIBRATING_SQUARE before that effect; this is the first missing screen at step 460.",
+  "source": {
+    "file": "trap.c",
+    "branch": "teleport.c:teleds() can land the hero on the invocation square, and hack.c:spoteffects() calls trap.c:dotrap(). C admits VIBRATING_SQUARE to the trap effect selector; that effect calls feeltrap() for the hero and does not refuse based on the trap type. JavaScript already ports trapeffect_vibrating_square(), but preflight_dotrap() omits the type from its supported hero traps. Because trap.h:undestroyable_trap() includes VIBRATING_SQUARE, the existing seen-trap escape check already preserves C behavior once admission is added. Mounted-hero preflight must also allow this trap, matching dotrap() which passes the hero to the same effect.",
+    "functions": [
+      "dotrap"
+    ],
+    "callers": [
+      "teleport.c:teleds() -> hack.c:spoteffects() -> trap.c:dotrap() -> trap.c:trapeffect_selector() -> trap.c:trapeffect_vibrating_square().",
+      "js/teleport.js:teleds() -> js/hack.js:requireSimpleHeroDestination() -> js/trap_effects.js:preflight_dotrap(); then js/trap_effects.js:dotrap() -> trapeffect_selector() -> trapeffect_vibrating_square()."
+    ],
+    "dependencies": [
+      "trap.h:undestroyable_trap(VIBRATING_SQUARE) is already represented by js/trap_effects.js:undestroyable_trap().",
+      "trap.c:trapeffect_vibrating_square() is already ported in js/trap_effects.js and implements the hero feeltrap() arm."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The published v63 admission evaluation 3fc2021644e79e564fb762bc2038139c3241ff42 records 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors for this case; its manifest identifies step 460 as trap.c:dotrap hero VIBRATING_SQUARE admission.",
+    "A single-case replay from 36d9515674347e9367c38905d076023a9b3bb873 reproduces 460/785 screens, 19743/19957 RNG calls, and 460/785 cursors.",
+    "Upstream trap.c:dotrap() calls trapeffect_selector() after its force/escape checks. trap.c:trapeffect_vibrating_square() calls feeltrap() for the hero; trap.h:undestroyable_trap() includes VIBRATING_SQUARE.",
+    "js/trap_effects.js:preflight_dotrap() rejects VIBRATING_SQUARE in the initial supported-type guard and in the mounted-hero guard. The selector and effect already handle this trap, so admitting it in both guards preserves the existing source behavior."
+  ],
+  "provenance": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-successful-invocation-action9",
+    "session": "synthetic/v63/v63-successful-invocation-action9",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recording": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+    "recordingPath": "challenges/cases/v63/v63-successful-invocation-action9.session.json",
+    "recordingSha256": "37de92e2de6155368af655137c00d13be436c1bc63166ff7910101389edb9037",
+    "recipe": "challenges/cases/v63/v63-successful-invocation-action9.recipe.session.json",
+    "recipeSha256": "a94a2b9d6fb1c5522fe719b2b3e87e0eb2221cb1116ea1cff992d388af792f8b",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+    "evaluationArtifact": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "evaluationUtc": "2026-10-14T02:33:34.540Z",
+    "remainingScreens": 325,
+    "recordedSteps": 785,
+    "metrics": {
+      "screens": {
+        "matched": 460,
+        "total": 785
+      },
+      "rng": {
+        "matched": 19743,
+        "total": 19957
+      },
+      "cursors": {
+        "matched": 460,
+        "total": 785
+      }
+    },
+    "firstMismatch": {
+      "caseId": "v63-successful-invocation-action9",
+      "title": "Reach the vibrating square and perform the invocation",
+      "segment": 0,
+      "step": 460,
+      "firstOwner": "trap.c:dotrap hero VIBRATING_SQUARE admission",
+      "source": "teleport.c:teleds568 -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_vibrating_square2725-2779; later hack.c:invocation_message3064-3085 and spell.c:deadbook287-301",
+      "javascript": "js/trap_effects.js3909 preflight_dotrap omits VIBRATING_SQUARE even though trapeffect_vibrating_square3777 already implements the hero feeltrap arm. Dynamic boundary is trap activation at teleds, before invocation_message; the latter has a separate later refusal.",
+      "observed": "Own C RNG pins the real invocation square; controlled teleport reaches it, candles glow, Bell is rung, and after source-supported removal of ritual attackers the book creates the stairwell at C680. The first JS stop is earlier at460.",
+      "closestEarlierCases": [
+        "v62-sokoban-original-boulder-fill-action6",
+        "v58-opening-wand-hero-beartrap-action6"
+      ],
+      "causalDifference": "This is hero admission for the special vibrating-square trap type, with an already implemented effect. Rolling boulder launch and held-trap opening use different trap types and active callers. No earlier prepared case found with this reached square/admission behavior.",
+      "runtimeDiagnostic": {
+        "caseId": "v63-successful-invocation-action9",
+        "base": "0489d77c5d50b99720ad7baf7e3111dfe2e88599",
+        "boundaries": [
+          {
+            "name": "UnsupportedHeroMoveBoundaryError",
+            "message": "unsupported hero move: trap activation",
+            "stack": "UnsupportedHeroMoveBoundaryError: unsupported hero move: trap activation\n    at preflight_dotrap (file:///tmp/teleport-score-861U4Y/js/trap_effects.js:3909:15)\n    at requireSimpleHeroDestination (file:///tmp/teleport-score-861U4Y/js/hack.js:1628:26)\n    at teleds (file:///tmp/teleport-score-861U4Y/js/teleport.js:1822:5)\n    at scrolltele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1522:23)\n    at async tele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1543:5)\n    at async dotele (file:///tmp/teleport-score-861U4Y/js/teleport.js:1766:13)\n    at async dotelecmd (file:///tmp/teleport-score-861U4Y/js/teleport.js:1628:24)\n    at async rhack (file:///tmp/teleport-score-861U4Y/js/cmd.js:6490:25)\n    at async moveloop_core (file:///tmp/teleport-score-861U4Y/js/allmain.js:1804:9)\n    at async runSegment (file:///tmp/teleport-score-861U4Y/js/jsmain.js:784:13)"
+          }
+        ],
+        "screens": 460,
+        "rng": 19743
+      }
+    }
+  }
+}
