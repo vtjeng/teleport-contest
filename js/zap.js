@@ -3874,8 +3874,9 @@ export async function bhitpile(wand, tx, ty, state = game,
 }
 
 // C ref: zap.c zap_map() (3625-3825). The WAN_PROBING arm maps terrain and
-// traps before it teaches the wand; the downward polymorph and teleportation
-// arms handle engraving. Other zap_map branches remain at their source boundaries.
+// traps before it teaches the wand; the downward polymorph, cancellation,
+// invisibility, and teleportation arms handle engraving. Other zap_map
+// branches remain at their source boundaries.
 // C ref: zap.c maybe_explode_trap() (3594-3623). A cancellation ray explodes
 // a magical trap before zap_map handles its remaining terrain and engraving.
 export async function maybe_explode_trap(
@@ -4061,6 +4062,11 @@ export async function zap_map(
     case WAN_TELEPORTATION:
     case SPE_TELEPORT_AWAY:
         rloc_engr(engraving, state, { ...rawEnv, random });
+        break;
+    case WAN_CANCELLATION:
+    case SPE_CANCELLATION:
+    case WAN_MAKE_INVISIBLE:
+        del_engr_at(x, y, state);
         break;
     }
     if (trapLearn.value) learnwand(wand, state);
