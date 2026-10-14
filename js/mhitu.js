@@ -2375,7 +2375,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
             // minstapetrify() call before unbinding the hero.
             remove_monster(mtmp.mx, mtmp.my, state);
             place_monster(mtmp, omx, omy, state);
-            await minstapetrify(mtmp, true, state, env);
+            await minstapetrify(mtmp, true, state, rawEnv);
             if (Punished(state)) await placebc(state, rawEnv);
             set_ustuck(null, state);
             return mtmp.mhp > 0 ? M_ATTK_MISS : M_ATTK_AGR_DIED;

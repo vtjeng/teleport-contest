@@ -1458,6 +1458,40 @@ test('gulpmu uses the blind-aware source pronoun for its engulfer', async () => 
     ]);
 });
 
+test('mattacku stones a non-resistant trapper after engulfing a cockatrice',
+    async () => {
+    // mhitu.c:1357-1378 checks the hero's touch-petrifying form after a
+    // successful engulf. The trapper has AT_ENGL/AD_WRAP for 1d8 and no
+    // MR_STONE (monsters.h:990-998), so gulpmu reaches minstapetrify.
+    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+    state.youmonst.data = state.mons[PM_COCKATRICE];
+    const trapper = meleeAttacker(state, PM_TRAPPER, 1, 0);
+    state.u.uac = -10; // Guarantees the adjacent level-12 trapper hits on rnd(20).
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    // A roll of 1 at each hit check guarantees that the trapper engulfs.
+    const attack = meleeEnv(state, [1]);
+    // The source statue-creation tail uses the complete shared RNG interface.
+    attack.env.random.rn1 = (n, base) => {
+        attack.bounds.push(`rn1(${n},${base})`);
+        return base;
+    };
+    attack.env.random.rne = (n) => {
+        attack.bounds.push(`rne(${n})`);
+        return n;
+    };
+
+    await assert.doesNotReject(() => mattacku(trapper, attack.env));
+    assert.ok(attack.lines.some((line) => line.includes('turns to stone.')));
+    // mon.c:xkilled() consumes the stoned flag while creating the statue.
+    assert.equal(state.gs.stoned, false);
+    assert.equal(state.u.uswallow, 0);
+    assert.equal(state.u.ustuck, null);
+    assert.equal(trapper.mhp, 0);
+    assert.deepEqual(attack.bounds.slice(0, 3), [
+        'rnd(10)', 'rnd(20)', 'd(1,8)',
+    ]);
+});
+
 for (const [senseName, property, source] of [
     ['see invisible', SEE_INVIS, { intrinsic: 1 }],
     ['monster detection', DETECT_MONSTERS, { extrinsic: 1 }],
