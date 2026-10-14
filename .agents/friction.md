@@ -725,3 +725,22 @@ triage decisions or fix references.
 - Outcome: the coordinator supplied those checks with the same merge request;
   review allowed it. The clean merge is `1eef11bf5cb52b871d5c0361e2adbd092b821aba`,
   and C resumed work. Submitted source history was preserved.
+
+### 2026-10-14 — grouped integration stopped on empty metadata and a resolved report
+
+- Context: the first frozen group contains 50 received implementation deliveries.
+- Friction: the helper stopped on the originally empty dependency correction
+  `33bc476444fa070644192ba4580b2a8d8b12e40d`. Adding `--allow-empty`
+  preserved that submitted metadata; the focused regression reproduced the
+  failure and passed after correction `7d64ae4986e1f20591cb080dd0d15b7b7ff02fe4`.
+- Evidence: retained runs `run-Or4bTH`, `run-auleFq` and `run-wfDIIv`.
+  The report addition `91a0161dae96f5d8ef5b6a1913174e3425627d7e`
+  conflicted with the preserved original diagnosis. Choosing its exact submitted
+  contents created `ce24627d6`; retry then reapplied it because the resolved
+  patch differed from the original addition. A path comparison proved that
+  the report already matched before clearing the redundant cherry-pick.
+- Reason: immutable corrections and original diagnoses must survive integration,
+  and an interrupted group must resume without repeating completed changes.
+- Outcome: the candidate branch is preserved, the empty-metadata correction
+  is integrated, and a focused retry correction is requested from the tooling
+  worker. Both corrections will use the group's exact hosted checkpoint.
