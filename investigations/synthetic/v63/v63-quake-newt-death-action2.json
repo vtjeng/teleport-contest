@@ -20,6 +20,8 @@
     "corpus": "synthetic",
     "batch": "v63",
     "caseId": "v63-quake-newt-death-action2",
+    "session": "synthetic/v63/v63-quake-newt-death-action2",
+    "remainingScreens": 414,
     "step": null,
     "kind": "stop",
     "sourceFile": null,
