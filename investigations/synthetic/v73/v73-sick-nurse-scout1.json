@@ -10,7 +10,8 @@
   "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
   "remainingScreens": 250,
   "recordedSteps": 250,
-  "status": "investigated",
+  "status": "complete",
+  "commit": "aec462533aa413067cb8868adf4b8749a635ef02",
   "mismatch": {
     "kind": "synthetic",
     "corpus": "synthetic",
