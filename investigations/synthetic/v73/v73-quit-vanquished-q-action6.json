@@ -9,7 +9,7 @@
   "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
   "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
   "remainingScreens": 192,
-  "recordedSteps": 191,
+  "recordedSteps": 192,
   "status": "complete",
   "commit": "ee267b756bb7f2594648388866ea48e2114de2fa",
   "mismatch": {
@@ -18,20 +18,28 @@
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
-    "sessions": ["synthetic/v73/v73-quit-vanquished-q-action6"],
+    "sessions": [
+      "synthetic/v73/v73-quit-vanquished-q-action6"
+    ],
     "remainingScreens": 192,
     "remainingScreensUpperBound": null,
     "earliestStep": null,
     "caseId": "v73-quit-vanquished-q-action6",
     "batch": "v73",
-    "recordingPath": "challenges/cases/v73/v73-quit-vanquished-q-action6.session.json"
+    "recordingPath": "challenges/cases/v73/v73-quit-vanquished-q-action6.session.json",
+    "session": "synthetic/v73/v73-quit-vanquished-q-action6"
   },
   "summary": "After real vanquishing leaves at least one entry and the final disclosure prompt receives q, list_vanquished must increment program_state.stopprint so later disclosure prompts are suppressed. Its JavaScript branch calls the end.js-local name discloseStop, which is not defined in insight.js; insight.js already has the correctly named disclosureStop helper used by list_genocided.",
   "source": {
     "file": "insight.c",
     "branch": "list_vanquished() receives q while ntypes is nonzero; the source macro done_stopprint expands to program_state.stopprint and increments it before later end-of-game disclosures.",
-    "functions": ["list_vanquished"],
-    "callers": ["end.c:disclose", "insight.c:dovanquished"],
+    "functions": [
+      "list_vanquished"
+    ],
+    "callers": [
+      "end.c:disclose",
+      "insight.c:dovanquished"
+    ],
     "dependencies": []
   },
   "goalKind": "divergence-fix",
