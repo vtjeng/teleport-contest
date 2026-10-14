@@ -6,7 +6,7 @@
   "batch": "v64",
   "caseId": "v64-grapple-cockatrice-body-collision-action4",
   "manifestPath": "challenges/manifests/v64.json",
-  "manifestSha256": "5ee6106367aa36b4d0619c1c71081129ab0354766cf1deb37cc34887bf12aa02",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
   "recordingSha256": "bb4da3342099201db16d4e547e391c0739338c75f8a5f4fa1f9f348178daef57",
   "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
   "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
