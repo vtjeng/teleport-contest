@@ -3127,7 +3127,7 @@ test('timeout hatch uses its explicit enexto runtime creation contract',
         const state = initialLevelState();
         state.in_mklev = false;
         // An in-bounds room cell away from the hero, as enexto supplies.
-        const x = MON_X + 4;
+        const x = MON_X + 4; // A visible nearby square exercises the appearance tail.
         const y = MON_Y + 1;
         state.level.at(x, y).typ = ROOM;
         const random = recordingRandom();
@@ -3743,6 +3743,31 @@ test('runtime creation validates output owners before RNG or state', async () =>
         assert.equal(state.level.monlist, null);
     }
 });
+
+test('planning runtime creation keeps Norep on the planning message owner',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.viz_array = Array.from({ length: ROWNO },
+            () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE));
+        const x = MON_X + 4;
+        const y = MON_Y;
+        state.level.at(x, y).typ = ROOM;
+        const messages = [];
+
+        await makemon_runtime(state.mons[PM_GHOST], x, y, NO_MINVENT, {
+            state,
+            random: recordingRandom().random,
+            planning: true,
+            message: async (line) => messages.push(line),
+        });
+
+        // PM_GHOST is Murphy's ghost in this fixture, so the visible runtime
+        // appearance pins the fallback to the supplied planning callback.
+        assert.deepEqual(messages, ["Murphy's ghost suddenly appears close by!"]);
+    });
 
 test('a runtime-random mimic names its furniture appearance after selection',
     async () => {

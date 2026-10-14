@@ -20,7 +20,9 @@
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
-    "sessions": ["synthetic/v57/v57-throne-court-summon-action2"],
+    "sessions": [
+      "synthetic/v57/v57-throne-court-summon-action2"
+    ],
     "remainingScreens": 17,
     "remainingScreensUpperBound": null,
     "earliestStep": 72,
@@ -32,9 +34,15 @@
   "source": {
     "file": "makemon.c",
     "branch": "Outside level generation, when MM_NOMSG is clear and the created monster has a discernible appearance, makemon redraws its square and calls Norep for the appearance line.",
-    "functions": ["makemon"],
-    "callers": ["sit.c:throne_sit_effect effect 7 calls makemon(courtmon(), tx, ty, NO_MM_FLAGS)"],
-    "dependencies": ["pline.c:Norep"]
+    "functions": [
+      "makemon"
+    ],
+    "callers": [
+      "sit.c:throne_sit_effect effect 7 calls makemon(courtmon(), tx, ty, NO_MM_FLAGS)"
+    ],
+    "dependencies": [
+      "pline.c:Norep"
+    ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
@@ -44,5 +52,51 @@
     "js/sit.js:471-490: the effect-7 caller passes state, random, and its ordinary message callback to makemon_runtime without a distinct norepMessage callback.",
     "js/makemon_create.js:2951-2961 and 3348-3363: the runtime appearance tail calls normalized.norepMessage, but makemon_runtime defaults that callback to the ordinary message callback whenever env.message is supplied; this bypasses ttyNorep's PLINE_NOREPEAT behavior.",
     "The admitted v57 evaluation at challenges/evaluations/admission-01813882f5ec9612667f08b17e1630f732d78381-v57.json records 214/231 screens, 4039/4039 RNG calls, and 218/231 cursors; its first source mismatch is segment 0, input step 72, where the second identical hobgoblin appearance adds a boundary before the kobold redraw."
-  ]
+  ],
+  "correction": {
+    "failedCandidate": "a06da5592f4de49ae8d42102b8b06bb754c79269",
+    "failedCheckpoint": "38508418378",
+    "rootCause": "During planned monster turns, callers replace message with a silent clone-owned operation. makemon_runtime must route its default Norep callback through that planning owner; using live ttyNorep lets cloned creation write appearance output into the replay display and consume the next command at the pager boundary.",
+    "implementation": "When norepMessage is not supplied, makemon_runtime uses message while env.planning is true and ttyNorep for live runtime calls. An explicit norepMessage remains authoritative.",
+    "regressions": [
+      {
+        "recording": "recordings/mhitu.c/summonmu-werewolf-protection-ring-variation-b81.session.json",
+        "before": {
+          "screens": "77/78",
+          "rng": "4620/4677"
+        },
+        "after": {
+          "screens": "78/78",
+          "rng": "4677/4677",
+          "cursors": "78/78"
+        }
+      },
+      {
+        "recording": "recordings/uhitm.c/mhitm-ad-were-werebane-hostile-werejackal-b82.session.json",
+        "before": {
+          "screens": "75/88",
+          "rng": "4948/5057"
+        },
+        "after": {
+          "screens": "88/88",
+          "rng": "5057/5057",
+          "cursors": "88/88"
+        }
+      }
+    ],
+    "retainedTarget": {
+      "caseId": "v57-throne-court-summon-action2",
+      "after": {
+        "screens": "231/231",
+        "rng": "4039/4039",
+        "cursors": "231/231",
+        "animationFrames": 1
+      }
+    },
+    "checks": {
+      "focused": ".cache/C-throne-correction-focused-test.log",
+      "lint": ".cache/C-throne-correction-lint.log",
+      "fresh": ".cache/C-throne-correction-replays.log"
+    }
+  }
 }
