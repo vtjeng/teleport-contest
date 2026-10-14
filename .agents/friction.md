@@ -903,3 +903,21 @@ triage decisions or fix references.
   initialized hero form across five test files. B owns their correction under
   the original Rogue-memory task. The failed candidate and hosted logs remain
   preserved; its passing fixed and recording checks do not establish acceptance.
+
+### 2026-10-14 — resumed queue commands and shared billing callers
+
+- A read-only implementation-group preview invoked the bounded runner inside
+  the sandbox and failed on its `flock` subprocess. Root did not retry that
+  optional preview. A queue refresh used a nonexistent `artifacts/scan-cache.json`
+  path, exited without replaying, then succeeded using the imported archive's
+  actual `scan-cache.json` path.
+- B's unpaid-food diagnosis reaches `costly_alteration`. Its message can wait
+  for input before changing a crysknife into a worm tooth. Both B and a narrow
+  read-only helper traced the source contract; silent dummy billing alone cannot
+  remove that wait. Caller propagation reaches shared object placement and
+  container helpers. A owns the reserved shop-scattering and bones callers; C
+  owns the queued throwing caller correction. B owns the remaining caller audit
+  and must claim its complete write scope before edits.
+- The helper reported that an earlier artifact search exceeded its requested
+  recipe scope and emitted a larger case payload. It stopped the search and made
+  no edits, recordings or replays. Later help used only the assigned source scope.
