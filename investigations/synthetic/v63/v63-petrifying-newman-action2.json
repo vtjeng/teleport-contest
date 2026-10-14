@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v63/v63-petrifying-newman-action2",
+  "remainingScreens": 63,
+  "recordedSteps": 382,
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-petrifying-newman-action2",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "993b1399e6b48e219e688aa765c979c0f10c42b9aef2a644afd34e14fecc063a",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "status": "complete",
+  "commit": "5a032c87e57d46a130a8fbe9945329f5ff62c297",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-petrifying-newman-action2",
+    "session": "synthetic/v63/v63-petrifying-newman-action2",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recording": "challenges/cases/v63/v63-petrifying-newman-action2.session.json",
+    "recordingPath": "challenges/cases/v63/v63-petrifying-newman-action2.session.json",
+    "recordingSha256": "993b1399e6b48e219e688aa765c979c0f10c42b9aef2a644afd34e14fecc063a",
+    "recipe": "challenges/cases/v63/v63-petrifying-newman-action2.recipe.session.json",
+    "recipeSha256": "4276d2155cc7b5c64fbaaa41778a7f1c68a3e1b398e6695dec9af900f85e6bfd",
+    "replayInputSha256": "9add9242a0edd50778347f8e6c0dfc918133259fe520d5a6d35220fb6592513a",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "remainingScreens": 63,
+    "recordedSteps": 382,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 319, "total": 382 },
+      "rng": { "matched": 2170, "total": 2247 },
+      "cursors": { "matched": 381, "total": 382 }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 319,
+        "location": { "segmentIndex": 0, "stepIndex": 319, "key": "\n" },
+        "kind": "ch",
+        "row": 0,
+        "column": 28,
+        "cCell": { "ch": " ", "color": 8, "attr": 0, "decgfx": 0 },
+        "jsCell": { "ch": "Y", "color": 8, "attr": 0, "decgfx": 0 }
+      },
+      "rng": {
+        "index": 2170,
+        "cEntry": "rn2(400)=379",
+        "cCaller": "dosounds(sounds.c:213)",
+        "jsEntry": "rn2(2)=1",
+        "location": { "segmentIndex": 0, "stepIndex": 319, "key": "\n" },
+        "stepIndex": 319
+      },
+      "cursor": {
+        "index": 368,
+        "location": { "segmentIndex": 0, "stepIndex": 368, "key": " " },
+        "cCursor": [9, 1, 1],
+        "jsCursor": [9, 2, 1]
+      }
+    },
+    "step": 319,
+    "kind": "rng",
+    "sourceFile": "sounds.c",
+    "function": "dosounds",
+    "message": null,
+    "cFile": "sounds.c",
+    "luaFile": null,
+    "line": 213
+  },
+  "summary": "At segment 0 step 319, JavaScript retains the stoning condition after newman(), while C clears it. C polyself.c:newman calls make_stoned(0, ...) whenever Stoned is active; JavaScript polyself.js:newman records that call as an unported gap despite importing the existing potion.js make_stoned implementation. The stale status line is the first screen difference, and a subsequent extra rn2(2) before C's dosounds rn2(400) confirms that downstream processing has diverged. Replacing the gap with the existing call is the bounded repair.",
+  "source": {
+    "file": "polyself.c",
+    "branch": "When the hero has an active Stoned timeout after regeneration into human form, newman() calls make_stoned(0, NULL, 0, NULL), which clears the timeout and delayed killer before newuhs(FALSE) and the new-form message.",
+    "functions": ["newman"],
+    "callers": [
+      "polyself.c:polyself() invokes newman() for the new-human path; js/polyself.js:polyself() has the matching production path.",
+      "polyself.c:newman() calls potion.c:make_stoned() to clear active petrification; js/polyself.js already imports potion.js:make_stoned()."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v63 admission evaluation at 3fc2021644e79e564fb762bc2038139c3241ff42 records the first mismatch at segment 0 step 319: C has 319/382 matching screens and 2170/2247 matching RNG calls; the first differing RNG is C rn2(400)=379 in sounds.c:dosounds versus JavaScript rn2(2)=1.",
+    "Replaying challenges/cases/v63/v63-petrifying-newman-action2.session.json through runJsSession() reproduces the evaluation result and screen difference: C clears the STONED condition on the status line, while JavaScript still displays Y and Stone.",
+    "nethack-c/upstream/src/polyself.c:newman() checks Stoned and calls make_stoned(0L, NULL, 0, NULL) before newuhs(FALSE). js/polyself.js:newman() currently calls note_unported('potion.c make_stoned') at the corresponding branch.",
+    "nethack-c/upstream/src/potion.c:make_stoned() clears the STONED timeout and deallocates its delayed killer when xtime is zero. js/potion.js:make_stoned() implements those same operations and is already imported by js/polyself.js.",
+    "The required implementation scope is the single newman() gap in js/polyself.js; no potion.c implementation or source reservation is needed."
+  ]
+}
