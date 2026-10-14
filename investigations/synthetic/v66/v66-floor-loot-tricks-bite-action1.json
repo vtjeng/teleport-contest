@@ -1,0 +1,115 @@
+{
+  "session": "synthetic/v66/v66-floor-loot-tricks-bite-action1",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-floor-loot-tricks-bite-action1",
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingPath": "challenges/cases/v66/v66-floor-loot-tricks-bite-action1.session.json",
+  "recordingSha256": "777ed62867bd3269d58abba2ccb5d3944cd39181254974b92df9d792f68311b4",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "status": "complete",
+  "commit": "4162c0e0b4f4d4b16edf61ae67a6a60c220bf8b0",
+  "summary": "At segment 0 step 118, JavaScript refuses to loot an unlocked floor bag of tricks. C pickup.c:do_loot_cont() marks it known, prints the bite, draws rnd(10), applies Maybe_Half_Phys() through losehp(), identifies the object, aborts further looting, and spends a turn.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "When do_loot_cont() receives an unlocked floor container whose otyp is BAG_OF_TRICKS, it takes the dedicated bite branch before use_container().",
+    "functions": [
+      "do_loot_cont"
+    ],
+    "callers": [
+      "pickup.c:doloot() reaches do_loot_cont() through doloot_core() for the one-container and selected-container floor paths (2262, 2279).",
+      "js/pickup.js:doloot_core() already awaits do_loot_cont() in the corresponding floor paths (3606, 3622, 3670)."
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "The saved v66 evaluation at 979a3f3967638748dc19cf8b6ea8851736ade63e reports 118/160 screens, 2078/2100 RNG calls, and 118/160 cursors matched; its first stop is the unsupported BAG_OF_TRICKS branch at step 118. Manifest digest: 4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c; recording digest: 777ed62867bd3269d58abba2ccb5d3944cd39181254974b92df9d792f68311b4.",
+    "Fresh scan at 4162c0e0b4f4d4b16edf61ae67a6a60c220bf8b0, wrapper run run-eVufmj, stops at 118 emitted screens after “You carefully open the bag of tricks...” with the UnsupportedPickupError from js/pickup.js:do_loot_cont(). Saved scan: .cache/a2-v66-floor-loot-scan.json.",
+    "Upstream pickup.c:do_loot_cont() (2088-2162) sets cobj->lknown, prints the opening and bite messages, evaluates rnd(10), passes Maybe_Half_Phys(tmp) to losehp(), calls makeknown(BAG_OF_TRICKS), sets ga.abort_looting, and returns ECMD_TIME. hack.h:1236 defines physical damage adjustment as ceiling(damage / 2) when Half_physical_damage is active; hack.h:1530 maps makeknown(x) to discover_object(x, TRUE, TRUE, TRUE).",
+    "JavaScript pickup.js:do_loot_cont() already reaches this branch through doloot_core(), but throws UnsupportedPickupError before the bite message, RNG draw, damage, object discovery, or abort state update. Existing losehp() and discover_object() provide the source callees."
+  ],
+  "remainingScreens": 42,
+  "recordedSteps": 160,
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v66",
+    "caseId": "v66-floor-loot-tricks-bite-action1",
+    "session": "synthetic/v66/v66-floor-loot-tricks-bite-action1",
+    "manifestPath": "challenges/manifests/v66.json",
+    "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+    "recording": "challenges/cases/v66/v66-floor-loot-tricks-bite-action1.session.json",
+    "recordingPath": "challenges/cases/v66/v66-floor-loot-tricks-bite-action1.session.json",
+    "recordingSha256": "777ed62867bd3269d58abba2ccb5d3944cd39181254974b92df9d792f68311b4",
+    "recipe": "challenges/cases/v66/v66-floor-loot-tricks-bite-action1.recipe.session.json",
+    "recipeSha256": "c91966b6bbe8f7300a6536ee1ca6847d4019357370b4ffcf494452a5c3ec3b8e",
+    "replayInputSha256": "24336a5d90159f882868e57479093b4edd27696446ff23d8df1aa8c82c193b0e",
+    "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+    "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+    "evaluationArtifact": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v66.json",
+    "evaluationUtc": "2026-10-14T08:04:20.148Z",
+    "remainingScreens": 42,
+    "recordedSteps": 160,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 118,
+        "total": 160
+      },
+      "rng": {
+        "matched": 2078,
+        "total": 2100
+      },
+      "cursors": {
+        "matched": 118,
+        "total": 160
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported pickup: do_loot_cont: BAG_OF_TRICKS carnivorous bag",
+      "step": 118
+    },
+    "step": 118,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported pickup: do_loot_cont: BAG_OF_TRICKS carnivorous bag",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "observedReplay": {
+    "runId": "run-eVufmj",
+    "command": [
+      "node",
+      "scripts/scan-sessions.mjs",
+      "--json",
+      "--synthetic",
+      "v66/v66-floor-loot-tricks-bite-action1"
+    ],
+    "replayCommit": "4162c0e0b4f4d4b16edf61ae67a6a60c220bf8b0",
+    "screensEmitted": 118,
+    "recordedSteps": 160,
+    "divergence": null,
+    "boundary": "unsupported hero command: an unported branch of this command: unsupported pickup: do_loot_cont: BAG_OF_TRICKS carnivorous bag",
+    "recordingMatched": false,
+    "inputBoundaryMatched": false,
+    "unported": [],
+    "receipt": "/tmp/teleport-validation-1000/run-eVufmj/receipt.json"
+  },
+  "selectionRationale": "The admitted v66 mismatch stops at the BAG_OF_TRICKS branch of the already wired pickup.c:do_loot_cont(). No active task or pending delivery reserves that function; the complete function will replace the refusal while preserving source order.",
+  "closestEarlierCases": "None found by searching investigations, tests, and agent records for the carnivorous-bag behavior.",
+  "overlapCrosswalk": {
+    "scope": "Saved current-work-queue.json, the worker ledger, and repository source/test findings.",
+    "closestEarlierCases": "No earlier investigation for this BAG_OF_TRICKS bite path was found.",
+    "causalDifference": "The current admitted case reaches the unsupported branch in do_loot_cont() through #loot on an unlocked floor bag.",
+    "withinBatch": "The selected case is the first source behavior for this task; other cases require separate session ownership before diagnosis."
+  },
+  "candidateDisposition": "included",
+  "goalKind": "file-port"
+}
