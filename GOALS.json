@@ -299854,7 +299854,7 @@
     {
       "id": "port-dbridge-open-drawbridge-v58-20261013",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port drawbridge occupant resolution and opening/closing transitions; wire and validate the Castle passtune, detection, lateral zap, and vertical zap callers.",
       "cFile": "dbridge.c",
       "sessions": [
@@ -299864,7 +299864,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
       "delivered": null,
       "functions": [
         {
@@ -299973,6 +299973,514 @@
       "range": {
         "from": 211,
         "to": 887
+      },
+      "closeStanding": {
+        "sha": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "0d77886b4c27cd162d19dbe498c8c59f5a731307",
+        "target": "synthetic/v58/v58-castle-passtune-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/02a098f2e3bf8dab3c52e27f90b3fd1adacc6260/run-hosted-kKiLPu/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "get_wall_for_db",
+            "implementation": "js/dbridge.js",
+            "symbol": "get_wall_for_db",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": true,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "open_drawbridge",
+                "source": "dbridge.c:open_drawbridge calls get_wall_for_db before changing the wall square."
+              },
+              {
+                "path": "js/dbridge.js",
+                "symbol": "close_drawbridge",
+                "source": "dbridge.c:close_drawbridge calls get_wall_for_db before changing the portcullis square."
+              }
+            ],
+            "tests": [
+              "scripts/dbridge.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "e_at",
+            "implementation": "js/dbridge.js",
+            "symbol": "e_at",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": true,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity calls e_at to detect and resolve occupant collisions."
+              }
+            ],
+            "tests": [
+              "scripts/dbridge.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "m_to_e",
+            "implementation": "js/dbridge.js",
+            "symbol": "m_to_e",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "set_entity",
+                "source": "dbridge.c:set_entity calls m_to_e when the coordinate is not the hero."
+              }
+            ],
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "u_to_e",
+            "implementation": "js/dbridge.js",
+            "symbol": "u_to_e",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "set_entity",
+                "source": "dbridge.c:set_entity calls u_to_e when the coordinate contains the hero."
+              }
+            ],
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "set_entity",
+            "implementation": "js/dbridge.js",
+            "symbol": "set_entity",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "open_drawbridge",
+                "source": "dbridge.c:open_drawbridge captures bridge and wall occupants with set_entity before do_entity."
+              }
+            ],
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "e_nam",
+            "implementation": "js/dbridge.js",
+            "symbol": "e_nam",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": true,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity uses e_nam in pass-through and portcullis-miss messages."
+              }
+            ],
+            "tests": [
+              "scripts/dbridge.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "E_phrase",
+            "implementation": "js/dbridge.js",
+            "symbol": "E_phrase",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": true,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity uses E_phrase for crushing, falling, and drowning/lava messages."
+              }
+            ],
+            "tests": [
+              "scripts/dbridge.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "e_survives_at",
+            "implementation": "js/dbridge.js",
+            "symbol": "e_survives_at",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": true,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity checks whether occupants survive the changed bridge terrain."
+              }
+            ],
+            "tests": [
+              "scripts/dbridge.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "e_died",
+            "implementation": "js/dbridge.js",
+            "symbol": "e_died",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity calls e_died after bridge crush, failed portcullis jump, or fatal fall."
+              }
+            ],
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "automiss",
+            "implementation": "js/dbridge.js",
+            "symbol": "automiss",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": true,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity first checks wall-passing and noncorporeal occupants."
+              }
+            ],
+            "tests": [
+              "scripts/dbridge.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "e_missed",
+            "implementation": "js/dbridge.js",
+            "symbol": "e_missed",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity checks its source RNG-based miss branch before moving the occupant."
+              }
+            ],
+            "tests": [],
+            "recordings": [
+              "recordings/zap.c/castle-updown-drawbridge-open-close-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "e_jumps",
+            "implementation": "js/dbridge.js",
+            "symbol": "e_jumps",
+            "sourceReview": "Read dbridge.c:e_jumps (531-558). It checks immobility/unawareness and confusion/stun modifiers in source order, subtracts two chances at DBWALL, then draws rnd(10). dbridge.c:do_entity calls it for occupants at the portcullis or on the open drawbridge.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "do_entity",
+                "source": "dbridge.c:do_entity calls e_jumps for a portcullis occupant and for an occupant on the lowered drawbridge."
+              }
+            ],
+            "tests": [],
+            "recordings": [
+              "recordings/zap.c/castle-updown-drawbridge-open-close-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "do_entity",
+            "implementation": "js/dbridge.js",
+            "symbol": "do_entity",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "open_drawbridge",
+                "source": "dbridge.c:open_drawbridge resolves occupants at the bridge and wall with do_entity."
+              }
+            ],
+            "tests": [],
+            "recordings": [
+              "recordings/zap.c/castle-updown-drawbridge-open-close-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "nokiller",
+            "implementation": "js/dbridge.js",
+            "symbol": "nokiller",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "open_drawbridge",
+                "source": "dbridge.c:open_drawbridge clears the transient killer and occupants with nokiller after mutation."
+              }
+            ],
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "close_drawbridge",
+            "implementation": "js/dbridge.js",
+            "symbol": "close_drawbridge",
+            "sourceReview": "Read dbridge.c:close_drawbridge (775-834). It mutates the drawbridge and portcullis terrain, captures and resolves occupants through do_entity, deletes objects/traps/engravings, redraws both squares, blocks the wall point, and clears transient killer state. No substitute random call is used.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "zap.c:zap_updown calls close_drawbridge for a downward WAN_LOCKING/SPE_WIZARD_LOCK at an open drawbridge or open portcullis (3303)."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_map",
+                "source": "zap.c:zap_map calls close_drawbridge for a lateral hit on the lowered drawbridge or open portcullis (3705)."
+              }
+            ],
+            "tests": [],
+            "recordings": [
+              "recordings/zap.c/castle-updown-drawbridge-open-close-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "open_drawbridge",
+            "implementation": "js/dbridge.js",
+            "symbol": "open_drawbridge",
+            "sourceReview": "Read dbridge.c:211-882 in full. get_wall_for_db applies all four DB_DIR coordinate directions. Entity capture/lookup and naming preserve C occupant ordering and monster-vs-hero naming; e_survives_at checks noncorporeal, water, lava and DBWALL rules. automiss, e_missed and e_jumps retain the C short-circuit order and rnd(8)/rnd(10) use. do_entity preserves bridge-vs-portcullis miss, crush, jump, recursive occupant collision, relocation, drowning/lava/crush and messaging order; e_died preserves hero/monster kill paths and retry flags; nokiller clears C call-local occupancy. close_drawbridge/open_drawbridge preserve source map mutation, entity processing, object/trap/engraving removal, redraw and vision updates. No substitute random calls were added. open_drawbridge is reached through both music.c:do_play_instrument and detect.c:openone; close_drawbridge additionally has zap.c:zap_map lateral caller wired, with zap.c:zap_updown wired and covered by the independent Castle recording. The strike branch records note_unported(dbridge.c destroy_drawbridge), whose C result is discarded.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument calls open_drawbridge for a raised bridge when the Castle passtune is matched."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "openone",
+                "source": "detect.c:openone calls open_drawbridge when find_drawbridge locates a raised bridge."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_map",
+                "source": "zap.c:zap_map calls open_drawbridge for a lateral opening/knock hit on DBWALL; this caller is wired but not replay-verified."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "zap.c:zap_updown calls open_drawbridge when WAN_OPENING or SPE_KNOCK targets the raised portcullis (3273)."
+              }
+            ],
+            "tests": [],
+            "recordings": [
+              "recordings/zap.c/castle-updown-drawbridge-open-close-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected admitted v58 case reaches music.c:do_play_instrument -> dbridge.c:open_drawbridge; dbridge.c:e_missed draws rnd(8) at step 243 and crushes the giant eel through e_died at step 244. The independent detection recording reaches detect.c:openone -> open_drawbridge. The independent Castle up/down recording reaches zap.c:zap_updown -> open_drawbridge and close_drawbridge; each transition calls do_entity, e_missed, and e_jumps, with rnd(10) decisions recorded for both opening and closing. A lateral zap.c:zap_map caller is wired, but its current fresh probe stops first at step 154 in the unported monmove.c:distfleeck, so it is not replay evidence. The striking branch records the discarded-return gap dbridge.c:destroy_drawbridge.",
+        "entryPoints": [
+          {
+            "name": "Castle passtune opens raised drawbridge",
+            "functions": [
+              "open_drawbridge",
+              "do_entity",
+              "e_missed",
+              "e_died"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v58",
+                "caseId": "v58-castle-passtune-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 270,
+                "source": "music.c:do_play_instrument -> dbridge.c:open_drawbridge -> set_entity/do_entity -> e_missed (rnd(8) at step 243) -> e_died (giant eel crushed at step 244)"
+              }
+            ]
+          },
+          {
+            "name": "Detection opens raised drawbridge",
+            "functions": [
+              "open_drawbridge"
+            ],
+            "recordings": [
+              "recordings/detect.c/v58-castle-blessed-bell-openone-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Up/down wands open and close a Castle drawbridge",
+            "functions": [
+              "open_drawbridge",
+              "close_drawbridge",
+              "do_entity",
+              "e_missed",
+              "e_jumps"
+            ],
+            "recordings": [
+              "recordings/zap.c/castle-updown-drawbridge-open-close-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ],
+        "incompleteFunctions": []
       }
     }
   ]

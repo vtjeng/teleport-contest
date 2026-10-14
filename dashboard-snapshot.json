@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T02:46:25.989Z",
+  "capturedAt": "2026-10-14T03:04:42.279Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -106695,6 +106695,307 @@
         "at": "2026-10-14T02:46:16.526Z",
         "worker": "B",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep27-881f5ca86fdbabf0bc1ac59509551fd62a6d42fe",
+        "type": "published",
+        "at": "2026-10-14T02:46:35.683Z",
+        "task": "Prep27",
+        "commit": "881f5ca86fdbabf0bc1ac59509551fd62a6d42fe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-Prep28-881f5ca86fdbabf0bc1ac59509551fd62a6d42fe",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T02:46:41.183Z",
+        "task": "Prep28",
+        "commit": "881f5ca86fdbabf0bc1ac59509551fd62a6d42fe",
+        "knownBy": "2026-10-14T02:46:35.683Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-b-drawbridge-20261014",
+        "type": "activity",
+        "at": "2026-10-14T02:47:26.533Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "phase": "review",
+        "reason": "Integrate the submitted drawbridge task to release shared zap callers needed by parked work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v63-sighted-wizard-clone-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T02:47:57.456Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v64-peaceful-worm-kicked-exit-action5-20261013",
+        "type": "assign",
+        "at": "2026-10-14T02:48:05.065Z",
+        "task": "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-b-drawbridge-02a098-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T02:48:19.174Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "integration": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-v63-v64-resume-20261014",
+        "type": "turn",
+        "at": "2026-10-14T02:48:29.268Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating an independent v63/v64 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-investigation-v63-successful-invocation-action9-20261014",
+        "type": "assign",
+        "at": "2026-10-14T02:49:10.831Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v64-worm-nomove-20261013",
+        "type": "implement",
+        "at": "2026-10-14T02:49:58.333Z",
+        "task": "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013",
+        "goal": "a2-v64-worm-nomove"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-prep29-sokoban-overlap-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T02:50:33.711Z",
+        "task": "Prep29",
+        "delivery": "28afda36bd2c194c2213d36e8d4f69068a49a857"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B-v63-wizard-clone-behind-makemon-20261014",
+        "type": "park",
+        "at": "2026-10-14T02:52:23.247Z",
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "reason": "Source trace is committed at 5a032c87e. The clone path requires clonewiz to call makemon(PM_WIZARD_OF_YENDOR, u.ux, u.uy, MM_NOWAIT), but current JavaScript makemon rejects this explicit hero-square flag shape. C owns a ready v57 makemon.c:makemon callback delivery; resume after its acceptance and merge to implement the exact clone call admission without editing the bounded task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-dotrap-vibrating-square-20261014",
+        "type": "implement",
+        "at": "2026-10-14T02:52:27.449Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "goal": "fix-dotrap-vibrating-square-admission-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v63-petrifying-newman-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T02:52:37.670Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-prep30-for-prep29-correction-20261014",
+        "type": "park",
+        "at": "2026-10-14T02:52:50.568Z",
+        "task": "Prep30",
+        "reason": "Prep confirmed all commands terminal and v66 data preserved at a deliberate safe boundary. Correct the earlier v65 overlap before continuing v66."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-resume-prep29-overlap-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T02:52:54.230Z",
+        "task": "Prep29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6d4dec8d0dc05e5cedbc3747193650d042a82287",
+        "type": "ready",
+        "at": "2026-10-14T02:54:18.027Z",
+        "task": "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013",
+        "delivery": "6d4dec8d0dc05e5cedbc3747193650d042a82287"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a2-worm-6d4dec-20261014",
+        "type": "received",
+        "at": "2026-10-14T02:54:43.530Z",
+        "task": "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013",
+        "delivery": "6d4dec8d0dc05e5cedbc3747193650d042a82287"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v63-petrifying-newman-20261014",
+        "type": "implement",
+        "at": "2026-10-14T02:54:50.197Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "goal": "fix-newman-stoning-clear-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v64-unseen-web-kick-action5-20261014",
+        "type": "assign",
+        "at": "2026-10-14T02:55:01.925Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v58-castle-passtune-action3-20261013-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-validated",
+        "type": "validated",
+        "at": "2026-10-14T02:56:39.575Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v58-castle-passtune-action3-20261013-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T02:57:16.628Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-71ee68b3f5e9c8f51c1acb021abe76b195d4f87e",
+        "type": "ready",
+        "at": "2026-10-14T02:57:56.069Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "delivery": "71ee68b3f5e9c8f51c1acb021abe76b195d4f87e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-63174a4503bc363076cddd760d03640321671232",
+        "type": "ready",
+        "at": "2026-10-14T02:58:20.560Z",
+        "task": "Prep29",
+        "delivery": "63174a4503bc363076cddd760d03640321671232"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-newman-71ee68-20261014",
+        "type": "received",
+        "at": "2026-10-14T02:58:45.875Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "delivery": "71ee68b3f5e9c8f51c1acb021abe76b195d4f87e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-unseen-web-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T02:58:57.193Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-prep29-corrected-63174a-20261014",
+        "type": "received",
+        "at": "2026-10-14T02:59:33.473Z",
+        "task": "Prep29",
+        "delivery": "63174a4503bc363076cddd760d03640321671232"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-resume-prep30-after-prep29-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T02:59:37.581Z",
+        "task": "Prep30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-unseen-web-scope-20261014",
+        "type": "implement",
+        "at": "2026-10-14T02:59:56.678Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "goal": "fix-detect-find-trap-unseen-web-kick-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-b-newman-dependencies-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T03:00:17.714Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "delivery": "71ee68b3f5e9c8f51c1acb021abe76b195d4f87e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-newman-dependency-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T03:02:11.305Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-33bc476444fa070644192ba4580b2a8d8b12e40d",
+        "type": "ready",
+        "at": "2026-10-14T03:02:23.694Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "delivery": "33bc476444fa070644192ba4580b2a8d8b12e40d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d3b5e011b3c22850716b4aebdbcaf15d806249b0",
+        "type": "ready",
+        "at": "2026-10-14T03:02:33.544Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "delivery": "d3b5e011b3c22850716b4aebdbcaf15d806249b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b-newman-corrected-33bc47-20261014",
+        "type": "received",
+        "at": "2026-10-14T03:02:55.662Z",
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "delivery": "33bc476444fa070644192ba4580b2a8d8b12e40d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v64-next-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:03:15.601Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating an independent v64 mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v64-castle-hole-gotohell-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:03:27.978Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v59-cancel-after-drawbridge-20261014",
+        "type": "resume",
+        "at": "2026-10-14T03:04:19.912Z",
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b67d22a9affd907f126fe05169a8ca7ba4e34db3",
+        "type": "ready",
+        "at": "2026-10-14T03:04:26.436Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "delivery": "b67d22a9affd907f126fe05169a8ca7ba4e34db3"
       }
     ]
   },
@@ -107070,17 +107371,6 @@
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v58-castle-passtune-action3-20261013",
-        "worker": "B",
-        "goal": "port-dbridge-open-drawbridge-v58-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "06d4b92bc277627d3ff98983b96d11a9a4d90b8b",
-        "since": "2026-10-13T19:03:47.415Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
         "task": "B-investigation-v59-fumbling-magic-alchemy-action2-20261013",
         "worker": "B",
         "goal": "div-fix-hold-another-object-dropx-v59-20261013",
@@ -107093,8 +107383,7 @@
           "B-investigation-v57-traditional-container-menu-request-20261013",
           "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
           "B-investigation-v57-flying-steed-pool-dismount-20261013",
-          "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
-          "B-investigation-v58-castle-passtune-action3-20261013"
+          "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013"
         ],
         "unblocks": 0
       },
@@ -107112,10 +107401,20 @@
           "B-investigation-v60-whirly-swallowed-stethoscope-interference-action2-20261013",
           "B-investigation-v57-flying-steed-pool-dismount-20261013",
           "B-investigation-v60-hallucinatory-magic-book-flip-action2-20261013",
-          "B-investigation-v58-castle-passtune-action3-20261013",
           "B-investigation-v59-fumbling-magic-alchemy-action2-20261013"
         ],
         "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013",
+        "worker": "A2",
+        "goal": "a2-v64-worm-nomove",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "6d4dec8d0dc05e5cedbc3747193650d042a82287",
+        "since": "2026-10-14T02:54:18.027Z",
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "Prep29",
@@ -107123,10 +107422,63 @@
         "goal": null,
         "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "28afda36bd2c194c2213d36e8d4f69068a49a857",
+        "delivery": "63174a4503bc363076cddd760d03640321671232",
         "batch": "v65",
-        "since": "2026-10-13T21:20:14.020Z",
+        "since": "2026-10-14T02:58:20.560Z",
         "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v63-petrifying-newman-action2-20261014",
+        "worker": "B",
+        "goal": "fix-newman-stoning-clear-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "33bc476444fa070644192ba4580b2a8d8b12e40d",
+        "since": "2026-10-14T03:02:23.694Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "worker": "A2",
+        "goal": "fix-detect-find-trap-unseen-web-kick-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "d3b5e011b3c22850716b4aebdbcaf15d806249b0",
+        "since": "2026-10-14T03:02:33.544Z",
+        "blockedBy": [
+          "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013"
+        ],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "worker": "C",
+        "goal": "fix-dotrap-vibrating-square-admission-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b67d22a9affd907f126fe05169a8ca7ba4e34db3",
+        "since": "2026-10-14T03:04:26.436Z",
+        "blockedBy": [
+          "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
+          "C-investigation-v57-throne-court-summon-action2-20261013",
+          "C-investigation-v56-sack-container-help-traditional-action2-20261013",
+          "C-investigation-v58-wielded-boots-wear-action2-20261013",
+          "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
+          "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
+          "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
+          "C-investigation-v62-healer-earlier-filler-action2-20261013",
+          "C-investigation-v62-healer-later-filler-action5-20261013",
+          "C-investigation-v62-caveman-later-filler-action5-20261013",
+          "C-investigation-v62-monk-earlier-filler-action5-20261013",
+          "C-investigation-v62-monk-later-filler-action5-20261013",
+          "C-investigation-v62-ranger-earlier-filler-action5-20261013",
+          "C-investigation-v62-ranger-later-filler-action5-20261013",
+          "C-investigation-v62-tourist-later-filler-action5-20261013",
+          "C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
+          "C-investigation-v56-full-pack-gem-lift-action3-20261013"
+        ],
         "unblocks": 0
       }
     ],
@@ -107630,17 +107982,6 @@
         "reason": "Duplicate session already owned by B parked investigation B-investigation-v57-flying-steed-pool-dismount-20261013 (diagnosis 99b0d915d); Root confirmed B ownership. Parked without source edits."
       },
       {
-        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T17:04:49.225Z",
-        "blockedBy": [],
-        "reason": "Diagnosis is committed at 4c4706b0e. The source-traced fix must call maybe_explode_trap from zap_map, but B currently reserves source:zap.c:zap_map for its v58 Castle pass-tune delivery; wait for Root to resolve the caller ownership overlap before claiming implementation scope."
-      },
-      {
         "task": "C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
         "worker": "C",
         "goal": null,
@@ -107716,12 +108057,23 @@
         "since": "2026-10-13T18:23:01.605Z",
         "blockedBy": [],
         "reason": "Source trace identifies read.c:litroom() as the missing caller for potion.c:impact_arti_light(); read.c:litroom is reserved by A2-investigation-v58-swallowed-light-action2-20261013. Preserve report 63c9e9879 and resume after that delivery is accepted and the refreshed queue confirms this case remains unmatched."
+      },
+      {
+        "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "worker": "B",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T02:52:23.247Z",
+        "blockedBy": [],
+        "reason": "Source trace is committed at 5a032c87e. The clone path requires clonewiz to call makemon(PM_WIZARD_OF_YENDOR, u.ux, u.uy, MM_NOWAIT), but current JavaScript makemon rejects this explicit hero-square flag shape. C owns a ready v57 makemon.c:makemon callback delivery; resume after its acceptance and merge to implement the exact clone call admission without editing the bounded task."
       }
     ]
   },
   "development": {
-    "executionCommit": "0d77886b4c27cd162d19dbe498c8c59f5a731307",
-    "measuredAt": "2026-10-13T19:06:11.711Z",
+    "executionCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+    "measuredAt": "2026-10-14T02:53:31.785Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
