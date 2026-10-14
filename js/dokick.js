@@ -13,8 +13,8 @@
 // gaps. Floor-object kicks share whole kick_object(), really_kick_object(),
 // and ghitm() with gold throwing.
 // Object shipping below ports drop_to(), impact_drop(), ship_object(),
-// otransit_msg(), and down_gate(), shared by hero drops, throws, and monster
-// missile settlement.
+// obj_delivery(), otransit_msg(), and down_gate(), shared by hero drops,
+// level arrival, throws, and monster missile settlement.
 
 import { acurrstr, exercise, acurr, adjalign } from './attrib.js';
 import { isok } from './cmd_isok.js';
@@ -63,6 +63,7 @@ import {
     IS_GRAVE,
     IS_SINK,
     IS_STWALL,
+    IS_SOFT,
     IS_THRONE,
     IS_TREE,
     Is_airlevel,
@@ -83,6 +84,9 @@ import {
     MIGR_LADDER_UP,
     MIGR_SSTAIRS,
     MIGR_WITH_HERO,
+    MIGR_NOBREAK,
+    MIGR_NOSCATTER,
+    MIGR_TO_SPECIES,
     P_MARTIAL_ARTS,
     PL_NSIZ,
     P_NONE,
@@ -113,10 +117,10 @@ import {
 } from './do.js';
 import { del_engr_at, disturb_grave, u_wipe_engr } from './engrave.js';
 import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level, surface } from './dungeon.js';
-import { breaktest, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle, digests } from './dothrow.js';
+import { breaktest, breaks, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle, digests } from './dothrow.js';
 import { game } from './gstate.js';
 import { sgn, upstart } from './hacklib.js';
-import { currency, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
+import { currency, delobj, money_cnt, obj_extract_self, obfree, stackobj, useup, sobj_at } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
@@ -173,7 +177,7 @@ import {
 } from './shk.js';
 import { make_happy_shk } from './shk.js';
 import { shkname, Shknam } from './shknam.js';
-import { stairway_at } from './stairs.js';
+import { stairway_at, stairway_find_from } from './stairs.js';
 import { remove_worn_item } from './steal.js';
 import {
     activate_statue_trap, chest_trap, instapetrify,
@@ -202,7 +206,7 @@ import {
     missum, mon_maybe_unparalyze, passive,
 } from './uhitm.js';
 import { a_monnam, hcolor, hliquid, Monnam, mon_nam } from './do_name.js';
-import { enexto, noteleport_level, goodpos } from './teleport.js';
+import { enexto, noteleport_level, goodpos, rloco } from './teleport.js';
 import { canseemon, canspotmon } from './display.js';
 import { stop_occupation } from './allmain.js';
 import { cvt_sdoor_to_door, find_trap } from './detect.js';
@@ -1746,6 +1750,111 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
         if (!env.planning) newsym(x, y);
     }
     return true;
+}
+
+// C ref: dokick.c obj_delivery(). do.c:goto_level() calls the false arm
+// before timers and monsters return, then the true arm after arrival messages.
+// Keep the migration-chain filter, destination cleanup, break order, and
+// scatter draw at the source call sites.
+export async function obj_delivery(near_hero, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { d, rn1, rn2, rnd, rne, rnl, ...(rawEnv.random ?? {}) };
+    const env = objectGenerationEnv({ ...rawEnv, state, random });
+    const u = state.u;
+    const level = u.uz;
+    let otmp = state.gm?.migrating_objs ?? null;
+
+    while (otmp) {
+        const otmp2 = otmp.nobj;
+        if (otmp.ox !== level.dnum || otmp.oy !== level.dlevel) {
+            otmp = otmp2;
+            continue;
+        }
+
+        let where = Number(otmp.owornmask) & 0x7fff;
+        if (where & MIGR_TO_SPECIES) {
+            otmp = otmp2;
+            continue;
+        }
+
+        const nobreak = Boolean(where & MIGR_NOBREAK);
+        const noscatter = Boolean(where & MIGR_WITH_HERO);
+        where &= ~(MIGR_NOBREAK | MIGR_NOSCATTER);
+        if (Boolean(!near_hero) !== (where === MIGR_WITH_HERO)) {
+            otmp = otmp2;
+            continue;
+        }
+
+        obj_extract_self(otmp, env);
+        otmp.owornmask = 0;
+        const fromdlev = {
+            dnum: otmp.omigr_from_dnum,
+            dlevel: otmp.omigr_from_dlevel,
+        };
+        let nx = 0;
+        let ny = 0;
+        let isladder = false;
+
+        if (where === MIGR_LADDER_UP) {
+            isladder = true;
+            where = MIGR_STAIRS_UP;
+        }
+        switch (where) {
+        case MIGR_STAIRS_UP:
+        case MIGR_SSTAIRS: {
+            const stway = stairway_find_from(fromdlev, isladder, state);
+            if (stway) {
+                nx = stway.sx;
+                ny = stway.sy;
+            }
+            break;
+        }
+        case MIGR_WITH_HERO:
+            nx = u.ux;
+            ny = u.uy;
+            break;
+        case MIGR_RANDOM:
+        default:
+            nx = ny = 0;
+            break;
+        }
+        otmp.omigr_from_dnum = 0;
+        otmp.omigr_from_dlevel = 0;
+
+        if (nx > 0) {
+            place_object(otmp, nx, ny, env);
+            if (!nobreak && !IS_SOFT(state.level.locations[nx][ny].typ)) {
+                if (where === MIGR_WITH_HERO) {
+                    if (await breaks(otmp, nx, ny, env)) {
+                        otmp = otmp2;
+                        continue;
+                    }
+                } else if (breaktest(otmp, env)) {
+                    // dokick.c assumes this broke before arrival and omits
+                    // the ordinary broken-object message.
+                    delobj(otmp, env);
+                    otmp = otmp2;
+                    continue;
+                }
+            }
+            stackobj(otmp, env);
+            if (!noscatter) {
+                await scatter(nx, ny, random.rnd(2), 0, otmp, state, env);
+            } else {
+                newsym(nx, ny, state);
+            }
+        } else {
+            // rloco() reads the source coordinates unless they are reset for
+            // this destination-less migration, as in the C random arm.
+            otmp.ox = 0;
+            otmp.oy = 0;
+            if (await rloco(otmp, env) && !nobreak
+                && breaktest(otmp, env)) {
+                delobj(otmp, env);
+            }
+        }
+        otmp = otmp2;
+    }
 }
 
 // C ref: dokick.c otransit_msg() (1909-1940).

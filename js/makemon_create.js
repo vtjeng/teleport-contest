@@ -128,6 +128,7 @@ import {
     on_level,
 } from './dungeon.js';
 import { game } from './gstate.js';
+import { note_unported } from './unported.js';
 import { upstart } from './hacklib.js';
 import {
     add_to_container,
@@ -1621,10 +1622,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             );
         }
     }
-    if (!(mmflags & NO_MINVENT)
-        && (state.migrating_objs || state.gm?.migrating_objs)) {
-        throw new UnsupportedMonsterCreationError('migrating object delivery');
-    }
     if (ptr) {
         // C makemon has no species allowlist.  On non-main-dungeon levels
         // (Quest, Mines, etc.) during mklev, skip the allowlist entirely
@@ -2933,7 +2930,7 @@ function finishMonsterInventoryAndStrategy(
     mmflags,
     normalized,
 ) {
-    const { random } = normalized;
+    const { random, state } = normalized;
     if (allowMinvent) {
         if (isArmed(ptr)) m_initweap(monster, normalized);
         m_initinv(monster, normalized);
@@ -2960,8 +2957,12 @@ function finishMonsterInventoryAndStrategy(
         if (ptr.mflags3 & (M3_WAITFORU | M3_CLOSE | M3_COVETOUS))
             monster.mstrategy |= STRAT_APPEARMSG;
     }
-    // deliver_obj_to_mon() is excluded in preflightCreation() whenever a
-    // supported call allows inventory and migrating objects are present.
+    // C makemon.c calls dokick.c deliver_obj_to_mon() here when inventory is
+    // allowed. Its result is discarded; keep that separate source gap visible
+    // while allowing supported level generation to continue.
+    if (allowMinvent && state.gm?.migrating_objs) {
+        note_unported('dokick.c deliver_obj_to_mon');
+    }
 }
 
 async function finishRuntimeCreationTail(monster, mmflags, normalized) {
