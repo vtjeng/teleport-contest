@@ -1,0 +1,65 @@
+{
+  "session": "synthetic/v73/v73-confused-npc-earth-action4",
+  "corpus": "synthetic",
+  "batch": "v73",
+  "caseId": "v73-confused-npc-earth-action4",
+  "manifestPath": "challenges/manifests/v73.json",
+  "manifestSha256": "47ee27378b0863dd5538f676f0f170e9e2ca91771edc37e7f514f659b4dacc32",
+  "recordingSha256": "541c34ea2fd3b6e8e5d6cdc11a4a9249ea356f72df4994276110a502237065df",
+  "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
+  "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
+  "remainingScreens": 113,
+  "recordedSteps": 659,
+  "status": "complete",
+  "commit": "35228b203561352bd1335be9d7ebe354667557da",
+  "mismatch": {
+    "session": "synthetic/v73/v73-confused-npc-earth-action4",
+    "remainingScreens": 113,
+    "step": 545,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "firstMismatch": {
+      "rngIndex": 2877,
+      "cEntry": "rn2(100)=5 @ obj_resists(zap.c:1469)",
+      "jsEntry": "rnd(5)=1"
+    }
+  },
+  "summary": "The potion lands at (29,13) while the hero is at (31,13). C you.h:next2u uses distu<=2, where distu is squared Euclidean distance, so this distance of 4 skips potionbreathe. JavaScript dothrow.js:next2u uses Chebyshev distance<=2 and incorrectly runs potionbreathe before invent.c:delobj_core's second obj_resists draw. The extra vapor messages leave the JS throw tail at a More boundary, shifting that draw and the next monster turn.",
+  "source": {
+    "file": "dothrow.c",
+    "functions": [
+      "breakobj"
+    ],
+    "branch": "After a potion passes breaktest, breakobj calls next2u(x,y) before potionbreathe. The source macro compares squared Euclidean distance to 2; at delta (2,0), it skips potionbreathe and continues to delobj. JS uses Chebyshev distance, incorrectly entering the vapor branch.",
+    "callers": [
+      "dothrow.c:throwit calls breaktest then breakmsg and breakobj for the missed thrown potion.",
+      "dothrow.c:breakobj uses you.h:next2u; you.h defines it as distu((px),(py)) <= 2."
+    ],
+    "dependencies": [
+      "hack.h:distu delegates to squared distance dist2.",
+      "invent.c:delobj_core calls obj_resists(obj,0,0), accounting for the second C rn2(100) draw after breaktest."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C recording challenges/cases/v73/v73-confused-npc-earth-action4.session.json, segment 0, step 545: thitmonst misses the potion; breaktest consumes rn2(100)=43; invent.c:delobj_core then calls zap.c:obj_resists(obj,0,0) and consumes rn2(100)=5 before distfleeck.",
+    "C source you.h:558 and hack.h:1531 define next2u as squared distance <=2; hero position (31,13) and throw landing square (29,13) yield dist2=4.",
+    "JS source js/dothrow.js:1736,1818 enters potionbreathe because next2u uses distmin<=2; fresh scan run-z4vIYH reproduces the step-545 RNG and step-546 screen/cursor mismatch.",
+    "The earlier TTY-suspension hypothesis is falsified: the extra JS messages originate from the incorrectly reached potionbreathe branch, not from a mismatch in message-wait semantics."
+  ],
+  "baselineMetrics": {
+    "screens": {
+      "matched": 546,
+      "total": 659
+    },
+    "rng": {
+      "matched": 2877,
+      "total": 2998
+    },
+    "cursors": {
+      "matched": 546,
+      "total": 659
+    }
+  }
+}
