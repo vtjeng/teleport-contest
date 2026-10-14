@@ -763,3 +763,26 @@ triage decisions or fix references.
   adds explicit retained commits, applied in history order before submissions.
   Its 11 focused tests cover corrected rebuild, retry and split; the live group
   supplies the full checkpoint. The accepted base and failed branch stay intact.
+
+### 2026-10-14 — group metadata verification exceeded the focused limit
+
+- Context: corrected integration of 50 received implementation deliveries.
+- Friction: bounded run run-4XVZhs exhausted the 120-second focused limit
+  during ledger verification after source integration and packet preflight.
+- Evidence: its retained terminal receipt records timeout, exit 124 and reaped
+  control group. The recorded lock owner no longer existed (ESRCH).
+- Outcome: Root removed the proven dead lock and resumed the same candidate
+  with the 900-second full profile. Retained run run-FmtN8h completed successfully
+  at 41f0b9fdd4e3a7743344ba85f44b57f987d501d7. The timeout did not
+  establish a source failure. This entry waits for the next validated record
+  boundary so logging does not change the candidate during its hosted check.
+
+### 2026-10-14 — preserved diagnosis belongs in the tested candidate
+
+- Context: wizard clone delivery 20e461f follows the accepted group of 50.
+- Friction: adding its original diagnosis as Main bookkeeping failed the
+  publication guard because its recorded source commit is outside the accepted
+  history. The diagnosis and measurement must retain their original attribution.
+- Outcome: Root preserved the original commit, removed the premature report
+  addition from Main, and included it in the candidate before hosted validation.
+  The retry retains that report and the earlier timeout log as prerequisites.
