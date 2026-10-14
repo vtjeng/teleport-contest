@@ -8,7 +8,7 @@
   "recordingSha256": "3529cbd1c1460616d747cf6656291e3bdfa2c08096e0409b2fa38b506d819c71",
   "evaluationPath": "challenges/evaluations/admission-be9f82a4d596bc329cf45ad6b910979f5c718969-v73.json",
   "evaluationCommit": "be9f82a4d596bc329cf45ad6b910979f5c718969",
-  "remainingScreens": 276,
+  "remainingScreens": 63,
   "recordedSteps": 276,
   "status": "complete",
   "commit": "4982517f05ce0a73aa9348440bd6bbe86e0c266e",
@@ -21,7 +21,7 @@
     "sessions": [
       "synthetic/v73/v73-blind-peaceful-lurker-action2"
     ],
-    "remainingScreens": 276,
+    "remainingScreens": 63,
     "remainingScreensUpperBound": null,
     "caseId": "v73-blind-peaceful-lurker-action2",
     "batch": "v73",
@@ -89,7 +89,7 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The accepted v73 evaluation for case v73-blind-peaceful-lurker-action2 reports the first C/JavaScript boundary at segment 0 step 213, key h: C shows 'You surprise something!' and continues to 276 screens, while JavaScript stops at 213 screens after 2929 of 2996 RNG calls.",
+    "The accepted v73 evaluation for case v73-blind-peaceful-lurker-action2 reports the first C/JavaScript boundary at segment 0 step 213: C continues through 276 screens while JavaScript matches 213 screens, leaving 63 unmatched screens and 67 unmatched RNG calls.",
     "The corresponding source target is hack.c:domove_attackmon_at() at lines 1955-1992. Its predicate is forcefight || !mundetected || sensemon || ((hides_under || eel) && !is_safemon). The target in this recording is an unknown unsensed ceiling hider, so the predicate is false and C does not call do_attack().",
     "js/hack.js:preflightDomoveDestination() and domove_core() both call requireSupportedDestinationMonster() before domove_attackmon_at(). That seam called requireOrdinaryHostileMelee() for a hidden target when is_safemon() was false; the guard threw 'attacking a hidden monster (ceiling hider or other)' even though the C gate skips the attack and permits normal movement. The source fix preserves the C gate and allows the caller to continue without inventing an attack or RNG draw."
   ],
