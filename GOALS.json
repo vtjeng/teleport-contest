@@ -313355,6 +313355,96 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-unsaddled-steed-opening-wand-saddle-lookup-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement bhitm from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v72/v72-opening-pet-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v72-opening-pet-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "bhitm",
+      "session": "synthetic/v72/v72-opening-pet-action2"
+    },
+    {
+      "id": "fix-music-do-improvisation-killed-by-reference-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement do_improvisation from music.c",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v72/v72-frost-horn-self-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v72-frost-horn-self-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "do_improvisation",
+      "session": "synthetic/v72/v72-frost-horn-self-action4"
+    },
+    {
+      "id": "fix-floating-eye-passive-reflection-lookup-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement passive from uhitm.c",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v72/v72-floating-eye-passive-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v72-floating-eye-passive-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "passive",
+      "session": "synthetic/v72/v72-floating-eye-passive-action2"
+    },
+    {
+      "id": "fix-clinger-attributes-enlightenment-ceiling-import-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement attributes_enlightenment from insight.c",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v72/v72-clinger-attributes-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v72-clinger-attributes-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "attributes_enlightenment",
+      "session": "synthetic/v72/v72-clinger-attributes-action2"
+    },
+    {
+      "id": "fix-zap-cancel-item-charisma-reference-v72-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement cancel_item from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v72/v72-adornment-cancel-scout1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v72-adornment-cancel-scout1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "cancel_item",
+      "session": "synthetic/v72/v72-adornment-cancel-scout1"
     }
   ]
 }
