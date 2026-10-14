@@ -1,0 +1,137 @@
+{
+  "session": "synthetic/v63/v63-sighted-wizard-clone-action4",
+  "remainingScreens": 379,
+  "recordedSteps": 1213,
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-sighted-wizard-clone-action4",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "3006713a91982b255ad31854d59d9744d3eee1926ccbe4689eff67b3c1e43b88",
+  "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+  "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+  "status": "complete",
+  "commit": "54211f8f85c6e91fab15776c4d21a4d2de92a6ef",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-sighted-wizard-clone-action4",
+    "session": "synthetic/v63/v63-sighted-wizard-clone-action4",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recording": "challenges/cases/v63/v63-sighted-wizard-clone-action4.session.json",
+    "recordingPath": "challenges/cases/v63/v63-sighted-wizard-clone-action4.session.json",
+    "recordingSha256": "3006713a91982b255ad31854d59d9744d3eee1926ccbe4689eff67b3c1e43b88",
+    "recipe": "challenges/cases/v63/v63-sighted-wizard-clone-action4.recipe.session.json",
+    "recipeSha256": "57b17c235c049565b7af648c9316fff3aa275a31540fb93d5ca0d431179674ca",
+    "replayInputSha256": "9add9242a0edd50778347f8e6c0dfc918133259fe520d5a6d35220fb6592513a",
+    "evaluationPath": "challenges/evaluations/admission-3fc2021644e79e564fb762bc2038139c3241ff42-v63.json",
+    "evaluationCommit": "3fc2021644e79e564fb762bc2038139c3241ff42",
+    "remainingScreens": 379,
+    "recordedSteps": 1213,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 834,
+        "total": 1213
+      },
+      "rng": {
+        "matched": 3164,
+        "total": 106397
+      },
+      "cursors": {
+        "matched": 1032,
+        "total": 1213
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 834,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 834,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 47,
+        "cCell": {
+          "ch": "D",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3158,
+        "cEntry": "rn2(8)=1",
+        "cCaller": "collect_coords(teleport.c:700)",
+        "jsEntry": "rn2(12)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 834,
+          "key": " "
+        },
+        "stepIndex": 834
+      },
+      "cursor": {
+        "index": 834,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 834,
+          "key": " "
+        },
+        "cCursor": [
+          72,
+          0,
+          1
+        ],
+        "jsCursor": [
+          35,
+          19,
+          1
+        ]
+      }
+    },
+    "step": 834,
+    "kind": "rng",
+    "sourceFile": "teleport.c",
+    "function": "collect_coords",
+    "message": null,
+    "cFile": "teleport.c",
+    "luaFile": null,
+    "line": 700
+  },
+  "summary": "The v63 hostile Wizard of Yendor reaches the clone-wizard spell. C mcastu.c:mcast_clone_wiz calls wizard.c:clonewiz when this is the sole Wizard; clonewiz creates a hostile awake Wizard at the hero’s square. JavaScript mcastu.js records MCAST_CLONE_WIZ as an unported gap and creates no clone. C’s makemon placement then reaches teleport.c:collect_coords; the first RNG and screen mismatch at step 834 reflects the missing clone path, not a defect in collect_coords.",
+  "source": {
+    "file": "mcastu.c",
+    "functions": [
+      "mcast_clone_wiz"
+    ],
+    "branch": "mcastu.c:mcast_clone_wiz checks iswiz and no_of_wizards == 1, prints “Double Trouble...” and calls clonewiz(); otherwise it invokes impossible(). wizard.c:clonewiz calls makemon(PM_WIZARD_OF_YENDOR, u.ux, u.uy, MM_NOWAIT), then makes a created clone hostile, awake, and untame; when the hero lacks the Amulet it conditionally gives a fake Amulet with rn2(2), applies the wizard appearance when shape changes are unprotected, and redraws it.",
+    "callers": [
+      "mcastu.c:mcast_spell() dispatches MCAST_CLONE_WIZ to mcast_clone_wiz(); js/mcastu.js:mcast_spell() has the matching switch arm but records mcastu.c mcast_clone_wiz as an unported gap.",
+      "mcastu.c:mcast_clone_wiz() calls wizard.c:clonewiz(); js/mcastu.js currently has no production call to a clonewiz implementation."
+    ],
+    "dependencies": [
+      "wizard.c:clonewiz() requires makemon.c:makemon() to create and place the duplicate. C currently owns a ready v57 throne-court delivery that reserves makemon.c:makemon; wait for acceptance and merge before claiming or relying on that implementation as a settled dependency.",
+      "The C placement path from makemon at the hero square reaches teleport.c:collect_coords through the existing enexto/placement helpers. The queue labels collect_coords at step 834 because C’s first additional placement shuffle uses rn2(8); JavaScript uses rn2(12) after it has skipped the MCAST_CLONE_WIZ gap."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v63 admission evaluation at 3fc2021644e79e564fb762bc2038139c3241ff42 reports 834/1213 screens, 1032/1213 cursors, and 3164/106397 RNG calls before the first mismatch at step 834; the manifest and recording digests match the selected queue entry.",
+    "Replaying the saved C recording through the current JavaScript worktree reproduces the first screen mismatch at segment 0 step 834: C displays the duplicate Wizard (D) where JavaScript has a blank tile. The first RNG mismatch is C rn2(8)=1 from collect_coords(teleport.c:700) versus JS rn2(12)=1; all prior screens match.",
+    "nethack-c/upstream/src/mcastu.c:411-419 shows mcast_clone_wiz dispatching the sole Wizard to clonewiz. nethack-c/upstream/src/wizard.c:517-532 shows the clone creation, hostile state, fake-Amulet branch, appearance branch, and newsym.",
+    "js/mcastu.js:1112-1114 records the MCAST_CLONE_WIZ switch arm as an unported gap, so the clone and its inventory/placement path never run in JavaScript. teleport.c:1840-1893 shows the coordinate collection and shuffle used for monster placement; that is a downstream symptom of the missing clone."
+  ]
+}
