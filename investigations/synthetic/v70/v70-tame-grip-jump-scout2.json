@@ -22,6 +22,8 @@
     "functions": ["jump"],
     "branch": "Upstream apply.c:jump (1988-2163) tests u.ustuck->mtame && !Conflict && !u.ustuck->mconf. For the admitted sequence, the tame python has grabbed the hero, the hero removes the sole Conflict ring, and #jump takes the branch that clears u.ustuck and prints the pull-free message.",
     "javascript": "js/apply.js:jump mirrors the condition at line 3036 through jumpProperty(state, CONFLICT), but CONFLICT was absent from the module's named imports. The throw occurs before the branch can release the captor.",
+    "callers": ["cmd.c:doextcmd -> apply.c:dojump -> apply.c:jump"],
+    "dependencies": ["js/const.js already exports CONFLICT; no new source callee is needed."],
     "resolution": "Import CONFLICT from js/const.js in js/apply.js. Keep the source condition and its ordering unchanged."
   },
   "evidence": [
