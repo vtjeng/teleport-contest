@@ -1,0 +1,103 @@
+{
+  "session": "synthetic/v67/v67-landmine-steed-saddle-action5",
+  "corpus": "synthetic",
+  "batch": "v67",
+  "caseId": "v67-landmine-steed-saddle-action5",
+  "manifestPath": "challenges/manifests/v67.json",
+  "recordingPath": "challenges/cases/v67/v67-landmine-steed-saddle-action5.session.json",
+  "evaluationPath": "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json",
+  "manifestSha256": "81ba9593c8fc99da2c548fe51197cb11d0674f386b21216d1bbfaaf27dfe3196",
+  "recordingSha256": "518f4ce6bfc639152e605f5515d3609bf4bc4173a54fc45087dbd9934775692b",
+  "evaluationCommit": "979a3f3967638748dc19cf8b6ea8851736ade63e",
+  "remainingScreens": 96,
+  "recordedSteps": 489,
+  "status": "complete",
+  "commit": "1fe394e70e2492094e98de3dcff912aa5c70e6c4",
+  "mismatch": {
+    "screen": {
+      "index": 393,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 393,
+        "key": " "
+      },
+      "kind": "ch",
+      "row": 6,
+      "column": 54,
+      "cCell": {
+        "ch": ".",
+        "color": 8,
+        "attr": 0,
+        "decgfx": 0
+      },
+      "jsCell": {
+        "ch": "%",
+        "color": 3,
+        "attr": 0,
+        "decgfx": 0
+      }
+    },
+    "rng": {
+      "index": 2622,
+      "cEntry": "rn2(3)=1",
+      "cCaller": "landing_spot(steed.c:543)",
+      "jsEntry": "rn2(35)=10",
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 392,
+        "key": " "
+      },
+      "stepIndex": 392
+    },
+    "cursor": {
+      "index": 439,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 439,
+        "key": "b"
+      },
+      "cCursor": [
+        49,
+        3,
+        1
+      ],
+      "jsCursor": [
+        55,
+        6,
+        1
+      ]
+    },
+    "step": 392,
+    "kind": "rng",
+    "sourceFile": "steed.c",
+    "function": "landing_spot",
+    "message": null,
+    "cFile": "steed.c",
+    "luaFile": null,
+    "line": 543,
+    "session": "synthetic/v67/v67-landmine-steed-saddle-action5",
+    "remainingScreens": 96
+  },
+  "summary": "When the land mine kills the mounted rothe, C dismounts the hero through steedintrap() before the mine affects the rider. JavaScript records the killed-steed dismount as unported and skips that call; subsequent landing placement, mine effects, and screen state diverge.",
+  "source": {
+    "file": "trap.c",
+    "branch": "In steedintrap(), after thitm() kills the steed, C calls dismount_steed(DISMOUNT_POLY) and returns Trap_Killed_Mon. JavaScript instead records note_unported(\"steed.c dismount_steed DISMOUNT_POLY\") and returns, leaving out the source call and its placement/state effects.",
+    "functions": [
+      "steedintrap"
+    ],
+    "callers": [
+      "trap.c:trapeffect_landmine() -> steedintrap() for the mounted hero land mine; steedintrap() -> steed.c:dismount_steed(DISMOUNT_POLY) when the steed dies"
+    ],
+    "dependencies": [
+      "steed.c:dismount_steed() (existing js/steed.js implementation)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/trap.c:3140-3151: steedintrap() handles LANDMINE with thitm(), then calls dismount_steed(DISMOUNT_POLY) after the steed is killed.",
+    "js/trap_effects.js:1435-1466: the LANDMINE branch computes the same steed hit, but its killed-steed arm calls note_unported() instead of invoking dismount_steed().",
+    "js/steed.js:877-965: dismount_steed() implements DISMOUNT_POLY and the common release/landing path used by the C caller.",
+    "challenges/cases/v67/v67-landmine-steed-saddle-action5.recipe.session.json: the independent Knight setup creates a low-HP saddled rothe, places an actual land mine beneath it, and steps onto it.",
+    "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json: saved baseline has 393/489 screens, 2635/2668 RNG calls, and 446/489 cursors matched; first RNG mismatch is step 392 at landing_spot(), followed by the screen mismatch at step 393."
+  ]
+}
