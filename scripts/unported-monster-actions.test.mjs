@@ -152,6 +152,7 @@ import {
     BOW,
     DAGGER,
     ELVEN_DAGGER,
+    EGG,
     FOOD_RATION,
     LONG_SWORD,
     ORCISH_HELM,
@@ -6159,6 +6160,12 @@ test('gelatinous cube digestion runs during isolated preflight',
                 label: 'organic food ration',
                 otyp: FOOD_RATION,
             },
+            // Killer-bee eggs are ordinary organic eggs without polyfood.
+            {
+                label: 'ordinary killer-bee egg',
+                otyp: EGG,
+                corpsenm: PM_KILLER_BEE,
+            },
         ]) {
             const target = await prepareSelectedAction({
                 pmidx: PM_GELATINOUS_CUBE,
@@ -6168,6 +6175,8 @@ test('gelatinous cube digestion runs during isolated preflight',
                 // obj_extract_self() follows ocarry when gelcube_digests
                 // removes an eligible object from the monster's inventory.
                 object.v = target.monster;
+                if (testCase.corpsenm !== undefined)
+                    object.corpsenm = testCase.corpsenm;
                 target.monster.minvent = object;
                 const planned = planningState(game);
                 assert.equal(
@@ -6187,7 +6196,7 @@ test('gelatinous cube digestion runs during isolated preflight',
                     return true;
                 },
             });
-            if (testCase.otyp === FOOD_RATION) {
+            if (testCase.otyp === FOOD_RATION || testCase.otyp === EGG) {
                 assert.ok(plannedCube, 'the scan reached cloned turn upkeep');
                 assert.equal(
                     plannedCube.minvent,

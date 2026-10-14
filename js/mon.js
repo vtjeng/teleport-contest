@@ -1514,7 +1514,26 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     // CARROT eye-cure check is by otyp.  Keep every other food arm guarded
     // until its downstream effect is ported.
     if (otmp.otyp !== CORPSE) {
-        if (otmp.otyp === EGG) stop('a non-EGG food item');
+        if (otmp.otyp === EGG) {
+            // C obj.h polyfood() includes eggs whose species polymorphs or
+            // carries AD_POLY. m_consume_obj deletes the egg before newcham.
+            const eggSpeciesIndex = otmp.corpsenm;
+            const eggSpecies = eggSpeciesIndex >= LOW_PM
+                ? state.mons?.[eggSpeciesIndex] : null;
+            const polymorphs = Boolean(eggSpecies)
+                && (pm_to_cham(eggSpeciesIndex, state) !== NON_PM
+                    || dmgtype(eggSpecies, AD_POLY));
+            const visible = polymorphs && canseemon(mtmp, state);
+            delobj(otmp, objectGenerationEnv({ ...rawEnv, state }));
+            if (polymorphs) {
+                await newcham(mtmp, null, {
+                    ...rawEnv,
+                    state,
+                    ncflags: visible ? NC_SHOW_MSG : 0,
+                });
+            }
+            return;
+        }
         if (otmp.otyp === TIN) stop('a non-TIN food item');
         if (otmp.otyp === GLOB_OF_GREEN_SLIME)
             stop('a non-slime food item');
