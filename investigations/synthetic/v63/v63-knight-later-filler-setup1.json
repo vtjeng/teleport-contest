@@ -1,0 +1,141 @@
+{
+  "session": "synthetic/v63/v63-knight-later-filler-setup1",
+  "remainingScreens": 24,
+  "recordedSteps": 265,
+  "corpus": "synthetic",
+  "batch": "v63",
+  "caseId": "v63-knight-later-filler-setup1",
+  "manifestPath": "challenges/manifests/v63.json",
+  "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+  "recordingSha256": "d0274c3cc512374d8eaeadab7eeddfe161f99857bd59c0bf41f5a84d754357d8",
+  "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+  "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+  "status": "complete",
+  "commit": "2581741882f88a491ef2f0188ea954f44e7b439d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v63",
+    "caseId": "v63-knight-later-filler-setup1",
+    "session": "synthetic/v63/v63-knight-later-filler-setup1",
+    "manifestPath": "challenges/manifests/v63.json",
+    "manifestSha256": "7e1c31e1f4a8345cbc4f6878e16f89a04914a5e0e24471882dd559269888fdfe",
+    "recording": "challenges/cases/v63/v63-knight-later-filler-setup1.session.json",
+    "recordingPath": "challenges/cases/v63/v63-knight-later-filler-setup1.session.json",
+    "recordingSha256": "d0274c3cc512374d8eaeadab7eeddfe161f99857bd59c0bf41f5a84d754357d8",
+    "recipe": "challenges/cases/v63/v63-knight-later-filler-setup1.recipe.session.json",
+    "recipeSha256": "ee582b2003945f1c2042c53efac81e05ae7e629a6acf2b9f58fcb5fcd1422638",
+    "replayInputSha256": "5d8a0d424bda8035238c89e2c08d6d84d98eb2706d483f4c492b6ead514f832f",
+    "evaluationPath": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+    "evaluationCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+    "evaluationArtifact": "challenges/evaluations/accepted-02a098f2e3bf8dab3c52e27f90b3fd1adacc6260-v63.json",
+    "evaluationUtc": "2026-10-14T02:54:25.085Z",
+    "remainingScreens": 24,
+    "recordedSteps": 265,
+    "previousScreensMatched": 241,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 241,
+        "total": 265
+      },
+      "rng": {
+        "matched": 6017,
+        "total": 8974
+      },
+      "cursors": {
+        "matched": 248,
+        "total": 265
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 241,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 1,
+        "column": 0,
+        "cCell": {
+          "ch": "}",
+          "color": 4,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 6011,
+        "cEntry": "rn2(3)=1",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "stepIndex": 241
+      },
+      "cursor": {
+        "index": 241,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 241,
+          "key": "\n"
+        },
+        "cCursor": [
+          31,
+          3,
+          1
+        ],
+        "jsCursor": [
+          29,
+          8,
+          1
+        ]
+      }
+    },
+    "step": 241,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "The role-specific Knight later filler program Kni-filb.lua is absent from QUEST_LEVEL_LOADERS. At or below Kni-loca, mklev.c:makelevel selects Kni-filb and routes through makemaz/load_special; JavaScript therefore generates a generic level instead of applying the lower Knight quest Mines cavern.",
+  "source": {
+    "file": "Kni-filb.lua",
+    "branch": "In the Knight quest at or below Kni-loca, mklev.c:makelevel selects the later filler name Kni-filb; its special-level loader must execute the complete program.",
+    "functions": [
+      "Kni-filb.lua"
+    ],
+    "callers": [
+      "mklev.c:makelevel -> mkmaze.c:makemaz -> sp_lev.c:load_special",
+      "js/mklev.js:makelevel -> makemaz -> load_special via QUEST_LEVEL_LOADERS"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "lua-port",
+  "evidence": [
+    "nethack-c/upstream/dat/Kni-filb.lua:1-40 defines a solid-fill, noflip Mines level, followed by up/down stairs, eleven random objects, four hostile quasits, one hostile i-class monster, three hostile ochre jellies, and four random traps in source order.",
+    "nethack-c/upstream/src/mklev.c:1275-1285 selects role-specific quest filler proto names from filecode and depth. js/mklev.js:756-770 mirrors this selection and dispatches registered programs through makemaz/load_special.",
+    "js/quest_levels.js has the complete Kni-fila loader but no Kni-filb entry in QUEST_LEVEL_LOADERS, so this later role-specific Lua program is not executed.",
+    "Accepted v63 baseline artifact reports v63-knight-later-filler-setup1 at 241/265 screens, 6017/8974 RNG calls, and 248/265 cursors, with no runtime error. The first mismatch is at segment 0, step 241 while the C and JavaScript RNG paths diverge during level randomization."
+  ]
+}
