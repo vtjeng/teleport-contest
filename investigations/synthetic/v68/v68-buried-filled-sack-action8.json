@@ -1,0 +1,40 @@
+{
+  "session": "synthetic/v68/v68-buried-filled-sack-action8",
+  "corpus": "synthetic",
+  "batch": "v68",
+  "caseId": "v68-buried-filled-sack-action8",
+  "remainingScreens": 182,
+  "recordedSteps": 554,
+  "status": "complete",
+  "summary": "The admitted v68 burial replay stops when a buried organic sack's ROT_ORGANIC timer becomes due. The JavaScript timeout table has no callback for rot_organic(), and the existing js/dig.js function only performs the corpse-safe extraction path; it omits C's loop that transfers and buries every container child at the container's buried coordinates before freeing the container.",
+  "commit": "91900e6d8725a01ee700daac2eadaf4f53cdc7f9",
+  "mismatch": {
+    "session": "synthetic/v68/v68-buried-filled-sack-action8",
+    "remainingScreens": 182,
+    "kind": "stop",
+    "message": "elapsed-turn nh_timeout requires a ported timeout function, but rot_organic() is due",
+    "step": 372
+  },
+  "source": {
+    "file": "dig.c",
+    "branch": "dig.c:rot_organic() receives the due ROT_ORGANIC callback for a buried organic container. Before extracting and freeing the container, C repeatedly copies its ox/oy to the first child and calls bury_an_obj(child); this removes each child from the container, buries it at the same coordinates, and can schedule that child's own ROT_ORGANIC timer. JS has only the corpse contents-free extraction path registered in dig.js, while timeout.js leaves the ROT_ORGANIC table slot without a function.",
+    "functions": ["rot_organic"],
+    "callers": [
+      "dig.c:bury_an_obj() schedules ROT_ORGANIC when an eligible organic object is buried; the admitted recipe places a metal dagger in an organic sack, buries the sack, lets its timer expire, and later digs up the child's surviving buried object.",
+      "timeout.c:run_timers() invokes timeout_funcs[ROT_ORGANIC].f() for the due timer; js/timeout.js:run_timers() dispatches the matching timeout_funcs entry, which currently has no f for rot_organic."
+    ],
+    "dependencies": ["dig.c:bury_an_obj() (already implemented in js/bury.js and used to transfer each child)" ]
+  },
+  "goalKind": "file-port",
+  "manifestPath": "challenges/manifests/v68.json",
+  "manifestSha256": "f24f70ec92301004f8c070fdf94a3a2d318a19231ca193ce52e888320beaaa3e",
+  "recordingSha256": "2aaed7f2acc8fc014f26e8db273ce4052c3f1dc6cfc045bdc8ac276c74846069",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v68.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "evidence": [
+    "The accepted v68 evaluation records 372/554 screens, 3870/4153 RNG calls, and 372/554 cursors before the replay stops at step 372 with the due rot_organic() timeout refusal. The saved queue identifies manifest challenges/manifests/v68.json (SHA-256 f24f70ec92301004f8c070fdf94a3a2d318a19231ca193ce52e888320beaaa3e), recording challenges/cases/v68/v68-buried-filled-sack-action8.session.json (SHA-256 2aaed7f2acc8fc014f26e8db273ce4052c3f1dc6cfc045bdc8ac276c74846069), and evaluation challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v68.json from commit f5371e6adf39dfbf6b3bc839f5d6d96195f0536f.",
+    "The C recipe's independent observation records a dagger inside an organic sack buried with #wizbury; C schedules the sack's ROT_ORGANIC timer, then on expiry transfers the dagger into the buried-object list at the sack coordinates and frees the sack. Later digging reveals the dagger without the sack. The recipe is challenges/cases/v68/v68-buried-filled-sack-action8.recipe.session.json; its comments retain the actual C queue, timer, and terrain observations.",
+    "Upstream nethack-c/upstream/src/dig.c:2125-2140 implements rot_organic(): while Has_contents(obj), set the first child's ox/oy to the container coordinates and call bury_an_obj(child), then obj_extract_self(obj) and obfree(obj, NULL). The child call's return is discarded. The existing js/dig.js:2449-2455 implements only extraction and obfree, with a comment explicitly leaving the buried-container contents loop unported.",
+    "Upstream nethack-c/upstream/src/timeout.c:2216-2240 dispatches the callback selected by timeout_funcs. js/timeout.js:600-610 has a ROT_ORGANIC row with no f; js/timeout.js:2295-2310 refuses the due timer before dispatch when that row lacks a handler. The implementation scope is the complete dig.c:rot_organic() behavior plus its timeout-table wiring, retaining child coordinate updates, recursive bury_an_obj() effects and random calls, and final container disposal in C order."
+  ]
+}
