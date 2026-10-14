@@ -435,7 +435,7 @@ async function getbones() {
     if (state.wizard) state._bonesRestorePrompt = true;
     let ok;
     try {
-        ok = loadBones(state);
+        ok = await loadBones(state);
 
         // C ref: bones.c:739-744. Wizard mode: ask whether to delete the
         // bones file. If 'n', keep it for next time.

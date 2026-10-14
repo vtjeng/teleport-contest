@@ -22,6 +22,7 @@ import {
 import { rnd } from './rng.js';
 import { initrack } from './track.js';
 import { ttyPline } from './tty_message.js';
+import { fix_shop_damage } from './shk.js';
 
 // C ref: attrib.c change_luck().
 export function change_luck(amount, state = game) {
@@ -81,7 +82,8 @@ export async function moveloop_preamble(
 
     state.disp.botlx = true;
     if (resuming) {
-        // read_engr_at() and fix_shop_damage() belong to restore/map state.
+        // allmain.c:87-88 processes restore-only repairs before resuming.
+        await fix_shop_damage(state, env);
     }
 
     // C ref: allmain.c:92-94. End restore's display deferral before the

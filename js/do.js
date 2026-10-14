@@ -359,7 +359,7 @@ import { delete_levelfile } from './files.js';
 import { cloneIsaacContext, createCoreRandom, d, rn1, rn2, rnd, rnz } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
-import { sellobj, sellobj_state } from './shk.js';
+import { fix_shop_damage, sellobj, sellobj_state } from './shk.js';
 import { container_impact_dmg, impact_drop, ship_object } from './dokick.js';
 import { set_levltyp } from './terrain.js';
 import {
@@ -2677,8 +2677,8 @@ function discard_unreachable_levels(state, leavingTutorial) {
 // the arrival tail at 1967-1993.
 //
 // Remaining gaps are limited to discarded calls whose source owners are not
-// yet available (selftouch, fix_shop_damage, and the migration
-// sweeps). The selected goto_level branches themselves are source-ordered,
+// yet available (selftouch and the migration sweeps). The selected
+// goto_level branches themselves are source-ordered,
 // including endgame/tutorial transitions, portal fallback, flight, falling,
 // and the unreachable-level cleanup. Gehennom, Knox, Mines, Sokoban and the
 // Rogue-level arms are implemented below.
@@ -3285,13 +3285,8 @@ export async function goto_level(
     /* assume this will always return TRUE when changing level */
     await in_out_region(u.ux, u.uy, { state });
 
-    // do.c:1984-1987 fix_shop_damage() catches a shopkeeper up on repairs;
-    // it runs only when `new` is false, and this arm always generated.
-    // do.c:1989-1992 charges fall damage, which needs `falling`.
-    if (!isNew)
-        // fix_shop_damage() has no source owner in the current shopkeeper
-        // port; C discards its result after catching up the repair bill.
-        note_unported('shk.c fix_shop_damage');
+    // do.c:1984-1987 catches up repairs before fall damage and pickup.
+    if (!isNew) await fix_shop_damage(state, { message: ttyPline });
 
     // do.c:1989-1992. Shaft damage is deliberately charged after the shop
     // repair catch-up and before pickup, preserving C's RNG and message order.
