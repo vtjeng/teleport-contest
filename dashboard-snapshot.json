@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T23:06:16.625Z",
+  "capturedAt": "2026-10-14T23:25:52.939Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -128581,23 +128581,153 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep39 has two independently reproduced source failures with matching prefixes. The potion reversal route is recorded, and a missed blindness-potion setup is being corrected from source. New comparisons wait for Main’s brief acceptance window; source review and backups continue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v73-hurtle-iron-rust-action4-20261014-fcafe8eaa5d9b92109b5b330986834e60a877a75",
+        "type": "published",
+        "at": "2026-10-14T23:06:30.473Z",
+        "task": "C-investigation-v73-hurtle-iron-rust-action4-20261014",
+        "commit": "fcafe8eaa5d9b92109b5b330986834e60a877a75"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v73-helmet-npc-earth-action5-20261014-fcafe8eaa5d9b92109b5b330986834e60a877a75",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T23:06:34.882Z",
+        "task": "B-investigation-v73-helmet-npc-earth-action5-20261014",
+        "commit": "fcafe8eaa5d9b92109b5b330986834e60a877a75",
+        "knownBy": "2026-10-14T23:06:30.473Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-98c95c9842d2e8091d0acce909056b174de724f3441b12bc5fbc00f76a0ccf28-4e16b7ab373fa27475cc86b445d8cafe87778af0-Prep38",
+        "type": "integrating",
+        "at": "2026-10-14T23:08:13.436Z",
+        "task": "Prep38",
+        "integration": "4e16b7ab373fa27475cc86b445d8cafe87778af0",
+        "prepGroup": [
+          "Prep38"
+        ],
+        "validationGroup": [
+          "Prep38"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep38-wait-checkpoint-38652230651",
+        "type": "activity",
+        "at": "2026-10-14T23:08:57.660Z",
+        "task": "Prep38",
+        "phase": "waiting",
+        "reason": "Waiting for the exact v74 preparation checkpoint; saved C and overlap proofs are verified. Hosted admission will follow acceptance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v70-cube-glob-active-source-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:10:18.800Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Fixing the v70 cube transformation message leak from the elapsed-turn planning scan."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v70-cube-glob-source-20261014",
+        "type": "implement",
+        "at": "2026-10-14T23:10:26.673Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "goal": "fix-v70-cube-glob-planning-message-leak-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f348c9134b8c26b7663ccbbad81d5c18c9316a10",
+        "type": "ready",
+        "at": "2026-10-14T23:14:57.389Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "delivery": "f348c9134b8c26b7663ccbbad81d5c18c9316a10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-v70-cube-submit-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:15:38.156Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "The v70 cube-glob correction is submitted. All other current queue entries are claimed or parked; waiting for a new admitted case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-f348c9134b8c26b7663ccbbad81d5c18c9316a10",
+        "type": "received",
+        "at": "2026-10-14T23:15:41.264Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "delivery": "f348c9134b8c26b7663ccbbad81d5c18c9316a10"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep38-4e16b7ab373fa27475cc86b445d8cafe87778af0",
+        "type": "validated",
+        "at": "2026-10-14T23:17:25.575Z",
+        "task": "Prep38",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep38-4e16b7ab373fa27475cc86b445d8cafe87778af0",
+        "type": "accepted",
+        "at": "2026-10-14T23:17:25.575Z",
+        "task": "Prep38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep38-admission-after-acceptance-4e16b7ab",
+        "type": "activity",
+        "at": "2026-10-14T23:19:05.170Z",
+        "task": "Prep38",
+        "phase": "admission",
+        "reason": "Preparation accepted from exact hosted checkpoint; writing the fourteen-case v74 manifest before its first hosted baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep38-baseline-watch-38653356352",
+        "type": "activity",
+        "at": "2026-10-14T23:20:16.979Z",
+        "task": "Prep38",
+        "phase": "baseline",
+        "reason": "The fourteen-case v74 manifest is committed; waiting for its exact first hosted Admission baseline before refreshing worker work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep39-three-first-causes-container-routes-20261014",
+        "type": "turn",
+        "at": "2026-10-14T23:20:59.958Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v75: three source-traced first failures and five matching routes; finishing independent container and equipment coverage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep38-8f280fd706dcfdad7c302cc39301cb056753af10",
+        "type": "activity",
+        "at": "2026-10-14T23:22:55.418Z",
+        "task": "Prep38",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep38-8f280fd706dcfdad7c302cc39301cb056753af10",
+        "type": "activity",
+        "at": "2026-10-14T23:22:56.270Z",
+        "task": "Prep38",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep38",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "9e340362669f0ed2d8997918db6c632c796c939f",
-        "batch": "v74",
-        "since": "2026-10-14T22:44:57.269Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
         "worker": "C",
@@ -128628,6 +128758,17 @@
         "status": "ready",
         "delivery": "49de4c7f982cf06363bf5e7928d2b9f604c8cb3f",
         "since": "2026-10-14T23:00:53.749Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "worker": "B",
+        "goal": "fix-v70-cube-glob-planning-message-leak-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "f348c9134b8c26b7663ccbbad81d5c18c9316a10",
+        "since": "2026-10-14T23:14:57.389Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -129832,10 +129973,11 @@
       "B-investigation-v70-cube-glob-residual-20261014": {
         "id": "B-investigation-v70-cube-glob-residual-20261014",
         "worker": "B",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v70/v70-cube-glob-scout2",
         "reservations": [
-          "session:synthetic/v70/v70-cube-glob-scout2"
+          "session:synthetic/v70/v70-cube-glob-scout2",
+          "source:mon.c:newcham"
         ]
       }
     },
@@ -129904,12 +130046,17 @@
         "tasks": [
           "B-investigation-v70-cube-glob-residual-20261014"
         ]
+      },
+      "source:mon.c:newcham": {
+        "tasks": [
+          "B-investigation-v70-cube-glob-residual-20261014"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "355088faebe743139e7c31eca805d0f26c4d8513",
-    "measuredAt": "2026-10-14T23:00:13.964Z",
+    "executionCommit": "4e16b7ab373fa27475cc86b445d8cafe87778af0",
+    "measuredAt": "2026-10-14T23:13:30.858Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
