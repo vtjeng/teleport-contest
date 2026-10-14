@@ -2267,7 +2267,11 @@ export async function dodrink(state = game) {
             otmp = splitobj(otmp, 1, { state });
             otmp.owornmask = 0;
         } else {
-            note_unported('steal.c remove_worn_item');
+            // C removes a singly worn potion before polymorph or another
+            // effect can act on its worn slot. Load the shared helper here to
+            // avoid a static potion.js -> steal.js -> do.js import cycle.
+            const { remove_worn_item } = await import('./steal.js');
+            await remove_worn_item(otmp, false, state);
         }
     }
     otmp.in_use = true; // you've opened the stopper
