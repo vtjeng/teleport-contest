@@ -7,9 +7,11 @@ import {
     ECMD_TIME,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    GLIB,
     HUNGER,
     HOMEMADE_TIN,
     NON_PM,
+    OBJ_FREE,
     OBJ_INVENT,
     OBJ_FLOOR,
     ROTTEN_TIN,
@@ -21,6 +23,7 @@ import {
     VOMITING,
 } from '../js/const.js';
 import {
+    doeat,
     Popeye,
     TIN_VARIETIES,
     set_tin_variety,
@@ -41,8 +44,12 @@ import {
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { cmdq_add_key } from '../js/cmd.js';
+import { addinv } from '../js/invent.js';
 import { newObject } from '../js/obj.js';
 import { objects_globals_init, AXE, DAGGER, TIN, TIN_OPENER } from '../js/objects.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { find_delayed_killer } from '../js/end.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { loadCorpsePrefxRecipe, verifyCorpsePrefxSegment } from './run-corpse-prefx.mjs';
@@ -205,6 +212,45 @@ test('start_tin names carried openers with eat.c yobjnam wording', async () => {
         ['Using your axe you try to open the tin.']);
     assert.deepEqual(axe.randomBounds, []);
 });
+
+test('glib tins dropped by doeat use the normal drop redraw environment',
+    async () => {
+        // Use independently chosen setup inputs; the test reaches the same
+        // source branch without copying the admitted challenge recipe.
+        await runSegment({
+            seed: 74022011,
+            datetime: '20960114111500',
+            nethackrc: 'OPTIONS=name:tin-drop-redraw,role:Healer,race:human,gender:female,align:neutral,!tutorial,!splash_screen,!autopickup\n',
+            moves: ' ',
+        });
+        const state = game;
+        clearTtyMessageWindow(state);
+        state.uwep = null;
+        state.u.uprops[GLIB] ??= { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        state.u.uprops[GLIB].intrinsic = 5;
+
+        const tinType = state.objects[TIN];
+        const tins = newObject({
+            corpsenm: NON_PM,
+            oclass: tinType.oc_class,
+            otyp: TIN,
+            quan: 3,
+            where: OBJ_FREE,
+        });
+        addinv(tins, { state });
+        cmdq_add_key(CQ_CANNED, tins.invlet.charCodeAt(0), state);
+
+        await assert.doesNotReject(() => doeat(state));
+        assert.equal(tins.quan, 2,
+            'start_tin splits one tin from the carried stack');
+        assert.equal(tins.where, OBJ_INVENT);
+        const dropped = state.level.objects[state.u.ux][state.u.uy];
+        assert.equal(dropped?.otyp, TIN,
+            'dropx lands the slipped tin on the hero square');
+        assert.equal(dropped?.quan, 1);
+        assert.match(state._ttyToplines,
+            /The tin slips from your fingers\./u);
+    });
 
 test('consume_tin runs green-slime cprefx after charge and before cpostfx',
     async () => {

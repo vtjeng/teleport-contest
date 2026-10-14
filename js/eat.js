@@ -173,7 +173,7 @@ import {
 import { dist2, lcase, s_suffix } from './hacklib.js';
 import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
-import { dropx, dropy, heal_legs, trycall } from './do.js';
+import { dropCommandEnv, dropx, dropy, heal_legs, trycall } from './do.js';
 import { makeplural } from './fruit.js';
 import { set_ulycn, were_beastie, you_unwere } from './were.js';
 import { staleEgg } from './dogfood.js';
@@ -1241,7 +1241,8 @@ async function start_tin(otmp, state = game, env = {}) {
                 );
                 if ((otmp.quan ?? 1) > 1)
                     otmp = splitobj(otmp, 1, { state });
-                if (carried(otmp)) await dropx(otmp, { state });
+                if (carried(otmp))
+                    await dropx(otmp, dropCommandEnv(state, env));
                 else stackobj(otmp, { state });
                 return;
             }
@@ -1264,7 +1265,8 @@ async function start_tin(otmp, state = game, env = {}) {
             );
             if ((otmp.quan ?? 1) > 1)
                 otmp = splitobj(otmp, 1, { state });
-            if (carried(otmp)) await dropx(otmp, { state });
+            if (carried(otmp))
+                await dropx(otmp, dropCommandEnv(state, env));
             else stackobj(otmp, { state });
             return;
         }
