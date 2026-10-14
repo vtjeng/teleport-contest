@@ -30,7 +30,7 @@
     "session": "synthetic/v69/v69-vanq-sort-recovered4",
     "recordedSteps": 288
   },
-  "summary": "The only remaining v69 mismatch is the menu-heading attribute for the “Dog or other canine” line in #vanquished at segment 0 step 266. C records inverse attribute on the class heading while JavaScript records no attribute; text, RNG, cursor, and input sequence otherwise match. C wintty.c:tty_putstr() stores each NHW_MENU line attribute with the text and process_text_window() reapplies it. JavaScript insight.js passes the attribute, but js/tty_menu.js discarded row metadata in ttyMenuTextLayout() and its recorder writer always painted attribute 0. Preserve the row metadata through layout and apply the source style when drawing each recorder cell."
+  "summary": "The only remaining v69 mismatch is the menu-heading attribute for the “Dog or other canine” line in #vanquished at segment 0 step 266. C records inverse attribute on the class heading while JavaScript records no attribute; text, RNG, cursor, and input sequence otherwise match. C wintty.c:tty_putstr() stores each NHW_MENU line attribute with the text and process_text_window() reapplies it. JavaScript insight.js passes the attribute, but js/tty_menu.js discarded row metadata in ttyMenuTextLayout() and its recorder writer always painted attribute 0. Preserve the row metadata through layout and apply the source style when drawing each recorder cell.",
   "source": {
     "file": "wintty.c",
     "branch": "For NHW_MENU/NHW_TEXT rows, tty_putstr() stores attr+1 in the first data byte; process_text_window() decodes it and brackets line output with term_start_attr()/term_end_attr(). The v69 #vanquished path supplies a nonzero menu_headings attribute for class headers.",
