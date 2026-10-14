@@ -1,0 +1,45 @@
+{
+  "session": "synthetic/v70/v70-hidden-eel-scout1",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-hidden-eel-scout1",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingPath": "challenges/cases/v70/v70-hidden-eel-scout1.session.json",
+  "recordingSha256": "0a069b657f18bc92833ca380aca1b97e03857ad0753c55b66e4f90a90112a1ed",
+  "recipePath": "challenges/cases/v70/v70-hidden-eel-scout1.recipe.session.json",
+  "recipeSha256": "4ec384ba90a087ae9a1a62f9bb48884560c3a55e142fc7bf2ea1179070b9548c",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "recordedSteps": 268,
+  "remainingScreens": 268,
+  "status": "complete",
+  "commit": "2df6df0d7ed3928386ee561fef6c46def47de513",
+  "summary": "The admitted hidden giant eel recording reached read.c:create_particular_creation's hidden-eel-in-pool condition, where JavaScript called is_pool without importing it. Importing the existing dbridge.js predicate restores the source branch; the full recording now matches.",
+  "mismatch": {
+    "session": "synthetic/v70/v70-hidden-eel-scout1",
+    "remainingScreens": 268,
+    "kind": "stop",
+    "step": 216,
+    "message": "ReferenceError: is_pool is not defined",
+    "sourceFile": "read.c",
+    "function": "create_particular_creation"
+  },
+  "source": {
+    "file": "read.c",
+    "functions": ["create_particular_creation"],
+    "branch": "Upstream read.c:create_particular_creation (3252-3371) sets mtmp->mundetected when d->hidden and the monster is a hider, hides under an object, or is an eel on a pool square. The eel condition is evaluated after makemon returns the actual location.",
+    "javascript": "js/read.js:create_particular_creation mirrors this clause with mtmp.data.mlet === S_EEL && is_pool(mx, my, state). read.js now imports is_pool from js/dbridge.js, which already exports the source implementation.",
+    "callers": ["wizcmds.c:wiz_genesis -> read.c:create_particular -> read.c:create_particular_creation; js/wizcmds.js:wiz_genesis -> js/read.js:create_particular -> js/read.js:create_particular_creation"],
+    "dependencies": ["dbridge.c:is_pool is already implemented in js/dbridge.js; only the named import is missing."],
+    "resolution": "Import is_pool from js/dbridge.js without changing the source branch, hidden-state conditions, or call order."
+  },
+  "evidence": [
+    "The admitted v70 evaluation reports 0/268 screens matched and a ReferenceError: is_pool is not defined. The focused scan reproduced the stop at js/read.js:3606 while creating the requested hidden giant eel after #wizgenesis.",
+    "The v70 manifest records the C target: actual pool wish, adjacent giant eel, then reveal-hidden-monster. The failing input boundary is the newline completing the hidden giant eel request at segment 0 step 216.",
+    "Upstream nethack-c/upstream/src/read.c:create_particular_creation (3252-3371) checks d->hidden and sets mundetected for an eel only when is_pool(mx, my) is true. js/dbridge.js exports is_pool; js/read.js imports and uses it in the corresponding branch.",
+    "After adding the import, the focused bounded scan emitted and matched all 268/268 screens, RNG calls, cursors, and the input boundary through segment 0 step 267. No unported callees were reached."
+  ],
+  "verifiedReplay": {"segment": 0, "throughStep": 267, "recordingMatched": true, "inputBoundaryMatched": true, "replayCommit": "760d18163a2dc7b124395ea4da1f8193b64d9f79"},
+  "goalKind": "divergence-fix"
+}
