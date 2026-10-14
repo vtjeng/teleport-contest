@@ -51,6 +51,8 @@ import {
     MAGIC_PORTAL,
     IS_WALL,
     OBJ_DELETED,
+    OBJ_BURIED,
+    OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_INVENT,
     POOL,
@@ -60,6 +62,7 @@ import {
     PIT,
     HOLE,
     ROOM,
+    ROT_ORGANIC,
     ROWNO,
     SDOOR,
     STONE,
@@ -70,6 +73,7 @@ import {
     VWALL,
     W_NONDIGGABLE,
     THRONE,
+    TIMER_OBJECT,
 } from '../js/const.js';
 import {
     adj_pit_checks, dig, dig_check, dig_typ, digactualhole, dighole,
@@ -82,7 +86,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { newObject, place_object, weight } from '../js/obj.js';
-import { sobj_at } from '../js/invent.js';
+import { add_to_buried, sobj_at } from '../js/invent.js';
 import {
     PM_CAVE_SPIDER,
     PM_DWARF,
@@ -95,14 +99,16 @@ import {
     APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF,
     BOULDER,
     CORPSE,
+    DAGGER,
     DWARVISH_MATTOCK,
     LONG_SWORD,
     PICK_AXE,
     ROCK,
+    SACK,
     STATUE,
     objects_globals_init,
 } from '../js/objects.js';
-import { timeout_globals_init } from '../js/timeout.js';
+import { run_timers, start_timer, timeout_globals_init } from '../js/timeout.js';
 import { RECORDER_SEGMENT_LIMIT } from './fresh-matrix.mjs';
 import { loadCorpseRotRecipe } from './run-corpse-rot.mjs';
 
@@ -630,6 +636,62 @@ function floorRock(state, x, y) {
     place_object(rock, x, y, { state });
     return rock;
 }
+
+test('ROT_ORGANIC buries container contents before freeing the container',
+    async () => {
+        const state = rotState();
+        const sack = newObject({
+            o_id: nextRotObjectId++,
+            oclass: state.objects[SACK].oc_class,
+            otyp: SACK,
+            quan: 1,
+            ox: 13,
+            oy: 7,
+        });
+        const dagger = newObject({
+            o_id: nextRotObjectId++,
+            oclass: state.objects[DAGGER].oc_class,
+            otyp: DAGGER,
+            quan: 1,
+        });
+        const pickAxe = newObject({
+            o_id: nextRotObjectId++,
+            oclass: state.objects[PICK_AXE].oc_class,
+            otyp: PICK_AXE,
+            quan: 1,
+        });
+        sack.cobj = dagger;
+        dagger.where = OBJ_CONTAINED;
+        dagger.ocontainer = sack;
+        dagger.nobj = pickAxe;
+        pickAxe.where = OBJ_CONTAINED;
+        pickAxe.ocontainer = sack;
+        add_to_buried(sack, { state });
+
+        const draws = [];
+        start_timer(0, TIMER_OBJECT, ROT_ORGANIC, sack, state);
+        await run_timers(state, {
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    return bound - 1;
+                },
+                rnd: () => assert.fail('metal dagger burial has no rnd call'),
+                rn1: () => assert.fail('metal dagger burial has no rn1 call'),
+                rne: () => assert.fail('metal dagger burial has no rne call'),
+            },
+        });
+
+        assert.equal(state.gt.timer_base, null);
+        assert.equal(state.level.buriedobjlist, pickAxe);
+        assert.equal(pickAxe.nobj, dagger);
+        assert.equal(pickAxe.where, OBJ_BURIED);
+        assert.equal(dagger.where, OBJ_BURIED);
+        assert.deepEqual([dagger.ox, dagger.oy], [sack.ox, sack.oy]);
+        assert.deepEqual([pickAxe.ox, pickAxe.oy], [sack.ox, sack.oy]);
+        assert.equal(sack.where, OBJ_DELETED);
+        assert.deepEqual(draws, [100, 100]);
+    });
 
 // dig.c:2186 calls newsym(x, y) as the OBJ_FLOOR arm's last statement, after
 // obfree() and after `mtmp->mundetected = 0`. That ordering is the arm's only

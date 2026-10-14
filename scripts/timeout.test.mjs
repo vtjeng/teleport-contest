@@ -1085,14 +1085,8 @@ test('elapsed-turn timeout upkeep counts scalar and unhandled property clocks',
         await nh_timeout(state);
         assert.equal(state.u.uprops[0].intrinsic, 2);
         state.u.uprops[0].intrinsic = 0;
-        state.gt.timer_base.timeout = 2;
-        // This scalar-clock fixture has no real object. Retain its final
-        // admission assertion at the genuinely unported organic callback.
-        state.gt.timer_base.func_index = ROT_ORGANIC;
-        await assert.rejects(
-            nh_timeout(state),
-            /a ported timeout function, but rot_organic\(\) is due/u,
-        );
+        // This fixture's only timer remains outside the elapsed interval.
+        assert.ok(state.gt.timer_base.timeout > state.moves);
     });
 
 test('elapsed-turn timeout decrements and expires timed deafness while unaware',
@@ -1664,30 +1658,6 @@ test('run_timers drains the due prefix head-first and stops at the future',
 // the wrong C function, and the module-load guard beside the table checks only
 // the length, which any permutation satisfies.
 //
-// Every unported row is driven through run_timers() here, indexed by the
-// js/const.js constant, so the table is pinned against the enum rather than
-// against itself. ROT_CORPSE, HATCH_EGG, FIG_TRANSFORM, SHRINK_GLOB, and
-// MELT_ICE_AWAY, REVIVE_MON, ZOMBIFY_MON, and BURN_OBJECT are absent because their callbacks are ported.
-test('every unported timeout row names its own C function', async () => {
-    const rows = [
-        [ROT_ORGANIC, 'rot_organic'],
-    ];
-    // Eight enum rows have callbacks; the others remain named refusals.
-    assert.equal(rows.length, NUM_TIME_FUNCS - 8);
-
-    for (const [index, name] of rows) {
-        const state = rottingState(100);
-        start_timer(0, TIMER_OBJECT, index, { where: OBJ_FLOOR, timed: 0 },
-                    state);
-        await assert.rejects(
-            run_timers(state, { newsym: () => {} }),
-            (error) => error.reason
-                === `a ported timeout function, but ${name}() is due`,
-            `row ${index}`,
-        );
-    }
-});
-
 test('run_timers dispatches a sterilized egg to timeout.c hatch_egg', async () => {
     const state = timerState(20);
     // NON_PM is C's sterilized-egg sentinel; it returns before location or RNG.
@@ -1749,13 +1719,13 @@ test('run_timers refuses the whole due prefix before draining any of it', async 
         otyp: CORPSE,
         quan: 1,
     });
-    start_timer(0, TIMER_OBJECT, ROT_ORGANIC, later, state);
+    start_timer(0, TIMER_MONSTER, ROT_ORGANIC, later, state);
     assert.equal(state.gt.timer_base.arg, corpse);
     const queueBefore = queue(state).map((timer) => timer.tid);
 
     await assert.rejects(
         run_timers(state, { newsym: () => {} }),
-        /a ported timeout function, but rot_organic\(\) is due/u,
+        new RegExp(`every due timer kind to have a supported handler, but kind ${TIMER_MONSTER} is due`, 'u'),
     );
 
     assert.equal(corpse.where, OBJ_FLOOR);

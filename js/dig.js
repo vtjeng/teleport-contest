@@ -2435,8 +2435,8 @@ function rotEnv(env) {
     };
 }
 
-// Corpses cannot contain objects in valid play. The generic ROT_ORGANIC
-// container callback remains outside this corpse callback's ownership.
+// Corpses cannot contain objects in valid play. ROT_ORGANIC's generic
+// container callback is separate from this corpse-specific cleanup.
 export function unportedRotCorpseReason(obj, rawEnv = {}) {
     const env = rotEnv(rawEnv);
     if (Has_contents(obj))
@@ -2446,11 +2446,20 @@ export function unportedRotCorpseReason(obj, rawEnv = {}) {
     return null;
 }
 
-// C ref: dig.c rot_organic() (2125-2140), the contents-free corpse path.
-// ROT_ORGANIC's buried-container contents loop remains unported.
-export function rot_organic(arg, timeout, env) {
-    obj_extract_self(arg, env);
-    obfree(arg, null, env);
+// C ref: dig.c rot_organic() (2125-2140). A rotting buried container releases
+// its contents back into the buried-object list at the same square before the
+// container itself is extracted and freed. bury_an_obj() owns each child's
+// timer, resistance draw, and burial effects.
+export async function rot_organic(arg, timeout, rawEnv = {}) {
+    const env = rotEnv(rawEnv);
+    const obj = arg;
+    while (Has_contents(obj)) {
+        obj.cobj.ox = obj.ox;
+        obj.cobj.oy = obj.oy;
+        await bury_an_obj(obj.cobj, env);
+    }
+    obj_extract_self(obj, env);
+    obfree(obj, null, env);
 }
 
 // C ref: dig.c rot_corpse() (2146-2189). Preserve location-specific cleanup

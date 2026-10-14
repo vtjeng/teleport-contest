@@ -134,7 +134,7 @@ import { setwornEnv, toggle_displacement, wielding_corpse } from './do_wear.js';
 import {
     Popeye, eating_dangerous_corpse, morehungry, vomit, } from './eat.js';
 import { dealloc_killer, done, find_delayed_killer } from './end.js';
-import { rot_corpse, unportedRotCorpseReason } from './dig.js';
+import { rot_corpse, rot_organic, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
 import {
@@ -604,7 +604,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
 // stop_timer() already owns it through preflightTimerCleanup() above; nothing
 // run_timers() does consults it.
 const timeout_funcs = [
-    { name: 'rot_organic' },
+    { name: 'rot_organic', f: rot_organic, unported: () => null },
     { name: 'rot_corpse', f: rot_corpse, unported: unportedRotCorpseReason },
     { name: 'revive_mon', f: reviveMonCallback, unported: () => null },
     { name: 'zombify_mon', f: zombifyMonCallback, unported: unportedZombifyMonReason },
