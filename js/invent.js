@@ -70,6 +70,7 @@ import {
     D_NODOOR,
     DRAWBRIDGE_DOWN,
     IRONBARS,
+    ICE,
     IS_ALTAR,
     IS_DOOR,
     IS_FOUNTAIN,
