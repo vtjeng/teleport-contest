@@ -1,0 +1,141 @@
+{
+  "session": "synthetic/v66/v66-swallowed-nurse-cure-action7",
+  "corpus": "synthetic",
+  "batch": "v66",
+  "caseId": "v66-swallowed-nurse-cure-action7",
+  "remainingScreens": 44,
+  "recordedSteps": 621,
+  "manifestPath": "challenges/manifests/v66.json",
+  "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+  "recordingSha256": "eee8667d4ae1f1afde080e1c91ee31fbcde0df175b9b98ea169d22c5a3f398df",
+  "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v66.json",
+  "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+  "status": "complete",
+  "commit": "3ad0638e710ad8071386f7646b55aa34bcb606b6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v66",
+    "caseId": "v66-swallowed-nurse-cure-action7",
+    "session": "synthetic/v66/v66-swallowed-nurse-cure-action7",
+    "manifestPath": "challenges/manifests/v66.json",
+    "manifestSha256": "4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c",
+    "recording": "challenges/cases/v66/v66-swallowed-nurse-cure-action7.session.json",
+    "recordingPath": "challenges/cases/v66/v66-swallowed-nurse-cure-action7.session.json",
+    "recordingSha256": "eee8667d4ae1f1afde080e1c91ee31fbcde0df175b9b98ea169d22c5a3f398df",
+    "recipe": "challenges/cases/v66/v66-swallowed-nurse-cure-action7.recipe.session.json",
+    "recipeSha256": "defd22c0ab26582789610a126ed6cf626df55a881135e488f3e612327075d6a2",
+    "replayInputSha256": "086d2f41f8ea07ad4dc69400217f57dacee23b4e8b481918cab6e8f48e7ac522",
+    "evaluationPath": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v66.json",
+    "evaluationCommit": "cf20559eac8b7d89d2412d3fed2d8842bdecbf66",
+    "evaluationArtifact": "challenges/evaluations/accepted-cf20559eac8b7d89d2412d3fed2d8842bdecbf66-v66.json",
+    "evaluationUtc": "2026-10-14T15:50:59.939Z",
+    "remainingScreens": 44,
+    "recordedSteps": 621,
+    "previousScreensMatched": 577,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 577,
+        "total": 621
+      },
+      "rng": {
+        "matched": 2757,
+        "total": 2774
+      },
+      "cursors": {
+        "matched": 620,
+        "total": 621
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 554,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 554,
+          "key": "u"
+        },
+        "kind": "ch",
+        "row": 1,
+        "column": 0,
+        "cCell": {
+          "ch": "d",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "b",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2751,
+        "cEntry": "rnd(20)=11",
+        "cCaller": "mattacku(mhitu.c:806)",
+        "jsEntry": "rn2(4)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 578,
+          "key": " "
+        },
+        "stepIndex": 578
+      },
+      "cursor": {
+        "index": 554,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 554,
+          "key": "u"
+        },
+        "cCursor": [
+          22,
+          1,
+          1
+        ],
+        "jsCursor": [
+          29,
+          1,
+          1
+        ]
+      }
+    },
+    "step": 554,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "When a purple worm digests a nurse corpse dropped into the swallowed state, do.c:engulfer_digests_food() heals the swallower and calls muse.c:mcureblindness(mon, FALSE). JavaScript already ports mcureblindness(), but the digestion branch leaves it as note_unported(), so the worm remains blind. The next stethoscope status line incorrectly says “blind, digesting you” instead of “digesting you”; the later monster attack then diverges because its sight flag was not restored. Wire the existing helper at the source call.",
+  "source": {
+    "file": "do.c",
+    "branch": "dropz() handles an item while u.uswallow is true. For a digesting holder and a corpse whose species is PM_NURSE, engulfer_digests_food() prints the digestion message, calls healmon(u.ustuck, u.ustuck->mhpmax, 0), then calls mcureblindness(u.ustuck, FALSE) before deleting the corpse. The cure helper clears mcansee and mblinded state only when the monster is currently unable to see; with verbos false it emits no message.",
+    "functions": [
+      "engulfer_digests_food"
+    ],
+    "callers": [
+      "do.c:dropz -> engulfer_digests_food",
+      "do.c:dropy -> dropz -> engulfer_digests_food",
+      "do.c:dropx -> dropy -> dropz -> engulfer_digests_food"
+    ],
+    "dependencies": [
+      "muse.c:mcureblindness is already implemented in js/muse.js and already wired from potion.c, zap.c, and muse.c callers."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The selected v66 manifest and recording identities match the saved queue: manifest SHA256 4cb5635d3288024bb20bcec606b739b01242610f3342409d90110a6dd390378c, recording SHA256 eee8667d4ae1f1afde080e1c91ee31fbcde0df175b9b98ea169d22c5a3f398df. The immutable C recording shows the partly eaten nurse corpse dropped at segment 0 step 531, “The corpse is instantly digested!” at step 532, and “Your movements are now unencumbered. You can see again.” at step 533.",
+    "Upstream do.c:849-882 sets could_heal for PM_NURSE, heals the purple worm, and calls mcureblindness(u.ustuck, FALSE) before delobj(). Upstream muse.c:2872-2881 sets mcansee=1 and mblinded=0; the FALSE verbosity argument suppresses the visible cure message.",
+    "The JavaScript do.js:2281-2329 mirrors the nurse corpse branch and healmon call but currently records note_unported(\"mon.c mcureblindness\") rather than calling the existing helper. The helper is exported as mcureblindness() in js/muse.js:734 and has the matching mcansee/mblinded updates.",
+    "Fresh bounded replay of this exact admitted recording at worker HEAD 3ad0638e710ad8071386f7646b55aa34bcb606b6 (run-2wQM3J) emits all 621 screens and reproduces the first screen mismatch at step 554, key u: C row 1 column 0 is “d”, JS is “b”. C shows “digesting you”; replaying the same prefix through step 554 shows JS text “blind, digesting you” and the purple worm state has mblinded=98 and mcansee=false. The C line omits the blind clause after the step-532 nurse cure.",
+    "The same replay reports the first RNG mismatch later at step 578: C rnd(20)=11 in mhitu.c:mattacku(), while JS begins with rn2(4)=2. This follows the skipped source cure and the persistent blind state; it is not evidence of an independent attack owner. The existing saved queue baseline records 44 screens remaining, 2757/2774 RNG calls, and its first later combat difference in mattacku().",
+    "insight.c:mstatusline() appends “, blind” exactly when mblinded is nonzero or mcansee is false, then appends “, digesting you” for a swallowed purple worm. Its emitted status line therefore exposes the stale monster state without changing it; the causal missing update is the discarded mcureblindness call in do.c:engulfer_digests_food()."
+  ]
+}
