@@ -8,13 +8,13 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { BOOKKEEPING_FILES } from './checkpoint-reuse.mjs';
-import { summarizeLedger } from './worker-state.mjs';
-import { readDelivery, validateHistoricalEvaluation } from './worker-delivery.mjs';
+import { recordEvent, summarizeLedger, updateLedger } from './worker-state.mjs';
+import { readDelivery, validateHistoricalEvaluation, verifyEvent } from './worker-delivery.mjs';
 import { appendRow, generateNote, readRows, standing } from './score-log.mjs';
 import { challengeInputSnapshot, evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
 import { recordEvaluations } from './score-challenges.mjs';
 import { boundedMain } from './run-bounded.mjs';
-import { reviewTask } from './task-verdict.mjs';
+import { reviewTasks } from './task-verdict.mjs';
 import { recordTaskAcceptance, validateGoals } from './goal-log.mjs';
 
 const USAGE = `Usage: node scripts/accept-task.mjs --task <id> --ledger <file> [--evaluations <directory>]
@@ -41,51 +41,54 @@ export function parseAcceptanceArgs(args) {
 }
 
 export function acceptTask(options, root = process.cwd()) {
+    return acceptTasks(options, [options.task], root)[0];
+}
+
+export function acceptTasks(options, taskIds, root = process.cwd()) {
     root = resolve(root);
     const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trimEnd();
     const commit = git('rev-parse', 'HEAD');
     const ledgerPath = resolve(root, options.ledger);
     const readState = () => summarizeLedger(JSON.parse(readFileSync(ledgerPath, 'utf8')));
     const state = readState();
-    const task = state.tasks[options.task];
-    const delivery = state.deliveries[task?.deliveries.at(-1)];
-    if (state.coordinatorRoot !== root || !task || delivery?.integration !== commit
-        || !['integrating', 'validated', 'accepted'].includes(task.status))
+    const tasks = taskIds.map(id => state.tasks[id]);
+    const deliveries = tasks.map(task => state.deliveries[task?.deliveries.at(-1)]);
+    if (state.coordinatorRoot !== root || !tasks.length || new Set(taskIds).size !== taskIds.length
+        || tasks.some((task, i) => !task || deliveries[i]?.integration !== commit
+            || !['integrating', 'validated', 'accepted'].includes(task.status)))
         throw new Error('task must belong to this coordinator and the integrated HEAD');
-    const checkpoint = task.status === 'accepted'
-        ? JSON.parse(readFileSync(delivery.checkpoint, 'utf8'))
+    for (const delivery of deliveries) if (delivery.implementationGroup
+        && !isDeepStrictEqual(delivery.implementationGroup, taskIds))
+        throw new Error('accept the entire frozen implementation group together');
+    const preparation = tasks.every(task => task.kind === 'challenge-preparation');
+    if (!preparation && tasks.some(task => task.kind === 'challenge-preparation'))
+        throw new Error('do not mix Prep and implementation acceptance');
+    const pending = tasks.filter(task => task.status !== 'accepted');
+    const checkpoint = !pending.length
+        ? JSON.parse(readFileSync(deliveries[0].checkpoint, 'utf8'))
         : readCheckpointResult(root, commit);
     if (checkpoint.commit !== commit || checkpoint.allPassed !== true)
         throw new Error('acceptance requires a passing checkpoint at HEAD');
     const checkpointPath = join(checkpoint.artifacts, 'summary.json');
     // A replacement checkpoint requires task revalidation; do not mix it with
     // the earlier result recorded in the ledger.
-    if (task.status === 'validated' && delivery.checkpoint !== checkpointPath)
+    if (tasks.some((task, i) => ['validated', 'accepted'].includes(task.status) && deliveries[i].checkpoint !== checkpointPath))
         throw new Error('checkpoint changed after validation; revalidate the task before acceptance');
     const ensureHead = () => {
         if (git('rev-parse', 'HEAD') !== commit) throw new Error('HEAD changed during acceptance');
     };
-    const receipt = () => {
+    const receipts = () => tasks.map(task => {
         ensureHead();
         const current = readState(), worker = current.workers[task.worker];
         const activeTask = Object.values(current.tasks).find(entry => entry.worker === task.worker && entry.status === 'working');
-        return { task: options.task, commit, checkpoint: checkpointPath, worker: task.worker,
+        return { task: task.id, commit, checkpoint: checkpointPath, worker: task.worker,
             handle: worker?.handle,
             handoff: { turn: worker?.turn ?? null, currentTask: activeTask?.id ?? null,
                 action: activeTask ? 'keep-current-task' : worker?.turn === 'idle' ? 'wait' : 'inspect-turn' },
             next: 'Follow .agents/loop.md, "Notifications"; then prepare publication.' };
-    };
+    });
     // Acceptance already happened. Recover its receipt without importing or closing again.
-    if (task.status === 'accepted') return receipt();
-    const run = args => {
-        ensureHead();
-        execFileSync(process.execPath, args, { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-        ensureHead();
-    };
-    const event = fields => run(['scripts/worker-state.mjs', 'event', '--file', ledgerPath,
-        '--json', JSON.stringify({ id: `accept-${options.task}-${commit}-${fields.type}`,
-            task: options.task, ...fields })]);
-    const preparation = task.kind === 'challenge-preparation';
+    if (!pending.length) return receipts();
     const batches = preparation ? [] : readChallengeBatches(root);
     const evaluationPath = batch => `challenges/evaluations/accepted-${commit}-${batch}.json`;
     // Permit checkpoint-excluded bookkeeping reports and current closure evaluations.
@@ -108,13 +111,17 @@ export function acceptTask(options, root = process.cwd()) {
         }
     }
     const evaluations = [];
-    let goal, goals, verdict;
+    let goals;
     if (!preparation) {
         goals = JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8'));
-        goal = goals.goals.find(entry => entry.id === task.goal);
-        if (!goal || !(['queued', 'parked'].includes(goal.status)
+        for (const task of pending) {
+            const goal = goals.goals.find(entry => entry.id === task.goal);
+            if (!goal || !(['queued', 'parked'].includes(goal.status)
             || goal.status === 'open' || (goal.status === 'closed' && goal.closedAt === commit)))
             throw new Error('goal must be available or already closed at this candidate');
+        }
+        if (new Set(tasks.map(task => task.goal)).size !== tasks.length)
+            throw new Error('implementation tasks must have distinct goals');
         const directory = options.evaluations ? resolve(root, options.evaluations)
             : join(checkpoint.artifacts, 'synthetic');
         for (const name of (batches.length ? readdirSync(directory) : []).filter(name => name.endsWith('.json'))) {
@@ -143,19 +150,39 @@ export function acceptTask(options, root = process.cwd()) {
         mkdirSync(join(root, '.cache'), { recursive: true });
         if (scanPath !== join(root, '.cache/scan-cache.json'))
             copyFileSync(scanPath, join(root, '.cache/scan-cache.json'));
-        verdict = reviewTask(options, root);
-        if (verdict.reviewRequired) throw new Error(`task acceptance blocked: ${JSON.stringify({
-            target: verdict.target, targetImproved: verdict.targetImproved,
+        const verdicts = reviewTasks(options, pending.map(task => task.id), root);
+        const rejected = verdicts.filter(verdict => verdict.reviewRequired);
+        if (rejected.length) throw new Error(`task acceptance blocked: ${JSON.stringify(rejected.map(verdict => ({
+            task: verdict.task, target: verdict.target, targetImproved: verdict.targetImproved,
             issues: verdict.issues, regressions: verdict.regressions, fixed: verdict.fixed,
-        })}`);
-        const packet = readDelivery(delivery);
-        const claims = Object.fromEntries(['functions', 'entryPointReview', 'entryPoints', 'incompleteFunctions']
-            .filter(key => packet[key] !== undefined).map(key => [key, packet[key]]));
-        recordTaskAcceptance(goal, checkpoint, verdict, claims);
+        })))}`);
+        // Resolve every target before writing any closure or acceptance.
+        for (const task of pending) {
+            const packet = readDelivery(state.deliveries[task.deliveries.at(-1)]);
+            const claims = Object.fromEntries(['functions', 'entryPointReview', 'entryPoints', 'incompleteFunctions']
+                .filter(key => packet[key] !== undefined).map(key => [key, packet[key]]));
+            recordTaskAcceptance(goals.goals.find(entry => entry.id === task.goal), checkpoint,
+                verdicts.find(verdict => verdict.task === task.id), claims);
+        }
         validateGoals(goals);
     }
-    if (task.status === 'integrating') event({ type: 'validated', passed: true, checkpoint: checkpointPath });
-    if (goal && task.status !== 'accepted') {
+    updateLedger(ledgerPath, root, ledger => {
+        ensureHead();
+        const at = new Date().toISOString();
+        for (const task of pending) {
+            const current = summarizeLedger(ledger);
+            const delivery = current.deliveries[current.tasks[task.id]?.deliveries.at(-1)];
+            if (delivery?.delivery !== task.deliveries.at(-1) || delivery.integration !== commit)
+                throw new Error('submission changed during validation');
+            if (current.tasks[task.id].status === 'integrating') ledger = recordEvent(ledger,
+                verifyEvent(root, current, {id: `accept-${task.id}-${commit}-validated`,
+                    type: 'validated', task: task.id, passed: true, checkpoint: checkpointPath}), at);
+            else if (current.tasks[task.id].status !== 'validated' || delivery.checkpoint !== checkpointPath)
+                throw new Error('validation state changed during acceptance');
+        }
+        return ledger;
+    });
+    if (goals) {
         const recorded = new Set(readRows(join(root, 'SCORE.tsv')).map(row => row.challenge_evaluation));
         for (const { source, relative } of evaluations) {
             ensureHead();
@@ -166,23 +193,42 @@ export function acceptTask(options, root = process.cwd()) {
         recordEvaluations(root, evaluations.map(entry => entry.relative).filter(path => !recorded.has(path)));
         ensureHead();
         writeFileSync(join(root, 'GOALS.json'), `${JSON.stringify(goals, null, 2)}\n`);
-        const rows = readRows(join(root, 'SCORE.tsv'));
-        if (!rows.some(row => row.event === 'goal' && row.sha === checkpoint.executionCommit
-            && row.note.startsWith(`${task.goal} closes.`))) {
-            const score = checkpoint.score;
-            const fields = { event: 'goal', sha: checkpoint.executionCommit,
-                sessions_passed: score.passing, sessions_total: score.sessions,
-                screens_matched: score.screensMatched, screens_total: score.screensTotal,
-                rng_matched: score.rngMatched, rng_total: score.rngTotal,
-                cursors_matched: score.cursorsMatched, cursors_total: score.cursorsTotal };
-            fields.note = generateNote({ event: 'goal', label: task.goal,
-                current: fields, previous: standing(rows).fixedDevelopment });
-            ensureHead();
-            appendRow(fields, join(root, 'SCORE.tsv'));
+        for (const task of pending) {
+            const rows = readRows(join(root, 'SCORE.tsv'));
+            if (!rows.some(row => row.event === 'goal' && row.sha === checkpoint.executionCommit
+                && row.note.startsWith(`${task.goal} closes.`))) {
+                const score = checkpoint.score;
+                const fields = { event: 'goal', sha: checkpoint.executionCommit,
+                    sessions_passed: score.passing, sessions_total: score.sessions,
+                    screens_matched: score.screensMatched, screens_total: score.screensTotal,
+                    rng_matched: score.rngMatched, rng_total: score.rngTotal,
+                    cursors_matched: score.cursorsMatched, cursors_total: score.cursorsTotal };
+                fields.note = generateNote({ event: 'goal', label: task.goal,
+                    current: fields, previous: standing(rows).fixedDevelopment });
+                ensureHead();
+                appendRow(fields, join(root, 'SCORE.tsv'));
+            }
         }
     }
-    if (readState().tasks[options.task].status !== 'accepted') event({ type: 'accepted' });
-    return receipt();
+    // Artifact reads and report writes happen outside the short ledger lock.
+    // The final transition is atomic, in dependency order, and checks that no
+    // worker replaced a frozen submission while the reports were prepared.
+    updateLedger(ledgerPath, root, ledger => {
+        ensureHead();
+        const at = new Date().toISOString();
+        for (const task of tasks) {
+            const current = summarizeLedger(ledger);
+            const delivery = current.deliveries[current.tasks[task.id]?.deliveries.at(-1)];
+            if (delivery?.delivery !== task.deliveries.at(-1) || delivery.integration !== commit)
+                throw new Error('submission changed during acceptance');
+            if (current.tasks[task.id].status === 'accepted') continue;
+            if (current.deliveries[delivery.delivery].checkpoint !== checkpointPath)
+                throw new Error('checkpoint changed during acceptance');
+            ledger = recordEvent(ledger, {id: `accept-${task.id}-${commit}-accepted`, type: 'accepted', task: task.id}, at);
+        }
+        return ledger;
+    });
+    return receipts();
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
@@ -190,7 +236,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (process.argv.slice(2).includes('--help')) console.log(USAGE);
         else {
             const options = parseAcceptanceArgs(process.argv.slice(2));
-            process.exitCode = await boundedMain('full', () => {
+            process.exitCode = await boundedMain('focused', () => {
                 console.log(JSON.stringify(acceptTask(options), null, 2));
                 return 0;
             });

@@ -134,7 +134,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (process.argv.slice(2).includes('--help')) console.log(USAGE);
         else {
             const options = parseHandoffArgs(process.argv.slice(2));
-            process.exitCode = await boundedMain(options.phase === 'accept' ? 'full' : 'focused', () => {
+            process.exitCode = await boundedMain('focused', () => {
                 const result = options.phase === 'review' ? reviewTask(options)
                     : options.phase === 'accept' ? acceptTask(options) : publishTask(options);
                 console.log(JSON.stringify(result, null, 2));

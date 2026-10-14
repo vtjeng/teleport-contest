@@ -13,7 +13,7 @@ import { admittedBatchIds } from './challenge-results.mjs';
 const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
   'integrating', 'validated', 'accepted', 'published', 'publication-confirmed', 'activity', 'turn', 'register', 'observe',
-  'prep-integrating',
+  'prep-integrating', 'implementation-integrating', 'implementation-released',
 ]);
 
 export function activityFromLedger(ledger) {
@@ -24,9 +24,14 @@ export function activityFromLedger(ledger) {
   return {
     runId: ledger.runId,
     events: ledger.events.filter(event => EVENT_TYPES.has(event.type)).flatMap(event =>
-      event.type === 'prep-integrating' ? event.tasks.map(task => ({...event,
-        id: `${event.id}-${task}`, type: 'integrating', task, prepGroup: event.tasks}))
-        : event.type === 'feedback' && event.prepGroup ? event.prepGroup.flatMap(task => [
+      ['prep-integrating', 'implementation-integrating'].includes(event.type) ? event.tasks.map(task => ({...event,
+        id: `${event.id}-${task}`, type: 'integrating', task, validationGroup: event.tasks,
+        ...(event.type === 'prep-integrating' ? {prepGroup: event.tasks} : {})}))
+        : event.type === 'implementation-released' ? event.tasks.flatMap(task => [
+          {...event, id: `${event.id}-${task}`, type: 'feedback', task},
+          {...event, id: `${event.id}-${task}-released`, type: 'ready', task},
+        ]) : event.type === 'feedback' && (event.prepGroup || event.implementationGroup)
+          ? (event.prepGroup ?? event.implementationGroup).flatMap(task => [
           {...event, id: `${event.id}-${task}`, task},
           ...(task !== event.task ? [{...event, id: `${event.id}-${task}-released`, type: 'ready', task}] : []),
         ]) : [event]).map(event => ({
@@ -41,6 +46,7 @@ export function activityFromLedger(ledger) {
       ...(event.delivery ? { delivery: event.delivery } : {}),
       ...(event.integration ? { integration: event.integration } : {}),
       ...(event.prepGroup ? { prepGroup: event.prepGroup } : {}),
+      ...(event.validationGroup ? { validationGroup: event.validationGroup } : {}),
       ...(event.commit ? { commit: event.commit } : {}),
       ...(event.knownBy ? { knownBy: event.knownBy } : {}),
       ...(event.passed !== undefined ? { passed: event.passed } : {}),

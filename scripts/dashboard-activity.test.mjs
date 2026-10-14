@@ -56,6 +56,42 @@ test('integration timing retains retries and outliers but excludes open and unkn
   assert.deepEqual(mainIntegrationDurations({ segments: [] }), { implementation: [], preparation: [] });
 });
 
+test('an implementation group appears in each task history but contributes one timing sample per attempt', () => {
+  // Two tasks share a five-minute failed run and a three-minute successful retry.
+  const at = minute => new Date(Date.UTC(2026, 9, 14, 10, minute)).toISOString();
+  let ledger = createLedger('loop-20261014', '/tmp/dashboard-implementation-group');
+  let sequence = 0;
+  const send = (event, minute) => {ledger = recordEvent(ledger, {id: `shared-${++sequence}`, ...event}, at(minute));};
+  const base = 'a'.repeat(40), integration = 'd'.repeat(40), retry = 'e'.repeat(40); // Transport IDs, not real commits.
+  send({type: 'register', worker: 'A', worktree: '/tmp/dashboard-implementation-group/a',
+    branch: 'worker/a', base, handle: 'fixture'}, 0);
+  ['A1', 'A2'].forEach((task, index) => {
+    const delivery = String(index + 1).repeat(40);
+    send({type: 'assign', task, worker: 'A', goal: task, seed: null, base,
+      reservations: [`source:fixture.c:${task}`], allowedPaths: [`js/${task}.js`]}, index);
+    send({type: 'ready', task, delivery, base, commits: [delivery], paths: [`js/${task}.js`],
+      evidence: `/tmp/${task}.json`, dependencies: []}, index + 1);
+    send({type: 'received', task, delivery}, index + 1);
+  });
+  send({type: 'implementation-integrating', tasks: ['A1', 'A2'], integration}, 3);
+  send({type: 'implementation-released', tasks: ['A1', 'A2'], integration, reason: 'Split failed run.'}, 8);
+  send({type: 'implementation-integrating', tasks: ['A1', 'A2'], integration: retry}, 9);
+  for (const task of ['A1', 'A2']) {
+    send({type: 'validated', task, passed: true, checkpoint: '/tmp/summary.json'}, 12);
+    send({type: 'accepted', task}, 12);
+  }
+  const timeline = activityTimeline(activityFromLedger(ledger), at(13));
+  const stages = timeline.segments.filter(segment => segment.phase === 'integrating');
+  assert.equal(stages.length, 4, 'both histories retain both shared attempts');
+  assert.deepEqual(stages[0].validationGroup, ['A1', 'A2']);
+  const points = mainIntegrationDurations(timeline).implementation;
+  assert.deepEqual(points.map(point => point.durationMs / 60000), [5, 3]);
+  assert.deepEqual(points.map(point => point.sampleSize), [1, 2]);
+  assert.deepEqual(points[0].validationGroup, ['A1', 'A2']);
+  assert.equal(agentStages(stages).filter(row => row.lane === 'Main').length, 2,
+    'Main has one stage per attempt, not duplicate simultaneous rows');
+});
+
 test('integration rolling mean uses the last ten complete attempts before the visible window', () => {
   // Eleven attempts replace the oldest duration in a ten-attempt mean.
   const segments = Array.from({ length: 11 }, (_, index) => ({ task: `task-${index}`, lane: 'Main',

@@ -45,19 +45,31 @@ export function compareDevelopment(before, after) {
 }
 
 export function reviewTask(options, root = process.cwd()) {
+    return reviewTasks(options, [options.task], root)[0];
+}
+
+// Compare the saved corpora once, then evaluate each assigned target against
+// the same accepted baseline. No member acceptance can move that baseline.
+export function reviewTasks(options, taskIds, root = process.cwd()) {
     root = resolve(root);
     const state = summarizeLedger(JSON.parse(readFileSync(resolve(root, options.ledger), 'utf8')));
-    const task = state.tasks[options.task], delivery = state.deliveries[task?.deliveries.at(-1)];
-    if (state.coordinatorRoot !== root || !delivery) throw new Error('task must belong to this coordinator');
+    const tasks = taskIds.map(id => state.tasks[id]);
+    if (state.coordinatorRoot !== root || !tasks.length || tasks.some(task => !task?.deliveries.length))
+        throw new Error('tasks must belong to this coordinator');
     const candidate = git(root, 'rev-parse', 'HEAD');
-    if (delivery.integration !== candidate || !['integrating', 'validated'].includes(task.status))
+    if (tasks.some(task => state.deliveries[task.deliveries.at(-1)].integration !== candidate
+        || !['integrating', 'validated'].includes(task.status)))
         throw new Error('review requires the current integrated candidate');
     const summary = readCheckpointResult(root, candidate);
     if (summary.commit !== candidate || summary.allPassed !== true) throw new Error('candidate checkpoint must pass at HEAD');
-    const acceptCommand = ['node', 'scripts/task-handoff.mjs', 'accept', '--task', options.task,
+    const acceptCommand = task => ['node', 'scripts/task-handoff.mjs', 'accept', '--task', task.id,
         '--ledger', options.ledger, ...(options.evaluations ? ['--evaluations', options.evaluations] : [])];
-    if (task.kind === 'challenge-preparation') return { task: options.task, candidate,
-        preparation: true, next: { review: 'Review the saved C mission and replay evidence, then accept.', command: acceptCommand } };
+    if (tasks.some(task => task.kind === 'challenge-preparation')) {
+        if (tasks.some(task => task.kind !== 'challenge-preparation')) throw new Error('do not mix Prep and implementation acceptance');
+        return tasks.map(task => ({task: task.id, candidate, preparation: true,
+            next: {review: 'Review the saved C mission and replay evidence, then accept.', command: acceptCommand(task)}}));
+    }
+    const integratingAt = Math.min(...tasks.map(task => Date.parse(state.deliveries[task.deliveries.at(-1)].integratingAt)));
     const baselinePath = options.baseline ? resolve(root, options.baseline) : acceptedMain(state)?.checkpoint;
     const baselineDelivery = Object.values(state.deliveries).find(d => d.acceptedAt
         && (d.checkpoint === baselinePath || d.supplementalCheckpoint === baselinePath));
@@ -82,7 +94,7 @@ export function reviewTask(options, root = process.cwd()) {
             const evaluation = readEvaluation(root, row.challenge_evaluation);
             if (evaluationBatch(evaluation) !== batch.batch || evaluation.status !== 'complete') continue;
             if (evaluation.sha !== row.sha) throw new Error('admission baseline differs from its recorded commit');
-            if (evaluation.sha === candidate || Date.parse(row.utc) > Date.parse(delivery.integratingAt))
+            if (evaluation.sha === candidate || Date.parse(row.utc) > integratingAt)
                 throw new Error('admission baseline must precede the current integration');
             validateHistoricalEvaluation(root, evaluation, candidate);
             before.set(batch.batch, evaluation);
@@ -97,19 +109,21 @@ export function reviewTask(options, root = process.cwd()) {
     if (git(root, 'ls-tree', '-r', baseline.commit, '--', ...fixedInputs)
         !== git(root, 'ls-tree', '-r', candidate, '--', ...fixedInputs))
         fixed.issues.push({ reason: 'fixed recordings or scorer changed' });
-    const target = task.seed ? sessionIdentifier(task.seed) : null;
-    const changed = target?.startsWith('synthetic/')
-        ? comparison.changes.find(row => `synthetic/${row.batch}/${row.id}` === target)
-        : fixed.changes.find(row => row.session === target);
-    const targetImproved = Boolean(changed && Object.values(changed.delta).some(value => value > 0));
     // Removing a prior error is allowed when matches improve; a new or changed
     // non-null error needs investigation, not automatic acceptance.
     const errors = [...comparison.changes, ...fixed.changes].filter(row => row.errorChanged && row.after.error != null);
-    const blocked = Boolean(comparison.issues.length || comparison.regressions.length
-        || fixed.issues.length || fixed.regressions.length || errors.length || (target && !targetImproved));
-    return { task: options.task, baseline: baseline.commit, candidate, baselineCheckpoint: baselinePath,
-        candidateCheckpoint: join(summary.artifacts, 'summary.json'), admissionBaselines,
-        ...comparison, fixed, target, targetImproved, reviewRequired: blocked,
-        next: blocked ? { review: 'Resolve regressions, missing evidence, or lack of target improvement before acceptance.', command: null }
-            : { review: target ? 'Saved results meet targeted-fix acceptance.' : 'Saved results meet non-target delivery acceptance.', command: acceptCommand } };
+    return tasks.map(task => {
+        const target = task.seed ? sessionIdentifier(task.seed) : null;
+        const changed = target?.startsWith('synthetic/')
+            ? comparison.changes.find(row => `synthetic/${row.batch}/${row.id}` === target)
+            : fixed.changes.find(row => row.session === target);
+        const targetImproved = Boolean(changed && Object.values(changed.delta).some(value => value > 0));
+        const blocked = Boolean(comparison.issues.length || comparison.regressions.length
+            || fixed.issues.length || fixed.regressions.length || errors.length || (target && !targetImproved));
+        return { task: task.id, baseline: baseline.commit, candidate, baselineCheckpoint: baselinePath,
+            candidateCheckpoint: join(summary.artifacts, 'summary.json'), admissionBaselines,
+            ...comparison, fixed, target, targetImproved, reviewRequired: blocked,
+            next: blocked ? { review: 'Resolve regressions, missing evidence, or lack of target improvement before acceptance.', command: null }
+                : { review: target ? 'Saved results meet targeted-fix acceptance.' : 'Saved results meet non-target delivery acceptance.', command: acceptCommand(task) } };
+    });
 }

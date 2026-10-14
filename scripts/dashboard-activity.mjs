@@ -21,6 +21,7 @@ export function activityTimeline(activity, capturedAt) {
       segments.push({ task: task.id, goal: task.goal, worker: task.worker,
         kind: task.kind, ...(task.batch ? { batch: task.batch } : {}), phase, start, end: at, ...(ongoing ? { ongoing: true } : {}),
         ...(task.prepGroup ? {prepGroup: task.prepGroup, integration: task.integration} : {}),
+        ...(task.validationGroup ? {validationGroup: task.validationGroup, integration: task.integration} : {}),
         ...(phase === 'parked' ? { reason: task.parkedReason } : {}),
         lane: ['working', 'rework', 'queued', 'parked'].includes(phase) ? task.worker : 'Main' });
     }
@@ -111,6 +112,7 @@ export function activityTimeline(activity, capturedAt) {
         if (!task.starts.integrating) begin(task, 'integrating', event.at);
         task.integration = event.integration ?? task.integration;
         task.prepGroup = event.prepGroup;
+        task.validationGroup = event.validationGroup ?? event.prepGroup;
         task.status = 'integrating';
         break;
       case 'validated':
@@ -263,7 +265,7 @@ export function mainIntegrationDurations(activity) {
     const seenGroups = new Set();
     const grouped = points.filter(({ segment }) => {
       if ((segment.kind === 'challenge-preparation') !== (group === 'preparation')) return false;
-      if (!segment.prepGroup) return true;
+      if (!segment.validationGroup && !segment.prepGroup) return true;
       const key = `${segment.integration}/${segment.start}/${segment.end}`;
       if (seenGroups.has(key)) return false;
       seenGroups.add(key);
@@ -278,6 +280,7 @@ export function mainIntegrationDurations(activity) {
       if (recent.length > windowSize) sum -= recent.shift();
       return { sourceIndex, task: segment.task, start: segment.start, end: segment.end,
         ...(segment.prepGroup ? {prepGroup: segment.prepGroup} : {}),
+        ...(segment.validationGroup ? {validationGroup: segment.validationGroup} : {}),
         durationMs, attempt, rollingMeanMs: sum / recent.length, sampleSize: recent.length };
     })];
   }));
