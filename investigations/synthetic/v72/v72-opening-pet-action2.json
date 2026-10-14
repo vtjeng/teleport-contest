@@ -35,9 +35,18 @@
     "passed": false,
     "error": "W_SADDLE is not defined",
     "metrics": {
-      "screens": { "matched": 0, "total": 174 },
-      "rng": { "matched": 0, "total": 2981 },
-      "cursors": { "matched": 0, "total": 174 }
+      "screens": {
+        "matched": 0,
+        "total": 174
+      },
+      "rng": {
+        "matched": 0,
+        "total": 2981
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 174
+      }
     },
     "firstMismatch": {
       "kind": "stop",
@@ -57,7 +66,9 @@
   "source": {
     "file": "zap.c",
     "branch": "In bhitm's WAN_OPENING/SPE_KNOCK arm, after holder and trap handling, C checks which_armor(mtmp, W_SADDLE) and drops a found saddle. The case's pauper Knight pony has no saddle, so that lookup returns null and the branch makes no saddle change.",
-    "functions": ["bhitm"],
+    "functions": [
+      "bhitm"
+    ],
     "callers": [
       "zap.c:weffects -> bhit -> bhitm",
       "js/zap.js:weffects -> bhit -> bhitm"
@@ -66,8 +77,27 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Read nethack-c/upstream/src/zap.c:160-620 and verified the WAN_OPENING branch at 382-434: after holder and trap handling, the branch looks up W_SADDLE and drops it only when which_armor returns an object. The C constant is declared in include/prop.h:125.",
+    "Read nethack-c/upstream/src/zap.c:160-573 and verified the WAN_OPENING branch at 382-434: after holder and trap handling, the branch looks up W_SADDLE and drops it only when which_armor returns an object. The C constant is declared in include/prop.h:125.",
     "Read nethack-c/upstream/src/dog.c:219-275, especially makedog's pauper guard at 262: a pauper Knight's pony receives no starting saddle. The case therefore exercises the absence lookup, not saddle removal.",
-    "Read js/zap.js:3344-3702: bhitm mirrors the C branch and calls which_armor(monster, W_SADDLE, state), but W_SADDLE is missing from its const.js import list even though js/const.js exports it. The admitted C replay stops at this exact ReferenceError."
-  ]
+    "Read js/zap.js:3344-3702: bhitm mirrors the C branch and calls which_armor(monster, W_SADDLE, state), but W_SADDLE is missing from its const.js import list even though js/const.js exports it. The admitted C replay stops at this exact ReferenceError.",
+    "Focused scripts/zap-ray.test.mjs passed 70/70 including the complete v72 replay. ESLint passed. The admitted v72 synthetic range matched screens, cursors, and RNG through segment 0 step 173 (run-MJ6iXx)."
+  ],
+  "validation": {
+    "focused": {
+      "run": "run-gci32F",
+      "result": "70/70 passed"
+    },
+    "lint": {
+      "run": "run-qQQg7s",
+      "result": "passed"
+    },
+    "syntheticRange": {
+      "run": "run-MJ6iXx",
+      "batch": "v72",
+      "caseId": "v72-opening-pet-action2",
+      "segment": 0,
+      "throughStep": 173,
+      "result": "matched"
+    }
+  }
 }

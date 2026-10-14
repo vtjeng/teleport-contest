@@ -2555,6 +2555,16 @@ test('zap.c bhitm matches each selected v12 monster-wand case', async () => {
     }
 });
 
+test('zap.c bhitm handles an opening ray hitting an unsaddled pony', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v72/v72-opening-pet-action2.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
+});
+
 test('zap.c zap_steed preserves direct and delegated mounted wand paths', async () => {
     // Probing and teleportation have their own zap_steed arms; cancellation
     // delegates to bhitm. These recordings exercise weffects -> zap_steed.
