@@ -1,0 +1,122 @@
+{
+  "session": "synthetic/v64/v64-broken-speed-wand-action3",
+  "corpus": "synthetic",
+  "batch": "v64",
+  "caseId": "v64-broken-speed-wand-action3",
+  "manifestPath": "challenges/manifests/v64.json",
+  "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+  "recordingPath": "challenges/cases/v64/v64-broken-speed-wand-action3.session.json",
+  "recordingSha256": "680b39fbf4957acf69c41cdfea788a35df18b23241ebef25e353928cbfc38daa",
+  "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
+  "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+  "remainingScreens": 2,
+  "recordedSteps": 277,
+  "status": "complete",
+  "commit": "b085dc643b9bb407ef4be540db6b645da35450c6",
+  "mismatch": {
+    "kind": "rng",
+    "corpus": "synthetic",
+    "sourceFile": "zap.c",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "sessions": ["synthetic/v64/v64-broken-speed-wand-action3"],
+    "remainingScreens": 2,
+    "remainingScreensUpperBound": null,
+    "caseId": "v64-broken-speed-wand-action3",
+    "batch": "v64",
+    "recordingPath": "challenges/cases/v64/v64-broken-speed-wand-action3.session.json",
+    "session": "synthetic/v64/v64-broken-speed-wand-action3",
+    "originalQueueEntry": {
+      "corpus": "synthetic",
+      "batch": "v64",
+      "caseId": "v64-broken-speed-wand-action3",
+      "session": "synthetic/v64/v64-broken-speed-wand-action3",
+      "manifestPath": "challenges/manifests/v64.json",
+      "manifestSha256": "dd88389e050fd45f0beed9fdb3fa4fef7422263964a9cc5544031ddf16cdf2a9",
+      "recording": "challenges/cases/v64/v64-broken-speed-wand-action3.session.json",
+      "recordingPath": "challenges/cases/v64/v64-broken-speed-wand-action3.session.json",
+      "recordingSha256": "680b39fbf4957acf69c41cdfea788a35df18b23241ebef25e353928cbfc38daa",
+      "recipe": "challenges/cases/v64/v64-broken-speed-wand-action3.recipe.session.json",
+      "recipeSha256": "4bac9f33452d5db4c63572ed989bec6b6319b49eab78a7bb124f0b60d9c5c053",
+      "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json",
+      "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+      "remainingScreens": 2,
+      "recordedSteps": 277,
+      "previousScreensMatched": 275,
+      "regression": false,
+      "passed": false,
+      "error": null,
+      "metrics": {
+        "screens": {"matched": 275, "total": 277},
+        "rng": {"matched": 2629, "total": 2641},
+        "cursors": {"matched": 276, "total": 277}
+      },
+      "firstMismatch": {
+        "screen": {
+          "index": 263,
+          "location": {"segmentIndex": 0, "stepIndex": 263, "key": " "},
+          "kind": "ch",
+          "row": 0,
+          "column": 0,
+          "cCell": {"ch": "T", "color": 8, "attr": 0, "decgfx": 0},
+          "jsCell": {"ch": "Y", "color": 8, "attr": 0, "decgfx": 0}
+        },
+        "rng": {
+          "index": 2623,
+          "cEntry": "rn2(105)=85",
+          "cCaller": "resist(zap.c:6141)",
+          "jsEntry": "rn2(25)=20",
+          "location": {"segmentIndex": 0, "stepIndex": 262, "key": " "},
+          "stepIndex": 262
+        },
+        "cursor": {
+          "index": 263,
+          "location": {"segmentIndex": 0, "stepIndex": 263, "key": " "},
+          "cCursor": [43, 0, 1],
+          "jsCursor": [60, 10, 1]
+        }
+      },
+      "step": 262,
+      "kind": "rng",
+      "sourceFile": "zap.c",
+      "function": "resist",
+      "line": 6141
+    },
+    "baseline": {
+      "screens": "275/277",
+      "rng": "2629/2641",
+      "cursors": "276/277",
+      "error": null
+    },
+    "firstMismatch": {
+      "kind": "rng",
+      "message": null,
+      "step": 262,
+      "cCaller": "resist(zap.c:6141)",
+      "cEntry": "rn2(105)=85",
+      "jsEntry": "rn2(25)=20"
+    }
+  },
+  "summary": "Breaking the speed-monster wand reaches C's adjacent-monster effect, but JavaScript skips the call to bhitm() for that wand type. The resulting missing resistance draw is annotated as resist() in the queue; the first source defect is apply.c:do_break_wand() dispatch.",
+  "source": {
+    "file": "apply.c",
+    "branch": "When a broken wand is processed and an adjacent square contains a monster, apply.c:do_break_wand() calls bhitm(mon, obj) for every wand type. JavaScript currently calls bhitm() only for light, striking, polymorph, and teleportation wands, and records note_unported('zap.c bhitm') for other types.",
+    "functions": ["do_break_wand"],
+    "callers": [
+      "C apply.c:doapply() dispatches the WAND_CLASS item to do_break_wand().",
+      "JavaScript js/apply.js:doapply() dispatches WAND_CLASS to do_break_wand().",
+      "C apply.c:do_break_wand() calls zap.c:bhitm() for an adjacent surviving monster; JavaScript js/apply.js:do_break_wand() must preserve the same call for WAN_SPEED_MONSTER."
+    ],
+    "dependencies": [
+      "zap.c:bhitm() already handles WAN_SPEED_MONSTER by calling resist(mon, otmp->oclass, 0, NOTELL), then adjusting speed on success.",
+      "js/zap.js:bhitm() already ports this WAN_SPEED_MONSTER branch, including resist() and mon_adjust_speed()."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved accepted v64 evaluation at challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v64.json records 275/277 screens, 2629/2641 RNG calls, and 276/277 cursors for this recording; its first C RNG mismatch is rn2(105)=85 at resist(zap.c:6141), step 262.",
+    "Upstream apply.c:do_break_wand(), lines 4095-4096, calls bhitm(mon, obj) whenever m_at(x, y) finds an adjacent monster; no wand-type guard surrounds that callback.",
+    "JavaScript js/apply.js:do_break_wand(), lines 4910-4917, restricts bhitm() to WAN_LIGHT, WAN_STRIKING, WAN_POLYMORPH, and WAN_TELEPORTATION. For WAN_SPEED_MONSTER it records note_unported('zap.c bhitm') and does not make the call.",
+    "Upstream zap.c:bhitm(), lines 230-240, and JavaScript js/zap.js:bhitm(), lines 3403-3415, both implement WAN_SPEED_MONSTER through resist(..., 0, NOTELL) before increasing monster speed. The resist annotation is therefore downstream of the missing caller invocation, not evidence of a separate resist defect."
+  ]
+}
