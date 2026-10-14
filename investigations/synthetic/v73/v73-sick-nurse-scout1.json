@@ -17,7 +17,9 @@
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
-    "sessions": ["synthetic/v73/v73-sick-nurse-scout1"],
+    "sessions": [
+      "synthetic/v73/v73-sick-nurse-scout1"
+    ],
     "remainingScreens": 250,
     "remainingScreensUpperBound": null,
     "caseId": "v73-sick-nurse-scout1",
@@ -29,9 +31,17 @@
   "source": {
     "file": "uhitm.c",
     "branch": "In mhitm_ad_heal(), the monster-attacks-hero arm heals an unarmed, unarmored hero; after the two exercise gates it checks Sick and calls make_sick(0L, NULL, FALSE, SICK_ALL), then sets disp.botl and continues the nurse-gone/flee/damage decisions.",
-    "functions": ["mhitm_ad_heal"],
-    "callers": ["mhitu.c:mattacku", "uhitm.c:mhitm_adtyping AD_HEAL dispatch"],
-    "dependencies": ["attrib.h:SICK_ALL", "potion.c:make_sick"]
+    "functions": [
+      "mhitm_ad_heal"
+    ],
+    "callers": [
+      "mhitu.c:mattacku",
+      "uhitm.c:mhitm_adtyping AD_HEAL dispatch"
+    ],
+    "dependencies": [
+      "you.h:SICK_ALL",
+      "potion.c:make_sick"
+    ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
