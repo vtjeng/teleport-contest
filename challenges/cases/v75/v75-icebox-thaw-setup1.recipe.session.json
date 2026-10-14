@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "lock.c:breakchestlock ICE_BOX survivor CORPSE age conversion/start_corpse_timeout. First inspect real corpse/container inventory; actual destroyed icebox and surviving corpse with restarted timer required. Child shatter is target miss, not thaw proof.",
+  "segments": [
+    {
+      "seed": 75106110,
+      "datetime": "20970215120900",
+      "nethackrc": "OPTIONS=name:v75-icebox-thaw-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed mace\n                        \u0017unlocked empty untrapped ice box\n                        db                        \u0017uncursed human corpse\n                        \u0017uncursed wand of locking (0:8)\n                        i                        "
+    }
+  ]
+}

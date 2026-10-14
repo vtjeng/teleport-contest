@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C potion.c:potionhit POT_BLINDNESS haseyes guard. Actual sleeping eyeless ochre jelly, ordinary blindness potion; first inventory/map setup before choosing direction. Require actual impact and C trace omitting haseyes-only blindness duration draws; source data proves M1_NOEYES, not mere potion message. Full source dothrow.c2263 potion gate is ACURR(A_DEX)>rnd(25), ignoring base weapon tmp/hero level. Previous action3 comment claimed level24 would guarantee hit; preserved as disproved source assumption, and that throw actually missed Dex12<=rnd25=13. This setup materially raises actual Dex with uncursed+20gauntlets, worn BEFORE creating sleeping jelly. Require C DEX25 and exact geometry before throw; no new impact claim yet. Actual corrected C DEX25 and gauntlets worn, hero38,5 and sleeping ochre jelly39,4 northeast. Throw a NE. Potion-specific Dexterity gate can fail only rnd25=25; no guaranteed-hit claim.",
+  "segments": [
+    {
+      "seed": 75106104,
+      "datetime": "20970215110400",
+      "nethackrc": "OPTIONS=name:v75-eyeless-blindness-npc-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed potion of blindness\n                        \u0017uncursed +20 gauntlets of dexterity\n                        Wb                        #wizgenesis\nsleeping peaceful ochre jelly\n                        i                        tau                        \n                        i                        "
+    }
+  ]
+}

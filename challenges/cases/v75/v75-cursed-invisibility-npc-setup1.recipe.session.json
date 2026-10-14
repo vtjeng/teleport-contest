@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C potion.c:potionhit POT_INVISIBILITY cursed reversal. First establish actual invisible sleeping hill-orc location with legal findit detection marker; hero has no See_invisible so sawit false, no true monster visibility before curse reversal. Setup-only, no potion impact/reveal claim until next source-directed throw and actual C message.",
+  "segments": [
+    {
+      "seed": 75106103,
+      "datetime": "20970215110300",
+      "nethackrc": "OPTIONS=name:v75-cursed-invisibility-npc-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed potion of invisibility\n                        #wizgenesis\ninvisible sleeping peaceful hill orc\n                        #wizdetect\n                        i                        "
+    }
+  ]
+}

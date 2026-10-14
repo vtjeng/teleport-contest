@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c:revive locked-container guard via actual timed troll corpse. First inspect ordinary box/corpse then stash, lock, and bounded wait based on source revival timeout. No callback claim before timeout evidence. C scout confirms dropped floor box b, mace a, child c, locking wand d. Use real #loot stash-one s child c, wield mace, wish/identify/read source debug-star genocide to remove initial actors (support already covered), then source-guided continuation. Preserve setup recording unchanged.",
+  "segments": [
+    {
+      "seed": 75106111,
+      "datetime": "20970215120900",
+      "nethackrc": "OPTIONS=name:v75-locked-troll-revival-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed mace\n                        \u0017unlocked empty untrapped chest\n                        db                        \u0017uncursed troll corpse\n                        \u0017uncursed wand of locking (0:8)\n                        i                        #loot\nsc                        wa                        \u0017blessed scroll of genocide\n                        #wizidentify\n.\n                        re *\n                        zd>                        #timeout\n                        50.                                                            #timeout\n                        #loot\n                        "
+    }
+  ]
+}

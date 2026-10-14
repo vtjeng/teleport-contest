@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C pray.c:doturn high-level chaotic S_ZOMBIE successful resistance chain pacifies instead of killing. Independent chaotic Priest level24, hostile visible human zombie; retain all resist/movement outcomes. Probing wand a is prepared for later exact NPC status if needed; no pacification claim from chant alone. Prior v27/v35 are lawful level1, v67 mute Knight stops can_chant before iterator. Actual C278 calls Set and two resist rn2(118) gates pass43/24; zombie survives and stays59,4 south ofhero59,3. Source high-level chaotic branch sets peaceful. Probe exact survivor with wand a south for explicit status confirmation, not chant-only claim.",
+  "segments": [
+    {
+      "seed": 75106107,
+      "datetime": "20970215110700",
+      "nethackrc": "OPTIONS=name:v75-chaotic-priest-turn-action1,role:Priest,race:human,gender:female,align:chaotic,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed wand of probing (0:5)\n                        #levelchange\n24\n                                                                        #wizgenesis\nhostile human zombie\n                        #turn\n                                                                        i                        zaj                        i                        "
+    }
+  ]
+}

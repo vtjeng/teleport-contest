@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C zap.c:zapyourself SPE_STONE_TO_FLESH stone-golem -> flesh-golem then inventory bhito. First establish actual stone form and inspect legal wizard spell chooser before selecting source spell and self direction. No transformation claim from menu alone; original source state chosen before JS comparison. Actual C stone form and wizard chooser126. Legal MENU_SEARCH selects source spell by unique stone-to-flesh name, then self direction. Require actual flesh-golem change, not menu search alone.",
+  "segments": [
+    {
+      "seed": 75106106,
+      "datetime": "20970215110600",
+      "nethackrc": "OPTIONS=name:v75-self-stone-flesh-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nstone golem\n                        #wizcast\n:stone to flesh\n.                        #attributes\n                        "
+    }
+  ]
+}

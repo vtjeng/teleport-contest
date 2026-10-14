@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C quest.c:prisoner_speaks via monmove.c:dochug STRAT_CLOSE waiting branch. Prisoner M3_CLOSE creates STRAT_CLOSE naturally under legal normal-level wizard genesis, no fixture/state injection. One real turn while adjacent must show finally-free speech and waiting release. Prior v44 direct Wiz-goal loading failed setup/first JS lregion before this branch; closest saved C has no speech. No angry-guard effect without guards is claimed. Recreated as action2 with byte-identical gameplay inputs after original C session was written but wrapper failed to save its child log because logs directory was absent. Preserve action1 session and wrapper failure; do not claim unavailable first child stdout/status. Actual prisoner adjacent101 but first wait ends T2 without speech. Source movement allocation can delay first actor action; add two ordinary waits before attributes, preserving original miss. Require speech/release before counting.",
+  "segments": [
+    {
+      "seed": 75106101,
+      "datetime": "20970215110100",
+      "nethackrc": "OPTIONS=name:v75-prisoner-release-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\npeaceful prisoner\n                        m. m. m.                         #attributes\n                        "
+    }
+  ]
+}
