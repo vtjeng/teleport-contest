@@ -39,7 +39,10 @@
       "const.js exports DISP_TETHER"
     ],
     "cBehavior": "When the hero is swallowed and the thrown wielded weapon is tethered, C calls tmp_at(DISP_TETHER, obj_to_glyph(...)) before the weapon hits the swallower.",
-    "jsBeforeFix": "js/dothrow.js called tmp_at(DISP_TETHER, ...) but omitted DISP_TETHER from its const.js imports."
+    "jsBeforeFix": "js/dothrow.js called tmp_at(DISP_TETHER, ...) but omitted DISP_TETHER from its const.js imports.",
+    "functions": [
+      "throwit"
+    ]
   },
   "fix": "Import the existing DISP_TETHER constant into js/dothrow.js; retain the existing awaited display call and source order.",
   "evidence": [
