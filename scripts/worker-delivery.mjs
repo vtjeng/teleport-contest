@@ -268,6 +268,23 @@ function contextFreePatchId(root, commit, cache) {
     return cache.get(commit);
 }
 
+// A resolved add can become a modification, changing its patch identity.
+// Prove that all affected blobs, modes and deletions coexisted in this candidate
+// history. Later corrections may have legitimately changed the current tree.
+export function hasSubmittedSnapshot(root, submitted, base, candidate) {
+    const parents = git(root, 'show', '-s', '--format=%P', submitted).split(' ').filter(Boolean);
+    if (parents.length !== 1) return false;
+    const paths = git(root, 'diff', '--no-renames', '--name-only', '-z', parents[0], submitted).split('\0').filter(Boolean);
+    if (!paths.length) return false; // Empty metadata needs an actual cherry-pick.
+    candidate = resolveCommit(root, candidate);
+    const expected = git(root, '--literal-pathspecs', 'ls-tree', '-rz', submitted, '--', ...paths);
+    // Only commits touching these paths can introduce the complete snapshot.
+    // Include HEAD too; avoid hashing every unrelated commit in a stale worker's range.
+    const history = lines(git(root, '--literal-pathspecs', 'rev-list', '--full-history', `${base}..${candidate}`, '--', ...paths));
+    return [...new Set([candidate, ...history])].some(commit =>
+        git(root, '--literal-pathspecs', 'ls-tree', '-rz', commit, '--', ...paths) === expected);
+}
+
 export function replacedCacheDelivery(root, state, task) {
     const latest = state.deliveries[task.deliveries.at(-1)];
     const packet = readDelivery(latest);
@@ -315,7 +332,8 @@ function checkCandidate(root, state, task, commit, visited = new Set(), patchIds
             const integrated = new Set(candidates.map(sha => contextFreePatchId(root, sha, patchIds)));
             for (const row of missing) {
                 const patch = contextFreePatchId(root, row.slice(2), patchIds);
-                check(patch && integrated.has(patch), `candidate is missing delivered patches from ${sha}`);
+                check((patch && integrated.has(patch)) || hasSubmittedSnapshot(root, row.slice(2), delivery.base, commit),
+                    `candidate is missing delivered patches from ${sha}`);
             }
         }
         for (const dependency of delivery.dependencies) {
