@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T07:49:26.858Z",
+  "capturedAt": "2026-10-14T08:10:47.503Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -119034,37 +119034,248 @@
         "at": "2026-10-14T07:48:50.976Z",
         "worker": "C",
         "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v63-successful-invocation-deadbook-action9-20261014-3424093b5782549c85193724e986236a9884f476",
+        "type": "published",
+        "at": "2026-10-14T07:49:41.238Z",
+        "task": "A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+        "commit": "3424093b5782549c85193724e986236a9884f476"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v59-downward-cancellation-engraving-action2-20261013-3424093b5782549c85193724e986236a9884f476",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T07:49:45.269Z",
+        "task": "C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+        "commit": "3424093b5782549c85193724e986236a9884f476",
+        "knownBy": "2026-10-14T07:49:41.238Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v62-sokoban-trap-seen-action6-20261014-3424093b5782549c85193724e986236a9884f476",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T07:49:46.576Z",
+        "task": "A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+        "commit": "3424093b5782549c85193724e986236a9884f476",
+        "knownBy": "2026-10-14T07:49:41.238Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v59-stone-to-flesh-20261014",
+        "type": "assign",
+        "at": "2026-10-14T07:49:57.637Z",
+        "task": "C-investigation-v59-stone-to-flesh-stone-text-action2-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v59-stone-to-flesh-zap-map-20261014",
+        "type": "implement",
+        "at": "2026-10-14T07:51:05.474Z",
+        "task": "C-investigation-v59-stone-to-flesh-stone-text-action2-20261014",
+        "goal": "downward-stone-to-flesh-engraving-zap-map-v59-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-086b5f914ad48b37c6cf756a4338b58792ca86a5ae595c4807845331a11170e8-de6a2ef0d1ec22dcd39319545295e05dd3980834-Prep29",
+        "type": "integrating",
+        "at": "2026-10-14T07:52:18.621Z",
+        "task": "Prep29",
+        "integration": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "prepGroup": [
+          "Prep29",
+          "Prep30",
+          "Prep31"
+        ],
+        "validationGroup": [
+          "Prep29",
+          "Prep30",
+          "Prep31"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-086b5f914ad48b37c6cf756a4338b58792ca86a5ae595c4807845331a11170e8-de6a2ef0d1ec22dcd39319545295e05dd3980834-Prep30",
+        "type": "integrating",
+        "at": "2026-10-14T07:52:18.621Z",
+        "task": "Prep30",
+        "integration": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "prepGroup": [
+          "Prep29",
+          "Prep30",
+          "Prep31"
+        ],
+        "validationGroup": [
+          "Prep29",
+          "Prep30",
+          "Prep31"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-086b5f914ad48b37c6cf756a4338b58792ca86a5ae595c4807845331a11170e8-de6a2ef0d1ec22dcd39319545295e05dd3980834-Prep31",
+        "type": "integrating",
+        "at": "2026-10-14T07:52:18.621Z",
+        "task": "Prep31",
+        "integration": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "prepGroup": [
+          "Prep29",
+          "Prep30",
+          "Prep31"
+        ],
+        "validationGroup": [
+          "Prep29",
+          "Prep30",
+          "Prep31"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bb1699f7a6865e7b809d15f72ee673ed2d73bb3f",
+        "type": "ready",
+        "at": "2026-10-14T07:57:53.071Z",
+        "task": "C-investigation-v59-stone-to-flesh-stone-text-action2-20261014",
+        "delivery": "bb1699f7a6865e7b809d15f72ee673ed2d73bb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-v59-stone-to-flesh-20261014",
+        "type": "turn",
+        "at": "2026-10-14T07:58:23.052Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-stone-flesh-bb1699-20261014",
+        "type": "received",
+        "at": "2026-10-14T07:58:38.519Z",
+        "task": "C-investigation-v59-stone-to-flesh-stone-text-action2-20261014",
+        "delivery": "bb1699f7a6865e7b809d15f72ee673ed2d73bb3f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep29-de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "type": "validated",
+        "at": "2026-10-14T08:01:23.366Z",
+        "task": "Prep29",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep29-de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "type": "accepted",
+        "at": "2026-10-14T08:01:23.366Z",
+        "task": "Prep29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep30-de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "type": "validated",
+        "at": "2026-10-14T08:01:23.366Z",
+        "task": "Prep30",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep30-de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "type": "accepted",
+        "at": "2026-10-14T08:01:23.366Z",
+        "task": "Prep30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep31-de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "type": "validated",
+        "at": "2026-10-14T08:01:23.366Z",
+        "task": "Prep31",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep31-de6a2ef0d1ec22dcd39319545295e05dd3980834",
+        "type": "accepted",
+        "at": "2026-10-14T08:01:23.366Z",
+        "task": "Prep31"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-v65-v67-admission-start-20261014",
+        "type": "activity",
+        "at": "2026-10-14T08:01:55.039Z",
+        "task": "Prep29",
+        "phase": "admission",
+        "reason": "Admit accepted v65–v67 together under the approved work-shortage priority; saved mission, overlap, control and reproducibility evidence is verified."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep29-979a3f3967638748dc19cf8b6ea8851736ade63e",
+        "type": "activity",
+        "at": "2026-10-14T08:06:13.453Z",
+        "task": "Prep29",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep29-979a3f3967638748dc19cf8b6ea8851736ade63e",
+        "type": "activity",
+        "at": "2026-10-14T08:06:14.166Z",
+        "task": "Prep29",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep30-979a3f3967638748dc19cf8b6ea8851736ade63e",
+        "type": "activity",
+        "at": "2026-10-14T08:06:14.805Z",
+        "task": "Prep30",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep30-979a3f3967638748dc19cf8b6ea8851736ade63e",
+        "type": "activity",
+        "at": "2026-10-14T08:06:15.483Z",
+        "task": "Prep30",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep31-979a3f3967638748dc19cf8b6ea8851736ade63e",
+        "type": "activity",
+        "at": "2026-10-14T08:06:16.107Z",
+        "task": "Prep31",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep31-979a3f3967638748dc19cf8b6ea8851736ade63e",
+        "type": "activity",
+        "at": "2026-10-14T08:06:16.723Z",
+        "task": "Prep31",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-readonly-new-work-selection-20261014",
+        "type": "turn",
+        "at": "2026-10-14T08:09:30.451Z",
+        "worker": "B",
+        "state": "active"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep29",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "63174a4503bc363076cddd760d03640321671232",
-        "batch": "v65",
-        "since": "2026-10-14T02:58:20.560Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
-      {
-        "task": "Prep30",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "65fdd240dd71aabc8a47ab45418e3f193ccf8b80",
-        "batch": "v66",
-        "since": "2026-10-14T04:10:30.031Z",
-        "blockedBy": [
-          "Prep29"
-        ],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v63-sighted-wizard-clone-action4-20261014",
         "worker": "B",
@@ -119074,21 +119285,6 @@
         "delivery": "20e461f102fde7599d44c27518f70ccc0ada3a17",
         "since": "2026-10-14T04:50:24.122Z",
         "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep31",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "9e7746750f2da3ea572225b8222b441271eb202a",
-        "batch": "v67",
-        "since": "2026-10-14T06:43:26.730Z",
-        "blockedBy": [
-          "Prep29",
-          "Prep30"
-        ],
         "unblocks": 0
       },
       {
@@ -119121,6 +119317,17 @@
         "status": "ready",
         "delivery": "97e0af5ec30959ef749f51db110201ad43b46909",
         "since": "2026-10-14T07:34:34.813Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v59-stone-to-flesh-stone-text-action2-20261014",
+        "worker": "C",
+        "goal": "downward-stone-to-flesh-engraving-zap-map-v59-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "bb1699f7a6865e7b809d15f72ee673ed2d73bb3f",
+        "since": "2026-10-14T07:57:53.071Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -119737,8 +119944,8 @@
     ]
   },
   "development": {
-    "executionCommit": "b368ad83d90f19d943f33c72c28736baf527fae9",
-    "measuredAt": "2026-10-14T07:43:05.451Z",
+    "executionCommit": "de6a2ef0d1ec22dcd39319545295e05dd3980834",
+    "measuredAt": "2026-10-14T07:57:57.978Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
