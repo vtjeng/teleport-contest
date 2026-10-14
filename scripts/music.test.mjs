@@ -15,7 +15,7 @@ import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
     musicMaybeHalfPhys,
     put_monsters_to_sleep } from '../js/music.js';
 import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
-    PM_WOOD_NYMPH } from '../js/monsters.js';
+    PM_NEWT, PM_WOOD_NYMPH } from '../js/monsters.js';
 import { DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS, WOODEN_FLUTE } from '../js/objects.js';
 
 // Fixed fixture seed, selected before inspection; these source-pinned tests
@@ -82,6 +82,7 @@ test('earthquake ports whole source scans and caps force at thirteen', async () 
     assert.ok(quake, 'C do_earthquake definition');
     assert.match(pit, /chasm = maketrap\(x, y, PIT\);\s*if \(!chasm\)\s*return/u);
     assert.match(pit, /filltype = fillholetyp\(x, y, FALSE\);[\s\S]*?set_levltyp\(x, y, filltype\);[\s\S]*?liquid_flow\(x, y, filltype, chasm, \(char \*\) 0\);[\s\S]*?chasm = t_at\(x, y\)/u);
+    assert.match(pit, /if \(DEADMONSTER\(mtmp\)\)[\s\S]*?xkilled\(mtmp, XKILL_NOMSG\);/u);
     assert.match(quake, /if \(force > 13\)[\s\S]*?force = 13;/u);
     assert.match(quake, /for \(x = start_x; x <= end_x; x\+\+\)\s*for \(y = start_y; y <= end_y; y\+\+\)/u);
     assert.match(quake, /wakeup\(mtmp, TRUE\);[\s\S]*?if \(rn2\(14 - force\)\)/u);
@@ -95,6 +96,7 @@ test('earthquake ports whole source scans and caps force at thirteen', async () 
     assert.ok(jsQuake, 'JavaScript do_earthquake definition');
     assert.match(jsPit, /const fillType = fillholetyp\(x, y, false, state, random\);[\s\S]*?if \(fillType !== ROOM\) \{\s*set_levltyp\(x, y, fillType, \{ state \}\);\s*await liquid_flow\(x, y, fillType, chasm, null, state, \{ \.\.\.env, random \}\);\s*if \(!t_at\(x, y, state\)\) return;/u);
     assert.match(jsPit, /await mselftouch\(mtmp, 'Falling, ', true, env\);[\s\S]*?random\.rnd\(alreadyTrapped \? 4 : 6\)/u);
+    assert.match(jsPit, /if \(mtmp\.mhp < 1\)[\s\S]*?await xkilled\(mtmp, XKILL_NOMSG, state, env\);/u);
     assert.match(jsQuake, /if \(force > 13\) force = 13;/u);
     assert.match(jsQuake, /for \(let x = startX; x <= endX; x\+\+\)\s*\{\s*for \(let y = startY; y <= endY; y\+\+\)/u);
     assert.match(jsQuake, /await wakeup\(mtmp, true[\s\S]*?if \(random\.rn2\(14 - force\)\) continue;/u);
@@ -204,6 +206,43 @@ test('do_pit marks its created trap seen and leaves an ordinary empty square', a
     assert.equal(trap?.ttyp, PIT);
     assert.equal(trap?.tseen, 1);
     assert.deepEqual(lines, []);
+});
+
+test('do_pit completes monster death cleanup after fatal chasm damage', async () => {
+    const state = await startedGame();
+    let square = null;
+    for (let y = 1; y < ROWNO - 1 && !square; y++) {
+        for (let x = 2; x < COLNO - 1; x++) {
+            const location = state.level.at(x, y);
+            if (location?.typ === ROOM && !state.level.monsters[x]?.[y]
+                && !state.level.traps.some(trap => trap.tx === x && trap.ty === y)
+                && (x !== state.u.ux || y !== state.u.uy)) {
+                square = { x, y };
+                break;
+            }
+        }
+    }
+    assert.ok(square, 'source-valid room square for the lethal pit path');
+    const victim = musicMonster(state, PM_NEWT, {
+        mx: square.x,
+        my: square.y,
+        mhp: 1, // One HP guarantees the source pit damage kills the newt.
+        mhpmax: 1,
+        m_lev: 1,
+        mtrapped: false,
+        nmon: null,
+    });
+    state.level.monlist = victim;
+    state.level.monsters[square.x][square.y] = victim;
+
+    await do_pit(square.x, square.y, 0, state, {
+        message: async () => {}, // The unit test has no pending terminal input.
+    });
+
+    assert.equal(victim.mhp, 0);
+    assert.equal(state.iflags.purge_monsters, 1);
+    assert.equal(state.level.monlist, victim); // C defers unlinking to dmonsfree().
+    assert.equal(state.level.monsters[square.x][square.y], null);
 });
 
 test('Maybe_Half_Phys uses source intrinsic/extrinsic state and rounds odd damage up', () => {
