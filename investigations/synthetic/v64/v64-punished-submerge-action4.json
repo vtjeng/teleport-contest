@@ -54,7 +54,7 @@
       "drown"
     ],
     "callers": [
-      "trap.c:dotrap calls drown() for the water-entry trap effect; js/trap.js:dotrap awaits drown(state)."
+      "trap.c:dotrap calls drown() for the water-entry trap effect; js/trap_effects.js:dotrap awaits drown(state)."
     ],
     "dependencies": [
       "ball.c:unplacebc removes the current floor placement while retaining the hero's ball and chain pointers.",
