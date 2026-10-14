@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent poly_obj caller witness: a debug Wizard wishes a boulder, which is placed on the floor because it is too heavy, then casts stone to flesh downward at it. The seed, clock, identity, and route are newly selected; the trace should reach zap.c:bhito -> stone_to_flesh_obj -> poly_obj.",
+  "segments": [
+    {
+      "seed": 9102572,
+      "datetime": "20360911122400",
+      "nethackrc": "OPTIONS=name:StoneBoulderA2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017boulder\n#wizcast\n>s>"
+    }
+  ]
+}

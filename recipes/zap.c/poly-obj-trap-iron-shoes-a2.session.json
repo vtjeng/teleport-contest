@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9102573,
+      "datetime": "20360912122500",
+      "nethackrc": "OPTIONS=name:TrapShoesA2,role:Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017iron shoes\nWplj\u0017polymorph trap\nkj "
+    }
+  ],
+  "comment": "Independent hero polymorph-trap caller witness: a debug Wizard wishes and wears iron shoes, moves to an open room square, wishes a polymorph trap there, steps away, and triggers it. The seed, clock, identity, equipment and route are newly selected; the trace should reach trap.c:trapeffect_poly_trap -> zap.c:poly_obj for the hero's worn shoes."
+}
