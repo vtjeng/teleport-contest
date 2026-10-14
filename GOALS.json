@@ -305780,6 +305780,127 @@
       "delivered": null,
       "function": "mcast_clone_wiz",
       "session": "synthetic/v63/v63-sighted-wizard-clone-action4"
+    },
+    {
+      "id": "fix-insight-ustatusline-self-status-v58-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement the wounded-leg and trapped clauses in the self-status report for the admitted v58 self-stethoscope case.",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v58/v58-self-stethoscope-held-trap-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v58-self-stethoscope-held-trap-action1-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "ustatusline",
+      "session": "synthetic/v58/v58-self-stethoscope-held-trap-action1"
+    },
+    {
+      "id": "port-mklev-mkinvokearea-v63-20261014",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement mkinvokearea, mkinvpos, mkinvk_check_wall from mklev.c",
+      "cFile": "mklev.c",
+      "sessions": [
+        "synthetic/v63/v63-successful-invocation-action9"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v63-successful-invocation-deadbook-action9-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mkinvokearea",
+          "line": 2410,
+          "endLine": 2502,
+          "declared": false
+        },
+        {
+          "name": "mkinvpos",
+          "line": 2503,
+          "endLine": 2602,
+          "declared": false
+        },
+        {
+          "name": "mkinvk_check_wall",
+          "line": 2603,
+          "endLine": 2623,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 2410,
+        "to": 2623
+      },
+      "requiredFunctions": [
+        {
+          "name": "buried_ball_to_punishment",
+          "line": 1935,
+          "endLine": 1957,
+          "declared": true,
+          "sourceFile": "dig.c"
+        }
+      ]
+    },
+    {
+      "id": "fix-stronghold-gotohell-hole-v64-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement fill_pit from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v64/v64-castle-hole-gotohell-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v64-castle-hole-gotohell-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "fill_pit",
+      "session": "synthetic/v64/v64-castle-hole-gotohell-action1"
+    },
+    {
+      "id": "fix-zap-map-downward-cancellation-engraving-v59-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Delete a non-headstone engraving when a downward cancellation wand or spell reaches zap_map.",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v59/v59-downward-cancellation-engraving-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v59-downward-cancellation-engraving-action2-20261013",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "zap_map",
+      "session": "synthetic/v59/v59-downward-cancellation-engraving-action2"
+    },
+    {
+      "id": "fix-trap-dotrap-seen-sokoban-pit-v62-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit the C seen rolling-boulder trap escape path through preflight_dotrap.",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v62/v62-sokoban-original-boulder-fill-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v62-sokoban-trap-seen-action6-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dotrap",
+      "session": "synthetic/v62/v62-sokoban-original-boulder-fill-action6"
     }
   ]
 }
