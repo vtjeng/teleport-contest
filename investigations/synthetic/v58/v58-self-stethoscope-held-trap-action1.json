@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v58/v58-self-stethoscope-held-trap-action1",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-self-stethoscope-held-trap-action1",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "recordingPath": "challenges/cases/v58/v58-self-stethoscope-held-trap-action1.session.json",
+  "recordingSha256": "bbc217ec11b0494eb25f09b8f1749d772c522a3b44488e52c093cf40f69553bf",
+  "evaluationPath": "challenges/evaluations/accepted-41f0b9fdd4e3a7743344ba85f44b57f987d501d7-v58.json",
+  "evaluationCommit": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
+  "remainingScreens": 29,
+  "recordedSteps": 306,
+  "status": "complete",
+  "commit": "d64064eea902e8094f34ddb4c760dbf7e03ba659",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v58",
+    "caseId": "v58-self-stethoscope-held-trap-action1",
+    "session": "synthetic/v58/v58-self-stethoscope-held-trap-action1",
+    "manifestPath": "challenges/manifests/v58.json",
+    "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+    "recording": "challenges/cases/v58/v58-self-stethoscope-held-trap-action1.session.json",
+    "recordingPath": "challenges/cases/v58/v58-self-stethoscope-held-trap-action1.session.json",
+    "recordingSha256": "bbc217ec11b0494eb25f09b8f1749d772c522a3b44488e52c093cf40f69553bf",
+    "recipe": "challenges/cases/v58/v58-self-stethoscope-held-trap-action1.recipe.session.json",
+    "recipeSha256": "0b7a0b2dffac14b33ebd7058c337d3efc57b9fe78941537e7361a95c2be51753",
+    "replayInputSha256": "b30c3d461ce49e0937fb3efd80726c461b30c6f1fe9b177d633ac68c45748bea",
+    "evaluationPath": "challenges/evaluations/accepted-41f0b9fdd4e3a7743344ba85f44b57f987d501d7-v58.json",
+    "evaluationCommit": "41f0b9fdd4e3a7743344ba85f44b57f987d501d7",
+    "evaluationArtifact": "challenges/evaluations/accepted-41f0b9fdd4e3a7743344ba85f44b57f987d501d7-v58.json",
+    "evaluationUtc": "2026-10-14T06:16:17.782Z",
+    "remainingScreens": 29,
+    "recordedSteps": 306,
+    "previousScreensMatched": 277,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 277,
+        "total": 306
+      },
+      "rng": {
+        "matched": 3052,
+        "total": 3053
+      },
+      "cursors": {
+        "matched": 277,
+        "total": 306
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: the attributes window requires the injured-leg clause",
+      "step": 277
+    },
+    "step": 277,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: the attributes window requires the injured-leg clause",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A wounded, unmounted hero applies a stethoscope to themself while trapped. C insight.c:ustatusline appends the injured-leg clause when Wounded_legs is true, then appends \", trapped\" when u.utrap is nonzero. JavaScript currently refuses the injured-leg condition in UNPORTED_USTATUS_CONDITIONS and has a second refusal for u.utrap, so the status report never reaches its message. The selected divergence fix implements those two source branches in the existing ustatusline function.",
+  "source": {
+    "file": "insight.c",
+    "branch": "In insight.c:ustatusline, Wounded_legs is true, the hero is not riding, and u.utrap is nonzero. The wounded-leg report masks EWounded_legs with BOTH_SIDES, pluralizes body_part(LEG) only when both side bits are set, and emits the trapped clause after it.",
+    "functions": [
+      "ustatusline"
+    ],
+    "callers": [
+      "apply.c:use_stethoscope -> insight.c:ustatusline",
+      "js/apply.js:use_stethoscope -> js/insight.js:ustatusline"
+    ],
+    "dependencies": [
+      "polyself.c:body_part",
+      "fruit.c:makeplural"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved queue entry from accepted evaluation challenges/evaluations/accepted-41f0b9fdd4e3a7743344ba85f44b57f987d501d7-v58.json: the case has 277/306 screens, 3052/3053 RNG calls, and 277/306 cursors matched; first stop is step 277 with “the attributes window requires the injured-leg clause.” Manifest SHA256 a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf and recording SHA256 bbc217ec11b0494eb25f09b8f1749d772c522a3b44488e52c093cf40f69553bf match the saved queue.",
+    "Upstream insight.c:3401-3489 defines the exact message order. Lines 3431-3440 append “, injured <leg(s)>” for Wounded_legs && !u.usteed, using EWounded_legs & BOTH_SIDES and makeplural(body_part(LEG)); line 3448 appends “, trapped” when u.utrap is set.",
+    "Current js/insight.js:ustatusline first throws for WOUNDED_LEGS in UNPORTED_USTATUS_CONDITIONS and later throws when u.utrap is set. The active command path is apply.c:use_stethoscope -> ustatusline; JS apply.js calls the corresponding insight.js function. Existing body_part and makeplural implementations are reused."
+  ]
+}

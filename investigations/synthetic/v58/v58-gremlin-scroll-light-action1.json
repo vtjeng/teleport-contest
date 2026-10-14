@@ -1,0 +1,58 @@
+{
+  "session": "synthetic/v58/v58-gremlin-scroll-light-action1",
+  "corpus": "synthetic",
+  "batch": "v58",
+  "caseId": "v58-gremlin-scroll-light-action1",
+  "manifestPath": "challenges/manifests/v58.json",
+  "manifestSha256": "a6846dbf74b245f8dfb0e79bbbc28a245d4bfabdf8be2f68f891da4b51b28acf",
+  "currentManifestSha256": "0a63ff83044fcea9d12917d0e0854263ea28889a2b5adeea9c5fe852e7f9757e",
+  "recordingPath": "challenges/cases/v58/v58-gremlin-scroll-light-action1.session.json",
+  "recordingSha256": "ed24cf930806082807e722a252dabe454540e639513c0086c25b026cdc3d6048",
+  "evaluationPath": "challenges/evaluations/accepted-6533e0a77d2145733c0fcabedf1e8446dc251fba-v58.json",
+  "evaluationCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+  "remainingScreens": 1,
+  "recordedSteps": 165,
+  "status": "blocked",
+  "mismatch": {
+    "screen": {
+      "index": 137,
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 137,
+        "key": " "
+      },
+      "cText": "The gremlin cries out in pain!",
+      "jsText": "It cries out in pain!"
+    },
+    "rng": null,
+    "cursor": null
+  },
+  "summary": "The light scroll damages a visible gremlin after the room-lighting temporary-blindness pass, but JavaScript uses the generic pronoun because it does not restore vision before light damage.",
+  "source": {
+    "file": "read.c",
+    "branch": "litroom() calls vision_recalc(2) for the redraw, marks a delayed full recalculation, then calls vision_recalc(0) before draining a nonempty gremlin list through light_hits_gremlin().",
+    "functions": [
+      "litroom"
+    ],
+    "callers": [
+      "read.c:seffect_light() -> litroom()",
+      "js/read.js:seffect_light() -> litroom()"
+    ],
+    "dependencies": [
+      "vision.c:vision_recalc()",
+      "uhitm.c:light_hits_gremlin()"
+    ]
+  },
+  "evidence": [
+    "nethack-c/upstream/src/read.c:2598-2632: after the temporary blindness redraw and delayed-recalc flag, litroom() runs vision_recalc(0) when gremlins were collected, before light_hits_gremlin().",
+    "js/read.js:2048-2141: litroom() runs vision_recalc(2), sets vision_full_recalc, then immediately calls light_hits_gremlin() without the source-ordered vision_recalc(0).",
+    "nethack-c/upstream/src/uhitm.c:6425-6443 and js/uhitm.js:926-970: light_hits_gremlin() formats Monnam() from the monster visibility state; the current replay shows C naming the gremlin and JavaScript choosing \"It\".",
+    "The saved accepted v58 evaluation records screens 164/165, RNG 2536/2536, and cursors 165/165 for this recording; the local replay reproduces the same step-137 screen mismatch with all RNG and cursor entries matching."
+  ],
+  "blocker": {
+    "reservation": "source:read.c:litroom",
+    "owner": "A2",
+    "task": "A2-investigation-v58-swallowed-light-action2-20261013",
+    "reason": "The selected mismatch is a distinct branch in the same source function reserved by A2. Keep one owner for the whole C source function until that delivery is accepted or A2 releases it."
+  }
+}

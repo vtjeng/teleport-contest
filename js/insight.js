@@ -3038,19 +3038,17 @@ export function achieve_rank(rank, state = game) {
 }
 
 // Conditions ustatusline() names in the trailing `info` clause of its report.
-// A hero who has just started carries none of them, and each one's wording
-// needs source no ported caller reaches -- makeplural(body_part(LEG)),
-// fingers_or_gloves(), a_monnam() and the `, cover`/`ed by sticky goop` split
-// -- so their presence stops the command rather than dropping the clause.
+// The wounded-leg and trapped clauses are implemented below; remaining
+// conditions still stop until their source wording is ported.
 //
-// The rows follow C's order inside ustatusline(), because C builds `info` by
-// appending in that order and a hero carrying two of them would need both
+// The still-unported checks retain C's order inside ustatusline(), because C
+// builds `info` by appending in that order and a hero carrying two of them needs both
 // fragments in that sequence. Plain rows use hasProperty(), whose
 // intrinsic-or-extrinsic answer is a superset of every macro listed here:
 // youprop.h defines Sick, Stoned, Slimed, Strangled, Vomiting, Confusion,
-// Glib and Stunned as the intrinsic alone, Wounded_legs and Fast as the pair,
-// and Blind and Invis as the pair minus a blocking term. So each stop can only
-// fire early, never late.
+// Glib and Stunned as the intrinsic alone, Fast as the pair, and Blind and
+// Invis as the pair minus a blocking term. So each stop can only fire early,
+// never late.
 const UNPORTED_USTATUS_CONDITIONS = Object.freeze([
     [SICK, 'the dying-from-illness clause'],
     [STONED, 'the solidifying clause'],
@@ -3060,7 +3058,6 @@ const UNPORTED_USTATUS_CONDITIONS = Object.freeze([
     [CONFUSION, 'the confused clause'],
     [BLINDED, 'the blind clause'],
     [STUNNED, 'the stunned clause'],
-    [WOUNDED_LEGS, 'the injured-leg clause'],
     [GLIB, 'fingers_or_gloves()'],
     [FAST, 'the fast clause'],
     [INVIS, 'the invisible clause'],
@@ -3214,23 +3211,31 @@ export async function mstatusline(mtmp, state = game) {
 }
 
 // C ref: insight.c ustatusline() (3401-3489), the one-line report a
-// stethoscope or a probe applied to the hero produces. The `u.ustuck` arm
-// adds the swallowed, held, or holding description and names the monster
-// before the report line is printed.
+// stethoscope or a probe applied to the hero produces. This port covers the
+// wounded-leg and trapped clauses; other incomplete clauses still stop. The
+// `u.ustuck` arm adds the swallowed, held, or holding description and names
+// the monster before the report line is printed.
 export async function ustatusline(state = game) {
     const u = state.u;
+    let info = '';
 
     for (const [propidx, branch] of UNPORTED_USTATUS_CONDITIONS) {
         if (hasProperty(state, propidx))
             throw new UnsupportedEnlightenmentError(branch);
     }
-    if (u.utrap)
-        throw new UnsupportedEnlightenmentError('the trapped clause');
+    if ((u.uprops?.[WOUNDED_LEGS]?.intrinsic
+         || u.uprops?.[WOUNDED_LEGS]?.extrinsic) && !u.usteed) {
+        const legs = Number(u.uprops[WOUNDED_LEGS].extrinsic ?? 0)
+            & BOTH_SIDES;
+        let what = body_part(LEG, state.youmonst);
+        if (legs === BOTH_SIDES) what = makeplural(what);
+        info += `, injured ${what}`;
+    }
+    if (u.utrap) info += ', trapped';
     if (u.uundetected)
         throw new UnsupportedEnlightenmentError('the concealed clause');
     if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING)
         throw new UnsupportedEnlightenmentError('the disguised clause');
-    let info = '';
     if (u.ustuck) {
         if (u.uswallow)
             info += digests(u.ustuck.data)
