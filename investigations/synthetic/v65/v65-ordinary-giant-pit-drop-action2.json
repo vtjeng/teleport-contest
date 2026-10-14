@@ -1,0 +1,46 @@
+{
+  "session": "synthetic/v65/v65-ordinary-giant-pit-drop-action2",
+  "corpus": "synthetic",
+  "batch": "v65",
+  "caseId": "v65-ordinary-giant-pit-drop-action2",
+  "remainingScreens": 45,
+  "recordedSteps": 407,
+  "manifestPath": "challenges/manifests/v65.json",
+  "manifestSha256": "f70f71815d735aaadd8aa21727e89bcd4bb2e8a413934e250039eb93976d64de",
+  "recordingSha256": "76e8247c8c079d22983c43401c7f231283ca6428b56f5e3f52138121c30f269c",
+  "evaluationPath": "challenges/evaluations/accepted-c26376cb4a84cb9b7ef59da92192b70fc0d4282d-v65.json",
+  "evaluationCommit": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+  "status": "complete",
+  "commit": "4112489e446445458febbcd9aba0212816084a48",
+  "mismatch": {
+    "session": "synthetic/v65/v65-ordinary-giant-pit-drop-action2",
+    "remainingScreens": 45,
+    "firstMismatch": {
+      "kind": "source-traced-first-mismatch",
+      "segment": 0,
+      "step": 362,
+      "owner": "do.c dropx/dropz -> flooreffects",
+      "source": "do.c:dropx -> dropy -> dropz -> flooreffects BOULDER/PIT",
+      "behavior": "On ordinary D1, the stone giant drops a boulder onto its pit. C prints ‘The boulder fills a pit.’, deletes the trap, consumes the boulder, buries objects, redraws the square, and returns true. JavaScript refuses during preflight before reaching its existing matching flooreffects implementation."
+    }
+  },
+  "summary": "The first missing event is the ordinary boulder-on-pit floor effect. C drops the inventory item through dropx/dropy/dropz into flooreffects; JavaScript's preflight blanket-rejects boulders at every trap, including the already-ported pit and hole branch.",
+  "source": {
+    "file": "do.c",
+    "functions": ["flooreffects", "dropx", "dropz"],
+    "branch": "do.c:flooreffects first handles a boulder on a PIT or HOLE after the pool-boulder arm. It may report trapped occupants, prints the boulder landing result, deletes any remaining floor trap, consumes the boulder, buries objects, redraws the map square, and returns true. do.c:dropx detaches the item, checks shipping and altar behavior, then calls dropy; dropy calls dropz; dropz invokes flooreffects before ordinary placement. In js/do.js the corresponding flooreffects arm already implements these operations, but preflight_dropx throws for any trap whenever the dropped item is a boulder, before dropx can reach that code.",
+    "callers": [
+      "do.c:dodrop -> do.c:dropx -> do.c:dropy -> do.c:dropz -> do.c:flooreffects",
+      "js/do.js:drop -> dropx -> dropzAdmitted -> flooreffects"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v65 evaluation reports 362/407 screens, 3664/3678 RNG entries, and 362/407 cursors for the case. The manifested source outcome at step 362 is ‘You drop an uncursed boulder. The boulder fills a pit.’",
+    "The saved JS runtime diagnostic reaches UnsupportedHeroCommandBoundaryError with ‘unsupported drop: shipping or floor effects at a trap’ after 362 matched screens and 3664 RNG entries.",
+    "nethack-c/upstream/src/do.c:dropx, dropy, and dropz establish the production call chain; do.c:flooreffects lines 188-266 contain the boulder pit/hole arm before the hero pit-edge arm.",
+    "js/do.js:flooreffects lines 1006-1138 implements the C boulder-on-pit/hole result. js/do.js:preflight_dropx lines 1955-1963 instead rejects every boulder at a trap before that implementation can run.",
+    "Existing scripts/drop-command.test.mjs assertions encode this blanket refusal and will be revised only for C-supported paths; the C source defines other traps as inert in flooreffects."
+  ]
+}
