@@ -84,5 +84,28 @@
       "After wiring the existing hot_pursuit() helper in rob_shop(), the focused shop-billing test asserts keeper anger, surcharge, following/customer state, and absence of the unported marker. The admitted v67 replay now matches screens, RNG and cursor through segment 0 step 934."
     ]
   },
-  "priorSourceCommit": "da4432aa4f63435e47fad21fe3ed1c7212cbbef1"
+  "priorSourceCommit": "da4432aa4f63435e47fad21fe3ed1c7212cbbef1",
+  "continuation2": {
+    "step": 974,
+    "summary": "The prior hot-pursuit correction reaches step 974. After the hero pays Sneem for her losses, C calls shk.c:make_happy_shk; JavaScript records note_unported instead. C makes Sneem peaceful and clears following/robbed before the monster action, so she does not zap her offensive wand. JavaScript leaves her hostile, allowing the wand action and consuming a different RNG sequence.",
+    "source": {
+      "file": "shk.c",
+      "branch": "dopay's robbed-but-no-bill/debit branch calls make_happy_shk after paying the amount owed. make_happy_shk records whether the keeper was angry, calls pacify_shk(shkp,FALSE), clears following and robbed, adjusts alignment outside the Rogue role, emits the calming message when the keeper is still in the shop, then calls make_happy_shoppers.",
+      "functions": [
+        "dopay",
+        "make_happy_shk",
+        "pacify_shk",
+        "make_happy_shoppers"
+      ],
+      "callers": [
+        "shk.c:dopay handles the compensation command; mon.c:movemon_singlemon later allocates the shopkeeper's turn."
+      ]
+    },
+    "evidence": [
+      "The admitted v67 recording and current JavaScript replay first diverge at segment 0 step 974 on the space input. C's screen says `you compensate Sneem for her losses. Sneem calms down.`; JavaScript additionally says `Sneem zaps a wand of striking!`. The first RNG mismatch is call 15406: C enters obj_resists(zap.c:1469), while JavaScript enters distfleeck(monmove.c:538). The C cursor is [19,11,1]; JavaScript cursor is [76,0,1].",
+      "The unchanged C recipe was replayed with temporary stderr-only instrumentation in `/tmp/shop-c-diag` using the project's bounded focused runner. At `svm.moves` 8, keeper id 292 was hostile, movement-eligible, allocated a turn, and dispatched to use_offensive with object 417. On move 9, dopay reached make_happy_shk for id 292: peaceful changed from 0 to 1, following from 1 to 0, and robbed remained 0. That move's turn was then allocated under peaceful state; no offensive dispatch followed.",
+      "The instrumented C replay matched the original recording for all 1007 steps after normalizing only `file.c:line` annotations shifted by temporary instrumentation. Screens, cursors, keys, and RNG signatures/values matched completely. The diagnostic artifact and receipt are retained outside the repository at /tmp/shop-c-diag; the captured command logs and comparison summary are in .cache/task-validation/angry-shop-c-diagnostic/."
+    ],
+    "priorSourceCommit": "175878f8c73e66816d5d5a8510360820bc16d0c1"
+  }
 }
