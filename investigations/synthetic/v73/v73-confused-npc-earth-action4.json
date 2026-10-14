@@ -46,7 +46,8 @@
     "C recording challenges/cases/v73/v73-confused-npc-earth-action4.session.json, segment 0, step 545: thitmonst misses the potion; breaktest consumes rn2(100)=43; invent.c:delobj_core then calls zap.c:obj_resists(obj,0,0) and consumes rn2(100)=5 before distfleeck.",
     "C source you.h:558 and hack.h:1531 define next2u as squared distance <=2; hero position (31,13) and throw landing square (29,13) yield dist2=4.",
     "JS source js/dothrow.js:1736,1818 enters potionbreathe because next2u uses distmin<=2; fresh scan run-z4vIYH reproduces the step-545 RNG and step-546 screen/cursor mismatch.",
-    "The earlier TTY-suspension hypothesis is falsified: the extra JS messages originate from the incorrectly reached potionbreathe branch, not from a mismatch in message-wait semantics."
+    "The earlier TTY-suspension hypothesis is falsified: the extra JS messages originate from the incorrectly reached potionbreathe branch, not from a mismatch in message-wait semantics.",
+    "After this correction, the admitted replay prefix matches C through segment 0 step 545. The full replay reaches the separate Earth-scroll continuation owned by B and stops at js/muse.js:2861 with mon_nam undefined."
   ],
   "baselineMetrics": {
     "screens": {
@@ -60,6 +61,50 @@
     "cursors": {
       "matched": 546,
       "total": 659
+    }
+  },
+  "continuationBlocker": {
+    "owner": "B",
+    "source": "muse.c:use_offensive",
+    "jsFile": "js/muse.js",
+    "finding": "After the corrected breakobj action, a full replay reaches the later Earth-scroll action and stops at ReferenceError: mon_nam is not defined in js/muse.js:2861. This continuation is beyond this task’s corrected boundary and overlaps B’s active use_offensive reservation. The official v73 baseline error remains null; this local post-fix continuation error is reported separately."
+  },
+  "partialVerification": {
+    "command": "node scripts/run-bounded.mjs focused -- node .cache/v73-next2u-prefix-check.mjs",
+    "runId": "run-7F7H4a",
+    "passed": true,
+    "case": "v73-confused-npc-earth-action4",
+    "segment": 0,
+    "throughStep": 545,
+    "metrics": {
+      "rng": {
+        "c": 2879,
+        "js": 2879
+      },
+      "screens": {
+        "c": 546,
+        "js": 546
+      },
+      "cursors": {
+        "c": 546,
+        "js": 546
+      },
+      "animFrames": {
+        "c": 2,
+        "js": 2
+      }
+    },
+    "geometry": {
+      "hero": [
+        31,
+        13
+      ],
+      "splash": [
+        29,
+        13
+      ],
+      "squaredDistance": 4,
+      "sourceThreshold": 2
     }
   }
 }
