@@ -97,11 +97,11 @@
   "goalKind": "divergence-fix",
   "evidence": [
     "nethack-c/upstream/src/trap.c:3140-3151: steedintrap() handles LANDMINE with thitm(), then calls dismount_steed(DISMOUNT_POLY) after the steed is killed.",
-    "js/trap_effects.js:1435-1466: the LANDMINE branch computes the same steed hit, but its killed-steed arm calls note_unported() instead of invoking dismount_steed().",
+    "js/trap_effects.js:1435-1471: the LANDMINE branch computes the same steed hit, but its killed-steed arm calls note_unported() instead of invoking dismount_steed().",
     "js/steed.js:877-965: dismount_steed() implements DISMOUNT_POLY and the common release/landing path used by the C caller.",
     "challenges/cases/v67/v67-landmine-steed-saddle-action5.recipe.session.json: the independent Knight setup creates a low-HP saddled rothe, places an actual land mine beneath it, and steps onto it.",
     "challenges/evaluations/admission-979a3f3967638748dc19cf8b6ea8851736ade63e-v67.json: saved baseline has 393/489 screens, 2635/2668 RNG calls, and 446/489 cursors matched; first RNG mismatch is step 392 at landing_spot(), followed by the screen mismatch at step 393.",
     "nethack-c/upstream/src/trap.c:939-963: keep_saddle_with_steedcorpse() searches floor objects and nested contents for the corpse whose OMONST m_id matches the dead steed, then relocates and stacks the saddle at the corpse location.",
-    "js/trap_effects.js:3593-3697: trapeffect_landmine() calls the new keep_saddle_with_steedcorpse() after blow_up_landmine(); the helper uses the C floor objlist and object-location/extract/place/stack operations."
+    "js/trap_effects.js:3595-3719: trapeffect_landmine() calls the new keep_saddle_with_steedcorpse() after blow_up_landmine(); the helper uses the C floor objlist and object-location/extract/place/stack operations."
   ]
 }
