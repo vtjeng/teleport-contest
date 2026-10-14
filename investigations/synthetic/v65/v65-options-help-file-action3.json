@@ -10,7 +10,8 @@
   "recordingSha256": "efe0096a9bf0c8e3905102a4f304f59c01cf48fc72c98cfc75a77116425cd023",
   "evaluationPath": "challenges/evaluations/accepted-095108659186c34ffbff02f40aec70be90dd4e8e-v65.json",
   "evaluationCommit": "095108659186c34ffbff02f40aec70be90dd4e8e",
-  "status": "implemented-and-matched",
+  "status": "complete",
+  "commit": "3f3a0f6f042cf556390d76f39b419972dec2d459",
   "mismatch": {
     "session": "synthetic/v65/v65-options-help-file-action3",
     "remainingScreens": 1,
