@@ -1,0 +1,68 @@
+{
+  "session": "synthetic/v74/v74-counted-wield-stack-action1",
+  "corpus": "synthetic",
+  "batch": "v74",
+  "caseId": "v74-counted-wield-stack-action1",
+  "manifestPath": "challenges/manifests/v74.json",
+  "manifestSha256": "2f8d334ae844f56696df7867dd49618afeb825238b3adca4d38910d1c3e0bafb",
+  "recordingSha256": "b302d82b253410c1cbf628b329d5abddbec74adb1d9d5f5ea8a7c132679130f4",
+  "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
+  "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
+  "remainingScreens": 50,
+  "recordedSteps": 168,
+  "status": "partial",
+  "commit": "2b4144ab4a6e473970b0a53cae76110c80a07d76",
+  "mismatch": {
+    "session": "synthetic/v74/v74-counted-wield-stack-action1",
+    "remainingScreens": 50,
+    "step": 118,
+    "kind": "stop",
+    "sourceFile": "wield.c",
+    "function": "dowield",
+    "firstMismatch": {
+      "screenIndex": 118,
+      "cEntry": "invent.c:getobj splits the requested count; wield.c:dowield finishes the split child and continues through wielding",
+      "jsEntry": "js/invent.js:getobj creates the split child, then js/wield.js:dowield refuses that child with UnsupportedWieldError"
+    }
+  },
+  "summary": "The admitted case types #wield, selects count 2, then selects inventory item a. C invent.c:getobj reaches split_otmp and calls splitobj for the requested count. C wield.c:dowield recognizes the returned child through context.objsplit.child_oid, calls finish_splitting, and continues at the wielding label. JS invent.js:getobj already returns the split child; js/wield.js:dowield currently throws at that same child branch. The diagnosis is source-traced, but source edits are pending release of the existing wield.c:dowield reservation held by this worker’s submitted quiver delivery.",
+  "source": {
+    "file": "wield.c",
+    "functions": [
+      "dowield"
+    ],
+    "branch": "After getobj returns an object whose id is context.objsplit.child_oid, C checks whether the currently wielded object is the split parent. If so it unsplits and follows already_wielded; otherwise it calls finish_splitting and jumps to wielding. The counted case follows the latter branch.",
+    "callers": [
+      "wield.c:dowield calls invent.c:getobj with GETOBJ_PROMPT | GETOBJ_ALLOWCNT.",
+      "invent.c:getobj accepts the integer count and selected inventory key, splits the object at split_otmp, and returns the child to wield.c:dowield.",
+      "wield.c:dowield calls finish_splitting before ready_weapon through its wielding label."
+    ],
+    "dependencies": [
+      "invent.c:getobj",
+      "mkobj.c:splitobj",
+      "wield.c:finish_splitting",
+      "wield.c:ready_weapon"
+    ]
+  },
+  "baselineMetrics": {
+    "screens": {
+      "matched": 118,
+      "total": 168
+    },
+    "rng": {
+      "matched": 2684,
+      "total": 2690
+    },
+    "cursors": {
+      "matched": 118,
+      "total": 168
+    },
+    "error": null
+  },
+  "evidence": [
+    "The published v74 admission evaluation at source base 8f280fd706dcfdad7c302cc39301cb056753af10 records 118/168 screens, 2684/2690 RNG calls, and 118/168 cursors, with null error.",
+    "The admitted recording input at step 116 is w, step 117 is 2, and step 118 is a. The stop message identifies the unported objsplit child branch in wield.c:dowield.",
+    "C wield.c:dowield (355-404) handles context.objsplit.child_oid, unsplits and reports already-wielded when the parent is the primary weapon, otherwise calls finish_splitting and continues at wielding. JS invent.js:getobj already implements the split creation for counted selection."
+  ],
+  "goalKind": "divergence-fix"
+}
