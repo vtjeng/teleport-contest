@@ -300486,7 +300486,7 @@
     {
       "id": "fix-music-do-earthquake-doormask-alias-v56",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Read the C canonical door-mask value in the earthquake door branch.",
       "cFile": "music.c",
       "sessions": [
@@ -300496,10 +300496,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
       "delivered": null,
       "function": "do_earthquake",
-      "session": "synthetic/v56/v56-earthquake-boulder-floor-action2"
+      "session": "synthetic/v56/v56-earthquake-boulder-floor-action2",
+      "closeStanding": {
+        "sha": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
+        "target": "synthetic/v56/v56-earthquake-boulder-floor-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/6533e0a77d2145733c0fcabedf1e8446dc251fba/run-hosted-z4v4yt/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "do_earthquake",
+            "implementation": "js/music.js",
+            "symbol": "do_earthquake",
+            "sourceReview": "Read the complete music.c:do_earthquake body at lines 344-475 and its JS implementation. This bounded fix changes only the DOOR/SDOOR door-mask branch: C rm.h aliases doormask to flags, so JS now reads flags as the canonical slot even when it is zero, then synchronizes the existing doormask compatibility property when the door collapses. The source order remains: convert SDOOR, test D_NODOOR, call do_pit or clear the mask, recalculate blocking, redraw, report, then bill a shop. No whole-function completion claim or new unported callee is included.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "C music.c:do_play_instrument calls do_earthquake for DRUM_OF_EARTHQUAKE; the JS function calls do_earthquake with the same state, message owner and random provider."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "C apply.c:doapply dispatches instrument use to music.c:do_play_instrument; JS apply.js:doapply calls js/music.js:do_play_instrument."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-earthquake-boulder-floor-action2",
+                "segment": 0,
+                "fromStep": 151,
+                "throughStep": 178,
+                "source": "apply.c:doapply -> music.c:do_play_instrument DRUM_OF_EARTHQUAKE -> do_earthquake DOOR/SDOOR alias branch"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is using a charged DRUM_OF_EARTHQUAKE through the normal apply command. C apply.c:doapply -> music.c:do_play_instrument -> do_earthquake enters the selected door branch; the JavaScript caller follows the matching path. The admitted v56 recording strictly matches all 179 steps after the canonical flags fix. The change is limited to this branch in do_earthquake.",
+        "entryPoints": [
+          {
+            "name": "DRUM_OF_EARTHQUAKE collapses a selected closed door",
+            "functions": [
+              "do_earthquake"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v56",
+                "caseId": "v56-earthquake-boulder-floor-action2",
+                "segment": 0,
+                "fromStep": 151,
+                "throughStep": 178,
+                "source": "apply.c:doapply -> music.c:do_play_instrument DRUM_OF_EARTHQUAKE -> do_earthquake DOOR/SDOOR alias branch"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T03:04:42.279Z",
+  "capturedAt": "2026-10-14T03:40:37.207Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -106996,22 +106996,600 @@
         "at": "2026-10-14T03:04:26.436Z",
         "task": "C-investigation-v63-successful-invocation-action9-20261014",
         "delivery": "b67d22a9affd907f126fe05169a8ca7ba4e34db3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v58-castle-passtune-action3-20261013-af2b0f8a8a95d919db87eb67cad54bde75eb6597",
+        "type": "published",
+        "at": "2026-10-14T03:04:55.880Z",
+        "task": "B-investigation-v58-castle-passtune-action3-20261013",
+        "commit": "af2b0f8a8a95d919db87eb67cad54bde75eb6597"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-await-accepted-main-sync-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:05:26.466Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "The invocation correction is submitted. Next independent selection waits for Root to sync the published accepted-main commit after automatic review rejected the worker merge."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-a2-web-dependencies-correct-task-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T03:06:40.131Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "delivery": "d3b5e011b3c22850716b4aebdbcaf15d806249b0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v64-gotohell-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:07:07.766Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "goal": "fix-stronghold-gotohell-hole-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v59-while-web-correction-20261014",
+        "type": "park",
+        "at": "2026-10-14T03:07:31.186Z",
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013",
+        "reason": "Temporarily yield the resumed investigation so the coordinator-requested unseen-web metadata correction can be submitted; diagnosis and ownership are preserved, and no v59 source edits have begun."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-unseen-web-metadata-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T03:07:34.849Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-54d792a7d77979db73f93694d202eb0c6003f733",
+        "type": "ready",
+        "at": "2026-10-14T03:07:38.837Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "delivery": "54d792a7d77979db73f93694d202eb0c6003f733"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-invocation-b67d22-20261014",
+        "type": "received",
+        "at": "2026-10-14T03:07:49.741Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "delivery": "b67d22a9affd907f126fe05169a8ca7ba4e34db3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-review-c-earthquake-20261014",
+        "type": "activity",
+        "at": "2026-10-14T03:07:52.822Z",
+        "task": "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
+        "phase": "review",
+        "reason": "Integrate the oldest dependency-ready correction; its acceptance will unblock the throne-summoning delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v59-cancel-after-drawbridge-20261014b",
+        "type": "resume",
+        "at": "2026-10-14T03:08:23.794Z",
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v59-magic-trap-scope-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:08:27.655Z",
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013",
+        "goal": "port-zap-maybe-explode-trap-v59-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-a2-web-corrected-54d792-20261014",
+        "type": "received",
+        "at": "2026-10-14T03:09:37.595Z",
+        "task": "A2-investigation-v64-unseen-web-kick-action5-20261014",
+        "delivery": "54d792a7d77979db73f93694d202eb0c6003f733"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-c-invocation-dependencies-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T03:09:42.006Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "delivery": "b67d22a9affd907f126fe05169a8ca7ba4e34db3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-integrating-c-earthquake-6533e0-20261014",
+        "type": "integrating",
+        "at": "2026-10-14T03:09:54.403Z",
+        "task": "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
+        "integration": "6533e0a77d2145733c0fcabedf1e8446dc251fba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-active-v64-stair-delivery-investigation-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:10:03.809Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-invocation-dependency-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T03:11:27.224Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c3a3f5ff425b3442548960f2618b3f1e99b36207",
+        "type": "ready",
+        "at": "2026-10-14T03:11:35.549Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "delivery": "c3a3f5ff425b3442548960f2618b3f1e99b36207"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-preview-c-throne-after-earthquake-20261014",
+        "type": "activity",
+        "at": "2026-10-14T03:11:48.640Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "phase": "review",
+        "reason": "Preview the saved throne-summoning delivery while its earthquake dependency runs in hosted CI."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v64-stair-shipped-object-arrival-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:12:05.411Z",
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-c-invocation-corrected-c3a3f5-20261014",
+        "type": "received",
+        "at": "2026-10-14T03:13:35.491Z",
+        "task": "C-investigation-v63-successful-invocation-action9-20261014",
+        "delivery": "c3a3f5ff425b3442548960f2618b3f1e99b36207"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-blocked-v64-fillpit-caller-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:14:47.486Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "v64 fill_pit implementation is parked pending coordinator action because required caller hack.c:moverock_core is reserved by A2."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C-v64-stair-shipping-makemon-reservation-20261014",
+        "type": "park",
+        "at": "2026-10-14T03:14:51.991Z",
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "reason": "Diagnosis saved at adc0e4d88: dokick.c obj_delivery() must be ported and wired through do.c goto_level(), but required JavaScript guard removal and source attribution at makemon.c makemon is still reserved by C prior ready v57 delivery. Root is validating that delivery; resume this report after the makemon.c makemon reservation releases, then claim the full source scope before code edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-idle-v64-stair-scope-wait-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:15:07.393Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-park-b-castle-fill-pit-moverock-20261014",
+        "type": "park",
+        "at": "2026-10-14T03:16:19.532Z",
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "reason": "The corrected first cause is trap.c fill_pit calling existing flooreffects. Required async caller wiring includes hack.c moverock_core, reserved by A2 pending Sokoban delivery 809245291c4fe89bc8838d4787a4423a9d9a5f27. Preserve diagnosis 4f0d27fbc and goto_hell findings; resume after that caller reservation releases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6fd792764bbfda409ddaa587830c20fe7db2fcdc",
+        "type": "ready",
+        "at": "2026-10-14T03:17:08.298Z",
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013",
+        "delivery": "6fd792764bbfda409ddaa587830c20fe7db2fcdc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v63-quake-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:18:21.408Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating an independent v63 admitted mismatch after parking the blocked v64 fill_pit task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-investigation-v63-quake-newt-death-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:18:29.442Z",
+        "task": "B-investigation-v63-quake-newt-death-action2-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v63-sighted-wizard-clone-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:19:30.610Z",
+        "task": "A2-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-a2-sokoban-dependencies-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T03:19:42.920Z",
+        "task": "A2-investigation-v62-sokoban-object-resists-action6-20261013",
+        "delivery": "809245291c4fe89bc8838d4787a4423a9d9a5f27"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-a2-litroom-dependencies-20261014",
+        "type": "feedback",
+        "at": "2026-10-14T03:19:46.657Z",
+        "task": "A2-investigation-v58-swallowed-light-action2-20261013",
+        "delivery": "6123dfad92be1019cb9731ce17284e95a6ee4f68"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-knight-earlier-filler-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:20:17.232Z",
+        "task": "C-investigation-v63-knight-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-knight-filler-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:20:48.553Z",
+        "task": "C-investigation-v63-knight-earlier-filler-setup1-20261014",
+        "goal": "port-kni-fila-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-A2-v63-wizard-clone-for-delivery-corrections-20261014",
+        "type": "park",
+        "at": "2026-10-14T03:21:06.878Z",
+        "task": "A2-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "reason": "Temporarily yield the claimed wizard-clone investigation while Root-requested empty metadata corrections are submitted for preserved Sokoban and swallowed-light deliveries; the session scan is saved in .cache and ownership will be resumed after the corrections."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-sokoban-dependency-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T03:21:55.702Z",
+        "task": "A2-investigation-v62-sokoban-object-resists-action6-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b5d6ac1a268dd3df71e48b710f2dc652329a116e",
+        "type": "ready",
+        "at": "2026-10-14T03:22:08.688Z",
+        "task": "A2-investigation-v62-sokoban-object-resists-action6-20261013",
+        "delivery": "b5d6ac1a268dd3df71e48b710f2dc652329a116e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-swallowed-light-dependency-correction-20261014",
+        "type": "resume",
+        "at": "2026-10-14T03:22:27.207Z",
+        "task": "A2-investigation-v58-swallowed-light-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v63-quake-newt-death-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:22:36.243Z",
+        "task": "B-investigation-v63-quake-newt-death-action2-20261014",
+        "goal": "port-music-do-pit-quake-monster-death-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v56-earthquake-boulder-floor-action2-20261013-6533e0a77d2145733c0fcabedf1e8446dc251fba-validated",
+        "type": "validated",
+        "at": "2026-10-14T03:22:46.531Z",
+        "task": "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v56-earthquake-boulder-floor-action2-20261013-6533e0a77d2145733c0fcabedf1e8446dc251fba-accepted",
+        "type": "accepted",
+        "at": "2026-10-14T03:23:33.549Z",
+        "task": "C-investigation-v56-earthquake-boulder-floor-action2-20261013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8528230498abdfcbab41ad9f4c7685961309c9c2",
+        "type": "ready",
+        "at": "2026-10-14T03:24:45.422Z",
+        "task": "A2-investigation-v58-swallowed-light-action2-20261013",
+        "delivery": "8528230498abdfcbab41ad9f4c7685961309c9c2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3b58f6a3a4fb229088c9e85b3e7195b84ade21c3",
+        "type": "ready",
+        "at": "2026-10-14T03:25:55.600Z",
+        "task": "C-investigation-v63-knight-earlier-filler-setup1-20261014",
+        "delivery": "3b58f6a3a4fb229088c9e85b3e7195b84ade21c3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-active-select-next-filler-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:26:42.549Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-samurai-earlier-filler-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:26:59.302Z",
+        "task": "C-investigation-v63-samurai-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-19f2a272dccedd6aeac0b0a85ba25416f7572544",
+        "type": "ready",
+        "at": "2026-10-14T03:27:03.907Z",
+        "task": "B-investigation-v63-quake-newt-death-action2-20261014",
+        "delivery": "19f2a272dccedd6aeac0b0a85ba25416f7572544"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-samurai-filler-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:27:31.113Z",
+        "task": "C-investigation-v63-samurai-earlier-filler-setup1-20261014",
+        "goal": "port-sam-fila-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v64-worn-amulet-poly-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:28:38.078Z",
+        "task": "A2-investigation-v64-worn-amulet-poly-action3-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-b5d6ac1a268dd3df71e48b710f2dc652329a116e",
+        "type": "received",
+        "at": "2026-10-14T03:28:53.214Z",
+        "task": "A2-investigation-v62-sokoban-object-resists-action6-20261013",
+        "delivery": "b5d6ac1a268dd3df71e48b710f2dc652329a116e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-8528230498abdfcbab41ad9f4c7685961309c9c2",
+        "type": "received",
+        "at": "2026-10-14T03:28:56.678Z",
+        "task": "A2-investigation-v58-swallowed-light-action2-20261013",
+        "delivery": "8528230498abdfcbab41ad9f4c7685961309c9c2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-3b58f6a3a4fb229088c9e85b3e7195b84ade21c3",
+        "type": "received",
+        "at": "2026-10-14T03:28:59.999Z",
+        "task": "C-investigation-v63-knight-earlier-filler-setup1-20261014",
+        "delivery": "3b58f6a3a4fb229088c9e85b3e7195b84ade21c3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-19f2a272dccedd6aeac0b0a85ba25416f7572544",
+        "type": "received",
+        "at": "2026-10-14T03:29:03.747Z",
+        "task": "B-investigation-v63-quake-newt-death-action2-20261014",
+        "delivery": "19f2a272dccedd6aeac0b0a85ba25416f7572544"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-preview-c-throne-finished-20261014",
+        "type": "activity",
+        "at": "2026-10-14T03:29:07.446Z",
+        "task": "C-investigation-v57-throne-court-summon-action2-20261013",
+        "phase": "done",
+        "reason": "Saved delivery preview is complete; integrate after earthquake publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-resume-worn-amulet-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:29:17.849Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e52df335caf199202f12bf916da378debf7217f1",
+        "type": "ready",
+        "at": "2026-10-14T03:29:26.750Z",
+        "task": "C-investigation-v63-samurai-earlier-filler-setup1-20261014",
+        "delivery": "e52df335caf199202f12bf916da378debf7217f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-rogue-earlier-filler-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:30:29.003Z",
+        "task": "C-investigation-v63-rogue-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-rogue-earlier-filler-setup1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:31:44.547Z",
+        "task": "C-investigation-v63-rogue-earlier-filler-setup1-20261014",
+        "goal": "port-rog-fila-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v64-wielded-statue-animation-action4-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:32:28.954Z",
+        "task": "B-investigation-v64-wielded-statue-animation-action4-20261014",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v64-statue-active-20261014",
+        "type": "turn",
+        "at": "2026-10-14T03:32:42.150Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4f62211bbb1e10d19554916b076a07ba320b6e17",
+        "type": "ready",
+        "at": "2026-10-14T03:33:23.016Z",
+        "task": "C-investigation-v63-rogue-earlier-filler-setup1-20261014",
+        "delivery": "4f62211bbb1e10d19554916b076a07ba320b6e17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v64-wielded-statue-animation-action4-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:33:56.817Z",
+        "task": "B-investigation-v64-wielded-statue-animation-action4-20261014",
+        "goal": "fix-trap-animate-statue-worn-removal-v64-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep30-v66-recorder-wait-20261013-2",
+        "type": "turn",
+        "at": "2026-10-14T03:34:01.055Z",
+        "worker": "Prep",
+        "state": "blocked",
+        "reason": "Prepared ten distinct source failure candidates and retained independent C proofs; waiting for Root queue refresh to release the recorder slot for two source-designed continuations."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-valkyrie-earlier-filler-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:34:11.052Z",
+        "task": "C-investigation-v63-valkyrie-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-valkyrie-earlier-filler-setup1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:34:36.687Z",
+        "task": "C-investigation-v63-valkyrie-earlier-filler-setup1-20261014",
+        "goal": "port-val-fila-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-e52df335caf199202f12bf916da378debf7217f1",
+        "type": "received",
+        "at": "2026-10-14T03:35:31.563Z",
+        "task": "C-investigation-v63-samurai-earlier-filler-setup1-20261014",
+        "delivery": "e52df335caf199202f12bf916da378debf7217f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-4f62211bbb1e10d19554916b076a07ba320b6e17",
+        "type": "received",
+        "at": "2026-10-14T03:35:35.562Z",
+        "task": "C-investigation-v63-rogue-earlier-filler-setup1-20261014",
+        "delivery": "4f62211bbb1e10d19554916b076a07ba320b6e17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e6869bc748a84ae24417f2f38865bbdd2a0b9622",
+        "type": "ready",
+        "at": "2026-10-14T03:36:02.519Z",
+        "task": "C-investigation-v63-valkyrie-earlier-filler-setup1-20261014",
+        "delivery": "e6869bc748a84ae24417f2f38865bbdd2a0b9622"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-valkyrie-later-filler-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:36:24.962Z",
+        "task": "C-investigation-v63-valkyrie-later-filler-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-valkyrie-later-filler-setup1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:36:45.658Z",
+        "task": "C-investigation-v63-valkyrie-later-filler-setup1-20261014",
+        "goal": "port-val-filb-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2581741882f88a491ef2f0188ea954f44e7b439d",
+        "type": "ready",
+        "at": "2026-10-14T03:38:59.741Z",
+        "task": "C-investigation-v63-valkyrie-later-filler-setup1-20261014",
+        "delivery": "2581741882f88a491ef2f0188ea954f44e7b439d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v63-knight-later-filler-setup1-20261014",
+        "type": "assign",
+        "at": "2026-10-14T03:39:26.529Z",
+        "task": "C-investigation-v63-knight-later-filler-setup1-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v63-knight-later-filler-setup1-20261014",
+        "type": "implement",
+        "at": "2026-10-14T03:39:50.082Z",
+        "task": "C-investigation-v63-knight-later-filler-setup1-20261014",
+        "goal": "port-kni-filb-v63-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-522b8f094fea76d97376c20e63c7105a6a854d9e",
+        "type": "ready",
+        "at": "2026-10-14T03:40:16.522Z",
+        "task": "B-investigation-v64-wielded-statue-animation-action4-20261014",
+        "delivery": "522b8f094fea76d97376c20e63c7105a6a854d9e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep30-v66-recorder-resumed-20261013-3",
+        "type": "turn",
+        "at": "2026-10-14T03:40:24.953Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Resuming two preserved source-designed C continuations after Root queue refresh released the shared slot."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
-        "worker": "C",
-        "goal": "fix-music-do-earthquake-doormask-alias-v56",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "a48a5469fa9ca2cd8f32a882d3536cc97f9cb195",
-        "since": "2026-10-13T15:27:22.593Z",
-        "blockedBy": [],
-        "unblocks": 1
-      },
       {
         "task": "C-investigation-v57-throne-court-summon-action2-20261013",
         "worker": "C",
@@ -107020,10 +107598,8 @@
         "status": "ready",
         "delivery": "a48c235cc3c1bdbe8b10396b35a84228098e2ecf",
         "since": "2026-10-13T15:34:12.899Z",
-        "blockedBy": [
-          "C-investigation-v56-earthquake-boulder-floor-action2-20261013"
-        ],
-        "unblocks": 0
+        "blockedBy": [],
+        "unblocks": 1
       },
       {
         "task": "B-investigation-v57-hallucinatory-whatis-20261013",
@@ -107045,7 +107621,6 @@
         "delivery": "c28f3b83e48a51bb5046ce8408f370f155fd427c",
         "since": "2026-10-13T15:40:42.757Z",
         "blockedBy": [
-          "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
           "C-investigation-v57-throne-court-summon-action2-20261013"
         ],
         "unblocks": 0
@@ -107072,7 +107647,6 @@
         "delivery": "819202120be22caa2ab014fc6fbdb9dd7a86e55c",
         "since": "2026-10-13T16:14:13.655Z",
         "blockedBy": [
-          "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
           "C-investigation-v57-throne-court-summon-action2-20261013",
           "C-investigation-v56-sack-container-help-traditional-action2-20261013"
         ],
@@ -107206,21 +107780,6 @@
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v62-sokoban-object-resists-action6-20261013",
-        "worker": "A2",
-        "goal": "port-hack-moverock-core-v62-sokoban-launch-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "809245291c4fe89bc8838d4787a4423a9d9a5f27",
-        "since": "2026-10-13T17:16:21.958Z",
-        "blockedBy": [
-          "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
-          "A2-investigation-v58-blind-fountain-drink-action2-20261013",
-          "A2-investigation-v62-caveman-earlier-filler-action2-20261013"
-        ],
-        "unblocks": 0
-      },
-      {
         "task": "C-investigation-v62-healer-later-filler-action5-20261013",
         "worker": "C",
         "goal": "port-Hea-filb-lua-healer-later-filler-v62-20261013",
@@ -107251,22 +107810,6 @@
         "delivery": "0bd2f948325113e4712911cf5ce255ead03b9083",
         "since": "2026-10-13T17:25:36.308Z",
         "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v58-swallowed-light-action2-20261013",
-        "worker": "A2",
-        "goal": "fix-litroom-digest-message-synthetic-v58-20261013",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "6123dfad92be1019cb9731ce17284e95a6ee4f68",
-        "since": "2026-10-13T17:26:20.258Z",
-        "blockedBy": [
-          "A2-investigation-v58-swallowed-wraith-growth-action2-20261013",
-          "A2-investigation-v58-blind-fountain-drink-action2-20261013",
-          "A2-investigation-v62-caveman-earlier-filler-action2-20261013",
-          "A2-investigation-v62-sokoban-object-resists-action6-20261013"
-        ],
         "unblocks": 0
       },
       {
@@ -107414,7 +107957,7 @@
         "delivery": "6d4dec8d0dc05e5cedbc3747193650d042a82287",
         "since": "2026-10-14T02:54:18.027Z",
         "blockedBy": [],
-        "unblocks": 1
+        "unblocks": 0
       },
       {
         "task": "Prep29",
@@ -107445,11 +107988,9 @@
         "goal": "fix-detect-find-trap-unseen-web-kick-v64-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "d3b5e011b3c22850716b4aebdbcaf15d806249b0",
-        "since": "2026-10-14T03:02:33.544Z",
-        "blockedBy": [
-          "A2-investigation-v64-peaceful-worm-kicked-exit-action5-20261013"
-        ],
+        "delivery": "54d792a7d77979db73f93694d202eb0c6003f733",
+        "since": "2026-10-14T03:07:38.837Z",
+        "blockedBy": [],
         "unblocks": 0
       },
       {
@@ -107458,27 +107999,119 @@
         "goal": "fix-dotrap-vibrating-square-admission-v63-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "b67d22a9affd907f126fe05169a8ca7ba4e34db3",
-        "since": "2026-10-14T03:04:26.436Z",
-        "blockedBy": [
-          "C-investigation-v56-earthquake-boulder-floor-action2-20261013",
-          "C-investigation-v57-throne-court-summon-action2-20261013",
-          "C-investigation-v56-sack-container-help-traditional-action2-20261013",
-          "C-investigation-v58-wielded-boots-wear-action2-20261013",
-          "C-investigation-v61-pet-bee-eats-floor-jelly-action2-20261013",
-          "C-investigation-v58-npc-magicbane-confusion-action2-20261013",
-          "C-investigation-v62-closed-trapped-door-ghost-awake-action6-20261013",
-          "C-investigation-v62-healer-earlier-filler-action2-20261013",
-          "C-investigation-v62-healer-later-filler-action5-20261013",
-          "C-investigation-v62-caveman-later-filler-action5-20261013",
-          "C-investigation-v62-monk-earlier-filler-action5-20261013",
-          "C-investigation-v62-monk-later-filler-action5-20261013",
-          "C-investigation-v62-ranger-earlier-filler-action5-20261013",
-          "C-investigation-v62-ranger-later-filler-action5-20261013",
-          "C-investigation-v62-tourist-later-filler-action5-20261013",
-          "C-investigation-v60-rust-rehumanize-corpse-touch-action4-20261013",
-          "C-investigation-v56-full-pack-gem-lift-action3-20261013"
-        ],
+        "delivery": "c3a3f5ff425b3442548960f2618b3f1e99b36207",
+        "since": "2026-10-14T03:11:35.549Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v59-cancellation-magic-trap-action2-20261013",
+        "worker": "A2",
+        "goal": "port-zap-maybe-explode-trap-v59-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "6fd792764bbfda409ddaa587830c20fe7db2fcdc",
+        "since": "2026-10-14T03:17:08.298Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v62-sokoban-object-resists-action6-20261013",
+        "worker": "A2",
+        "goal": "port-hack-moverock-core-v62-sokoban-launch-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b5d6ac1a268dd3df71e48b710f2dc652329a116e",
+        "since": "2026-10-14T03:22:08.688Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v58-swallowed-light-action2-20261013",
+        "worker": "A2",
+        "goal": "fix-litroom-digest-message-synthetic-v58-20261013",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "8528230498abdfcbab41ad9f4c7685961309c9c2",
+        "since": "2026-10-14T03:24:45.422Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-knight-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "goal": "port-kni-fila-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "3b58f6a3a4fb229088c9e85b3e7195b84ade21c3",
+        "since": "2026-10-14T03:25:55.600Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v63-quake-newt-death-action2-20261014",
+        "worker": "B",
+        "goal": "port-music-do-pit-quake-monster-death-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "19f2a272dccedd6aeac0b0a85ba25416f7572544",
+        "since": "2026-10-14T03:27:03.907Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-samurai-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "goal": "port-sam-fila-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e52df335caf199202f12bf916da378debf7217f1",
+        "since": "2026-10-14T03:29:26.750Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-rogue-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "goal": "port-rog-fila-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4f62211bbb1e10d19554916b076a07ba320b6e17",
+        "since": "2026-10-14T03:33:23.016Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-valkyrie-earlier-filler-setup1-20261014",
+        "worker": "C",
+        "goal": "port-val-fila-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e6869bc748a84ae24417f2f38865bbdd2a0b9622",
+        "since": "2026-10-14T03:36:02.519Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v63-valkyrie-later-filler-setup1-20261014",
+        "worker": "C",
+        "goal": "port-val-filb-v63-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2581741882f88a491ef2f0188ea954f44e7b439d",
+        "since": "2026-10-14T03:38:59.741Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v64-wielded-statue-animation-action4-20261014",
+        "worker": "B",
+        "goal": "fix-trap-animate-statue-worn-removal-v64-20261014",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "522b8f094fea76d97376c20e63c7105a6a854d9e",
+        "since": "2026-10-14T03:40:16.522Z",
+        "blockedBy": [],
         "unblocks": 0
       }
     ],
@@ -108068,12 +108701,45 @@
         "since": "2026-10-14T02:52:23.247Z",
         "blockedBy": [],
         "reason": "Source trace is committed at 5a032c87e. The clone path requires clonewiz to call makemon(PM_WIZARD_OF_YENDOR, u.ux, u.uy, MM_NOWAIT), but current JavaScript makemon rejects this explicit hero-square flag shape. C owns a ready v57 makemon.c:makemon callback delivery; resume after its acceptance and merge to implement the exact clone call admission without editing the bounded task."
+      },
+      {
+        "task": "C-investigation-v64-stair-shipped-object-arrival-action3-20261014",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T03:14:51.991Z",
+        "blockedBy": [],
+        "reason": "Diagnosis saved at adc0e4d88: dokick.c obj_delivery() must be ported and wired through do.c goto_level(), but required JavaScript guard removal and source attribution at makemon.c makemon is still reserved by C prior ready v57 delivery. Root is validating that delivery; resume this report after the makemon.c makemon reservation releases, then claim the full source scope before code edits."
+      },
+      {
+        "task": "B-investigation-v64-castle-hole-gotohell-action1-20261014",
+        "worker": "B",
+        "goal": "fix-stronghold-gotohell-hole-v64-20261014",
+        "kind": "implementation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T03:16:19.532Z",
+        "blockedBy": [],
+        "reason": "The corrected first cause is trap.c fill_pit calling existing flooreffects. Required async caller wiring includes hack.c moverock_core, reserved by A2 pending Sokoban delivery 809245291c4fe89bc8838d4787a4423a9d9a5f27. Preserve diagnosis 4f0d27fbc and goto_hell findings; resume after that caller reservation releases."
+      },
+      {
+        "task": "A2-investigation-v63-sighted-wizard-clone-action4-20261014",
+        "worker": "A2",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-14T03:21:06.878Z",
+        "blockedBy": [],
+        "reason": "Temporarily yield the claimed wizard-clone investigation while Root-requested empty metadata corrections are submitted for preserved Sokoban and swallowed-light deliveries; the session scan is saved in .cache and ownership will be resumed after the corrections."
       }
     ]
   },
   "development": {
-    "executionCommit": "02a098f2e3bf8dab3c52e27f90b3fd1adacc6260",
-    "measuredAt": "2026-10-14T02:53:31.785Z",
+    "executionCommit": "6533e0a77d2145733c0fcabedf1e8446dc251fba",
+    "measuredAt": "2026-10-14T03:15:07.015Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
