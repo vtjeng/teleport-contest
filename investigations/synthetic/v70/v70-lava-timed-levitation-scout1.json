@@ -1,0 +1,42 @@
+{
+  "session": "synthetic/v70/v70-lava-timed-levitation-scout1",
+  "corpus": "synthetic",
+  "batch": "v70",
+  "caseId": "v70-lava-timed-levitation-scout1",
+  "remainingScreens": 409,
+  "recordedSteps": 409,
+  "status": "complete",
+  "summary": "The v70 lava splash replay stops in the existing JavaScript port of do.c:boulder_hits_pool() because do.js references FIRE_RES without importing it. C evaluates Fire_resistance for the splash damage and message; the JavaScript function reaches the equivalent branch through flooreffects() after the timed levitation expires.",
+  "commit": "682945a6a8b43ce0cf30bd2456f7f0bbdcca5f3e",
+  "mismatch": {
+    "session": "synthetic/v70/v70-lava-timed-levitation-scout1",
+    "remainingScreens": 409,
+    "kind": "stop",
+    "message": "Replay error: FIRE_RES is not defined",
+    "step": null
+  },
+  "source": {
+    "file": "do.c",
+    "branch": "do.c:boulder_hits_pool() handles a boulder falling into adjacent lava. Its Fire_resistance checks select the fire-resistant message and d(1,6) damage arm. include/youprop.h defines Fire_resistance from u.uprops[FIRE_RES]. The JavaScript boulder_hits_pool() mirrors those checks but js/do.js does not import FIRE_RES from js/const.js, so evaluating the first check throws.",
+    "functions": [
+      "boulder_hits_pool",
+      "flooreffects"
+    ],
+    "callers": [
+      "do.c:flooreffects() calls boulder_hits_pool(obj, x, y, FALSE) for a falling boulder; js/do.js flooreffects() calls boulder_hits_pool() at line 1022. The selected recording reaches this path through the throw command after timed intrinsic levitation expires over lava."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "manifestPath": "challenges/manifests/v70.json",
+  "manifestSha256": "14c26870e789a38f3773bde57004a8c1739003f722718ec7bbca5c374f88992e",
+  "recordingSha256": "f6e390327c9b5fd4d111a7b3ad077d5689715ae9bfb07ea114f72444e51a873c",
+  "evaluationPath": "challenges/evaluations/admission-f5371e6adf39dfbf6b3bc839f5d6d96195f0536f-v70.json",
+  "evaluationCommit": "f5371e6adf39dfbf6b3bc839f5d6d96195f0536f",
+  "evidence": [
+    "The accepted v70 evaluation records 0/409 screens, 0/2504 RNG calls, and 0/409 cursors, with error FIRE_RES is not defined for this case. The case's recipe reaches the intended boulder-lava splash after timed Levitation expires; its manifest records the source mission as do.c:boulder_hits_pool.",
+    "A targeted scan of the admitted recording on 682945a6a8b43ce0cf30bd2456f7f0bbdcca5f3e stops with ReferenceError: FIRE_RES is not defined at js/do.js:975 in boulder_hits_pool(), called by flooreffects(), throwit(), throw_obj(), and dothrow(). The retained log is /tmp/teleport-validation-1000/run-vd4n51/stdout.log.",
+    "Upstream do.c:boulder_hits_pool() reads Fire_resistance to choose the lava splash message punctuation and damage die, then calls burn_away_slime(), d(), and losehp(). include/youprop.h defines Fire_resistance as HFire_resistance || EFire_resistance, both indexed by FIRE_RES.",
+    "js/do.js already implements the C branch and computes fire resistance from state.u.uprops[FIRE_RES], but its const.js import list does not include FIRE_RES. js/const.js exports FIRE_RES. This is an unresolved constant binding in the existing do.c port, not a missing C behavior or a session-specific branch."
+  ]
+}
