@@ -305766,7 +305766,7 @@
     {
       "id": "port-wizard-clone-spell-v63-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mcast_clone_wiz from mcastu.c",
       "cFile": "mcastu.c",
       "sessions": [
@@ -305776,10 +305776,167 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
       "delivered": null,
       "function": "mcast_clone_wiz",
-      "session": "synthetic/v63/v63-sighted-wizard-clone-action4"
+      "session": "synthetic/v63/v63-sighted-wizard-clone-action4",
+      "closeStanding": {
+        "sha": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "target": "synthetic/v63/v63-sighted-wizard-clone-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c26376cb4a84cb9b7ef59da92192b70fc0d4282d/run-hosted-WMhaWW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mcast_clone_wiz",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_clone_wiz",
+            "sourceReview": "Read mcastu.c:411-419 and compared both branches. The source clones only when the caster is the Wizard and no_of_wizards is exactly one; it prints Double Trouble and calls clonewiz, otherwise it calls impossible. The JavaScript helper now follows that guard and call order. mcast_spell's existing MCAST_CLONE_WIZ dispatch now awaits the helper instead of recording the unported gap.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell dispatches MCAST_CLONE_WIZ to mcast_clone_wiz(mtmp); the matching JavaScript dispatch now awaits mcast_clone_wiz."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 834,
+                "throughStep": 1041,
+                "source": "mcastu.c mcast_spell -> mcast_clone_wiz -> wizard.c clonewiz; the admitted replay now matches the duplicate-Wizard screen at the former first-divergence step"
+              }
+            ]
+          },
+          {
+            "name": "clonewiz",
+            "sourceFile": "wizard.c",
+            "implementation": "js/wizard.js",
+            "symbol": "clonewiz",
+            "sourceReview": "Read wizard.c:517-532. The source calls makemon(PM_WIZARD_OF_YENDOR, u.ux, u.uy, MM_NOWAIT); on success it clears sleeping, tame, and peaceful state, conditionally creates and adds a fake Amulet when the real Amulet is absent, chooses from the source wizapp table only when shape changers are not protected, and calls newsym last. JavaScript preserves that order and the table order. The consumed makemon result requires its caller shape to reach the existing runtime creation tail. js/makemon_create.js now admits only the marked non-mklev Wizard hero-square MM_NOWAIT request, uses source enexto relocation, and runs the existing async runtime suffix; this is a bounded extension to the existing partial makemon implementation, not a claim that the full C makemon function is ported.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_clone_wiz",
+                "source": "mcastu.c:mcast_clone_wiz calls clonewiz() after the sole-Wizard guard and message."
+              },
+              {
+                "path": "js/wizard.js",
+                "symbol": "clonewiz",
+                "source": "wizard.c:clonewiz calls makemon with PM_WIZARD_OF_YENDOR, the hero coordinates, and MM_NOWAIT; JavaScript passes this exact source shape to makemon_runtime with a private source marker."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 834,
+                "throughStep": 1041,
+                "source": "mcastu.c mcast_spell -> mcast_clone_wiz -> wizard.c clonewiz -> makemon.c makemon"
+              }
+            ]
+          },
+          {
+            "name": "use_defensive",
+            "implementation": "js/muse.js",
+            "symbol": "use_defensive",
+            "sourceReview": "Read muse.c:use_defensive() (796-1221), focusing on MUSE_WAN_CREATE_MONSTER (981-996) and MUSE_SCR_CREATE_MONSTER (998-1032). C calls makemon() and consumes its returned monster before reporting discovery. JavaScript use_defensive() is async, so both matching call sites now await makemon_runtime(), which owns the existing asynchronous makemon suffix and completes before those results are inspected.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "The C monster movement caller reaches use_defensive after find_defensive. The JavaScript caller awaits use_defensive, preserving completion of the defensive item action."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The existing JavaScript monster-action adapter also awaits use_defensive; it reaches the same async runtime creator when a create-monster item is selected."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/muse.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 1011,
+                "throughStep": 1041,
+                "source": "muse.c:use_defensive MUSE_SCR_CREATE_MONSTER; Olog-hai reads a create-monster scroll at step 1011, and the replay matches the complete runtime creation and subsequent turns through step 1041."
+              }
+            ],
+            "sourceFile": "muse.c",
+            "cFile": "muse.c"
+          }
+        ],
+        "entryPointReview": "The v63 Wizard MCAST_CLONE_WIZ spell at step 834 now matches, and its replay continues through step 1041. At step 1011 the Wizard reads a scroll of create monster, reaching muse.c:use_defensive; both create-monster item arms now await the JavaScript runtime makemon tail. The first later mismatch is step 1042, where the C and JS fumbled-spell messages differ by the invisible adjective.",
+        "entryPoints": [
+          {
+            "name": "Wizard casts MCAST_CLONE_WIZ as the sole living Wizard",
+            "functions": [
+              "mcast_clone_wiz",
+              {
+                "sourceFile": "wizard.c",
+                "name": "clonewiz"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 834,
+                "throughStep": 834,
+                "source": "mcastu.c:mcast_spell -> mcast_clone_wiz -> wizard.c:clonewiz -> makemon.c:makemon"
+              }
+            ]
+          },
+          {
+            "name": "Monster use_defensive create-monster item runtime tail",
+            "functions": [
+              {
+                "sourceFile": "muse.c",
+                "name": "use_defensive"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 1011,
+                "throughStep": 1041,
+                "source": "muse.c:use_defensive creates monsters from a defensive scroll and waits for the async makemon runtime tail before later monster turns."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-insight-ustatusline-self-status-v58-20261014",
@@ -307404,7 +307561,7 @@
     {
       "id": "fix-shk-home-shk-mnearto-v67-shop-damage-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement home_shk from shk.c",
       "cFile": "shk.c",
       "sessions": [
@@ -307414,15 +307571,84 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
       "delivered": null,
       "function": "home_shk",
-      "session": "synthetic/v67/v67-shop-damage-repair-action11"
+      "session": "synthetic/v67/v67-shop-damage-repair-action11",
+      "closeStanding": {
+        "sha": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "target": "synthetic/v67/v67-shop-damage-repair-action11",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c26376cb4a84cb9b7ef59da92192b70fc0d4282d/run-hosted-WMhaWW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "home_shk",
+            "implementation": "js/shk.js",
+            "symbol": "home_shk",
+            "sourceReview": "Read shk.c:1317-1330 in source order. home_shk reads the shop door coordinates, calls mnearto with move_other TRUE and RLOC_NOMSG, sets has_shop, conditionally dismisses guards when killkops is true, and calls after_shk_move. Every current C call passes FALSE. The JS path now awaits the already implemented mnearto before setting has_shop and awaits after_shk_move; it does not use mnearto’s return value. pay_for_damage passes its movement environment through. The separate make_happy_shk caller remains an unported C caller; its current JS entry sites retain note_unported(shk.c make_happy_shk).",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "pay_for_damage",
+                "source": "shk.c:pay_for_damage calls home_shk after restitution, before pacify_shk and before comparing the keeper’s old and new coordinates."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "inherits",
+                "source": "shk.c:inherits calls home_shk in the post-payment path when the shopkeeper is outside its shop; the async result is awaited through paybill and end.c:really_done."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pay-for-damage.test.mjs",
+              "scripts/paybill-end-cleanup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-shop-damage-repair-action11",
+                "segment": 0,
+                "fromStep": 1054,
+                "throughStep": 1150,
+                "source": "zap.c damage payment -> shk.c:pay_for_damage -> home_shk -> mon.c:mnearto(RLOC_NOMSG), including the keeper-shift screen; the later repair_damage divergence starts at step 1151."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected active entry point is restitution after damage outside the shop: the admitted v67 case reaches pay_for_damage -> home_shk at step 1054. The replay now matches through step 1150 and first diverges at step 1151 in the separate unported shk.c:repair_damage path. Death cleanup also uses the newly async paybill -> inherits -> home_shk chain when an eligible keeper must return home; paybill-end and hero-death focused tests cover the changed Promise propagation, but this v67 range does not exercise that relocation arm. make_happy_shk is another C caller of home_shk, but its JavaScript implementation remains an explicit unported gap.",
+        "entryPoints": [
+          {
+            "name": "Shopkeeper accepts restitution and returns to its home square",
+            "functions": [
+              "home_shk"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v67",
+                "caseId": "v67-shop-damage-repair-action11",
+                "segment": 0,
+                "fromStep": 1054,
+                "throughStep": 1150,
+                "source": "zap.c damage payment -> shk.c:pay_for_damage -> home_shk -> mon.c:mnearto(RLOC_NOMSG), with the target message at step 1054 and later repair_damage divergence at step 1151."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v63-wizard-fumble-naming-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dochug from monmove.c",
       "cFile": "monmove.c",
       "sessions": [
@@ -307432,15 +307658,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
       "delivered": null,
       "function": "dochug",
-      "session": "synthetic/v63/v63-sighted-wizard-clone-action4"
+      "session": "synthetic/v63/v63-sighted-wizard-clone-action4",
+      "closeStanding": {
+        "sha": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "target": "synthetic/v63/v63-sighted-wizard-clone-action4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c26376cb4a84cb9b7ef59da92192b70fc0d4282d/run-hosted-WMhaWW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dochug",
+            "sourceFile": "monmove.c",
+            "implementation": "js/unported_monster_actions.js",
+            "symbol": "runSimpleMonsterAction",
+            "sourceReview": "This divergence fix covers the undirected-spell callback only, not all of dochug. C monmove.c:890-904 calls castmu(mtmp,a,FALSE,FALSE); mcastu.c:208-213 prints the fumble message with mon_nam(mtmp), which includes the invisible adjective. The JavaScript dochug path invokes castUndirectedSpell, but its runSimpleMonsterAction adapter had supplied only the raw species name. It now forwards mon_nam(mtmp,state,spellEnv), matching the existing directed-spell adapter.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "C monmove.c:dochug calls castmu for undirected monster spells. JavaScript monmove.js:dochug awaits the castUndirectedSpell operation supplied by runSimpleMonsterAction."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1042,
+                "source": "After the clone delivery, the Wizard fumble reaches monmove.c:dochug -> mcastu.c:castmu -> do_name.c:mon_nam. The committed adapter now forwards mon_nam and the complete admitted replay matches through the corrected invisible-Wizard message at step 1042."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected Wizard monster action reaches the undirected-spell call chain. The fix is limited to the production callback that supplies mon_nam to castmu; it does not claim whole-function completion for monmove.c:dochug.",
+        "entryPoints": [
+          {
+            "name": "Monster undirected spell fumble naming",
+            "functions": [
+              "dochug"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v63",
+                "caseId": "v63-sighted-wizard-clone-action4",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1042,
+                "source": "After the clone delivery, the Wizard fumble reaches monmove.c:dochug -> mcastu.c:castmu -> do_name.c:mon_nam. The committed adapter now forwards mon_nam and the complete admitted replay matches through the corrected invisible-Wizard message at step 1042."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "C-fix-mounted-pet-mimic-steed-dismount-v66-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Preserve dog_eat’s planning boundary and execute quickmimic’s source-ordered steed dismount before appearance RNG.",
       "cFile": "dogmove.c",
       "sessions": [
@@ -307450,15 +307740,119 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
       "delivered": null,
       "function": "dog_eat",
-      "session": "synthetic/v66/v66-mounted-pet-mimic-action5"
+      "session": "synthetic/v66/v66-mounted-pet-mimic-action5",
+      "closeStanding": {
+        "sha": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "target": "synthetic/v66/v66-mounted-pet-mimic-action5",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c26376cb4a84cb9b7ef59da92192b70fc0d4282d/run-hosted-WMhaWW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dog_eat",
+            "implementation": "js/dogmove.js",
+            "symbol": "dog_eat",
+            "sourceReview": "Read all of dogmove.c:218-345. C writes the eating message before m_consume_obj(); that callee discards quickmimic()’s return. The JS adapter keeps the planned pass from applying a steed dismount to the live game, and preserves the ordinary execution order through m_consume_obj().",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimplePet",
+                "source": "dogmove.c:dog_move() calls dog_eat() for a pet consuming an object; moveSimplePet wires eatObject to dog_eat() through the monster-turn dispatcher."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "tamedog",
+                "source": "dog.c:tamedog() calls dog_eat() when accepted food tames a monster."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/dogmove.c/quickmimic-mounted-steed.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-mounted-pet-mimic-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 220,
+                "source": "dogmove.c:dog_move() -> dog_eat() -> mon.c:m_consume_obj() -> quickmimic()"
+              }
+            ]
+          },
+          {
+            "name": "quickmimic",
+            "implementation": "js/dogmove.js",
+            "symbol": "quickmimic",
+            "sourceReview": "Read all of dogmove.c:1472-1530 and the qm table immediately above it. C returns for shape-changer protection or when the monster is not eating; when the monster is the steed, C calls dismount_steed(DISMOUNT_POLY) before any qm rn2 draw. The port now follows that order and keeps the existing appearance, leash, message, and map-window branches.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_consume_obj",
+                "source": "mon.c:m_consume_obj() calls quickmimic() after delobj() for a tame monster consuming a mimic corpse."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_eat",
+                "source": "dogmove.c:dog_eat() calls m_consume_obj(); its return is discarded."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/dogmove.c/quickmimic-mounted-steed.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-mounted-pet-mimic-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 220,
+                "source": "dogmove.c:dog_move() -> dog_eat() -> mon.c:m_consume_obj() -> quickmimic() -> steed.c:dismount_steed(DISMOUNT_POLY)"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is a tame pet consuming a mimic corpse during a monster turn. The game dispatch reaches dog_eat through dog_move / moveSimplePet; mon.c:m_consume_obj then invokes quickmimic after delobj. The admitted v66 replay exercises the mounted-steed branch through the dismount and appearance choice.",
+        "entryPoints": [
+          {
+            "name": "Mounted pet consumes a mimic corpse during a monster turn",
+            "functions": [
+              "dog_eat",
+              "quickmimic"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/quickmimic-mounted-steed.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v66",
+                "caseId": "v66-mounted-pet-mimic-action5",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 220,
+                "source": "dogmove.c:dog_move() -> dog_eat() -> mon.c:m_consume_obj() -> quickmimic()"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "C-lua-tut2-special-level-v65-20261014",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete tut-2.lua special level and register it in the JavaScript special-level loader.",
       "luaFile": "tut-2.lua",
       "sessions": [
@@ -307468,7 +307862,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
       "delivered": null,
       "functions": [
         {
@@ -307476,12 +307870,80 @@
           "line": 1,
           "endLine": 27
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "target": "synthetic/v65/v65-tutorial-second-level-setup1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c26376cb4a84cb9b7ef59da92192b70fc0d4282d/run-hosted-WMhaWW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "tut-2.lua",
+            "implementation": "js/tutorial_level.js",
+            "symbol": "loadTutorialSecondLevel",
+            "sourceReview": "Read the complete dat/tut-2.lua program (lines 1-27). It initializes a solidfill level, applies five level flags, writes the centered fixed map, lights the rectangular region, creates an up stair, writes an engraving using nh.eckey(\"up\"), places a seen magic portal, and calls non_diggable(), in that order. The JS implementation uses the existing special-level descriptor API and resolves the extended command key from the active binding model. The accepted C call path performs the nhlib alignment shuffle before running the Lua program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:makelevel() selects the special level, then mkmaze.c:makemaz() calls sp_lev.c:load_special(); makelevel() dispatches the resulting tut-2 proto through SPECIAL_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The special-level registry adds the tut-2.lua implementation under the extensionless proto name used by load_special()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tutorial-startup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-tutorial-second-level-setup1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "do.c:goto_level() -> mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/tut-2.lua"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The implemented entry point is ordinary level generation for The Tutorial level 2. The user reaches it with #wizlevelport; do.c:goto_level() and mklev.c:makelevel() dispatch the special-level prototype through makemaz() and load_special(). JavaScript registers the complete tut-2.lua program in SPECIAL_LEVEL_LOADERS. The admitted v65 recipe reaches that loader and matches every C RNG call, screen and cursor through the recording.",
+        "entryPoints": [
+          {
+            "name": "Generate The Tutorial level 2",
+            "functions": [
+              "tut-2.lua"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-tutorial-second-level-setup1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "do.c:goto_level() -> mklev.c:makelevel() -> mkmaze.c:makemaz() -> sp_lev.c:load_special() -> dat/tut-2.lua"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-interactive-symset-menu-v65-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement optfn_symset from options.c",
       "cFile": "options.c",
       "sessions": [
@@ -307491,10 +307953,136 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
       "delivered": null,
       "function": "optfn_symset",
-      "session": "synthetic/v65/v65-runtime-symbol-switch-action2"
+      "session": "synthetic/v65/v65-runtime-symbol-switch-action2",
+      "closeStanding": {
+        "sha": "c26376cb4a84cb9b7ef59da92192b70fc0d4282d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "a0cd732525b945d1c2bbd556038f6c057856bd13",
+        "target": "synthetic/v65/v65-runtime-symbol-switch-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c26376cb4a84cb9b7ef59da92192b70fc0d4282d/run-hosted-WMhaWW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "optfn_symset",
+            "symbol": "handler_symset",
+            "implementation": "js/options.js",
+            "sourceReview": "Read options.c:optfn_symset() (4167-4230). The do_init and do_set arms retain their existing option-state behavior; get_val and get_cnf_val read the primary symbol-set name and handler; do_handler fills the glyph cache, calls handler_symset(), then frees the cache if it remains allocated. JavaScript now dispatches that handler from the live O menu. The source does not call an unported callee on the selected path.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "applyOptionMenuPick",
+                "source": "options.c:doset_simple_menu() returns the selected allopt[] entry to doset_simple(), which invokes its do_handler arm. The JavaScript doset_simple_menu() calls applyOptionMenuPick(), which resolves the same entry through OPTION_HANDLERS.symset."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-menu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-symbol-switch-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "options.c:doset_simple_menu -> options.c:doset_simple -> options.c:optfn_symset(do_handler) -> options.c:handler_symset -> symbols.c:do_symset(false)."
+              }
+            ]
+          },
+          {
+            "name": "handler_symset",
+            "symbol": "handler_symset",
+            "implementation": "js/options.js",
+            "sourceReview": "Read options.c:handler_symset() (6321-6328). It calls do_symset() with the rogue flag derived from optidx, sets go.opt_need_redraw, and returns do_symset()'s result. The new handler adapter passes the live TTY menu selector, message output, and preference update into the symbols implementation; the O-menu redraw flag is consumed by doset_simple() after the handler returns. No unported callee is used.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "handler_symset",
+                "source": "options.c:optfn_symset()'s do_handler arm calls handler_symset(optidx); JavaScript OPTION_HANDLERS.symset dispatches through handler_symset() from applyOptionMenuPick()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-menu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-symbol-switch-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "options.c:doset_simple_menu -> options.c:doset_simple -> options.c:optfn_symset(do_handler) -> options.c:handler_symset -> symbols.c:do_symset(false)."
+              }
+            ]
+          },
+          {
+            "name": "do_symset",
+            "symbol": "do_symset",
+            "implementation": "js/symbols.js",
+            "sourceReview": "Read symbols.c:do_symset() (909-1099). It selects PRIMARYSET or ROGUESET; builds the source-ordered menu after filtering restrictions and unavailable graphics handlers; preselects the active set or Default Symbols; resolves PICK_ONE's selected and preselected entries; clears the chosen slot or loads the named set; restores default symbol data before reloading a named set; switches symbols when required; assigns graphics for the current level; applies symbol and color customizations; and updates the symset preference. The JavaScript projection uses generated names, restrictions, handlers, bytes and descriptions from dat/symbols. The task path calls existing symbols.js operations for reset, load, switching, graphics assignment, customization, and preference update. No unported callee or invented random call is used.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "handler_symset",
+                "source": "options.c:handler_symset() calls symbols.c:do_symset(optidx == opt_roguesymset); the JavaScript handler calls symbols.js:do_symset() with the selected set kind. The admitted v65 case exercises the primary-set argument."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-menu.test.mjs",
+              "scripts/symbol-data.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-symbol-switch-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "options.c:doset_simple_menu -> options.c:doset_simple -> options.c:optfn_symset(do_handler) -> options.c:handler_symset -> symbols.c:do_symset(false)."
+              }
+            ],
+            "sourceFile": "symbols.c"
+          }
+        ],
+        "entryPointReview": "The selected active entry point is choosing a primary symbol set from the O menu. The admitted v65 case now matches the complete segment, including the menu, selection of Blank, return to the options menu, and final command prompt. Its C caller path reaches options.c:optfn_symset(do_handler), handler_symset(), and do_symset(FALSE). The separate rogue-set argument is handled by the same helper but is not reached by this primary-only recording; this delivery does not claim a runtime range for the rogue-set option.",
+        "entryPoints": [
+          {
+            "name": "Choose a primary symbol set from the O options menu",
+            "functions": [
+              "optfn_symset",
+              "handler_symset",
+              {
+                "sourceFile": "symbols.c",
+                "name": "do_symset"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v65",
+                "caseId": "v65-runtime-symbol-switch-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "options.c:doset_simple_menu -> options.c:doset_simple -> options.c:optfn_symset(do_handler) -> options.c:handler_symset -> symbols.c:do_symset(false)."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
