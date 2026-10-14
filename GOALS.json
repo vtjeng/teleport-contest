@@ -315124,6 +315124,78 @@
           }
         ]
       }
+    },
+    {
+      "id": "trap-mounted-bear-trap-steed-branch-v73",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement trapeffect_bear_trap from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v73/v73-trapped-mastodon-farlook-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "trapeffect_bear_trap",
+      "session": "synthetic/v73/v73-trapped-mastodon-farlook-action3"
+    },
+    {
+      "id": "fix-v73-thrown-potion-next2u-distance-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement breakobj from dothrow.c",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v73/v73-confused-npc-earth-action4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v73-confused-npc-earth-action4-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "breakobj",
+      "session": "synthetic/v73/v73-confused-npc-earth-action4"
+    },
+    {
+      "id": "domove-hidden-ceiling-hider-v73",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement domove_attackmon_at, domove_core, spoteffects from hack.c",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v73/v73-blind-peaceful-lurker-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "domove_attackmon_at",
+      "session": "synthetic/v73/v73-blind-peaceful-lurker-action2"
+    },
+    {
+      "id": "fix-v70-cube-glob-planning-message-leak-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement newcham from mon.c",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v70/v70-cube-glob-scout2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v70-cube-glob-residual-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "newcham",
+      "session": "synthetic/v70/v70-cube-glob-scout2"
     }
   ]
 }
