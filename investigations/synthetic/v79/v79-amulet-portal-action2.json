@@ -1,0 +1,55 @@
+{
+  "session": "synthetic/v79/v79-amulet-portal-action2",
+  "corpus": "synthetic",
+  "batch": "v79",
+  "caseId": "v79-amulet-portal-action2",
+  "manifestPath": "challenges/manifests/v79.json",
+  "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
+  "recordingSha256": "2c2ccf4e38a30376a9edfbe6b2641b2b624181625a1e4aa7e2efcab4a716dbd7",
+  "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+  "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+  "remainingScreens": 7,
+  "recordedSteps": 340,
+  "status": "complete",
+  "commit": "f2e3cda191eb9084334e54f1de9e9b98a19771db",
+  "mismatch": {
+    "session": "synthetic/v79/v79-amulet-portal-action2",
+    "remainingScreens": 7,
+    "step": 211,
+    "kind": "rng",
+    "sourceFile": "wizard.c",
+    "function": "amulet",
+    "message": "moveloop_core omits wizard.c:amulet; wearing the real Amulet should take the rn2(15) portal-hint branch",
+    "metrics": {
+      "screens": { "matched": 333, "total": 340 },
+      "rng": { "matched": 2447, "total": 2646 },
+      "cursors": { "matched": 340, "total": 340 }
+    },
+    "firstMismatch": {
+      "step": 211,
+      "kind": "rng",
+      "expected": "rn2(15)=9 @ amulet(wizard.c:73)",
+      "actual": "rn2(94)=14 @ moveloop_core(allmain.c:360)"
+    }
+  },
+  "summary": "The first mismatch is the omitted per-turn wizard.c:amulet call in allmain.c:moveloop_core. At step 211 the hero wears the real Amulet, so C draws rn2(15) before the later engraving roll. At step 245, the successful roll emits the hot-portal message for the nearby magic portal. The selected function also contains a sleeping Wizard wake branch; the admitted case has not demonstrated that branch, so this task will not claim it without separate matching runtime evidence.",
+  "source": {
+    "file": "wizard.c",
+    "functions": ["amulet"],
+    "branch": "wizard.c:amulet first checks a worn real Amulet, then a wielded real Amulet. If either exists and rn2(15) is zero, it scans ftrap in chain order, considers only the first MAGIC_PORTAL, computes squared Euclidean distu, and emits hot/very warm/warm feedback for distances <=9/64/144. It then returns when no Wizard exists; otherwise it scans fmon in order, skips DEADMONSTER entries, and the first sleeping Wizard has an rn2(40) wake chance. On success it clears msleeping and reports the creepy feeling only when m_next2u is false. allmain.c:moveloop_core calls amulet after invault and before engraving wear, guarded by u.uhave.amulet.",
+    "callers": [
+      "C allmain.c:moveloop_core calls wizard.c:amulet after invault() when u.uhave.amulet is true. JavaScript must wire this same call at the matching elapsed-turn point.",
+      "The JS level.traps array preserves C gf.ftrap/ntrap order; JS level.monlist/nmon preserves the fmon chain."
+    ],
+    "dependencies": [
+      "hacklib.c:distu is already represented by JS dist2 for squared Euclidean distance.",
+      "objnam.c:Tobjnam and you.h:m_next2u are existing JavaScript ports."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The official v79 evaluation reports 333/340 screens, 2,447/2,646 RNG calls, and 340/340 cursors, with error null. Its first RNG mismatch is segment 0 step 211, key a: C rn2(15)=9 in wizard.c:amulet is absent; JS instead reaches moveloop_core's rn2(94)=14.",
+    "The exact C recording shows that step 211 wears the real Amulet, and step 245 consumes rn2(15)=0 in amulet then prints 'The Amulet of Yendor feels hot!' for the nearby magic portal. The admitted case and saved C replay have identical recording SHA-256.",
+    "C source wizard.c:61-103 and allmain.c:moveloop_core:359-360 establish the helper behavior, its caller guard, ordering after invault and before engraving RNG, and the separate sleeping-Wizard branch."
+  ]
+}
