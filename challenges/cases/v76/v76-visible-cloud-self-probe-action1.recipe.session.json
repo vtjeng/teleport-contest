@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C insight.c:ustatusline visible_region_at/reg_damg clause via zap.c:zapyourself WAN_PROBING. Real poison-safe breathless stone golem has hands and sight; create actual blessed stinking-cloud region centered on hero via read scroll cursor. Identify scroll to avoid discovery pager ambiguity. Require real status cloud-of-poison-gas/vapor; any earlier setup/Blind refusal is separate first cause and must be traced.",
+  "segments": [
+    {
+      "seed": 76106109,
+      "datetime": "20970316141200",
+      "nethackrc": "OPTIONS=name:v76-visible-cloud-self-probe-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed wand of probing (0:8)\n                        \u0017blessed scroll of stinking cloud\n                        #wizidentify\n.\n                        #polyself\nstone golem\n                        rb.                        za.                        i                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:use_grease cursed can first rn2(2) drop gate and later object grease + GLIB contamination. Actual nonGlib hero/dagger. Require object becomes greased and cursed contamination message; a dropped can is valid setup/target miss, not later make_glib proof.",
+  "segments": [
+    {
+      "seed": 76106105,
+      "datetime": "20970316120600",
+      "nethackrc": "OPTIONS=name:v76-cursed-grease-object-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed can of grease (0:8)\n                        \u0017uncursed dagger\n                        aab                        i                        "
+    }
+  ]
+}

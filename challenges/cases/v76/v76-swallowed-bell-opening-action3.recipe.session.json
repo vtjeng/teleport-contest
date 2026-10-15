@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:use_bell charged noncursed swallowed -> detect.c:openit expulsion. HighHP ordinary human is safe legal swallowed target for nonpetrifying trapper, no special hidden state. Establish actual charged bell inventory and swallowed state before applying; C setup first, no output-driven JS change. First four forced waits plus one bell application did not swallow; trapper speed3 needs four normal turns per action. Source-bounded12 forced waits now give three movement allocations before applying Bell once. This is a C-only temporal continuation, not a JS target change or seed search; no escape claim without actual swallow.",
+  "segments": [
+    {
+      "seed": 76106108,
+      "datetime": "20970316130800",
+      "nethackrc": "OPTIONS=name:v76-swallowed-bell-opening-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed Bell of Opening\n                        #wizgenesis\nhostile trapper\n                        .                        .                        .                        .                        i                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        aa                        i                        "
+    }
+  ]
+}

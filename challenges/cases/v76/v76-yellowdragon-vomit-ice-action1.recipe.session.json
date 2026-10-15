@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C eat.c:vomit source yellow-dragon self acid-breath and acidic form ice melting. Real legal polyself, ICE terrain wish, real Vomiting countdown followed35rests; require actual acid self-breath/ice melt and preserve distinct reached body observations. No recipe/range special cases.",
+  "segments": [
+    {
+      "seed": 76106104,
+      "datetime": "20970316120600",
+      "nethackrc": "OPTIONS=name:v76-yellowdragon-vomit-ice-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        #polyself\nyellow dragon\n                        \u0017ice\n                        #wizintrinsic\n:vomiting\n\n                        35.                                                            #timeout\n                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C dothrow.c:throwit vertical onto steed -> potionhit holy water uncurses saddle. Pauper Knight has source riding skill and no starting pet. First establish actual saddle/holy-water letters and adjacent tame pony direction from C map, before applying real cursed saddle and mounting. Never claim cursed saddle from an ordinary auto-generated saddled pony. Actual C map hero54,18 and tame pony55,18 east. Saddle a cursed, holy water b. Apply a east l, mount through real #ride east, then throw b downward. Require actual mounted/cursed saddle/uncursing; rn2(6)=0 floor hit is target miss.",
+  "segments": [
+    {
+      "seed": 76106110,
+      "datetime": "20970316141200",
+      "nethackrc": "OPTIONS=name:v76-mounted-holy-water-setup1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed saddle\n                        \u0017blessed potion of water\n                        #wizgenesis\ntame pony\n                        #wizmap\n                        i                        aal                        #ride\nl                        tb>                        i                        "
+    }
+  ]
+}

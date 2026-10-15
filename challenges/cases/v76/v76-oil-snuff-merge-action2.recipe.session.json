@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:light_cocktail split1off then lit oil snuff freeinv/addinv merge. First observe actual3-stack lighting split and inventory letters; expiry target deferred previously remains separate. No final merge claim until actual child snuff is recorded. Actual C125 split lit child b, two unlit potions remain a149. Apply b to snuff then inspect real merged stack. No expiry, throw, lamp refuel or monster snuff claim.",
+  "segments": [
+    {
+      "seed": 76106106,
+      "datetime": "20970316120600",
+      "nethackrc": "OPTIONS=name:v76-oil-split-light-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00173 uncursed potions of oil\n                        aa                        i                        ab                        i                        "
+    }
+  ]
+}

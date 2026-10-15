@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C zap.c:cancel_item timed troll corpse REVIVE_MON -> ROT_CORPSE. Wish wand before corpse so immediate self cancellation can precede earliest2-turn revival. Wizard timeout queue is legal diagnostic; require actual timer kind before/after and source timing, not an invented no-revival claim. No long wait before queue is established.",
+  "segments": [
+    {
+      "seed": 76106101,
+      "datetime": "20970316110300",
+      "nethackrc": "OPTIONS=name:v76-cancel-troll-timer-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed wand of cancellation (0:8)\n                        \u0017uncursed troll corpse\n                        #timeout\n                        za.                        #timeout\n                        i                        "
+    }
+  ]
+}

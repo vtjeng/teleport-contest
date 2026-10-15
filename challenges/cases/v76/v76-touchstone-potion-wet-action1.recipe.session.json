@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:use_stone POTION_CLASS material handling returns stone-a-little-wetter without consuming potion. Ordinary healthy sight/hands, noncursed stone avoids gem-shatter arm. Both actual inventory items and message required; differs gem identification/scratch, cloth polishing and gold streak branches.",
+  "segments": [
+    {
+      "seed": 76106103,
+      "datetime": "20970316110300",
+      "nethackrc": "OPTIONS=name:v76-touchstone-potion-wet-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed touchstone\n                        \u0017uncursed potion of healing\n                        aab                        i                        "
+    }
+  ]
+}

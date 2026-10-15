@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:find_offensive1554 earth requires hard helmet/confusion/noncorporeal etc and adjacent hero; monmove.c:mon_would_take_item -> muse.c:searches_for_item accepts Earth for any nonmindless nonanimal, so actual dwarf can seek dropped scroll. Source dwarf initial armor can supply hard helmet; no invented inventory or fixture state. HighHP24 Healer, wish uncursed Earth, drop floor then create hostile dwarf and peaceful newt as possible collateral victim. Inspect real map/actors before source-guided movement; require actual pickup/read/boulder result. Prior v71 Earth-read target deferred, retain misses and do not label exhausted. C actual small room hero70,5, dwarf71,6, peaceful newt69,6. Step west to69,5 leaves Earth tile70,5 for hostile dwarf approach;8 forced waits permit pickup/use. Actual pickup/helmet/read and collateral determine reachability; no claim from placement alone. First actual read fully matches accepted92; mobile newt escaped boulder footprint, so no collateral death proved. Cheap source variation uses peaceful green mold: speed0 immobile, not amorphous/noncorporeal/unsolid, lowHP1d8 so read.c drop_boulder_on_monster can hurt/kill. Same legal dwarf pickup route, no item/state injection or seed change; actual C death evidence required.",
+  "segments": [
+    {
+      "seed": 76106115,
+      "datetime": "20970316161500",
+      "nethackrc": "OPTIONS=name:v76-monster-earth-dwarf-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed scroll of earth\n                        da                        #wizgenesis\nhostile dwarf\n                        #wizgenesis\npeaceful green mold\n                        #wizmap\n                        h                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        i                        "
+    }
+  ]
+}

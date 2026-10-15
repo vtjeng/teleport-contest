@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C detect.c:dosearch0 explicit swallowed Norep branch. HighHP ordinary human, hostile slow trapper,12 source movement allocations (3trapper actions) before explicit search twice. Actual swallow and What are you looking for? The exit? message required. No adjacent search RNG or hidden object body claim; target miss must not count. Initial20-route plan replacement before this route JS; raw earlier-packet exact search no swallowed-search hit.",
+  "segments": [
+    {
+      "seed": 76106113,
+      "datetime": "20970316151400",
+      "nethackrc": "OPTIONS=name:v76-swallowed-explicit-search-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        #wizgenesis\nhostile trapper\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        s                        s                        "
+    }
+  ]
+}

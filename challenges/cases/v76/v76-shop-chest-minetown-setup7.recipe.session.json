@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C lock.c:breakchestlock destroyit TRUE costly-spot billing. Source dungeon.c:lev_by_name resolves special minetown for legal wizard level teleport; first inspect actual generated shop and source map layout. No shop or destruction proof from level menu. No fixture editing or seed scan. Level-teleport getlin does not trim padding; earlier ? appended after literal spaces could not equal question mark. Fresh corrected UI starts CtrlV then literal ? immediately and newline, with no pending text or padding, to inspect source print_dungeon menu. Preserve both invalid-name/padded-input attempts. Correct fresh CtrlV question menu displays canonical proto names: bigrm11, oracle7, Mines branch2. Advance one page using normal tty menu next-page > to inspect minetn selection; no terrain or shop claim yet. C canonical page2 w=minetn depth5. Source lev_by_name only accepts current-branch names even wizard; cross-branch direct minetown/minetn cannot work from main. Choose real menu w (force_dest preserves Mines dnum) then reveal actual map. No JS result used for selection. Prior shop entry was deserted because debug_mongen prevents makemon even explicit shopkeeper creation (makemon1168). Source correction enables monsters before level generation; retain menu scout and inspect new actual map before coordinate selection. No fixed prior coordinates reused.",
+  "segments": [
+    {
+      "seed": 76106111,
+      "datetime": "20970316141200",
+      "nethackrc": "OPTIONS=name:v76-shop-chest-minetown-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n\n                        \u0016?\n>w                                        #wizmap\n                        "
+    }
+  ]
+}

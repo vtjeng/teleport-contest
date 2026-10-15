@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C lock.c:breakchestlock destroyit TRUE costly-spot billing. Source dungeon.c:lev_by_name resolves special minetown for legal wizard level teleport; first inspect actual generated shop and source map layout. No shop or destruction proof from level menu. No fixture editing or seed scan. Human-readable minetown name not resolved and input remains level prompt. Use documented ? menu from that C prompt to inspect canonical special-level selection, not guess another seed or edit level state.",
+  "segments": [
+    {
+      "seed": 76106111,
+      "datetime": "20970316141200",
+      "nethackrc": "OPTIONS=name:v76-shop-chest-minetown-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0016minetown\n                                        #wizmap\n                        ?\n"
+    }
+  ]
+}

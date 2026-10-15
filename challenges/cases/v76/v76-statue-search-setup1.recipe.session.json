@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C detect.c:dosearch0 adjacent unseen STATUE_TRAP -> trap.c:activate_statue_trap with shatter=false. Source wizard floor terrain replaces starting stairs legitimately, then statue trap creation default unseen; first inspect actual statue/trap creation and neighbor map before leaving it and searching. Existing v21 and A42 hero stepping onto trap are different caller, not search. No hypothetical activation or fixture injection.",
+  "segments": [
+    {
+      "seed": 76106114,
+      "datetime": "20970316151400",
+      "nethackrc": "OPTIONS=name:v76-statue-search-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017floor\n                        \u0017statue trap\n                        #wizmap\n                        "
+    }
+  ]
+}
