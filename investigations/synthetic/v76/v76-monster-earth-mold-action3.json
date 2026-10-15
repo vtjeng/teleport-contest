@@ -1,0 +1,54 @@
+{
+  "session": "synthetic/v76/v76-monster-earth-mold-action3",
+  "corpus": "synthetic",
+  "batch": "v76",
+  "caseId": "v76-monster-earth-mold-action3",
+  "manifestPath": "challenges/manifests/v76.json",
+  "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+  "recordingSha256": "aced37fce26f192d075714a64392fbd87d74b16018f4a6eff2b8becd4bdc45b9",
+  "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+  "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+  "remainingScreens": 584,
+  "recordedSteps": 584,
+  "status": "complete",
+  "commit": "18e50da582038fb8874a80284f192b606e9faeaf",
+  "mismatch": {
+    "session": "synthetic/v76/v76-monster-earth-mold-action3",
+    "remainingScreens": 584,
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: dmonsfree: 1 removed does not match 0 pending",
+    "metrics": {
+      "screens": { "matched": 0, "total": 584 },
+      "rng": { "matched": 0, "total": 2567 },
+      "cursors": { "matched": 0, "total": 584 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "dmonsfree: 1 removed does not match 0 pending",
+      "step": null
+    }
+  },
+  "summary": "The admitted prefix matches through the monster reading the Earth scroll. C then drops a boulder on a mold and calls mon.c:mondied after the non-player kill message. JavaScript records mondied as unported and leaves the dead monster attached; a later dmonsfree check stops the replay. The existing JavaScript mondied implementation already covers the death and corpse path, so this task wires it into read.js:drop_boulder_on_monster.",
+  "source": {
+    "file": "read.c",
+    "functions": ["drop_boulder_on_monster"],
+    "branch": "When the boulder reduces a monster below one hit point, drop_boulder_on_monster calls killed for a hero-caused death; otherwise it prints the killed message and calls mon.c:mondied. The selected MUSE_SCR_EARTH caller passes byu=false for every square in its surrounding-square loop.",
+    "callers": [
+      "muse.c:use_offensive handles MUSE_SCR_EARTH, consumes the scroll, then calls read.c:drop_boulder_on_monster(x, y, confused, FALSE) for suitable neighboring squares.",
+      "js/muse.js:use_offensive reaches js/read.js:drop_boulder_on_monster with byu=false while simulating the monster's Earth scroll action.",
+      "js/read.js:drop_boulder_on_monster currently emits the non-player kill message and records note_unported('mon.c mondied'); the existing js/mon.js:mondied implementation calls mondead, then corpse_chance and make_corpse when appropriate."
+    ],
+    "dependencies": ["mon.c:mondied"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v76 admission evaluation records the full case as stopped with error dmonsfree: 1 removed does not match 0 pending. The saved accepted-boundary prefix in /home/vtjeng/development/vtjeng/teleport-contest/.cache/prep40-recovery/prep76/logs/accepted-boundary-prefix-v76-monster-earth-mold-action3.json matches 2,479 RNG calls, 404 screens, and 404 cursors before the error.",
+    "C read.c:drop_boulder_on_monster at lines 2341-2414 subtracts boulder damage and, when byu is false and DEADMONSTER is true, prints the kill message and calls mondied(mtmp). C mon.c:mondied at lines 3251-3262 calls mondead, then creates a corpse only when the monster remains dead and corpse_chance plus terrain eligibility permit it.",
+    "C muse.c:use_offensive at lines 1899-1934 consumes MUSE_SCR_EARTH and calls drop_boulder_on_monster with FALSE for suitable neighboring squares, establishing the selected production entry point.",
+    "JavaScript js/read.js:drop_boulder_on_monster at lines 2438-2446 mirrors the non-player kill message but currently records note_unported('mon.c mondied'). JavaScript js/mon.js:mondied already implements the C death/corpse flow and is imported by other production callers; read.js imports related mon.js functions from that module.",
+    "The next implementation step is to import and await the existing mondied(monster, state, env) at this exact non-player-death branch, then verify the admitted v76 recording and replace the stale source assertion in scripts/read-earth.test.mjs."
+  ]
+}
