@@ -1,0 +1,56 @@
+{
+  "session": "synthetic/v75/v75-glib-self-stethoscope-action1",
+  "remainingScreens": 50,
+  "recordedSteps": 227,
+  "corpus": "synthetic",
+  "batch": "v75",
+  "caseId": "v75-glib-self-stethoscope-action1",
+  "manifestPath": "challenges/manifests/v75.json",
+  "manifestSha256": "870c7ca83e7e5e4f26ee492a289d903858a34cf02a3d61969330a25886086800",
+  "recordingSha256": "2204fc04ed1d3818358fd216a33edca24919eeb3c2766b58aab36d73e525482c",
+  "evaluationPath": "challenges/evaluations/admission-abc60e89302029bc1f415e6eb8709cbea7454144-v75.json",
+  "evaluationCommit": "abc60e89302029bc1f415e6eb8709cbea7454144",
+  "status": "complete",
+  "mismatch": {
+    "remainingScreens": 50,
+    "previousScreensMatched": 177,
+    "regression": false,
+    "passed": false,
+    "metrics": {
+      "screens": { "matched": 177, "total": 227 },
+      "rng": { "matched": 3082, "total": 3082 },
+      "cursors": { "matched": 177, "total": 227 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "step": 177,
+      "key": ".",
+      "location": { "segmentIndex": 0, "stepIndex": 177 },
+      "c": "Status of wizard (fervently neutral):  Level 1  HP 13(13)  AC 10, slippery fingers.",
+      "javascript": "throws UnsupportedEnlightenmentError before drawing the report"
+    },
+    "session": "synthetic/v75/v75-glib-self-stethoscope-action1"
+  },
+  "summary": "The self-directed stethoscope reaches the GLIB branch in insight.c:ustatusline(), but JavaScript treats GLIB as an unsupported condition and throws before printing the status line. C reads only u.uprops[GLIB].intrinsic, appends ', slippery ' plus fingers_or_gloves(TRUE), adds the timeout suffix in wizard mode, and then continues with later clauses. The full ustatusline() function is the claimed source scope, including its final visible-region clause; that clause is separately refused in JavaScript and must be ported with the same source ordering and swallowed-region guard.",
+  "source": {
+    "file": "insight.c",
+    "branch": "use_stethoscope() calls ustatusline() for a self-directed horizontal listen; with GLIB active, ustatusline() appends the slippery-hands phrase before trapped, movement, concealment, invisibility, holder, visible-region, and final status output. The later region phrase is omitted while swallowed and distinguishes poison gas from vapor using reg_damg().",
+    "functions": [ "ustatusline" ],
+    "callers": [
+      "apply.c:use_stethoscope() calls ustatusline() when confdir(FALSE) leaves u.dx and u.dy zero; js/apply.js:use_stethoscope() awaits ustatusline(state) on the corresponding production branch."
+    ],
+    "dependencies": [
+      "do_wear.c:fingers_or_gloves(TRUE) is already implemented by js/do_wear.js:fingers_or_gloves().",
+      "region.c:visible_region_at() and reg_damg() already have JavaScript counterparts in js/region.js; the source check and returned region damage still need to match C's visibility and TTL rules."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The official v75 evaluation reports 177/227 screens and cursors, all 3082 RNG calls, with the first stop at zero-based step 177 on '.'; the C recording prints 'Status of wizard (fervently neutral):  Level 1  HP 13(13)  AC 10, slippery fingers.'.",
+    "nethack-c/upstream/src/apply.c:318-382 calls ustatusline() after confdir(FALSE) when u.dx and u.dy are both zero. The recipe grants the wizard character Glib, then applies an uncursed stethoscope to self; the recording reaches that call at step 177 with no RNG divergence.",
+    "nethack-c/upstream/src/insight.c:3402-3489 appends the GLIB clause at 3453-3454 using the intrinsic-only Glib macro from include/youprop.h:112, then calls fingers_or_gloves(TRUE); in wizard mode it appends the remaining timeout bits. It later adds a visible-region phrase only when the hero is not swallowed and a visible, non-expired region contains the hero.",
+    "js/insight.js:3052-3063 lists GLIB in UNPORTED_USTATUS_CONDITIONS and ustatusline() throws before report construction when that intrinsic/extrinsic superset is truthy. Its final visible-region branch also throws instead of appending the C phrase.",
+    "The planned implementation scope is the complete insight.c:ustatusline() function, with the production caller already wired through js/apply.js:2674. Existing helper implementations in js/do_wear.js and js/region.js supply the C counterparts; no caller edits are currently indicated."
+  ],
+  "commit": "1d77f775a06167ceaeed550e5c61c4daa9600cfe"
+}
