@@ -686,16 +686,23 @@ test('hurtle_step() maps an unseen collision on the planned level only', async (
 });
 
 test('dothrow petrification call sites use minstapetrify in C order', async () => {
+    const wizardCommandsC = readFileSync(
+        new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url), 'utf8',
+    );
     const cHurtleStart = DOTHROW_C.indexOf(
         'hurtle_step(genericptr_t arg, coordxy x, coordxy y)',
     );
     const cHurtleEnd = DOTHROW_C.indexOf('\n/* used by mhurtle_step()', cHurtleStart);
     const cMHurtleStart = DOTHROW_C.indexOf('mhurtle_step(genericptr_t arg');
     const cMHurtleEnd = DOTHROW_C.indexOf('\n/*\n * The player moves', cMHurtleStart);
+    const cTelekinesisStart = wizardCommandsC.indexOf('wiz_telekinesis(void)');
+    const cTelekinesisEnd = wizardCommandsC.indexOf('\nRESTORE_WARNING_CONDEXPR_IS_CONSTANT',
+        cTelekinesisStart);
     const cThrowStart = DOTHROW_C.indexOf('\nthitmonst(\n');
     const cThrowEnd = DOTHROW_C.indexOf('\n#undef special_obj_hits_leader', cThrowStart);
     const cHurtle = DOTHROW_C.slice(cHurtleStart, cHurtleEnd);
     const cMHurtle = DOTHROW_C.slice(cMHurtleStart, cMHurtleEnd);
+    const cTelekinesis = wizardCommandsC.slice(cTelekinesisStart, cTelekinesisEnd);
     const cThrow = DOTHROW_C.slice(cThrowStart, cThrowEnd);
     const jsHurtle = DOTHROW_JS.slice(
         DOTHROW_JS.indexOf('export async function hurtle_step('),
@@ -714,6 +721,7 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
     );
     assert.ok(cHurtleStart >= 0 && cHurtleEnd > cHurtleStart);
     assert.ok(cMHurtleStart >= 0 && cMHurtleEnd > cMHurtleStart);
+    assert.ok(cTelekinesisStart >= 0 && cTelekinesisEnd > cTelekinesisStart);
     assert.ok(cThrowStart >= 0 && cThrowEnd > cThrowStart);
     assert.match(cHurtle,
         /touch_petrifies\(mon->data\)[\s\S]*?!uarmu && !uarm && !uarmc[\s\S]*?instapetrify\(svk\.killer\.name\);/u);
@@ -722,6 +730,10 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
     assert.equal((cMHurtle.match(/minstapetrify\(/gu) ?? []).length, 3);
     assert.match(cMHurtle,
         /minstapetrify\(mon, !svc\.context\.mon_moving\);[\s\S]*?minstapetrify\(mtmp, !svc\.context\.mon_moving\);[\s\S]*?minstapetrify\(mon, TRUE\);/u);
+    assert.match(cMHurtle,
+        /else if \(u_at\(x, y\)\)[\s\S]*?Snprintf\(svk\.killer\.name[\s\S]*?instapetrify\(svk\.killer\.name\);[\s\S]*?newsym\(u\.ux, u\.uy\);/u);
+    assert.match(cTelekinesis,
+        /wiz_telekinesis\(void\)[\s\S]*?mhurtle\(mtmp, u\.dx, u\.dy, 6\);/u);
     assert.match(cThrow,
         /if \(obj->otyp == CORPSE && touch_petrifies\(&mons\[obj->corpsenm\]\)\)[\s\S]*?minstapetrify\(u\.ustuck, TRUE\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj\);/u);
     assert.match(jsHurtle,
@@ -731,6 +743,9 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
         /await minstapetrify\(mon, true, state,[\s\S]*?await wake_nearto\(x, y, 10, \{ state, random, message \}\);/u);
     assert.match(jsMHurtle,
         /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?newsym\(monster\.mx, monster\.my\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?newsym\(otherMonster\.mx, otherMonster\.my\);[\s\S]*?await minstapetrify\(monster, true/u);
+    assert.match(jsMHurtle,
+        /state\.svk\.killer\.name = `being hit by \$\{name\}`;[\s\S]*?await instapetrify\(state\.svk\.killer\.name, state, env\);[\s\S]*?newsym\(state\.u\.ux, state\.u\.uy\);/u);
+    assert.doesNotMatch(jsMHurtle, /note_unported\('trap\.c instapetrify'\)/u);
     assert.match(jsThrow,
         /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj, \{ state \}\);/u);
     assert.doesNotMatch(DOTHROW_JS, /note_unported\('trap\.c minstapetrify'\)/u);

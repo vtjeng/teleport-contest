@@ -827,7 +827,7 @@ export async function mhurtle_step(arg, x, y) {
                 env,
             );
             state.svk.killer.name = `being hit by ${name}`;
-            note_unported('trap.c instapetrify');
+            await instapetrify(state.svk.killer.name, state, env);
             newsym(state.u.ux, state.u.uy);
         }
     }
