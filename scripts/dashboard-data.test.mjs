@@ -758,11 +758,11 @@ test('prepared submissions remain visible separately from accepted batches await
     assert.doesNotMatch(html, /Ready batches awaiting admission/u);
 });
 
-test('primary dashboard sections put sessions before activity and historical detail', () => {
+test('primary dashboard sections put the queue and activity before sessions and score history', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    const positions = ['id="stats"', 'id="pendingMainWorkTitle"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',
-        'class="diagnostics"', 'id="timeline"', 'id="integrationDisclosure"',
-        'id="goalTable"']
+    const positions = ['id="stats"', 'id="pendingMainWorkTitle"', 'id="workerActivityTitle"',
+        'id="timeline"', 'id="integrationDisclosure"', 'id="challengeTitle"', 'id="scoreHistoryTitle"',
+        'class="diagnostics"', 'id="goalTable"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b));

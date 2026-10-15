@@ -906,60 +906,8 @@ canvas {
   <div class="activity-backlog" id="pendingMainWork"></div>
 </section>
 
-<section class="section" aria-labelledby="scoreHistoryTitle">
-  <h2 class="section-title" id="scoreHistoryTitle">Screen matches over time</h2>
-  <div class="chart-wrap">
-    <div class="chart-toolbar">
-      <span class="chart-range" id="progressRange"></span>
-      <div class="history-view-controls">
-        <div class="history-controls" role="group" aria-label="Chart units">
-          <button type="button" class="chart-reset" id="progressMode-screens" aria-pressed="true">Screens</button>
-          <button type="button" class="chart-reset" id="progressMode-percent" aria-pressed="false">%</button>
-        </div>
-        <details class="batch-picker" id="historyBatchPicker">
-          <summary id="historyBatchSummary">Batches</summary>
-          <div class="batch-picker-options" id="historyBatchOptions" role="group" aria-label="Visible challenge batches"></div>
-        </details>
-        <select id="progressWindow" aria-label="Time range">
-          <option value="1">1d</option><option value="7" selected>7d</option><option value="30">30d</option><option value="all">All</option><option value="custom" disabled hidden>Custom</option>
-        </select>
-      </div>
-    </div>
-    <div class="legend" id="progressLegend"></div>
-
-    <div class="score-inspection">
-      <div class="readout-heading"><time id="progressReadoutDate"></time><button type="button" class="chart-reset" id="progressClearPin" disabled>Unpin</button></div>
-      <div id="progressReadout" aria-live="polite"></div>
-    </div>
-    <div class="history-plot"><h3>Development set</h3><canvas id="developmentChart" class="score-history-canvas" tabindex="0"></canvas></div>
-    <div id="challengeHistoryPlots"></div>
-    <div class="history-navigator">
-      <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the development set and synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
-    </div>
-    <p class="history-help">Synthetic axes start near each batch’s lowest recorded match.</p>
-  </div>
-</section>
-
-<section class="section" aria-labelledby="challengeTitle">
-  <h2 class="section-title" id="challengeTitle">Sessions</h2>
-  <div class="chart-wrap" id="challengePanel">
-
-    <div id="challengeBatches"></div>
-    <div class="session-toolbar"><p class="table-note" id="sessionSummary"></p><label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="sessionShowAll">Show all sessions</label></div>
-    <div id="challengeCards"></div>
-    <div class="goal-table-wrap" id="challengeTableWrap">
-      <table class="goal-table" id="challengeTable"></table>
-    </div>
-    <details class="session-measurements"><summary>Measurement details</summary><p id="sessionMeasurementInfo"></p><p>Development initial scores start at zero; synthetic initial scores come from each case’s first admitted evaluation. Excluded cases remain in raw scores and appear under Show all sessions.</p></details>
-  </div>
-</section>
-
-<section class="diagnostics">
-
-
-
-<div class="section">
-  <h3 class="section-title">Worker activity</h3>
+<section class="section" aria-labelledby="workerActivityTitle">
+  <h3 class="section-title" id="workerActivityTitle">Worker activity</h3>
   <p class="subtitle" id="activitySnapshotTime"></p>
   <div class="activity-controls">
     <div class="activity-navigation">
@@ -995,7 +943,57 @@ canvas {
     </details>
 
   </div>
-</div>
+</section>
+
+<section class="section" aria-labelledby="challengeTitle">
+  <h2 class="section-title" id="challengeTitle">Sessions</h2>
+  <div class="chart-wrap" id="challengePanel">
+
+    <div id="challengeBatches"></div>
+    <div class="session-toolbar"><p class="table-note" id="sessionSummary"></p><label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="sessionShowAll">Show all sessions</label></div>
+    <div id="challengeCards"></div>
+    <div class="goal-table-wrap" id="challengeTableWrap">
+      <table class="goal-table" id="challengeTable"></table>
+    </div>
+    <details class="session-measurements"><summary>Measurement details</summary><p id="sessionMeasurementInfo"></p><p>Development initial scores start at zero; synthetic initial scores come from each case’s first admitted evaluation. Excluded cases remain in raw scores and appear under Show all sessions.</p></details>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="scoreHistoryTitle">
+  <h2 class="section-title" id="scoreHistoryTitle">Screen matches over time</h2>
+  <div class="chart-wrap">
+    <div class="chart-toolbar">
+      <span class="chart-range" id="progressRange"></span>
+      <div class="history-view-controls">
+        <div class="history-controls" role="group" aria-label="Chart units">
+          <button type="button" class="chart-reset" id="progressMode-screens" aria-pressed="true">Screens</button>
+          <button type="button" class="chart-reset" id="progressMode-percent" aria-pressed="false">%</button>
+        </div>
+        <details class="batch-picker" id="historyBatchPicker">
+          <summary id="historyBatchSummary">Batches</summary>
+          <div class="batch-picker-options" id="historyBatchOptions" role="group" aria-label="Visible challenge batches"></div>
+        </details>
+        <select id="progressWindow" aria-label="Time range">
+          <option value="1">1d</option><option value="7" selected>7d</option><option value="30">30d</option><option value="all">All</option><option value="custom" disabled hidden>Custom</option>
+        </select>
+      </div>
+    </div>
+    <div class="legend" id="progressLegend"></div>
+
+    <div class="score-inspection">
+      <div class="readout-heading"><time id="progressReadoutDate"></time><button type="button" class="chart-reset" id="progressClearPin" disabled>Unpin</button></div>
+      <div id="progressReadout" aria-live="polite"></div>
+    </div>
+    <div class="history-plot"><h3>Development set</h3><canvas id="developmentChart" class="score-history-canvas" tabindex="0"></canvas></div>
+    <div id="challengeHistoryPlots"></div>
+    <div class="history-navigator">
+      <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the development set and synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
+    </div>
+    <p class="history-help">Synthetic axes start near each batch’s lowest recorded match.</p>
+  </div>
+</section>
+
+<section class="diagnostics">
 
 <details class="section dashboard-disclosure" id="parkedTaskHistory"><summary id="parkedTaskSummary"><span>Paused worker tasks</span><span class="disclosure-count" id="parkedTaskCount"></span></summary><div class="activity-backlog" id="parkedTasks"></div></details>
 
