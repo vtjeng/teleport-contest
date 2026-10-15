@@ -11,8 +11,8 @@ import { PROJECT_ROOT } from './scoring-workspace.mjs';
 import { boundedMain } from './run-bounded.mjs';
 import { requireCleanCheckpointTree } from './checkpoint-checks.mjs';
 
-// A trial setting, not a runtime guarantee. Increase jobs as the corpus grows.
-export const CASES_PER_JOB = 100;
+// Shared by checkpoint replays and new-case admission baselines.
+export const CASES_PER_JOB = 300;
 const OUTPUT = '.cache/synthetic-ci';
 
 export function groupCases(batches, count = CASES_PER_JOB) {
