@@ -31,7 +31,7 @@
       "step": null
     }
   },
-  "summary": "The admitted prefix matches through the monster reading the Earth scroll. C then drops a boulder on a mold and calls mon.c:mondied after the non-player kill message. JavaScript records mondied as unported and leaves the dead monster attached; a later dmonsfree check stops the replay. The existing JavaScript mondied implementation already covers the death and corpse path, so this task wires it into read.js:drop_boulder_on_monster.",
+  "summary": "The admitted prefix matches through the monster reading the Earth scroll. C then drops a boulder on a mold and calls mon.c:mondied after the non-player kill message. JavaScript previously recorded mondied as unported, leaving the dead monster attached and causing a later dmonsfree failure. Awaiting the existing JavaScript mondied implementation now reproduces the death and corpse path; the complete v76 recording matches.",
   "source": {
     "file": "read.c",
     "functions": ["drop_boulder_on_monster"],
@@ -44,11 +44,17 @@
     "dependencies": ["mon.c:mondied"]
   },
   "goalKind": "divergence-fix",
+  "verifiedMetrics": {
+    "screens": { "matched": 584, "total": 584 },
+    "rng": { "matched": 2567, "total": 2567 },
+    "cursors": { "matched": 584, "total": 584 },
+    "error": null
+  },
   "evidence": [
     "The v76 admission evaluation records the full case as stopped with error dmonsfree: 1 removed does not match 0 pending. The saved accepted-boundary prefix in /home/vtjeng/development/vtjeng/teleport-contest/.cache/prep40-recovery/prep76/logs/accepted-boundary-prefix-v76-monster-earth-mold-action3.json matches 2,479 RNG calls, 404 screens, and 404 cursors before the error.",
-    "C read.c:drop_boulder_on_monster at lines 2341-2414 subtracts boulder damage and, when byu is false and DEADMONSTER is true, prints the kill message and calls mondied(mtmp). C mon.c:mondied at lines 3251-3262 calls mondead, then creates a corpse only when the monster remains dead and corpse_chance plus terrain eligibility permit it.",
+    "C read.c:drop_boulder_on_monster at lines 2341-2410 subtracts boulder damage and, when byu is false and DEADMONSTER is true, prints the kill message and calls mondied(mtmp). C mon.c:mondied at lines 3253-3263 calls mondead, then creates a corpse only when the monster remains dead and corpse_chance plus terrain eligibility permit it.",
     "C muse.c:use_offensive at lines 1899-1934 consumes MUSE_SCR_EARTH and calls drop_boulder_on_monster with FALSE for suitable neighboring squares, establishing the selected production entry point.",
     "JavaScript js/read.js:drop_boulder_on_monster at lines 2438-2446 mirrors the non-player kill message but currently records note_unported('mon.c mondied'). JavaScript js/mon.js:mondied already implements the C death/corpse flow and is imported by other production callers; read.js imports related mon.js functions from that module.",
-    "The next implementation step is to import and await the existing mondied(monster, state, env) at this exact non-player-death branch, then verify the admitted v76 recording and replace the stale source assertion in scripts/read-earth.test.mjs."
+    "The implementation imports and awaits mondied(monster, state, env) at this non-player-death branch. The updated scripts/read-earth.test.mjs pins that call before wake_nearto. The exact admitted v76 replay and synthetic-range-evidence check both match all 584 screens, 2,567 RNG calls, and 584 cursors with no error."
   ]
 }
