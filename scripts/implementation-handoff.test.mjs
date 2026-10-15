@@ -12,6 +12,7 @@ import {createLedger, recordEvent, summarizeLedger} from './worker-state.mjs';
 import {deliveryGit, verifyEvent} from './worker-delivery.mjs';
 import {challengeInputSnapshot, corpusDigest, digest, totalsFor} from './challenge-results.mjs';
 import {COLUMNS, readRows} from './score-log.mjs';
+import {acceptedMain} from './worker-backlog.mjs';
 
 function fixture(t, {dependent = true} = {}) {
     const parent = mkdtempSync(join(tmpdir(), 'implementation-group-')), root = join(parent, 'main');
@@ -122,6 +123,79 @@ test('implementation group CLI rejects missing, duplicate and unrelated flags', 
     for (const args of [[], ['integrate'], ['split', '--ledger', 'x'], ['accept', '--ledger', 'x', '--tasks', 'A1'],
         ['plan', '--ledger', 'x', '--ledger', 'y']]) assert.throws(() => parseImplementationArgs(args), /Usage/);
 });
+
+test('published tooling advances the frozen baseline without reopening a delivery', t => {
+    const f = fixture(t);
+    f.save('.agents/tooling.md', 'Standalone tooling, not a worker source fix.\n');
+    f.git('add', '.agents/tooling.md'); f.git('commit', '-qm', 'Validated tooling');
+    const tested = f.git('rev-parse', 'HEAD'), checkpoint = f.checkpoint(tested, []);
+    // Goal registration is a permitted report descendant, as in the real pilot.
+    const goals = JSON.parse(readFileSync(join(f.root, 'GOALS.json')));
+    goals.note = 'Worker goals registered without accepting them.';
+    f.save('GOALS.json', goals); f.git('add', 'GOALS.json'); f.git('commit', '-qm', 'Register pending goals');
+    const commit = f.git('rev-parse', 'HEAD');
+    f.git('init', '--bare', '-q', join(f.parent, 'remote.git'));
+    f.git('remote', 'add', 'origin', join(f.parent, 'remote.git'));
+    f.git('push', '-q', 'origin', 'main'); // Disposable local publication, never GitHub.
+    assert.throws(() => planImplementationGroup(f.options, f.root), /unvalidated changes/u);
+    const before = f.state();
+    const event = {id: 'published-tooling', type: 'tooling-published', tested, commit, checkpoint};
+    const record = () => execFileSync(process.execPath, [fileURLToPath(new URL('./worker-state.mjs', import.meta.url)),
+        'event', '--file', join(f.root, f.options.ledger), '--json', JSON.stringify(event)],
+    {cwd: f.root, encoding: 'utf8'});
+    record(); // Exercise the real coordinator CLI, verification and atomic writer.
+    const recorded = readFileSync(join(f.root, f.options.ledger), 'utf8');
+    record();
+    assert.equal(readFileSync(join(f.root, f.options.ledger), 'utf8'), recorded, 'retry preserves the first baseline observation');
+    assert.deepEqual(f.state().tasks, before.tasks, 'recording the baseline does not accept or reopen tasks');
+    assert.deepEqual(f.state().deliveries, before.deliveries, 'original delivery and publication receipts remain unchanged');
+    assert.equal(acceptedMain(f.state()).commit, commit);
+    const plan = planImplementationGroup(f.options, f.root);
+    assert.equal(plan.base, commit); assert.equal(plan.baseline, checkpoint);
+    const group = integrateImplementationGroup(f.options, f.root);
+    f.checkpoint(group.commit);
+    const accepted = acceptImplementationGroup(f.options, f.root);
+    assert.equal(accepted.tasks.length, 4, 'all four source deliveries are accepted from the standalone tooling baseline');
+    assert.equal(acceptedMain(f.state()).commit, group.commit, 'later source acceptance supersedes the tooling baseline');
+});
+
+test('standalone tooling rejects failed evidence, unvalidated descendants and unpublished heads', t => {
+    const f = fixture(t);
+    f.save('.agents/tooling.md', 'Tooling fixture.\n'); f.git('add', '.agents/tooling.md');
+    f.git('commit', '-qm', 'Tooling');
+    const tested = f.git('rev-parse', 'HEAD'), checkpoint = f.checkpoint(tested, [], false);
+    f.git('init', '--bare', '-q', join(f.parent, 'remote.git'));
+    f.git('remote', 'add', 'origin', join(f.parent, 'remote.git'));
+    f.git('push', '-q', 'origin', `${f.base}:refs/heads/main`);
+    const event = {id: 'tooling-proof', type: 'tooling-published', tested, commit: tested, checkpoint};
+    assert.throws(() => verifyEvent(f.root, f.state(), event), /passing exact-commit/u);
+    f.checkpoint(tested, []);
+    assert.throws(() => verifyEvent(f.root, f.state(), event), /remote main/u);
+    f.git('push', '-q', 'origin', 'main');
+    assert.equal(verifyEvent(f.root, f.state(), event).commit, tested);
+    const summary = JSON.parse(readFileSync(checkpoint));
+    f.save(checkpoint.slice(f.root.length + 1), {...summary, executionCommit: f.base});
+    assert.throws(() => verifyEvent(f.root, f.state(), event), /passing exact-commit/u);
+    f.save(checkpoint.slice(f.root.length + 1), summary);
+    f.save(checkpoint.slice(f.root.length + 1), {...summary, timestamp: 'modified-after-import'});
+    assert.throws(() => verifyEvent(f.root, f.state(), event), /imported result/u);
+    f.save(checkpoint.slice(f.root.length + 1), summary);
+    f.save('.agents/later.md', 'Not covered by the saved checkpoint.\n'); f.git('add', '.agents/later.md');
+    f.git('commit', '-qm', 'Unvalidated later tooling'); f.git('push', '-q', 'origin', 'main');
+    assert.throws(() => verifyEvent(f.root, f.state(), {...event, commit: f.git('rev-parse', 'HEAD')}), /unvalidated changes/u);
+});
+
+for (const path of ['js/f1.js', 'challenges/cases/new.recipe.json']) {
+    test(`standalone tooling cannot accept ${path} even with a passing checkpoint`, t => {
+        const f = fixture(t);
+        // A game edit and an added corpus input both require normal acceptance.
+        f.save(path, path.endsWith('.js') ? 'export function f1() { return 1; }\n' : '{}\n');
+        f.git('add', path); f.git('commit', '-qm', 'Change outside tooling acceptance');
+        const tested = f.git('rev-parse', 'HEAD'), checkpoint = f.checkpoint(tested);
+        assert.throws(() => verifyEvent(f.root, f.state(), {id: 'reject-nontooling', type: 'tooling-published',
+            tested, commit: tested, checkpoint}), /only tooling and bookkeeping/u);
+    });
+}
 
 test('four dependent implementation tasks share one checkpoint and common baseline, then one publication', t => {
     const f = fixture(t), plan = planImplementationGroup(f.options, f.root);

@@ -170,6 +170,12 @@ After a ledger protocol update, workers with older checkouts use the accepted
 Main checkout's `worker-state.mjs` from their own assigned checkout until they
 can merge accepted Main at a clean boundary.
 
+After publishing a standalone tooling change, record a `tooling-published`
+event with its tested commit, published commit and saved checkpoint.
+This advances `accepted-main` without reopening deliveries or changing scores.
+The command rejects game or corpus changes, failed or mismatched evidence,
+and publications that do not match local and remote Main.
+
 ## Prep acceptance groups
 
 At a safe boundary, acknowledge the ready Prep submissions, then run

@@ -71,6 +71,7 @@ by this command, not the caller. Required fields by type:
   implementation-released: tasks (entire unaccepted group), integration, reason
   validated: task, passed (boolean), checkpoint (absolute summary file)
   accepted: task
+  tooling-published: tested (exact checkpoint SHA), commit (published SHA), checkpoint (absolute summary)
   published: task, commit (published SHA, possibly a bookkeeping descendant)
              optional supplementalCheckpoint (passing summary for a validated descendant)
              optional supplementalAdmission (hosted new-case baseline receipt)
@@ -98,6 +99,10 @@ evaluations after the tested commit. Source commits must be in tested history;
 evaluations must match their named source commit's challenge manifest.
 Historical evaluations are publishable records, not current acceptance evidence.
 Reports must be regular non-executable files. Other input changes need validation.
+tooling-published records a standalone, passing imported checkpoint already
+published to local and remote Main. Only tooling and bookkeeping may change
+since the accepted baseline. It advances accepted-main without reopening a
+delivery, accepting worker source code, recording scores, or changing tasks.
 This publication allowance does not broaden checkpoint reuse or rewrite receipts.
 
 submit derives the ready event, commit list, parents and changed paths from Git.
@@ -169,6 +174,7 @@ PID for inspection. Never remove a lock until its writer is confirmed stopped.
 No command discards a legacy ledger, parked task, or unfinished work.`;
 
 const FIELDS = {
+    'tooling-published': ['tested', 'commit', 'checkpoint'],
     register: ['worker', 'worktree', 'branch', 'base', 'handle'],
     observe: ['worker', 'handle', 'processes'],
     connect: ['worker', 'handle'], connected: ['worker', 'handle'],
@@ -279,6 +285,14 @@ function applyEvent(state, event, at) {
     for (const key of Object.keys(event)) check(allowed.includes(key), `unexpected event field: ${key}`);
     for (const key of ['id', 'type', ...FIELDS[type]]) check(Object.hasOwn(event, key), `missing event field: ${key}`);
     identifier(event.id, 'event id');
+    if (type === 'tooling-published') {
+        sha(event.tested, 'tested'); sha(event.commit, 'commit'); absolute(event.checkpoint, 'checkpoint');
+        check(!Object.values(state.tasks).some(task => ['integrating', 'validated'].includes(task.status)),
+            'finish the active integration before advancing the tooling baseline');
+        state.toolingPublications.push({tested: event.tested, commit: event.commit,
+            checkpoint: event.checkpoint, acceptedAt: at});
+        return;
+    }
     if (type === 'prep-probe') {
         identifier(event.task, 'parent task'); identifier(event.probe, 'probe');
         const parent = state.tasks[event.task], previous = state.probes[event.probe];
@@ -606,7 +620,8 @@ function applyEvent(state, event, at) {
 export function summarizeLedger(ledger) {
     validateLedger(ledger);
     const state = { runId: ledger.runId, coordinatorRoot: ledger.coordinatorRoot,
-        coordinator: { handle: null, processes: [] }, workers: {}, tasks: {}, deliveries: {}, reservations: {}, probes: {} };
+        coordinator: { handle: null, processes: [] }, workers: {}, tasks: {}, deliveries: {}, reservations: {}, probes: {},
+        toolingPublications: [] };
     const seen = new Set();
     for (const { at, ...event } of ledger.events) {
         check(!seen.has(event.id), 'duplicate event id in ledger'); seen.add(event.id);

@@ -105,6 +105,15 @@ test('events supply timestamps and exact duplicate notifications preserve them',
     assert.throws(() => recordEvent(once, { ...event, id: 'backdate', at: 'yesterday' }), /unexpected/);
 });
 
+test('a standalone tooling baseline cannot move during an active source integration', () => {
+    const f = fixture();
+    f.assign(); f.ready(); f.send({type: 'integrating', task: 'one', integration: INTEGRATION});
+    const before = f.ledger();
+    assert.throws(() => f.send({type: 'tooling-published', tested: INTEGRATION,
+        commit: INTEGRATION, checkpoint: `${ROOT}/summary.json`}), /finish the active integration/u);
+    assert.deepEqual(f.ledger(), before);
+});
+
 test('publication recovery records a known-by bound without fabricating its duration', () => {
     const f = fixture();
     f.assign(); f.ready(); f.accept();

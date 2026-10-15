@@ -73,12 +73,15 @@ export function reviewTasks(options, taskIds, root = process.cwd()) {
     const baselinePath = options.baseline ? resolve(root, options.baseline) : acceptedMain(state)?.checkpoint;
     const baselineDelivery = Object.values(state.deliveries).find(d => d.acceptedAt
         && (d.checkpoint === baselinePath || d.supplementalCheckpoint === baselinePath));
-    if (!baselinePath || !baselineDelivery)
+    const tooling = state.toolingPublications.find(publication => publication.checkpoint === baselinePath);
+    if (!baselinePath || (!baselineDelivery && !tooling))
         throw new Error('baseline must identify an accepted checkpoint in the shared ledger');
     const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
-    const accepted = baselineDelivery.checkpoint === baselinePath ? baselineDelivery.integration === baseline.commit
-        : baselineDelivery.publishedCommit && isAncestor(root, baselineDelivery.integration, baseline.commit)
-            && isAncestor(root, baseline.commit, baselineDelivery.publishedCommit);
+    const accepted = baselineDelivery
+        ? baselineDelivery.checkpoint === baselinePath ? baselineDelivery.integration === baseline.commit
+            : baselineDelivery.publishedCommit && isAncestor(root, baselineDelivery.integration, baseline.commit)
+                && isAncestor(root, baseline.commit, baselineDelivery.publishedCommit)
+        : tooling.tested === baseline.commit && isAncestor(root, baseline.commit, tooling.commit);
     if (baseline.allPassed !== true || !isAncestor(root, baseline.commit, candidate) || !accepted)
         throw new Error('baseline checkpoint differs from its accepted integration');
     const candidateDirectory = options.evaluations ? resolve(root, options.evaluations) : join(summary.artifacts, 'synthetic');

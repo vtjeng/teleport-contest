@@ -22,7 +22,7 @@ const USAGE = `Usage: node scripts/task-handoff.mjs <review|accept|publish> --ta
   publish: [--queue <saved-combined-work-queue>] [--admission <hosted-admission-receipt>]
 
 review compares saved fixed and synthetic results with the latest accepted checkpoint by
-default; an explicit baseline must also belong to an accepted delivery. Newly
+default; an explicit baseline must also be recorded as accepted in the ledger. Newly
 admitted batches use their first complete recorded baseline when absent from
 that commit. A targeted fix must improve its assigned session without regressions.
 accept enforces the saved verdict and returns the worker handoff; review is optional.

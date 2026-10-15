@@ -12,6 +12,8 @@ import { validInvestigation } from './investigation-cache.mjs';
 import { corpusDigest, validateEvaluation } from './challenge-results.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { readAdmissionReceipt } from './admission-proof.mjs';
+import { readCheckpointResult } from './checkpoint-results.mjs';
+import { acceptedMain } from './worker-backlog.mjs';
 
 const INVESTIGATION_PATH = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u;
 
@@ -358,7 +360,7 @@ function checkCandidate(root, state, task, commit, visited = new Set(), patchIds
 
 export function resolveEventCommits(root, input) {
     const event = structuredClone(input);
-    for (const field of ['base', 'delivery', 'integration', 'commit']) {
+    for (const field of ['base', 'delivery', 'integration', 'commit', 'tested']) {
         if (event[field] !== undefined) event[field] = resolveCommit(root, event[field]);
     }
     return event;
@@ -439,10 +441,31 @@ export function verifyPublicationChanges(root, tested, published, admission) {
     }
 }
 
+function verifyPublicMain(root, commit) {
+    check(resolveCommit(root, 'refs/heads/main') === commit, 'local main differs; run sync-main first');
+    const remote = git(root, 'ls-remote', '--exit-code', 'origin', 'refs/heads/main').split(/\s/u)[0];
+    check(remote === commit, 'remote main does not match; publish successfully before recording publication');
+}
+
 export function verifyEvent(root, state, input) {
     const event = resolveEventCommits(root, input);
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
+    if (event.type === 'tooling-published') {
+        const baseline = acceptedMain(state), summary = JSON.parse(readFileSync(event.checkpoint, 'utf8'));
+        check(summary.allPassed === true && summary.commit === event.tested && summary.executionCommit === event.tested,
+            'tooling publication requires a passing exact-commit checkpoint');
+        check(isDeepStrictEqual(summary, readCheckpointResult(root, event.tested)),
+            'tooling checkpoint must match the imported result');
+        check(baseline && isAncestor(root, baseline.commit, event.tested) && isAncestor(root, event.tested, event.commit),
+            'tooling checkpoint must follow accepted Main and precede publication');
+        const changed = git(root, 'diff', '--name-only', '--no-renames', '-z', baseline.commit, event.tested).split('\0').filter(Boolean);
+        check(changed.every(path => BOOKKEEPING_FILES.includes(path) || path === 'AGENTS.md'
+            || /^(?:scripts|\.agents|\.claude|\.codex|\.github)\//u.test(path)),
+        'standalone publication accepts only tooling and bookkeeping, not game or corpus changes');
+        verifyPublicationChanges(root, event.tested, event.commit);
+        verifyPublicMain(root, event.commit);
+    }
     if (event.type === 'prep-probe' && !state.probes[event.probe]) {
         check(git(event.worktree, 'rev-parse', '--path-format=absolute', '--git-common-dir')
             === git(root, 'rev-parse', '--path-format=absolute', '--git-common-dir'),
@@ -504,9 +527,7 @@ export function verifyEvent(root, state, input) {
             tested = summary.commit;
         }
         verifyPublicationChanges(root, tested, event.commit, event.supplementalAdmission);
-        check(resolveCommit(root, 'refs/heads/main') === event.commit, 'local main differs; run sync-main first');
-        const remote = git(root, 'ls-remote', '--exit-code', 'origin', 'refs/heads/main').split(/\s/u)[0];
-        check(remote === event.commit, 'remote main does not match; publish successfully before recording publication');
+        verifyPublicMain(root, event.commit);
     }
     if (event.type === 'publication-confirmed') {
         check(delivery?.acceptedAt && isAncestor(root, delivery.integration, event.commit),
