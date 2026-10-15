@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source correction from planned digesting purple worm to nondigesting fog cloud for same generic lock.c swallowed guard. mhitu.c:AD_PHYS fog cloud damage zero with Amphibious from magical-breathing amulet. This C-only60wait scout locates actual engulf timing; no swallowed guard proof from scout alone.",
+  "segments": [
+    {
+      "seed": 81010801,
+      "datetime": "21010722171000",
+      "nethackrc": "OPTIONS=name:v81-swallowed-key-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed amulet of magical breathing\n                        Pa                        \u0017uncursed skeleton key\n                        #wizgenesis\nhostile fog cloud\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

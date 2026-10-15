@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pit open-door guard. Own C map has clear west floor. Legal wizterrainwish closed door requires initial IRONBARS; create bars then closed door at hero,step west,create actual pit and #sit to fall via dotrap VIASITTING,then open east. Require actual held pit and door before counting; no door or pit assumed from wish intent.",
+  "segments": [
+    {
+      "seed": 81010753,
+      "datetime": "21010720161000",
+      "nethackrc": "OPTIONS=name:v81-pit-open-door-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed credit card\n                        \u0017uncursed unlocked empty chest\n                        i                        \u0017iron bars\n                        \u0017closed door\n                        h                        \u0017pit\n                        #sit\n                        ol                        "
+    }
+  ]
+}

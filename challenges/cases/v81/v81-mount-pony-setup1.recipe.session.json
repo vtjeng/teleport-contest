@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent normal-form mount guard geometry scout. Pauper Knight legally creates tame saddled pony before hallucination,wounded-legs,punishment,body-form variations. No guard claimed from spawn alone.",
+  "segments": [
+    {
+      "seed": 81010731,
+      "datetime": "21010619151000",
+      "nethackrc": "OPTIONS=name:v81-mount-pony-setup1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\ntame saddled pony\n                        "
+    }
+  ]
+}

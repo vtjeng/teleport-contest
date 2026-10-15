@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap source/C protocol correction after two preserved doppelganger setup misses. C explicitly asks Creating human zombie instead; force aligned priest? Legal y accepts actual requested roaming isminion. Scout actual position before saddle guard; no special identity proof inferred from earlier zombies/fighter. Actual force-created aligned cleric is south j from own C map; apply saddle a and require would-mind guard.",
+  "segments": [
+    {
+      "seed": 81010724,
+      "datetime": "21010618141000",
+      "nethackrc": "OPTIONS=name:v81-saddle-priest-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed saddle\n                        #wizgenesis\npeaceful aligned priest\ny                        aaj                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-supported cursed-blade force variation. Actual cursed thoroughly rusty -99 dagger must survive a C forcelock rn2(1099)>962 roll to prove cursed short-circuit; a mere successful ordinary force is not enough. Raise20 for jackal safety; preserve outcomes and actual rolls.",
+  "segments": [
+    {
+      "seed": 81010754,
+      "datetime": "21010720161000",
+      "nethackrc": "OPTIONS=name:v81-force-cursed-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed skeleton key\n                        \u0017cursed thoroughly rusty -99 dagger\n                        \u0017uncursed locked empty chest\n                        i                        #levelchange\n20\n                        wb                        dc                        #force\ny                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        #force\n                        "
+    }
+  ]
+}

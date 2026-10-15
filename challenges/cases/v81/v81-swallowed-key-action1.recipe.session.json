@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source/C-timed swallowed key action. Own nondigesting fog-cloud scout first engulfs at C822; stop same own input prefix immediately after that move,acknowledge More without time,apply carried skeleton key b. Actual lock.c generic u.uswallow refusal required; no purple-worm claim.",
+  "segments": [
+    {
+      "seed": 81010801,
+      "datetime": "21010722171000",
+      "nethackrc": "OPTIONS=name:v81-swallowed-key-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed amulet of magical breathing\n                        Pa                        \u0017uncursed skeleton key\n                        #wizgenesis\nhostile fog cloud\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        ab                        "
+    }
+  ]
+}

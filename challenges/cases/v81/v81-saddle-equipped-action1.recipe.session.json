@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source design. Second carried saddle a and legal tame saddled pony. Observe own target direction before use_saddle already-equipped guard. Own C-observed adjacent target direction; now apply saddle a.",
+  "segments": [
+    {
+      "seed": 81010723,
+      "datetime": "21010618141000",
+      "nethackrc": "OPTIONS=name:v81-saddle-equipped-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed saddle\n                        #wizgenesis\ntame saddled pony\n                        aay                        "
+    }
+  ]
+}

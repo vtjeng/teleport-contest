@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C variation. Actual wounded legs; own pony east,force mount yes then decline explicit heal question. Do not count only old default-no wounded-leg refusal.",
+  "segments": [
+    {
+      "seed": 81010731,
+      "datetime": "21010619151000",
+      "nethackrc": "OPTIONS=name:v81-mount-wounded-action1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\ntame saddled pony\n                        #wizintrinsic\n1000m\n                        #ride\nlyn                        "
+    }
+  ]
+}

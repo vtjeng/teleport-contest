@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C variation. Actual Hallucination before ride; own pony east,decline wizard force then designated driver.",
+  "segments": [
+    {
+      "seed": 81010731,
+      "datetime": "21010619151000",
+      "nethackrc": "OPTIONS=name:v81-mount-hallu-action1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizgenesis\ntame saddled pony\n                        #wizintrinsic\n1000h\n                        #ride\nln                        "
+    }
+  ]
+}

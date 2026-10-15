@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source steed.c:mount_steed form guard precedes target lookup: actual stone-giant hero cannot fit saddle even with wizard force. Create actual tame saddled pony after polymorph; source body guard is qualifying only if C observes fit refusal.",
+  "segments": [
+    {
+      "seed": 81010731,
+      "datetime": "21010619151000",
+      "nethackrc": "OPTIONS=name:v81-mount-incompatible-action1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nstone giant\n                        #wizgenesis\ntame saddled pony\n                        #ride\nly                        "
+    }
+  ]
+}
