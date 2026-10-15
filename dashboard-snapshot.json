@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T03:09:12.110Z",
+  "capturedAt": "2026-10-15T03:39:32.079Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130931,11 +130931,407 @@
         "task": "A2-investigation-v79-demon-talk-20261015",
         "worker": "A2",
         "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v79-candle-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:09:12.649Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating split lit-candle timer propagation from mkobj.c:splitobj into timeout.c:obj_split_timers; will claim the source scope before edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep43-c5571609652b7013561d4a476ae48ea8a7781830",
+        "type": "published",
+        "at": "2026-10-15T03:09:19.051Z",
+        "task": "Prep43",
+        "commit": "c5571609652b7013561d4a476ae48ea8a7781830"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v79-amulet-portal-investigation-20261015",
+        "type": "assign",
+        "at": "2026-10-15T03:09:31.218Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v79-candle-lit-20261015",
+        "type": "assign",
+        "at": "2026-10-15T03:09:35.317Z",
+        "task": "B-investigation-v79-candle-lit-action2-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v79-amulet-portal-20261015",
+        "type": "implement",
+        "at": "2026-10-15T03:10:58.517Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "goal": "divergence-v79-amulet-portal-heat-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v79-candle-lit-20261015",
+        "type": "implement",
+        "at": "2026-10-15T03:11:08.064Z",
+        "task": "B-investigation-v79-candle-lit-action2-20261015",
+        "goal": "fix-v79-split-candle-object-timer-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v79-demon-talk-20261015",
+        "type": "implement",
+        "at": "2026-10-15T03:12:17.284Z",
+        "task": "A2-investigation-v79-demon-talk-20261015",
+        "goal": "fix-minion-demon-talk-v79-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4a5a8b7785c8a170b611b5283c66e1fd6a0165ea",
+        "type": "ready",
+        "at": "2026-10-15T03:18:07.934Z",
+        "task": "B-investigation-v79-candle-lit-action2-20261015",
+        "delivery": "4a5a8b7785c8a170b611b5283c66e1fd6a0165ea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep44-v80-adjudication-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:18:11.413Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep44 reviews one provisional writing failure and13 matching controls after22 source designs and28 valid C pairs; all14 selected routes independently replay identically. Mounted attack target remains deferred."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-after-v79-candle-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:19:01.028Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "V79 candle timer fix is ready; no unowned source-independent queue case is currently available."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep44-review-20261015-root",
+        "type": "activity",
+        "at": "2026-10-15T03:20:31.508Z",
+        "task": "Prep44",
+        "phase": "review",
+        "reason": "Reviewing reduced v80 membership, prior caller coverage, preserved attempts and independent replay evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-v79-wrong-altar-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:20:39.836Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v79 wrong altar amulet disclosure prompt from the source."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4ee3ba3854b0e7eddab21f72f89139fd4c151714",
+        "type": "ready",
+        "at": "2026-10-15T03:20:49.737Z",
+        "task": "A2-investigation-v79-demon-talk-20261015",
+        "delivery": "4ee3ba3854b0e7eddab21f72f89139fd4c151714"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v79-wrong-altar-amulet-action6-20261015",
+        "type": "assign",
+        "at": "2026-10-15T03:20:57.345Z",
+        "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b-v79-candle-4a5a8b77",
+        "type": "received",
+        "at": "2026-10-15T03:21:05.306Z",
+        "task": "B-investigation-v79-candle-lit-action2-20261015",
+        "delivery": "4a5a8b7785c8a170b611b5283c66e1fd6a0165ea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-b-v79-candle-4a5a8b77",
+        "type": "activity",
+        "at": "2026-10-15T03:21:09.786Z",
+        "task": "B-investigation-v79-candle-lit-action2-20261015",
+        "phase": "review",
+        "reason": "Checking immutable source claims, admitted runtime coverage and saved focused/lint results before combined integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8a7b3fde39a482c16303c5625448ba199954d7f6",
+        "type": "ready",
+        "at": "2026-10-15T03:21:14.942Z",
+        "task": "Prep44",
+        "delivery": "8a7b3fde39a482c16303c5625448ba199954d7f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-turn-idle-after-v79-demon-submit-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:21:28.990Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-a2-v79-demons-4ee3ba38",
+        "type": "received",
+        "at": "2026-10-15T03:21:33.442Z",
+        "task": "A2-investigation-v79-demon-talk-20261015",
+        "delivery": "4ee3ba3854b0e7eddab21f72f89139fd4c151714"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep45-v81-20261015",
+        "type": "assign",
+        "at": "2026-10-15T03:22:25.220Z",
+        "task": "Prep45",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-prep44-v80-8a7b3fde",
+        "type": "received",
+        "at": "2026-10-15T03:22:30.253Z",
+        "task": "Prep44",
+        "delivery": "8a7b3fde39a482c16303c5625448ba199954d7f6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v79-wrong-altar-amulet-action6-20261015",
+        "type": "implement",
+        "at": "2026-10-15T03:22:37.101Z",
+        "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+        "goal": "fix-v79-disclose-achievement-prompt-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-055ac47ed3a729768c543be41616a6cf3c8044ec88332637a7e71fa6bb547b50-7704917fabaa7aa788c5b7b0de7b64c834ef8dcc-Prep44",
+        "type": "integrating",
+        "at": "2026-10-15T03:22:41.503Z",
+        "task": "Prep44",
+        "integration": "7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+        "prepGroup": [
+          "Prep44"
+        ],
+        "validationGroup": [
+          "Prep44"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-10c5d4c5092fa34f3cf3f220245d08d048da0a1c",
+        "type": "ready",
+        "at": "2026-10-15T03:22:58.938Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "delivery": "10c5d4c5092fa34f3cf3f220245d08d048da0a1c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep44-checkpoint-wait-root",
+        "type": "activity",
+        "at": "2026-10-15T03:23:07.971Z",
+        "task": "Prep44",
+        "phase": "waiting",
+        "reason": "Hosted checkpoint38675965289 is validating the exact v80 preparation candidate before admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-v79-amulet-10c5d4c5",
+        "type": "received",
+        "at": "2026-10-15T03:23:46.775Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "delivery": "10c5d4c5092fa34f3cf3f220245d08d048da0a1c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-c-v79-amulet-variation",
+        "type": "feedback",
+        "at": "2026-10-15T03:23:50.282Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "delivery": "10c5d4c5092fa34f3cf3f220245d08d048da0a1c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v79-amulet-correction-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:25:41.275Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Adding a second role variation and correcting the sleeping-Wizard recording label."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e02c75b9f22b622278f4e55e4433985caac51f9d",
+        "type": "ready",
+        "at": "2026-10-15T03:26:14.260Z",
+        "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+        "delivery": "e02c75b9f22b622278f4e55e4433985caac51f9d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C-v79-amulet-correction-20261015",
+        "type": "resume",
+        "at": "2026-10-15T03:26:33.911Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4a7455ce3de132cdd49b4dcb492f02b3f3872934",
+        "type": "ready",
+        "at": "2026-10-15T03:26:41.066Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "delivery": "4a7455ce3de132cdd49b4dcb492f02b3f3872934"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b-v79-disclose-e02c75b9",
+        "type": "received",
+        "at": "2026-10-15T03:26:46.672Z",
+        "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+        "delivery": "e02c75b9f22b622278f4e55e4433985caac51f9d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-blocked-v79-step574-followup-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:26:50.251Z",
+        "worker": "B",
+        "state": "blocked",
+        "reason": "Waiting for Root’s v79 disclosure acceptance and checkpoint before claiming the same session’s step-574 score-list follow-up."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-c-v79-amulet-4a7455ce",
+        "type": "received",
+        "at": "2026-10-15T03:27:10.556Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "delivery": "4a7455ce3de132cdd49b4dcb492f02b3f3872934"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep45-v81-source-captures-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:32:32.859Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep45 has24 source designs,18 first C pairs and durable backups. Reviewing saddle,riding and lock guards while the coordinator accepts the prior batch; independent replays/comparisons follow release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep44-7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+        "type": "validated",
+        "at": "2026-10-15T03:32:39.406Z",
+        "task": "Prep44",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep44-7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+        "type": "accepted",
+        "at": "2026-10-15T03:32:39.406Z",
+        "task": "Prep44"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep44-admission-root",
+        "type": "activity",
+        "at": "2026-10-15T03:33:22.816Z",
+        "task": "Prep44",
+        "phase": "admission",
+        "reason": "Accepted v80 manifest is entering hosted baseline evaluation; local preparation launches are released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-observed-c-correction-terminal-4a7455ce",
+        "type": "turn",
+        "at": "2026-10-15T03:34:01.972Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Amulet correction submitted; waiting for new independent work after the v80 baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep44-20c21b73ea99b484f48b08da7f005733db35bdfd",
+        "type": "activity",
+        "at": "2026-10-15T03:37:56.897Z",
+        "task": "Prep44",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep44-20c21b73ea99b484f48b08da7f005733db35bdfd",
+        "type": "activity",
+        "at": "2026-10-15T03:37:57.728Z",
+        "task": "Prep44",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "B-investigation-v79-candle-lit-action2-20261015",
+        "worker": "B",
+        "goal": "fix-v79-split-candle-object-timer-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4a5a8b7785c8a170b611b5283c66e1fd6a0165ea",
+        "since": "2026-10-15T03:18:07.934Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v79-demon-talk-20261015",
+        "worker": "A2",
+        "goal": "fix-minion-demon-talk-v79-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4ee3ba3854b0e7eddab21f72f89139fd4c151714",
+        "since": "2026-10-15T03:20:49.737Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+        "worker": "B",
+        "goal": "fix-v79-disclose-achievement-prompt-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "e02c75b9f22b622278f4e55e4433985caac51f9d",
+        "since": "2026-10-15T03:26:14.260Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "worker": "C",
+        "goal": "divergence-v79-amulet-portal-heat-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4a7455ce3de132cdd49b4dcb492f02b3f3872934",
+        "since": "2026-10-15T03:26:41.066Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -132100,10 +132496,45 @@
       "A2-investigation-v79-demon-talk-20261015": {
         "id": "A2-investigation-v79-demon-talk-20261015",
         "worker": "A2",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v79/v79-demon-sibling-action1",
         "reservations": [
-          "session:synthetic/v79/v79-demon-sibling-action1"
+          "session:synthetic/v79/v79-demon-sibling-action1",
+          "session:synthetic/v79/v79-demon-partial-action1",
+          "source:minion.c:demon_talk",
+          "source:sounds.c:domonnoise"
+        ]
+      },
+      "C-investigation-v79-amulet-portal-action2-20261015": {
+        "id": "C-investigation-v79-amulet-portal-action2-20261015",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v79/v79-amulet-portal-action2",
+        "reservations": [
+          "session:synthetic/v79/v79-amulet-portal-action2",
+          "source:wizard.c:amulet",
+          "source:allmain.c:moveloop_core"
+        ]
+      },
+      "B-investigation-v79-candle-lit-action2-20261015": {
+        "id": "B-investigation-v79-candle-lit-action2-20261015",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v79/v79-candle-lit-action2",
+        "reservations": [
+          "session:synthetic/v79/v79-candle-lit-action2",
+          "source:mkobj.c:splitobj",
+          "source:timeout.c:obj_split_timers"
+        ]
+      },
+      "B-investigation-v79-wrong-altar-amulet-action6-20261015": {
+        "id": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v79/v79-wrong-altar-amulet-action6",
+        "reservations": [
+          "session:synthetic/v79/v79-wrong-altar-amulet-action6",
+          "source:end.c:disclose"
         ]
       }
     },
@@ -132112,12 +132543,67 @@
         "tasks": [
           "A2-investigation-v79-demon-talk-20261015"
         ]
+      },
+      "session:synthetic/v79/v79-demon-partial-action1": {
+        "tasks": [
+          "A2-investigation-v79-demon-talk-20261015"
+        ]
+      },
+      "source:minion.c:demon_talk": {
+        "tasks": [
+          "A2-investigation-v79-demon-talk-20261015"
+        ]
+      },
+      "source:sounds.c:domonnoise": {
+        "tasks": [
+          "A2-investigation-v79-demon-talk-20261015"
+        ]
+      },
+      "session:synthetic/v79/v79-amulet-portal-action2": {
+        "tasks": [
+          "C-investigation-v79-amulet-portal-action2-20261015"
+        ]
+      },
+      "source:wizard.c:amulet": {
+        "tasks": [
+          "C-investigation-v79-amulet-portal-action2-20261015"
+        ]
+      },
+      "source:allmain.c:moveloop_core": {
+        "tasks": [
+          "C-investigation-v79-amulet-portal-action2-20261015"
+        ]
+      },
+      "session:synthetic/v79/v79-candle-lit-action2": {
+        "tasks": [
+          "B-investigation-v79-candle-lit-action2-20261015"
+        ]
+      },
+      "source:mkobj.c:splitobj": {
+        "tasks": [
+          "B-investigation-v79-candle-lit-action2-20261015"
+        ]
+      },
+      "source:timeout.c:obj_split_timers": {
+        "tasks": [
+          "B-investigation-v79-candle-lit-action2-20261015"
+        ]
+      },
+      "session:synthetic/v79/v79-wrong-altar-amulet-action6": {
+        "tasks": [
+          "B-investigation-v79-wrong-altar-amulet-action6-20261015"
+        ]
+      },
+      "source:end.c:disclose": {
+        "tasks": [
+          "B-investigation-v79-wrong-altar-amulet-action6-20261015"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
-    "measuredAt": "2026-10-15T02:56:34.182Z",
+    "executionCommit": "7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+    "measuredAt": "2026-10-15T03:28:03.550Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
