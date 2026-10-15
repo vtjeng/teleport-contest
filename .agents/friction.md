@@ -1046,3 +1046,9 @@ triage decisions or fix references.
 - C added the required cheap variation for its new sleeping-Wizard recipe and renamed the original to describe its observed nonzero wake check. The successful wake outcome remains explicitly unverified. Saved tests and unchanged synthetic evidence were reused.
 - The four-source checkpoint accepted candle timers, demon interactions, disclosure and the Amulet hook without per-case regression. Disclosure exposed a later score-list screen; Root committed the exact accepted v79 evaluation and woke B before publication. A publication ledger lock cleared on the identical helper retry.
 - Prep45 retained30 valid C pairs and18 independent replays across24 designs. Root approved18 matching controls after saved branch, state and caller comparisons; six earlier-covered routes and all substitute, jackal and force misses remain outside membership. No exhaustion claim was made.
+
+### 2026-10-15 — terminal return and v82 preparation
+
+- B traced the final v79 screen past topten: its notice was correct, then dosacrifice continued after the C NORETURN ending and overwrote it. The source fix propagates gameover at that caller. Initial final checks ran directly; B repeated only focused tests, lint, exact replay and range under run-bounded, saved receipts, resumed the changes-required task and resubmitted a report-only correction.
+- The accepted writing and sacrifice group completed v79 and v80 without per-case regression; all fixed sessions and2000 regression recordings passed. The queue now retains only the parked v48 build-profile case.
+- Prep46 retained28 valid C pairs and21 independent replays after30 designs and nine earlier-covered exclusions. Root approved21 controls after source/state/caller comparisons. Seven setup misses remain outside membership; taming coverage says observed distance2 and known cursed identify says sole-item automatic selection. No intended distance3–5, picker, or exhaustion claim was made.
