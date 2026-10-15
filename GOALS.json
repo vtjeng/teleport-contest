@@ -318430,7 +318430,7 @@
     {
       "id": "fix-v86-retravel-unset-dispatch-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement doextcmd from cmd.c",
       "cFile": "cmd.c",
       "sessions": [
@@ -318440,10 +318440,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "9cfdefe6b87f9f4904328719e5ccb856a9fcdc50",
       "delivered": null,
       "function": "doextcmd",
-      "session": "synthetic/v86/v86-p01-retravel-unset-attempt1"
+      "session": "synthetic/v86/v86-p01-retravel-unset-attempt1",
+      "closeStanding": {
+        "sha": "9cfdefe6b87f9f4904328719e5ccb856a9fcdc50",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "b67616caebaeeade1934c3b026d64259927e0460",
+        "target": "synthetic/v86/v86-p01-retravel-unset-attempt1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/9cfdefe6b87f9f4904328719e5ccb856a9fcdc50/run-hosted-A6qjMl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "doextcmd",
+            "implementation": "js/cmd.js",
+            "symbol": "doextcmd",
+            "sourceReview": "Read the full C definition at nethack-c/upstream/src/cmd.c:493-523. C fetches the selected extcmdlist row, checks availability, publishes ge.ext_tlist, calls its function pointer, repeats only for doextlist, and returns the selected handler's ECMD result. The retravel row at cmd.c:1832 selects dotravel_target; cmd.c:5348-5355 shows that an invalid travelcc prints the no-destination message and returns ECMD_OK. The JS implementation already had dotravel_target's guard, but doextcmd's switch omitted that handler and sent it through the unsupported default. The change adds the source-equivalent awaited dispatch and preserves the handler result. Other unported extcmd rows remain explicit default boundaries.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:3732-3751 dispatches the '#' binding through doextcmd(); cmd.c:1832 registers retravel with dotravel_target, which doextcmd calls through the selected extcmdlist function pointer at cmd.c:493-523."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v86",
+                "caseId": "v86-p01-retravel-unset-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "rhack() -> doextcmd() -> extcmdlist retravel row -> dotravel_target(); unset travelcc prints the C no-destination message and returns ECMD_OK."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point in this fix is the extended-command route: cmd.c's '#' row enters rhack(), doextcmd() selects the retravel extcmdlist row, and the row invokes dotravel_target(). This route is available in the reference build and the admitted v86 recording exercises its unset-destination branch. Direct control-underscore retravel and travel's get-position caller already use dotravel_target and are not changed by this dispatch fix.",
+        "entryPoints": [
+          {
+            "name": "#retravel extended-command dispatch with no cached destination",
+            "functions": [
+              "doextcmd"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v86",
+                "caseId": "v86-p01-retravel-unset-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "rhack() -> doextcmd() -> extcmdlist retravel row -> dotravel_target(); unset travelcc prints the C no-destination message and returns ECMD_OK."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
