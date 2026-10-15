@@ -2257,10 +2257,16 @@ test('lift_object passes C youmonst anatomy to body_part for Sokoban boulders', 
 });
 
 test('in_container preserves C icebox and discarded-void call order', async () => {
-    const cSource = await readFile(
+    const [cSource, inventSource] = await Promise.all([
+        readFile(
         new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
         'utf8',
-    );
+        ),
+        readFile(
+            new URL('../nethack-c/upstream/src/invent.c', import.meta.url),
+            'utf8',
+        ),
+    ]);
     const jsSource = await readFile(
         new URL('../js/pickup.js', import.meta.url), 'utf8',
     );
@@ -2288,7 +2294,7 @@ test('in_container preserves C icebox and discarded-void call order', async () =
         && cBill < cIcebox && cIcebox < cBag,
     'C detaches, checks burning and billing, freezes age, then tests bag explosion');
 
-    const jsFree = jsBody.indexOf('freeinv(obj, { state });');
+    const jsFree = jsBody.indexOf('await freeinv(obj, {');
     const jsBurning = jsBody.indexOf('if (obj_is_burning(obj))');
     const jsBill = jsBody.indexOf('if (floor_container && costly_spot(');
     const jsIcebox = jsBody.indexOf('if (Icebox && !ageIsRelative)');
@@ -2296,6 +2302,13 @@ test('in_container preserves C icebox and discarded-void call order', async () =
     assert.ok(jsFree < jsBurning && jsBurning < jsBill
         && jsBill < jsIcebox && jsIcebox < jsBag,
     'JS preserves C order and the icebox/bag else-if relationship');
+    const cFreeCoreStart = inventSource.indexOf('freeinv_core(struct obj *obj)');
+    const cFreeCoreEnd = inventSource.indexOf('\n}', cFreeCoreStart) + 2;
+    const cFreeCore = inventSource.slice(cFreeCoreStart, cFreeCoreEnd);
+    assert.match(cFreeCore,
+        /obj->otyp == FIGURINE && obj->timed\)[\s\S]*?stop_timer\(FIG_TRANSFORM, obj_to_any\(obj\)\)/u);
+    assert.match(jsBody,
+        /stopFigurineTimer:\s*\(figurine, hookEnv\) => stop_timer\(\s*FIG_TRANSFORM, figurine, hookEnv\.state \?\? state, hookEnv,/u);
     assert.match(cBody,
         /obj->age = svm\.moves - obj->age;[\s\S]*?stop_timer\(ROT_CORPSE, obj_to_any\(obj\)\);[\s\S]*?stop_timer\(REVIVE_MON, obj_to_any\(obj\)\);/u);
     assert.match(jsBody,
