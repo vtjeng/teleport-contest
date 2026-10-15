@@ -316978,6 +316978,43 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-v79-split-candle-object-timer-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement splitobj from mkobj.c",
+      "cFile": "mkobj.c",
+      "sessions": [
+        "synthetic/v79/v79-candle-lit-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v79-candle-lit-action2-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "splitobj",
+      "session": "synthetic/v79/v79-candle-lit-action2"
+    },
+    {
+      "id": "fix-minion-demon-talk-v79-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Fix the demon_talk sibling relocation context and partial-bribe charisma order; preserve domonnoise caller context.",
+      "cFile": "minion.c",
+      "sessions": [
+        "synthetic/v79/v79-demon-sibling-action1",
+        "synthetic/v79/v79-demon-partial-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v79-demon-talk-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "demon_talk",
+      "session": "synthetic/v79/v79-demon-sibling-action1"
     }
   ]
 }
