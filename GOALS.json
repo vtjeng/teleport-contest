@@ -318426,6 +318426,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-v86-retravel-unset-dispatch-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement doextcmd from cmd.c",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v86/v86-p01-retravel-unset-attempt1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doextcmd",
+      "session": "synthetic/v86/v86-p01-retravel-unset-attempt1"
     }
   ]
 }
