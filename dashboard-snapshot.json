@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T01:11:18.694Z",
+  "capturedAt": "2026-10-15T01:24:11.595Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130237,30 +130237,189 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep41:12 reached routes match; source search continues. Recorder commands are complete; holding new validation for coordinator acceptance and queue refresh."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v75-glib-self-stethoscope-action1-20261015-06df68a7d0e16813eb7b79df25d04d277e1eaa7e",
+        "type": "published",
+        "at": "2026-10-15T01:11:33.883Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "commit": "06df68a7d0e16813eb7b79df25d04d277e1eaa7e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v74-counted-wield-stack-action1-20261014-06df68a7d0e16813eb7b79df25d04d277e1eaa7e",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T01:11:37.965Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "commit": "06df68a7d0e16813eb7b79df25d04d277e1eaa7e",
+        "knownBy": "2026-10-15T01:11:33.883Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eeccdee302be39a5e6563d7450d36bb8e36a80d4-98733203c90b42b8b427c77207014b69dc39e37d432a9ef4e6e71046bd857666-C-investigation-v76-monster-earth-mold-action3-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T01:12:24.307Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "integration": "eeccdee302be39a5e6563d7450d36bb8e36a80d4",
+        "validationGroup": [
+          "C-investigation-v76-monster-earth-mold-action3-20261015",
+          "B-investigation-v76-oil-snuff-merge-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-eeccdee302be39a5e6563d7450d36bb8e36a80d4-98733203c90b42b8b427c77207014b69dc39e37d432a9ef4e6e71046bd857666-B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T01:12:24.307Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "integration": "eeccdee302be39a5e6563d7450d36bb8e36a80d4",
+        "validationGroup": [
+          "C-investigation-v76-monster-earth-mold-action3-20261015",
+          "B-investigation-v76-oil-snuff-merge-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1e7d2ef1ecfb628736b572255f219201fd789855",
+        "type": "ready",
+        "at": "2026-10-15T01:14:49.144Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "delivery": "1e7d2ef1ecfb628736b572255f219201fd789855"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v76-nameshk-ready-idle-20261015",
+        "type": "turn",
+        "at": "2026-10-15T01:15:14.310Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Submitted the v76 Minetown nameshk fix; current queue has no independent unclaimed case for C."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v76-nameshk-1e7d2ef1",
+        "type": "received",
+        "at": "2026-10-15T01:15:21.244Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "delivery": "1e7d2ef1ecfb628736b572255f219201fd789855"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-40784ded7d94fe49fe6bea76b94cdd5386e62753",
+        "type": "ready",
+        "at": "2026-10-15T01:19:44.537Z",
+        "task": "Prep41",
+        "delivery": "40784ded7d94fe49fe6bea76b94cdd5386e62753"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep42-v78-20261015",
+        "type": "assign",
+        "at": "2026-10-15T01:20:21.409Z",
+        "task": "Prep42",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b2fc01bbec80640697db638ef052399503479823",
+        "type": "ready",
+        "at": "2026-10-15T01:20:30.824Z",
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "delivery": "b2fc01bbec80640697db638ef052399503479823"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-Prep41-v77-40784ded",
+        "type": "received",
+        "at": "2026-10-15T01:21:23.706Z",
+        "task": "Prep41",
+        "delivery": "40784ded7d94fe49fe6bea76b94cdd5386e62753"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-v76-search-ready-20261015",
+        "type": "turn",
+        "at": "2026-10-15T01:21:34.957Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "No unowned actionable queue case remains; waiting for the next refreshed queue or a cleared blocker."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v76-monster-earth-mold-action3-20261015-eeccdee302be39a5e6563d7450d36bb8e36a80d4-validated",
+        "type": "validated",
+        "at": "2026-10-15T01:22:10.927Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v76-oil-snuff-merge-action2-20261015-eeccdee302be39a5e6563d7450d36bb8e36a80d4-validated",
+        "type": "validated",
+        "at": "2026-10-15T01:22:10.927Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A2-v76-search-b2fc01bb",
+        "type": "received",
+        "at": "2026-10-15T01:22:16.681Z",
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "delivery": "b2fc01bbec80640697db638ef052399503479823"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v76-monster-earth-mold-action3-20261015-eeccdee302be39a5e6563d7450d36bb8e36a80d4-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T01:22:44.049Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v76-oil-snuff-merge-action2-20261015-eeccdee302be39a5e6563d7450d36bb8e36a80d4-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T01:22:44.049Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
         "worker": "C",
-        "goal": "divergence-v76-earth-mold-mondied-20261015",
+        "goal": "divergence-v76-minetown-lighting-shop-izchak-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "b821e2b1a6f8608899c2b1aac5e21aea1a784b0e",
-        "since": "2026-10-15T01:05:44.554Z",
+        "delivery": "1e7d2ef1ecfb628736b572255f219201fd789855",
+        "since": "2026-10-15T01:14:49.144Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
-        "worker": "B",
-        "goal": "fix-v76-oil-snuff-light-cocktail-reacquisition-20261015",
+        "task": "Prep41",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "40784ded7d94fe49fe6bea76b94cdd5386e62753",
+        "batch": "v77",
+        "since": "2026-10-15T01:19:44.537Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "worker": "A2",
+        "goal": "fix-detect-dosearch0-v76-statue-and-swallowed-search-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "1b0d614d9f56f0b24ba2f0f061a12c1ff9bb0b1f",
-        "since": "2026-10-15T01:05:48.525Z",
+        "delivery": "b2fc01bbec80640697db638ef052399503479823",
+        "since": "2026-10-15T01:20:30.824Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -131426,21 +131585,10 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "C-investigation-v76-monster-earth-mold-action3-20261015": {
-        "id": "C-investigation-v76-monster-earth-mold-action3-20261015",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v76/v76-monster-earth-mold-action3",
-        "reservations": [
-          "session:synthetic/v76/v76-monster-earth-mold-action3",
-          "source:read.c:drop_boulder_on_monster",
-          "source:mon.c:mondied"
-        ]
-      },
       "A2-investigation-v76-search-actions2-20261015": {
         "id": "A2-investigation-v76-search-actions2-20261015",
         "worker": "A2",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v76/v76-statue-search-action2",
         "reservations": [
           "session:synthetic/v76/v76-statue-search-action2",
@@ -131448,20 +131596,10 @@
           "source:detect.c:dosearch0"
         ]
       },
-      "B-investigation-v76-oil-snuff-merge-action2-20261015": {
-        "id": "B-investigation-v76-oil-snuff-merge-action2-20261015",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v76/v76-oil-snuff-merge-action2",
-        "reservations": [
-          "session:synthetic/v76/v76-oil-snuff-merge-action2",
-          "source:apply.c:light_cocktail"
-        ]
-      },
       "C-investigation-v76-shop-chest-force-action2-20261015": {
         "id": "C-investigation-v76-shop-chest-force-action2-20261015",
         "worker": "C",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v76/v76-shop-chest-force-action2",
         "reservations": [
           "session:synthetic/v76/v76-shop-chest-force-action2",
@@ -131470,21 +131608,6 @@
       }
     },
     "reservations": {
-      "session:synthetic/v76/v76-monster-earth-mold-action3": {
-        "tasks": [
-          "C-investigation-v76-monster-earth-mold-action3-20261015"
-        ]
-      },
-      "source:read.c:drop_boulder_on_monster": {
-        "tasks": [
-          "C-investigation-v76-monster-earth-mold-action3-20261015"
-        ]
-      },
-      "source:mon.c:mondied": {
-        "tasks": [
-          "C-investigation-v76-monster-earth-mold-action3-20261015"
-        ]
-      },
       "session:synthetic/v76/v76-statue-search-action2": {
         "tasks": [
           "A2-investigation-v76-search-actions2-20261015"
@@ -131500,16 +131623,6 @@
           "A2-investigation-v76-search-actions2-20261015"
         ]
       },
-      "session:synthetic/v76/v76-oil-snuff-merge-action2": {
-        "tasks": [
-          "B-investigation-v76-oil-snuff-merge-action2-20261015"
-        ]
-      },
-      "source:apply.c:light_cocktail": {
-        "tasks": [
-          "B-investigation-v76-oil-snuff-merge-action2-20261015"
-        ]
-      },
       "session:synthetic/v76/v76-shop-chest-force-action2": {
         "tasks": [
           "C-investigation-v76-shop-chest-force-action2-20261015"
@@ -131523,8 +131636,8 @@
     }
   },
   "development": {
-    "executionCommit": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
-    "measuredAt": "2026-10-15T01:04:45.843Z",
+    "executionCommit": "eeccdee302be39a5e6563d7450d36bb8e36a80d4",
+    "measuredAt": "2026-10-15T01:18:17.086Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
