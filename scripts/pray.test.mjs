@@ -350,6 +350,10 @@ test('offer_real_amulet follows its whole high-altar source branch', () => {
     assert.match(jsBody, /await done\(DIED, state\);[\s\S]*await fry_by_god\(A_NONE, true, state\);[\s\S]*await done\(ESCAPED, state\);/u);
     assert.match(jsBody, /u\.uevent\.ascended = 1;[\s\S]*await done\(ASCENDED, state\);/u);
     assert.match(PRAY_JS, /await offer_real_amulet\(otmp, altaralign, state\)/u);
+    assert.match(PRAY_C,
+        /offer_real_amulet\(otmp, altaralign\);\s*\/\*NOTREACHED\*\//u);
+    assert.match(PRAY_JS,
+        /await offer_real_amulet\(otmp, altaralign, state\);[\s\S]{0,350}?if \(state\.program_state\?\.gameover\) return ECMD_TIME;/u);
     assert.doesNotMatch(jsBody, /note_unported/u);
 });
 

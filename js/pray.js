@@ -562,6 +562,11 @@ export async function dosacrifice(state = game) {
             return ECMD_TIME;
         }
         await offer_real_amulet(otmp, altaralign, state);
+        // C pray.c:dosacrifice() marks this call NOTREACHED because
+        // offer_real_amulet() finishes through done(ESCAPED/ASCENDED). The
+        // JavaScript finalizer records gameover and returns, so keep the
+        // caller from falling through into the later offering branches.
+        if (state.program_state?.gameover) return ECMD_TIME;
     }
     if (otmp.otyp === FAKE_AMULET_OF_YENDOR) {
         await offer_fake_amulet(otmp, highaltar, altaralign, state);
