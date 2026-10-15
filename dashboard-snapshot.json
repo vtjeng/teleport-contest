@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T04:59:52.678Z",
+  "capturedAt": "2026-10-15T05:03:57.934Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -131940,6 +131940,15 @@
         "task": "Prep47",
         "phase": "review",
         "reason": "Reviewing saved v83 first-cause distinctions and closest prior C callers while preparation finishes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep47-v83-final-caller-crosswalk-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:02:33.645Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep47 is reviewing five provisional first causes and12 matching control routes after34 C recordings and19 independent replays. Source tracing and saved-coverage checks are active;no validation hold or blocker is active."
       }
     ]
   },
