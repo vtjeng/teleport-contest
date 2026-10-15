@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-14T23:56:03.595Z",
+  "capturedAt": "2026-10-15T00:13:56.370Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -129300,6 +129300,132 @@
         "type": "accepted",
         "at": "2026-10-14T23:54:24.479Z",
         "task": "B-investigation-v70-cube-glob-residual-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v73-trapped-mastodon-farlook-action3-20261014-7c6759c3237527e3426c804d44fc6a794246da40",
+        "type": "published",
+        "at": "2026-10-14T23:56:18.446Z",
+        "task": "C-investigation-v73-trapped-mastodon-farlook-action3-20261014",
+        "commit": "7c6759c3237527e3426c804d44fc6a794246da40"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v73-confused-npc-earth-action4-20261014-7c6759c3237527e3426c804d44fc6a794246da40",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T23:56:22.560Z",
+        "task": "C-investigation-v73-confused-npc-earth-action4-20261014",
+        "commit": "7c6759c3237527e3426c804d44fc6a794246da40",
+        "knownBy": "2026-10-14T23:56:18.446Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v70-cube-glob-residual-20261014-7c6759c3237527e3426c804d44fc6a794246da40",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T23:56:23.998Z",
+        "task": "B-investigation-v70-cube-glob-residual-20261014",
+        "commit": "7c6759c3237527e3426c804d44fc6a794246da40",
+        "knownBy": "2026-10-14T23:56:18.446Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v73-blind-peaceful-lurker-action2-20261014-7c6759c3237527e3426c804d44fc6a794246da40",
+        "type": "publication-confirmed",
+        "at": "2026-10-14T23:56:25.458Z",
+        "task": "A2-investigation-v73-blind-peaceful-lurker-action2-20261014",
+        "commit": "7c6759c3237527e3426c804d44fc6a794246da40",
+        "knownBy": "2026-10-14T23:56:18.446Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-0e3d355fc29a215eefdafbeb105dbf8dcfa46681320efc95da87ee4df0971c09-5b9550cd1c07717d83b3062bfd1117886d2e27dd-Prep39",
+        "type": "integrating",
+        "at": "2026-10-14T23:57:03.175Z",
+        "task": "Prep39",
+        "integration": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "prepGroup": [
+          "Prep39"
+        ],
+        "validationGroup": [
+          "Prep39"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep39-checkpoint-waiting-5b9550cd",
+        "type": "activity",
+        "at": "2026-10-14T23:57:27.511Z",
+        "task": "Prep39",
+        "phase": "waiting",
+        "reason": "Prepared v75 is integrated; obtaining the exact-commit hosted checkpoint before acceptance and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep39-5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "type": "validated",
+        "at": "2026-10-15T00:06:25.468Z",
+        "task": "Prep39",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep39-5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "type": "accepted",
+        "at": "2026-10-15T00:06:25.468Z",
+        "task": "Prep39"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep39-admission-after-acceptance-5b9550cd",
+        "type": "activity",
+        "at": "2026-10-15T00:06:37.446Z",
+        "task": "Prep39",
+        "phase": "admission",
+        "reason": "Preparation passed its hosted checkpoint and is accepted; writing the v75 manifest for the hosted baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep39-baseline-hosted-abc60e89",
+        "type": "activity",
+        "at": "2026-10-15T00:07:41.578Z",
+        "task": "Prep39",
+        "phase": "baseline",
+        "reason": "The manifest-only v75 candidate is pushed; obtaining the official hosted baseline for its 11 cases."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep40-v76-searches-reached-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:11:22.460Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v76: four provisional source failures from twenty planned routes; checking exact prefixes and earlier caller coverage."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep39-abc60e89302029bc1f415e6eb8709cbea7454144",
+        "type": "activity",
+        "at": "2026-10-15T00:11:32.651Z",
+        "task": "Prep39",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep39-abc60e89302029bc1f415e6eb8709cbea7454144",
+        "type": "activity",
+        "at": "2026-10-15T00:11:33.584Z",
+        "task": "Prep39",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-park-counted-wield-await-quiver-20261014",
+        "type": "park",
+        "at": "2026-10-15T00:13:47.049Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "reason": "Source-traced at 946f9d8ef: invent.c:getobj splits the count, then wield.c:dowield should finish_splitting the child and continue to wielding. Implementation awaits release of source:wield.c:dowield reserved by C’s submitted quiver delivery 2b4144ab; resume after acceptance/release."
       }
     ]
   },
@@ -129324,18 +129450,6 @@
         "status": "ready",
         "delivery": "8bd6904346b67cbb1f800a69f22682fe422ce358",
         "since": "2026-10-14T23:32:09.173Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep39",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "92fafeaba839fbbf7f68d0e466d65db2bf24437d",
-        "batch": "v75",
-        "since": "2026-10-14T23:32:35.359Z",
         "blockedBy": [],
         "unblocks": 0
       },
@@ -129959,6 +130073,17 @@
         "since": "2026-10-14T06:30:28.196Z",
         "blockedBy": [],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
+      },
+      {
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "worker": "C",
+        "goal": null,
+        "kind": "investigation",
+        "status": "parked",
+        "delivery": null,
+        "since": "2026-10-15T00:13:47.049Z",
+        "blockedBy": [],
+        "reason": "Source-traced at 946f9d8ef: invent.c:getobj splits the count, then wield.c:dowield should finish_splitting the child and continue to wielding. Implementation awaits release of source:wield.c:dowield reserved by C’s submitted quiver delivery 2b4144ab; resume after acceptance/release."
       }
     ]
   },
@@ -130587,11 +130712,12 @@
       "C-investigation-v74-counted-wield-stack-action1-20261014": {
         "id": "C-investigation-v74-counted-wield-stack-action1-20261014",
         "worker": "C",
-        "status": "working",
+        "status": "parked",
         "seed": "synthetic/v74/v74-counted-wield-stack-action1",
         "reservations": [
           "session:synthetic/v74/v74-counted-wield-stack-action1"
-        ]
+        ],
+        "reason": "Source-traced at 946f9d8ef: invent.c:getobj splits the count, then wield.c:dowield should finish_splitting the child and continue to wielding. Implementation awaits release of source:wield.c:dowield reserved by C’s submitted quiver delivery 2b4144ab; resume after acceptance/release."
       }
     },
     "reservations": {
@@ -130644,17 +130770,12 @@
         "tasks": [
           "B-investigation-v74-offhand-sting-action2-20261014"
         ]
-      },
-      "session:synthetic/v74/v74-counted-wield-stack-action1": {
-        "tasks": [
-          "C-investigation-v74-counted-wield-stack-action1-20261014"
-        ]
       }
     }
   },
   "development": {
-    "executionCommit": "92f45949d990083333ce0c73ebca374f9d3fbe48",
-    "measuredAt": "2026-10-14T23:50:07.499Z",
+    "executionCommit": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+    "measuredAt": "2026-10-15T00:02:45.983Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
