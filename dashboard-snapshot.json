@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T07:52:45.416Z",
+  "capturedAt": "2026-10-15T08:08:03.514Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -136339,19 +136339,317 @@
         "probe": "v87-p02-airborne-landmine",
         "reason": "Deferred unlaunched attempt3 at the v87 packet boundary during packet assembly. Preserved two C setup misses and the source-corrected route; no target reachability or exhaustion claim.",
         "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep50-e5ca7d5058b42155868f633abf031483df289cc9",
+        "type": "published",
+        "at": "2026-10-15T07:52:52.464Z",
+        "task": "Prep50",
+        "commit": "e5ca7d5058b42155868f633abf031483df289cc9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v86-retravel-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T07:54:00.613Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the v86 unset #retravel dispatch mismatch; I will claim the session before tracing its C source path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v86-p01-retravel-unset-attempt1-20261015",
+        "type": "assign",
+        "at": "2026-10-15T07:54:05.648Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-6213c4761b51b300ebe99a89eaa2fe9e84efc505-cb33a76fcbf75b05cf9d9c0f6313c536e72b12f79f61fc48912c285a192cd50a-C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T07:54:27.955Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "integration": "6213c4761b51b300ebe99a89eaa2fe9e84efc505",
+        "validationGroup": [
+          "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v87-p05-axe-worm-useful-group-boundary-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:55:22.216Z",
+        "task": "Prep51",
+        "worker": "Prep-5",
+        "state": "done",
+        "probe": "v87-p05-axe-worm",
+        "reason": "Deferred at useful v87 group boundary. Preserved two C geometry captures (first consumed h in healing-potion menu; second reached the west step and verified an axe ray through non-tail body coordinate (65,9)) plus the unlaunched throw recipe. No actual thrown hit, cutworm reach, or exhaustion claim.",
+        "source": "dothrow.c:thitmonst -> cutworm",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8c3a15889f013b647c1c8f0b3565637de883ba03",
+        "type": "ready",
+        "at": "2026-10-15T07:56:05.019Z",
+        "task": "Prep51",
+        "delivery": "8c3a15889f013b647c1c8f0b3565637de883ba03"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v86-retravel-unset-dispatch-20261015",
+        "type": "implement",
+        "at": "2026-10-15T07:56:40.922Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "goal": "fix-v86-retravel-unset-dispatch-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-Prep51-8c3a1588",
+        "type": "received",
+        "at": "2026-10-15T07:57:12.075Z",
+        "task": "Prep51",
+        "delivery": "8c3a15889f013b647c1c8f0b3565637de883ba03"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep52-v88-20261015",
+        "type": "assign",
+        "at": "2026-10-15T07:58:37.141Z",
+        "task": "Prep52",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v88"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1723409c46e6f8016acfa9f8e1428290aac53a36",
+        "type": "ready",
+        "at": "2026-10-15T08:01:13.648Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "delivery": "1723409c46e6f8016acfa9f8e1428290aac53a36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-v86-retravel-submit-20261015",
+        "type": "turn",
+        "at": "2026-10-15T08:01:59.474Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "V86 retravel dispatch is submitted. The remaining current case is owned by C; older entries are completed or parked. Waiting for the next eligible independent baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p02-airborne-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:02:24.380Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v88-p02-airborne-landmine",
+        "reason": "Continue exact ready source/C-observed correction from prior batch; no duplicate scout. C allowed, JS awaits12 frozen designs.",
+        "source": "trap.c:trapeffect_landmine airborne monster"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p05-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:02:30.410Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p05-axe-worm",
+        "reason": "Continue exact ready source/C-observed correction from prior batch; no duplicate scout. C allowed, JS awaits12 frozen designs.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p03-zombie-genocided-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:02:36.266Z",
+        "task": "Prep52",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v88-p03-zombie-genocided",
+        "reason": "Continue exact ready source/C-observed correction from prior batch; no duplicate scout. C allowed, JS awaits12 frozen designs.",
+        "source": "do.c:zombify_mon G_GENOD -> rot_corpse"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v86-B-retravel-1723409c",
+        "type": "received",
+        "at": "2026-10-15T08:02:39.963Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "delivery": "1723409c46e6f8016acfa9f8e1428290aac53a36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v85-p13-mounted-chat-down-attempt4-20261015-6213c4761b51b300ebe99a89eaa2fe9e84efc505-validated",
+        "type": "validated",
+        "at": "2026-10-15T08:03:13.991Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v85-p13-mounted-chat-down-attempt4-20261015-6213c4761b51b300ebe99a89eaa2fe9e84efc505-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T08:03:57.804Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p05-axe-throw-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:04:07.573Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p05-axe-worm",
+        "reason": "Reserved one bounded C axe throw from verified west-step geometry; launching the prepared southeast body-target recipe now.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p02-airborne-landmine-capture-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:04:16.192Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v88-p02-airborne-landmine",
+        "reason": "Reserved one recorder slot for the corrected C target attempt; run is starting."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "collect-v88-p05-axe-throw-run-ukdGmf-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:04:26.845Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p05-axe-worm",
+        "reason": "C axe-throw capture run-ukdGmf completed successfully and was reaped; recorder slot released for other lanes. Inspect the source-tagged hit/cutworm observations next.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-corrected-scroll-o-v88-p03-zombie-genocided-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:04:41.970Z",
+        "task": "Prep52",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v88-p03-zombie-genocided",
+        "reason": "Reserved one recorder slot for the prepared exact selector-o correction; launching C capture immediately."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p02-airborne-landmine-run-RshaYU-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:04:50.977Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v88-p02-airborne-landmine",
+        "reason": "C recorder run-RshaYU reached terminal exit 0; collecting its recording and receipt before release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p02-airborne-landmine-run-RshaYU-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:05:08.732Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v88-p02-airborne-landmine",
+        "reason": "Released recorder slot after run-RshaYU exited 0; C result is saved for source observation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-v88-p03-zombie-genocided-run-BJ6zHZ-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:05:21.726Z",
+        "task": "Prep52",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v88-p03-zombie-genocided",
+        "reason": "C capture run-BJ6zHZ completed successfully (140 steps); command is terminal and reaped. Preserve packet and inspect whether the G_GENOD callback was reached."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p01-sit-amorphous-corpse-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:05:29.410Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p01-sit-amorphous-corpse",
+        "reason": "Source design complete; C may run with atomic max2 reservation, JS waits twelve frozen designs.",
+        "source": "sit.c:dosit amorphous corpse squishy branch"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p06-worn-metal-amulet-eat-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:05:38.921Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p06-worn-metal-amulet-eat",
+        "reason": "Source design complete; C may run with atomic max2 reservation, JS waits twelve frozen designs.",
+        "source": "eat.c:doeat W_AMUL worn metal refusal"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p05-axe-hit-cutworm-reached-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:06:00.576Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p05-axe-worm",
+        "reason": "C run-ukdGmf hit the living long worm at the decoded southeast middle-body cell; tagged RNG reached thitmonst and cutworm, with cut_chance 18 selecting the cut branch. Slot released. JavaScript comparison awaits the 12-design freeze.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "record-cfirst-v88-p03-zombie-genocided-reach-run-BJ6zHZ-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:06:13.342Z",
+        "task": "Prep52",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v88-p03-zombie-genocided",
+        "reason": "C reached the G_GENOD fallback: step 97 wiped out all gnome zombies; step 105 says the gnome corpse rots away at its due zombify_mon callback (turn 12, id 4). 141 steps, 4230 RNG. Durable packet saved; awaiting twelve-design freeze before JS comparison."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
-        "worker": "C",
-        "goal": "divergence-v85-mounted-chat-down-steed-20261015",
+        "task": "Prep51",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "8c3a15889f013b647c1c8f0b3565637de883ba03",
+        "batch": "v87",
+        "since": "2026-10-15T07:56:05.019Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "worker": "B",
+        "goal": "fix-v86-retravel-unset-dispatch-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "125178eca00ae043cb62b57797cd018705413876",
-        "since": "2026-10-15T07:32:44.303Z",
+        "delivery": "1723409c46e6f8016acfa9f8e1428290aac53a36",
+        "since": "2026-10-15T08:01:13.648Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -137517,33 +137815,33 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015": {
-        "id": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
-        "worker": "C",
+      "B-investigation-v86-p01-retravel-unset-attempt1-20261015": {
+        "id": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "worker": "B",
         "status": "ready",
-        "seed": "synthetic/v85/v85-p13-mounted-chat-down-attempt4",
+        "seed": "synthetic/v86/v86-p01-retravel-unset-attempt1",
         "reservations": [
-          "session:synthetic/v85/v85-p13-mounted-chat-down-attempt4",
-          "source:sounds.c:dochat"
+          "session:synthetic/v86/v86-p01-retravel-unset-attempt1",
+          "source:cmd.c:doextcmd"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v85/v85-p13-mounted-chat-down-attempt4": {
+      "session:synthetic/v86/v86-p01-retravel-unset-attempt1": {
         "tasks": [
-          "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015"
+          "B-investigation-v86-p01-retravel-unset-attempt1-20261015"
         ]
       },
-      "source:sounds.c:dochat": {
+      "source:cmd.c:doextcmd": {
         "tasks": [
-          "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015"
+          "B-investigation-v86-p01-retravel-unset-attempt1-20261015"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "75affd8101dfc3c3f4b9769c9700abe02eceb7b2",
-    "measuredAt": "2026-10-15T07:40:33.580Z",
+    "executionCommit": "6213c4761b51b300ebe99a89eaa2fe9e84efc505",
+    "measuredAt": "2026-10-15T08:00:19.831Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -318349,7 +318349,7 @@
     {
       "id": "divergence-v85-mounted-chat-down-steed-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dochat from sounds.c",
       "cFile": "sounds.c",
       "sessions": [
@@ -318359,10 +318359,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "6213c4761b51b300ebe99a89eaa2fe9e84efc505",
       "delivered": null,
       "function": "dochat",
-      "session": "synthetic/v85/v85-p13-mounted-chat-down-attempt4"
+      "session": "synthetic/v85/v85-p13-mounted-chat-down-attempt4",
+      "closeStanding": {
+        "sha": "6213c4761b51b300ebe99a89eaa2fe9e84efc505",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "75affd8101dfc3c3f4b9769c9700abe02eceb7b2",
+        "target": "synthetic/v85/v85-p13-mounted-chat-down-attempt4",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/6213c4761b51b300ebe99a89eaa2fe9e84efc505/run-hosted-d0a90X/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dochat",
+            "implementation": "js/sounds.js",
+            "symbol": "dochat",
+            "sourceReview": "Read the complete sounds.c:dochat() definition (1257-1412) and confirmed the mounted-downward condition and branch order at :1297-1302. When u.usteed && u.dz > 0, C checks helpless first: it prints the steed notice and returns ECMD_TIME; otherwise it returns domonnoise(u.usteed). The JavaScript now follows both branches instead of throwing UnsupportedChatError. domonnoise() and the MS_NEIGH handler are existing ports; the ordinary non-mounted target and other dochat branches are unchanged. The mounted-downward nonhelpless branch is reached through the production #chat dispatch in the cited admitted replay.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dotalk",
+                "source": "sounds.c:dotalk -> sounds.c:dochat; js/extcmdlist_data.js registers #chat to dotalk and js/cmd.js dispatches the extended command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/chat-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v85",
+                "caseId": "v85-p13-mounted-chat-down-attempt4",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 55,
+                "source": "#chat dispatch -> sounds.c:dotalk -> sounds.c:dochat mounted-down nonhelpless arm -> domonnoise(u.usteed); the player aims down at the saddled pony, which whickers."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected entry point is the registered #chat command through dotalk() into dochat(). The admitted v85 range reaches the mounted-down, nonhelpless steed branch and the existing domonnoise MS_NEIGH branch. A focused direct test also pins the source-defined helpless-steed notice and ECMD_TIME result. This delivery makes no claim about unrelated dochat branches or whole-function certification.",
+        "entryPoints": [
+          {
+            "name": "#chat aimed down at a mounted steed",
+            "functions": [
+              "dochat"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v85",
+                "caseId": "v85-p13-mounted-chat-down-attempt4",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 55,
+                "source": "#chat -> dotalk -> dochat; nonhelpless mounted-down branch calls domonnoise and outputs the steed's sound."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
