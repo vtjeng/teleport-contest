@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C uhitm.c:mhitm_ad_drli NPC-v-NPC undead immunity guard. Tame vampire must remain vampire and actually bite hostile giant mummy;require rn2(3)==0 and no drain d(2,6)/level loss attributable to undead guard. Hero Stormbringer/hero-drain cases differ. Actual actor/map scout only;no immunity proof from creation. Hero level24 and legally wished +50 armor preserve survival while observing ordinary NPC actions;no actor state or HP injected. Initial C223 created vampire BAT,so no AD_DRLI actor proof. Source makemon.c permits Protection_from_shape_changers to suppress initial vampire shifting. Legally wish/wear ring b before creation to keep vampire base form;actual C species still required. Preserve initial bat scout. Corrected C323 base vampire confirmed with shapeprotection ring. Advance20forcedwaits;actual vampire bite of giantmummy and zero roll are required before immunity claim.",
+  "segments": [
+    {
+      "seed": 78010119,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-npc-drain-immune-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed +50 gray dragon scale mail\n                        Wa                        \u0017uncursed ring of protection from shape changers\n                        Pbl                        #wizgenesis\ntame vampire\n                        #wizgenesis\nhostile giant mummy\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

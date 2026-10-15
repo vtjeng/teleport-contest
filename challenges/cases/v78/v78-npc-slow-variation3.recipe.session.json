@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C uhitm.c:mhitm_ad_slow monster-to-monster arm slows defender and clears strategy. Source skeleton has AT_TUCH AD_SLOW;hostile hill giant has HP to survive weapon/touch. Unlike v19 skeleton slows hero,require actual NPC-v-NPC touch/slows message. Scout first,no speed claim yet. Hero level24 and legally wished +50 armor preserve survival while observing ordinary NPC actions;no actor state or HP injected. First20wait continuation never reached hillgiant touch;pet instead followed/pickedwand and attacked a newt. Materially different opponent/order: create hostile orc captain before tame skeleton,same ownseed,to reduce level reluctance and change actual adjacency. Require real slowsdown;do not count first miss.",
+  "segments": [
+    {
+      "seed": 78010118,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-npc-slow-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed +50 gray dragon scale mail\n                        Wa                        #wizgenesis\nhostile orc-captain\n                        #wizgenesis\ntame skeleton\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

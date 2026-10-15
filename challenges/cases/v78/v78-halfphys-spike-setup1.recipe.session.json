@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C sit.c:dosit spiked TT_PIT halfphysical branch rn2(2). Neutral Valkyrie may carry its OrbofFate questartifact per artilist297-301;require actual halfphysical attributes before pit/sit. v60 ordinary spike sitting is fixed1damage,not property arm. Actual map chooses floor before trap.",
+  "segments": [
+    {
+      "seed": 78010122,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-halfphys-spike-setup1,role:Valkyrie,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed Orb of Fate\n                        i                        #attributes\n                        #wizmap\n                        "
+    }
+  ]
+}

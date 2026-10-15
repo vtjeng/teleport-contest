@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C uhitm.c:mhitm_ad_drli NPC-v-NPC resists_drli immunity. First base vampire setup reached5bites but rolls2/2/2/1/2 short-circuited before immunity;initial bat scout had no AD_DRLI actor. Second material setup uses tame wraith AD_DRLI touch versus hostile ettin mummy undead target,created enemy first to alter actual adjacency. Same independently chosen seed,actor stats/attack/action history differ;not a seed scan. Advance20forcedwaits;require actual NPC touch zero roll with no drain d(2,6),otherwise defer after this material setup. Hero real +50 armor and level24 only preserve observation survival.",
+  "segments": [
+    {
+      "seed": 78010119,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-npc-drain-immune-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed +50 gray dragon scale mail\n                        Wa                        #wizgenesis\nhostile ettin mummy\n                        #wizgenesis\ntame wraith\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C eat.c:eataccessory RIN_FREE_ACTION gives sleep resistance instead of Free_action. Source objects.h ring is IRON before shuffled descriptions/materials; actual C edibility must be checked. Xorn and four source-designed ordinary meals maximum; require wide-awake/effect plus property proof,not mere ring consumption. Scout first;not a seed scan. Actual Ca-d gold rings are metallic and edible to Xorn. Eat bounded4 then ordinary attributes;require actual wide-awake/sleep-resistance,not Free_action inheritance.",
+  "segments": [
+    {
+      "seed": 78010115,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-eat-freeaction-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nxorn\n                        \u0017uncursed ring of free action\n                        \u0017uncursed ring of free action\n                        \u0017uncursed ring of free action\n                        \u0017uncursed ring of free action\n                        i                        ea                        eb                        ec                        ed                        #attributes\n                        "
+    }
+  ]
+}

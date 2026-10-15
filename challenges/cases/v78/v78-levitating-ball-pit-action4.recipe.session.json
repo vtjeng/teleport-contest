@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ball.c:drag_ball chain pit Levitation tug branch790. First map/inventory scout,then move onto ordinary floor,wear ring,read punishment,createpit under actualchain and walk beyond drag radius. Earlier v27 ordinary fallingpit andv29 floorchain movement differ;actual tug required. C ringa,scrollb,hero8,3 west7,3floor. Move west,wear levitationa right,readpunishmentb,pit underchain then4eaststeps within room. Actualtug required;not ordinary fallingpit. Singlepit missed tug because chain-only movement path returns while hero stays within2 ofball;chain moved off firstpit before real drag. Source drag_ball585-600 then780-797 shows cheap geometry correction: after firsteaststep8,3 wishanotherpit underhero;nextstep putschain8,3 inthatpit whileball7,3;thirdstep10,3 requiresactualball drag frompit-chain. Two adjacent pits are legal new terrain input;not injected coordinates. C secondpit creation at8,3 failed because originalstairs. Cheap geometry correction uses westward ordinary floors confirmed in originalmap:hero7->6wishpit6->5moves chain6->4requiresball drag. Exact first failed creation retained,not counted as trap coverage.",
+  "segments": [
+    {
+      "seed": 78010123,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-levitating-ball-pit-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed ring of levitation\n                        \u0017uncursed scroll of punishment\n                        i                        #wizmap\n                        h                        Par                        rb                        \u0017pit\n                        h                        \u0017pit\n                        h                        h                        h                        "
+    }
+  ]
+}

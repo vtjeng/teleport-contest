@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C eat.c:eataccessory AMULET_OF_UNCHANGING un-change pun. Actual Xorn metallivore not wearing Unchanging eats at most four separately wished metal amulets; require 1/5 accessory effect and rehumanize. This inventory scout only establishes edible-form/items/selectors. Ordinary worn amulet stopping polymorph is different source history. No meal/effect claim from scout. Actual C inventorya-d amulets. Eat bounded4 using those independent wished items;first un-change may end xorn form,so later humane refusals are retained without claiming more accessory effects. First Xorn setup actually ate4amulets but accessory chance rolls1,1,4,1 allmissed. Preserve it. Materially different Rust Monster form changes source edibility/rust handling and polymorph stats;same own seed and bounded4meal plan. Actual effect still required;after2materialmisses defer target without exhaustion.",
+  "segments": [
+    {
+      "seed": 78010114,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-eat-unchanging-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nrust monster\n                        \u0017uncursed amulet of unchanging\n                        \u0017uncursed amulet of unchanging\n                        \u0017uncursed amulet of unchanging\n                        \u0017uncursed amulet of unchanging\n                        i                        ea                        eb                        ec                        ed                        "
+    }
+  ]
+}

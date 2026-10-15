@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C sit.c:lay_an_egg eggs_in_water dry-floor splash-tetra refusal. Earlier v59 male/overburdened aquatic attempts did not reach this refusal in parsed saved steps. Cheap source correction is empty-inventory female on actual ordinary floor before giant-eel polymorph,avoiding stair/pool/weight early returns. This human map scout only selects actual ordinary floor;no egg branch claim.",
+  "segments": [
+    {
+      "seed": 78010116,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-waterborn-egg-map-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizmap\n                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C uhitm.c:mhitm_ad_drin headless target -> skipdrin plus green-slime self contamination. Actual controlled mind-flayer hero and hostile green slime; this scout establishes adjacent actor position before ordinary force-attack. Require actual harmless/headless and slime message; no contact claim from setup. Actual C map mindflayer hero19,5,green slime20,5 east. Ordinary forceattack east;require headless harmless and suck-slime messages.",
+  "segments": [
+    {
+      "seed": 78010113,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-mindflayer-slime-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        #polyself\nmind flayer\n                        #wizgenesis\nhostile green slime\n                        #wizmap\n                        Fl                        "
+    }
+  ]
+}

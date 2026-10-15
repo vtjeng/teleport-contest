@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C uhitm.c:mhitm_ad_slee monster-to-monster arm calls sleep_monst twice with distinct rnd(10). Tame homunculus and hostile kobold are non-immune actors,not hero sleep. Actual bite,sleep message and paired source draws required;this scout establishes actor positions only. Hero level24 and legally wished +50 armor preserve survival while observing ordinary NPC actions;no actor state or HP injected. Actual C creates both named actors. Advance20bounded forced waits;only actual actor attacks and source-specific effect/RNG count. No contact proof from adjacency/scout.",
+  "segments": [
+    {
+      "seed": 78010117,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-npc-sleep-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed +50 gray dragon scale mail\n                        Wa                        #wizgenesis\ntame homunculus\n                        #wizgenesis\nhostile kobold\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

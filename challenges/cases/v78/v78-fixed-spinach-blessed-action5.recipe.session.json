@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C eat.c:consume_tin cursedspinach -> gainstr -> adjattrib Fixed_abil guard. Legally wear sustain ring,open/eat cursedspinach,confirm attributes/nutrition and unchanged strength. Earlier v26 cursedspinach lacks worn Fixed_abil, v9 ordinary spinach gains strength. Scout first,not merely a seed variation. C actual tina,ringb,openerc. Wearb left,wieldc then selecteata. Stop at actual C opening/More/Eatit boundary before choosing correct acknowledgment;no consumedmeal claim from intermediate capture. C cursed tin actually booby-traps/explodes before spinach,not a meal. Source-supported blessed-tin variation avoids that curse guard and also exposes explicit Fixed_abil OliveOyl branch. Ringstillworn,openerstillprepared;stop at ordinary eat boundary to inspect exact acknowledgment. Preserve cursed explosion pair outside target proof. Actual C373 ends at tin-opens/contains-spinach More. One space acknowledges that exact C screen,then y answers Eat it. Require OliveOyl and Fixed_abil attributes;source flag from worn ring,not inferred from nutrition alone.",
+  "segments": [
+    {
+      "seed": 78010124,
+      "datetime": "20990602132000",
+      "nethackrc": "OPTIONS=name:v78-fixed-spinach-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017blessed tin of spinach\n                        \u0017uncursed ring of sustain ability\n                        \u0017blessed tin opener\n                        i                        #wizmap\n                        Pbl                        wc                        ea y                        #attributes\n                        "
+    }
+  ]
+}
