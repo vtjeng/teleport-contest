@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T06:55:12.696Z",
+  "capturedAt": "2026-10-15T07:16:52.914Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -134521,6 +134521,429 @@
         "at": "2026-10-15T06:54:17.701Z",
         "task": "Prep49",
         "delivery": "90f62426f392127b396aed4cd8483f124eefc806"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v83-rust-iron-screen859-investigation-20261015",
+        "type": "assign",
+        "at": "2026-10-15T06:55:18.542Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v83-mm-digest-chameleon-action2-20261015-36134390b618c9e393bb20795a4fa814e462692e",
+        "type": "published",
+        "at": "2026-10-15T06:55:28.337Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "commit": "36134390b618c9e393bb20795a4fa814e462692e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v83-mm-slime-transform-action1-20261015-36134390b618c9e393bb20795a4fa814e462692e",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T06:55:32.374Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "commit": "36134390b618c9e393bb20795a4fa814e462692e",
+        "knownBy": "2026-10-15T06:55:28.337Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v83-mm-digest-wraith-action1-20261015-36134390b618c9e393bb20795a4fa814e462692e",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T06:55:33.976Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "commit": "36134390b618c9e393bb20795a4fa814e462692e",
+        "knownBy": "2026-10-15T06:55:28.337Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v83-mm-rust-iron-action2-20261015-36134390b618c9e393bb20795a4fa814e462692e",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T06:55:35.607Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "commit": "36134390b618c9e393bb20795a4fa814e462692e",
+        "knownBy": "2026-10-15T06:55:28.337Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v83-mm-acid-resistant-action1-20261015-36134390b618c9e393bb20795a4fa814e462692e",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T06:55:37.103Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "commit": "36134390b618c9e393bb20795a4fa814e462692e",
+        "knownBy": "2026-10-15T06:55:28.337Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-Prep49-90f62426",
+        "type": "received",
+        "at": "2026-10-15T06:55:44.172Z",
+        "task": "Prep49",
+        "delivery": "90f62426f392127b396aed4cd8483f124eefc806"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep50-v86-20261015",
+        "type": "assign",
+        "at": "2026-10-15T06:55:56.064Z",
+        "task": "Prep50",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v86"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v83-screen859-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:58:00.746Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v83-screen859-region-run-regions-20261015",
+        "type": "implement",
+        "at": "2026-10-15T06:59:09.556Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "goal": "fix-region-run-regions-blind-gas-dissipation-v83-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep50-v86-six-lane-source-planning-pinned-reader-20261015",
+        "type": "turn",
+        "at": "2026-10-15T07:00:20.130Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Six exploration lanes are planning the next batch from C source and preserved unfinished probes. No game recording or comparison is running."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-6e416a24174eff1d048e0b87cc18c02f3b4bb3f74fd11338f017d4c7a7d257b0-df8a6fb2d30b7360008f114efa1ae41ddfd88856-Prep49",
+        "type": "integrating",
+        "at": "2026-10-15T07:01:32.690Z",
+        "task": "Prep49",
+        "integration": "df8a6fb2d30b7360008f114efa1ae41ddfd88856",
+        "prepGroup": [
+          "Prep49"
+        ],
+        "validationGroup": [
+          "Prep49"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e7ce798a3aee5a3646cbba604cc4b7d3977feaed",
+        "type": "ready",
+        "at": "2026-10-15T07:04:04.324Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "delivery": "e7ce798a3aee5a3646cbba604cc4b7d3977feaed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v83-A859-e7ce798a",
+        "type": "received",
+        "at": "2026-10-15T07:04:45.996Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "delivery": "e7ce798a3aee5a3646cbba604cc4b7d3977feaed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-v83-screen859-20261015",
+        "type": "turn",
+        "at": "2026-10-15T07:04:51.332Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle: the only open candidates are reserved by B or covered by A2’s submitted delivery; resume when the queue gains independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-A859-bounded-evidence",
+        "type": "feedback",
+        "at": "2026-10-15T07:04:54.861Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "delivery": "e7ce798a3aee5a3646cbba604cc4b7d3977feaed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-v83-screen859-correction-20261015",
+        "type": "resume",
+        "at": "2026-10-15T07:05:21.268Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v86-p01-retravel-unset-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:05:25.965Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "No cached travel destination guard via #retravel.",
+        "source": "cmd.c:dotravel_target unset travelcc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v86-p02-kitten-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:05:30.946Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v86-p02-kitten-landmine",
+        "reason": "Use saved C placement knowledge to reach kitten landmine weight gate; no repeated scout-only run.",
+        "source": "trap.c:trapeffect_landmine monster weight guard"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c16436777c343a547398bd3af6f449452dcb2a4a",
+        "type": "ready",
+        "at": "2026-10-15T07:07:08.584Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "delivery": "c16436777c343a547398bd3af6f449452dcb2a4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v86-p01-retravel-unset-run-TzCpCy-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:07:12.871Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "Bounded C-first #retravel unset-target run-TzCpCy started and completed; inspecting retained C result."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-v83-bounded-correction-20261015",
+        "type": "turn",
+        "at": "2026-10-15T07:07:25.864Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "Idle: the open candidates remain reserved by B or covered by A2’s submitted delivery; resume when the queue gains independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v83-A859-c1643677",
+        "type": "received",
+        "at": "2026-10-15T07:07:29.734Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "delivery": "c16436777c343a547398bd3af6f449452dcb2a4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v86-p01-retravel-unset-c-run-TzCpCy-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:07:54.118Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "C-first #retravel unset-target branch reached: No travel destination set. run-TzCpCy terminal and reaped; awaiting separate JS grant."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep49-df8a6fb2d30b7360008f114efa1ae41ddfd88856",
+        "type": "validated",
+        "at": "2026-10-15T07:08:06.652Z",
+        "task": "Prep49",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep49-df8a6fb2d30b7360008f114efa1ae41ddfd88856",
+        "type": "accepted",
+        "at": "2026-10-15T07:08:06.652Z",
+        "task": "Prep49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v86-p02-kitten-landmine-target1-handle-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:08:50.252Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v86-p02-kitten-landmine",
+        "reason": "Target1 C recording is terminal; bounded run-XY61xZ is retained for collection and immediate slot release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v86-p02-kitten-landmine-target1-release-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:09:17.217Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v86-p02-kitten-landmine",
+        "reason": "run-XY61xZ terminal exit 0 and reaped. Target not reached: m selected kitten at [47,11], but south hurtle did not hit the mine at [46,10]; no trap.c landmine RNG. Preserve miss and await next grant."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v86-p01-retravel-unset-js-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:12:15.351Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "Reserved one accepted d8f97252 JS-only comparison for the retained p01 C pair; awaiting bounded run."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v86-p02-kitten-landmine-target2-reserve-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:12:28.085Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v86-p02-kitten-landmine",
+        "reason": "Slot 2 reserved for one fresh corrected C attempt: use the C-observed northwest y hurtle route; no comparison or replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v86-p02-kitten-landmine-target2-handle-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:12:52.536Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v86-p02-kitten-landmine",
+        "reason": "Corrected C attempt terminal; bounded run-3vSjyg retained for status collection and slot release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v86-p01-retravel-unset-js-run-4L38hI-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:13:02.161Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "Bounded accepted d8f97252 JS comparison/diagnostic run-4L38hI is active; waiting for terminal result."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v86-p02-kitten-landmine-target2-release-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:13:29.454Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v86-p02-kitten-landmine",
+        "reason": "run-3vSjyg terminal exit 0 and reaped. Northwest hurtle passed the mine as HURTLING and ended beyond it; no landmine RNG/gate. Preserve geometry miss and await direction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v86-p01-retravel-unset-js-run-4L38hI-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:13:43.591Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "Accepted d8f97252 comparison found missing dotravel_target dispatch at final Enter; delegated prefix matches through 11 screens. JS run terminal/reaped; preparing independent replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep49-9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0",
+        "type": "activity",
+        "at": "2026-10-15T07:13:58.282Z",
+        "task": "Prep49",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep49-9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0",
+        "type": "activity",
+        "at": "2026-10-15T07:13:59.443Z",
+        "task": "Prep49",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-prep49-baseline-import-38696922460",
+        "type": "activity",
+        "at": "2026-10-15T07:14:09.887Z",
+        "task": "Prep49",
+        "phase": "baseline",
+        "reason": "Importing the successful hosted v85 baseline and promoting its authoritative work queue."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v86-p03-contained-egg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:15:01.842Z",
+        "task": "Prep50",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v86-p03-contained-egg",
+        "reason": "Due live egg timeout inside sack. Source planning during coordinator hold; no slot reserved.",
+        "source": "timeout.c:hatch_egg contained-location guard"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v86-p04-ball-pit-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:15:11.140Z",
+        "task": "Prep50",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v86-p04-ball-pit",
+        "reason": "Trapped pit hero throws carried attached ball. Source planning during coordinator hold; no slot reserved.",
+        "source": "ball.c:drop_ball TT_PIT"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v86-p05-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:15:18.532Z",
+        "task": "Prep50",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v86-p05-axe-worm",
+        "reason": "Thrown axe hits actual nonhead worm segment. Source planning during coordinator hold; no slot reserved.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v86-p06-opener-no-tin-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:15:25.603Z",
+        "task": "Prep50",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v86-p06-opener-no-tin",
+        "reason": "Apply opener without a tin. Source planning during coordinator hold; no slot reserved.",
+        "source": "apply.c:doapply -> eat.c:use_tin_opener"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v86-p02-kitten-landmine-two-aim-misses-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:16:24.770Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "done",
+        "probe": "v86-p02-kitten-landmine",
+        "reason": "Two C captures missed final mine placement; second hurtle crossed mine before landing beyond it. Weight guard unreached; preserve both misses and final-square obstacle requirement.",
+        "source": "trap.c:trapeffect_landmine monster weight guard",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v86-p01-retravel-unset-independent-replay-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:16:40.736Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "Reserved independent patched-C replay of the unchanged p01 recipe after qualified accepted-base mismatch."
       }
     ]
   },
@@ -134538,14 +134961,13 @@
         "unblocks": 0
       },
       {
-        "task": "Prep49",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "worker": "A2",
+        "goal": "fix-region-run-regions-blind-gas-dissipation-v83-20261015",
+        "kind": "implementation",
         "status": "ready",
-        "delivery": "90f62426f392127b396aed4cd8483f124eefc806",
-        "batch": "v85",
-        "since": "2026-10-15T06:54:17.701Z",
+        "delivery": "c16436777c343a547398bd3af6f449452dcb2a4a",
+        "since": "2026-10-15T07:07:08.584Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -135720,6 +136142,16 @@
           "session:synthetic/v84/v84-dig-boulder-pit-action2",
           "source:dig.c:dighole"
         ]
+      },
+      "A2-investigation-v83-mm-rust-iron-screen859-20261015": {
+        "id": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "worker": "A2",
+        "status": "ready",
+        "seed": "synthetic/v83/v83-mm-rust-iron-action2",
+        "reservations": [
+          "session:synthetic/v83/v83-mm-rust-iron-action2",
+          "source:region.c:run_regions"
+        ]
       }
     },
     "reservations": {
@@ -135732,12 +136164,22 @@
         "tasks": [
           "B-investigation-v84-dig-boulder-pit-action2-20261015"
         ]
+      },
+      "session:synthetic/v83/v83-mm-rust-iron-action2": {
+        "tasks": [
+          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+        ]
+      },
+      "source:region.c:run_regions": {
+        "tasks": [
+          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
-    "measuredAt": "2026-10-15T06:50:46.863Z",
+    "executionCommit": "df8a6fb2d30b7360008f114efa1ae41ddfd88856",
+    "measuredAt": "2026-10-15T07:07:03.535Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
