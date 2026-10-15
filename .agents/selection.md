@@ -445,6 +445,16 @@ cell and cursor fields to locate the difference. Investigate messages, input
 boundaries, game state, and drawing. Matching RNG does not imply matching game
 state. A mismatch without a known step stays in the queue until investigated.
 
+When source and saved C evidence establish a build-profile difference or
+recorder defect, update `investigations/synthetic/<batch>/<case>.json`.
+Keep its recording identity and measured counts current, set `status` to
+`"complete"`, and add `resolution` with `kind` (`"build-provenance"` or
+`"recorder-defect"`), `reason`, and `disposition`. Cite the supporting evidence.
+Main refreshes the work queue with `scripts/mismatch-queue.mjs --work --json`
+and confirms the case appears under `excluded`. Preserve original recordings
+and raw score history. Reopen the case if new evidence shows a gameplay
+defect or the relevant build-profile contract changes.
+
 For a refusal, inspect the actual throw and the C or Lua branch it replaces.
 Name the source function in the refusal message when it is missing, so later
 scans can attribute it. Remove obsolete guards and injected placeholders when

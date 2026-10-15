@@ -85,7 +85,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The V short-version command now runs. The latest accepted replay matches all 2897 RNG calls and both cursors; its remaining screen mismatch is Unix NetHack in the Linux C recording versus MacOS NetHack in the retained judge build profile. This valid recording is parked as a build-profile exception; it does not identify remaining gameplay behavior to implement.",
+  "summary": "The V command now runs;all2897 RNG calls and both cursors match. The remaining Unix/MacOS banner difference is build provenance. This valid Linux recording is excluded from implementation work under the same resolution as v32/v35;raw scores and original evidence remain unchanged.",
   "source": {
     "file": "version.c",
     "branch": "version.c:getversionstring emits the configured build version_id. The Linux C capture uses Unix; the retained JavaScript judge profile uses MacOS. doversion command dispatch now reaches the version output, and the remaining difference is the build label rather than command admission.",
@@ -111,5 +111,10 @@
     "js/version.js retains the MacOS recorder version_id; scripts/version.test.mjs documents that judge-profile choice. Source getversionstring behavior depends on the C build profile. Changing the label to Unix would not resolve cross-profile validation.",
     "Parked tasks preserve commits4f13891af and15e869a33 and their private normalized V/mV comparisons. Those comparisons are diagnostic evidence, not a raw matching recording; no whole-source completion is claimed.",
     "Reopen when a supported matching recorder/build profile or an approved comparison-profile rule is available. Preserve original recipes, recordings and historical evaluations."
-  ]
+  ],
+  "resolution": {
+    "kind": "build-provenance",
+    "reason": "The valid Linux C capture prints Unix while the JavaScript port preserves the Darwin judge build profile and prints MacOS. The current command reaches version output; all2897 RNG calls and both cursors match, with only the banner screen differing.",
+    "disposition": "Preserve the original recording, recipe, manifest and evaluations. Retain the Darwin judge profile and exclude this platform-only mismatch from JavaScript implementation work, as for the v32 and v35 version cases. Reopen if the build-profile contract changes or new evidence identifies a gameplay defect."
+  }
 }
