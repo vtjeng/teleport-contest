@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Actual rolling boulder trap on ordinary floor; inspect terrain before jamming ability.",
+  "segments": [
+    {
+      "seed": 80010752,
+      "datetime": "21000521151600",
+      "nethackrc": "OPTIONS=name:v80-web-boulder-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        h:                        #polyself\ngiant spider\n                        \u0017rolling boulder trap\n                        :                        "
+    }
+  ]
+}

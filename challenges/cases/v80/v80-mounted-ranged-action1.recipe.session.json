@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Own mounted ranged route geometry scout before riding; no forced ranged result from scout alone. Own C dragon is north k. Mount before creating a hostile sleeping target; inspect current geometry before selecting nonadjacent firing line. Own C mounted D at column39,row5 and sleeping hostile giant at38,row5. Ride three clear squares east to put giant at range4 on same row, then #monster for forced ranged target.",
+  "segments": [
+    {
+      "seed": 80010753,
+      "datetime": "21000521151600",
+      "nethackrc": "OPTIONS=name:v80-mounted-ranged-action1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n12\n                        #wizgenesis\ntame saddled red dragon\n                        #ride\nky                        #wizgenesis\nhostile sleeping frost giant\n                        lll#monster\n                        "
+    }
+  ]
+}

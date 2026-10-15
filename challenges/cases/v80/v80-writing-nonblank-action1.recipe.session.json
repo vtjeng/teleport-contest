@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source design. Actual titled novel selected as nonblank paper in dowrite; inventory scout. C-observed selectors marker a,paper b. Actual paperback novel b is not blank.",
+  "segments": [
+    {
+      "seed": 80010643,
+      "datetime": "21000418141500",
+      "nethackrc": "OPTIONS=name:v80-writing-nonblank-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed novel\n                        i                        aab                        i                        "
+    }
+  ]
+}

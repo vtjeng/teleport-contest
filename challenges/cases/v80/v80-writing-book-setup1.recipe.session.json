@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-only inventory scout for dry-marker-unfinished-book. Source write.c:dowrite. No target branch claimed from inventory alone.",
+  "segments": [
+    {
+      "seed": 80010531,
+      "datetime": "21000315132000",
+      "nethackrc": "OPTIONS=name:v80-writing-book-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:35)\n                        \u0017uncursed spellbook of blank paper\n                        i                        "
+    }
+  ]
+}

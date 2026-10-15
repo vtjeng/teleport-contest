@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent materially different mounted-ranged target setup after preserved giant pursuit miss. Source dogmove.c:score_targ rejects adjacent targets; frost giant pursued slow mounted dragon. Ettin zombie has source speed6 vs red dragon9 and level6, so three east steps may establish a legal nonadjacent target. Actual C breath/target trace required, no no-target control admission.",
+  "segments": [
+    {
+      "seed": 80010753,
+      "datetime": "21000521151600",
+      "nethackrc": "OPTIONS=name:v80-mounted-zombie-action1,role:Knight,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n12\n                        #wizgenesis\ntame saddled red dragon\n                        #ride\nky                        #wizgenesis\nhostile ettin zombie\n                        l                        l                        l                        #monster\n                        "
+    }
+  ]
+}

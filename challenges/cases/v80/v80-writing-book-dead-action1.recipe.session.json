@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C source branch. Type Book of the Dead as target in blank spellbook; dowrite special refusal before literacy/ink.",
+  "segments": [
+    {
+      "seed": 80010533,
+      "datetime": "21000315132000",
+      "nethackrc": "OPTIONS=name:v80-writing-book-dead-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed spellbook of blank paper\n                        i                        aabBook of the Dead\n                        "
+    }
+  ]
+}

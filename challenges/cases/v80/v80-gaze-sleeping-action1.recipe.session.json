@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source design. Actual sleeping floating eye from legal genesis parser; umber hulk gaze must skip helpless monster without paralysis. Require actual sleeping state proof; no-place text alone is insufficient.",
+  "segments": [
+    {
+      "seed": 80010645,
+      "datetime": "21000418141500",
+      "nethackrc": "OPTIONS=name:v80-gaze-sleeping-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n20\n                        #polyself\number hulk\n                        #wizgenesis\nsleeping floating eye\n                        #monster\n                        "
+    }
+  ]
+}

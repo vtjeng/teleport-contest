@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source design. Pyrolisk fire gaze at actual fire-resistant red dragon, source dmg zero then item heat checks.",
+  "segments": [
+    {
+      "seed": 80010646,
+      "datetime": "21000418141500",
+      "nethackrc": "OPTIONS=name:v80-gaze-resistant-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        #polyself\npyrolisk\n                        #wizgenesis\npeaceful red dragon\n                        #monster\ny                        "
+    }
+  ]
+}
