@@ -302,12 +302,42 @@ export function mainIntegrationDurations(activity) {
       recent.push(durationMs);
       sum += durationMs;
       if (recent.length > windowSize) sum -= recent.shift();
+      const sorted = [...recent].sort((a, b) => a - b);
+      const middle = Math.floor(sorted.length / 2);
+      const rollingMedianMs = sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
       return { sourceIndex, task: segment.task, start: segment.start, end: segment.end,
         ...(segment.prepGroup ? {prepGroup: segment.prepGroup} : {}),
         ...(segment.validationGroup ? {validationGroup: segment.validationGroup} : {}),
-        durationMs, attempt, rollingMeanMs: sum / recent.length, sampleSize: recent.length };
+        durationMs, attempt, rollingMeanMs: sum / recent.length, rollingMedianMs, sampleSize: recent.length };
     })];
   }));
+}
+
+// Scores describe an integrated commit. Several tasks can share that commit;
+// retain their membership but attach its measurement exactly once.
+export function goalHistory(tasks, records, gains) {
+  const groups = new Map();
+  for (const task of tasks) {
+    if (!task.goal) continue;
+    const published = Boolean(task.publishedAt || task.publicationKnownBy);
+    const commit = published ? task.integration : null;
+    const id = commit || `unpublished:${task.goal}`;
+    if (!groups.has(id)) groups.set(id, { id, commit, publishedAt: null, publicationKnownBy: null,
+      assignedAt: task.assignedAt, goals: new Map(), synthetic: commit ? gains.get(commit) ?? null : null });
+    const group = groups.get(id), record = records.get(task.goal);
+    const goal = group.goals.get(task.goal) ?? { id: task.goal,
+      summary: record?.summary || task.goal, sourceFile: record?.luaFile ?? record?.cFile ?? null,
+      status: record?.status ?? task.status, assignedAt: task.assignedAt, workers: [],
+      developmentDelta: record?.delivered?.screens ?? record?.progressBeforePark?.screens ?? null };
+    if (!goal.workers.includes(task.worker)) goal.workers.push(task.worker);
+    if (task.assignedAt < goal.assignedAt) goal.assignedAt = task.assignedAt;
+    if (task.assignedAt < group.assignedAt) group.assignedAt = task.assignedAt;
+    if (task.publishedAt && (!group.publishedAt || task.publishedAt > group.publishedAt)) group.publishedAt = task.publishedAt;
+    if (task.publicationKnownBy && (!group.publicationKnownBy || task.publicationKnownBy > group.publicationKnownBy))
+      group.publicationKnownBy = task.publicationKnownBy;
+    group.goals.set(goal.id, goal);
+  }
+  return [...groups.values()].map(group => ({ ...group, goals: [...group.goals.values()] }));
 }
 
 // One row represents each agent's current stage. Delivery queue intervals are

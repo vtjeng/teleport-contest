@@ -177,7 +177,7 @@ function renderDashboard(data, queue = null) {
     return elements;
 }
 
-function sourceDashboardData(workGoals = []) {
+function sourceDashboardData() {
     // No score or timing history is needed to render the queue and source
     // tables. Unit totals keep the unrelated percentage tiles well-defined.
     return {
@@ -186,7 +186,7 @@ function sourceDashboardData(workGoals = []) {
             screens: 0, screensTotal: 1, rng: 0, rngTotal: 1,
             sessions: 0, sessionsTotal: 1, totalGoals: 0,
         },
-        goals: [], progress: [], workGoals,
+        goals: [], progress: [],
         developmentSessions: { executionCommit: 'a'.repeat(40), sessions: [] },
         scoreHistory: ['Development set', 'Synthetic local holdout'].map((title, index) => ({
             id: ['developmentSet', 'syntheticHoldout'][index],
@@ -217,7 +217,7 @@ test('missing integration history is unavailable, not a zero-time average', () =
     assert.match(rendered.get('integrationDurationReadout').textContent, /unavailable/u);
 });
 
-test('integration series share a chart but keep independent means and pin the original task', () => {
+test('integration series share a chart but keep independent medians and pin the original task', () => {
     const data = sourceDashboardData();
     const at = minute => new Date(Date.UTC(2026, 9, 12, 10) + minute * 60000).toISOString();
     const row = (task, kind, start, end) => ({ task, kind, lane: 'Main', phase: 'integrating',
@@ -228,31 +228,31 @@ test('integration series share a chart but keep independent means and pin the or
     ], tasks: ['A1', 'Prep1', 'A2'].map(id => ({ id, label: id, worker: id === 'Prep1' ? 'Prep' : 'A',
         assignedAt: at(0), status: 'integrating' })) };
     const rendered = renderDashboard(data);
-    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Window mean 10.0 min · 2 attempts');
-    assert.equal(rendered.get('prepIntegrationDurationSummary').textContent, 'Window mean 100.0 min · 1 attempt');
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Median 10.0 min · 2 attempts');
+    assert.equal(rendered.get('prepIntegrationDurationSummary').textContent, 'Median 100.0 min · 1 attempt');
     const chart = rendered.get('integrationDurationChart');
     chart.listeners.keydown[0]({ key: 'End', preventDefault() {} });
-    assert.match(rendered.get('integrationDurationReadout').innerHTML, /A2[\s\S]*Rolling mean 10\.0 min \(2 attempts\)/u);
+    assert.match(rendered.get('integrationDurationReadout').innerHTML, /A2[\s\S]*Rolling median 10\.0 min \(2 attempts\)/u);
     chart.listeners.keydown[0]({ key: 'ArrowLeft', preventDefault() {} });
     const selected = rendered.get('integrationDurationReadout').innerHTML;
-    assert.match(selected, /Prep1[\s\S]*100\.0 min[\s\S]*Rolling mean 100\.0 min \(1 attempt\)/u);
+    assert.match(selected, /Prep1[\s\S]*100\.0 min[\s\S]*Rolling median 100\.0 min \(1 attempt\)/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Prep1/u);
     chart.listeners.pointermove[0]({ clientX: 950, clientY: 82 });
     assert.equal(rendered.get('integrationDurationReadout').innerHTML, selected,
         'hovering another series cannot replace the pinned Prep attempt');
     chart.listeners.keydown[0]({ key: 'End', preventDefault() {} });
-    assert.match(rendered.get('integrationDurationReadout').innerHTML, /A2[\s\S]*Rolling mean 10\.0 min \(2 attempts\)/u);
+    assert.match(rendered.get('integrationDurationReadout').innerHTML, /A2[\s\S]*Rolling median 10\.0 min \(2 attempts\)/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /A2/u);
     const ops = chart.ops;
-    assert.ok(ops.some(([call, dash]) => call === 'setLineDash' && dash.length === 2), 'Prep rolling mean is dashed');
-    assert.ok(ops.some(([call]) => call === 'fillRect'), 'Prep attempts have square marks');
+    assert.ok(ops.some(([call, dash]) => call === 'setLineDash' && dash.length === 2), 'Prep rolling median is dashed');
+    assert.ok(ops.some(([call]) => call === 'closePath'), 'the outlying Prep attempt has a triangle mark');
     assert.ok(ops.some(([call, , , radius]) => call === 'arc' && radius === 3.5), 'implementation attempts have circular marks');
     const blueStart = ops.findIndex(([call, key, value]) => call === 'set' && key === 'strokeStyle' && value === '--integration-blue');
     assert.ok(ops.slice(blueStart).find(([call]) => call === 'moveTo')[1] > 44,
         'without older history, the mean starts at the first completion, not the left padding');
 });
 
-test('rolling lines carry pre-window means and step only at completed attempts', () => {
+test('rolling lines carry pre-window medians and step only at completed attempts', () => {
     const data = sourceDashboardData();
     const at = minute => new Date(Date.UTC(2026, 9, 12) + minute * 60000).toISOString();
     const row = (task, start, end, extra = {}) => ({ task, lane: 'Main', phase: 'integrating',
@@ -276,33 +276,40 @@ test('rolling lines carry pre-window means and step only at completed attempts',
         }
         return [];
     };
-    // Canvas padding is 44/12 px in a 1000 px frame. Prep's carried 100 min
-    // mean sets the ceiling; in the 320 px frame, means 10/15 map to y=264/250.
+    // The default axis spans 30 minutes in a 320 px frame with 12/28 px
+    // vertical padding. The old Prep median is clipped visibly at the top.
     const completionX = 44 + (500 - 240) / 360 * 944;
     assert.deepEqual(meanPath('--integration-blue'), [
-        [44, 264], [completionX, 264], [completionX, 250], [988, 250],
-    ], 'carry the old mean to the left edge, hold, jump at completion, then hold to the right edge');
+        [44, 292 - 10 / 30 * 280], [completionX, 292 - 10 / 30 * 280],
+        [completionX, 292 - 15 / 30 * 280], [988, 292 - 15 / 30 * 280],
+    ], 'carry the old median to the left edge, hold, jump at completion, then hold to the right edge');
     assert.deepEqual(meanPath('--integration-orange'), [[44, 12], [988, 12]],
-        'Prep retains its pre-window 100 minute mean even without a completion in view');
-    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Window mean 20.0 min · 1 attempt');
+        'Prep retains its pre-window 100 minute median even without a completion in view');
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Median 20.0 min · 1 attempt');
     assert.match(rendered.get('prepIntegrationDurationSummary').textContent, /No completed attempts/u);
     assert.equal(ops.filter(([call]) => call === 'arc').length, 1,
-        'pre-window means must not create fake attempt markers');
+        'pre-window medians must not create fake attempt markers');
 });
 
-test('integration axis fits a long attempt without rounding away the typical range', () => {
+test('integration axis marks overflow and can reveal its full duration', () => {
     const data = sourceDashboardData();
-    // A 74-minute outlier matches the preview's observed week-long range;
-    // five tick intervals should fit it at 80 rather than the old 100-minute ceiling.
+    // The 74-minute attempt exceeds the 30-minute default; full range fits it
+    // at 80 minutes. Neither view changes the recorded 74-minute duration.
     data.activity = { capturedAt: '2026-10-12T10:14:00Z', tasks: [], segments: [{
         task: 'long-attempt', lane: 'Main', phase: 'integrating',
         start: '2026-10-12T09:00:00Z', end: '2026-10-12T10:14:00Z',
     }] };
-    const ops = renderDashboard(data).get('integrationDurationChart').ops;
-    const ticks = ops.filter(([call, value]) => call === 'fillText' && /^\d+$/u.test(value))
+    const rendered = renderDashboard(data), chart = rendered.get('integrationDurationChart');
+    const ticks = () => chart.ops.filter(([call, value]) => call === 'fillText' && /^\d+$/u.test(value))
         .map(([, value]) => Number(value));
-    assert.deepEqual(ticks, [0, 20, 40, 60, 80]);
-    assert.equal(ops.filter(([call]) => call === 'arc').length, 1, 'the long attempt is retained, not clipped away');
+    assert.deepEqual(ticks(), [0, 10, 20, 30]);
+    assert.match(rendered.get('integrationOverflow').textContent, /1 attempt above 30 min · longest 74.0 min/u);
+    chart.listeners.keydown[0]({key: 'End', preventDefault() {}});
+    assert.match(rendered.get('integrationDurationReadout').innerHTML, /74\.0 min/u);
+    chart.ops.length = 0;
+    rendered.get('integrationFullRange').listeners.click[0]();
+    assert.deepEqual(ticks(), [0, 20, 40, 60, 80]);
+    assert.match(rendered.get('integrationDurationReadout').innerHTML, /74\.0 min/u);
 });
 
 test('score cards share one format and show commit ages without hashes', () => {
@@ -690,7 +697,7 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     const template = readFileSync(TEMPLATE, 'utf8');
     assert.ok(template.includes('<section class="section" aria-labelledby="pendingMainWorkTitle">'),
         'pending work has its own named section');
-    assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Pending Main work</h3>'),
+    assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Main queue</h3>'),
         'pending work uses the same heading level and style as Worker activity');
     // Keep the original compact summary size; only the section title is a heading.
     assert.ok(template.includes('.activity-backlog { font-size: 12px;'), 'summary text is not enlarged');
@@ -702,16 +709,17 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     data.pendingMainWork = { deliveries: [row], preparedBatches: [{ ...row, task: 'Prep1',
         batch: 'v34', status: 'awaiting-admission', blockedBy: [] }],
         parkedTasks: [{ ...row, task: 'C1', status: 'parked', reason: 'Await <source> owner.' }] };
-    const html = renderDashboard(data).get('pendingMainWork').innerHTML;
+    const rendered = renderDashboard(data);
+    const html = rendered.get('pendingMainWork').innerHTML;
     assert.doesNotMatch(html, /<strong>Pending Main work<\/strong>/u, 'the summary does not repeat the section heading');
-    assert.match(html, /1 submitted task \(1 awaiting dependencies\)/u);
-    assert.match(html, /Accepted batches awaiting admission: v34/u);
-    assert.match(html, /Submitted batches awaiting Main: None\./u);
-    assert.match(html, /oldest submission 1h 0m ago/u);
-    assert.match(html, /<summary>Details · 1 parked<\/summary>/u);
-    assert.match(html, /Await &lt;source&gt; owner\./u);
+    assert.match(html, /Waiting for dependencies · 1/u);
+    assert.match(html, /Batches to admit · 1[\s\S]*Challenge batch v34/u);
+    assert.doesNotMatch(html, /Submitted batches awaiting Main/u);
+    assert.match(html, /1h 0m/u);
+    assert.doesNotMatch(html, /Await &lt;source&gt; owner|C1/u);
+    assert.match(rendered.get('parkedTasks').innerHTML, /Await &lt;source&gt; owner\./u);
     data.pendingMainWork = { deliveries: [], preparedBatches: [], parkedTasks: [] };
-    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /admission: None\./u);
+    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /Nothing awaiting Main\./u);
     data.pendingMainWork = null;
     assert.match(renderDashboard(data).get('pendingMainWork').textContent, /snapshot is refreshed/u);
 });
@@ -729,22 +737,24 @@ test('prepared submissions remain visible separately from accepted batches await
     data.pendingMainWork = { deliveries: rows, preparedBatches: [{ ...rows[0],
         task: 'Prep17', batch: 'v53', status: 'awaiting-admission', blockedBy: [] }], parkedTasks: [] };
     const html = renderDashboard(data).get('pendingMainWork').innerHTML;
-    assert.match(html, /Submitted batches awaiting Main: v54 · v55 · v56 · v57 \(3 awaiting dependencies\)\./u);
-    assert.match(html, /Accepted batches awaiting admission: v53\. Oldest acceptance: 1h 0m ago\./u);
-    assert.match(html, /v55[\s\S]*Awaiting dependencies[\s\S]*<td>v54<\/td>/u,
+    assert.match(html, /Ready to integrate · 1[\s\S]*Challenge batch v54/u);
+    assert.match(html, /Waiting for dependencies · 3/u);
+    for (const batch of ['v55', 'v56', 'v57']) assert.ok(html.includes('Challenge batch ' + batch));
+    assert.match(html, /Batches to admit · 1[\s\S]*Challenge batch v53/u);
+    assert.match(html, /v55[\s\S]*Waiting on Challenge batch v54/u,
         'batch dependencies use batch names rather than opaque preparation task IDs');
     assert.doesNotMatch(html, /Ready batches awaiting admission/u);
 });
 
 test('primary dashboard sections put sessions before activity and historical detail', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',
-        'class="diagnostics"', 'id="sourceWorkDisclosure"', 'id="pendingMainWorkTitle"', 'id="timeline"',
+    const positions = ['id="stats"', 'id="pendingMainWorkTitle"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',
+        'class="diagnostics"', 'id="timeline"', 'id="integrationDisclosure"',
         'id="goalTable"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
-    assert.doesNotMatch(template, /id="remainingWorkDisclosure"|id="queueDisclosure"|Known mismatches|<h2[^>]*>Challenges<\/h2>/u);
+    assert.doesNotMatch(template, /id="sourceWorkDisclosure"|id="remainingWorkDisclosure"|id="queueDisclosure"|Known mismatches|<h2[^>]*>Challenges<\/h2>/u);
 });
 
 test('one sessions table includes both sets with exact scores and distinct mismatch counts', () => {
@@ -811,11 +821,11 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     const rendered = renderDashboard(data);
     // The visible six-hour window has ten- and twenty-minute attempts. The
     // older thirty-minute attempt affects the rolling mean, not this window mean.
-    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Window mean 15.0 min · 2 attempts');
+    assert.equal(rendered.get('integrationDurationSummary').textContent, 'Median 15.0 min · 2 attempts');
     const durationChart = rendered.get('integrationDurationChart');
     durationChart.listeners.keydown[0]({ key: 'End', preventDefault() {} });
     const pinnedDuration = rendered.get('integrationDurationReadout').innerHTML;
-    assert.match(pinnedDuration, /A1[\s\S]*20\.0 min[\s\S]*Rolling mean 20\.0 min \(3 attempts\)/u);
+    assert.match(pinnedDuration, /A1[\s\S]*20\.0 min[\s\S]*Rolling median 20\.0 min \(3 attempts\)/u);
     durationChart.listeners.pointermove[0]({ clientX: 857, clientY: 82 });
     assert.equal(rendered.get('integrationDurationReadout').innerHTML, pinnedDuration,
         'hover cannot replace a deliberately selected attempt');
@@ -1114,78 +1124,6 @@ test('activity details distinguish idle workers from tasks and Main stages from 
     assert.match(html, /<dt>Goal<\/dt><dd>source &lt;port&gt;<\/dd>/u);
 });
 
-function sourceFileRows(table) {
-    return new Map([...table.matchAll(/<tr\b[^>]*>(.*?)<\/tr>/gsu)].map(([, row]) => {
-        const cells = [...row.matchAll(/<td\b[^>]*>(.*?)<\/td>/gsu)].map(([, cell]) => cell);
-        return [cells[0], cells.slice(1)];
-    }).filter(([file]) => file !== undefined));
-}
-
-test('source history counts tasks without presenting whole-function certification', () => {
-    // Overlapping C units and a Lua program remain scope metadata, not a coverage denominator.
-    const ports = [
-        { id: 'movement-first', sourceFile: 'hack.c', status: 'closed',
-            units: [{ name: 'test_move', verified: true }, { name: 'moverock', verified: true }],
-            spansClosed: 1, spansTotal: 1, screensDelivered: 0 },
-        { id: 'movement-rest', sourceFile: 'hack.c', status: 'open',
-            units: [{ name: 'test_move', verified: false }, { name: 'domove', verified: false }],
-            spansClosed: 0, spansTotal: 1, screensDelivered: null },
-        // Lua uses its source basename as one program, not a C function count.
-        { id: 'quest-level', sourceFile: 'Arc-loca.lua', status: 'closed',
-            units: [{ name: 'Arc-loca.lua', verified: true }],
-            spansClosed: 1, spansTotal: 1, screensDelivered: 0 },
-        // A parked source goal remains inventory without appearing closed or
-        // in progress. Its declaration has no verified evidence.
-        { id: 'parked-options', sourceFile: 'options.c', status: 'parked',
-            units: [{ name: 'parseoptions', verified: false }],
-            spansClosed: 0, spansTotal: 0, screensDelivered: null },
-    ];
-    const table = renderDashboard(sourceDashboardData(ports)).get('sourceWorkTable').innerHTML;
-    assert.deepEqual(sourceFileRows(table).get('hack.c'), ['1', '', '1']);
-    assert.deepEqual(sourceFileRows(table).get('Arc-loca.lua'), ['', '', '1']);
-    assert.deepEqual(sourceFileRows(table).get('options.c'), ['', '1', '']);
-    assert.doesNotMatch(table, /Verified|Listed|Functions \/ programs/u);
-});
-
-test('source inventory includes fixes and parked goals without a live-work panel', () => {
-    // A fix shares its file with a closed port and a parked goal; another
-    // parked goal lacks a source owner. Status must not depend on goal kind
-    // or on a corresponding Open commit in the historical timeline.
-    const work = [
-        { id: 'old-port', kind: 'file-port', sourceFile: 'fountain.c', status: 'closed',
-            summary: 'Implement fountains', units: [{ name: 'drinkfountain', verified: true }] },
-        { id: 'gem-fix', kind: 'divergence-fix', sourceFile: 'fountain.c', status: 'open',
-            summary: 'Fix gem discovery <&>', units: [] },
-        { id: 'paused-fountain', sourceFile: 'fountain.c', status: 'parked',
-            summary: 'Finish fountains', parkedReason: 'Waiting for <caller>', units: [] },
-        { id: 'unknown', sourceFile: null, status: 'parked',
-            summary: 'Investigate a mismatch', parkedReason: 'Find its source', units: [] },
-        { id: 'new-file', sourceFile: 'dog.c', status: 'open',
-            summary: 'Fix pet movement', units: [] },
-    ];
-    const rendered = renderDashboard(sourceDashboardData(work));
-    const table = rendered.get('sourceWorkTable').innerHTML;
-    assert.match(table, /class="in-progress"><td>fountain\.c<\/td>/u);
-    assert.deepEqual(sourceFileRows(table).get('fountain.c'), ['1', '1', '1']);
-    assert.match(table, /class="in-progress"><td>dog\.c<\/td>/u);
-    assert.deepEqual(sourceFileRows(table).get('dog.c'), ['1', '', '']);
-    assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
-});
-
-test('queued goals remain visible in the source inventory', () => {
-    for (const work of [[], [
-        { id: 'finished', sourceFile: 'hack.c', status: 'closed', units: [] },
-        { id: 'next', sourceFile: 'dog.c', status: 'queued', units: [] },
-    ]]) {
-        const rendered = renderDashboard(sourceDashboardData(work));
-        if (work.length) {
-            assert.deepEqual(sourceFileRows(rendered.get('sourceWorkTable').innerHTML).get('dog.c'),
-                ['', '', '1', '']); // Only the queued column counts this goal.
-            assert.match(rendered.get('sourceWorkLegend').innerHTML, /Queued/u);
-        }
-    }
-});
-
 test('progress points carry what the chart readout shows', t => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-chart-'));
     t.after(() => rmSync(fixture, { recursive: true, force: true }));
@@ -1362,12 +1300,29 @@ test('challenge session counts describe measured cases when the catalog has grow
     assert.match(stats.replace(/<[^>]*>/gu, ''), /Sessions1 \/ 2/u);
 });
 
-test('source work attributes required units to their own file without name collisions', () => {
-    // Same-named fixture units must produce two separate source-file rows.
-    const rendered = renderDashboard(sourceDashboardData([{ id: 'cross-file', sourceFile: 'primary.c', status: 'open',
-        units: [{ name: 'helper', sourceFile: 'primary.c', verified: true },
-            { name: 'helper', sourceFile: 'foreign.c', verified: false }] }]));
-    const rows = sourceFileRows(rendered.get('sourceWorkTable').innerHTML);
-    assert.deepEqual(rows.get('primary.c'), ['1', '', '']);
-    assert.deepEqual(rows.get('foreign.c'), ['1', '', '']);
+
+test('incomplete screen scores cannot round to a displayed 100 percent', () => {
+    const data = sourceDashboardData();
+    // One missing screen in ten thousand used to round to a false 100.0%.
+    data.challenges.totals = {screens: {matched: 9999, total: 10000}};
+    const partial = renderDashboard(data).get('stats').innerHTML;
+    assert.match(partial, /stat-value">>99\.9%/u);
+    assert.match(partial, /1 screen unmatched/u);
+    data.challenges.totals.screens.matched = 10000;
+    assert.match(renderDashboard(data).get('stats').innerHTML, /stat-value">100%/u);
+});
+
+test('goal history prints a shared score once and escapes member details', () => {
+    const data = sourceDashboardData();
+    // Two goals share a measured integration with both gains and losses.
+    data.goalHistory = [{commit: 'a'.repeat(40), publishedAt: '2026-10-14T10:00:00Z',
+        assignedAt: '2026-10-14T09:00:00Z', synthetic: {gained: 346, lost: 2},
+        goals: ['first', 'second'].map(id => ({id, summary: 'Fix <caller>', sourceFile: 'hack.c',
+            workers: ['A2'], assignedAt: '2026-10-14T09:00:00Z', status: 'closed', developmentDelta: null}))}];
+    const html = renderDashboard(data).get('goalTable').innerHTML;
+    assert.equal((html.match(/\+346 \/ −2/gu) || []).length, 1);
+    assert.match(html, /2 goals · shared result/u);
+    assert.equal((html.match(/Fix &lt;caller&gt;/gu) || []).length, 2);
+    assert.match(html, /<td>A<\/td>/u);
+    assert.doesNotMatch(html, /<th>Assigned|<th>Development/u);
 });

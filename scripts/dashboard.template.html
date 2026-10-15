@@ -10,7 +10,7 @@
   --surface-chart: #fcfcfb;
   --ink-primary: #1a1917;
   --ink-secondary: #52514e;
-  --ink-muted: #898781;
+  --ink-muted: #68665f;
   --border: rgba(11,11,11,0.08);
   --gridline: #e1e0d9;
   --baseline: #c3c2b7;
@@ -151,7 +151,7 @@ h1 {
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--ink-muted);
   text-transform: uppercase;
@@ -206,7 +206,7 @@ h1 {
 .score-breakdown-label {
   color: var(--ink-muted);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   text-align: left;
 }
 
@@ -216,7 +216,7 @@ h1 {
 .score-source {
   color: var(--ink-muted);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 10px;
   overflow-wrap: anywhere;
 }
@@ -265,7 +265,7 @@ h1 {
   white-space: normal;
   line-height: 1.4;
   color: var(--ink-muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* --- Sections --- */
@@ -283,17 +283,7 @@ h1 {
 
 summary { cursor: pointer; }
 .diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
-.diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
 summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
-#sourceWorkTable th, #sourceWorkTable td { padding: 6px clamp(4px, 1vw, 10px); }
-#sourceWorkTable .in-progress td:nth-child(2) { font-weight: 600; }
-#sourceWorkTable .zero { color: var(--ink-secondary); }
-.goal-symbol { display: inline-block; width: 1em; text-align: center; }
-.goal-symbol.active { color: var(--goal-in-progress); }
-.goal-symbol.paused { color: var(--goal-paused); }
-#sourceWorkTable th { text-align: right; border-right: 0; left: auto; z-index: 1; }
-#sourceWorkTable .source-heading { text-align: left; left: 0; border-right: 1px solid var(--border); z-index: 3; }
-#sourceWorkTable .goals-heading { text-align: center; border-bottom: 0; padding-bottom: 0; }
 code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
@@ -344,7 +334,7 @@ canvas {
 
 .chart-range {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -353,7 +343,7 @@ canvas {
 
 .chart-hint {
   margin-left: auto;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-muted);
   white-space: nowrap;
 }
@@ -370,11 +360,11 @@ canvas {
   .stats { column-gap: 8px; }
   .stat { padding: 8px 10px; }
   .stat-value { font-size: 16px; }
-  .stat-detail { font-size: 11px; }
+  .stat-detail { font-size: 12px; }
   .chart-wrap { padding: 8px; }
-  .goal-table { font-size: 11px; }
+  .goal-table { font-size: 12px; }
   .goal-table th, .goal-table td { padding: 4px 6px; }
-  .legend { font-size: 11px; gap: 8px; }
+  .legend { font-size: 12px; gap: 8px; }
   /* A fade at the right edge shows that the row continues. The left edge
      needs none: the first column is sticky and opaque. */
   .goal-table-wrap {
@@ -391,7 +381,7 @@ canvas {
 
 .chart-reset {
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
   background: var(--surface-chart);
   border: 1px solid var(--border);
@@ -443,7 +433,7 @@ canvas {
 .history-controls .chart-reset + .chart-reset { border-left: 1px solid var(--border); }
 .history-controls [aria-pressed="true"] { background: var(--progress-area); color: var(--ink-primary); border-color: var(--ink-secondary); }
 .history-view-controls { display: flex; align-items: center; gap: 16px; margin-left: auto; }
-#progressWindow { font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
+#progressWindow { font: inherit; font-size: 12px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .batch-picker { position: relative; width: max-content; max-width: 100%; margin: 8px 0 12px; font-size: 12px; }
 .batch-picker summary { cursor: pointer; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; }
 .batch-picker[open] summary { border-color: var(--progress-fill); }
@@ -456,18 +446,18 @@ canvas {
 .history-line.total { border-top: 1px dashed var(--chart-total); }
 .history-addition { width: 6px; height: 6px; margin: 0 2px; background: var(--ink-muted); transform: rotate(45deg); }
 .score-inspection { position: sticky; top: 0; z-index: 5; background: var(--surface-card); padding: 8px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
-.readout-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
+.readout-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
 #progressReadout { display: grid; grid-template-columns: minmax(min-content, 1fr) max-content max-content max-content max-content max-content minmax(max-content, 1fr); column-gap: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .score-readout-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; align-items: baseline; padding: 3px 0; }
 .score-readout-row strong { padding-right: 8px; }
 .score-readout-row > span { text-align: right; }
 .score-readout-row .score-dot { padding: 0 4px; }
-.score-readout-row .score-age { padding-left: 8px; font-size: 11px; color: var(--ink-muted); }
+.score-readout-row .score-age { padding-left: 8px; font-size: 12px; color: var(--ink-muted); }
 .score-readout-row .score-missing { grid-column: 2 / 7; }
 .history-plot { margin-top: 12px; }
 .history-plot h3 { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
 .history-navigator { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 12px; }
-.history-help { color: var(--ink-muted); font-size: 11px; margin-top: 8px; }
+.history-help { color: var(--ink-muted); font-size: 12px; margin-top: 8px; }
 
 /* --- Worker handoffs and coordinator stages --- */
 .activity-controls {
@@ -478,21 +468,18 @@ canvas {
   gap: 10px;
   margin: 0 0 12px;
 }
-.activity-window-select { margin-left: auto; font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
-.activity-navigation { display: flex; align-items: center; gap: 8px; }
+.activity-window-select { margin-left: auto; font: inherit; font-size: 12px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
+.activity-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.activity-nav-buttons { display: flex; align-items: center; gap: 8px; }
 .activity-navigation .chart-range { min-width: 165px; text-align: left; }
-.activity-pan-hint { color: var(--ink-muted); font-size: 11px; }
-.activity-utilization { width: 100%; max-width: 520px; table-layout: fixed; border-collapse: collapse; margin: 0 0 6px; font-size: 11px; font-variant-numeric: tabular-nums; }
-.activity-utilization th, .activity-utilization td { padding: 3px; text-align: right; white-space: nowrap; }
+.activity-utilization { width: 100%; max-width: 520px; table-layout: fixed; border-collapse: collapse; margin: 0 0 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.activity-utilization th, .activity-utilization td { padding: 2px; text-align: right; white-space: nowrap; }
 .activity-utilization th:first-child { width: 20%; text-align: left; padding-left: 0; }
 .activity-utilization thead th { font-weight: 400; color: var(--ink-muted); }
 .activity-utilization tbody th { font-weight: 500; }
 .activity-utilization .utilization-work { font-weight: 600; }
-.activity-utilization-help { margin: 0 0 12px; color: var(--ink-muted); font-size: 11px; }
-.activity-note { margin: 0 0 14px; font-size: 11px; color: var(--ink-muted); }
+.activity-note { margin: 0 0 14px; font-size: 12px; color: var(--ink-muted); }
 .integration-duration { margin: 18px 0; }
-.integration-duration-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; min-height: 20px; }
-.integration-duration-heading h3 { font-size: 12px; font-weight: 600; }
 .integration-duration-summary { height: 64px; font-size: 12px; line-height: 16px; color: var(--ink-secondary);
   font-variant-numeric: tabular-nums; overflow-y: auto; scrollbar-gutter: stable; }
 .integration-duration-series { min-height: 32px; padding-left: 26px; position: relative; }
@@ -501,13 +488,12 @@ canvas {
   border-radius: 50%; background: var(--integration-blue); }
 .integration-duration-key.prep { border-top: 2px dashed var(--integration-orange); }
 .integration-duration-key.prep::after { border-radius: 0; background: var(--integration-orange); }
-.worker-timeline-heading { font-size: 12px; font-weight: 600; margin-top: 18px; }
 .integration-duration canvas { display: block; width: 100%; height: 320px; }
 .integration-duration canvas:focus-visible { outline: 2px solid var(--goal-file-port); outline-offset: 2px; }
 .integration-duration-readout { height: 64px; overflow-y: auto; scrollbar-gutter: stable;
   font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .integration-duration-readout strong { color: var(--ink-primary); }
-.activity-timeline { cursor: grab; touch-action: pan-y; user-select: none; }
+.activity-timeline { min-height: 264px; cursor: grab; touch-action: pan-y; user-select: none; }
 .activity-timeline.is-panning, .activity-timeline.is-panning .activity-bar { cursor: grabbing; }
 .activity-timeline:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 3px; }
 .activity-row {
@@ -519,7 +505,7 @@ canvas {
   width: 56px;
   min-width: 56px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
   padding-right: 8px;
   text-align: right;
@@ -547,7 +533,7 @@ canvas {
   box-sizing: border-box;
   overflow: hidden;
   color: white;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 22px;
   padding: 0 3px;
   white-space: nowrap;
@@ -573,19 +559,22 @@ canvas {
 #timelineLegend .legend-swatch { background: var(--bar); }
 #timelineLegend { display: grid; gap: 8px; }
 .activity-legend-group { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; align-items: baseline; }
-.activity-legend-group > strong { font-size: 11px; font-weight: 600; }
+.activity-legend-group > strong { font-size: 12px; font-weight: 600; }
 .activity-legend-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .activity-backlog { font-size: 12px; line-height: 1.6; }
 .activity-backlog p { margin: 4px 0; }
 .activity-backlog summary { cursor: pointer; }
-.activity-backlog-table { max-height: 220px; overflow: auto; margin-top: 8px; }
-.activity-backlog table { width: 100%; min-width: 470px; border-collapse: collapse; table-layout: fixed; font-size: inherit; }
-.activity-backlog th, .activity-backlog td { padding: 6px 10px 6px 0; text-align: left; vertical-align: top; }
-.activity-backlog th:nth-child(1) { width: 90px; }
-.activity-backlog th:nth-child(2) { width: 140px; }
-.activity-backlog th:nth-child(3) { width: 70px; }
-.activity-backlog td { overflow-wrap: anywhere; }
-.activity-backlog small { display: block; opacity: .65; }
+.main-work-group { margin: 12px 0; }
+.main-work-group h4 { font-size: 12px; font-weight: 600; color: var(--ink-secondary); margin-bottom: 4px; }
+.main-work-item { border-bottom: 1px solid var(--border); }
+.main-work-item > summary { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; }
+.main-work-item > summary::before { content: '▸'; flex: 0 0 10px; }
+.main-work-item[open] > summary::before { content: '▾'; }
+.main-work-name { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 13px; }
+.main-work-name small { display: block; font-size: 12px; color: var(--ink-secondary); }
+.main-work-age { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--ink-secondary); }
+.main-work-detail { padding: 0 20px 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
+#parkedTasks { max-height: 320px; overflow-y: auto; margin-top: 12px; }
 #timelineLegend .phase-unrecorded { background: transparent; border-bottom: 1px dotted var(--ink-muted); border-radius: 0; }
 .activity-bar.continues-left { border-left: 3px double var(--surface-card); }
 .activity-bar.continues-right { border-right: 3px double var(--surface-card); }
@@ -597,7 +586,7 @@ canvas {
 .activity-history button { display: block; width: 100%; background: none; border: 0; color: inherit; padding: 5px 8px; text-align: left; cursor: pointer; font: inherit; }
 .activity-history li.selected { background: var(--surface-chart); border-left-color: var(--ink-primary); }
 .activity-history time { font-variant-numeric: tabular-nums; }
-.activity-empty { position: absolute; left: 8px; top: 16px; font-size: 10px; color: var(--ink-muted); }
+.activity-empty { position: absolute; left: 8px; top: 16px; font-size: 11px; color: var(--ink-muted); }
 .activity-bar.selected, .activity-bar:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 2px; z-index: 1; }
 .activity-axis {
   height: 24px;
@@ -610,7 +599,7 @@ canvas {
   top: 3px;
   transform: translateX(-50%);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-muted);
   white-space: nowrap;
 }
@@ -637,15 +626,6 @@ canvas {
 .activity-task-fields dd { margin: 0; min-width: 0; }
 .activity-inspection p { margin: 5px 0 8px; }
 .activity-inspection ul { margin: 4px 0 0; padding-left: 18px; }
-@media (max-width: 640px) {
-  .activity-navigation { width: 100%; justify-content: space-between; }
-}
-@media (max-width: 480px) {
-  .activity-navigation { flex-wrap: wrap; }
-  .activity-navigation .chart-range { order: -1; width: 100%; }
-  .activity-pan-hint { width: 100%; }
-}
-
 /* A short line sample for a chart series, carrying its dash pattern. */
 .legend-line {
   flex-shrink: 0;
@@ -681,7 +661,7 @@ canvas {
 }
 
 .tooltip-delta {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-muted);
   margin-bottom: 8px;
 }
@@ -696,7 +676,7 @@ canvas {
 
 .tooltip-meta {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-muted);
   margin-bottom: 8px;
 }
@@ -705,7 +685,7 @@ canvas {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 2px 10px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
   margin-bottom: 8px;
 }
@@ -719,7 +699,7 @@ canvas {
 /* A holdout-evaluation note runs to several hundred words. Clamping keeps the
    readout shorter than the viewport; the note itself is in SCORE.tsv. */
 .tooltip-note {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.45;
   color: var(--ink-secondary);
   border-top: 1px solid var(--border);
@@ -763,7 +743,7 @@ canvas {
 
 .goal-table th {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--ink-muted);
   text-transform: uppercase;
@@ -820,13 +800,6 @@ canvas {
   overflow-wrap: anywhere;
 }
 
-/* C file names are short, so that column takes its content's width. */
-#sourceWorkTable td:first-child {
-  width: auto;
-  min-width: 0;
-  max-width: none;
-}
-
 /* A goal's kind is a stripe on the row's left edge, in the timeline's kind
    colours; the in-progress rule below overrides it for the running goal. */
 .goal-table tr.kind-file-port td:first-child,
@@ -845,7 +818,7 @@ canvas {
 
 .audit-badge {
   display: inline-block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   border-radius: 3px;
   padding: 0 4px;
@@ -855,7 +828,6 @@ canvas {
   border: 1px solid var(--audit-accent);
 }
 
-#sourceWorkDisclosure > summary .section-title { display: inline; }
 
 .goal-table tr.in-progress td {
   --tint: color-mix(in srgb, var(--goal-in-progress) 6%, transparent);
@@ -866,6 +838,42 @@ canvas {
   box-shadow: inset 3px 0 0 var(--goal-in-progress);
 }
 
+
+/* Keep current work prominent; diagnostics open only when requested. */
+.activity-zoom { display: flex; gap: 4px; }
+.activity-zoom button { min-width: 30px; }
+.activity-help { margin: 12px 0; color: var(--ink-secondary); font-size: 12px; }
+.activity-help summary, .integration-duration > summary { cursor: pointer; }
+.activity-help .legend { margin: 12px 0; }
+.activity-help p { max-width: 75ch; }
+#activityMinimap { display: block; width: 100%; height: 64px; margin-top: 14px; cursor: ew-resize; touch-action: none; }
+#activityMinimap:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 3px; }
+.integration-duration { border-top: 1px solid var(--border); padding-top: 16px; }
+.integration-duration > summary { font-size: 13px; font-weight: 600; }
+.integration-scale { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 16px 0 12px; color: var(--ink-secondary); font-size: 12px; }
+.integration-scale button[aria-pressed="true"] { color: var(--ink-primary); border-color: var(--ink-primary); }
+#integrationOverflow { height: 36px; overflow-y: auto; }
+#pendingMainWorkTitle { font-size: 14px; }
+#parkedTaskHistory { margin-top: 12px; }
+#parkedTaskHistory > summary { cursor: pointer; color: var(--ink-secondary); font-size: 12px; }
+#goalHistoryDisclosure > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; cursor: pointer; }
+#goalHistoryDisclosure > summary::before { content: '▸'; }
+#goalHistoryDisclosure[open] > summary::before { content: '▾'; }
+#goalHistoryDisclosure .section-title { margin: 0; }
+#tableSubtitle { color: var(--ink-secondary); font-size: 12px; }
+#goalHistoryDisclosure .chart-wrap { margin-top: 16px; }
+#goalTable { table-layout: fixed; }
+#goalTable th:first-child, #goalTable td:first-child { width: 70%; min-width: 0; max-width: none; white-space: normal; }
+#goalTable th:nth-child(2) { width: 12%; }
+#goalTable th:nth-child(3) { width: 18%; }
+#goalTable td { vertical-align: top; }
+#goalTable summary { cursor: pointer; color: var(--ink-primary); }
+#goalTable .goal-id { overflow-wrap: anywhere; color: var(--ink-secondary); font-size: 12px; margin: 8px 0; }
+#goalTable .integration-group td { background: var(--surface-chart); padding-top: 12px; padding-bottom: 8px; font-weight: 600; }
+#goalTable .integration-group small { display: block; font-weight: 400; color: var(--ink-secondary); }
+#goalTable .goal-source { display: block; font-size: 12px; color: var(--ink-secondary); }
+.stat-unmatched { color: var(--ink-primary); font-size: 13px; font-weight: 600; min-height: 20px; margin-top: 4px; }
+
 /* --- Time axis --- */
 </style>
 
@@ -873,11 +881,16 @@ canvas {
   <h1>NetHack Port Progress</h1>
   <span class="updated" id="updated"></span>
 </div>
-<p class="subtitle">Saved screen measurements.</p>
+
 
 <div class="stats" id="stats"></div>
 
 
+
+<section class="section" aria-labelledby="pendingMainWorkTitle">
+  <h3 class="section-title" id="pendingMainWorkTitle">Main queue</h3>
+  <div class="activity-backlog" id="pendingMainWork"></div>
+</section>
 
 <section class="section" aria-labelledby="scoreHistoryTitle">
   <h2 class="section-title" id="scoreHistoryTitle">Screen matches over time</h2>
@@ -908,14 +921,14 @@ canvas {
     <div class="history-navigator">
       <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the development set and synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
     </div>
-    <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom. Each synthetic axis starts near that batch's lowest recorded match.</p>
+    <p class="history-help">Synthetic axes start near each batch’s lowest recorded match.</p>
   </div>
 </section>
 
 <section class="section" aria-labelledby="challengeTitle">
   <h2 class="section-title" id="challengeTitle">Sessions</h2>
   <div class="chart-wrap" id="challengePanel">
-    <p class="subtitle">Development starts at zero; each synthetic case starts at its first admitted evaluation.</p>
+
     <p class="table-note" id="sessionSummary"></p>
     <div id="challengeBatches"></div>
     <label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="sessionShowAll">Show all sessions</label>
@@ -927,71 +940,60 @@ canvas {
 </section>
 
 <section class="diagnostics">
-  <h2 class="section-title">Diagnostics and history</h2>
-<details class="section" id="sourceWorkDisclosure">
-  <summary><h3 class="section-title">Work by source file</h3></summary>
-  <div class="legend" id="sourceWorkLegend"></div>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
-      <table class="goal-table" id="sourceWorkTable"></table>
-    </div>
-  </div>
-</details>
 
-<section class="section" aria-labelledby="pendingMainWorkTitle">
-  <h3 class="section-title" id="pendingMainWorkTitle">Pending Main work</h3>
-  <div class="activity-backlog" id="pendingMainWork"></div>
-</section>
+
 
 <div class="section">
   <h3 class="section-title">Worker activity</h3>
-  <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
+  <p class="subtitle" id="activitySnapshotTime"></p>
   <div class="activity-controls">
     <div class="activity-navigation">
       <span class="chart-range" id="activityWindowLabel"></span>
-      <button class="chart-reset" id="activityLatest" type="button">Latest</button>
+      <div class="activity-nav-buttons"><div class="activity-zoom" role="group" aria-label="Activity zoom"><button class="chart-reset" id="activityZoomOut" type="button" aria-label="Zoom out">−</button><button class="chart-reset" id="activityZoomIn" type="button" aria-label="Zoom in">+</button></div>
+      <button class="chart-reset" id="activityLatest" type="button">Latest</button></div>
     </div>
     <select class="activity-window-select" id="activityWindow" aria-label="Activity time range">
       <option value="6" selected>6 hours</option>
       <option value="24">24 hours</option>
-      <option value="168">7 days</option>
+      <option value="168">7 days</option><option value="all">All</option><option value="custom" disabled hidden>Custom</option>
     </select>
   </div>
-  <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
+
   <div class="chart-wrap">
     <div id="activityMetrics" aria-label="Recorded worker utilization in the visible time window"></div>
-    <p class="activity-utilization-help">Rounded shares of plotted worker-time in this window. Work means assigned or running stages, not CPU use. Unknown means unrecorded; it is not counted as idle.</p>
-    <div class="integration-duration">
-      <div class="integration-duration-heading"><h3>Main integration time</h3></div>
+
+    <details class="activity-help"><summary>Stage key and definitions</summary><div class="legend" id="timelineLegend"></div><p>Bars show elapsed stages, including waits. Work means assigned time, not CPU use. Unknown time is unrecorded, not idle. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
+    <p class="activity-note" id="prepProbeSummary" hidden></p>
+    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
+    <canvas id="activityMinimap" tabindex="0" aria-label="Full worker history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
+    <div class="activity-details">
+      <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
+    </div>
+    <details class="integration-duration" id="integrationDisclosure">
+      <summary>Main integration time</summary>
+      <div class="integration-scale"><span>Elapsed time, including CI waits</span><button class="chart-reset" id="integrationFullRange" type="button" aria-pressed="false">Full range</button></div>
       <div class="integration-duration-summary">
         <p class="integration-duration-series"><span class="integration-duration-key" aria-hidden="true"></span>Implementation: <span id="integrationDurationSummary"></span></p>
         <p class="integration-duration-series"><span class="integration-duration-key prep" aria-hidden="true"></span>Prep: <span id="prepIntegrationDurationSummary"></span></p>
       </div>
-      <p class="activity-note">Integration/checks time includes CI wait; excludes acceptance, publication and case generation. Marks: completed attempts, including retries. Lines: 10-attempt rolling means per series, including pre-window history. Summaries: window means.</p>
+      <p class="activity-note" id="integrationOverflow"></p>
       <canvas id="integrationDurationChart" tabindex="0" aria-label="Main integration duration. Blue circles: implementation; orange squares: Prep. Select a point to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
       <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
-    </div>
-    <h3 class="worker-timeline-heading">Worker timeline</h3>
-    <p class="activity-note" id="prepProbeSummary" hidden></p>
-    <p class="activity-note">One row per agent; pending deliveries stay in task history. Blocks and parked tasks show reasons; idle and unrecorded time are separate. Hover to inspect; select to pin. Arrows mark clipped stages; details scroll.</p>
-    <div class="legend" id="timelineLegend"></div>
-    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
-    <div class="activity-details">
-      <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
-    </div>
+    </details>
+
   </div>
 </div>
 
-<div class="section">
-  <h3 class="section-title">Goal history</h3>
-  <p class="subtitle" id="tableSubtitle"></p>
-  <div class="legend" id="tableLegend"></div>
+<details class="section" id="parkedTaskHistory"><summary id="parkedTaskSummary">Paused worker tasks</summary><div class="activity-backlog" id="parkedTasks"></div></details>
+
+<details class="section" id="goalHistoryDisclosure">
+  <summary><h3 class="section-title">Goal history</h3><span id="tableSubtitle"></span></summary>
   <div class="chart-wrap">
     <div class="goal-table-wrap" id="goalTableWrap">
       <table class="goal-table" id="goalTable"></table>
     </div>
   </div>
-</div>
+</details>
 
 </section>
 
@@ -1010,9 +1012,15 @@ function fmt(n) {
   return Math.round(n) + 'm';
 }
 function fmtN(n) { return n == null ? '-' : n.toLocaleString(); }
+function goalTitle(goal) { return goal.summary.replace(/^Implement (\w+) from \S+$/u, 'Implement $1'); }
 // A signed screen delta: "+16", "−378", or "-" when there is none.
 function fmtDelta(n) { return n == null ? '-' : n < 0 ? '−' + (-n) : '+' + n; }
-function pct(a, b) { return b ? (a / b * 100).toFixed(1) + '%' : '-'; }
+function pct(a, b) {
+  if (!b) return '—';
+  if (a === b) return '100%';
+  const rounded = (a / b * 100).toFixed(1);
+  return rounded === '100.0' ? '>99.9%' : rounded + '%';
+}
 function fmtTiming(n, observed) {
   return n == null ? '-' : fmt(n) + (observed ? '' : ' †');
 }
@@ -1030,7 +1038,7 @@ function relativeTime(iso) {
 }
 
 // --- Last updated ---
-document.getElementById('updated').textContent = 'Snapshot built ' + relativeTime(DATA.summary.generatedAt);
+document.getElementById('updated').textContent = 'Snapshot ' + relativeTime(DATA.summary.generatedAt);
 
 // --- Stat tiles ---
 const s = DATA.summary;
@@ -1076,6 +1084,9 @@ document.getElementById('stats').innerHTML = [
   return '<div class="stat"><div class="score-card-title">' + title + '</div>'
     + '<div class="stat-value">' + value + '</div>'
     + '<div class="stat-detail">' + screens + '</div>'
+    + '<div class="stat-unmatched">' + (score.screens
+      ? score.screens.matched === score.screens.total ? 'All screens match'
+        : fmtN(score.screens.total - score.screens.matched) + (score.screens.total - score.screens.matched === 1 ? ' screen unmatched' : ' screens unmatched') : 'Unmeasured') + '</div>'
     + '<div class="score-breakdown">' + metrics + '</div>'
     + '<div class="score-source">' + escScoreText(age) + '</div>'
     + (score.status === 'stale' ? '<div class="score-source">Earlier measurement; reassessment required.</div>' : '')
@@ -1228,60 +1239,6 @@ document.getElementById('stats').innerHTML = [
   };
   showAll.addEventListener('change', render);
   render();
-})();
-
-// --- Source file inventory ---
-(function() {
-  const work = DATA.workGoals || [];
-  const esc = text => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const files = new Map();
-  work.forEach(goal => {
-    if (!goal.sourceFile) return;
-    const owners = new Set([goal.sourceFile, ...goal.units.map(unit => unit.sourceFile || goal.sourceFile)]);
-    owners.forEach(owner => {
-      if (!files.has(owner)) {
-        files.set(owner, { sourceFile: owner, goalsClosed: 0,
-          active: 0, paused: 0, queued: 0 });
-      }
-      const file = files.get(owner);
-      if (goal.status === 'closed') file.goalsClosed += 1;
-      if (goal.status === 'open') file.active += 1;
-      if (goal.status === 'parked') file.paused += 1;
-      if (goal.status === 'queued') file.queued += 1;
-    });
-  });
-  const table = document.getElementById('sourceWorkTable');
-  document.getElementById('sourceWorkLegend').innerHTML = '';
-  if (files.size === 0) {
-    table.outerHTML = '<p class="table-note">0 source files recorded.</p>';
-    return;
-  }
-  // Active files come first, then paused and queued work, then other files.
-  const priority = file => file.active ? 0 : file.paused ? 1 : file.queued ? 2 : 3;
-  const sorted = [...files.values()].sort((a, b) => priority(a) - priority(b)
-    || a.sourceFile.localeCompare(b.sourceFile));
-  const states = [
-    { key: 'active', label: 'In progress', symbol: '▶' },
-    { key: 'paused', label: 'Remaining', symbol: '◇' },
-    { key: 'queued', label: 'Queued', symbol: '◇' },
-    { key: 'goalsClosed', label: 'Closed', symbol: '✓' },
-  ].filter(state => state.key !== 'queued' || sorted.some(file => file.queued));
-  const symbol = state => '<span class="goal-symbol ' + state.key + '" aria-hidden="true">' + state.symbol + '</span>';
-  document.getElementById('sourceWorkLegend').innerHTML = states.map(state =>
-    '<span class="legend-item">' + symbol(state) + ' ' + state.label + '</span>').join('');
-  let html = '<thead><tr><th scope="col" rowspan="2" class="source-heading">Source file</th>'
-    + '<th scope="colgroup" colspan="' + states.length + '" class="goals-heading">Tasks</th></tr><tr>'
-    + states.map(state => '<th scope="col" aria-label="' + state.label + '" title="' + state.label + '">'
-      + symbol(state) + '</th>').join('')
-    + '</tr></thead><tbody>';
-  sorted.forEach(file => {
-    html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
-      + '<td>' + esc(file.sourceFile) + '</td>'
-      + states.map(state => '<td' + (file[state.key] ? '' : ' aria-label="0"') + '>' + (file[state.key] || '') + '</td>').join('')
-      + '</tr>';
-  });
-  table.innerHTML = html + '</tbody>';
 })();
 
 // --- Separate batch histories with one time window and navigator ---
@@ -1697,7 +1654,8 @@ document.getElementById('stats').innerHTML = [
   const container = document.getElementById('pendingMainWork');
   const backlog = DATA.pendingMainWork;
   if (!backlog) {
-    container.textContent = 'Pending Main work is unavailable until the worker snapshot is refreshed.';
+    container.textContent = 'Queue unavailable until the worker snapshot is refreshed.';
+    document.getElementById('parkedTaskHistory').hidden = true;
     return;
   }
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -1708,38 +1666,35 @@ document.getElementById('stats').innerHTML = [
     return !Number.isFinite(minutes) ? '—' : minutes < 60 ? minutes + 'm'
       : Math.floor(minutes / 60) + 'h ' + minutes % 60 + 'm';
   };
-  const names = { ready: 'Ready to integrate', integrating: 'Integration and checks',
-    validated: 'Awaiting acceptance', 'changes-required': 'Needs correction',
-    'awaiting-admission': 'Ready to admit', parked: 'Parked' };
-  const deliveries = backlog.deliveries;
-  const prepared = backlog.preparedBatches;
-  const submittedBatches = deliveries.filter(row => row.kind === 'challenge-preparation');
+  const rows = [...backlog.deliveries, ...backlog.preparedBatches];
   const parked = backlog.parkedTasks;
-  const blocked = deliveries.filter(row => row.blockedBy.length).length;
-  const rows = [...deliveries, ...prepared, ...parked];
-  const taskLabels = new Map(rows.map(row => [row.task, row.batch ?? row.task]));
-  container.innerHTML = '<p>' + deliveries.length
-    + ' submitted task' + (deliveries.length === 1 ? '' : 's')
-    + (blocked ? ' (' + blocked + ' awaiting dependencies)' : '')
-    + (deliveries.length ? '; oldest submission ' + age(deliveries[0]) + ' ago' : '') + '.</p>'
-    + '<p>Submitted batches awaiting Main: '
-    + (submittedBatches.length ? submittedBatches.map(row => esc(row.batch ?? row.task)).join(' · ')
-      + (submittedBatches.some(row => row.blockedBy.length) ? ' ('
-        + submittedBatches.filter(row => row.blockedBy.length).length + ' awaiting dependencies)' : '') + '.' : 'None.')
-    + '</p><p>Accepted batches awaiting admission: '
-    + (prepared.length ? prepared.map(row => esc(row.batch)).join(' · ')
-      + '. Oldest acceptance: ' + age([...prepared].sort((a, b) => a.since.localeCompare(b.since))[0]) + ' ago.' : 'None.')
-    + '</p>' + (rows.length ? '<details><summary>Details'
-    + (parked.length ? ' · ' + parked.length + ' parked' : '') + '</summary>'
-    + '<div class="activity-backlog-table"><table><thead><tr><th>Work</th><th>State</th><th>Age</th><th>Waiting on</th></tr></thead><tbody>'
-    + rows.map(row => '<tr><td title="' + esc(row.goal) + '">' + esc(row.batch ?? row.task)
-      + '<small>' + esc(row.batch ? row.task : row.worker) + '</small></td><td>'
-      + esc(row.status === 'ready' && row.blockedBy.length ? 'Awaiting dependencies' : names[row.status] ?? row.status)
-      + '<small>' + esc(row.delivery?.slice(0, 8) ?? 'Not submitted') + '</small></td><td>' + age(row)
-      + '</td><td>' + esc(row.reason ?? (row.blockedBy.length ? row.blockedBy.map(task => taskLabels.get(task) ?? task).join(', ')
-        : row.status === 'awaiting-admission' ? 'Main admission checks and baseline'
-          : row.status === 'changes-required' ? 'Worker correction' : 'Main')) + '</td></tr>').join('')
-    + '</tbody></table></div></details>' : '');
+  const goals = new Map((DATA.goalHistory || []).flatMap(group => group.goals.map(goal => [goal.id, goal])));
+  const title = row => row.batch ? 'Challenge batch ' + row.batch : (goals.has(row.goal) ? goalTitle(goals.get(row.goal)) : row.goal || row.task);
+  const taskLabels = new Map([...rows, ...parked].map(row => [row.task, title(row)]));
+  const item = row => '<details class="main-work-item"><summary><span class="main-work-name">' + esc(title(row))
+    + '<small>Worker ' + esc(row.worker === 'A2' ? 'A' : row.worker)
+    + (goals.get(row.goal)?.sourceFile ? ' · ' + esc(goals.get(row.goal).sourceFile) : '')
+    + '</small></span><span class="main-work-age" title="Since ' + esc(row.since) + '">' + age(row) + '</span></summary>'
+    + '<div class="main-work-detail"><p>Task ' + esc(row.task)
+    + (row.delivery ? ' · Delivery ' + esc(row.delivery.slice(0, 8)) : '') + '</p>'
+    + (row.goal ? '<p>Goal ' + esc(row.goal) + '</p>' : '')
+    + (row.blockedBy.length ? '<p>Waiting on ' + row.blockedBy.map(task => esc(taskLabels.get(task) ?? task)).join(', ') + '.</p>' : '')
+    + (row.reason ? '<p>' + esc(row.reason) + '</p>' : '') + '</div></details>';
+  const groups = [
+    ['Ready to accept', rows.filter(row => row.status === 'validated')],
+    ['Batches to admit', rows.filter(row => row.status === 'awaiting-admission')],
+    ['Ready to integrate', rows.filter(row => row.status === 'ready' && !row.blockedBy.length)],
+    ['Checks running', rows.filter(row => row.status === 'integrating')],
+    ['Waiting for dependencies', rows.filter(row => row.status === 'ready' && row.blockedBy.length)],
+    ['Needs worker correction', rows.filter(row => row.status === 'changes-required')],
+  ];
+  container.innerHTML = rows.length ? groups.filter(([, items]) => items.length)
+    .map(([label, items]) => '<section class="main-work-group"><h4>' + label + ' · ' + items.length + '</h4>'
+      + items.map(item).join('') + '</section>').join('') : '<p>Nothing awaiting Main.</p>';
+  document.getElementById('parkedTaskHistory').hidden = !parked.length;
+  document.getElementById('parkedTaskSummary').textContent = 'Paused worker tasks · ' + parked.length;
+  document.getElementById('parkedTasks').innerHTML = parked.map(item).join('');
+
 })();
 
 (function() {
@@ -1759,12 +1714,14 @@ document.getElementById('stats').innerHTML = [
     points: durationPoints[group], label, color, prep: group === 'preparation',
     summary: document.getElementById(prefix + 'Summary'),
   }));
-  let plottedDurations = [], pinnedDuration = null;
+  let plottedDurations = [], pinnedDuration = null, fullDurationRange = false;
+  const fullRangeButton = document.getElementById('integrationFullRange');
+  const minimap = document.getElementById('activityMinimap');
   const segments = activity.stages || history.filter(row => row.phase !== 'queued');
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   document.getElementById('activitySnapshotTime').textContent = activity.capturedAt
-    ? 'Activity snapshot: ' + new Date(activity.capturedAt).toLocaleString('en-US',
+    ? 'Snapshot ' + new Date(activity.capturedAt).toLocaleString('en-US',
       { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
         timeZoneName: 'short' }) + '.' : '';
   const taskById = new Map((activity.tasks || []).map(task => [task.id, task]));
@@ -1799,6 +1756,7 @@ document.getElementById('stats').innerHTML = [
     for (const series of durationSeries) series.summary.textContent = 'No completed attempts';
     durationReadout.textContent = 'Integration time is unavailable until completed stages are recorded.';
     container.textContent = 'No worker activity snapshot is available.';
+    readout.innerHTML = '<section><h4>Task details</h4><p>No recorded activity.</p></section><section></section>';
     return;
   }
   const hourMs = 3600000;
@@ -1814,8 +1772,17 @@ document.getElementById('stats').innerHTML = [
   const lanes = [...new Set(history.map(segment => displayLane(segment.lane))
     .filter(lane => lane !== 'Main'))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   lanes.push('Main');
-  let hours = 6;
-  let viewEnd = latest;
+  const minSpan = Math.min(20 * 60000, latest - first || hourMs);
+  const domainEnd = Math.max(latest, first + minSpan);
+  let hours = Math.min(6, (domainEnd - first) / hourMs);
+  let viewEnd = domainEnd;
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('activityWindow'));
+    if (Array.isArray(saved) && saved.length === 2 && saved.every(Number.isFinite) && saved[1] > saved[0]) {
+      hours = Math.max(minSpan, Math.min(domainEnd - first, saved[1] - saved[0])) / hourMs;
+      viewEnd = saved[1];
+    }
+  } catch { /* Invalid saved ranges open at the latest six hours. */ }
   let selectedIndex = null;
   let pinnedStage = null;
   function pin(index, source = segments) {
@@ -1841,7 +1808,7 @@ document.getElementById('stats').innerHTML = [
     || (segment.label ? displayLane(segment.label) : segment.task);
   function describeDuration(point) {
     if (!point) {
-      durationReadout.textContent = 'Hover to inspect; select to pin. Arrow keys move between completed attempts.';
+      durationReadout.textContent = 'Select an attempt for its exact duration and task details.';
       return;
     }
     const stage = history[point.sourceIndex];
@@ -1850,16 +1817,20 @@ document.getElementById('stats').innerHTML = [
       + (point.validationGroup || point.prepGroup ? ' · Shared run: ' + esc((point.validationGroup || point.prepGroup).join(', ')) : '')
       + '<br>' + stamp(point.start) + ' – ' + stamp(point.end)
       + ' · ' + (point.durationMs / 60000).toFixed(1) + ' min'
-      + ' · Rolling mean ' + (point.rollingMeanMs / 60000).toFixed(1) + ' min (' + point.sampleSize
-      + (point.sampleSize === 1 ? ' attempt)' : ' attempts)');
+      + ' · Rolling median ' + (point.rollingMedianMs / 60000).toFixed(1) + ' min (' + point.sampleSize
+      + (point.sampleSize === 1 ? ' attempt)' : ' attempts)')
+      + ' · Mean ' + (point.rollingMeanMs / 60000).toFixed(1) + ' min';
   }
   function drawDurations(start, end) {
     const series = durationSeries.map(row => ({ ...row,
       before: row.points.filter(point => Date.parse(point.end) < start).at(-1),
       visible: row.points.filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end) }));
     for (const row of series) {
-      const average = row.visible.reduce((sum, point) => sum + point.durationMs, 0) / row.visible.length;
-      row.summary.textContent = row.visible.length ? 'Window mean ' + (average / 60000).toFixed(1)
+      const values = row.visible.map(point => point.durationMs).sort((a, b) => a - b);
+      const middle = Math.floor(values.length / 2);
+      const median = values.length % 2 ? values[middle] : (values[middle - 1] + values[middle]) / 2;
+      row.summary.title = row.visible.length ? 'Mean ' + (values.reduce((a, b) => a + b, 0) / values.length / 60000).toFixed(1) + ' min' : '';
+      row.summary.textContent = row.visible.length ? 'Median ' + (median / 60000).toFixed(1)
         + ' min · ' + row.visible.length + (row.visible.length === 1 ? ' attempt' : ' attempts') : 'No completed attempts in this window';
     }
     const visible = series.flatMap(row => row.visible);
@@ -1872,16 +1843,25 @@ document.getElementById('stats').innerHTML = [
     const style = getComputedStyle(document.documentElement);
     const color = key => style.getPropertyValue(key).trim();
     const pad = { left: 44, right: 12, top: 12, bottom: 28 };
-    const max = Math.max(1, ...visible.flatMap(point => [point.durationMs, point.rollingMeanMs]).map(ms => ms / 60000),
-      ...series.flatMap(row => row.before ? [row.before.rollingMeanMs / 60000] : []));
+    const max = Math.max(1, ...visible.flatMap(point => [point.durationMs, point.rollingMedianMs]).map(ms => ms / 60000),
+      ...series.flatMap(row => row.before ? [row.before.rollingMedianMs / 60000] : []));
     const magnitude = 10 ** Math.floor(Math.log10(max / 5));
     const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 5);
-    const ceiling = Math.ceil(max / step) * step;
+    const ceiling = fullDurationRange ? Math.ceil(max / step) * step : 30;
+    const tickStep = fullDurationRange ? step : 10;
+    const overflow = visible.filter(point => point.durationMs / 60000 > ceiling);
+    const clippedTrend = series.some(row => row.before?.rollingMedianMs / 60000 > ceiling
+      || row.visible.some(point => point.rollingMedianMs / 60000 > ceiling));
+    document.getElementById('integrationOverflow').textContent = overflow.length
+      ? overflow.length + (overflow.length === 1 ? ' attempt' : ' attempts') + ' above ' + ceiling + ' min · longest ' + (Math.max(...overflow.map(point => point.durationMs)) / 60000).toFixed(1) + ' min'
+      : clippedTrend ? 'Trend above ' + ceiling + ' min; Full range shows its recorded values.'
+        : 'Dots: completed attempts · lines: last 10 attempts’ median';
+    fullRangeButton.setAttribute('aria-pressed', String(fullDurationRange));
     const x = time => pad.left + (Date.parse(time) - start) / (end - start) * (width - pad.left - pad.right);
-    const y = ms => height - pad.bottom - ms / 60000 / ceiling * (height - pad.top - pad.bottom);
+    const y = ms => height - pad.bottom - Math.min(ms / 60000, ceiling) / ceiling * (height - pad.top - pad.bottom);
     ctx.font = "11px 'Inter', sans-serif";
     ctx.textAlign = 'right'; ctx.fillStyle = color('--ink-secondary');
-    for (let value = 0; value <= ceiling; value += step) {
+    for (let value = 0; value <= ceiling; value += tickStep) {
       const at = y(value * 60000);
       ctx.strokeStyle = color('--gridline'); ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, at); ctx.lineTo(width - pad.right, at); ctx.stroke();
@@ -1891,7 +1871,7 @@ document.getElementById('stats').innerHTML = [
     for (let tick = 0; tick <= 3; tick++) {
       const at = start + (end - start) * tick / 3;
       ctx.textAlign = tick === 0 ? 'left' : tick === 3 ? 'right' : 'center';
-      ctx.fillText(hours === 168 ? new Date(at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+      ctx.fillText(hours >= 24 ? new Date(at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
         : shortStamp(at), x(new Date(at).toISOString()), height - 6);
     }
     plottedDurations = [];
@@ -1899,15 +1879,15 @@ document.getElementById('stats').innerHTML = [
       ctx.strokeStyle = color(row.color); ctx.lineWidth = 2;
       ctx.setLineDash(row.prep ? [6, 4] : []);
       ctx.beginPath();
-      let mean = row.before?.rollingMeanMs;
+      let mean = row.before?.rollingMedianMs;
       if (mean !== undefined) ctx.moveTo(pad.left, y(mean));
       for (const point of row.visible) {
-        if (mean === undefined) ctx.moveTo(x(point.end), y(point.rollingMeanMs));
+        if (mean === undefined) ctx.moveTo(x(point.end), y(point.rollingMedianMs));
         else {
           ctx.lineTo(x(point.end), y(mean));
-          ctx.lineTo(x(point.end), y(point.rollingMeanMs));
+          ctx.lineTo(x(point.end), y(point.rollingMedianMs));
         }
-        mean = point.rollingMeanMs;
+        mean = point.rollingMedianMs;
       }
       if (mean !== undefined) ctx.lineTo(width - pad.right, y(mean));
       ctx.stroke(); ctx.setLineDash([]);
@@ -1915,7 +1895,9 @@ document.getElementById('stats').innerHTML = [
         const dot = { point, x: x(point.end), y: y(point.durationMs) };
         plottedDurations.push(dot);
         ctx.fillStyle = color(row.color);
-        if (row.prep) ctx.fillRect(dot.x - 4, dot.y - 4, 8, 8);
+        if (point.durationMs / 60000 > ceiling) {
+          ctx.beginPath(); ctx.moveTo(dot.x, dot.y); ctx.lineTo(dot.x - 5, dot.y + 8); ctx.lineTo(dot.x + 5, dot.y + 8); ctx.closePath(); ctx.fill();
+        } else if (row.prep) ctx.fillRect(dot.x - 4, dot.y - 4, 8, 8);
         else { ctx.beginPath(); ctx.arc(dot.x, dot.y, 3.5, 0, Math.PI * 2); ctx.fill(); }
         if (point.sourceIndex === pinnedDuration?.sourceIndex) {
           ctx.strokeStyle = color('--ink-primary'); ctx.lineWidth = 1.5;
@@ -1925,7 +1907,7 @@ document.getElementById('stats').innerHTML = [
     }
     plottedDurations.sort((a, b) => Date.parse(a.point.end) - Date.parse(b.point.end) || a.point.sourceIndex - b.point.sourceIndex);
     durationChart.setAttribute('aria-label', 'Main integration time. ' + series.map(row => row.label + ': ' + row.summary.textContent).join('. ')
-      + '. Blue circles and solid line: implementation. Orange squares and dashed line: Prep. Each stepped line is its own last-ten-attempt mean, including history before the window. Arrow keys select attempts.');
+      + '. Blue circles and solid line: implementation. Orange squares and dashed line: Prep. Each stepped line is its own last-ten-attempt median. Triangles mark durations above the visible scale; recorded values are unchanged. Arrow keys select attempts.');
     describeDuration(pinnedDuration);
   }
   function nearestDuration(event) {
@@ -2013,9 +1995,9 @@ document.getElementById('stats').innerHTML = [
     });
   }
   function render() {
+    const focusedSegment = document.activeElement?.classList?.contains('activity-bar') ? document.activeElement.dataset.segment : null;
     const span = hours * hourMs;
-    const earliestEnd = Math.min(latest, first + span);
-    viewEnd = Math.min(latest, Math.max(earliestEnd, viewEnd));
+    viewEnd = Math.min(domainEnd, Math.max(first + span, viewEnd));
     const start = viewEnd - span;
     const shown = segments.map((segment, index) => ({ segment, index }))
       .filter(({ segment }) => Date.parse(segment.end) > start && Date.parse(segment.start) < viewEnd);
@@ -2042,7 +2024,11 @@ document.getElementById('stats').innerHTML = [
     utilization(start, viewEnd);
     drawDurations(start, viewEnd);
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
-    latestButton.disabled = viewEnd >= latest;
+    latestButton.disabled = viewEnd >= domainEnd;
+    const preset = [6, 24, 168].find(value => Math.abs(value - hours) < 0.001);
+    windowSelect.value = Math.abs(span - (domainEnd - first)) < 1 ? 'all' : preset ? String(preset) : 'custom';
+    sessionStorage.setItem('activityWindow', JSON.stringify([start, viewEnd]));
+    drawMinimap(start, viewEnd);
     if (!pinnedStage && !shown.some(row => row.index === selectedIndex)) {
       selectedIndex = blocks[0]?.index ?? waits[0]?.index ?? shown.find(row => row.segment.lane === 'Main')?.index
         ?? shown[0]?.index ?? null;
@@ -2051,7 +2037,7 @@ document.getElementById('stats').innerHTML = [
     let html = '<div class="activity-axis">';
     for (let tick = 0; tick <= tickCount; tick++) {
       const at = start + span * tick / tickCount;
-      const label = hours === 168 ? (new Date(at).getMonth() + 1) + '/'
+      const label = hours >= 24 ? (new Date(at).getMonth() + 1) + '/'
         + new Date(at).getDate() : shortStamp(at);
       html += '<span class="activity-tick" style="left:' + (tick / tickCount * 100)
         + '%">' + label + '</span>';
@@ -2081,17 +2067,105 @@ document.getElementById('stats').innerHTML = [
         + '</div></div>';
     }
     container.innerHTML = html;
+    if (focusedSegment !== null) {
+      const target = container.querySelector?.('[data-segment="' + focusedSegment + '"]') ?? container;
+      target.focus?.({ preventScroll: true });
+    }
     if (pinnedStage) describe(pinnedStage.index, pinnedStage.source);
     else if (selectedIndex == null) readout.innerHTML = '<section><h4>Task details</h4><p>No recorded stage in this window.</p></section><section></section>';
     else describe(selectedIndex);
   }
-  windowSelect.addEventListener('change', () => {
-    hours = Number(windowSelect.value);
+  function setRange(start, end) {
+    hours = Math.min(domainEnd - first, Math.max(minSpan, end - start)) / hourMs;
+    viewEnd = Math.max(first + hours * hourMs, Math.min(domainEnd, start + hours * hourMs));
     render();
+  }
+  function zoom(factor, anchor = viewEnd - hours * hourMs / 2) {
+    const start = viewEnd - hours * hourMs;
+    const ratio = (anchor - start) / (hours * hourMs);
+    const span = Math.max(minSpan, Math.min(domainEnd - first, hours * hourMs * factor));
+    setRange(anchor - span * ratio, anchor + span * (1 - ratio));
+  }
+  function drawMinimap(start, end) {
+    const rect = minimap.getBoundingClientRect(), width = rect.width || 1000, height = 64;
+    const dpr = window.devicePixelRatio || 1;
+    minimap.width = width * dpr; minimap.height = height * dpr;
+    const ctx = minimap.getContext('2d'); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, width, height);
+    const style = getComputedStyle(document.documentElement);
+    const x = time => 8 + (time - first) / (domainEnd - first) * (width - 16);
+    ctx.fillStyle = style.getPropertyValue('--surface-chart').trim(); ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = style.getPropertyValue('--ink-muted').trim();
+    for (const stage of segments) {
+      if (['idle', 'unrecorded'].includes(stage.phase)) continue;
+      ctx.fillRect(x(Date.parse(stage.start)), 12, Math.max(1, x(Date.parse(stage.end)) - x(Date.parse(stage.start))), 18);
+    }
+    const left = x(start), right = x(end);
+    ctx.fillStyle = style.getPropertyValue('--progress-area').trim(); ctx.fillRect(left, 0, right - left, 42);
+    ctx.strokeStyle = style.getPropertyValue('--ink-primary').trim(); ctx.lineWidth = 1;
+    ctx.strokeRect(left, 1, right - left, 40);
+    ctx.fillStyle = style.getPropertyValue('--surface-card').trim();
+    for (const edge of [left, right]) { ctx.fillRect(edge - 4, 8, 8, 26); ctx.strokeRect(edge - 4, 8, 8, 26); }
+    ctx.fillStyle = style.getPropertyValue('--ink-secondary').trim(); ctx.font = "12px 'Inter', sans-serif";
+    const day = time => new Date(time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    ctx.textAlign = 'left'; ctx.fillText(day(first), 8, 60);
+    ctx.textAlign = 'right'; ctx.fillText(day(domainEnd), width - 8, 60);
+    minimap.setAttribute('aria-valuetext', stamp(start) + ' to ' + stamp(end));
+  }
+  let sliding = null;
+  const miniTime = clientX => {
+    const rect = minimap.getBoundingClientRect();
+    return first + Math.max(0, Math.min(1, (clientX - rect.left - 8) / (rect.width - 16))) * (domainEnd - first);
+  };
+  minimap.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    const time = miniTime(event.clientX), start = viewEnd - hours * hourMs;
+    const tolerance = (event.pointerType === 'touch' ? 18 : 9) / Math.max(1, minimap.getBoundingClientRect().width - 16) * (domainEnd - first);
+    const near = Math.min(Math.abs(time - start), Math.abs(time - viewEnd)) < tolerance;
+    const target = near ? (Math.abs(time - start) < Math.abs(time - viewEnd) ? 'start' : 'end')
+      : time >= start && time <= viewEnd ? 'window' : 'track';
+    sliding = { target, anchor: time, start, end: viewEnd };
+    minimap.setPointerCapture(event.pointerId);
+    if (target === 'track') setRange(time - hours * hourMs / 2, time + hours * hourMs / 2);
   });
+  minimap.addEventListener('pointermove', event => {
+    if (!sliding) return;
+    const time = miniTime(event.clientX);
+    if (sliding.target === 'window') setRange(sliding.start + time - sliding.anchor, sliding.end + time - sliding.anchor);
+    else if (sliding.target === 'start') setRange(Math.min(time, sliding.end - minSpan), sliding.end);
+    else if (sliding.target === 'end') setRange(sliding.start, Math.max(time, sliding.start + minSpan));
+    else setRange(time - hours * hourMs / 2, time + hours * hourMs / 2);
+  });
+  const endSlide = event => { sliding = null; if (minimap.hasPointerCapture(event.pointerId)) minimap.releasePointerCapture(event.pointerId); };
+  minimap.addEventListener('pointerup', endSlide); minimap.addEventListener('pointercancel', endSlide);
+  minimap.addEventListener('keydown', event => {
+    if (!['+', '=', '-', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    if (['+', '=', '-'].includes(event.key)) zoom(event.key === '-' ? 2 : 0.5);
+    else {
+      const span = hours * hourMs;
+      const start = event.key === 'Home' ? first : event.key === 'End' ? domainEnd - span
+        : viewEnd - span + (event.key === 'ArrowLeft' ? -1 : 1) * span / 5;
+      setRange(start, start + span);
+    }
+  });
+  container.addEventListener('wheel', event => {
+    if (!event.ctrlKey && !event.metaKey) return;
+    event.preventDefault();
+    const rect = container.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left - 56) / Math.max(1, rect.width - 56)));
+    zoom(Math.exp(event.deltaY * 0.002), viewEnd - hours * hourMs * (1 - ratio));
+  }, { passive: false });
+  windowSelect.addEventListener('change', () => {
+    const span = windowSelect.value === 'all' ? domainEnd - first : Number(windowSelect.value) * hourMs;
+    setRange(viewEnd - span, viewEnd);
+  });
+  document.getElementById('activityZoomIn').addEventListener('click', () => zoom(0.5));
+  document.getElementById('activityZoomOut').addEventListener('click', () => zoom(2));
+  document.getElementById('integrationDisclosure').addEventListener('toggle', () => drawDurations(viewEnd - hours * hourMs, viewEnd));
+  fullRangeButton.addEventListener('click', () => { fullDurationRange = !fullDurationRange; drawDurations(viewEnd - hours * hourMs, viewEnd); });
   window.addEventListener('resize', render);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
-  latestButton.addEventListener('click', () => { viewEnd = latest; render(); });
+  latestButton.addEventListener('click', () => { viewEnd = domainEnd; render(); });
   container.addEventListener('pointerdown', event => {
     if (event.button !== 0) return;
     panning = { x: event.clientX, end: viewEnd, moved: false,
@@ -2132,6 +2206,7 @@ document.getElementById('stats').innerHTML = [
     pin(Number(event.target.dataset.segment));
   });
   container.addEventListener('keydown', event => {
+    if (['+', '=', '-'].includes(event.key)) { event.preventDefault(); zoom(event.key === '-' ? 2 : 0.5); return; }
     if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
       event.preventDefault();
       viewEnd = event.key === 'Home' ? first + hours * hourMs
@@ -2156,29 +2231,27 @@ document.getElementById('stats').innerHTML = [
   render();
 })();
 
-// --- Goal outcomes for the worker-ledger era ---
+// --- Integration measurements and their constituent goals ---
 (function() {
-  const rows = [...(DATA.activityGoals || [])].sort((a, b) => b.assignedAt.localeCompare(a.assignedAt));
-  document.getElementById('tableLegend').innerHTML = '';
-  document.getElementById('tableSubtitle').textContent = rows.length
-    + ' goals with worker-ledger assignments. Earlier development gains remain in the score history.';
-  const table = document.getElementById('goalTable');
-  const esc = value => String(value ?? '').replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const groups = [...(DATA.goalHistory || [])].sort((a, b) =>
+    (b.publishedAt || b.publicationKnownBy || b.assignedAt).localeCompare(a.publishedAt || a.publicationKnownBy || a.assignedAt));
+  const goalCount = new Set(groups.flatMap(group => group.goals.map(goal => goal.id))).size;
+  document.getElementById('tableSubtitle').textContent = goalCount + ' goals · ' + groups.filter(group => group.commit).length + ' integrations';
+  const esc = escScoreText;
   const stamp = value => value ? new Date(value).toLocaleString('en-US',
-    { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '—';
-  const synthetic = row => !row.syntheticMeasured ? '—'
-    : row.syntheticGained && row.syntheticLost
-      ? '+' + fmtN(row.syntheticGained) + ' / −' + fmtN(row.syntheticLost)
-      : fmtDelta(row.syntheticGained - row.syntheticLost);
-  table.innerHTML = '<thead><tr><th>Goal</th><th>Worker</th><th>Development Δ</th>'
-    + '<th>Synthetic Δ</th><th>Assigned</th><th>Published</th></tr></thead><tbody>'
-    + rows.map(row => '<tr><td title="' + esc(row.id) + '">' + esc(row.id)
-      + '</td><td>' + esc(row.workers.join(', ')) + '</td><td>'
-      + fmtDelta(row.developmentDelta) + '</td><td>' + synthetic(row)
-      + '</td><td>' + stamp(row.assignedAt) + '</td><td>'
-      + (row.publicationKnownBy ? 'By ' + stamp(row.publishedAt > row.publicationKnownBy ? row.publishedAt : row.publicationKnownBy)
-        : stamp(row.publishedAt)) + '</td></tr>').join('') + '</tbody>';
+    { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : 'Unpublished';
+  const synthetic = gain => !gain ? '—' : gain.gained && gain.lost
+    ? '+' + fmtN(gain.gained) + ' / −' + fmtN(gain.lost) : fmtDelta(gain.gained - gain.lost);
+  document.getElementById('goalTable').innerHTML = '<thead><tr><th>Goal</th><th>Worker</th><th>Synthetic Δ</th></tr></thead>'
+    + groups.map(group => '<tbody><tr class="integration-group"><td colspan="2">'
+      + (group.publicationKnownBy ? 'By ' + stamp(group.publishedAt > group.publicationKnownBy ? group.publishedAt : group.publicationKnownBy)
+        : stamp(group.publishedAt)) + '<small>' + group.goals.length + (group.goals.length === 1 ? ' goal' : ' goals · shared result')
+      + (group.commit ? ' · ' + esc(group.commit.slice(0, 8)) : '') + '</small></td><td>' + synthetic(group.synthetic) + '</td></tr>'
+      + group.goals.map(goal => '<tr><td><details><summary>' + esc(goalTitle(goal)) + '</summary>'
+        + '<p class="goal-id">' + esc(goal.id) + '</p><p>Assigned ' + stamp(goal.assignedAt)
+        + ' · ' + esc(goal.status) + (goal.developmentDelta == null ? '' : ' · Development Δ ' + fmtDelta(goal.developmentDelta))
+        + '</p></details>' + (goal.sourceFile ? '<span class="goal-source">' + esc(goal.sourceFile) + '</span>' : '')
+        + '</td><td>' + esc(goal.workers.map(worker => worker === 'A2' ? 'A' : worker).join(', ')) + '</td><td></td></tr>').join('') + '</tbody>').join('');
 })();
 
 // --- Cut names expand on tap ---
