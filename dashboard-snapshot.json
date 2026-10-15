@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T05:03:57.934Z",
+  "capturedAt": "2026-10-15T05:25:21.093Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -131949,6 +131949,123 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep47 is reviewing five provisional first causes and12 matching control routes after34 C recordings and19 independent replays. Source tracing and saved-coverage checks are active;no validation hold or blocker is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-668d9a53da959534a15ce930042e546b5592c138",
+        "type": "ready",
+        "at": "2026-10-15T05:06:10.060Z",
+        "task": "Prep47",
+        "delivery": "668d9a53da959534a15ce930042e546b5592c138"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep48-v84-20261015",
+        "type": "assign",
+        "at": "2026-10-15T05:07:30.226Z",
+        "task": "Prep48",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-prep47-v83-668d9a53",
+        "type": "received",
+        "at": "2026-10-15T05:07:36.319Z",
+        "task": "Prep47",
+        "delivery": "668d9a53da959534a15ce930042e546b5592c138"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-e81f0ac0915f316ea56be2e78fde9b869c8d7aa084d3e616c93819f1701f29bf-d3656bd94356200c4e56fa8c6c18ea9320953bc3-Prep47",
+        "type": "integrating",
+        "at": "2026-10-15T05:07:57.380Z",
+        "task": "Prep47",
+        "integration": "d3656bd94356200c4e56fa8c6c18ea9320953bc3",
+        "prepGroup": [
+          "Prep47"
+        ],
+        "validationGroup": [
+          "Prep47"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep47-checkpoint-wait-root",
+        "type": "activity",
+        "at": "2026-10-15T05:08:44.262Z",
+        "task": "Prep47",
+        "phase": "waiting",
+        "reason": "Hosted checkpoint38685166427 validates v83 plus the approved profile-exception instruction, v48 resolution and preserved dashboard changes before publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep48-v84-first-branches-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:13:03.795Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep48 has reached four new digging branches after correcting C setup misses. Independent C replays match byte-for-byte;accepted-source comparisons are next. No validation hold is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep47-d3656bd94356200c4e56fa8c6c18ea9320953bc3",
+        "type": "validated",
+        "at": "2026-10-15T05:17:18.136Z",
+        "task": "Prep47",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep47-d3656bd94356200c4e56fa8c6c18ea9320953bc3",
+        "type": "accepted",
+        "at": "2026-10-15T05:17:18.136Z",
+        "task": "Prep47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep47-admission-hosted-wait",
+        "type": "activity",
+        "at": "2026-10-15T05:18:21.297Z",
+        "task": "Prep47",
+        "phase": "baseline",
+        "reason": "Checkpoint passed; hosted baseline for 17 new v83 cases is next before dashboard publication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep48-v84-user-pause-pilot-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:18:46.105Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep48 is paused at the user’s request for the parallel exploration pilot. Fourteen C recordings and all partial findings are preserved;no process is running. Waiting for Root to activate the pilot."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-Prep48-v84-user-pilot-20261015",
+        "type": "park",
+        "at": "2026-10-15T05:19:00.613Z",
+        "task": "Prep48",
+        "reason": "User authorized pausing the current Prep batch for the six-lane pilot. All handles terminal; 14 C pairs, four independent replays and partial findings preserved in the durable pause snapshot. Resume this batch under updated pilot instructions."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep47-8ea329b39e1d58519ed59f949365104e0bf86c2d",
+        "type": "activity",
+        "at": "2026-10-15T05:22:45.833Z",
+        "task": "Prep47",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep47-8ea329b39e1d58519ed59f949365104e0bf86c2d",
+        "type": "activity",
+        "at": "2026-10-15T05:22:46.752Z",
+        "task": "Prep47",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
@@ -132540,6 +132657,18 @@
         "since": "2026-10-14T06:30:28.196Z",
         "blockedBy": [],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
+      },
+      {
+        "task": "Prep48",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "parked",
+        "delivery": null,
+        "batch": "v84",
+        "since": "2026-10-15T05:19:00.613Z",
+        "blockedBy": [],
+        "reason": "User authorized pausing the current Prep batch for the six-lane pilot. All handles terminal; 14 C pairs, four independent replays and partial findings preserved in the durable pause snapshot. Resume this batch under updated pilot instructions."
       }
     ]
   },
@@ -133119,8 +133248,8 @@
     "reservations": {}
   },
   "development": {
-    "executionCommit": "58ebd7d3a504aea7c144dd00e7e62f9486f6add1",
-    "measuredAt": "2026-10-15T04:29:12.216Z",
+    "executionCommit": "d3656bd94356200c4e56fa8c6c18ea9320953bc3",
+    "measuredAt": "2026-10-15T05:13:22.228Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
