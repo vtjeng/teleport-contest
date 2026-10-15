@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap role variation for wizard.c:amulet's sleeping-Wizard wake-check path. A Valkyrie uses a fresh seed, date and name, wishes for a real Amulet, declines the Amulet's extra wish, creates a sleeping hostile Wizard of Yendor, then spends elapsed turns. This witnesses the observed nonzero rn2(40) check only; it does not claim a successful wake.",
+  "segments": [
+    {
+      "seed": 79021037,
+      "datetime": "21010204131500",
+      "nethackrc": "OPTIONS=name:ValkyrieWakeProbe,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#wizwish\nAmulet of Yendor\n  nothing\n#wizgenesis\nsleeping hostile Wizard of Yendor\ny...................................................................................................."
+    }
+  ]
+}

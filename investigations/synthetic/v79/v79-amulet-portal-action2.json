@@ -22,9 +22,18 @@
     "function": "amulet",
     "message": "moveloop_core omits wizard.c:amulet; wearing the real Amulet should take the rn2(15) portal-hint branch",
     "metrics": {
-      "screens": { "matched": 333, "total": 340 },
-      "rng": { "matched": 2447, "total": 2646 },
-      "cursors": { "matched": 340, "total": 340 }
+      "screens": {
+        "matched": 333,
+        "total": 340
+      },
+      "rng": {
+        "matched": 2447,
+        "total": 2646
+      },
+      "cursors": {
+        "matched": 340,
+        "total": 340
+      }
     },
     "firstMismatch": {
       "step": 211,
@@ -33,10 +42,12 @@
       "actual": "rn2(94)=14 @ moveloop_core(allmain.c:360)"
     }
   },
-  "summary": "The first mismatch was the omitted per-turn wizard.c:amulet call in allmain.c:moveloop_core. JavaScript now calls the helper after invault and before engraving wear, matching the C rng and hot-portal output; the exact v79 replay matches all 340 screens, 2,646 rng calls, and 340 cursors. A separate matching recording reaches the sleeping Wizard check with rn2(40)=6. The source's successful rn2(40)=0 outcome is implemented but remains unverified in recorded play and is not claimed as runtime-complete.",
+  "summary": "The first mismatch was the omitted per-turn wizard.c:amulet call in allmain.c:moveloop_core. JavaScript now calls the helper after invault and before engraving wear, matching the C rng and hot-portal output; the exact v79 replay matches all 340 screens, 2,646 rng calls, and 340 cursors. Separate matching Barbarian and Valkyrie recordings reach the sleeping Wizard check with nonzero rn2(40) results of 6 and 30. The source's successful rn2(40)=0 outcome is implemented but remains unverified in recorded play and is not claimed as runtime-complete.",
   "source": {
     "file": "wizard.c",
-    "functions": ["amulet"],
+    "functions": [
+      "amulet"
+    ],
     "branch": "wizard.c:amulet first checks a worn real Amulet, then a wielded real Amulet. If either exists and rn2(15) is zero, it scans ftrap in chain order, considers only the first MAGIC_PORTAL, computes squared Euclidean distu, and emits hot/very warm/warm feedback for distances <=9/64/144. It then returns when no Wizard exists; otherwise it scans fmon in order, skips DEADMONSTER entries, and the first sleeping Wizard has an rn2(40) wake chance. On success it clears msleeping and reports the creepy feeling only when m_next2u is false. allmain.c:moveloop_core calls amulet after invault and before engraving wear, guarded by u.uhave.amulet.",
     "callers": [
       "C allmain.c:moveloop_core calls wizard.c:amulet after invault() when u.uhave.amulet is true. JavaScript must wire this same call at the matching elapsed-turn point.",
@@ -54,8 +65,9 @@
     "C source wizard.c:61-103 and allmain.c:moveloop_core:359-360 establish the helper behavior, its caller guard, ordering after invault and before engraving RNG, and the separate sleeping-Wizard branch.",
     "Implementation e9c58b659d18d3fc385785c81a44b94ba2de0bf8 adds js/wizard.js:amulet and wires it into js/allmain.js:finishElapsedTurnAfterHunger after invault and before maybeWipeHeroEngraving. It uses existing Tobjnam, dist2, and m_next2u ports and passes the live or planning random/message seams.",
     "The exact v79 replay after implementation matches 340/340 screens, 2,646/2,646 RNG calls, 340/340 cursors, and zero animation frames with no error. synthetic-range-evidence confirms segment 0 through step 245, including the hot portal message.",
-    "The independent recipe and C recording under recipes/wizard.c/ and recordings/wizard.c/ match all 184 screens, 2,928 RNG calls, and 184 cursors. C reaches amulet(wizard.c:95) with rn2(40)=6 after the Wizard is generated. This records the nonzero no-wake outcome; the successful zero outcome remains explicitly unverified.",
-    "Focused scripts/wizard.test.mjs and scripts/allmain-turn.test.mjs pass all 86 tests; npm run lint passes."
+    "The independent Barbarian recipe and C recording under recipes/wizard.c/ and recordings/wizard.c/ match all 184 screens, 2,928 RNG calls, and 184 cursors. C reaches amulet(wizard.c:95) with rn2(40)=6 after the Wizard is generated. This is the nonzero wake-check/no-wake outcome; the successful zero outcome remains explicitly unverified.",
+    "Focused scripts/wizard.test.mjs and scripts/allmain-turn.test.mjs pass all 86 tests; npm run lint passes.",
+    "A second cheap role variation uses a Valkyrie, fresh seed/date/name, and the same C-derived Amulet and sleeping-Wizard setup. Its C recording reaches amulet(wizard.c:95) with rn2(40)=30; JavaScript matches all 184 screens, 3,187 RNG calls, and 184 cursors. Together with the Barbarian recording (rn2(40)=6), this verifies the nonzero wake-check/no-wake path across two roles. Neither recording reaches the successful zero outcome."
   ],
   "implementation": {
     "commit": "e9c58b659d18d3fc385785c81a44b94ba2de0bf8",
@@ -85,8 +97,8 @@
       "error": null
     },
     "recording": {
-      "recipe": "recipes/wizard.c/amulet-wakes-sleeping-wizard.session.json",
-      "path": "recordings/wizard.c/amulet-wakes-sleeping-wizard.session.json",
+      "recipe": "recipes/wizard.c/amulet-sleeping-wizard-no-wake-check.session.json",
+      "path": "recordings/wizard.c/amulet-sleeping-wizard-no-wake-check.session.json",
       "segment": 0,
       "fromStep": 83,
       "throughStep": 84,
@@ -97,14 +109,50 @@
       "matchedCursors": 184,
       "totalCursors": 184,
       "error": null,
-      "coverage": "Sleeping Wizard is scanned; C records rn2(40)=6, so the successful zero outcome is not claimed."
+      "coverage": "Sleeping Wizard is scanned; C records rn2(40)=6, so the successful zero outcome is not claimed.",
+      "role": "Barbarian"
     },
     "checks": [
       "node --test scripts/wizard.test.mjs scripts/allmain-turn.test.mjs: 86 passed",
       "npm run lint: passed",
       "exact v79 replay: 340 screens, 2646 RNG calls, 340 cursors, no error",
       "independent Wizard recording replay: 184 screens, 2928 RNG calls, 184 cursors, no error",
-      "synthetic-range-evidence: v79 segment 0 through step 245 matched"
+      "synthetic-range-evidence: v79 segment 0 through step 245 matched",
+      "Valkyrie role-variation C recording and JavaScript replay: 184 screens, 3187 RNG calls, 184 cursors, no error; C reaches amulet(wizard.c:95) with rn2(40)=30."
+    ],
+    "recordings": [
+      {
+        "recipe": "recipes/wizard.c/amulet-sleeping-wizard-no-wake-check.session.json",
+        "path": "recordings/wizard.c/amulet-sleeping-wizard-no-wake-check.session.json",
+        "segment": 0,
+        "fromStep": 83,
+        "throughStep": 84,
+        "matchedScreens": 184,
+        "totalScreens": 184,
+        "matchedRng": 2928,
+        "totalRng": 2928,
+        "matchedCursors": 184,
+        "totalCursors": 184,
+        "error": null,
+        "coverage": "Sleeping Wizard is scanned; C records rn2(40)=6, so the successful zero outcome is not claimed.",
+        "role": "Barbarian"
+      },
+      {
+        "recipe": "recipes/wizard.c/amulet-sleeping-wizard-valkyrie.session.json",
+        "path": "recordings/wizard.c/amulet-sleeping-wizard-valkyrie.session.json",
+        "role": "Valkyrie",
+        "segment": 0,
+        "fromStep": 83,
+        "throughStep": 84,
+        "matchedScreens": 184,
+        "totalScreens": 184,
+        "matchedRng": 3187,
+        "totalRng": 3187,
+        "matchedCursors": 184,
+        "totalCursors": 184,
+        "error": null,
+        "coverage": "Sleeping Wizard is scanned; C records rn2(40)=30, so the successful zero outcome is not claimed."
+      }
     ]
   }
 }
