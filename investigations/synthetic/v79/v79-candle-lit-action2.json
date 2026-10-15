@@ -10,33 +10,34 @@
   "recordingSha256": "1cc58490ff41e98e6b1ed532a3ff43679c341be4d8536202d93aff53689ca1dd",
   "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
   "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
-  "status": "partial",
-  "commit": "b6e9673e7a56dd9070159e7c15cb727fab1998ce",
+  "status": "complete",
+  "commit": "3ab569a23aeec8c753ba411a11efdaf9baaebf61",
   "mismatch": {
     "session": "synthetic/v79/v79-candle-lit-action2",
     "remainingScreens": 285
   },
-  "summary": "When attaching seven candles from a lit stack, JavaScript stops in end_burn because the split child has no BURN_OBJECT timer. C mkobj.c:splitobj calls timeout.c:obj_split_timers for every timed source object before duplicating light sources. JavaScript splitobj currently records that void timer-copy callee as unported, so the candle child is lit but has no burn timer.",
+  "summary": "Ported timeout.c:obj_split_timers into js/timeout.js and wired mkobj.c:splitobj to call it before light-source duplication. The exact admitted v79 segment now matches from step 0 through step 284, including the seven lit-candle split and subsequent burn timer handling.",
   "source": {
     "file": "mkobj.c",
     "functions": [
-      "splitobj"
+      "splitobj",
+      "obj_split_timers"
     ],
-    "branch": "After copying an object stack, splitobj resets child.timed and child.lamplit, updates parent/child ownership chains, then calls timeout.c:obj_split_timers when the source is timed. That helper copies every TIMER_OBJECT timer from source to child at the same remaining expiry before light.c:obj_split_light_source runs.",
+    "branch": "mkobj.c:splitobj copies a timed source stack, resets child.timed and child.lamplit, updates ownership, then calls timeout.c:obj_split_timers before obj_split_light_source. The helper saves each timer’s next link before insertion and duplicates every TIMER_OBJECT timer with the same remaining expiry and callback index. JavaScript now follows that order, while retaining the explicit test hook override.",
     "callers": [
-      "The direct C caller of timeout.c:obj_split_timers is mkobj.c:splitobj. Runtime reaches it through apply.c:use_candle while attaching seven candles to a candelabrum; existing splitobj production callers all use the common JavaScript function."
+      "mkobj.c:splitobj is the only direct C caller of timeout.c:obj_split_timers and discards its void result. In gameplay, apply.c:use_candle reaches splitobj while attaching seven lit candles to the Candelabrum; the admitted v79 segment matches through step 284."
     ],
     "dependencies": [
-      "timeout.c:obj_split_timers calls start_timer and discards its return; start_timer is implemented in js/timeout.js.",
-      "mkobj.c:splitobj calls obj_split_timers and discards its void result. JavaScript retains an explicit splitObjectTimers hook and uses the source implementation in ordinary gameplay."
+      "timeout.c:obj_split_timers calls start_timer and discards the return. The existing js/timeout.js:start_timer implementation inserts the timer and updates object timed counters.",
+      "mkobj.c:splitobj calls obj_split_timers before obj_split_light_source. JavaScript retains the optional splitObjectTimers test hook; ordinary production calls use the new source implementation."
     ]
   },
   "goalKind": "divergence-fix",
   "selectionReason": "Selected the officially admitted v79 lit-candle case after the unchanged-input replay matched 235 screens, cursors, and 2564 RNG calls, then stopped at step 235 with end_burn: lit object has no burn timer. Prep source trace points to mkobj.c:splitobj omitting timeout.c:obj_split_timers in active JS gameplay.",
   "evidence": [
-    "The v79 accepted-boundary prefix matches screens, cursors, and RNG through step 234, then step 235 triggers the exact end_burn missing timer error.",
-    "C splitobj calls obj_split_timers before obj_split_light_source whenever obj->timed is nonzero. timeout.c:obj_split_timers iterates the timer queue, saves next_timer before insertion, and starts a matching TIMER_OBJECT timer on dest with curr->timeout minus current moves.",
-    "JavaScript js/obj.js:splitobj currently calls an optional splitObjectTimers hook; with no hook it records note_unported(\"timeout.c obj_split_timers\"), so a lit candle split keeps the light but loses the timer."
+    "The exact admitted v79 segment 0 of synthetic/v79/v79-candle-lit-action2 matches from step 0 through step 284 according to scripts/synthetic-range-evidence.mjs .cache/task-evidence.json. This reaches apply.c:use_candle -> mkobj.c:splitobj -> timeout.c:obj_split_timers and subsequent candle burn handling.",
+    "Focused bounded run run-EJwdO9 passed 68/68 tests across scripts/obj-split-timers.test.mjs and scripts/object-substrate.test.mjs. The tests pin C helper/caller ordering, timer queue traversal and duplicate expiry behavior, and production splitobj wiring for a timed stack.",
+    "ESLint reported zero errors and warnings for js/obj.js, js/timeout.js, scripts/obj-split-timers.test.mjs, and scripts/object-substrate.test.mjs."
   ],
   "goal": "fix-v79-split-candle-object-timer-20261015",
   "task": "B-investigation-v79-candle-lit-action2-20261015",
