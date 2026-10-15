@@ -318675,6 +318675,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-fix-trap-float-down-chain-relocation-v89-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement float_down from trap.c",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v89/v89-p08-floatdown-chain-relocation"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v89-p08-floatdown-chain-relocation-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "float_down",
+      "session": "synthetic/v89/v89-p08-floatdown-chain-relocation"
     }
   ]
 }
