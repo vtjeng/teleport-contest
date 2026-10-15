@@ -317015,6 +317015,42 @@
       "delivered": null,
       "function": "demon_talk",
       "session": "synthetic/v79/v79-demon-sibling-action1"
+    },
+    {
+      "id": "fix-v79-disclose-achievement-prompt-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement disclose from undefined",
+      "cFile": "end.c",
+      "sessions": [
+        "synthetic/v79/v79-wrong-altar-amulet-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v79-wrong-altar-amulet-action6-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "disclose",
+      "session": "synthetic/v79/v79-wrong-altar-amulet-action6"
+    },
+    {
+      "id": "divergence-v79-amulet-portal-heat-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement amulet from wizard.c",
+      "cFile": "wizard.c",
+      "sessions": [
+        "synthetic/v79/v79-amulet-portal-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v79-amulet-portal-action2-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "amulet",
+      "session": "synthetic/v79/v79-amulet-portal-action2"
     }
   ]
 }
