@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v88/v88-p13-mhurtle-cockatrice-healer",
+  "corpus": "synthetic",
+  "batch": "v88",
+  "caseId": "v88-p13-mhurtle-cockatrice-healer",
+  "manifestPath": "challenges/manifests/v88.json",
+  "manifestSha256": "7611419ea44e4abe0f942f9d95386a7cf7c3871e34cc4d2c24c72b9d5a7adbb5",
+  "recordingSha256": "6194288f059b79a386da0941be6aa26be922a41de0959b1a5fd1af39b555af2c",
+  "evaluationPath": "challenges/evaluations/admission-00f08904cfa289e5cc7d3757fc777cafac75aca8-v88.json",
+  "evaluationCommit": "00f08904cfa289e5cc7d3757fc777cafac75aca8",
+  "remainingScreens": 1,
+  "recordedSteps": 68,
+  "status": "complete",
+  "commit": "459d0f6275c8187237ca141d7c24b3168ce19692",
+  "mismatch": {
+    "session": "synthetic/v88/v88-p13-mhurtle-cockatrice-healer",
+    "remainingScreens": 1,
+    "kind": "screen and cursor",
+    "message": "After the player dismisses “The cockatrice bumps into you.--More--”, C prints “You turn to stone...”; JS skips instapetrify() and leaves the prior collision display."
+  },
+  "summary": "A hurtling cockatrice bumps into the bare-torso Healer. C dothrow.c:mhurtle_step() calls trap.c:instapetrify() after setting the killer, but JS calls note_unported() and skips the stoning message/death sequence. The complete C recording reproduced byte-identically from its independent input recipe.",
+  "source": {
+    "file": "dothrow.c",
+    "functions": [
+      "mhurtle_step"
+    ],
+    "branch": "After a monster hurtles into the hero, touch_petrifies(mon->data) and absence of uarmu/uarm/uarmc cause C to set the “being hit by <monster>” killer and call instapetrify(). The call is skipped in JS by note_unported().",
+    "callers": [
+      "uhitm.c:mhitm_knockback -> dothrow.c:mhurtle -> walk_path(..., mhurtle_step); JS uhitm.js:mhitm_knockback -> dothrow.js:mhurtle -> walk_path(..., mhurtle_step).",
+      "For the selected recording, #wizgenesis/#wiztelekinesis creates the cockatrice collision setup and the hero-moved action reaches mhurtle_step’s monster-to-hero arm."
+    ],
+    "dependencies": [
+      "trap.c:instapetrify is already implemented in js/trap.js; no callee change is needed."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/dothrow.c:992-1074 mhurtle_step() performs the collision effects in order. Its u_at(x,y) branch bumps the hero, stops occupation, checks poly hero petrification, then—if touch_petrifies(mon->data) and the hero has no body armor/cloak/shirt—sets killer text, calls instapetrify(), and newsym().",
+    "nethack-c/upstream/src/trap.c:3844-3855 instapetrify() prints the urgent stoning line, sets killer.format/name, and calls done(STONING); js/trap.js already implements this behavior.",
+    "js/dothrow.js:735-834 mirrors mhurtle_step() but replaces the source instapetrify call with note_unported(\"trap.c instapetrify\") at the bare-torso monster-to-hero branch.",
+    "The admitted v88 case matches through step 66. At segment 0 step 66, C and JS both show “The cockatrice hisses! The cockatrice bumps into you.--More--”; at step 67 after key space, C shows “You turn to stone...” while JS retains the old collision text and cursor.",
+    "Prep52 independent C re-recording proof preserves recipe SHA 987c39078f6265c4848c48929ba7e9eddad20625a5d4f3dbaec24ec152c2e2c8 and original C recording SHA 6194288f059b79a386da0941be6aa26be922a41de0959b1a5fd1af39b555af2c."
+  ]
+}
