@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T02:17:26.780Z",
+  "capturedAt": "2026-10-15T02:36:16.668Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130715,24 +130715,84 @@
         "type": "accepted",
         "at": "2026-10-15T02:15:40.541Z",
         "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015-cdb0c7b7a3716b4bc7742e6b805d7e545fe014aa",
+        "type": "published",
+        "at": "2026-10-15T02:17:41.481Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "commit": "cdb0c7b7a3716b4bc7742e6b805d7e545fe014aa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep42-preintegration-review-3994b96c",
+        "type": "activity",
+        "at": "2026-10-15T02:18:34.156Z",
+        "task": "Prep42",
+        "phase": "review",
+        "reason": "Review the reduced v78 packet, saved C replay proofs and distinct control coverage before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-648d815f7ba0a88cce9fb6964b8bdaecf83fbaf310f60f790380a00f6f2b9122-5196dd8c1dc7578c938ff47fb5ca35e4bba7d40f-Prep42",
+        "type": "integrating",
+        "at": "2026-10-15T02:18:51.890Z",
+        "task": "Prep42",
+        "integration": "5196dd8c1dc7578c938ff47fb5ca35e4bba7d40f",
+        "prepGroup": [
+          "Prep42"
+        ],
+        "validationGroup": [
+          "Prep42"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep42-5196dd8c1dc7578c938ff47fb5ca35e4bba7d40f",
+        "type": "validated",
+        "at": "2026-10-15T02:28:35.035Z",
+        "task": "Prep42",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep42-5196dd8c1dc7578c938ff47fb5ca35e4bba7d40f",
+        "type": "accepted",
+        "at": "2026-10-15T02:28:35.035Z",
+        "task": "Prep42"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep42-admission-preparing-5196dd8c",
+        "type": "activity",
+        "at": "2026-10-15T02:28:47.747Z",
+        "task": "Prep42",
+        "phase": "admission",
+        "reason": "Checkpoint passed; preparing the reviewed v78 controls manifest for hosted baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep42-0edfb5725f460cc9fd8fac512cd44127c24fece6",
+        "type": "activity",
+        "at": "2026-10-15T02:34:13.535Z",
+        "task": "Prep42",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep42-0edfb5725f460cc9fd8fac512cd44127c24fece6",
+        "type": "activity",
+        "at": "2026-10-15T02:34:14.411Z",
+        "task": "Prep42",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "Prep42",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "3994b96c0a0174165cfbb5fbca0f21dc8bd08c99",
-        "batch": "v78",
-        "since": "2026-10-15T02:11:30.237Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -131898,8 +131958,8 @@
     "reservations": {}
   },
   "development": {
-    "executionCommit": "77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e",
-    "measuredAt": "2026-10-15T02:10:52.626Z",
+    "executionCommit": "5196dd8c1dc7578c938ff47fb5ca35e4bba7d40f",
+    "measuredAt": "2026-10-15T02:24:26.600Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
