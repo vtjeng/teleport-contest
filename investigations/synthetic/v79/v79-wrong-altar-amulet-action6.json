@@ -60,7 +60,11 @@
     "C source pray.c:1874-1881 calls offer_real_amulet for a high-altar real Amulet and marks the following code NOTREACHED; pray.c:1562-1572 calls done(ESCAPED) for an opposing alignment and marks that branch NOTREACHED.",
     "The accepted JS source js/end.js:really_done completes toptenDisplay before returning with gameover true. A bounded private JS replay instrumented js/topten.js and js/end.js: it reached the wizard topten branch with wizard=true and panicking=false, and serialized “Since you were in wizard mode, the score list will not be checked.” immediately after topten returned.",
     "The same replay instrumented a private copy of js/game_display.js. The first write after the score-list output came from display.js:_buildScreenOutput -> tty_message.js:ttyPlineCore -> pray.js:dosacrifice, where the source’s nothing_happens tail rewrote the screen. The full input replay retained 20693 RNG calls, 575 screens, and 575 cursors.",
-    "The prior accepted diagnosis remains intact in previousDiagnosis and its earlier evidence entries remain unchanged; this follow-up isolates the later terminal-return control-flow mismatch."
+    "The prior accepted diagnosis remains intact in previousDiagnosis and its earlier evidence entries remain unchanged; this follow-up isolates the later terminal-return control-flow mismatch.",
+    "Bounded focused validation on the final caller-correction tree passed: run-aJtCis, receipt /tmp/teleport-validation-1000/run-aJtCis/receipt.json, executed node --test scripts/pray.test.mjs (67/67).",
+    "Bounded full-session replay on the final caller-correction tree passed: run-cVWNh8, receipt /tmp/teleport-validation-1000/run-cVWNh8/receipt.json, executed .cache/B-v79-wrong-altar-replay.mjs (575/575 screens, 575/575 cursors, 20693/20693 RNG).",
+    "Bounded synthetic-range verification on the final caller-correction tree passed: run-2woDe0, receipt /tmp/teleport-validation-1000/run-2woDe0/receipt.json, segment 0 through step 574 matched.",
+    "Bounded lint on the final caller-correction tree passed: run-xUFXEY, receipt /tmp/teleport-validation-1000/run-xUFXEY/receipt.json, executed npm run lint."
   ],
   "goal": "fix-v79-real-amulet-noreturn-caller-20261015",
   "task": "B-investigation-v79-topten-step574-20261015",
