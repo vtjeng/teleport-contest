@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The first mismatch is the monster-versus-monster digestion path in uhitm.c:mhitm_ad_dgst. A tame, non-minion, corpse-eligible aggressor creates a temporary CORPSE, assigns the swallowed species (which starts a corpse timeout), computes pet nutrition, then deallocates the corpse. C dealloc_obj stops attached timers; JavaScript dealloc_obj requires a stopObjectTimers lifecycle hook, but mhitm_ad_dgst passes only the generic attack environment and state. At step 923, the missing hook stops the replay before the remaining source effects. The cause is localized to the virtual-corpse caller environment; the successful pre-mismatch prefix matches through step 922.",
+  "summary": "The v83 mismatch was caused by the virtual-corpse cleanup in uhitm.c:mhitm_ad_dgst. C dealloc_obj stops the corpse timer; JavaScript now supplies the same stopObjectTimers lifecycle operation at the virtual-corpse call site while preserving any caller-provided hook. The unchanged admitted case now matches all 1702 screens, 4205 RNG calls, and 1702 cursors with no error.",
   "source": {
     "file": "uhitm.c",
     "functions": [
@@ -86,6 +86,41 @@
     "C uhitm.c:4492-4567 handles hero and hero-defender arms by setting zero damage; Rider defenders kill or life-save the aggressor and finish the attack; other monster defenders may produce the burp, wake nearby monsters, copy defender HP, use lifesaving, and run corpse_chance. For a tame non-minion aggressor and corpse-eligible non-G_NOCORPSE defender, it creates a virtual CORPSE, sets its species, obtains dog_nutrition, calls dealloc_obj, then adjusts meating and EDOG hungrytime.",
     "C mkobj.c:set_corpsenm starts a corpse timeout for species other than lizard/lichen. C mkobj.c:dealloc_obj at 2745-2767 calls obj_stop_timers when obj->timed is set; timeout.c:obj_stop_timers unlinks the matching object timers and clears obj->timed.",
     "The existing JS uhitm.js:mhitm_ad_dgst mirrors that order and already calls set_corpsenm and dealloc_obj. Its virtual-corpse objectEnv is only {...env, state}; JS obj.js:dealloc_obj deliberately requires the stopObjectTimers hook for timed objects, so the temporary titanothere corpse throws before the source cleanup and subsequent pet nutrition updates. The needed repair is at this caller environment; no change to the generic deallocator or timeout semantics is indicated.",
-    "The preceding v83 prefix matches through segment 0 step 922. Similar earlier digestion cases do not exercise this branch: the accepted stone-golem digestion uses a G_NOCORPSE species, while the nurse case exits through corpse_chance before creating the virtual corpse."
-  ]
+    "The preceding v83 prefix matches through segment 0 step 922. Similar earlier digestion cases do not exercise this branch: the accepted stone-golem digestion uses a G_NOCORPSE species, while the nurse case exits through corpse_chance before creating the virtual corpse.",
+    "Implementation df29a8f52d295eb16c3a72c9ff2ab6a00b036f9e adds the caller-local stopObjectTimers adapter in js/uhitm.js:mhitm_ad_dgst. It delegates to the existing timeout.js:obj_stop_timers port, retains any environment hook supplied by callers, and leaves the generic deallocator unchanged.",
+    "The exact admitted v83 replay after the fix matches segment 0 in full: 1702/1702 screens, 4205/4205 RNG calls, 1702/1702 cursors, zero animation frames, and no error. The replay reaches the virtual-corpse timer cleanup at steps 923-924 and continues through the full recording.",
+    "The focused scripts/uhitm-ad-dgst.test.mjs regression exercises the production AD_DGST dispatch with a tame purple worm and Titanothere. It verifies the defender HP and pet nutrition updates complete and the timer queue returns to its prior count after the temporary corpse is deallocated. npm run lint passes."
+  ],
+  "implementation": {
+    "commit": "df29a8f52d295eb16c3a72c9ff2ab6a00b036f9e",
+    "source": "js/uhitm.js:mhitm_ad_dgst creates a corpse lifecycle environment whose stopObjectTimers hook defaults to the existing obj_stop_timers(state) behavior, while preserving an injected caller hook. The helper remains wired from js/uhitm.js:mhitm_adtyping AD_DGST dispatch.",
+    "focusedTest": "scripts/uhitm-ad-dgst.test.mjs",
+    "admittedSynthetic": {
+      "batch": "v83",
+      "caseId": "v83-mm-digest-chameleon-action2",
+      "segment": 0,
+      "fromStep": 923,
+      "throughStep": 924,
+      "source": "uhitm.c:mhitm_adtyping -> mhitm_ad_dgst; a tame purple worm digests the corpse-eligible chameleon/titanothere, then deallocates its timed virtual corpse before pet-nutrition updates."
+    },
+    "replay": {
+      "batch": "v83",
+      "caseId": "v83-mm-digest-chameleon-action2",
+      "segment": 0,
+      "matchedScreens": 1702,
+      "totalScreens": 1702,
+      "matchedRng": 4205,
+      "totalRng": 4205,
+      "matchedCursors": 1702,
+      "totalCursors": 1702,
+      "animFrames": 0,
+      "error": null
+    },
+    "checks": [
+      "node --test scripts/uhitm-ad-dgst.test.mjs: passed",
+      "npm run lint: passed",
+      "exact v83 replay: 1702 screens, 4205 RNG calls, 1702 cursors, no error",
+      "synthetic-range-evidence: v83 segment 0 through step 924 matched."
+    ]
+  }
 }
