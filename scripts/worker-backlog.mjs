@@ -24,6 +24,7 @@ export function acceptedDependency(state, sha) {
 export function pendingMainWork(state, admittedBatches = []) {
     const backlog = { deliveries: [], preparedBatches: [], parkedTasks: [] };
     for (const task of Object.values(state.tasks)) {
+        if (state.queue && task.kind !== 'challenge-preparation' && !task.deliveries.length) continue;
         const delivery = state.deliveries[task.deliveries.at(-1)];
         const batch = task.reservations?.find(key => key.startsWith('challenge-batch:'))?.split(':')[1];
         const row = { task: task.id, worker: task.worker, goal: task.goal ?? null,
@@ -75,6 +76,16 @@ export function batchWakeups(state, admittedBatches, queue) {
 // Saved measurements describe mismatch debt; reservations describe what workers
 // can start. Neither a submitted delivery nor a parked cause is new worker work.
 // Groups are candidates: workers still check callers and shared-state contracts.
+export function investigationReservations(entry) {
+    const source = entry.investigation?.status === 'complete' ? entry.investigation.result?.source : null;
+    return source?.file?.endsWith('.lua') ? [`source:${source.file}`]
+        : source?.file?.endsWith('.c') && Array.isArray(source.functions)
+            ? [...new Set(source.functions.flatMap(fn => {
+                const name = typeof fn === 'string' ? fn.match(/^[A-Za-z_]\w*/)?.[0] : null;
+                return name ? [`source:${source.file}:${name}`] : [];
+            }))] : [];
+}
+
 export function workerWork(state, queue = null) {
     const tasks = Object.values(state.tasks);
     const workers = Object.values(state.workers ?? {}).filter(w => w.handle && w.worker !== 'Prep');
@@ -101,13 +112,7 @@ export function workerWork(state, queue = null) {
                 blockedBy: parked.map(t => t.id), reason: parked.map(t => t.reason).filter(Boolean).join('; ') });
             continue;
         }
-        const source = entry.investigation?.status === 'complete' ? entry.investigation.result?.source : null;
-        const reservations = source?.file?.endsWith('.lua') ? [`source:${source.file}`]
-            : source?.file?.endsWith('.c') && Array.isArray(source.functions)
-                ? [...new Set(source.functions.flatMap(fn => {
-                    const name = typeof fn === 'string' ? fn.match(/^[A-Za-z_]\w*/)?.[0] : null;
-                    return name ? [`source:${source.file}:${name}`] : [];
-                }))] : [];
+        const reservations = investigationReservations(entry);
         const blockedBy = [...new Set([`session:${entry.session}`, ...reservations]
             .flatMap(key => state.reservations?.[key]?.tasks ?? []))];
         if (blockedBy.length) {

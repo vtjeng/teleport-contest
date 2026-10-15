@@ -48,13 +48,14 @@ centrally as required at integration.
 Use `worker-worktree.mjs prepare --branch <assigned-branch>` for supported
 worktree setup and `check` to validate retained state. Missing prerequisites,
 including a worktree-local recorder, must be fixed before execution.
-The existing `connect`/`connected`, `assign`, and `implement` events are
-legacy transport examples, not a unified queue claim API. Implement and test
-the branch/identity transition before using them for the new worker model.
+Register and connect the persistent workers through `worker-state.mjs`, then
+use `work-queue.mjs claim` for dispatch and branch switching. The claim's
+transport ID connects source-scope and evidence commands to the existing
+acceptance helpers. `assign` is not a second dispatch path in unified mode.
 
-For existing legacy runs, use `scripts/worker-state.mjs` to record changes
-as they happen. Its examples below remain subject to the architecture's
-migration boundary. This shared legacy ledger records who owns work, submitted commits, and acceptance. Use
+Use `scripts/worker-state.mjs` for transport/acceptance events and
+`scripts/work-queue.mjs` for execution. The architecture documents enabling
+and migrating the single shared ledger. This event log records who owns work, submitted commits, and acceptance. Use
 `--help` for its commands; do not edit the JSON by hand. Workers record their
 connections, turns, tasks, scope changes, and submissions. You record receipt,
 integration, validation, acceptance, and publication. Keep accepted

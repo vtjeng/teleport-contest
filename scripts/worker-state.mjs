@@ -13,6 +13,7 @@ import { admittedBatchIds } from './challenge-results.mjs';
 import { acceptedMain, acceptedDependency, batchWakeups, pendingMainWork, workerWork, savedQueueIssues } from './worker-backlog.mjs';
 import { readRows } from './score-log.mjs';
 import { publicationConfirmations } from './worker-publication.mjs';
+import {applyQueueEvent, authorizeQueueEvent, isQueueEvent, queueDeliveryEvent, queueWork} from './assignment-queue.mjs';
 
 export const USAGE = `Usage (run from the coordinator or assigned worker checkout root):
   node scripts/worker-state.mjs init --run <run-id> [--file <ledger.json>]
@@ -29,6 +30,12 @@ export const USAGE = `Usage (run from the coordinator or assigned worker checkou
   node scripts/worker-state.mjs sync-main --commit <revision> [--file <ledger.json>]
 
 The default file is .cache/worker-state.json. init never overwrites a ledger.
+For the unified architecture, register Prep and Worker-1..Worker-3, then use
+work-queue.mjs enable/refresh/enqueue/claim. All state shares this event log.
+The claim returns an implementation transport ID for implement/scope/submit.
+Verified submit completes execution; feedback automatically queues linked
+implementation rework. Legacy assign/resume/probe cannot bypass that queue.
+See .agents/architecture.md for migration, batch branches and artifact packets.
 status is read-only and rebuilds current ownership after a restart. The old
 pilot's manual JSON is not migrated: preserve it and reconcile its workers/WIP
 before initializing a new ledger at a different --file path.
@@ -85,7 +92,7 @@ investigation when its cause belongs to another worker. All other event types
 are coordinator-only, except prep-probe: the Prep lead starts probes; the lead
 or assigned probe worktree records later observations. The ledger supports up
 to four live registered workers and six probe role names. These are schema
-limits, not separate thread quotas; follow .agents/loop.md's shared agent pool
+limits, not separate thread quotas; follow .agents/architecture.md
 and the host's total-agent limit before spawning any worker or probe.
 Each lane runs one command at a time, independently of the other lanes.
 Before launching C recording/replay or JavaScript comparison, record
@@ -283,6 +290,31 @@ function dependsOnTask(state, deliverySha, taskId, seen = new Set()) {
 }
 
 function applyEvent(state, event, at) {
+    if (isQueueEvent(event.type)) return applyQueueEvent(state, event, at, applyLegacyEvent);
+    if (state.queue && event.type === 'assign' && event.kind !== 'challenge-preparation')
+        throw new Error('unified workers must claim through work-queue.mjs, not legacy assign');
+    if (state.queue && event.type === 'prep-probe') throw new Error('unified exploration uses worker queue claims');
+    if (state.queue && event.type === 'register'
+        && !['Worker-1', 'Worker-2', 'Worker-3', 'Prep'].includes(event.worker))
+        throw new Error('unified queue uses three persistent workers and Prep');
+    if (state.queue && event.type === 'resume' && state.tasks[event.task]?.worker !== 'Prep')
+        throw new Error('unified rework/block recovery must use queue claims');
+    if (state.queue && ['resume', 'turn', 'observe'].includes(event.type)) {
+        const worker = state.workers[event.worker ?? state.tasks[event.task]?.worker];
+        if (worker?.assignment && (event.type === 'resume'
+            || (event.type === 'turn' && event.state !== 'active')
+            || (event.type === 'observe' && event.handle !== worker.handle)))
+            throw new Error('finish or explicitly block the queue assignment before changing its owner/turn');
+    }
+    applyLegacyEvent(state, event, at);
+    if (state.queue && event.type === 'turn') {
+        const task = state.queue.tasks[state.workers[event.worker]?.assignment];
+        if (task) task.processes = [...event.processes];
+    }
+    queueDeliveryEvent(state, event, at);
+}
+
+function applyLegacyEvent(state, event, at) {
     const { type } = event;
     check(Object.hasOwn(FIELDS, type), `unknown event type: ${type}`);
     const allowed = ['id', 'type', ...FIELDS[type], ...(OPTIONAL_FIELDS[type] ?? [])];
@@ -385,7 +417,9 @@ function applyEvent(state, event, at) {
         check(!state.workers[event.worker], `worker ${event.worker} already exists`);
         check(Object.values(state.workers).filter(w => w.handle !== null || w.processes.length).length < 4,
             'at most four workers may have live ownership');
-        check(!Object.values(state.workers).some(w => w.worktree === event.worktree || w.branch === event.branch || w.handle === event.handle),
+        check(!Object.values(state.workers).some(w => (w.worktree === event.worktree || w.branch === event.branch || w.handle === event.handle)
+            && !(state.queue && w.handle === null && w.processes.length === 0
+                && !Object.values(state.tasks).some(task => task.worker === w.worker && task.status === 'working'))),
             'worker worktree, branch and handle must each have one owner');
         state.workers[event.worker] = { worker: event.worker, worktree: event.worktree,
             branch: event.branch, base: event.base, handle: event.handle, processes: [], registeredAt: at };
@@ -652,6 +686,7 @@ export function nextActions(state, admittedBatches = [], queue = null) {
     const ready = pending.deliveries.filter(row => row.status === 'ready' && !row.blockedBy.length)
         .sort((a, b) => b.unblocks - a.unblocks || a.since.localeCompare(b.since));
     const available = workerWork(state, queue);
+    const assignments = queueWork(state);
     const reserve = pending.preparedBatches[0];
     const short = available.candidateGroups !== null && available.candidateGroups < available.workersNeedingWork;
     const readyPrep = ready.filter(row => row.kind === 'challenge-preparation')
@@ -685,14 +720,23 @@ export function nextActions(state, admittedBatches = [], queue = null) {
             reason: state.deliveries[task.deliveries.at(-1)].feedback ?? 'combined validation failed',
             afterTask: tasks.find(other => other.worker === task.worker && other.status === 'working')?.id ?? null,
         })),
-        workers: Object.values(state.workers).map(w => ({ worker: w.worker, handle: w.handle,
-            action: w.handle === null ? 'recover-owner' : w.turn === 'idle' ? 'wait'
+        workers: Object.values(state.workers).filter(w => !assignments
+            || ['Prep', 'Worker-1', 'Worker-2', 'Worker-3'].includes(w.worker))
+            .map(w => ({ worker: w.worker, handle: w.handle,
+            action: w.handle === null ? 'recover-owner' : assignments && w.worker !== 'Prep'
+                ? w.assignment ? 'continue' : assignments.ready.length ? 'claim-next' : 'wait'
+                : w.turn === 'idle' ? 'wait'
                 : w.turn === 'blocked' ? 'resolve-blocker' : w.turn === 'active' ? 'continue' : 'inspect-turn',
             reason: w.reason ?? null, processes: w.processes,
-            task: tasks.find(t => t.worker === w.worker && t.status === 'working')?.id ?? null })),
+            task: assignments && w.worker !== 'Prep' ? w.assignment ?? null
+                : tasks.find(t => t.worker === w.worker && t.status === 'working')?.id ?? null })),
         integration: slot ? { task: slot.id, status: slot.status } : preferred
             ? { task: preferred.task, delivery: preferred.delivery, status: 'ready' } : null,
-        workerWork: available,
+        workerWork: assignments ? {status: assignments.readySessions === null ? 'unknown' : 'available',
+            workersNeedingWork: Object.values(state.workers).filter(w => /^Worker-[1-3]$/u.test(w.worker)
+                && w.handle && !w.assignment).length,
+            allocation: assignments, admission: available.admission} : available,
+        ...(assignments ? {assignments} : {}),
         pendingMainWork: { ...pending,
             // Keep routine coordination compact; status and the dashboard retain reasons.
             parkedTasks: pending.parkedTasks.map(({ task, worker, since }) => ({ task, worker, since })) },
@@ -700,6 +744,7 @@ export function nextActions(state, admittedBatches = [], queue = null) {
 }
 
 function authorizeWorker(state, root, event) {
+    if (isQueueEvent(event?.type)) return authorizeQueueEvent(state, root, event);
     check(event && ['assign', 'scope', 'implement', 'ready', 'connect', 'turn', 'resume', 'park', 'prep-probe'].includes(event.type),
         'only coordinator may record this event');
     check(event.controlCases === undefined, 'only coordinator may authorize user-requested controlCases');
@@ -843,6 +888,8 @@ export function main(argv = process.argv.slice(2)) {
         }
         check(current, 'initialize the ledger first');
         const state = summarizeLedger(current);
+        if (command === 'event' && isQueueEvent(input.type))
+            throw new Error('queue events require the verified work-queue.mjs command');
         const previous = command === 'event' ? current.events.find(event => event.id === input.id) : null;
         const groupKey = previous?.prepGroup ? 'prepGroup' : previous?.implementationGroup ? 'implementationGroup' : null;
         const retry = groupKey && input.type === 'feedback'

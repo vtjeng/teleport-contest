@@ -15,8 +15,8 @@ Read `AGENTS.md`, `.agents/architecture.md`, `.agents/selection.md`
 ("Generating the next synthetic batch"), `.agents/validation.md`, and
 `.agents/scoring.md`. Use your batch-assembly worktree and branch. Preserve
 batch identity, source plans, and result packet references outside worker
-scratch directories. Current legacy CLI submission examples below remain
-subject to the architecture's tooling transition.
+scratch directories. The batch submission commands below use delivery-transport IDs in the same
+ledger; worker execution claims use `work-queue.mjs`.
 
 ## Planning and assembly
 
@@ -42,9 +42,10 @@ still governs worker claims. Main alone accepts, admits, scores, and publishes.
 
 ## Batch artifacts and legacy submission transport
 
-The commands below describe the existing batch-delivery transport, not an
-implemented producer/claim API. Apply `.agents/architecture.md`, "Tooling
-transition", before running the unified loop.
+Use `work-queue.mjs batch --branch <batch-branch> --file <absolute-ledger>`
+to prepare a clean batch branch while retaining producer identity. Enqueue
+exploration via `work-queue.mjs enqueue`; never privately dispatch workers.
+The commands below preserve the batch-delivery evidence/acceptance transport.
 
 Commit only new case recipes and C recordings under
 `challenges/cases/<batch>/`. Put the prepared manifest and its case hashes in

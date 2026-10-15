@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { summarizeLedger } from './worker-state.mjs';
 import { pendingMainWork } from './worker-backlog.mjs';
 import { admittedBatchIds } from './challenge-results.mjs';
+import {publicQueue} from './assignment-queue.mjs';
 
 const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
@@ -17,7 +18,7 @@ const EVENT_TYPES = new Set([
   'prep-probe',
 ]);
 
-export function activityFromLedger(ledger) {
+function legacyActivityFromLedger(ledger) {
   if (!/^loop-20\d{6}$/u.test(ledger?.runId ?? '')
       || ledger.runId < 'loop-20260925' || !Array.isArray(ledger.events)) {
     throw new Error('expected a worker ledger from loop-20260925 or later');
@@ -62,6 +63,47 @@ export function activityFromLedger(ledger) {
         ? { live: event.handle !== null || Boolean(event.processes?.length) } : {}),
     })),
   };
+}
+
+export function activityFromLedger(ledger) {
+  const activity = legacyActivityFromLedger(ledger);
+  if (!ledger.events.some(event => event.type === 'queue-enable')) return activity;
+  const state = summarizeLedger(ledger);
+  if (!state.queue) return activity;
+  const seen = new Set(), transports = new Set();
+  const events = [...activity.events];
+  const emit = (event, patch) => events.push({runId: ledger.runId, at: event.at, ...patch});
+  for (const event of ledger.events) {
+    const task = state.queue.tasks[event.task];
+    if (event.type === 'queue-claim') {
+      emit(event, {id: event.id, type: seen.has(task.id) ? 'resume' : 'assign', task: task.id,
+        worker: event.worker, kind: 'queue-execution', assignmentType: task.type,
+        output: task.output, ...(task.batch ? {batch: task.batch} : {}), target: task.target ?? null,
+        selectionReason: event.selectionReason ?? 'Assigned under the shared queue policy.'});
+      seen.add(task.id);
+    } else if (['queue-result', 'queue-block'].includes(event.type)) {
+      emit(event, {id: event.id, type: event.type === 'queue-result' ? 'queue-complete' : 'queue-block',
+        task: event.task, worker: event.worker});
+      emit(event, {id: `${event.id}:idle`, type: 'turn', worker: event.worker, state: 'idle',
+        reason: event.type === 'queue-result' ? 'Result saved; available for another task.' : 'Assignment blocked; available for independent work.'});
+    } else if (event.type === 'ready') {
+      const execution = Object.values(state.queue.tasks).find(item => item.result?.commit === event.delivery);
+      if (!execution) continue;
+      // Acceptance retains its transport ID, but owns no duplicate worker time.
+      if (!transports.has(event.task)) {
+        emit(event, {id: `${event.id}:transport`, type: 'assign', task: event.task, worker: execution.worker,
+          kind: 'implementation', goal: state.tasks[event.task]?.goal});
+        transports.add(event.task);
+      }
+      emit(event, {id: `${event.id}:complete`, type: 'queue-complete', task: execution.id, worker: execution.worker});
+      emit(event, {id: `${event.id}:idle`, type: 'turn', worker: execution.worker, state: 'idle',
+        reason: 'Delivery saved; available for another task.'});
+    }
+  }
+  // A synthesized transport assignment must precede its same-time ready event.
+  const order = row => row.id.endsWith(':transport') ? -1 : 0;
+  activity.events = events.sort((a, b) => a.at.localeCompare(b.at) || order(a) - order(b));
+  return activity;
 }
 
 export function mergeActivity(previous, current) {
@@ -142,6 +184,7 @@ export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output 
     activity: mergeActivity(previous?.activity, activityFromLedger(ledger)),
     pendingMainWork: pendingMainWork(state, admittedBatchIds(root)),
     workerReservations: reservationSnapshot(state),
+    ...(state.queue ? {assignmentQueue: publicQueue(state)} : {}),
     development: developmentFromCheckpoint(summary, results, resultBytes),
   };
   writeFileSync(outputPath, JSON.stringify(snapshot, null, 2) + '\n');

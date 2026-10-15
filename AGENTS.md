@@ -82,7 +82,7 @@ architecture's separate execution-task and deliverable lifecycles.
 Read `.agents/architecture.md` for the single prioritized queue, sibling
 Main/Prep/Process leads, three persistent general workers, rework, and
 worktrees. That file also identifies the current tooling migration boundary;
-these instructions do not assert that the unified queue is implemented.
+use the supported enable/migration commands without discarding legacy work.
 `.agents/loop.md` owns Main's integration and publication procedures;
 `.claude/agents/queue-worker.md` is the common worker entry point.
 

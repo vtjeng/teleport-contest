@@ -77,6 +77,11 @@ export function fetchAdmission(id, {root = PROJECT_ROOT, ledger, runGh = (args, 
                 current = recordEvent(current, {id: `admission-done-${task}-${commit}`, type: 'activity',
                     task, phase: 'done', reason: 'Hosted baseline saved; new cases are available for selection.'});
             }
+            if (summarizeLedger(current).queue) current = recordEvent(current,
+                {id: `queue-admission-${commit}`, type: 'queue-admission', base: commit,
+                    receipt: `hosted-admission:${id}:${digest(JSON.stringify(summary))}`, sessions: evaluations.flatMap(evaluation => evaluation.cases
+                        .filter(entry => !entry.passed && !entry.error)
+                        .map(entry => `synthetic/${evaluation.batch}/${entry.id}`))});
             return current;
         });
     }

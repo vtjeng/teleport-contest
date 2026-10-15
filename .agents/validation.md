@@ -10,9 +10,11 @@ competition holdout is outside this workspace.
 
 Queue assignment and deliverable identities are separate under
 `.agents/architecture.md`. Rework is a new linked queue task. Existing helper
-commands below retain their legacy delivery/task IDs until that protocol is
-migrated; a `feedback` event alone is not a new queue assignment. Preserve
-all CI, evidence, acceptance, and admission gates during that migration.
+commands below retain their delivery-transport IDs. In unified mode,
+verified submission completes execution; feedback on a linked implementation
+delivery automatically enqueues separate rework. Batch feedback still needs
+scoped worker rework enqueued by Main. Preserve all CI, evidence, acceptance,
+and admission gates.
 
 ## Routine validation
 
@@ -176,8 +178,9 @@ and the candidate branch. After the run finishes, use
 test a smaller group from the original accepted base. Keep required dependencies
 together. Omitted tasks stay ready; never accept a subset from a failed result.
 For corrections in the legacy transport, `feedback` releases sibling delivery
-records. The unified queue must also create the linked rework assignment
-under `.agents/architecture.md`; do not reopen a completed execution task.
+records. In unified mode it also creates the linked implementation rework
+assignment under `.agents/architecture.md`; the completed execution task
+remains completed.
 In the existing helper, after receiving the correction, retry `integrate` to rebuild the frozen group
 with all original and correction commits. Resolve unfinished cherry-picks first.
 

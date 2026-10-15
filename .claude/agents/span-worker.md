@@ -5,9 +5,9 @@ description: Source implementation and evidence procedure for a general worker a
 
 This is an assignment-specific guide, not a permanent worker role. Start at
 `.claude/agents/queue-worker.md` and `.agents/architecture.md`. Their queue,
-worktree, and rework rules supersede legacy worker-selection/transport
-examples below. Do not treat existing `assign`/`implement` commands as proof
-that the unified queue is implemented.
+worktree, and rework rules govern execution. A queue claim returns a
+`transport` ID for existing source-scope and submission commands below;
+never use legacy `assign` to select a private next task.
 
 ## Read before you start
 
@@ -102,23 +102,25 @@ pushing, add a follow-up commit that states the correction.
 
 ## Implementation evidence and legacy transport
 
-The commands in this section describe the existing implementation transport.
-Use them only within the supported migration boundary in
-`.agents/architecture.md`; they are not an independent dispatch queue.
+The commands in this section operate on the claim's implementation
+`transport`, not its execution task ID. They preserve existing evidence and
+acceptance gates within the one ledger; they are not a separate scheduler.
 
 Use the orchestrator's absolute shared-ledger path with
 `scripts/worker-state.mjs --file`. Read `--help` for event fields and command
 syntax. Record your connection, turn state, task, scope changes, and delivery
 as they happen; do not edit the ledger JSON by hand.
-For idle or blocked turns, include a public `summary` naming the dependency
+When unassigned, idle or blocked turns include a public `summary` naming the dependency
 or next action and its owner. Keep private details in `reason`; the dashboard
 publishes only `summary`. Record an active turn when work resumes.
+For a blocked claimed assignment, preserve its recovery commit and use
+`work-queue.mjs block` before reporting an unassigned turn.
 
-Before investigating an unresolved session, claim it with an `assign` event
-using `kind: "investigation"`, its canonical session ID as `seed`, exactly
-`session:<session-id>` as the reservation, and
-`["investigations/<session-id>.json", ".cache/"]` as `allowedPaths`. Omit
-`goal` and `span`. Use the saved queue entry and verify its source claims;
+Claim through `work-queue.mjs` before investigating. Imported unresolved
+sessions start an investigation transport with their canonical session ID,
+session reservation, and report/cache write scope. Use the saved entry and
+any valid cached investigation; avoid repeating an already established diagnosis.
+Verify its source claims;
 write the investigation using `.agents/selection.md`, "Investigation cache".
 Do not edit game code while the task is an investigation.
 
@@ -131,15 +133,16 @@ record an `implement` event with its goal ID, complete source reservations,
 and allowed paths, retaining the session reservation and investigation paths.
 This atomically claims source scope without waiting for a central goal or an
 acknowledgement. If another worker owns the cause, send it the findings and
-report path, block or supersede this assignment with the reason, and use the
+report path and block this assignment with the reason; Main may supersede it.
+Use the
 shared claim policy for another eligible task. Ask the orchestrator only when ownership or a shared contract needs a
 decision. Commit the investigation separately before the code so the
 orchestrator can preserve the diagnosis separately from the fix; include both in the delivery.
 
-For an already diagnosed task, claim it with an `assign` event through
-`event --json`.
-The command checks legacy ownership atomically. If another worker owns the
-scope, report the dependency to Main; do not privately select a new task. Reserve the selected session,
+For an already diagnosed task, the queue claim still controls ownership.
+Use its source context and transport ID; if it begins as an investigation,
+claim implementation scope through `implement` before edits. A scope conflict
+is a dependency to report to Main, not permission to bypass queue priority. Reserve the selected session,
 functions and shared-state contracts you need; do not reserve whole files
 indefinitely.
 Ask the orchestrator before changing another worker's reserved function or

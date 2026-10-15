@@ -16,6 +16,7 @@ its location and how to read it.
 |---|---|---|---|
 | `span-context.json` | `goal-log.mjs next-span` | span worker | Current span: goal, C file, functions, C line ranges, C line count, JavaScript file, sessions |
 | `worker-state*.json` and their `.deliveries/` directories | `worker-state.mjs` | orchestrator and workers | Runtime ownership and delivery history; kept locally for recovery, never copied into tracked goal or investigation records |
+| `worker-state*.json` queue events and `.results/` packets | `work-queue.mjs` in the same atomic ledger | Main, Prep and general workers | Prioritized execution assignments, branch attempts, immutable exploration results and copied check logs; delivery transport remains separately projected in that ledger |
 | `scan-cache.json` | scan-sessions | scan-sessions, mismatch-queue, check-overread | Replay cache keyed by commit SHA |
 | `session-results.json` | score-development | score-development | Scored session results from the last development run |
 | `checkpoint-summary.json` | npm run checkpoint | orchestrator | Convenience copy of this worktree's latest completed checkpoint; shared results are authoritative |

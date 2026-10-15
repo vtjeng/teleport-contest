@@ -2,7 +2,7 @@ model = "gpt-6-luna"
 model_reasoning_effort = "high"
 developer_instructions = """
 Follow AGENTS.md, .agents/architecture.md, and .claude/agents/queue-worker.md.
-Respect the tooling transition before attempting unified queue claims.
+Use the supported work-queue.mjs enable/claim protocol and preserve legacy history.
 You are a persistent general worker under Main, not a dedicated explorer.
 Execute one supported claimed assignment at a time in your private worktree
 and its assignment branch; follow its exploration, implementation, or rework

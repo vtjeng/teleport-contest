@@ -19,6 +19,8 @@ export function activityTimeline(activity, capturedAt) {
     const start = task.starts[phase];
     if (start && Date.parse(at) >= Date.parse(start)) {
       segments.push({ task: task.id, goal: task.goal, worker: task.worker,
+        ...(task.assignmentType ? {assignmentType: task.assignmentType, output: task.output, target: task.target} : {}),
+        ...(task.selectionReason ? {reason: task.selectionReason} : {}),
         kind: task.kind, ...(task.batch ? { batch: task.batch } : {}), phase, start, end: at, ...(ongoing ? { ongoing: true } : {}),
         ...(task.kind === 'challenge-probe' ? {parentTask: task.parentTask, reason: task.reason} : {}),
         ...(task.prepGroup ? {prepGroup: task.prepGroup, integration: task.integration} : {}),
@@ -54,6 +56,8 @@ export function activityTimeline(activity, capturedAt) {
     if (event.type === 'assign') {
       const task = { id: taskId, label: event.task, goal: event.goal ?? null,
         worker: event.worker, kind: event.kind ?? 'implementation',
+        ...(event.assignmentType ? {assignmentType: event.assignmentType, output: event.output, target: event.target} : {}),
+        ...(event.selectionReason ? {selectionReason: event.selectionReason} : {}),
         ...(event.batch ? { batch: event.batch } : {}),
         assignedAt: event.at, starts: {}, status: 'working',
         integration: null, publishedAt: null };
@@ -105,6 +109,12 @@ export function activityTimeline(activity, capturedAt) {
       if (event.type === 'published') close(task, 'acceptance', event.at);
     }
     switch (event.type) {
+      case 'queue-complete':
+      case 'queue-block':
+        for (const phase of Object.keys(task.starts)) close(task, phase, event.at);
+        task.status = event.type === 'queue-complete' ? 'completed' : 'blocked';
+        if (event.type === 'queue-complete') task.completedAt = event.at;
+        break;
       case 'implement':
         task.kind = 'implementation';
         task.goal = event.goal;
@@ -123,6 +133,8 @@ export function activityTimeline(activity, capturedAt) {
         task.rework = true;
         break;
       case 'resume':
+        if (event.worker) task.worker = event.worker;
+        if (event.selectionReason) task.selectionReason = event.selectionReason;
         close(task, 'parked', event.at);
         begin(task, task.rework ? 'rework' : 'working', event.at);
         task.status = 'working';
@@ -246,10 +258,11 @@ export function activityUtilization(stages, start, end) {
   const hasPrepLanes = stages.some(stage => /^Prep-[1-6]$/u.test(stage.lane));
   const prepRole = hasPrepLanes ? 'Prep lead' : 'Prep';
   const roles = hasPrepLanes ? ['A/B/C', prepRole, 'Prep lanes', 'Main'] : ['A/B/C', prepRole, 'Main'];
+  if (stages.some(stage => /^Worker-[1-3]$/u.test(stage.lane))) roles.splice(1, 0, 'Workers');
   const groups = roles.map(role => ({ role, workers: new Map() }));
   for (const stage of stages) {
     if (['queued', 'pending'].includes(stage.phase)) continue;
-    const role = stage.lane === 'Main' ? 'Main' : /^Prep-[1-6]$/u.test(stage.lane) ? 'Prep lanes'
+    const role = /^Worker-[1-3]$/u.test(stage.lane) ? 'Workers' : stage.lane === 'Main' ? 'Main' : /^Prep-[1-6]$/u.test(stage.lane) ? 'Prep lanes'
       : /^Prep\d*$/u.test(stage.lane) ? prepRole
       : /^[ABC]\d*$/u.test(stage.lane) ? 'A/B/C' : null;
     const group = groups.find(row => row.role === role);

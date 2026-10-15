@@ -899,6 +899,11 @@ canvas {
 
 <div class="stats" id="stats"></div>
 
+<section class="section" id="assignmentQueueSection" hidden aria-labelledby="assignmentQueueTitle">
+  <h3 class="section-title" id="assignmentQueueTitle">Shared work queue</h3>
+  <div class="activity-backlog" id="assignmentQueue"></div>
+</section>
+
 
 
 <section class="section" aria-labelledby="pendingMainWorkTitle">
@@ -1685,6 +1690,30 @@ document.getElementById('stats').innerHTML = [
 })();
 
 // --- Observed worker and integration activity ---
+(function renderAssignmentQueue() {
+  const queue = DATA.assignmentQueue;
+  if (!queue) return;
+  document.getElementById('assignmentQueueSection').hidden = false;
+  const container = document.getElementById('assignmentQueue');
+  const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const label = task => task.type === 'rework' ? 'Rework' : task.output === 'exploration' ? 'Exploration' : 'Implementation';
+  const pending = queue.tasks.filter(task => !['completed', 'superseded'].includes(task.status));
+  container.innerHTML = '<p><strong>' + (queue.readySessions === null ? 'Unknown' : esc(queue.readySessions))
+    + ' ready implementation sessions</strong> · threshold ' + esc(queue.threshold)
+    + '</p><p>' + esc(queue.reason) + '</p><p>'
+    + queue.workers.map(worker => esc(worker.worker.replace('-', ' ')) + ': ' + esc(worker.state)
+      + (worker.assignment ? ' (' + esc(worker.assignment) + ')' : '')).join(' · ') + '</p>'
+    + (pending.length ? pending.map(task => '<details><summary>' + esc(label(task)) + ' · '
+      + esc(task.id) + ' · ' + esc(task.status) + '</summary><p>Producer ' + esc(task.producer)
+      + ' · result to ' + esc(task.recipient) + (task.batch ? ' · batch ' + esc(task.batch) : '')
+      + (task.target ? ' · corrects ' + esc(task.target.slice(0, 12)) : '')
+      + '</p>' + (task.sessions.length ? '<p>' + task.sessions.map(esc).join(', ') + '</p>' : '')
+      + (task.status === 'blocked' ? '<p>' + esc(queue.blocked.find(row => row.task === task.id)?.reason
+        || 'Waiting for producer or dependencies.') + '</p>' : '')
+      + '</details>').join('') : '<p>No pending assignments.</p>');
+})();
+
 (function() {
   const container = document.getElementById('pendingMainWork');
   const backlog = DATA.pendingMainWork;
@@ -1806,7 +1835,7 @@ document.getElementById('stats').innerHTML = [
   const aEnd = Math.max(...segments.filter(row => row.lane === 'A').map(row => Date.parse(row.end)));
   const a2Start = Math.min(...segments.filter(row => row.lane === 'A2').map(row => Date.parse(row.start)));
   const hasPrepLanes = segments.some(row => /^Prep-[1-6]$/u.test(row.lane));
-  const displayLane = lane => lane === 'A2' && aEnd <= a2Start ? 'A'
+  const displayLane = lane => /^Worker-[1-3]$/.test(lane) ? lane.replace('-', ' ') : lane === 'A2' && aEnd <= a2Start ? 'A'
     : hasPrepLanes && lane === 'Prep' ? 'Prep lead' : lane.replace(/^Prep-([1-6])$/u, 'P$1');
   const lanes = [...new Set(history.map(segment => segment.lane).filter(lane => lane !== 'Main')
     .sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(displayLane))];
@@ -1852,7 +1881,9 @@ document.getElementById('stats').innerHTML = [
     }
     const stage = history[point.sourceIndex];
     durationReadout.innerHTML = '<strong>' + esc(name(stage)) + '</strong> · attempt ' + point.attempt
-      + (stage.kind === 'challenge-preparation' ? ' · Preparation' : ' · Implementation')
+      + (stage.assignmentType ? ' · ' + esc(stage.assignmentType === 'rework' ? 'Rework'
+        : stage.output === 'exploration' ? 'Exploration' : 'Implementation')
+        : stage.kind === 'challenge-preparation' ? ' · Preparation' : ' · Implementation')
       + (point.validationGroup || point.prepGroup ? ' · Shared run: ' + esc((point.validationGroup || point.prepGroup).join(', ')) : '')
       + '<br>' + stamp(point.start) + ' – ' + stamp(point.end)
       + ' · ' + (point.durationMs / 60000).toFixed(1) + ' min'
@@ -1981,7 +2012,9 @@ document.getElementById('stats').innerHTML = [
   const barName = segment => segment.phase === 'integrating' && (segment.validationGroup || segment.prepGroup)
     ? (segment.kind === 'challenge-preparation' ? 'Prep' : 'Implementation') + ' group · '
       + (segment.validationGroup || segment.prepGroup).length + ' tasks'
-    : name(segment) + (batch(segment) ? ' · ' + batch(segment) : '');
+    : name(segment) + (segment.assignmentType ? ' · ' + (segment.assignmentType === 'rework' ? 'Rework'
+      : segment.output === 'exploration' ? 'Exploration' : 'Implementation') : '')
+      + (batch(segment) ? ' · ' + batch(segment) : '');
   let describedTask = null;
   const detailScroll = new Map();
   function describe(index, source = segments) {

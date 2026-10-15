@@ -152,7 +152,7 @@ test('admission import rejects incomplete artifacts and a failed or unaccepted b
     assert.throws(() => fetchAdmission('42', f), /passing gameplay checkpoint/);
 });
 
-test('coordinator import records baselines once and publication retains the admission receipt', t => {
+for (const unified of [false, true]) test(`coordinator import records baselines once and publication retains the admission receipt (${unified ? 'unified' : 'legacy'})`, t => {
     const f = fixture(t);
     let ledger = createLedger('loop-20261013', f.root), sequence = 0;
     const send = event => {ledger = recordEvent(ledger, {id: `fixture-${++sequence}`, ...event});};
@@ -174,6 +174,7 @@ test('coordinator import records baselines once and publication retains the admi
             checkpoint: join(f.root, `.git/checkpoint-results/${f.base}/fixture/summary.json`)});
         send({type: 'accepted', task});
     }
+    if (unified) send({type: 'queue-enable', prepRoot: join(f.root, 'worker'), base: f.base});
     f.save('.cache/ledger.json', ledger);
     const options = {...f, ledger: '.cache/ledger.json'};
     const result = fetchAdmission('42', options);
@@ -181,6 +182,12 @@ test('coordinator import records baselines once and publication retains the admi
     assert.equal(readRows(join(f.root, 'SCORE.tsv')).length, 2, 'one saved baseline per new batch');
     const saved = readFileSync(join(f.root, options.ledger), 'utf8');
     assert.ok(summarizeLedger(JSON.parse(saved)).tasks['Prep-v3'].baselineAt);
+    if (unified) {
+        const assignments = Object.values(summarizeLedger(JSON.parse(saved)).queue.tasks);
+        assert.equal(assignments.length, 2, 'only imported unresolved new cases enter the queue');
+        assert.ok(assignments.every(task => task.status === 'blocked'));
+        assert.deepEqual(assignments.flatMap(task => task.sessions), ['synthetic/v2/inventory', 'synthetic/v3/inventory']);
+    }
     fetchAdmission('42', options);
     assert.equal(readRows(join(f.root, 'SCORE.tsv')).length, 2, 'retry does not duplicate scores');
     assert.equal(readFileSync(join(f.root, options.ledger), 'utf8'), saved, 'retry does not duplicate baseline events');

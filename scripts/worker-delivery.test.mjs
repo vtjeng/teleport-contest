@@ -11,6 +11,7 @@ import { preparedFromDelivery } from './admit-challenge-batch.mjs';
 import { executionTree } from './checkpoint-reuse.mjs';
 import { COLUMNS } from './score-log.mjs';
 import {recordEvent} from './worker-state.mjs';
+import {queueCommand} from './work-queue.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
 
@@ -102,6 +103,52 @@ function fixture(t) {
         '--evidence', '.cache/evidence.json', '--checks', '.cache/checks.json'];
     return { parent, root, workers, file, base, git, run, success, event, assign, artifacts, commit, submitArgs };
 }
+
+test('unified queue delivers through source-evidence gates and reworks from another persistent worktree', t => {
+    const f = fixture(t);
+    writeFileSync(join(f.root, 'SCORE.tsv'), COLUMNS.join('\t') + '\n');
+    f.git(f.root, 'add', 'SCORE.tsv'); f.git(f.root, 'commit', '-qm', 'score schema');
+    const base = f.git(f.root, 'rev-parse', 'HEAD'), prep = join(f.parent, 'Prep');
+    for (const worker of ['A', 'B']) f.event({type: 'observe', worker, handle: null, processes: []});
+    f.git(f.root, 'worktree', 'add', '-qb', 'worker/Prep', prep);
+    f.event({type: 'register', worker: 'Prep', worktree: prep, branch: 'worker/Prep', base, handle: 'handle-Prep'});
+    queueCommand('enable', {file: f.file, prep}, f.root);
+    for (const [old, worker] of [['A', 'Worker-1'], ['B', 'Worker-2']]) f.event({type: 'register', worker,
+        worktree: f.workers[old], branch: `worker/${old}`, base: f.base, handle: `handle-${worker}`});
+    const queue = join(f.root, '.cache/current-queue.json');
+    writeFileSync(queue, JSON.stringify({mode: 'work', sessions: [{session: 'fixture-case'}],
+        blockers: [], synthetic: {batches: []}}));
+    queueCommand('refresh', {file: f.file, queue}, f.root);
+    const imported = Object.keys(f.success(['status', '--file', f.file]).queue.tasks)[0];
+    queueCommand('supersede', {file: f.file, task: imported, reason: 'Use the scoped source-plan assignment.'}, f.root);
+    const json = join(f.root, '.cache/assignment.json');
+    writeFileSync(json, JSON.stringify({id: 'source-fix', type: 'implementation', output: 'implementation',
+        producer: 'Main', recipient: 'Main', question: 'Implement sample from C.', stop: 'Submit source evidence.',
+        base, sessions: ['fixture-case'], goal: 'sample-port', dependencies: [], checks: ['focused', 'lint'], artifacts: [],
+        reservations: ['session:fixture-case', 'source:sample.c:sample'],
+        allowedPaths: ['js/sample.js', 'scripts/sample.test.mjs', 'recipes/sample.c/']}));
+    queueCommand('enqueue', {file: f.file, json}, f.root);
+    const claim = queueCommand('claim', {file: f.file, worker: 'Worker-1'}, f.workers.A);
+    f.artifacts('A'); const revision = f.commit('A');
+    const submit = f.submitArgs.map((arg, index) => index === 2 ? claim.transport : arg);
+    let state = f.success(submit, f.workers.A);
+    assert.equal(state.queue.tasks['source-fix'].status, 'completed');
+    assert.equal(state.tasks[claim.transport].status, 'ready');
+    const evidence = state.deliveries[revision].evidence, bytes = readFileSync(evidence, 'utf8');
+    f.event({type: 'feedback', task: claim.transport, delivery: revision, reason: 'Preserve the demonstrated correction.'});
+    const correction = queueCommand('claim', {file: f.file, worker: 'Worker-2'}, f.workers.B);
+    assert.equal(correction.target, revision);
+    f.artifacts('B');
+    const source = join(f.workers.B, 'js/sample.js');
+    writeFileSync(source, readFileSync(source, 'utf8') + '// Correction fixture.\n');
+    f.git(f.workers.B, 'add', 'js/sample.js'); f.git(f.workers.B, 'commit', '-qm', 'correction fixture');
+    state = f.success(submit, f.workers.B);
+    assert.equal(state.queue.tasks[correction.id].status, 'completed');
+    assert.equal(state.queue.tasks['source-fix'].worker, 'Worker-1');
+    assert.equal(state.tasks[claim.transport].worker, 'Worker-2');
+    assert.equal(state.tasks[claim.transport].deliveries.length, 2);
+    assert.equal(readFileSync(evidence, 'utf8'), bytes);
+});
 
 test('submission rejects malformed committed investigation before saving a ready delivery', t => {
     const f = fixture(t); const assigned = f.assign(); f.artifacts(); f.commit();

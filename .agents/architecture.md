@@ -4,7 +4,7 @@ This is the authority for agent hierarchy, queue ownership, scheduling,
 rework, worktrees, and dashboard identities. Other guides supply source,
 evidence, batch-admission, and publication requirements; they do not define
 additional queues or independent dispatch policies. See "Tooling transition"
-below before attempting to run this architecture with the existing scripts.
+below before enabling it on an existing ledger.
 
 ## Agents and authority
 
@@ -186,26 +186,117 @@ its deliverable awaits acceptance. Rework links back to the rejected revision;
 it does not reopen the completed assignment. Publish no private paths,
 process handles, credentials, or private reasoning in dashboard summaries.
 
-## Tooling transition
+## Tooling transition and commands
 
-This file defines the approved architecture, not a claim that its queue
-implementation exists. The current `worker-state.mjs` protocol still models
-implementation tasks through acceptance, Prep probes with fixed role names,
-and worktree/branch ownership per legacy worker. `workerWork.unstartedSessions`
-excludes investigated sessions and is not the ready-session count above.
-Current dashboards also group those legacy roles.
+`worker-state.mjs` remains the one atomic event ledger. Its `queue-*` events
+own dispatch and execution under `state.queue.tasks`; `state.tasks` and
+`state.deliveries` retain the existing submission/acceptance transport. These
+are projections of the same log, not two dispatch queues. `work-queue.mjs`
+is the verified CLI for enqueueing, prioritizing, claiming, and results.
 
-Before starting the unified loop, implement and test persistent-worker claims
-across task types and assignment branches, two-producer enqueue permissions,
-separate task/deliverable/rework identities, admission-based enqueueing,
-ready-session priority, safe recovery/reservations, and stable-worker dashboard
-history. Use one authoritative queue; do not bolt a second dispatch queue onto
-the existing scheduler or invent commands that its CLI does not expose.
-Existing submission, CI, acceptance, and admission helpers remain evidence
-gates; migrate their identities without weakening those gates.
+For a new run, initialize the ledger with `worker-state.mjs init --run
+loop-YYYYMMDD --file <absolute-shared-ledger>`. Main registers Prep and
+Worker-1..Worker-3 in their real private worktrees with the existing
+`register` event (actual branch, HEAD, and agent handle). Existing connections
+and observations remain supported. Use six agents below the conversation
+root; no queue command itself launches an agent.
 
-For a running legacy loop, preserve claims, processes, submissions, and
-history, and migrate at a clean boundary using supported commands. Do not
-rename ledger entries or convert partial work by hand. Until migration is
-implemented, legacy command examples in other guides describe the old
-protocol only and do not authorize starting a purported unified queue loop.
+From Main, enable and feed the queue:
+
+```sh
+node scripts/work-queue.mjs enable --prep <absolute-Prep-worktree> --file <absolute-ledger>
+node scripts/work-queue.mjs refresh --queue <saved-combined-mismatch-queue.json> --file <absolute-ledger>
+node scripts/work-queue.mjs next --file <absolute-ledger>
+```
+
+Refresh verifies admitted-batch membership and current recorded evaluations
+at accepted Main HEAD. It enqueues unresolved implementation sessions,
+including investigated ones, rechecks pending imported sessions, and retires
+resolved unclaimed work. Known source reservations prevent dispatching
+competing fixes. Missing/stale evidence blocks ordinary claims rather than
+pretending there is no implementation work. Use `reassess --task <id>
+--reason <new-evidence>` for a pending source-plan task whose explicit base
+needs updating after a refresh. Never reassess a live claim by branch switch.
+
+From Prep, enqueue a JSON assignment file with `work-queue.mjs enqueue
+--json <file> --file <absolute-ledger>`. An exploration assignment has:
+
+```json
+{
+  "id": "v90-room-source", "type": "exploration", "output": "exploration",
+  "producer": "Prep", "recipient": "Prep", "batch": "v90",
+  "question": "Reach and trace the named C behavior.",
+  "stop": "Return reproducible evidence or a bounded blocker.",
+  "base": "<accepted-Main-SHA>", "dependencies": [], "sessions": [],
+  "reservations": ["source:mkroom.c:mkroom"],
+  "allowedPaths": ["challenges/cases/v90/", ".cache/"],
+  "checks": ["fresh", "comparison"],
+  "artifacts": ["challenges/cases/v90/room.recipe.json", "challenges/cases/v90/room.session.json"]
+}
+```
+
+The JSON is a file, not inline shell text. Use full SHA references in task
+packets. Main may enqueue scoped implementation/rework using the same schema;
+rework also needs `target` and `findings`, and exploration rework names
+`targetTask` when targeting a worker result rather than a batch delivery.
+Implementation transport IDs are derived, not producer-assigned. Prep cannot
+enqueue implementation or change worker claims through either CLI.
+Producer IDs cannot use the reserved `session:`, `rework:`, or `delivery:`
+prefixes. Generated branches hash the run and assignment identity, so punctuation
+does not create collisions or invalid Git names. Existing transport identities
+cannot be reused for unrelated work. Implementation feedback already creates
+its correction: use that rework assignment rather than enqueueing a duplicate.
+
+For a bounded survey or validation follow-up, Main can enqueue exploration
+with `purpose: "support"`, producer/recipient Main, no batch, and only
+`.cache/` write scope. This uses the same workers and priority policy.
+Support results may retain observed nonzero check exits with outcome `failure`;
+Prep's C evidence checks must pass before a result completes.
+
+From a worker's persistent worktree, `work-queue.mjs claim --worker Worker-1
+--file <absolute-ledger>` atomically chooses priority and creates a clean
+assignment branch. It refuses dirty files, live handles, and competing claims;
+retries return the current assignment. Run worktree setup/checks for that
+branch before execution. Use `processes --worker Worker-1 --json <array-file>`
+to retain/clear owned command handles; finish the command before clearing it.
+
+Exploration completes with `complete --worker Worker-1 --json <result-file>`.
+The result supplies `summary`, `outcome` (failure/match/duplicate/miss/deferred),
+committed `paths`, and successful `checks` with kind, command array, exitCode,
+and absolute log path. The command checks scope, freezes artifact hashes and
+log contents in `<ledger>.results`, and completes the execution assignment.
+Use `block --worker Worker-1 --reason <dependency>` only after preserving a
+clean recovery commit and collecting commands. Main uses `unblock` or
+`supersede` with `--task` and `--reason`; silence never reassigns a worker.
+An unblocked attempt starts from its preserved recovery commit and keeps the
+original comparison base. If accepted Main changed, reassessment requires that
+recovery commit to include it; retain stale recovery work rather than discard it.
+Every command requires `--file <absolute-ledger>`; see `--help` for full syntax.
+
+For implementation, the claim returns `transport`. Use that ID for existing
+`implement`/`scope` events and `worker-state.mjs submit`, preserving all
+source/evidence gates. Verified submission automatically completes the queue
+assignment while its immutable delivery awaits acceptance. Feedback on that
+delivery automatically creates a separate urgent rework assignment, which
+another worker can claim; acceptance/publication helpers still consume the
+transport ID. The completed original assignment and its evidence remain.
+
+Prep starts a clean batch branch with `work-queue.mjs batch --branch prep/v90
+--file <absolute-ledger>` before existing batch assignment/submission commands.
+For a rejected batch, pass `--base <rejected-delivery-SHA>` to resume its
+transport on a new correction branch; Main enqueues the needed worker rework.
+The branch command preserves Prep's producer identity and refuses live batch
+work or commands. Admission import adds unresolved new sessions as blocked
+assignments. Refresh after accepted publication to make their current evidence
+runnable; imported baseline evidence alone does not authorize a candidate.
+
+For a running legacy loop, finish or explicitly preserve all execution claims
+and commands before `enable`. Record the validated tooling publication under
+`.agents/validation.md` so accepted Main includes this protocol before workers
+branch from it. Release old A/B/C handles with supported
+observations; do not rename events or discard submissions. Register the new
+Worker-1..3 identities only after their old owners have relinquished their
+worktrees. Inactive historical rows and immutable deliverables remain readable;
+the new queue can adopt those clean worktrees. Legacy `assign`/`resume` and
+`prep-probe` cannot bypass unified dispatch after enable. Historical batch and
+acceptance transport remains supported; its CLI IDs are not execution tasks.
