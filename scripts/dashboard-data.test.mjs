@@ -109,11 +109,14 @@ function renderDashboard(data, queue = null) {
     // need to exist, not to record anything.
     const makeElement = (id) => {
         const ops = [];
+        let markup = '', text = '';
         return {
             id,
-            innerHTML: '',
+            get innerHTML() { return markup; },
+            set innerHTML(value) { markup = String(value); text = markup.replace(/<[^>]*>/gu, ''); },
             outerHTML: '',
-            textContent: '',
+            get textContent() { return text; },
+            set textContent(value) { text = String(value); markup = text; },
             className: '',
             disabled: false,
             checked: false,
@@ -309,6 +312,12 @@ test('integration axis marks overflow and can reveal its full duration', () => {
     chart.ops.length = 0;
     rendered.get('integrationFullRange').listeners.click[0]();
     assert.deepEqual(ticks(), [0, 20, 40, 60, 80]);
+    chart.ops.length = 0;
+    rendered.get('integrationFullRange').listeners.click[0]();
+    assert.deepEqual(ticks(), [0, 20, 40, 60, 80], 'selecting All durations twice keeps that scale');
+    chart.ops.length = 0;
+    rendered.get('integrationTypicalRange').listeners.click[0]();
+    assert.deepEqual(ticks(), [0, 10, 20, 30], 'the 0–30 min option restores the clipped scale');
     assert.match(rendered.get('integrationDurationReadout').innerHTML, /74\.0 min/u);
 });
 
@@ -418,7 +427,7 @@ test('remaining challenge filter includes screen and trace mismatches', () => {
             remainingScreens: 0, recordedSteps: 3, kind: 'rng' },
     ] };
     const rendered = renderDashboard(data, queue);
-    assert.match(rendered.get('sessionSummary').textContent, /2 of 3 synthetic sessions remaining/u);
+    assert.match(rendered.get('sessionMeasurementInfo').textContent, /2 of 3 synthetic sessions remaining/u);
     const filter = rendered.get('sessionShowAll');
     assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /<td>Fixed<\/td>/u);
     assert.match(rendered.get('challengeTable').innerHTML, /Screen mismatch[\s\S]*Trace mismatch/u);
@@ -452,7 +461,7 @@ test('session rows distinguish submitted targets and shared-source reservations 
     assert.match(html, /Reserved by submitted work/u);
     assert.match(html, /Task A-task · Worker A · Submitted—awaiting Main/u);
     assert.match(html, /<td>0<\/td><td>0<\/td><td>1<\/td>/u);
-    assert.match(rendered.get('sessionSummary').textContent, /3 of 3 synthetic sessions remaining · 1 candidate group available/u);
+    assert.match(rendered.get('sessionSummary').textContent, /3 sessions need work/u);
     for (const [state, label] of [['working', 'In progress'], ['integrating', 'Integration and checks'],
         ['validated', 'Awaiting acceptance'], ['changes-required', 'Needs correction']]) {
         task.status = state;
@@ -475,7 +484,7 @@ test('unmeasured challenge cases remain visible in the remaining filter', () => 
     const rendered = renderDashboard(data, { mode: 'work', sessions: [],
         generationReady: false, blockers: ['v3 evaluation missing'] });
     assert.match(rendered.get('sessionSummary').textContent,
-        /2 of 2 synthetic sessions remaining/u);
+        /2 sessions need work/u);
     assert.match(rendered.get('challengeTable').innerHTML, /Pending evaluation/u);
     assert.match(rendered.get('challengeTable').innerHTML, /Incomplete metrics/u);
 });
@@ -498,7 +507,7 @@ test('excluded cases leave pending work but retain raw scores and reasons in all
         { session: 'synthetic/v35/recorder', resolution: { reason: 'Corrupted cursor evidence.' } },
     ] };
     const rendered = renderDashboard(data, queue);
-    assert.match(rendered.get('sessionSummary').textContent, /1 of 1 synthetic sessions remaining · 2 excluded/u);
+    assert.match(rendered.get('sessionMeasurementInfo').textContent, /1 of 1 synthetic sessions remaining · 2 excluded/u);
     assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /Version identity|Damaged recorder/u);
     assert.match(rendered.get('challengeTable').innerHTML, /Portable behavior/u);
     const showAll = rendered.get('sessionShowAll');
@@ -515,7 +524,7 @@ test('excluded cases leave pending work but retain raw scores and reasons in all
     const onlyExcluded = renderDashboard(data, queue);
     assert.match(onlyExcluded.get('challengeTable').innerHTML, /No remaining sessions/u);
     assert.doesNotMatch(onlyExcluded.get('challengeTable').innerHTML, /All sessions match/u);
-    assert.match(onlyExcluded.get('sessionSummary').textContent, /0 of 0 synthetic sessions remaining · 2 excluded/u);
+    assert.match(onlyExcluded.get('sessionMeasurementInfo').textContent, /0 of 0 synthetic sessions remaining · 2 excluded/u);
 });
 
 test('batches with only excluded mismatches default off without claiming a full match', () => {
@@ -647,7 +656,7 @@ test('batch picker defaults to unresolved cases and fits each percent axis', () 
     const rendered = renderDashboard(data);
     assert.equal(rendered.get('challengePlot1').hidden, true);
     assert.equal(rendered.get('challengePlot2').hidden, false);
-    assert.equal(rendered.get('historyBatchSummary').textContent, 'Batches · 1 of 2 shown');
+    assert.equal(rendered.get('historyBatchSummary').textContent, 'Batches · 1/2');
     assert.match(rendered.get('historyBatchOptions').innerHTML, /v1<\/span><small>Resolved/u);
     assert.match(rendered.get('historyBatchOptions').innerHTML, /v2<\/span><small>Unresolved/u);
     assert.equal(rendered.get('progressMinimap').style.height, '108px');
@@ -704,7 +713,7 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     const data = sourceDashboardData();
     // Snapshot ages, not the viewer's clock, determine the waits shown here.
     data.activity = { capturedAt: '2026-10-08T12:00:00Z', segments: [], tasks: [] };
-    const row = { task: 'A1', worker: 'A', status: 'ready',
+    const row = { task: 'A1', worker: 'A', kind: 'implementation', status: 'ready',
         since: '2026-10-08T11:00:00Z', blockedBy: ['B1'], delivery: 'a'.repeat(40) };
     data.pendingMainWork = { deliveries: [row], preparedBatches: [{ ...row, task: 'Prep1',
         batch: 'v34', status: 'awaiting-admission', blockedBy: [] }],
@@ -719,7 +728,7 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     assert.doesNotMatch(html, /Await &lt;source&gt; owner|C1/u);
     assert.match(rendered.get('parkedTasks').innerHTML, /Await &lt;source&gt; owner\./u);
     data.pendingMainWork = { deliveries: [], preparedBatches: [], parkedTasks: [] };
-    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /Nothing awaiting Main\./u);
+    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /0 implementation tasks[\s\S]*0 Prep batches/u);
     data.pendingMainWork = null;
     assert.match(renderDashboard(data).get('pendingMainWork').textContent, /snapshot is refreshed/u);
 });
@@ -783,7 +792,7 @@ test('one sessions table includes both sets with exact scores and distinct misma
     ], blockers: [] };
     const rendered = renderDashboard(data, queue);
     const table = rendered.get('challengeTable');
-    assert.match(rendered.get('sessionSummary').textContent,
+    assert.match(rendered.get('sessionMeasurementInfo').textContent,
         /1 of 2 development sessions remaining · 1 of 2 synthetic sessions remaining/u);
     assert.match(table.innerHTML, /holdout\/remaining[\s\S]*Development[\s\S]*<td>0<\/td><td>2<\/td><td>4<\/td><td>\+2<\/td>/u);
     assert.match(table.innerHTML, /At most 2 later screens may be affected/u);
@@ -1322,7 +1331,66 @@ test('goal history prints a shared score once and escapes member details', () =>
     const html = renderDashboard(data).get('goalTable').innerHTML;
     assert.equal((html.match(/\+346 \/ −2/gu) || []).length, 1);
     assert.match(html, /2 goals · shared result/u);
-    assert.equal((html.match(/Fix &lt;caller&gt;/gu) || []).length, 2);
-    assert.match(html, /<td>A<\/td>/u);
+    assert.equal((html.match(/class="goal-title">Fix &lt;caller&gt;/gu) || []).length, 2);
+    assert.match(html, /Worker A/u);
+    assert.doesNotMatch(html, /<th>Worker/u);
     assert.doesNotMatch(html, /<th>Assigned|<th>Development/u);
+});
+
+
+test('integration backlog counts submitted implementation and Prep work separately', () => {
+    const data = sourceDashboardData();
+    // Two ready implementations (one blocked) and one ready Prep batch wait
+    // for integration. Running checks, corrections and accepted batches do not.
+    const row = {worker: 'B', kind: 'implementation', status: 'ready', since: '2026-10-14T10:00:00Z', blockedBy: []};
+    data.activity = {capturedAt: '2026-10-14T11:00:00Z', segments: [], tasks: []};
+    data.pendingMainWork = {deliveries: [
+        {...row, task: 'ready'}, {...row, task: 'blocked', blockedBy: ['ready']},
+        {...row, task: 'prep', kind: 'challenge-preparation', batch: 'v1'},
+        {...row, task: 'checks', status: 'integrating'}, {...row, task: 'rework', status: 'changes-required'},
+    ], preparedBatches: [{...row, task: 'accepted', kind: 'challenge-preparation', batch: 'v2', status: 'awaiting-admission'}], parkedTasks: []};
+    const html = renderDashboard(data).get('pendingMainWork').innerHTML;
+    assert.match(html, /Awaiting integration: <strong>2 implementation tasks<\/strong> · <strong>1 Prep batch<\/strong>/u);
+    assert.match(html, /Batches to admit · 1/u);
+});
+
+test('session heading keeps pending work and moves counts and provenance into details', () => {
+    const data = sourceDashboardData();
+    // One incomplete case keeps the heading singular; its initial/total data
+    // and saved execution commit remain available outside the heading.
+    data.challenges.cases = [{id: 'pending', current: {passed: false}}];
+    const rendered = renderDashboard(data);
+    assert.equal(rendered.get('sessionSummary').textContent, '1 session needs work');
+    assert.doesNotMatch(rendered.get('sessionSummary').textContent, /measured|excluded|candidate|development/u);
+    assert.match(rendered.get('sessionMeasurementInfo').textContent, /1 of 1 synthetic sessions remaining/u);
+    assert.match(rendered.get('sessionMeasurementInfo').textContent, /development measured at aaaaaaaa/u);
+});
+
+test('integration headers prefer exact group publication over recovered bounds', () => {
+    const data = sourceDashboardData();
+    // A shared group's exact event and its sibling's recovered bound agree.
+    // A second historical group has only a confirmation, which stays explicit.
+    const group = {commit: 'a'.repeat(40), assignedAt: '2026-10-14T09:00:00Z',
+        publishedAt: '2026-10-14T10:00:00Z', publicationKnownBy: '2026-10-14T10:00:00Z', goals: []};
+    data.goalHistory = [group];
+    let html = renderDashboard(data).get('goalTable').innerHTML;
+    assert.doesNotMatch(html, /By |Confirmed /u);
+    data.goalHistory = [{...group, publishedAt: null}];
+    html = renderDashboard(data).get('goalTable').innerHTML;
+    assert.match(html, /Confirmed /u);
+});
+
+
+test('activity navigator draws only Main stages using their stage colors', () => {
+    const data = sourceDashboardData();
+    // A worker assignment overlaps Main's checks; the overview must draw the
+    // Main band once rather than stack both agents into a gray silhouette.
+    const at = minute => new Date(Date.UTC(2026, 9, 14, 10, minute)).toISOString();
+    data.activity = {capturedAt: at(20), tasks: [], segments: [
+        {task: 'checks', lane: 'Main', phase: 'integrating', start: at(0), end: at(10)},
+        {task: 'work', lane: 'A', phase: 'working', start: at(0), end: at(20)},
+    ]};
+    const ops = renderDashboard(data).get('activityMinimap').ops;
+    assert.equal(ops.filter(([call, , y, , height]) => call === 'fillRect' && y === 12 && height === 18).length, 1);
+    assert.ok(ops.some(([call, key, value]) => call === 'set' && key === 'fillStyle' && value === '--stage-integrating'));
 });

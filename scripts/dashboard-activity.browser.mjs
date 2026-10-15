@@ -23,21 +23,37 @@ try {
   // The request API retains its body for the empty/open-only rendering checks.
   const originalHTML = await (await page.request.get(url)).text();
   assert.equal(await page.locator('#sourceWorkDisclosure').count(), 0);
-  assert.equal(await page.locator('#integrationDisclosure').evaluate(element => element.open), false);
+  assert.equal(await page.locator('#integrationDisclosure').evaluate(element => element.open), true);
   assert.equal(await page.locator('#goalHistoryDisclosure').evaluate(element => element.open), false);
   assert.equal(await page.locator('#parkedTaskHistory').evaluate(element => element.open), false);
   await page.locator('#goalHistoryDisclosure > summary').focus();
   await page.locator('#goalHistoryDisclosure > summary').press('Enter');
+  assert.equal(await page.locator('#goalTable thead').getByText('Worker', {exact: true}).count(), 0);
+  const member = page.locator('#goalTable .goal-member').first();
+  const summary = member.locator('summary');
+  const initialRow = await member.boundingBox();
+  assert.ok(initialRow.height <= 30, 'collapsed goal is a single line');
+  await summary.focus(); await summary.press('Enter');
+  assert.match(await member.innerText(), /Worker/u);
+  assert.ok((await member.boundingBox()).height > initialRow.height);
+  await summary.press('Enter');
+  assert.equal((await member.boundingBox()).height, initialRow.height);
+  assert.ok((await summary.boundingBox()).x > (await page.locator('#goalTable .integration-group').first().boundingBox()).x + 10,
+    'goals are indented beneath their integration');
+  assert.match(await page.locator('#activitySnapshotTime').innerText(), /ago|just now/u);
+  assert.ok((await page.locator('#activitySnapshotTime').getAttribute('title')).length > 0);
+  assert.equal(await page.locator('.history-view-controls #historyBatchPicker').count(), 1);
+  assert.match(await page.locator('.integration-legend').innerText(), /Over 30 min/u);
+  assert.equal(await page.locator('#integrationDurationSummary strong').count(), 1);
   const sharedGroups = await page.evaluate(() => (DATA.goalHistory || []).filter(group => group.goals.length > 1 && group.synthetic));
   for (const group of sharedGroups.slice(-3)) {
     const section = page.locator('#goalTable tbody').filter({hasText: group.commit.slice(0, 8)});
     assert.equal(await section.locator('.integration-group').count(), 1);
     assert.equal(await section.locator('tr:not(.integration-group)').count(), group.goals.length);
     assert.ok((await section.locator('.integration-group').innerText()).includes('shared result'));
-    for (const value of await section.locator('tr:not(.integration-group) td:last-child').allTextContents()) assert.equal(value, '');
+    for (const value of await section.locator('tr.goal-member td:last-child').allTextContents()) assert.equal(value, '');
   }
   await page.locator('#goalHistoryDisclosure > summary').press('Enter');
-  await page.locator('#integrationDisclosure > summary').click();
   assert.equal(await page.getByRole('heading', { name: /^Parked goals/u }).count(), 0,
     'older goal deferrals are hidden from the dashboard');
   const durationChart = page.locator('#integrationDurationChart');
@@ -278,14 +294,15 @@ try {
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), draggedRange);
   await page.locator('#activityWindow').selectOption('168');
   await page.locator('#activityLatest').evaluate(element => element.click());
-  await page.locator('#integrationDisclosure > summary').click();
   const overflow = await page.locator('#integrationOverflow').innerText();
+  await page.locator('#integrationFullRange').focus();
   const scaleFrame = await durationChart.boundingBox();
   if (/above 30 min/u.test(overflow)) {
     await page.locator('#integrationFullRange').focus(); await page.locator('#integrationFullRange').press('Enter');
     assert.equal(await page.locator('#integrationFullRange').getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.locator('#integrationTypicalRange').getAttribute('aria-pressed'), 'false');
     assert.deepEqual(await durationChart.boundingBox(), scaleFrame, 'changing the scale keeps a stable plot');
-    await page.locator('#integrationFullRange').click();
+    await page.locator('#integrationTypicalRange').click();
     assert.equal(await page.locator('#integrationOverflow').innerText(), overflow);
   }
   console.log('Readability: grouped credit, collapsed history, arbitrary zoom, draggable range, persistence and full duration scale passed.');
@@ -304,7 +321,7 @@ try {
   const knownTitle = knownGoal.summary.replace(/^Implement (\w+) from \S+$/u, 'Implement $1');
   const queueRow = {worker: 'B', since: originalData.activity.capturedAt, delivery: 'b'.repeat(40), blockedBy: []};
   const queuedData = {...originalData, pendingMainWork: {
-    deliveries: [{...queueRow, task: 'queue-ready', goal: knownGoal.id, status: 'ready'},
+    deliveries: [{...queueRow, task: 'queue-ready', goal: knownGoal.id, kind: 'implementation', status: 'ready'},
       {...queueRow, task: 'queue-wait', kind: 'challenge-preparation', batch: 'v999', status: 'ready', blockedBy: ['queue-ready']}],
     preparedBatches: [{...queueRow, task: 'queue-admit', kind: 'challenge-preparation', batch: 'v998', status: 'awaiting-admission'}],
     parkedTasks: originalData.pendingMainWork.parkedTasks,
@@ -317,6 +334,7 @@ try {
   assert.match(await pending.innerText(), /Ready to integrate · 1/u);
   assert.match(await pending.innerText(), /Batches to admit · 1/u);
   assert.match(await pending.innerText(), /Waiting for dependencies · 1/u);
+  assert.match(await pending.innerText(), /Awaiting integration: 1 implementation task · 1 Prep batch/u);
   assert.ok((await pending.innerText()).includes(knownTitle));
   const waiting = pending.locator('.main-work-item').filter({hasText: 'Challenge batch v999'});
   await waiting.locator('summary').focus(); await waiting.locator('summary').press('Enter');
@@ -345,10 +363,10 @@ try {
     events: [], tasks: validationGroup.map((task, index) => ({id: task, label: task, worker, kind,
       ...(preparation ? {batch: `v${58 + index}`} : {}), assignedAt: groupStart, status: 'accepted'}))}};
   await loadData(groupData);
-  await page.locator('#integrationDisclosure > summary').click();
   assert.match(await page.locator(preparation ? '#prepIntegrationDurationSummary' : '#integrationDurationSummary').innerText(), /1 attempt/u);
   const groupBar = page.locator('.activity-bar.phase-integrating').first();
   assert.match(await groupBar.getAttribute('aria-label'), preparation ? /Prep group · 4 tasks/u : /Implementation group · 4 tasks/u);
+  await groupBar.scrollIntoViewIfNeeded();
   const groupFrame = await page.locator('#timeline').boundingBox();
   await groupBar.click();
   assert.match(await page.locator('#timelineReadout').innerText(), /Shared CI run/u);
@@ -403,7 +421,6 @@ try {
   await page.setViewportSize({width: 1440, height: 1200});
   await page.unroute(url);
   await page.reload();
-  await page.locator('#integrationDisclosure > summary').click();
   const emptyFrames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
   // The chart must retain its frame when no duration is measurable, including
   // a real open stage whose snapshot endpoint is not a completion event.
@@ -414,8 +431,7 @@ try {
     const data = { ...originalData, activity: { capturedAt, segments, tasks: segments.length
       ? [{ id: 'open', label: 'Open C task', worker: 'C', assignedAt: open.start, status: 'integrating' }] : [] } };
     await loadData(data);
-    await page.locator('#integrationDisclosure > summary').click();
-    for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
+      for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
       assert.match(await page.locator('#' + prefix + 'Summary').innerText(), /No completed attempts/u);
     }
     assert.deepEqual(await durationChart.boundingBox(), emptyFrames[0],
