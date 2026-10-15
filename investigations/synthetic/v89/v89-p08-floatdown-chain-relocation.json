@@ -1,0 +1,68 @@
+{
+  "session": "synthetic/v89/v89-p08-floatdown-chain-relocation",
+  "corpus": "synthetic",
+  "batch": "v89",
+  "caseId": "v89-p08-floatdown-chain-relocation",
+  "manifestPath": "challenges/manifests/v89.json",
+  "manifestSha256": "2ea0f3d499811a861d3e2671b3a191e96dcb94c21cf410492dbdb7ae6e04915c",
+  "recordingPath": "challenges/cases/v89/v89-p08-floatdown-chain-relocation.session.json",
+  "recordingSha256": "b65da592ed8e3bf9d02c0c2f926be8678ea148e84121dba2bae2102c83772b62",
+  "evaluationPath": "challenges/evaluations/admission-43a1d99389d63a1feea78355c0236a1291da25b2-v89.json",
+  "evaluationCommit": "43a1d99389d63a1feea78355c0236a1291da25b2",
+  "status": "complete",
+  "base": "2c6e9f22fa4f3c292cd67f28b243f08452c5450d",
+  "commit": "df3a0cdd1",
+  "dependencies": [],
+  "mismatch": {
+    "step": 100,
+    "key": "R",
+    "row": 10,
+    "column": 67,
+    "c": "floor glyph",
+    "javascript": "stale chain glyph",
+    "baseline": {
+      "screens": "100/106",
+      "rng": "1794/1794",
+      "cursors": "106/106"
+    }
+  },
+  "summary": "Removing the levitation ring enters trap.c:float_down() with a punished, uncarried ball over a pool and the chain separated at the midpoint. C moves the hero to the ball, calls hack.c:movobj(uchain, uball->ox, uball->oy), then redraws the old hero square. JavaScript skipped this caller and left the chain glyph at its old location. The fix calls the already implemented synchronous hack.js:movobj() after updating the hero coordinates and before redraw.",
+  "source": {
+    "file": "trap.c",
+    "function": "float_down",
+    "range": "4024-4177",
+    "branch": "Punished && !carried(uball) && !m_at(ball) && (pool(ball) || pit/hole(ball));",
+    "caller": "do_wear.c:Ring_off_or_gone() -> float_down(0,0); JavaScript js/do_wear.js:Ring_off_or_gone() is already wired.",
+    "callee": "hack.c:movobj(824-833), already ported in js/hack.js:movobj().",
+    "changedFiles": [
+      "js/trap.js",
+      "scripts/trap.test.mjs"
+    ]
+  },
+  "validation": {
+    "focused": {
+      "runId": "run-p0W9t8",
+      "result": "14/14 tests pass"
+    },
+    "lint": {
+      "runId": "run-YFqE00",
+      "result": "pass"
+    },
+    "comparison": {
+      "runId": "run-BNH3HH",
+      "result": "pass; 106/106 screens, 106/106 cursors, 1794/1794 RNG, no replay error"
+    },
+    "syntheticRange": {
+      "runId": "run-ARQjhY",
+      "result": "matched through zero-based step 105"
+    },
+    "checksPath": ".cache/B-v89-checks.json",
+    "taskEvidencePath": ".cache/B-v89-task-evidence.json"
+  },
+  "evidence": [
+    "Compared the complete C trap.c:float_down definition with the corresponding JavaScript function.",
+    "Confirmed the existing hack.c:movobj translation performs remove, maybe-unhide, redraw old object square, place, redraw destination in the same order.",
+    "Added a source-pinned test for C/JS relocation call order and the helper mapping.",
+    "Replayed the admitted v89 recording after the change; all measured output matched through its final step."
+  ]
+}
