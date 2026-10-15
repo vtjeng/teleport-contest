@@ -1152,8 +1152,11 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             }
         } else if (obj.globby) {
             let globbyobj = obj;
+            const random = rawEnv.random ?? { rn2 };
             while (globbyobj) {
-                const other = obj_nexto_xy(globbyobj, x, y, true, state);
+                const other = obj_nexto_xy(
+                    globbyobj, x, y, true, state, random,
+                );
                 if (!other) break;
                 await pudding_merge_message(globbyobj, other, state, rawEnv);
                 // C discards obj_meld's survivor and tests its original
