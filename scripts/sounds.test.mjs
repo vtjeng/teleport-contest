@@ -701,7 +701,7 @@ test('#chat dispatches priest and peaceful demon conversations at their C sound 
         /case MS_BRIBE:\s*if \(mtmp->mpeaceful && !mtmp->mtame\)\s*\{\s*\(void\) demon_talk\(mtmp\);/u);
     assert.match(jsNoise, /case MS_PRIEST:\s*await priest_talk\(mtmp, state\);/u);
     assert.match(jsNoise,
-        /case MS_BRIBE:\s*if \(mtmp\.mpeaceful && !mtmp\.mtame\)\s*\{\s*\/\/ sounds\.c discards demon_talk\(\)'s int result\.\s*await demon_talk\(mtmp, state\);/u);
+        /case MS_BRIBE:\s*if \(mtmp\.mpeaceful && !mtmp\.mtame\)\s*\{\s*\/\/ sounds\.c discards demon_talk\(\)'s int result\.\s*await demon_talk\(mtmp, state, rawEnv\);/u);
 });
 
 // sounds.c:528 animal begging delegates to domonnoise; the planner must

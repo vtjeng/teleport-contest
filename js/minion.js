@@ -298,8 +298,8 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         } else if (canseemon(mtmp, state)) {
             await message(`${Amonnam(mtmp, state)} says something.`, state);
         }
-        if (!await tele_restrict(mtmp, state))
-            rloc(mtmp, RLOC_MSG, { state });
+        if (!await tele_restrict(mtmp, state, env))
+            await rloc(mtmp, RLOC_MSG, { ...env, state, random });
         return 1;
     }
 
@@ -338,7 +338,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
             state,
         );
     } else if (offer > 0
-        && random.rnd(5 * acurr(A_CHA, state)) > demand - offer) {
+        && random.rnd(5 * acurr(state, A_CHA)) > demand - offer) {
         await message(
             `${Amonnam(mtmp, state)} scowls at you menacingly, then vanishes.`,
             state,

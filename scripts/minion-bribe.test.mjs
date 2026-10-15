@@ -7,6 +7,10 @@ import { runSegment } from '../js/jsmain.js';
 import { PM_ORCUS, S_DEMON } from '../js/monsters.js';
 import { bribe, demon_talk } from '../js/minion.js';
 
+const JS_SOURCE = readFileSync(
+    new URL('../js/minion.js', import.meta.url),
+    'utf8',
+);
 const C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/minion.c', import.meta.url),
     'utf8',
@@ -22,6 +26,26 @@ function bribeSource() {
     assert.ok(start >= 0 && end > start, 'minion.c bribe source range');
     return C_SOURCE.slice(start, end);
 }
+
+test('demon_talk preserves relocation context and C charisma argument order', () => {
+    const cStart = C_SOURCE.indexOf('int\ndemon_talk(struct monst *mtmp)');
+    const cEnd = C_SOURCE.indexOf('\nlong\nbribe(', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart, 'minion.c demon_talk source range');
+    const cBody = C_SOURCE.slice(cStart, cEnd);
+    assert.match(cBody, /if \(!tele_restrict\(mtmp\)\)\s*\(void\) rloc\(mtmp, RLOC_MSG\);/u);
+    assert.match(cBody, /rnd\(5 \* ACURR\(A_CHA\)\)/u);
+
+    const jsStart = JS_SOURCE.indexOf('export async function demon_talk(');
+    const jsEnd = JS_SOURCE.indexOf('\n// C ref: minion.c bribe()', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'js/minion.js demon_talk source range');
+    const jsBody = JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsBody, /await tele_restrict\(mtmp, state, env\)/u);
+    assert.match(
+        jsBody,
+        /await rloc\(mtmp, RLOC_MSG, \{ \.\.\.env, state, random \}\)/u,
+    );
+    assert.match(jsBody, /random\.rnd\(5 \* acurr\(state, A_CHA\)\)/u);
+});
 
 test('minion bribe parses signed C longs and keeps refusal branches ordered',
     async () => {

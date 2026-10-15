@@ -1328,7 +1328,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     case MS_BRIBE:
         if (mtmp.mpeaceful && !mtmp.mtame) {
             // sounds.c discards demon_talk()'s int result.
-            await demon_talk(mtmp, state);
+            await demon_talk(mtmp, state, rawEnv);
             break;
         }
         // FALLTHROUGH: the non-bribable arm is cuss().
