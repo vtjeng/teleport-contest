@@ -24,7 +24,7 @@ import {
     SDOOR,
     ismnum,
 } from './const.js';
-import { depth, ledger_no, on_level } from './dungeon.js';
+import { depth, Is_special, ledger_no, on_level } from './dungeon.js';
 import { in_town } from './hack.js';
 import { noit_mon_nam } from './do_name.js';
 import { set_tin_variety, vegetarian } from './eat.js';
@@ -62,6 +62,7 @@ import { rloc } from './teleport.js';
 import {
     SHTYPES,
     shkgeneral,
+    shklight,
     shkrings,
     shktools,
     shkwands,
@@ -267,9 +268,6 @@ export function get_shop_item(type, random) {
 // C ref: shknam.c nameshk(). `initialNames` is C's `nlp`, and the branches
 // below compare it by identity exactly as C compares the pointer.
 //
-// The minetown shklight arm above C's else is unreachable here: the lighting
-// store has probability 0, so only the special-level loader ever asks for one.
-//
 // Every list but shktools reaches its name without drawing, so a wrong name
 // shows up only on the screen. The hardware store is the exception: its arm
 // draws rn2(names_avail) on every pass of the loop.
@@ -281,6 +279,20 @@ export function nameshk(shk, initialNames, normalized) {
     const { random, state } = normalized;
     const eshk = shk.mextra?.eshk;
     if (!eshk) throw new Error('nameshk requires shopkeeper extension data');
+
+    // C's special Minetown lighting keeper arm checks the name-list pointer,
+    // mines dungeon, and current special level before generic name selection.
+    // The special-level loader can create this shop despite its zero random
+    // generation probability.
+    const special = initialNames === shklight
+        && state.u.uz?.dnum === state.mines_dnum
+        ? Is_special(state.u.uz, state)
+        : null;
+    if (special?.flags?.town) {
+        eshk.shknam = '+Izchak'.slice(0, PL_NSIZ - 1);
+        shk.female = false;
+        return;
+    }
 
     const nseed = Math.trunc(Math.trunc(state.ubirthday ?? 0) / 257);
     let nameWanted = shk.m_id

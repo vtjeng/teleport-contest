@@ -128,6 +128,7 @@ import {
     shkbooks,
     shkgeneral,
     shkliquors,
+    shklight,
     shkrings,
     shktools,
     shkweapons,
@@ -1607,6 +1608,55 @@ test('the hardware store hands its draw straight to shktools', () => {
         // the loop runs once because nothing on the level shares the name.
         assert.deepEqual(bounds, [shktools.length], `draw ${drawn} bound`);
     }
+});
+
+test('Minetown lighting shop uses Izchak without name-selection draws', () => {
+    // shknam.c nameshk():495-500 selects +Izchak only when the name-list
+    // pointer is shklight, the level is in the mines, and its special-level
+    // record is a town. That special loader path can create a zero-probability
+    // lighting shop; it must not fall through to ordinary birthday naming.
+    const makeState = ({ dnum = 1, town = true } = {}) => ({
+        mines_dnum: 1,
+        specialLevels: [{ dlevel: { dnum, dlevel: 4 }, flags: { town } }],
+        ubirthday: 0,
+        u: { uz: { dnum, dlevel: 4 } },
+        dungeons: [{ ledger_start: 0 }, { ledger_start: 0 }],
+        level: { monlist: null },
+    });
+    const makeKeeper = () => ({
+        m_id: 0,
+        mextra: { eshk: { shknam: '' } },
+    });
+    const random = {
+        rn2() {
+            assert.fail('the Minetown special name branch must not draw');
+        },
+    };
+
+    const keeper = makeKeeper();
+    nameshk(keeper, shklight, { state: makeState(), random });
+    assert.equal(keeper.mextra.eshk.shknam, '+Izchak');
+    assert.equal(keeper.female, false);
+
+    // Each near miss falls through to ordinary list indexing: with dlevel 4
+    // and birthday 0, C's formula selects name-list entry 4 (Sighisoara).
+    for (const state of [
+        makeState({ dnum: 0 }),
+        makeState({ town: false }),
+    ]) {
+        const ordinaryKeeper = makeKeeper();
+        nameshk(ordinaryKeeper, shklight, { state, random });
+        assert.equal(ordinaryKeeper.mextra.eshk.shknam, 'Sighisoara');
+    }
+
+    // C compares the original list pointer, not its contents. A copy of the
+    // same names on a Minetown special level therefore takes generic naming.
+    const copiedListKeeper = makeKeeper();
+    nameshk(copiedListKeeper, shklight.slice(), {
+        state: makeState(),
+        random,
+    });
+    assert.equal(copiedListKeeper.mextra.eshk.shknam, 'Sighisoara');
 });
 
 test("a jewelers' keeper gets a touchstone and spends rn2(2) on the scroll",
