@@ -11,7 +11,7 @@
   "remainingScreens": 33,
   "recordedSteps": 304,
   "status": "resolved",
-  "commit": "1aa918785",
+  "commit": "1aa9187851f163175f4195d035ea737a1d048637",
   "mismatch": {
     "session": "synthetic/v84/v84-dig-boulder-pit-action2",
     "remainingScreens": 33,
