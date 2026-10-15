@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T08:40:16.134Z",
+  "capturedAt": "2026-10-15T09:04:06.734Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -137927,6 +137927,494 @@
         "reason": "One C capture completed, but the initial welcome --More-- consumed the leading dot and the wish failed; the throw selected an uncursed spellbook of wizard lock, not the potion. Preserve as a setup miss with no target coverage/comparison claim; stop per the single-capture plan.",
         "source": "dothrow.c:toss_up -> potion.c:potionhit -> potionbreathe POT_GAIN_ABILITY",
         "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v86-p01-retravel-unset-attempt1-20261015-e03dcb8277b7879f1715544e1ef52390d24bb751",
+        "type": "published",
+        "at": "2026-10-15T08:40:35.347Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "commit": "e03dcb8277b7879f1715544e1ef52390d24bb751"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p13-independent-c-replay-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:41:18.440Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-independent-c-replay",
+        "reason": "Verification continuation for prematurely completed p13: exact unchanged C recipe replay, no new distinct case or inputs.",
+        "source": "dothrow.c:mhurtle_step existing p13 case independent verification"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p12-prompt-correction-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:41:26.971Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "Resume immediately executable welcome-pager correction. Original unrequested single-capture stop did not reach potion throw; no new source behavior.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-independent-c-replay-reserve-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:42:23.760Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-independent-c-replay",
+        "reason": "Reserve one bounded C recording slot for a byte-identical independent replay of the retained p13 target recipe, with unique recording output."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-independent-c-replay-terminal-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:42:47.087Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-independent-c-replay",
+        "reason": "Bounded independent C replay run-zaqfiN completed successfully; preserving receipt and checking byte identity against retained C session."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p12-prompt-correction-capture1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:43:05.809Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "Reserving one source-observed explicit SPACE welcome-pager correction; keep the same independent potion wish and seed.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p12-prompt-correction-run-Gl0y2n-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:43:22.502Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "Bounded prompt-correction C run-Gl0y2n completed and was reaped; checking that wish and toss reached the intended potion branch.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p12-prompt-correction-run-Gl0y2n-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:43:34.322Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "C run-Gl0y2n is terminal and reaped; recording is preserved while the actual potion throw and status are inspected.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-independent-c-replay-byte-identical-done-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:43:41.907Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "done",
+        "probe": "v88-p13-independent-c-replay",
+        "reason": "One bounded independent C replay completed successfully from an unchanged byte-identical recipe. Replay recording is byte-identical to original p13 target capture; confirms the same first mismatch and contributes no new failure count.",
+        "outcome": "duplicate"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "note-v88-p12-prompt-correction-attempt1-selector-observed-run-Gl0y2n-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:44:08.791Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "The explicit welcome SPACE enabled #wizwish; C showed the wished potion selector o. This attempt selected m (wizard-lock spellbook), so potionbreathe was not reached. Preserve setup miss; one C-observed selector correction follows.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p12-prompt-correction-capture2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:44:27.823Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "Reserving the C-observed potion selector correction (o); all other recipe inputs remain fixed.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p12-prompt-correction-attempt2-run-7KorCd-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:44:45.435Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "C selector-correction run-7KorCd completed and was reaped; checking for potionhit/potionbreathe reach and attribute effects.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p12-prompt-correction-attempt2-run-7KorCd-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:44:57.966Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "C run-7KorCd is terminal and reaped; preserving recording and checking actual potion response.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p12-prompt-correction-comparison1-e5ca-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:45:38.665Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "Reserving one accepted-e5ca JS comparison for the C recording that reached potion.c:potionbreathe via the C-observed potion selector o.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p12-prompt-correction-comparison1-run-BTj4uE-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:45:57.761Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "Accepted e5ca JS differential comparison is running as bounded handle run-BTj4uE; retain the slot until terminal result collection.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v88-p12-prompt-correction-e5ca-match-run-BTj4uE-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:46:17.875Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "done",
+        "probe": "v88-p12-prompt-correction",
+        "reason": "The C-observed potion selector o reached POT_GAIN_ABILITY vapor (rn2(A_MAX) at potion.c:1964); accepted e5ca fully matches all 2,740 RNG entries and 47 screens/cursors, with 0 animation frames. Preserve as match/exclude; no replay or further search.",
+        "source": "dothrow.c:toss_up -> potion.c:potionbreathe POT_GAIN_ABILITY",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ed1d0b48c5553596ee7cf8ed2408f58719d2cf1c",
+        "type": "ready",
+        "at": "2026-10-15T08:48:31.943Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "delivery": "ed1d0b48c5553596ee7cf8ed2408f58719d2cf1c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p13-bounded-comparison-correction-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:48:56.958Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-bounded-comparison-correction",
+        "reason": "Correct the documented direct-JS execution exception with one unchanged-input bounded accepted-e5ca comparison; preserve original log, no C rerun.",
+        "source": "dothrow.c:mhurtle_step monster-to-hero instapetrify caller"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v87-ed1d0b48-20261015",
+        "type": "received",
+        "at": "2026-10-15T08:49:03.663Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "delivery": "ed1d0b48c5553596ee7cf8ed2408f58719d2cf1c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-bounded-comparison-correction-reserve-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:49:35.281Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-bounded-comparison-correction",
+        "reason": "Reserved one bounded slot to compare the unchanged p13 C recording with accepted e5ca through the focused run-bounded wrapper."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-after-v87-submit-20261015",
+        "type": "turn",
+        "at": "2026-10-15T08:49:43.311Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-bounded-comparison-correction-handle-run-lpIBuT-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:49:56.869Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-bounded-comparison-correction",
+        "reason": "Focused bounded comparison is running as run-lpIBuT; launcher exec session 37101 retained for collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-bounded-comparison-correction-terminal-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:50:11.797Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-bounded-comparison-correction",
+        "reason": "Bounded accepted-e5ca comparison run-lpIBuT completed successfully; raw result and terminal receipt preserved for correction adjudication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A2-v87-scope-kind-ed1d0b48-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T08:50:15.812Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "delivery": "ed1d0b48c5553596ee7cf8ed2408f58719d2cf1c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-bounded-comparison-correction-done-duplicate-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:50:46.395Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "done",
+        "probe": "v88-p13-bounded-comparison-correction",
+        "reason": "Bounded focused accepted-e5ca comparison of the unchanged C recording completed successfully and reproduces the same step-67 first mismatch. This corrects provenance for the existing p13 cause; no new failure count.",
+        "outcome": "duplicate"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p14-defensive-undead-turning-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:51:05.154Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Source-designed defensive monster wand caller: petrifying corpse hero weapon and floor corpse on ray; preserve actual pickup/action/setup state.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v88-p15-single-gargoyle-mine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:51:36.021Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v88-p15-single-gargoyle-mine",
+        "reason": "Cheap source-proven correction removes second monster that blocked mine cell; actual singleton placement must be confirmed from C.",
+        "source": "trap.c:trapeffect_landmine airborne via mhurtle final FORCEBUNGLE"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-resume-v87-metadata-correction-20261015",
+        "type": "resume",
+        "at": "2026-10-15T08:52:45.084Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2081bc075a41951312d27e62100a6d61c379f5d0",
+        "type": "ready",
+        "at": "2026-10-15T08:52:53.628Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "delivery": "2081bc075a41951312d27e62100a6d61c379f5d0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p15-single-gargoyle-mine-capture1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:53:04.549Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v88-p15-single-gargoyle-mine",
+        "reason": "Singleton gargoyle C capture reserved; verify actual same-seed mine geometry before counting target reach.",
+        "source": "trap.c:trapeffect_landmine airborne via mhurtle final FORCEBUNGLE"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-idle-after-v87-metadata-correction-20261015",
+        "type": "turn",
+        "at": "2026-10-15T08:53:12.344Z",
+        "worker": "A2",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A2-v87-2081bc07-20261015",
+        "type": "received",
+        "at": "2026-10-15T08:53:33.110Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "delivery": "2081bc075a41951312d27e62100a6d61c379f5d0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p15-single-gargoyle-mine-capture1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:53:41.141Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v88-p15-single-gargoyle-mine",
+        "reason": "C capture run-48rKXR exited 0 and was reaped; recorder slot released for source/map inspection.",
+        "source": "trap.c:trapeffect_landmine airborne via mhurtle final FORCEBUNGLE"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p14-defensive-undead-turning-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:54:09.553Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Reserve one bounded C setup capture for the source-designed defensive undead-turning bhito route; record exact wished-object, inventory and map state.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep52-v88-packaging-with-corrections-20261015",
+        "type": "turn",
+        "at": "2026-10-15T08:54:21.322Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Packaging a reproduced monster-to-hero collision failure while two source-designed probes continue. Matching routes and setup misses remain excluded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-dff332ab7b4cbed22e4318bb08a252d795d223d1-3a81675ae49627270ab187007325655d40415cf56907b21985586966500f70b0-A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T08:54:56.305Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "integration": "dff332ab7b4cbed22e4318bb08a252d795d223d1",
+        "validationGroup": [
+          "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p14-defensive-undead-turning-attempt1-run-YiFDl2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:55:21.928Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Bounded C scout run-YiFDl2 completed successfully and was reaped; receipt and raw C session are durable. Source target remains in progress; releasing the bounded slot while decoding exact object/inventory/map state.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v88-p15-single-gargoyle-mine-deferred-source-gate-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:56:22.670Z",
+        "task": "Prep52",
+        "worker": "Prep-2",
+        "state": "done",
+        "probe": "v88-p15-single-gargoyle-mine",
+        "reason": "C capture run-48rKXR was a selector setup miss. Source confirms mintrap suppresses LANDMINE for flyers on final FORCEBUNGLE and HURTLING checks; target is blocked in this mhurtle route. Deferred without another C run.",
+        "source": "trap.c:trapeffect_landmine airborne via mhurtle final FORCEBUNGLE",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p14-defensive-undead-turning-attempt2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:59:17.754Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Reserve one bounded C capture using the observed inventory letters and floor geometry to attempt the defensive undead-turning bhito route.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p14-defensive-undead-turning-attempt2-run-W3Owjo-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:59:56.642Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Corrected bounded C capture run-W3Owjo completed successfully and was reaped; raw session and receipt are durable. Releasing the slot while source-reaching evidence is decoded.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p14-defensive-undead-turning-attempt3-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:01:21.681Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Reserve one bounded C capture for the observed one-step west/east correction that reaches the cockatrice corpse without the arrow-trap prompt.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v87-p07-menu-travel-attempt1-20261015-dff332ab7b4cbed22e4318bb08a252d795d223d1-validated",
+        "type": "validated",
+        "at": "2026-10-15T09:01:39.490Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p14-defensive-undead-turning-attempt3-run-n7Kfvm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:01:48.579Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Map-corrected bounded C capture run-n7Kfvm completed successfully and was reaped; raw session and receipt are durable. Releasing the slot while checking whether the monster defensive caller and bhito floor-object path were reached.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v87-p07-menu-travel-attempt1-20261015-dff332ab7b4cbed22e4318bb08a252d795d223d1-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T09:02:28.357Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v88-p14-defensive-undead-turning-deferred-prep52-boundary-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:02:55.358Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "done",
+        "probe": "v88-p14-defensive-undead-turning",
+        "reason": "Deferred at the Prep52 boundary after two C setup misses. The first map scout established exact inventory and dwarf placement; the next west step encountered an arrow-trap prompt, and the corrected west/east path encountered a staircase pager before pickup. No defensive undead-turning action, floor bhito callback, JS comparison, or replay was reached. The observed one-space pager correction is saved as an unexecuted next recipe.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito",
+        "outcome": "deferred"
       }
     ]
   },
@@ -139092,40 +139580,13 @@
           "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
-      },
-      "A2-investigation-v87-p07-menu-travel-attempt1-20261015": {
-        "id": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
-        "worker": "A2",
-        "status": "working",
-        "seed": "synthetic/v87/v87-p07-menu-travel-attempt1",
-        "reservations": [
-          "session:synthetic/v87/v87-p07-menu-travel-attempt1",
-          "source:cmd.c:dotravel",
-          "source:cmd.c:doextcmd"
-        ]
       }
     },
-    "reservations": {
-      "session:synthetic/v87/v87-p07-menu-travel-attempt1": {
-        "tasks": [
-          "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
-        ]
-      },
-      "source:cmd.c:dotravel": {
-        "tasks": [
-          "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
-        ]
-      },
-      "source:cmd.c:doextcmd": {
-        "tasks": [
-          "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "development": {
-    "executionCommit": "9cfdefe6b87f9f4904328719e5ccb856a9fcdc50",
-    "measuredAt": "2026-10-15T08:35:01.087Z",
+    "executionCommit": "dff332ab7b4cbed22e4318bb08a252d795d223d1",
+    "measuredAt": "2026-10-15T09:00:29.148Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

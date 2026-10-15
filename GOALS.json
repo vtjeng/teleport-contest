@@ -318511,7 +318511,7 @@
     {
       "id": "port-cmd-dotravel-menu-travel-v87-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dotravel from cmd.c",
       "cFile": "cmd.c",
       "sessions": [
@@ -318521,10 +318521,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "dff332ab7b4cbed22e4318bb08a252d795d223d1",
       "delivered": null,
       "function": "dotravel",
-      "session": "synthetic/v87/v87-p07-menu-travel-attempt1"
+      "session": "synthetic/v87/v87-p07-menu-travel-attempt1",
+      "closeStanding": {
+        "sha": "dff332ab7b4cbed22e4318bb08a252d795d223d1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "9cfdefe6b87f9f4904328719e5ccb856a9fcdc50",
+        "target": "synthetic/v87/v87-p07-menu-travel-attempt1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/dff332ab7b4cbed22e4318bb08a252d795d223d1/run-hosted-eiM4Le/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dotravel",
+            "implementation": "js/cmd.js",
+            "symbol": "dotravel",
+            "sourceReview": "Read cmd.c:dotravel() lines 5299-5343. It initializes the local target from cached travelcc or the hero position, enables getloc_travelmode, and for menu_requested saves getloc_filter, temporarily sets GFILTER_VIEW, calls getpos_menu(GLOC_INTERESTING), restores the filter on both paths, and on cancellation clears travel mode and returns ECMD_OK without changing travelcc. On selection it stores travelcc and u.tx/u.ty before calling dotravel_target. The JS cancellation and destination-update order follows C; getpos_menu and dotravel_target are existing implemented callees.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:doextcmd invokes the selected extcmdlist ef_funct pointer; the #travel row points to dotravel."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/travel-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v87",
+                "caseId": "v87-p07-menu-travel-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c:doextcmd #travel dispatch -> dotravel menu_requested branch -> getpos_menu(GLOC_INTERESTING), Escape cancellation"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is a menu-prefixed #travel command. The admitted v87 recording executes the production path from rhack through doextcmd's selected ef_funct dispatch into dotravel, opens getpos_menu(GLOC_INTERESTING), and cancels with Escape. The earlier 18/20 baseline mismatch was caused first by the absent JS doextcmd dotravel arm; after adding it, the saved v87 C recording and JavaScript replay match all 6,390 RNG calls, 20 screens, and 20 cursor positions through the full segment. The separate ordinary keyboard '_' route remains covered by the ordinary-travel test in scripts/travel-command.test.mjs.",
+        "entryPoints": [
+          {
+            "name": "Menu-prefixed #travel destination selection and cancellation",
+            "functions": [
+              "dotravel"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v87",
+                "caseId": "v87-p07-menu-travel-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "rhack -> doextcmd selected ef_funct -> dotravel -> getpos_menu(GLOC_INTERESTING) -> Escape"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
