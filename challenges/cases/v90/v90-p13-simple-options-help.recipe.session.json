@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first p13 probe selected independently before comparison: record #timeout, open the simple options menu with O, select ? to show the per-option descriptions and #optionsfull instruction, select ? again to hide help, exit with Escape, then inspect #timeout again. This checks that the help toggle and menu rebuild do not spend a game turn. No JavaScript result informed the input.",
+  "segments": [
+    {
+      "seed": 90715130,
+      "datetime": "20860715102500",
+      "nethackrc": "OPTIONS=name:V90SimpleHelp,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,time\n",
+      "moves": "#timeout\n O??\u001b#timeout\n "
+    }
+  ]
+}
