@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked recipe for the hero-defender arm of uhitm.c:mhitm_ad_acid. The hostile ochre jelly starts with its AT_ENGL AD_ACID attack. C mhitu.c:mattacku routes that attack to gulpmu unless getmattk rewrites it to AT_TUCH while mspec_used remains positive; the ordinary expulsion cooldown from mon.c:unstuck expires in mon.c:mcalcdistress -> monmove.c:mon_regen before the next attack. This recipe records the natural engulf route only and does not establish mhitm_ad_acid hero-defender coverage.",
+  "segments": [
+    {
+      "seed": 84062011,
+      "datetime": "20341017111800",
+      "nethackrc": "OPTIONS=name:AcidWizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile ochre jelly\n...................."
+    }
+  ]
+}

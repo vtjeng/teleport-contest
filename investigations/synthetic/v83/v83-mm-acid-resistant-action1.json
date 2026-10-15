@@ -35,9 +35,18 @@
     "passed": false,
     "error": null,
     "metrics": {
-      "screens": { "matched": 1304, "total": 1693 },
-      "rng": { "matched": 3151, "total": 3326 },
-      "cursors": { "matched": 1304, "total": 1693 }
+      "screens": {
+        "matched": 1304,
+        "total": 1693
+      },
+      "rng": {
+        "matched": 3151,
+        "total": 3326
+      },
+      "cursors": {
+        "matched": 1304,
+        "total": 1693
+      }
     },
     "firstMismatch": {
       "kind": "stop",
@@ -53,15 +62,17 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The admitted v83 stop is the unported uhitm.c:mhitm_ad_acid function. At segment 0 step 1304 the tame ochre jelly lands its AD_ACID engulf attack on a hostile gray ooze; C continues into the acid-resistant monster-versus-monster branch, prints that the acid seems harmless, zeroes direct damage, and still performs its armor-corrosion and weapon-acid checks. JavaScript stops at the AD_ACID arm in mhitm_adtyping before those source effects.",
+  "summary": "The admitted v83 stop is the unported uhitm.c:mhitm_ad_acid function. At segment 0 step 1304 the tame ochre jelly lands its AD_ACID engulf attack on a hostile gray ooze; C continues into the acid-resistant monster-versus-monster branch, prints that the acid seems harmless, zeroes direct damage, and still performs its armor-corrosion and weapon-acid checks. JavaScript stopped at the AD_ACID arm in mhitm_adtyping before those source effects.",
   "source": {
     "file": "uhitm.c",
-    "functions": ["mhitm_ad_acid"],
+    "functions": [
+      "mhitm_ad_acid"
+    ],
     "branch": "The relevant branch has a non-hero attacker and a non-hero defender. C returns early with zero damage when the aggressor is cancelled. Otherwise, acid resistance or AD_ACID defense suppresses direct damage and, when visible, emits the harmless-acid message; a vulnerable visible defender gets the covered-in-acid and burning messages. Regardless of resistance, the branch then rolls rn2(30) for armor corrosion and rn2(6) for acid damage to the defender's weapon. The same function also handles hero-attacker and hero-defender cases, so its full implementation must preserve those branches and source order.",
     "callers": [
-      "uhitm.c:mhitm_adtyping selects mhitm_ad_acid for AD_ACID; uhitm.c:damageum calls that dispatcher for a polymorphed hero's attack.",
-      "mhitu.c:hitmu calls uhitm.c:mhitm_adtyping for a monster attack on the hero.",
-      "mhitm.c:mdamagem calls uhitm.c:mhitm_adtyping for a monster-versus-monster attack; at the admitted boundary the ochre jelly's AD_ACID engulf attack targets the acid-resistant gray ooze."
+      "mhitm.c:mattackm -> hitmm -> mdamagem -> uhitm.c:mhitm_adtyping selects mhitm_ad_acid for the admitted monster-versus-monster attack.",
+      "mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping is a source caller for monster attacks on the hero; the natural ochre-jelly AT_ENGL AD_ACID attack instead routes through mhitu.c:gulpmu.",
+      "uhitm.c:damageum -> uhitm.c:mhitm_adtyping is a source caller for polymorphed hero attacks; the current monster table has no ordinary AD_ACID melee form that reaches this route."
     ],
     "dependencies": [
       "mondata.c:Resists_Elem implements resists_acid; mondata.c:defended checks artifact defense.",
@@ -75,6 +86,16 @@
     "The current official v83 evaluation identifies synthetic/v83/v83-mm-acid-resistant-action1, segment 0, first mismatch step 1304. The accepted recording SHA-256 is edc33a32ccbf0823b497427a6c23e8091ee5039399fcbe638c8583b0e38cd3c0; manifest SHA-256 is b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329. Baseline results are 1304/1693 screens, 3151/3326 RNG calls, and 1304/1693 cursors before the non-null stop.",
     "The unchanged C recording at step 1304 shows 'The ochre jelly engulfs the gray ooze.' The following C message at step 1305 is 'The gray ooze is covered in acid, but it seems harmless.' That sequence identifies the actor, defender, engulf AD_ACID branch, and acid resistance outcome without relying on the case name.",
     "At step 1305 the C recording logs rn2(30)=11 at uhitm.c:2781 and rn2(6)=0 at uhitm.c:2783. These occur after the resistance branch sets damage to zero, proving the corrosion and weapon-acid checks still run for an acid-resistant defender.",
-    "Source inspection confirms the missing implementation is uhitm.c:mhitm_ad_acid and the production gap is the AD_ACID refusal in js/uhitm.js:mhitm_adtyping. The other damage-type arms in that dispatcher are already routed to source-named implementations. The implementation must remove this refusal and wire the ported function through the same dispatcher."
-  ]
+    "Source inspection confirms the missing implementation is uhitm.c:mhitm_ad_acid and the production gap is the AD_ACID refusal in js/uhitm.js:mhitm_adtyping. The other damage-type arms in that dispatcher are already routed to source-named implementations. The implementation must remove this refusal and wire the ported function through the same dispatcher.",
+    "The admitted v83 recording is the only cited runtime range for this helper: segment 0 steps 1304-1305 pass through the mhitm.c:mattackm -> hitmm -> mdamagem caller and exercise the resistant monster-versus-monster branch. The source-correct output and both acid checks match.",
+    "Hero-attacker and hero-defender branches are implemented from C but lack matching production ranges. The previously attempted v33 ochre-jelly attack reaches uhitm.c:gulpum, not mhitm_ad_acid. The two blocked hero-defender recipes document why the ordinary AT_ENGL route uses mhitu.c:gulpmu and why the unstuck mspec_used cooldown is decremented by mcalcdistress -> mon_regen before the next attack. No range from those attempts is claimed.",
+    "The implementation and source-pinned test are in commit 2e5fb2e3d20bb558a71ba20a14f2be7b5b39b72f. Focused test `node --test scripts/uhitm-ad-acid.test.mjs` passed five tests; `npm run lint` passed.",
+    "Required range verification `node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json` matched v83/v83-mm-acid-resistant-action1 segment 0 through step 1305 on the current implementation. The full selected recipe replay also matched all recorded screens, RNG calls and cursors (run-JHXceh).",
+    "The source-pinned tests directly check the helper branches but are not production runtime evidence. The blocked hero-defender recipes are recipes/uhitm.c/mhitm-ad-acid-hero-defender-blocked-wizard.session.json and recipes/uhitm.c/mhitm-ad-acid-hero-defender-blocked-monk-variation.session.json; no recording from either attempt is cited."
+  ],
+  "implementation": {
+    "file": "js/uhitm.js",
+    "function": "mhitm_ad_acid",
+    "commit": "2e5fb2e3d20bb558a71ba20a14f2be7b5b39b72f"
+  }
 }
