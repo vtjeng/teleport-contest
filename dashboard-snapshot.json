@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T00:58:13.383Z",
+  "capturedAt": "2026-10-15T01:11:18.694Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130023,30 +130023,244 @@
         "task": "Prep40",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v76-search-cases-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:58:12.518Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating both v76 search mismatches at their shared detect.c:dosearch0 source path."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep40-62dd372dfb113f82b54d1593d365b9c5794d3668",
+        "type": "published",
+        "at": "2026-10-15T00:58:19.650Z",
+        "task": "Prep40",
+        "commit": "62dd372dfb113f82b54d1593d365b9c5794d3668"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-v76-mold-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:58:27.168Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v76-monster-earth-mold-action3-20261015",
+        "type": "assign",
+        "at": "2026-10-15T00:58:31.368Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v76-search-cases-20261015",
+        "type": "assign",
+        "at": "2026-10-15T00:58:36.385Z",
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-active-v76-oil-snuff-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:58:43.230Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the admitted oil-snuff merge case; will trace the first C mismatch and claim its complete source scope before edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v76-oil-snuff-merge-action2-20261015",
+        "type": "assign",
+        "at": "2026-10-15T00:58:52.755Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-ced1651f6e61f7819fc75a4fc739597c9da7813d-d27436b63c78a6a6e29d52ea66168e439c95675fe7d93210b949a4f85cafd770-B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T00:59:16.411Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "integration": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
+        "validationGroup": [
+          "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+          "C-investigation-v74-counted-wield-stack-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-ced1651f6e61f7819fc75a4fc739597c9da7813d-d27436b63c78a6a6e29d52ea66168e439c95675fe7d93210b949a4f85cafd770-C-investigation-v74-counted-wield-stack-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:59:16.411Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "integration": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
+        "validationGroup": [
+          "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+          "C-investigation-v74-counted-wield-stack-action1-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v76-earth-mold-mondied-20261015",
+        "type": "implement",
+        "at": "2026-10-15T01:01:06.636Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "goal": "divergence-v76-earth-mold-mondied-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v76-search-cases-20261015",
+        "type": "implement",
+        "at": "2026-10-15T01:01:21.289Z",
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "goal": "fix-detect-dosearch0-v76-statue-and-swallowed-search-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v76-oil-snuff-light-cocktail-20261015",
+        "type": "implement",
+        "at": "2026-10-15T01:01:44.972Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "goal": "fix-v76-oil-snuff-light-cocktail-reacquisition-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b821e2b1a6f8608899c2b1aac5e21aea1a784b0e",
+        "type": "ready",
+        "at": "2026-10-15T01:05:44.554Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "delivery": "b821e2b1a6f8608899c2b1aac5e21aea1a784b0e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1b0d614d9f56f0b24ba2f0f061a12c1ff9bb0b1f",
+        "type": "ready",
+        "at": "2026-10-15T01:05:48.525Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "delivery": "1b0d614d9f56f0b24ba2f0f061a12c1ff9bb0b1f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v76-earth-b821e2b1",
+        "type": "received",
+        "at": "2026-10-15T01:06:27.988Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "delivery": "b821e2b1a6f8608899c2b1aac5e21aea1a784b0e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B-v76-oil-1b0d614d",
+        "type": "received",
+        "at": "2026-10-15T01:06:36.496Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "delivery": "1b0d614d9f56f0b24ba2f0f061a12c1ff9bb0b1f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v76-shop-chest-investigation-20261015",
+        "type": "turn",
+        "at": "2026-10-15T01:06:42.540Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v76-shop-chest-force-action2-20261015",
+        "type": "assign",
+        "at": "2026-10-15T01:06:50.107Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-after-v76-oil-20261015",
+        "type": "turn",
+        "at": "2026-10-15T01:07:07.796Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "v76 oil reacquisition fix submitted with exact replay and focused evidence. Remaining current cases are owned, already ready, or blocked; waiting for an eligible independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v76-shop-chest-nameshk-20261015",
+        "type": "implement",
+        "at": "2026-10-15T01:08:44.355Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "goal": "divergence-v76-minetown-lighting-shop-izchak-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v75-glib-self-stethoscope-action1-20261015-ced1651f6e61f7819fc75a4fc739597c9da7813d-validated",
+        "type": "validated",
+        "at": "2026-10-15T01:09:12.490Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v74-counted-wield-stack-action1-20261014-ced1651f6e61f7819fc75a4fc739597c9da7813d-validated",
+        "type": "validated",
+        "at": "2026-10-15T01:09:12.490Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v75-glib-self-stethoscope-action1-20261015-ced1651f6e61f7819fc75a4fc739597c9da7813d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T01:09:44.939Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v74-counted-wield-stack-action1-20261014-ced1651f6e61f7819fc75a4fc739597c9da7813d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T01:09:44.939Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep41-v77-recovered-c-search-20261015",
+        "type": "turn",
+        "at": "2026-10-15T01:11:04.527Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep41:12 reached routes match; source search continues. Recorder commands are complete; holding new validation for coordinator acceptance and queue refresh."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
-        "worker": "B",
-        "goal": "fix-v75-glib-self-stethoscope-ustatusline-20261015",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "worker": "C",
+        "goal": "divergence-v76-earth-mold-mondied-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "7086408e77a2aeb5e20689dc3e70620f268f5efb",
-        "since": "2026-10-15T00:32:08.128Z",
+        "delivery": "b821e2b1a6f8608899c2b1aac5e21aea1a784b0e",
+        "since": "2026-10-15T01:05:44.554Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
-        "worker": "C",
-        "goal": "fix-counted-wield-stack-dowield-v74-20261015",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "worker": "B",
+        "goal": "fix-v76-oil-snuff-light-cocktail-reacquisition-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "bf4f1b67d39871e88b6f9bc460af437cd404883f",
-        "since": "2026-10-15T00:32:13.547Z",
+        "delivery": "1b0d614d9f56f0b24ba2f0f061a12c1ff9bb0b1f",
+        "since": "2026-10-15T01:05:48.525Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -131212,53 +131426,105 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "C-investigation-v74-counted-wield-stack-action1-20261014": {
-        "id": "C-investigation-v74-counted-wield-stack-action1-20261014",
+      "C-investigation-v76-monster-earth-mold-action3-20261015": {
+        "id": "C-investigation-v76-monster-earth-mold-action3-20261015",
         "worker": "C",
         "status": "ready",
-        "seed": "synthetic/v74/v74-counted-wield-stack-action1",
+        "seed": "synthetic/v76/v76-monster-earth-mold-action3",
         "reservations": [
-          "session:synthetic/v74/v74-counted-wield-stack-action1",
-          "source:wield.c:dowield"
+          "session:synthetic/v76/v76-monster-earth-mold-action3",
+          "source:read.c:drop_boulder_on_monster",
+          "source:mon.c:mondied"
         ]
       },
-      "B-investigation-v75-glib-self-stethoscope-action1-20261015": {
-        "id": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+      "A2-investigation-v76-search-actions2-20261015": {
+        "id": "A2-investigation-v76-search-actions2-20261015",
+        "worker": "A2",
+        "status": "working",
+        "seed": "synthetic/v76/v76-statue-search-action2",
+        "reservations": [
+          "session:synthetic/v76/v76-statue-search-action2",
+          "session:synthetic/v76/v76-swallowed-explicit-search-action2",
+          "source:detect.c:dosearch0"
+        ]
+      },
+      "B-investigation-v76-oil-snuff-merge-action2-20261015": {
+        "id": "B-investigation-v76-oil-snuff-merge-action2-20261015",
         "worker": "B",
         "status": "ready",
-        "seed": "synthetic/v75/v75-glib-self-stethoscope-action1",
+        "seed": "synthetic/v76/v76-oil-snuff-merge-action2",
         "reservations": [
-          "session:synthetic/v75/v75-glib-self-stethoscope-action1",
-          "source:insight.c:ustatusline"
+          "session:synthetic/v76/v76-oil-snuff-merge-action2",
+          "source:apply.c:light_cocktail"
+        ]
+      },
+      "C-investigation-v76-shop-chest-force-action2-20261015": {
+        "id": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "worker": "C",
+        "status": "working",
+        "seed": "synthetic/v76/v76-shop-chest-force-action2",
+        "reservations": [
+          "session:synthetic/v76/v76-shop-chest-force-action2",
+          "source:shknam.c:nameshk"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v74/v74-counted-wield-stack-action1": {
+      "session:synthetic/v76/v76-monster-earth-mold-action3": {
         "tasks": [
-          "C-investigation-v74-counted-wield-stack-action1-20261014"
+          "C-investigation-v76-monster-earth-mold-action3-20261015"
         ]
       },
-      "source:wield.c:dowield": {
+      "source:read.c:drop_boulder_on_monster": {
         "tasks": [
-          "C-investigation-v74-counted-wield-stack-action1-20261014"
+          "C-investigation-v76-monster-earth-mold-action3-20261015"
         ]
       },
-      "session:synthetic/v75/v75-glib-self-stethoscope-action1": {
+      "source:mon.c:mondied": {
         "tasks": [
-          "B-investigation-v75-glib-self-stethoscope-action1-20261015"
+          "C-investigation-v76-monster-earth-mold-action3-20261015"
         ]
       },
-      "source:insight.c:ustatusline": {
+      "session:synthetic/v76/v76-statue-search-action2": {
         "tasks": [
-          "B-investigation-v75-glib-self-stethoscope-action1-20261015"
+          "A2-investigation-v76-search-actions2-20261015"
+        ]
+      },
+      "session:synthetic/v76/v76-swallowed-explicit-search-action2": {
+        "tasks": [
+          "A2-investigation-v76-search-actions2-20261015"
+        ]
+      },
+      "source:detect.c:dosearch0": {
+        "tasks": [
+          "A2-investigation-v76-search-actions2-20261015"
+        ]
+      },
+      "session:synthetic/v76/v76-oil-snuff-merge-action2": {
+        "tasks": [
+          "B-investigation-v76-oil-snuff-merge-action2-20261015"
+        ]
+      },
+      "source:apply.c:light_cocktail": {
+        "tasks": [
+          "B-investigation-v76-oil-snuff-merge-action2-20261015"
+        ]
+      },
+      "session:synthetic/v76/v76-shop-chest-force-action2": {
+        "tasks": [
+          "C-investigation-v76-shop-chest-force-action2-20261015"
+        ]
+      },
+      "source:shknam.c:nameshk": {
+        "tasks": [
+          "C-investigation-v76-shop-chest-force-action2-20261015"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "69ad46099d1d8706d31bf67ed3cc2db02725741c",
-    "measuredAt": "2026-10-15T00:46:55.036Z",
+    "executionCommit": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
+    "measuredAt": "2026-10-15T01:04:45.843Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

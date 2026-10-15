@@ -316293,7 +316293,7 @@
     {
       "id": "fix-v75-glib-self-stethoscope-ustatusline-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement ustatusline from insight.c",
       "cFile": "insight.c",
       "sessions": [
@@ -316303,15 +316303,98 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
       "delivered": null,
       "function": "ustatusline",
-      "session": "synthetic/v75/v75-glib-self-stethoscope-action1"
+      "session": "synthetic/v75/v75-glib-self-stethoscope-action1",
+      "closeStanding": {
+        "sha": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "69ad46099d1d8706d31bf67ed3cc2db02725741c",
+        "target": "synthetic/v75/v75-glib-self-stethoscope-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/ced1651f6e61f7819fc75a4fc739597c9da7813d/run-hosted-HOY8z5/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "ustatusline",
+            "implementation": "js/insight.js",
+            "symbol": "ustatusline",
+            "sourceReview": "Read the complete insight.c:ustatusline() definition (3402-3489) in C order, checking all health, blindness, leg, GLIB, trapped, speed, concealment/disguise, invisibility, holder, visible-region and final status branches. Confirmed GLIB reads intrinsic only and calls fingers_or_gloves(TRUE); this function does not append the wizard timeout suffix from the separate general-attributes code. Confirmed the final visible-region clause runs only when not swallowed, requires visible_region_at(u.ux,u.uy), and chooses poison gas when reg_damg() is nonzero, vapor otherwise. JavaScript uses the existing fingers_or_gloves, visible_region_at and reg_damg implementations; obsolete ustatusline refusals are removed.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "apply.c:use_stethoscope() calls ustatusline() after confdir(FALSE) when u.dx and u.dy are both zero; the JavaScript caller awaits ustatusline(state)."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:dozap() calls zapyourself() for a self-directed wand; zap.c:zapyourself() calls ustatusline() in WAN_PROBING after probe_objchain() and update_inventory(). JavaScript dozap -> zapyourself awaits ustatusline(state) in the matching branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/ustatusline-region-self-stethoscope-independent-b75.session.json",
+              "recordings/insight.c/ustatusline-zap-probing-self-independent-b75.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v75",
+                "caseId": "v75-glib-self-stethoscope-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 226,
+                "source": "apply.c:use_stethoscope() self-direction branch -> ustatusline(); the admitted C screen reaches the GLIB status clause and complete final report."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The complete function has two active production call paths in the recorder build. apply.c:use_stethoscope() calls ustatusline() for a self-direction listen, reached by admitted v75 through step 226 and by the independent poison-cloud recording. zap.c:dozap() routes a self-direction wand use to zapyourself(); zap.c:zapyourself() calls ustatusline() in WAN_PROBING after probe_objchain() and update_inventory(), reached by the independent self-probing recording. Existing JavaScript callers await ustatusline. The independent recordings replayed byte-for-byte in C and matched JavaScript across every screen, RNG call and cursor.",
+        "entryPoints": [
+          {
+            "name": "Apply stethoscope to self",
+            "functions": [
+              "ustatusline"
+            ],
+            "recordings": [
+              "recordings/insight.c/ustatusline-region-self-stethoscope-independent-b75.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v75",
+                "caseId": "v75-glib-self-stethoscope-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 226,
+                "source": "apply.c:use_stethoscope() self-direction branch -> insight.c:ustatusline(). The admitted v75 case covers intrinsic GLIB; the independent recording covers visible poison gas."
+              }
+            ]
+          },
+          {
+            "name": "Zap self with a probing wand",
+            "functions": [
+              "ustatusline"
+            ],
+            "recordings": [
+              "recordings/insight.c/ustatusline-zap-probing-self-independent-b75.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "fix-counted-wield-stack-dowield-v74-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dowield from wield.c",
       "cFile": "wield.c",
       "sessions": [
@@ -316321,10 +316404,81 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
       "delivered": null,
       "function": "dowield",
-      "session": "synthetic/v74/v74-counted-wield-stack-action1"
+      "session": "synthetic/v74/v74-counted-wield-stack-action1",
+      "closeStanding": {
+        "sha": "ced1651f6e61f7819fc75a4fc739597c9da7813d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "69ad46099d1d8706d31bf67ed3cc2db02725741c",
+        "target": "synthetic/v74/v74-counted-wield-stack-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/ced1651f6e61f7819fc75a4fc739597c9da7813d/run-hosted-HOY8z5/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dowield",
+            "implementation": "js/wield.js",
+            "symbol": "dowield",
+            "sourceReview": "Read wield.c:dowield() in full (354-457). C first handles cancellation, already-wielded, and welded-primary cases. For a returned object whose id is svc.context.objsplit.child_oid, it restores the split when the current primary weapon is the parent and follows already_wielded; otherwise finish_splitting() gives the child a distinct inventory letter and execution jumps to wielding. The JavaScript now applies those same branches in that order, including unsplitobj() before ECMD_FAIL in the welded refusal. The shared finish_splitting helper was already implemented for the accepted quiver branch. No unported callee is substituted or invoked.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:doextcmd dispatches the selected extended command table entry to wield.c:dowield; js/cmd.js:doextcmd has the corresponding dowield switch arm."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack handles the wield command result; js/cmd.js:rhack routes command === wield through failClosedCommand to js/wield.js:dowield. The admitted recording exercises this normal wield command path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wield.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-counted-wield-stack-action1",
+                "segment": 0,
+                "fromStep": 116,
+                "throughStep": 167,
+                "source": "The recorded #wield command selects count 2 of inventory stack a; invent.c:getobj returns the split child, wield.c:dowield finishes the split and continues through ready_weapon to the end of the admitted segment."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The production entry is the #wield command. cmd.c dispatches the extended-command table entry to wield.c:dowield through doextcmd and handles the regular wield command in rhack; js/cmd.js mirrors both routes. The admitted v74 case exercises rhack at segment 0 step 116, selects count 2 at step 117 and inventory item a at step 118, then continues through the complete wielding result. Read all of wield.c:dowield (354-457), including the earlier welded-primary refusal and the later quiver and worn-item branches, to preserve exact ordering around the counted split.",
+        "entryPoints": [
+          {
+            "name": "Wield a counted portion of an inventory stack",
+            "functions": [
+              {
+                "sourceFile": "wield.c",
+                "name": "dowield"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-counted-wield-stack-action1",
+                "segment": 0,
+                "fromStep": 116,
+                "throughStep": 167,
+                "source": "cmd.c #wield dispatch -> wield.c:dowield -> invent.c:getobj counted split -> wield.c:finish_splitting -> wielding/ready_weapon."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
