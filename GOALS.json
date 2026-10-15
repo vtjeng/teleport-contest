@@ -318183,7 +318183,7 @@
     {
       "id": "fix-dighole-floor-boulder-deletion-v84-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dighole from dig.c",
       "cFile": "dig.c",
       "sessions": [
@@ -318193,15 +318193,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "9594cba4ac64b39cbf7884067be83b2d43f0c99e",
       "delivered": null,
       "function": "dighole",
-      "session": "synthetic/v84/v84-dig-boulder-pit-action2"
+      "session": "synthetic/v84/v84-dig-boulder-pit-action2",
+      "closeStanding": {
+        "sha": "9594cba4ac64b39cbf7884067be83b2d43f0c99e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "df8a6fb2d30b7360008f114efa1ae41ddfd88856",
+        "target": "synthetic/v84/v84-dig-boulder-pit-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/9594cba4ac64b39cbf7884067be83b2d43f0c99e/run-hosted-prtvVk/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dighole",
+            "implementation": "js/dig.js",
+            "symbol": "dighole",
+            "sourceReview": "Reviewed the complete dig.c:885-1022 dighole function. In the floor-boulder branch, C chooses between settling a boulder into an existing pit and deleting the floor trap, then calls invent.c:delobj. For OBJ_FLOOR, delobj_core calls mkobj.c:obj_extract_self, whose floor arm invokes mkobj.c:remove_object; for boulders that operation removes both object chains and recalculates the blocked vision point. The existing JS delobj and remove_object implementations were already present, but dighole supplied neither extractExternalObject nor recalcBlockPoint. The fix supplies the existing remove_object adapter and default recalc_block_point at the dighole call boundary while preserving caller hooks and source order.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "zap_dig",
+                "source": "zap.c:zap_dig invokes dig.c:dighole for downward wand-of-digging actions; the admitted v84 action reaches this path."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "dig.c:dig invokes dighole for pick-axe downward digging; dighole now supplies the same floor-object hooks for every caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v84",
+                "caseId": "v84-dig-boulder-pit-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 271,
+                "source": "zap.c:zap_dig -> dig.c:dighole -> invent.c:delobj -> mkobj.c:obj_extract_self/remove_object"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The impure entry point is downward wand-of-digging on a floor boulder over a spiked pit. C reaches zap.c:zap_dig -> dig.c:dighole and deletes the floor boulder after it settles into the pit. JavaScript now passes the existing floor-removal adapter and boulder vision recalculation hook through invent.c:delobj. The full admitted recording matches after the fix; other dighole callers share the fixed function boundary.",
+        "entryPoints": [
+          {
+            "name": "Downward wand-of-digging removes a floor boulder over a pit",
+            "functions": [
+              "dighole"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v84",
+                "caseId": "v84-dig-boulder-pit-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 271,
+                "source": "zap.c:zap_dig -> dig.c:dighole"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-region-run-regions-blind-gas-dissipation-v83-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement run_regions from region.c",
       "cFile": "region.c",
       "sessions": [
@@ -318211,10 +318279,72 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "9594cba4ac64b39cbf7884067be83b2d43f0c99e",
       "delivered": null,
       "function": "run_regions",
-      "session": "synthetic/v83/v83-mm-rust-iron-action2"
+      "session": "synthetic/v83/v83-mm-rust-iron-action2",
+      "closeStanding": {
+        "sha": "9594cba4ac64b39cbf7884067be83b2d43f0c99e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "df8a6fb2d30b7360008f114efa1ae41ddfd88856",
+        "target": "synthetic/v83/v83-mm-rust-iron-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/9594cba4ac64b39cbf7884067be83b2d43f0c99e/run-hosted-prtvVk/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "run_regions",
+            "implementation": "js/region.js",
+            "symbol": "run_regions",
+            "sourceReview": "Read region.c:run_regions() lines 414-474, pline.c:You_see() lines 455-470, and allmain.c:moveloop_core() lines 260-274. run_regions resets the cloud message counters, expires regions from the array tail, processes callbacks and monsters in source order, emits the within-cloud message, then passes the aggregate visible-cloud wording to You_see. The JavaScript branch now composes the same singular or plural suffix and calls the existing youSee helper with the current state, preserving C precedence: Unaware selects “You dream that you see” before Blind selects “You sense”. No RNG or extra state mutation is introduced by the formatter call. The entry point is active in the recorder build.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterTimeout",
+                "source": "allmain.c:moveloop_core calls run_regions immediately after nh_timeout on each turn; finishElapsedTurnAfterTimeout performs this call through the active region environment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-rust-iron-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 859,
+                "source": "allmain.c:moveloop_core -> js/allmain.js:finishElapsedTurnAfterTimeout -> region.c:run_regions -> pline.c:You_see"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active per-turn entry point is allmain.c:moveloop_core -> js/allmain.js:finishElapsedTurnAfterTimeout -> js/region.js:run_regions. The admitted v83 rust/iron case matches through the formerly divergent gas-dissipation message at segment 0 step 859; the case reaches this branch through the normal turn loop. No other run_regions entry point was changed.",
+        "entryPoints": [
+          {
+            "name": "Per-turn gas-cloud region upkeep",
+            "functions": [
+              "run_regions"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-rust-iron-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 859,
+                "source": "allmain.c:moveloop_core -> js/allmain.js:finishElapsedTurnAfterTimeout -> region.c:run_regions -> pline.c:You_see"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

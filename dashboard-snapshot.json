@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T07:16:52.914Z",
+  "capturedAt": "2026-10-15T07:31:05.437Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -134944,30 +134944,481 @@
         "state": "active",
         "probe": "v86-p01-retravel-unset",
         "reason": "Reserved independent patched-C replay of the unchanged p01 recipe after qualified accepted-base mismatch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v86-p01-retravel-unset-replay-run-1QHYU6-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:16:58.380Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "Independent C replay run-1QHYU6 started and completed; recording exact handle before final collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v86-p04-ball-pit-capture1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:17:07.377Z",
+        "task": "Prep50",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v86-p04-ball-pit",
+        "reason": "Reserved one C recorder slot for the first TT_PIT capture; launching immediately.",
+        "source": "ball.c:drop_ball TT_PIT"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v85-mounted-chat-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T07:17:14.266Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v86-p08-airborne-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:17:21.156Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v86-p08-airborne-landmine",
+        "reason": "Source-planned winged gargoyle mine airborne guard; reuse final-location insight from kitten misses. No slot reserved by assignment.",
+        "source": "trap.c:trapeffect_landmine airborne monster branch"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v86-p06-opener-no-tin-slot-full-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:17:26.197Z",
+        "task": "Prep50",
+        "worker": "Prep-6",
+        "state": "blocked",
+        "probe": "v86-p06-opener-no-tin",
+        "reason": "C capture not launched: both bounded recorder slots are currently reserved by v86-p01-retravel-unset and v86-p04-ball-pit. Waiting for a released slot; no game coverage claimed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v85-mounted-chat-down-attempt4-20261015",
+        "type": "assign",
+        "at": "2026-10-15T07:17:31.431Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep49-76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96",
+        "type": "published",
+        "at": "2026-10-15T07:17:44.495Z",
+        "task": "Prep49",
+        "commit": "76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v86-p01-retravel-unset-replay-run-1QHYU6-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:18:03.017Z",
+        "task": "Prep50",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v86-p01-retravel-unset",
+        "reason": "Accepted d8f97252 comparison proves missing dotravel_target dispatch; delegated prefix matches through 11 screens/2819 RNG, and independent C replay run-1QHYU6 is byte-identical to retained recording.",
+        "outcome": "failure"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v86-p03-contained-egg-slots-full-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:18:11.126Z",
+        "task": "Prep50",
+        "worker": "Prep-3",
+        "state": "blocked",
+        "probe": "v86-p03-contained-egg",
+        "reason": "Both bounded recording slots were reserved; contained-egg recipe is ready and no command launched. Waiting for a slot release notification."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v86-p05-axe-worm-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:18:16.607Z",
+        "task": "Prep50",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v86-p05-axe-worm",
+        "reason": "Reserved one bounded C continuation from the saved worm/axe scout; launching the west-step and post-step decode attempt now.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v86-p05-axe-worm-slots-full-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:18:43.173Z",
+        "task": "Prep50",
+        "worker": "Prep-5",
+        "state": "blocked",
+        "probe": "v86-p05-axe-worm",
+        "reason": "C continuation not launched: both bounded recorder slots are occupied by v86-p01-retravel-unset and v86-p04-ball-pit. Attempt-1 recipe is ready; waiting for a slot release notification. No game coverage claimed.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v86-p03-contained-egg-packet-boundary-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:19:00.569Z",
+        "task": "Prep50",
+        "worker": "Prep-3",
+        "state": "done",
+        "probe": "v86-p03-contained-egg",
+        "reason": "Deferred at the clean Prep50 packet boundary with source plan and independent recipe preserved; no C capture or runtime branch reach claimed.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v86-p05-axe-worm-packet-boundary-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:19:06.597Z",
+        "task": "Prep50",
+        "worker": "Prep-5",
+        "state": "done",
+        "probe": "v86-p05-axe-worm",
+        "reason": "Deferred unlaunched axe-worm continuation at packet boundary after both recorder slots were occupied. Saved source-backed non-tail geometry, attempt-1 recipe and slot-blocker provenance; no C hit/miss or exhaustion claim.",
+        "source": "dothrow.c:thitmonst -> cutworm",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-4cb517007760ece9f1bbdfe8830aebb01aac4dac-adfd8474d11c9fb006e476b3938858d4660113991a13a94bd540bb64e4dc47ed-B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T07:19:13.649Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "integration": "4cb517007760ece9f1bbdfe8830aebb01aac4dac",
+        "validationGroup": [
+          "B-investigation-v84-dig-boulder-pit-action2-20261015",
+          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-4cb517007760ece9f1bbdfe8830aebb01aac4dac-adfd8474d11c9fb006e476b3938858d4660113991a13a94bd540bb64e4dc47ed-A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T07:19:13.649Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "integration": "4cb517007760ece9f1bbdfe8830aebb01aac4dac",
+        "validationGroup": [
+          "B-investigation-v84-dig-boulder-pit-action2-20261015",
+          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-source-pair-friction-4cb517007760ece9f1bbdfe8830aebb01aac4dac-B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T07:19:49.876Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "integration": "4cb517007760ece9f1bbdfe8830aebb01aac4dac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-source-pair-friction-4cb517007760ece9f1bbdfe8830aebb01aac4dac-B-investigation-v84-dig-boulder-pit-action2-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T07:19:49.876Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "integration": "4cb517007760ece9f1bbdfe8830aebb01aac4dac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-source-pair-friction-4cb517007760ece9f1bbdfe8830aebb01aac4dac-A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T07:19:49.876Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "integration": "4cb517007760ece9f1bbdfe8830aebb01aac4dac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-source-pair-friction-4cb517007760ece9f1bbdfe8830aebb01aac4dac-A2-investigation-v83-mm-rust-iron-screen859-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T07:19:49.876Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "integration": "4cb517007760ece9f1bbdfe8830aebb01aac4dac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v86-p08-airborne-landmine-defer-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:19:58.279Z",
+        "task": "Prep50",
+        "worker": "Prep-2",
+        "state": "done",
+        "probe": "v86-p08-airborne-landmine",
+        "reason": "Deferred unlaunched at v86 packet boundary after source design: place a boulder immediately beyond the mine so a non-rock-throwing flyer stops on the mine; spawn geometry must be observed. No C branch claimed.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-9594cba4ac64b39cbf7884067be83b2d43f0c99e-adfd8474d11c9fb006e476b3938858d4660113991a13a94bd540bb64e4dc47ed-B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T07:20:03.111Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "integration": "9594cba4ac64b39cbf7884067be83b2d43f0c99e",
+        "validationGroup": [
+          "B-investigation-v84-dig-boulder-pit-action2-20261015",
+          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-9594cba4ac64b39cbf7884067be83b2d43f0c99e-adfd8474d11c9fb006e476b3938858d4660113991a13a94bd540bb64e4dc47ed-A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T07:20:03.111Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "integration": "9594cba4ac64b39cbf7884067be83b2d43f0c99e",
+        "validationGroup": [
+          "B-investigation-v84-dig-boulder-pit-action2-20261015",
+          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v86-p04-ball-pit-run-4sh66H-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:20:30.345Z",
+        "task": "Prep50",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v86-p04-ball-pit",
+        "reason": "First TT_PIT C capture completed and was reaped, but remained at the graffiti --More-- prompt after moving east; pit entry and ball throw were not processed. Evidence and an unexecuted prompt-dismissal correction are preserved for the next batch.",
+        "source": "ball.c:drop_ball TT_PIT"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v86-p06-opener-no-tin-packet-boundary-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:20:36.421Z",
+        "task": "Prep50",
+        "worker": "Prep-6",
+        "state": "done",
+        "probe": "v86-p06-opener-no-tin",
+        "reason": "Deferred at the Prep50 immutable packet boundary without launching C; the source-planned no-tin opener guard remains preserved for a later batch. No game coverage or exhaustion claim.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v86-p04-ball-pit-packet-boundary-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:20:41.573Z",
+        "task": "Prep50",
+        "worker": "Prep-4",
+        "state": "done",
+        "probe": "v86-p04-ball-pit",
+        "reason": "One C capture completed and was reaped but missed pit entry: moving east opened a graffiti --More-- prompt, and remaining inputs were consumed there. No TT_PIT or ball-throw branch coverage/comparison is claimed. Preserved the recording and an unexecuted explicit-space prompt-dismissal correction for the next batch.",
+        "source": "ball.c:drop_ball TT_PIT",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v85-mounted-chat-down-steed-20261015",
+        "type": "implement",
+        "at": "2026-10-15T07:20:57.300Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "goal": "divergence-v85-mounted-chat-down-steed-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-86f97a405a87abce5a3a3483ae67b0084d72a8ec",
+        "type": "ready",
+        "at": "2026-10-15T07:22:02.815Z",
+        "task": "Prep50",
+        "delivery": "86f97a405a87abce5a3a3483ae67b0084d72a8ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-Prep50-86f97a40",
+        "type": "received",
+        "at": "2026-10-15T07:22:43.942Z",
+        "task": "Prep50",
+        "delivery": "86f97a405a87abce5a3a3483ae67b0084d72a8ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep51-v87-20261015",
+        "type": "assign",
+        "at": "2026-10-15T07:25:22.487Z",
+        "task": "Prep51",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c05999cc4ec99718e45b0fdad1318a9cba1c7ddd",
+        "type": "ready",
+        "at": "2026-10-15T07:26:01.634Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "delivery": "c05999cc4ec99718e45b0fdad1318a9cba1c7ddd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v87-p01-ride-cockatrice-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:26:12.356Z",
+        "task": "Prep51",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v87-p01-ride-cockatrice",
+        "reason": "Assigned source investigation; atomically reserve before launch. No slot reserved by assignment.",
+        "source": "cmd.c:doride -> steed.c:mount_steed -> instapetrify"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v87-p02-airborne-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:26:17.570Z",
+        "task": "Prep51",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v87-p02-airborne-landmine",
+        "reason": "Assigned source investigation; atomically reserve before launch. No slot reserved by assignment.",
+        "source": "trap.c:trapeffect_landmine airborne monster"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v87-p03-contained-egg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:26:22.715Z",
+        "task": "Prep51",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v87-p03-contained-egg",
+        "reason": "Assigned source investigation; atomically reserve before launch. No slot reserved by assignment.",
+        "source": "timeout.c:hatch_egg contained location"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v87-p04-ball-pit-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:26:27.959Z",
+        "task": "Prep51",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v87-p04-ball-pit",
+        "reason": "Assigned source investigation; atomically reserve before launch. No slot reserved by assignment.",
+        "source": "ball.c:drop_ball TT_PIT"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v87-p05-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:26:33.342Z",
+        "task": "Prep51",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v87-p05-axe-worm",
+        "reason": "Assigned source investigation; atomically reserve before launch. No slot reserved by assignment.",
+        "source": "dothrow.c:thitmonst -> cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v87-p06-opener-no-tin-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T07:26:38.731Z",
+        "task": "Prep51",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v87-p06-opener-no-tin",
+        "reason": "Assigned source investigation; atomically reserve before launch. No slot reserved by assignment.",
+        "source": "apply.c:doapply -> eat.c:use_tin_opener"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-v85-20261015",
+        "type": "turn",
+        "at": "2026-10-15T07:27:04.123Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Idle after v85 submission; current queued cases are owned by B and A2. Waiting for a new independent case or released scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v85-C-mounted-c05999cc",
+        "type": "received",
+        "at": "2026-10-15T07:27:10.244Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "delivery": "c05999cc4ec99718e45b0fdad1318a9cba1c7ddd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v85-C-bounded-range-lint",
+        "type": "feedback",
+        "at": "2026-10-15T07:27:14.346Z",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "delivery": "c05999cc4ec99718e45b0fdad1318a9cba1c7ddd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep51-v87-new-protocol-source-planning-hold-20261015",
+        "type": "turn",
+        "at": "2026-10-15T07:27:22.053Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep51 has twelve planned source behaviors and six assigned lanes. Waiting for Root acceptance/queue release; no game process is running."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v84-dig-boulder-pit-action2-20261015-9594cba4ac64b39cbf7884067be83b2d43f0c99e-validated",
+        "type": "validated",
+        "at": "2026-10-15T07:27:28.635Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v83-mm-rust-iron-screen859-20261015-9594cba4ac64b39cbf7884067be83b2d43f0c99e-validated",
+        "type": "validated",
+        "at": "2026-10-15T07:27:28.635Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v84-dig-boulder-pit-action2-20261015-9594cba4ac64b39cbf7884067be83b2d43f0c99e-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T07:28:08.623Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v83-mm-rust-iron-screen859-20261015-9594cba4ac64b39cbf7884067be83b2d43f0c99e-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T07:28:08.623Z",
+        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
-        "worker": "B",
-        "goal": "fix-dighole-floor-boulder-deletion-v84-20261015",
-        "kind": "implementation",
+        "task": "Prep50",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "04adf027bf607122d75004555185b9bfd4d9b41d",
-        "since": "2026-10-15T06:32:43.893Z",
+        "delivery": "86f97a405a87abce5a3a3483ae67b0084d72a8ec",
+        "batch": "v86",
+        "since": "2026-10-15T07:22:02.815Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
-        "worker": "A2",
-        "goal": "fix-region-run-regions-blind-gas-dissipation-v83-20261015",
+        "task": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "worker": "C",
+        "goal": "divergence-v85-mounted-chat-down-steed-20261015",
         "kind": "implementation",
-        "status": "ready",
-        "delivery": "c16436777c343a547398bd3af6f449452dcb2a4a",
-        "since": "2026-10-15T07:07:08.584Z",
+        "status": "changes-required",
+        "delivery": "c05999cc4ec99718e45b0fdad1318a9cba1c7ddd",
+        "since": "2026-10-15T07:26:01.634Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -136133,53 +136584,33 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "B-investigation-v84-dig-boulder-pit-action2-20261015": {
-        "id": "B-investigation-v84-dig-boulder-pit-action2-20261015",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v84/v84-dig-boulder-pit-action2",
+      "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015": {
+        "id": "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+        "worker": "C",
+        "status": "changes-required",
+        "seed": "synthetic/v85/v85-p13-mounted-chat-down-attempt4",
         "reservations": [
-          "session:synthetic/v84/v84-dig-boulder-pit-action2",
-          "source:dig.c:dighole"
-        ]
-      },
-      "A2-investigation-v83-mm-rust-iron-screen859-20261015": {
-        "id": "A2-investigation-v83-mm-rust-iron-screen859-20261015",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v83/v83-mm-rust-iron-action2",
-        "reservations": [
-          "session:synthetic/v83/v83-mm-rust-iron-action2",
-          "source:region.c:run_regions"
+          "session:synthetic/v85/v85-p13-mounted-chat-down-attempt4",
+          "source:sounds.c:dochat"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v84/v84-dig-boulder-pit-action2": {
+      "session:synthetic/v85/v85-p13-mounted-chat-down-attempt4": {
         "tasks": [
-          "B-investigation-v84-dig-boulder-pit-action2-20261015"
+          "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015"
         ]
       },
-      "source:dig.c:dighole": {
+      "source:sounds.c:dochat": {
         "tasks": [
-          "B-investigation-v84-dig-boulder-pit-action2-20261015"
-        ]
-      },
-      "session:synthetic/v83/v83-mm-rust-iron-action2": {
-        "tasks": [
-          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
-        ]
-      },
-      "source:region.c:run_regions": {
-        "tasks": [
-          "A2-investigation-v83-mm-rust-iron-screen859-20261015"
+          "C-investigation-v85-p13-mounted-chat-down-attempt4-20261015"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "df8a6fb2d30b7360008f114efa1ae41ddfd88856",
-    "measuredAt": "2026-10-15T07:07:03.535Z",
+    "executionCommit": "9594cba4ac64b39cbf7884067be83b2d43f0c99e",
+    "measuredAt": "2026-10-15T07:25:47.356Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
