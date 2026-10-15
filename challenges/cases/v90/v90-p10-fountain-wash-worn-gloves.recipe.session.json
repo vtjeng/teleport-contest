@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-observed source-proven state-order correction: attempt 3 established Glib before Wp, and C refused to wear the gloves because the fingers were too slippery. Wear the wished gloves before applying grease to hands; this keeps the same selected seed, date, character and fountain target. Dismiss each C-observed message pager before the next command. No JavaScript result informed the input.",
+  "segments": [
+    {
+      "seed": 90715101,
+      "datetime": "20860715102110",
+      "nethackrc": "OPTIONS=name:V90WashGloves,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017uncursed can of grease (9)\n\u0017uncursed leather gloves\nWp ao- #timeout\n \u0017fountain\n#dip\npy #timeout\n "
+    }
+  ]
+}
