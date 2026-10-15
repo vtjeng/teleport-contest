@@ -26,8 +26,7 @@
     ],
     "branch": "After a monster hurtles into the hero, touch_petrifies(mon->data) and absence of uarmu/uarm/uarmc cause C to set the “being hit by <monster>” killer and call instapetrify(). The call is skipped in JS by note_unported().",
     "callers": [
-      "uhitm.c:mhitm_knockback -> dothrow.c:mhurtle -> walk_path(..., mhurtle_step); JS uhitm.js:mhitm_knockback -> dothrow.js:mhurtle -> walk_path(..., mhurtle_step).",
-      "For the selected recording, #wizgenesis/#wiztelekinesis creates the cockatrice collision setup and the hero-moved action reaches mhurtle_step’s monster-to-hero arm."
+      "For the selected recording, wizard #wiztelekinesis selects the cockatrice and calls mhurtle(mtmp, u.dx, u.dy, 6) in wizcmds.c:wiz_telekinesis(); dothrow.c:mhurtle() then calls walk_path(..., mhurtle_step), which reaches the monster-to-hero collision arm."
     ],
     "dependencies": [
       "trap.c:instapetrify is already implemented in js/trap.js; no callee change is needed."
@@ -38,7 +37,7 @@
     "nethack-c/upstream/src/dothrow.c:992-1074 mhurtle_step() performs the collision effects in order. Its u_at(x,y) branch bumps the hero, stops occupation, checks poly hero petrification, then—if touch_petrifies(mon->data) and the hero has no body armor/cloak/shirt—sets killer text, calls instapetrify(), and newsym().",
     "nethack-c/upstream/src/trap.c:3844-3855 instapetrify() prints the urgent stoning line, sets killer.format/name, and calls done(STONING); js/trap.js already implements this behavior.",
     "js/dothrow.js:735-834 mirrors mhurtle_step() but replaces the source instapetrify call with note_unported(\"trap.c instapetrify\") at the bare-torso monster-to-hero branch.",
-    "The admitted v88 case matches through step 66. At segment 0 step 66, C and JS both show “The cockatrice hisses! The cockatrice bumps into you.--More--”; at step 67 after key space, C shows “You turn to stone...” while JS retains the old collision text and cursor.",
+    "The admitted v88 case matches through step 66. In segment 0, wizard #wiztelekinesis drives the cockatrice through mhurtle() and walk_path() into mhurtle_step()'s monster-to-hero arm. At step 66, C and JS both show “The cockatrice hisses! The cockatrice bumps into you.--More--”; at step 67 after key space, C shows “You turn to stone...” while JS retains the old collision text and cursor.",
     "Prep52 independent C re-recording proof preserves recipe SHA 987c39078f6265c4848c48929ba7e9eddad20625a5d4f3dbaec24ec152c2e2c8 and original C recording SHA 6194288f059b79a386da0941be6aa26be922a41de0959b1a5fd1af39b555af2c."
   ]
 }
