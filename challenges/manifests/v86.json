@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "batch": "v86",
+  "status": "prepared-not-admitted",
+  "preparationAssignmentBase": "9dabe84fdd3cfa3fcb03061315988b6f67b0c035",
+  "deliveryBase": "9dabe84fdd3cfa3fcb03061315988b6f67b0c035",
+  "comparisonBase": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v86-p01-retravel-unset-attempt1",
+      "title": "Retravel without a cached destination",
+      "mission": "cmd.c:doextcmd dispatches dotravel_target with unset travelcc",
+      "sourcePointers": [
+        "nethack-c/upstream/src/cmd.c:doextcmd",
+        "nethack-c/upstream/src/cmd.c:dotravel_target5348-5355"
+      ],
+      "sourceTrace": "C executes #retravel and prints No travel destination set at segment0 step11. The JavaScript helper already exists; doextcmd has no production dispatch arm for its extcmd row and refuses before calling it.",
+      "recipe": "challenges/cases/v86/v86-p01-retravel-unset-attempt1.recipe.session.json",
+      "recipeSha256": "7c2f594e660c768275b589e6b296e27ed5a3180fa9bf68dd262aeec4f69c6fa7",
+      "recording": "challenges/cases/v86/v86-p01-retravel-unset-attempt1.session.json",
+      "recordingSha256": "c3e7091359fb05f84b17807a0bc81fb5af92cb6187aaa079429b0225f037d126",
+      "reproducibility": "Independent patched-C replay is byte-identical.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v86-p01-retravel-unset-attempt1",
+        "command": [
+          "sh",
+          "-c",
+          "node scripts/record-session.mjs .cache/probes/v86-p01-retravel-unset/attempt1-retravel-unset-20261015/v86-p01-retravel-unset-attempt1.recipe.session.json .cache/probes/v86-p01-retravel-unset/attempt1-replay-20261015/v86-p01-retravel-unset-independent-replay.session.json > .cache/probes/v86-p01-retravel-unset/attempt1-replay-20261015/attempt1-independent-replay.stdout.log 2> .cache/probes/v86-p01-retravel-unset/attempt1-replay-20261015/attempt1-independent-replay.stderr.log"
+        ],
+        "workingDirectory": "/tmp/teleport-prep48-lane1-20261015",
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep50-recovery/lanes/Prep-1/v86-p01-retravel-unset/attempt1-replay-20261015/attempt1-independent-replay.stderr.log",
+        "logSha256": "8ded034b7d18f24ad76e40b8b910c9d250d2764301049aa887bd51d5858023bc",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep50-recovery/lanes/Prep-1/v86-p01-retravel-unset/attempt1-replay-20261015/v86-p01-retravel-unset-independent-replay.session.json",
+        "outputSha256": "c3e7091359fb05f84b17807a0bc81fb5af92cb6187aaa079429b0225f037d126",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "version": 5,
+        "comment": "Independent Prep50 C-first case for cmd.c:dotravel_target()'s unset travelcc guard. The leading space dismisses startup welcome; #retravel is invoked without first setting a travel destination.",
+        "segments": [
+          {
+            "seed": 86015421,
+            "datetime": "20850606121700",
+            "nethackrc": "OPTIONS=name:RetravelUnset86,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+            "moves": " #retravel\n"
+          }
+        ]
+      },
+      "qualifyingDistinctMismatch": true,
+      "matchingControl": false,
+      "firstMismatch": {
+        "segment": 0,
+        "step": 11,
+        "key": "\n",
+        "owner": "cmd.c:doextcmd",
+        "source": "doextcmd -> dotravel_target omitted production dispatch",
+        "summary": "unsupported hero command: dotravel_target() for the extended command 'retravel' is not ported",
+        "comparisonBase": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "officialComparison": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2819,
+              "js": 2819
+            },
+            "screens": {
+              "c": 12,
+              "js": 11
+            },
+            "cursors": {
+              "c": 12,
+              "js": 11
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": {
+            "index": 11,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 11,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 11,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 11,
+              "key": "\n"
+            },
+            "cCursor": [
+              21,
+              5,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "matchingPrefix": {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep50-recovery/lanes/Prep-1/v86-p01-retravel-unset/attempt1-js-accepted-d8f97252-20261015/diagnostic-prefix.json",
+          "sha256": "a0945ad01f4aebcf1774d86113d4f7e858dbeb8a8b5ed391825e3117e90f30b9",
+          "acceptedBase": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+          "captureHook": true,
+          "capturedScreenCount": 11,
+          "errorDuringStep": 11,
+          "error": {
+            "name": "UnsupportedHeroCommandBoundaryError",
+            "message": "unsupported hero command: dotravel_target() for the extended command 'retravel' is not ported",
+            "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: dotravel_target() for the extended command 'retravel' is not ported\n    at doextcmd (file:///tmp/teleport-score-CSmzsw/js/cmd.js:5421:19)\n    at async failClosedCommand (file:///tmp/teleport-score-CSmzsw/js/cmd.js:3039:16)\n    at async rhack (file:///tmp/teleport-score-CSmzsw/js/cmd.js:5832:25)\n    at async moveloop_core (file:///tmp/teleport-score-CSmzsw/js/allmain.js:1802:9)\n    at async Module.runSegment (file:///tmp/teleport-score-CSmzsw/js/jsmain.js:784:13)\n    at async runDiagnostic (file:///tmp/teleport-prep48-lane1-20261015/.cache/probes/v86-p01-retravel-unset/attempt1-js-accepted-d8f97252-20261015/compare-accepted.mjs:65:13)\n    at async file:///tmp/teleport-prep48-lane1-20261015/.cache/probes/v86-p01-retravel-unset/attempt1-js-accepted-d8f97252-20261015/compare-accepted.mjs:89:42",
+            "boundaryObserver": true
+          },
+          "prefixComparison": {
+            "passed": true,
+            "error": null,
+            "lengths": {
+              "rng": {
+                "c": 2819,
+                "js": 2819
+              },
+              "screens": {
+                "c": 11,
+                "js": 11
+              },
+              "cursors": {
+                "c": 11,
+                "js": 11
+              },
+              "animFrames": {
+                "c": 0,
+                "js": 0
+              }
+            },
+            "rngMismatch": null,
+            "screenMismatch": null,
+            "cursorMismatch": null,
+            "animMismatch": null,
+            "segmentMismatch": null
+          },
+          "delegatedCaptureHook": true,
+          "gameInputsUnchanged": true
+        },
+        "closestEarlierEvidence": "Saved fixed wizard help and v33/v34/v35 list/help screens mention retravel but never execute it. Static immutable packet/regression search found no exact caller first cause. Different missing command dispatch arms are different source call sites; this helper body already exists."
+      },
+      "localComparison": {
+        "caseId": "v86-p01-retravel-unset-attempt1",
+        "acceptedBase": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "official": {
+          "completeResult": true,
+          "status": 0,
+          "comparison": {
+            "passed": false,
+            "error": null,
+            "lengths": {
+              "rng": {
+                "c": 2819,
+                "js": 2819
+              },
+              "screens": {
+                "c": 12,
+                "js": 11
+              },
+              "cursors": {
+                "c": 12,
+                "js": 11
+              },
+              "animFrames": {
+                "c": 0,
+                "js": 0
+              }
+            },
+            "rngMismatch": null,
+            "screenMismatch": {
+              "index": 11,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 11,
+                "key": "\n"
+              },
+              "kind": "js-missing"
+            },
+            "cursorMismatch": {
+              "index": 11,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 11,
+                "key": "\n"
+              },
+              "cCursor": [
+                21,
+                5,
+                1
+              ]
+            },
+            "animMismatch": null,
+            "segmentMismatch": null
+          },
+          "stdout": "__FRESH_DIFF_RESULT__\n{\"passed\":false,\"error\":null,\"lengths\":{\"rng\":{\"c\":2819,\"js\":2819},\"screens\":{\"c\":12,\"js\":11},\"cursors\":{\"c\":12,\"js\":11},\"animFrames\":{\"c\":0,\"js\":0}},\"rngMismatch\":null,\"screenMismatch\":{\"index\":11,\"location\":{\"segmentIndex\":0,\"stepIndex\":11,\"key\":\"\\n\"},\"kind\":\"js-missing\"},\"cursorMismatch\":{\"index\":11,\"location\":{\"segmentIndex\":0,\"stepIndex\":11,\"key\":\"\\n\"},\"cCursor\":[21,5,1]},\"animMismatch\":null,\"segmentMismatch\":null}\n",
+          "stderr": ""
+        },
+        "provenance": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep50-recovery/lanes/Prep-1/v86-p01-retravel-unset/attempt1-js-accepted-d8f97252-20261015/comparison-provenance.json",
+        "provenanceSha256": "8453e9bc8d1a0aabac4df3ecf1914d75be7ae856820bd21497ce440f41112f3e"
+      },
+      "closestSavedEvidence": [
+        ".cache/prep86/retravel-static-crosswalk.json",
+        "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep50-recovery/lanes/Prep-1/source-plan.md"
+      ]
+    }
+  ],
+  "preservedDataFiles": [
+    {
+      "path": "challenges/cases/v86/v86-p01-retravel-unset-attempt1.recipe.session.json",
+      "sha256": "7c2f594e660c768275b589e6b296e27ed5a3180fa9bf68dd262aeec4f69c6fa7"
+    },
+    {
+      "path": "challenges/cases/v86/v86-p01-retravel-unset-attempt1.session.json",
+      "sha256": "c3e7091359fb05f84b17807a0bc81fb5af92cb6187aaa079429b0225f037d126"
+    }
+  ],
+  "finalRouteAdjudication": {
+    "included": [
+      "v86-p01-retravel-unset-attempt1"
+    ],
+    "misses": [
+      {
+        "probe": "v86-p02-kitten-landmine",
+        "runs": [
+          "run-XY61xZ",
+          "run-3vSjyg"
+        ],
+        "reason": "Both hurtle geometries missed final mine placement; second passed mine during HURTLING and stopped beyond it. No weight gate reached."
+      },
+      {
+        "probe": "v86-p04-ball-pit",
+        "run": "run-4sh66H",
+        "reason": "Graffiti More prompt consumed intended re-entry/throw keys. No pit entry or ball throw reached; space-dismissal correction is unexecuted."
+      }
+    ],
+    "deferred": [
+      "v86-ride-cockatrice",
+      "v86-p02-kitten-landmine",
+      "v86-airborne-landmine",
+      "v86-contained-egg",
+      "v86-zombie-genocided",
+      "v86-p04-ball-pit",
+      "v86-ball-jerk-back",
+      "v86-p05-axe-worm",
+      "v86-mm-acid-spit",
+      "v86-p06-opener-no-tin",
+      "v86-worn-amulet-eat"
+    ],
+    "carryForward": "Preserve all source plans, unlaunched recipes, actual map/prompt evidence and cheap final-square obstacle route. No branch reach for unexecuted targets. Lanes finish/release all commands before submission.",
+    "ownership": "Root live reservation check found no cmd.c or dotravel_target owner; pending region/dig and mounted sounds work differs.",
+    "officialBaseline": "Prepared only; Main owns admission and official evaluation."
+  }
+}
