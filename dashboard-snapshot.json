@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T06:23:26.605Z",
+  "capturedAt": "2026-10-15T06:55:12.696Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -133529,63 +133529,1023 @@
         "state": "active",
         "probe": "v85-p05-thrown-axe-worm",
         "reason": "Root explicitly released baseline-import hold; one independent bounded C scout reserved, actual handle follows launch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep49-v85-baseline-hold-released-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:23:27.286Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Exploration recording has resumed. Three reached probes fully matched JavaScript; the next source target is downward chat with a mounted steed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep48-d2865467c085f7fdd9fe684bfb11c107ddaf8020",
+        "type": "published",
+        "at": "2026-10-15T06:23:32.871Z",
+        "task": "Prep48",
+        "commit": "d2865467c085f7fdd9fe684bfb11c107ddaf8020"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-v84-pit-boulder-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:23:37.430Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "B is tracing the v84 pit-boulder mismatch from the admitted recording to its C source owner."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v84-dig-boulder-pit-action2-20261015",
+        "type": "assign",
+        "at": "2026-10-15T06:24:05.860Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d4e9d2a6064990e754886e65ab635b5b237e8195-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:25:04.722Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d4e9d2a6064990e754886e65ab635b5b237e8195-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:25:04.722Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d4e9d2a6064990e754886e65ab635b5b237e8195-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:25:04.722Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d4e9d2a6064990e754886e65ab635b5b237e8195-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:25:04.722Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d4e9d2a6064990e754886e65ab635b5b237e8195-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:25:04.722Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-v84-pit-boulder-implement-scope-20261015",
+        "type": "implement",
+        "at": "2026-10-15T06:25:35.023Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "goal": "fix-dighole-floor-boulder-deletion-v84-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "handle-cfirst-v85-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:25:45.377Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "Single C-first geometry scout completed; retaining completed run handle for release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-C-investigation-v83-mm-digest-chameleon-action2-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-A2-investigation-v83-mm-slime-transform-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-B-investigation-v83-mm-digest-wraith-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-C-investigation-v83-mm-acid-resistant-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-before-approved-dashboard-ci-A2-investigation-v83-mm-rust-iron-action2-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:26:29.062Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "d4e9d2a6064990e754886e65ab635b5b237e8195"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-6d64146abad5e97d530599bac3af3d5bb2ae5c2b-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:26:42.021Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "6d64146abad5e97d530599bac3af3d5bb2ae5c2b",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-6d64146abad5e97d530599bac3af3d5bb2ae5c2b-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:26:42.021Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "6d64146abad5e97d530599bac3af3d5bb2ae5c2b",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-6d64146abad5e97d530599bac3af3d5bb2ae5c2b-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:26:42.021Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "6d64146abad5e97d530599bac3af3d5bb2ae5c2b",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-6d64146abad5e97d530599bac3af3d5bb2ae5c2b-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:26:42.021Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "6d64146abad5e97d530599bac3af3d5bb2ae5c2b",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-6d64146abad5e97d530599bac3af3d5bb2ae5c2b-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:26:42.021Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "6d64146abad5e97d530599bac3af3d5bb2ae5c2b",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p13-mounted-chat-down-c-scout-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:26:49.847Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Bounded C scout run-wtvvNH finished; setup missed startup More and no mounted-steed target was reached; recorder slot released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-v85-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:27:22.806Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "C-first setup miss: welcome pager consumed the wizard input; source target not reached. Scout output preserved; awaiting next granted slot."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-startup-correction-v85-p13-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:28:44.127Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "One cheap C-observed startup More correction reserved; original scout created no pony and is preserved as setup miss."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-attempt2-v85-p06-ball-bear-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:28:49.078Z",
+        "task": "Prep49",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v85-p06-ball-bear",
+        "reason": "One cheap C-observed manual ball selector correction reserved; actual TT_BEARTRAP pull still requires C proof."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v85-p06-ball-bear-attempt2-complete-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:30:02.364Z",
+        "task": "Prep49",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v85-p06-ball-bear",
+        "reason": "Corrected bounded C attempt 2 completed and reaped; saved capture for source-state adjudication"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p13-mounted-chat-down-attempt2-scout-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:30:25.056Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Corrected bounded C scout run-O8A5TD created a tame saddled pony; actual map places it south of hero. Target mount/chat not attempted; recorder slot released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-mounted-chat-attempt3-v85-p13-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:31:29.498Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Actual C pony south placement observed; one mounted downward-chat target attempt reserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v85-p06-ball-bear-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:31:34.811Z",
+        "task": "Prep49",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v85-p06-ball-bear",
+        "reason": "C bear-trap pull and two branch RNG calls reached; compare saved partial reached recording before any extra C or replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-04adf027bf607122d75004555185b9bfd4d9b41d",
+        "type": "ready",
+        "at": "2026-10-15T06:32:43.893Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "delivery": "04adf027bf607122d75004555185b9bfd4d9b41d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-v84-only-owned-case-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:33:18.000Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B is idle after submitting the v84 dighole correction; remaining promoted cases are already owned or integrating."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v84-B-dig-04adf027",
+        "type": "received",
+        "at": "2026-10-15T06:33:24.986Z",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
+        "delivery": "04adf027bf607122d75004555185b9bfd4d9b41d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p13-mounted-chat-down-attempt3-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:33:29.157Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Bounded C run-U0iHtG created the pony; map showed southeast, but recipe used south j, so mount/chat target was missed. Recorder slot released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v85-p06-ball-bear-attempt2-jsmatch-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:34:04.530Z",
+        "task": "Prep49",
+        "worker": "Prep-6",
+        "state": "done",
+        "probe": "v85-p06-ball-bear",
+        "reason": "run-BFb6Pi matched attempt2 completely on accepted 7330 JS scorer: 2444 RNG calls, 82 screens/cursors; TT_BEARTRAP pull branch already observed in C; stop without novelty/replay",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-coordinate-correction-v85-p13-attempt4-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:35:23.370Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Programmatic saved C coordinates prove southeast pony (dx1,dy1); one cheap observed ride-selector correction reserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-startup-correction-v85-p05-attempt2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:36:03.473Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "One cheap C-observed startup pager correction for worm geometry scout reserved; no target proof inferred from prior failed setup."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p13-mounted-chat-down-attempt4-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:36:58.584Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Bounded C run-8BWPGS mounted the verified southeast pony; #chat > reached sounds.c:dochat mounted-steed branch and C printed the pony whicker line. Recorder slot released; waiting for JS comparison grant."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-C-investigation-v83-mm-digest-chameleon-action2-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-A2-investigation-v83-mm-slime-transform-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-B-investigation-v83-mm-digest-wraith-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-feedback-v83-C-acid-cmd-stale-boundary-A2-investigation-v83-mm-rust-iron-action2-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:37:30.728Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v85-p13-mounted-chat-down-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:37:36.485Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "C mount and downward pony response reached; accepted-source comparison reserved before independent replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "handle-attempt2-v85-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:37:47.072Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "Corrected C-first geometry scout attempt 2 recording in progress."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-acid-cmd-correction-20261015",
+        "type": "resume",
+        "at": "2026-10-15T06:39:11.672Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-attempt2-v85-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:39:41.619Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "C scout verified live worm, body glyph coordinates and axe inventory; thrown-axe target caller remains untested."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p13-mounted-chat-down-js-run-tuPxk8-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:40:41.010Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "JS comparison run-tuPxk8 finished; target mismatch at #chat down-steed (step 54), JS UnsupportedChatError before C steed domonnoise. No replay run."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-acid-cmd-correction-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:41:18.211Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-038d9bdb98bfb205b9bf2c3d0cf3ef5840ee509b",
+        "type": "ready",
+        "at": "2026-10-15T06:42:43.487Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "038d9bdb98bfb205b9bf2c3d0cf3ef5840ee509b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-replay-prefix-v85-p13-mounted-chat-down-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:42:48.094Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Distinct accepted-source caller failure retained: reserve one bounded independent C replay plus unchanged-input delegated error/prefix capture for exact first-boundary evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-v83-C-acid-038d9bdb",
+        "type": "received",
+        "at": "2026-10-15T06:43:21.389Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "038d9bdb98bfb205b9bf2c3d0cf3ef5840ee509b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-acid-correction-ready-idle-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:43:30.483Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "Acid test correction is ready; current queue sessions are all assigned. Waiting for Root’s next actionable task."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v85-p02-kitten-landmine-handoff-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:43:37.810Z",
+        "task": "Prep49",
+        "worker": "Prep-2",
+        "state": "done",
+        "probe": "v85-p02-kitten-landmine",
+        "reason": "Deferred with valid C placement scout and wall-blocked movement; target weight gate not reached. Carry source-supported hurtle/placement correction into next batch.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v85-p05-thrown-axe-worm-handoff-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:43:44.890Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "done",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "Deferred with preserved C worm/axe geometry scout; no throw or cutworm claimed. Carry observed body geometry and unresolved live-target alignment into next batch.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v85-p08-ball-pit-handoff-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:43:51.746Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "done",
+        "probe": "v85-p08-ball-pit",
+        "reason": "Deferred unexecuted source-designed pit-ball recipe at useful failure-group handoff; no game coverage or exhaustion claim.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-fe9bc84d6441a453d925b92303d847e84ffc661c-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:02.748Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-fe9bc84d6441a453d925b92303d847e84ffc661c-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:02.748Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-fe9bc84d6441a453d925b92303d847e84ffc661c-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:02.748Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-fe9bc84d6441a453d925b92303d847e84ffc661c-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:02.748Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-fe9bc84d6441a453d925b92303d847e84ffc661c-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:02.748Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-C-investigation-v83-mm-digest-chameleon-action2-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-A2-investigation-v83-mm-slime-transform-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-B-investigation-v83-mm-digest-wraith-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-C-investigation-v83-mm-acid-resistant-action1-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "type": "feedback",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v83-source-retry-coordinator-fe9bc84d6441a453d925b92303d847e84ffc661c-A2-investigation-v83-mm-rust-iron-action2-20261015-released",
+        "type": "ready",
+        "at": "2026-10-15T06:44:21.455Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "fe9bc84d6441a453d925b92303d847e84ffc661c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:37.512Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "integration": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:37.512Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "integration": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:37.512Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "integration": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:37.512Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "integration": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-083c12bbf5739b82f70852dcbd2c223ba4f8158b3d57a3ad3f2f0e973d852cb7-A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T06:44:37.512Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "integration": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "validationGroup": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+          "A2-investigation-v83-mm-slime-transform-action1-20261015",
+          "B-investigation-v83-mm-digest-wraith-action1-20261015",
+          "C-investigation-v83-mm-acid-resistant-action1-20261015",
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v85-p13-final-validation-run-53X3kO-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:44:49.412Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "One final bounded C replay and accepted-source capture diagnostic run-53X3kO; waiting for terminal result."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p13-final-validation-run-53X3kO-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:45:10.116Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "C replay matched saved attempt4 byte-for-byte; accepted capture diagnostic confirms UnsupportedHeroCommandBoundaryError at mounted down-steed #chat, with matching prefix through step 53.",
+        "outcome": "failure"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v83-mm-digest-chameleon-action2-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T06:52:31.737Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v83-mm-slime-transform-action1-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T06:52:31.737Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v83-mm-digest-wraith-action1-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T06:52:31.737Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v83-mm-acid-resistant-action1-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T06:52:31.737Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v83-mm-rust-iron-action2-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T06:52:31.737Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v83-mm-digest-chameleon-action2-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T06:53:21.558Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v83-mm-slime-transform-action1-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T06:53:21.558Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v83-mm-digest-wraith-action1-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T06:53:21.558Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v83-mm-acid-resistant-action1-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T06:53:21.558Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v83-mm-rust-iron-action2-20261015-d8f97252d0095956bf3887e1b3b7302b6ac0fb2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T06:53:21.558Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-90f62426f392127b396aed4cd8483f124eefc806",
+        "type": "ready",
+        "at": "2026-10-15T06:54:17.701Z",
+        "task": "Prep49",
+        "delivery": "90f62426f392127b396aed4cd8483f124eefc806"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
-        "worker": "C",
-        "goal": "divergence-v83-monster-digest-virtual-corpse-timer-cleanup-20261015",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "46995d3b15f24c78e4498c6b83b4670613755ac1",
-        "since": "2026-10-15T05:34:49.616Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
-        "worker": "A2",
-        "goal": "isolate-planned-glob-rng-v83-20261015",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "4c1d918a9fb2b2be2b38b74a97ff514ce5632bd0",
-        "since": "2026-10-15T05:36:21.347Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "task": "B-investigation-v84-dig-boulder-pit-action2-20261015",
         "worker": "B",
-        "goal": "fix-mon-consume-wraith-growth-v83-20261015",
+        "goal": "fix-dighole-floor-boulder-deletion-v84-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "d30c9d97a290a78cd607138bec0d87783805e1b6",
-        "since": "2026-10-15T05:38:51.315Z",
+        "delivery": "04adf027bf607122d75004555185b9bfd4d9b41d",
+        "since": "2026-10-15T06:32:43.893Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
-        "worker": "C",
-        "goal": "divergence-v83-monster-acid-resistant-attack-20261015",
-        "kind": "implementation",
+        "task": "Prep49",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "97559d16c33607227a5293f0c360daa6659853ed",
-        "since": "2026-10-15T05:56:23.552Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
-        "worker": "A2",
-        "goal": "fix-rust-monster-floor-goal-rng-v83-20261015",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0d6620905edc4884d2342ff8cb6021f8122af8ec",
-        "since": "2026-10-15T05:57:45.803Z",
+        "delivery": "90f62426f392127b396aed4cd8483f124eefc806",
+        "batch": "v85",
+        "since": "2026-10-15T06:54:17.701Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -134751,155 +135711,33 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "A2-investigation-v83-mm-slime-transform-action1-20261015": {
-        "id": "A2-investigation-v83-mm-slime-transform-action1-20261015",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v83/v83-mm-slime-transform-action1",
-        "reservations": [
-          "session:synthetic/v83/v83-mm-slime-transform-action1",
-          "source:mkobj.c:obj_nexto",
-          "source:mkobj.c:obj_nexto_xy",
-          "source:mon.c:make_corpse",
-          "source:do.c:flooreffects"
-        ]
-      },
-      "C-investigation-v83-mm-digest-chameleon-action2-20261015": {
-        "id": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v83/v83-mm-digest-chameleon-action2",
-        "reservations": [
-          "session:synthetic/v83/v83-mm-digest-chameleon-action2",
-          "source:uhitm.c:mhitm_ad_dgst"
-        ]
-      },
-      "B-investigation-v83-mm-digest-wraith-action1-20261015": {
-        "id": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+      "B-investigation-v84-dig-boulder-pit-action2-20261015": {
+        "id": "B-investigation-v84-dig-boulder-pit-action2-20261015",
         "worker": "B",
         "status": "ready",
-        "seed": "synthetic/v83/v83-mm-digest-wraith-action1",
+        "seed": "synthetic/v84/v84-dig-boulder-pit-action2",
         "reservations": [
-          "session:synthetic/v83/v83-mm-digest-wraith-action1",
-          "source:mon.c:m_consume_obj"
-        ]
-      },
-      "C-investigation-v83-mm-acid-resistant-action1-20261015": {
-        "id": "C-investigation-v83-mm-acid-resistant-action1-20261015",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v83/v83-mm-acid-resistant-action1",
-        "reservations": [
-          "session:synthetic/v83/v83-mm-acid-resistant-action1",
-          "source:uhitm.c:mhitm_ad_acid",
-          "source:uhitm.c:mhitm_adtyping"
-        ]
-      },
-      "A2-investigation-v83-mm-rust-iron-action2-20261015": {
-        "id": "A2-investigation-v83-mm-rust-iron-action2-20261015",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v83/v83-mm-rust-iron-action2",
-        "reservations": [
-          "session:synthetic/v83/v83-mm-rust-iron-action2",
-          "source:dogmove.c:dog_goal",
-          "source:zap.c:zap_over_floor",
-          "contract:planning-vision-transparency",
-          "source:mon.c:movemon_singlemon"
+          "session:synthetic/v84/v84-dig-boulder-pit-action2",
+          "source:dig.c:dighole"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v83/v83-mm-slime-transform-action1": {
+      "session:synthetic/v84/v84-dig-boulder-pit-action2": {
         "tasks": [
-          "A2-investigation-v83-mm-slime-transform-action1-20261015"
+          "B-investigation-v84-dig-boulder-pit-action2-20261015"
         ]
       },
-      "source:mkobj.c:obj_nexto": {
+      "source:dig.c:dighole": {
         "tasks": [
-          "A2-investigation-v83-mm-slime-transform-action1-20261015"
-        ]
-      },
-      "source:mkobj.c:obj_nexto_xy": {
-        "tasks": [
-          "A2-investigation-v83-mm-slime-transform-action1-20261015"
-        ]
-      },
-      "source:mon.c:make_corpse": {
-        "tasks": [
-          "A2-investigation-v83-mm-slime-transform-action1-20261015"
-        ]
-      },
-      "source:do.c:flooreffects": {
-        "tasks": [
-          "A2-investigation-v83-mm-slime-transform-action1-20261015"
-        ]
-      },
-      "session:synthetic/v83/v83-mm-digest-chameleon-action2": {
-        "tasks": [
-          "C-investigation-v83-mm-digest-chameleon-action2-20261015"
-        ]
-      },
-      "source:uhitm.c:mhitm_ad_dgst": {
-        "tasks": [
-          "C-investigation-v83-mm-digest-chameleon-action2-20261015"
-        ]
-      },
-      "session:synthetic/v83/v83-mm-digest-wraith-action1": {
-        "tasks": [
-          "B-investigation-v83-mm-digest-wraith-action1-20261015"
-        ]
-      },
-      "source:mon.c:m_consume_obj": {
-        "tasks": [
-          "B-investigation-v83-mm-digest-wraith-action1-20261015"
-        ]
-      },
-      "session:synthetic/v83/v83-mm-acid-resistant-action1": {
-        "tasks": [
-          "C-investigation-v83-mm-acid-resistant-action1-20261015"
-        ]
-      },
-      "source:uhitm.c:mhitm_ad_acid": {
-        "tasks": [
-          "C-investigation-v83-mm-acid-resistant-action1-20261015"
-        ]
-      },
-      "source:uhitm.c:mhitm_adtyping": {
-        "tasks": [
-          "C-investigation-v83-mm-acid-resistant-action1-20261015"
-        ]
-      },
-      "session:synthetic/v83/v83-mm-rust-iron-action2": {
-        "tasks": [
-          "A2-investigation-v83-mm-rust-iron-action2-20261015"
-        ]
-      },
-      "source:dogmove.c:dog_goal": {
-        "tasks": [
-          "A2-investigation-v83-mm-rust-iron-action2-20261015"
-        ]
-      },
-      "source:zap.c:zap_over_floor": {
-        "tasks": [
-          "A2-investigation-v83-mm-rust-iron-action2-20261015"
-        ]
-      },
-      "contract:planning-vision-transparency": {
-        "tasks": [
-          "A2-investigation-v83-mm-rust-iron-action2-20261015"
-        ]
-      },
-      "source:mon.c:movemon_singlemon": {
-        "tasks": [
-          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+          "B-investigation-v84-dig-boulder-pit-action2-20261015"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
-    "measuredAt": "2026-10-15T06:08:25.175Z",
+    "executionCommit": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+    "measuredAt": "2026-10-15T06:50:46.863Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
