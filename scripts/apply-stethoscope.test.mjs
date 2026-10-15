@@ -3474,7 +3474,7 @@ test('its_dead uses the supplied monster catalog for tiny statues',
 
 test('ustatusline appends its status clauses in C order', async () => {
     await runSegment({ ...segmentFor('ac.'), moves: '.' });
-    // insight.c:3453-3455 reads Glib's intrinsic timeout, then delegates the
+    // insight.c:3453-3454 reads Glib's intrinsic value and delegates the
     // body-part wording to fingers_or_gloves(TRUE). This case has bare hands.
     game.uarmg = null;
     game.u.uprops[GLIB].intrinsic = 7;
@@ -3485,7 +3485,7 @@ test('ustatusline appends its status clauses in C order', async () => {
     assert.equal(
         statusLine(),
         'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  AC 8'
-        + ', slippery fingers (7).',
+        + ', slippery fingers.',
     );
     game.u.uprops[GLIB].intrinsic = 0;
     game.wizard = false;

@@ -3221,11 +3221,8 @@ export async function ustatusline(state = game) {
         if (legs === BOTH_SIDES) what = makeplural(what);
         info += `, injured ${what}`;
     }
-    const glib = Number(properties[GLIB]?.intrinsic ?? 0);
-    if (glib) {
+    if (properties[GLIB]?.intrinsic)
         info += `, slippery ${fingers_or_gloves(true, state)}`;
-        if (state.wizard) info += ` (${glib & TIMEOUT})`;
-    }
     if (u.utrap) info += ', trapped';
     const fastIntrinsic = Number(properties[FAST]?.intrinsic ?? 0);
     const fastExtrinsic = Number(properties[FAST]?.extrinsic ?? 0);
