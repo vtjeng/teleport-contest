@@ -11,7 +11,8 @@
   "remainingScreens": 7,
   "recordedSteps": 340,
   "status": "complete",
-  "commit": "f2e3cda191eb9084334e54f1de9e9b98a19771db",
+  "commit": "e9c58b659d18d3fc385785c81a44b94ba2de0bf8",
+  "diagnosisBase": "f2e3cda191eb9084334e54f1de9e9b98a19771db",
   "mismatch": {
     "session": "synthetic/v79/v79-amulet-portal-action2",
     "remainingScreens": 7,
@@ -32,7 +33,7 @@
       "actual": "rn2(94)=14 @ moveloop_core(allmain.c:360)"
     }
   },
-  "summary": "The first mismatch is the omitted per-turn wizard.c:amulet call in allmain.c:moveloop_core. At step 211 the hero wears the real Amulet, so C draws rn2(15) before the later engraving roll. At step 245, the successful roll emits the hot-portal message for the nearby magic portal. The selected function also contains a sleeping Wizard wake branch; the admitted case has not demonstrated that branch, so this task will not claim it without separate matching runtime evidence.",
+  "summary": "The first mismatch was the omitted per-turn wizard.c:amulet call in allmain.c:moveloop_core. JavaScript now calls the helper after invault and before engraving wear, matching the C rng and hot-portal output; the exact v79 replay matches all 340 screens, 2,646 rng calls, and 340 cursors. A separate matching recording reaches the sleeping Wizard check with rn2(40)=6. The source's successful rn2(40)=0 outcome is implemented but remains unverified in recorded play and is not claimed as runtime-complete.",
   "source": {
     "file": "wizard.c",
     "functions": ["amulet"],
@@ -50,6 +51,60 @@
   "evidence": [
     "The official v79 evaluation reports 333/340 screens, 2,447/2,646 RNG calls, and 340/340 cursors, with error null. Its first RNG mismatch is segment 0 step 211, key a: C rn2(15)=9 in wizard.c:amulet is absent; JS instead reaches moveloop_core's rn2(94)=14.",
     "The exact C recording shows that step 211 wears the real Amulet, and step 245 consumes rn2(15)=0 in amulet then prints 'The Amulet of Yendor feels hot!' for the nearby magic portal. The admitted case and saved C replay have identical recording SHA-256.",
-    "C source wizard.c:61-103 and allmain.c:moveloop_core:359-360 establish the helper behavior, its caller guard, ordering after invault and before engraving RNG, and the separate sleeping-Wizard branch."
-  ]
+    "C source wizard.c:61-103 and allmain.c:moveloop_core:359-360 establish the helper behavior, its caller guard, ordering after invault and before engraving RNG, and the separate sleeping-Wizard branch.",
+    "Implementation e9c58b659d18d3fc385785c81a44b94ba2de0bf8 adds js/wizard.js:amulet and wires it into js/allmain.js:finishElapsedTurnAfterHunger after invault and before maybeWipeHeroEngraving. It uses existing Tobjnam, dist2, and m_next2u ports and passes the live or planning random/message seams.",
+    "The exact v79 replay after implementation matches 340/340 screens, 2,646/2,646 RNG calls, 340/340 cursors, and zero animation frames with no error. synthetic-range-evidence confirms segment 0 through step 245, including the hot portal message.",
+    "The independent recipe and C recording under recipes/wizard.c/ and recordings/wizard.c/ match all 184 screens, 2,928 RNG calls, and 184 cursors. C reaches amulet(wizard.c:95) with rn2(40)=6 after the Wizard is generated. This records the nonzero no-wake outcome; the successful zero outcome remains explicitly unverified.",
+    "Focused scripts/wizard.test.mjs and scripts/allmain-turn.test.mjs pass all 86 tests; npm run lint passes."
+  ],
+  "implementation": {
+    "commit": "e9c58b659d18d3fc385785c81a44b94ba2de0bf8",
+    "source": "js/wizard.js:amulet follows wizard.c:amulet portal selection, first-portal chain order, distu thresholds, and sleeping Wizard scan. js/allmain.js:finishElapsedTurnAfterHunger calls it under uhave.amulet after invault and before engraving RNG.",
+    "focusedTest": "scripts/wizard.test.mjs",
+    "admittedSynthetic": {
+      "batch": "v79",
+      "caseId": "v79-amulet-portal-action2",
+      "segment": 0,
+      "fromStep": 211,
+      "throughStep": 245,
+      "matchedScreens": 35,
+      "matchedRng": 32,
+      "matchedCursors": 35,
+      "source": "allmain.c:moveloop_core -> wizard.c:amulet; real worn Amulet hint roll and nearby MAGIC_PORTAL hot feedback."
+    },
+    "replay": {
+      "batch": "v79",
+      "caseId": "v79-amulet-portal-action2",
+      "segment": 0,
+      "matchedScreens": 340,
+      "totalScreens": 340,
+      "matchedRng": 2646,
+      "totalRng": 2646,
+      "matchedCursors": 340,
+      "totalCursors": 340,
+      "error": null
+    },
+    "recording": {
+      "recipe": "recipes/wizard.c/amulet-wakes-sleeping-wizard.session.json",
+      "path": "recordings/wizard.c/amulet-wakes-sleeping-wizard.session.json",
+      "segment": 0,
+      "fromStep": 83,
+      "throughStep": 84,
+      "matchedScreens": 184,
+      "totalScreens": 184,
+      "matchedRng": 2928,
+      "totalRng": 2928,
+      "matchedCursors": 184,
+      "totalCursors": 184,
+      "error": null,
+      "coverage": "Sleeping Wizard is scanned; C records rn2(40)=6, so the successful zero outcome is not claimed."
+    },
+    "checks": [
+      "node --test scripts/wizard.test.mjs scripts/allmain-turn.test.mjs: 86 passed",
+      "npm run lint: passed",
+      "exact v79 replay: 340 screens, 2646 RNG calls, 340 cursors, no error",
+      "independent Wizard recording replay: 184 screens, 2928 RNG calls, 184 cursors, no error",
+      "synthetic-range-evidence: v79 segment 0 through step 245 matched"
+    ]
+  }
 }
