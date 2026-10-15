@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T04:40:16.408Z",
+  "capturedAt": "2026-10-15T04:59:52.678Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -131914,6 +131914,32 @@
         "task": "Prep46",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep46-12b0eb941989675d49342fe14eb7b11376327b22",
+        "type": "published",
+        "at": "2026-10-15T04:40:25.514Z",
+        "task": "Prep46",
+        "commit": "12b0eb941989675d49342fe14eb7b11376327b22"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep47-v83-combat-continuations-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:40:43.999Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep47 has24 first C pairs and nine independent replays. Continuing combat branch checks and the source-traced poison-cloud first divergence;the coordinator hold is released and no blocker is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep47-first-cause-review-root",
+        "type": "activity",
+        "at": "2026-10-15T04:56:49.260Z",
+        "task": "Prep47",
+        "phase": "review",
+        "reason": "Reviewing saved v83 first-cause distinctions and closest prior C callers while preparation finishes."
       }
     ]
   },

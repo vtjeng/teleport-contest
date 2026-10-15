@@ -8,10 +8,10 @@
   "manifestPath": "challenges/manifests/v48.json",
   "manifestSha256": "4e0e248c59660bdac39967e2cfd26291e6bcd23f4e54927702ffcba6b30ddba2",
   "recordingSha256": "9e7b91d51430831431fab258a2c212b357a795a546affdcbec72012630731899",
-  "evaluationPath": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v48.json",
-  "evaluationCommit": "5634567626a2300fafc2a91ef8a10ca138f5edab",
+  "evaluationPath": "challenges/evaluations/accepted-c5f33826f6669b10f83edf5ab842d5828d671342-v48.json",
+  "evaluationCommit": "c5f33826f6669b10f83edf5ab842d5828d671342",
   "status": "complete",
-  "commit": "962c2521305f76d8ee8ae4b95b872f09d41394c8",
+  "commit": "c5f33826f6669b10f83edf5ab842d5828d671342",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v48",
@@ -24,11 +24,11 @@
     "recordingSha256": "9e7b91d51430831431fab258a2c212b357a795a546affdcbec72012630731899",
     "recipe": "challenges/cases/v48/v48-short-version-command-attempt1.recipe.session.json",
     "recipeSha256": "d31b3267d8d8cb349bf6c0f5baf679547e5724eb06d4a945e4612a74818ff403",
-    "replayInputSha256": "a7b1787f4b9874105a98b35622d6776f054df087c1d164fc2f9985c22bfb00c6",
-    "evaluationPath": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v48.json",
-    "evaluationCommit": "5634567626a2300fafc2a91ef8a10ca138f5edab",
-    "evaluationArtifact": "challenges/evaluations/accepted-5634567626a2300fafc2a91ef8a10ca138f5edab-v48.json",
-    "evaluationUtc": "2026-10-13T18:32:20.690Z",
+    "replayInputSha256": "1100b25e529879786b62ef385c2e9634d40ed33c724b950460a92cf6dc057ad8",
+    "evaluationPath": "challenges/evaluations/accepted-c5f33826f6669b10f83edf5ab842d5828d671342-v48.json",
+    "evaluationCommit": "c5f33826f6669b10f83edf5ab842d5828d671342",
+    "evaluationArtifact": "challenges/evaluations/accepted-c5f33826f6669b10f83edf5ab842d5828d671342-v48.json",
+    "evaluationUtc": "2026-10-15T04:16:50.820Z",
     "remainingScreens": 1,
     "recordedSteps": 2,
     "previousScreensMatched": 1,
@@ -45,28 +45,50 @@
         "total": 2897
       },
       "cursors": {
-        "matched": 1,
+        "matched": 2,
         "total": 2
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, prevmsg, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
-      "step": 1
+      "screen": {
+        "index": 1,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 1,
+          "key": "V"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "U",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "M",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
     },
     "step": 1,
-    "kind": "stop",
+    "kind": "screen",
     "sourceFile": null,
     "function": null,
-    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, prevmsg, call, name, eat, engrave, apply, rub, open, close, down, up, drop, droptype, pickup, pay, takeoff, takeoffall, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, wizcast, wizsmell, wizkill, fire, throw, swap, kick, panic, wizshownhuuid, lightsources, ?, save, wield, quiver, help, whatdoes, whatis, showtrap, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, redraw, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+    "message": null,
     "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The direct V key is rejected at the repeated-command boundary and has no doversion handler. After dispatch was added, the v48 recording exposed a second mismatch: JS reported the macOS recorder version while the patched C build reports Unix. The short branch therefore required both command admission/dispatch and the correct Unix getversionstring value. An independent mV recording now verifies the menu-requested path through doextversion.",
+  "summary": "The V short-version command now runs. The latest accepted replay matches all 2897 RNG calls and both cursors; its remaining screen mismatch is Unix NetHack in the Linux C recording versus MacOS NetHack in the retained judge build profile. This valid recording is parked as a build-profile exception; it does not identify remaining gameplay behavior to implement.",
   "source": {
     "file": "version.c",
-    "branch": "getversionstring emits the configured nomakedefs.version_id and optional build metadata; the patched recorder is a released Unix build with no optional metadata. doversion returns doextversion when menu_requested is set; otherwise it calls pline with getversionstring and returns ECMD_OK.",
+    "branch": "version.c:getversionstring emits the configured build version_id. The Linux C capture uses Unix; the retained JavaScript judge profile uses MacOS. doversion command dispatch now reaches the version output, and the remaining difference is the build label rather than command admission.",
     "functions": [
       "getversionstring",
       "doversion"
@@ -83,11 +105,11 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "The accepted v48 evaluation reports 1/2 screens and cursors matched, all 2897 RNG calls matched, and a first stop at segment 0 step 1 because JS rejects the hero command at the repeated-command boundary. The saved queue preserves the exact manifest, recording and evaluation hashes above.",
-    "The v48 manifest identifies the C entry point as version.c:doversion via V / #versionshort. In upstream cmd.c:1926-1927, the V row is named versionshort and maps to doversion. In upstream version.c:156-165, doversion returns doextversion when menu_requested is set; otherwise it calls pline(\"%s\", getversionstring(...)) and returns ECMD_OK.",
-    "The production JavaScript key table has the corresponding V/versionshort/doversion row in js/extcmdlist_data.js. However, js/cmd.js:1905-1916 omits versionshort from ADMITTED_COMMANDS, so rhack refuses it before dispatch. The doextcmd switch has a doextversion case but no doversion case. js/version.js exports getversionstring() and doextversion(), but no doversion(). The recorder short-version string itself is already represented by getversionstring().",
-    "The recording has exactly one gameplay input, V, after its initial screen; C produces the short version message without an RNG call or turn. The implementation scope is version.c:doversion plus its existing V command dispatch/admission path; the version-string helper and extended-version branch already exist.",
-    "After adding the command dispatch, the v48 recording reached the short-version output and exposed the platform identifier mismatch: the patched Unix C recorder emits Unix NetHack while JavaScript emitted MacOS NetHack. Correcting the release recorder version identifier resolves that output difference. scripts/version.test.mjs pins the exact C string.",
-    "The independent recipes/version/versionshort-menu-prefix-independent.session.json recording uses mV to reach iflags.menu_requested and matches JavaScript across all 3 screens, cursors, and 3096 RNG calls, exercising doversion -> doextversion."
+    "Latest accepted evaluation challenges/evaluations/accepted-c5f33826f6669b10f83edf5ab842d5828d671342-v48.json, measured at c5f33826f6669b10f83edf5ab842d5828d671342: 1/2 screens, 2/2 cursors and 2897/2897 RNG calls match, error null. At segment0 step1/key V, the first screen cell is C U versus JS M (Unix versus MacOS).",
+    "The admitted v48 manifest preserves an independent byte-identical C replay of the two-boundary recording. The recording is valid for the Linux reference build; no corrupt cursor or incomplete recording is alleged.",
+    "The earlier investigation found a missing V/versionshort dispatch. That diagnosis is superseded by the current replay, which reaches the short-version output and matches both cursor boundaries. Historical findings remain in Git.",
+    "js/version.js retains the MacOS recorder version_id; scripts/version.test.mjs documents that judge-profile choice. Source getversionstring behavior depends on the C build profile. Changing the label to Unix would not resolve cross-profile validation.",
+    "Parked tasks preserve commits4f13891af and15e869a33 and their private normalized V/mV comparisons. Those comparisons are diagnostic evidence, not a raw matching recording; no whole-source completion is claimed.",
+    "Reopen when a supported matching recorder/build profile or an approved comparison-profile rule is available. Preserve original recipes, recordings and historical evaluations."
   ]
 }
