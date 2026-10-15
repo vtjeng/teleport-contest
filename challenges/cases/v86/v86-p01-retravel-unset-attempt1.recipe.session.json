@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Prep50 C-first case for cmd.c:dotravel_target()'s unset travelcc guard. The leading space dismisses startup welcome; #retravel is invoked without first setting a travel destination.",
+  "segments": [
+    {
+      "seed": 86015421,
+      "datetime": "20850606121700",
+      "nethackrc": "OPTIONS=name:RetravelUnset86,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #retravel\n"
+    }
+  ]
+}
