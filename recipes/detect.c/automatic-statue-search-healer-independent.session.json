@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent detect.c:dosearch0(1) witness. Use the debug level/floor tools to create an unseen statue trap on the current square, then activate intrinsic Searching with a wished ring, step off the trap, and wait in range. The movement-loop caller should reveal the adjacent trap by automatic search; this does not use the explicit s command or step onto the trap.",
+  "segments": [
+    {
+      "seed": 76106117,
+      "datetime": "20930417114600",
+      "nethackrc": "OPTIONS=name:AutoStatueHealer,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#levelchange\n24\n                        h#optionsfull\n:debug_mongen\n\n\u0017statue trap\nh\u0017ring of searching\nPar m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

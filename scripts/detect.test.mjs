@@ -1662,7 +1662,7 @@ test('automatic search scans x-major and only draws for source candidates', asyn
     random.done();
 });
 
-test('a missed statue search draws before requiring its hit operation', async () => {
+test('a selected statue search activates after its draw and stops the scan', async () => {
     const state = searchState();
     const trap = {
         tx: 9,
@@ -1685,17 +1685,21 @@ test('a missed statue search draws before requiring its hit operation', async ()
 
     events.length = 0;
     random = scriptedRandom(events, [0]);
-    await assert.rejects(
-        dosearch0(1, {
-            state,
-            random,
-            ...recordingOperations(state, events),
-        }),
-        /requires activateStatueTrap for a statue trap/,
-    );
-    assert.deepEqual(events, ['rnl(8)']);
+    assert.equal(await dosearch0(1, {
+        state,
+        random,
+        ...recordingOperations(state, events),
+        activateStatueTrap(trapArg, x, y, shatter) {
+            events.push(`activateStatueTrap(${x},${y},${shatter})`);
+            assert.equal(trapArg, trap);
+            return null; // No statue occupies the fixture square.
+        },
+    }), 1);
+    assert.deepEqual(events, [
+        'rnl(8)', 'nomul(0)', 'activateStatueTrap(9,9,false)',
+    ]);
     assert.equal(trap.tseen, false);
-    assert.equal(state.multi, 4);
+    assert.equal(state.multi, 0);
     random.done();
 });
 
@@ -1729,29 +1733,10 @@ const FOUND_DOOR_EVENTS = Object.freeze([
     'message(9,9,You find a hidden door.)',
 ]);
 
-// C keeps the remaining unported explicit-search branches behind the same
-// source flag split. The mfind0() discovery arms are implemented below;
-// UnsupportedSearchError belongs to the remaining explicit `s` command gaps,
-// which js/cmd.js failClosedCommand() converts into a retryable boundary.
-// allmain.c:342-344 drives the automatic arm from moveloop_core(), where no
-// converting wrapper exists, so a refusal that leaked across the aflag split
-// would escape runSegment() and cost the segment every screen it matched.
-test('every explicit search refusal leaves the automatic arm intact', async () => {
+// The remaining explicit-search refusal is find_trap()'s hallucinatory arm.
+// Statue activation and swallowed searching now reach the source behavior.
+test('the remaining explicit search refusal leaves automatic search intact', async () => {
     const rows = [
-        // detect.c:2079-2088 is the one block C does not gate on aflag, so the
-        // automatic arm reaches the same two unported branches. It refuses
-        // them from preflightTrap() as plain Errors, after the rnl(8) that
-        // selects the square -- never as UnsupportedSearchError. A miss here
-        // is what lets the automatic row finish; the hit is pinned separately,
-        // 'a missed statue search draws before requiring its hit operation'
-        // and 'cluttered and hallucinatory trap finds reveal, wait, then
-        // redraw'.
-        ['an adjacent statue trap', (state) => {
-            state.level.traps.push({
-                tx: 11, ty: 11, ttyp: STATUE_TRAP, tseen: false,
-            });
-        }, /activate_statue_trap\(\)/, [0, 1],
-        [...FOUND_DOOR_EVENTS, 'rnl(8)']],
         ['a hallucinatory trap find', (state) => {
             state.u.uprops[HALLUC] = {
                 intrinsic: 1, extrinsic: 0, blocked: 0,
@@ -1761,12 +1746,6 @@ test('every explicit search refusal leaves the automatic arm intact', async () =
             });
         }, /hallucinatory display/, [0, 1],
         [...FOUND_DOOR_EVENTS, 'rnl(8)']],
-        // detect.c:2022-2024 skips the whole loop for both flags and answers
-        // only the explicit search, through Norep(). The empty draw list is
-        // what separates this row from the ten above.
-        ['a swallowed hero', (state) => {
-            state.u.uswallow = true;
-        }, /searching while swallowed is not ported/, [], []],
     ];
 
     for (const [label, setup, expected, rnlResults, expectedEvents] of rows) {
@@ -2308,21 +2287,46 @@ test('findone scans global floor order for stacked trapped boxes', async () => {
 // boundary, and anything else escapes runSegment() and costs the segment every
 // screen it had already matched. The class assertion is the point of these two
 // cases; asserting the message alone passed while the refusal was a bare Error.
-test('explicit search refuses an adjacent statue trap before any draw', async () => {
-    // The automatic arm refuses the same trap only after its rnl(8) hits.
+test('explicit search activates an adjacent statue trap after its hit draw', async () => {
     const state = explicitSearchState();
-    state.level.at(9, 9).typ = SDOOR;
-    state.level.traps.push({
+    const trap = {
         tx: 11, ty: 11, ttyp: STATUE_TRAP, tseen: false,
-    });
+    };
+    state.level.traps.push(trap);
+    const events = [];
+    const random = scriptedRandom(events, [0]);
+
+    assert.equal(await dosearch0(0, {
+        state, random, ...recordingOperations(state, events),
+        activateStatueTrap(trapArg, x, y, shatter) {
+            events.push(`activateStatueTrap(${x},${y},${shatter})`);
+            assert.equal(trapArg, trap);
+            return null; // The empty square has no statue to animate.
+        },
+    }), 1);
+    assert.deepEqual(events, [
+        'rnl(8)', 'nomul(0)', 'activateStatueTrap(11,11,false)',
+    ]);
+    assert.equal(trap.tseen, false);
+    random.done();
+});
+
+test('explicit search while swallowed prints the Norep answer and consumes time', async () => {
+    const state = explicitSearchState();
+    state.u.uswallow = true;
     const events = [];
     const random = scriptedRandom(events, []);
 
-    await assert.rejects(dosearch0(0, {
-        state, random, ...recordingOperations(state, events),
-    }), (error) => error instanceof UnsupportedSearchError
-        && /activate_statue_trap\(\) is not ported/.test(error.message));
-    assert.deepEqual(events, []);
+    assert.equal(await dosearch0(0, {
+        state,
+        random,
+        norepMessage(message) {
+            events.push(`norep(${message})`);
+        },
+    }), 1);
+    assert.deepEqual(events, [
+        'norep(What are you looking for?  The exit?)',
+    ]);
     random.done();
 });
 

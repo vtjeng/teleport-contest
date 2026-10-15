@@ -194,7 +194,7 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { visible_region_at } from './region.js';
-import { rn2, rnd, rnl, rn2_on_display_rng } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } from './rng.js';
 import { hidden_gold } from './vault.js';
 import {
     MAXMCLASSES,
@@ -218,6 +218,7 @@ import {
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
 import { heroIsBlind } from './startup_a11y.js';
 import {
+    activate_statue_trap as trapActivateStatueTrap,
     b_trapped, openfallingtrap, openholdingtrap, t_at, trapname,
 } from './trap.js';
 import { wake_nearto } from './mon.js';
@@ -2065,7 +2066,11 @@ function injectedOperation(rawEnv, name) {
 
 function normalizeSearchEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? (state === game ? { rn2, rnl } : {});
+    // Statue activation can create a monster through trap.c animate_statue()
+    // and makemon(). Keep the full shared random interface available to that
+    // callee; explicit-search draws still use the same rn2/rnl functions.
+    const random = rawEnv.random ?? (state === game
+        ? { d, rn1, rn2, rnd, rne, rnl, rnz } : {});
 
     const injected = new Set();
     const operation = (name, fallback) => {
@@ -2117,7 +2122,27 @@ function normalizeSearchEnv(rawEnv = {}) {
             defaultRevealFoundTrap,
         ),
         waitFoundTrap: operation('waitFoundTrap', defaultWaitFoundTrap),
-        activateStatueTrap: operation('activateStatueTrap', null),
+        activateStatueTrap: operation(
+            'activateStatueTrap',
+            (trap, x, y, shatter, trapEnv) => trapActivateStatueTrap(
+                trap, x, y, shatter, {
+                    ...trapEnv,
+                    state,
+                    // trap.c animate_statue() owns ordinary pline-style
+                    // messages, while detect's search operation accepts
+                    // coordinates and an operation environment.
+                    message: (text, targetState = state) =>
+                        ttyPline(text, targetState),
+                    norepMessage: (text, targetState = state) =>
+                        ttyNorep(text, targetState),
+                },
+            ),
+        ),
+        norepMessage: operation(
+            'norepMessage',
+            state === game && !rawEnv.planning
+                ? ttyNorep : silentSearchMessage,
+        ),
         exerciseWisdom: operation(
             'exerciseWisdom',
             defaultExerciseWisdom,
@@ -2263,12 +2288,9 @@ function preflightSearchMonster(monster, env) {
 function preflightExplicitSearch(env) {
     const { state } = env;
     const { u } = state;
-    // detect.c:2020-2022 answers a swallowed hero through Norep().
-    if (u.uswallow) {
-        throw new UnsupportedSearchError(
-            'searching while swallowed is not ported',
-        );
-    }
+    // detect.c:2020-2022 skips the search loop when swallowed. No operation
+    // or random draw is needed until dosearch0() emits its Norep message.
+    if (u.uswallow) return;
     for (let x = u.ux - 1; x < u.ux + 2; ++x) {
         for (let y = u.uy - 1; y < u.uy + 2; ++y) {
             if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
@@ -2288,25 +2310,6 @@ function preflightExplicitSearch(env) {
             // of its arms are ported now, and neither draws.
             const trap = t_at(x, y, state);
             if (trap && !trap.tseen) {
-                // Two source branches the port does not own. They are refused
-                // here, with the class js/cmd.js failClosedCommand() converts
-                // into a retryable command boundary, rather than inside
-                // preflightTrap(). That function's other checks catch a
-                // misconfigured env rather than an unported branch.
-                //
-                // detect.c:2079-2088 is the one block dosearch0() does not
-                // gate on aflag, so the automatic arm reaches these same two
-                // branches and refuses them from preflightTrap() as plain
-                // Errors, after the rnl(8) that selected the square. Those two
-                // escape runSegment() rather than ending a segment, because
-                // the turn loop converts nothing; neither is reachable by a
-                // case this port can record today, and js/allmain.js records
-                // that derivation beside the automatic call.
-                if (trap.ttyp === STATUE_TRAP) {
-                    throw new UnsupportedSearchError(
-                        'detect.c activate_statue_trap() is not ported',
-                    );
-                }
                 if (hallucinating(state)) {
                     throw new UnsupportedSearchError(
                         "detect.c find_trap()'s hallucinatory display is not "
@@ -2850,9 +2853,13 @@ export async function dosearch0(aflag, rawEnv = {}) {
         throw new Error('searching requires an initialized hero and level');
     }
     if (explicit) preflightExplicitSearch(env);
-    // detect.c prints "What are you looking for?  The exit?" through Norep()
-    // for an explicit search; the preflight above has already refused that.
-    if (u.uswallow) return 1;
+    // detect.c:2020-2022 skips the loop while swallowed and answers an
+    // explicit search through Norep(); the command still consumes this turn.
+    if (u.uswallow) {
+        if (explicit)
+            await env.norepMessage('What are you looking for?  The exit?', state);
+        return 1;
+    }
     if (typeof env.random.rnl !== 'function') {
         throw new TypeError('searching requires random.rnl');
     }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap role variation for the independent detect.c:dosearch0(1) witness: debug-create an unseen statue trap on the current square, wish and wear a ring of searching, step off, then wait in range for the allmain.c intrinsic-search caller to reveal the trap. The route exercises automatic search rather than explicit s or stepping onto the trap.",
+  "segments": [
+    {
+      "seed": 76106118,
+      "datetime": "20940823091700",
+      "nethackrc": "OPTIONS=name:AutoStatueWizard,role:Wizard,race:human,gender:male,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#levelchange\n24\n                        h#optionsfull\n:debug_mongen\n\n\u0017statue trap\nj\u0017ring of searching\nPar m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

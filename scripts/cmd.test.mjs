@@ -5127,12 +5127,7 @@ test('every nonzero-key rhack entry counts one logical dispatch', async () => {
     assert.equal(game._commandDispatchCount, before + 2);
 });
 
-test('an adjacent statue trap stops retryably at the `s` key', async () => {
-    // detect.c dosearch0() would reach activate_statue_trap(), which is not
-    // ported. This refusal was a bare Error until the audit of
-    // e30ea05..d1a71f7: failClosedCommand() converts only the Unsupported*
-    // classes, so the segment died and lost every screen it had matched
-    // instead of stopping at a boundary the player can retry.
+test('an adjacent statue trap activates through the production `s` command', async () => {
     const replay = await runSegment({
         seed: 9300001,
         datetime: COMMAND_DATETIME,
@@ -5142,41 +5137,21 @@ test('an adjacent statue trap stops retryably at the `s` key', async () => {
         moves: '',
     });
     const drawsBefore = replay.getRngLog().length;
-    // A secret door on the first square the traversal visits. dosearch0() runs
-    // x from ux-1 and y from uy-1, so this square precedes the trap; its
-    // rnl(7 - fund) is what a refusal decided inside the loop would spend
-    // before ever reaching the statue. Without it the PRNG assertion below
-    // holds for both the right and the wrong placement, because nothing else
-    // in this hero's 3x3 draws.
+    // This adjacent secret door is visited before the trap because
+    // dosearch0() traverses x-major then y-minor from ux-1, uy-1. It confirms
+    // the search continues to the later unseen statue after the door draw.
     game.level.at(game.u.ux - 1, game.u.uy - 1).typ = SDOOR;
-    // STATUE_TRAP on a later square, unseen so the search would find it.
-    game.level.traps.push({
+    // This unseen adjacent trap is selected by the next rnl(8) result.
+    const statueTrap = {
         tx: game.u.ux + 1, ty: game.u.uy, ttyp: STATUE_TRAP, tseen: false,
-    });
+    };
+    game.level.traps.push(statueTrap);
     const searchKey = commandKeyCode('s');
     game.nhDisplay.pushKey(searchKey);
 
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === searchKey
-            && /activate_statue_trap\(\) is not ported/.test(error.message),
-    );
-    // Nothing was spent and no turn elapsed: the preflight settled the whole
-    // 3x3 before the loop reached the secret door, so the command is still
-    // retryable and the segment keeps its prefix.
-    assert.equal(replay.getRngLog().length, drawsBefore);
-    assert.deepEqual(replay.getRngSlices().at(-1), []);
-    assert.equal(game.moves, 1);
-    assert.equal(game.context.move, 0);
-    // The whole parsed command is retained, not the keystroke: parse() has
-    // consumed any count and no retry resumes inside get_count().
-    assert.deepEqual(game.context.pendingCommand, {
-        key: searchKey,
-        commandCount: 0,
-        lastCommandCount: 0,
-        multi: 0,
-    });
+    await assert.doesNotReject(moveloop_core());
+    assert.ok(replay.getRngLog().length > drawsBefore);
+    assert.equal(game.context.pendingCommand, undefined);
 });
 
 test('a blind search feels adjacent squares at the `s` key', async () => {
