@@ -365,14 +365,6 @@ try {
   }
   console.log('Readability: grouped credit, collapsed history, arbitrary zoom, draggable range, persistence and full duration scale passed.');
   const originalData = await page.evaluate('DATA');
-  async function loadData(data) {
-    const begin = originalHTML.indexOf('const DATA = '), end = originalHTML.indexOf('\n', begin);
-    const html = originalHTML.slice(0, begin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(data))
-      + ';\n' + originalHTML.slice(end + 1);
-    await page.unroute(url);
-    await page.route(url, route => route.fulfill({contentType: 'text/html', body: html}));
-    await page.reload();
-  }
   // Populate the queue with independent actions without altering the saved
   // snapshot: one ready task, one dependency wait and one accepted batch.
   const knownGoal = originalData.goalHistory.flatMap(group => group.goals)[0];
@@ -406,6 +398,15 @@ try {
   await page.unroute(url);
   await page.setViewportSize({width: 1440, height: 1200});
   console.log('Main queue: readable titles, separate actions, keyboard dependency details and narrow layouts passed.');
+  async function loadData(data) {
+    const begin = originalHTML.indexOf('const DATA = '), end = originalHTML.indexOf('\n', begin);
+    const html = originalHTML.slice(0, begin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(data))
+      + ';\n' + originalHTML.slice(end + 1);
+    await page.unroute(url);
+    await page.route(url, route => route.fulfill({contentType: 'text/html', body: html}));
+    await page.reload();
+  }
+
   // A shared attempt must remain one Main interval and one duration sample.
   // Four tasks exercise the uncapped group display without running games or CI.
   const groupEnd = originalData.activity.capturedAt;
@@ -479,7 +480,13 @@ try {
   await page.setViewportSize({width: 1440, height: 1200});
   await page.unroute(url);
   await page.reload();
-  const emptyFrames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
+  // Replacing the entire dataset changes the number of worker rows above
+  // this disclosure. Compare the chart's frame within its own section.
+  const sectionFrame = chart => chart.evaluate(element => {
+    const {x, y, width, height} = element.getBoundingClientRect();
+    return {x, y: y - element.closest('details').getBoundingClientRect().y, width, height};
+  });
+  const emptyFrames = await Promise.all(durationCharts.map(sectionFrame));
   // The chart must retain its frame when no duration is measurable, including
   // a real open stage whose snapshot endpoint is not a completion event.
   const capturedAt = originalData.activity.capturedAt;
@@ -489,11 +496,11 @@ try {
     const data = { ...originalData, activity: { capturedAt, segments, tasks: segments.length
       ? [{ id: 'open', label: 'Open C task', worker: 'C', assignedAt: open.start, status: 'integrating' }] : [] } };
     await loadData(data);
-      for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
+    for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
       assert.match(await page.locator('#' + prefix + 'Summary').innerText(), /No completed attempts/u);
     }
-    assert.deepEqual(await durationChart.boundingBox(), emptyFrames[0],
-      'empty/open-only data must retain the plot frame');
+    assert.deepEqual(await sectionFrame(durationChart), emptyFrames[0],
+      'empty/open-only data must retain the plot frame within its section');
   }
   assert.deepEqual(errors, []);
   console.log('Activity selection, hover, keyboard, time range, batch labels and responsive percentages passed.');
