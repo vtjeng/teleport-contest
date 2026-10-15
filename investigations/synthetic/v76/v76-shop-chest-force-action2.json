@@ -66,7 +66,7 @@
     "The initial source comparison showed that JS lock.js:breakchestlock() stopped at the costly_spot() gate before shop accounting or mutation; the current implementation removes that refusal and follows the C branch order.",
     "The source helpers used by the repaired branch are existing JS ports: shk.js costly_spot(), shop_keeper(), and stolen_value(); invent.js currency(); and invent.js delobj(). stolen_value() returns the billed amount and accepts the silent=true argument used by C.",
     "At implementation commit (recorded in implementation metadata), js/lock.js:breakchestlock now matches lock.c:breakchestlock shop accounting order, including awaited silent stolen_value calls for destroyed contents and the box, combined currency output, and delobj. The existing js/lock.js:forcelock caller and #force dispatcher remain wired; the really_kick_object caller continues to pass false.",
-    "Implementation commit de96b1012b3fdfbf1458af3c0dbd76b92b6108a5 was verified with node --test scripts/force-lock.test.mjs (7 tests passed), npm run lint, the exact v76-shop-chest-force-action2 replay (507/507 screens, 4,015/4,015 RNG calls, 507/507 cursors, error null), and synthetic-range-evidence through segment 0 step 506."
+    "Implementation commit de96b10127e91270a15abdc31d0f706471e59db7 was verified with node --test scripts/force-lock.test.mjs (7 tests passed), npm run lint, the exact v76-shop-chest-force-action2 replay (507/507 screens, 4,015/4,015 RNG calls, 507/507 cursors, error null), and synthetic-range-evidence through segment 0 step 506."
   ],
   "history": {
     "previousDiagnosis": {
