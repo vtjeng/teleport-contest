@@ -10,8 +10,8 @@
   "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
   "remainingScreens": 2,
   "recordedSteps": 575,
-  "status": "partial",
-  "commit": "d13f8193845494f87d975762882295b8ca7e81de",
+  "status": "complete",
+  "commit": "9e3c06d299c01210f70834dd5335b88c79242582",
   "mismatch": {
     "screen": {
       "index": 571,
@@ -39,13 +39,13 @@
     "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
     "remainingScreens": 2
   },
-  "summary": "The wrong-god offer of the real Amulet on Astral fully matches. The first later mismatch is the conduct disclosure query at step 571: C asks “Do you want to see your conduct and achievements?” because the hero has an achievement; JavaScript asks only about conduct. end.c:disclose calls insight.c:count_achievements and appends the suffix when its result is nonzero, while js/end.js currently hardcodes the shorter prompt even though js/insight.js already implements the helper.",
+  "summary": "Ported end.c:disclose’s nonzero-achievement query suffix by using the existing insight.c:count_achievements helper. The target segment now matches through step 573 with all RNG and cursor output matching; one later step-574 final score-list screen remains a separate topten/endgame display gap outside this source scope.",
   "source": {
     "file": "end.c",
     "functions": [
       "disclose"
     ],
-    "branch": "end.c:disclose asks the conduct query only when should_query_disclose_option('c') says to prompt. It calls count_achievements and appends \" and achievements\" when the returned count is positive. In this route the Astral achievement makes that suffix visible; RNG remains fully matched.",
+    "branch": "When should_query_disclose_option('c') requests a prompt, end.c:disclose counts achievements and appends \" and achievements\" only for a nonzero result. JavaScript now calls the existing count_achievements helper in the same branch and passes the conditional query to yn_function. The admitted Astral ending has ACH_UWIN, so it exercises the suffix branch.",
     "callers": [
       "end.c:really_done calls disclose(how, taken) after final payment and inventory identification. js/end.js:really_done awaits the corresponding disclose function; this runtime path is exercised by the admitted endgame route."
     ],
@@ -60,7 +60,11 @@
     "Saved accepted-fixed-prefix-v79-wrong-altar-amulet-action6.json proves an unchanged-input prefix of 571 screens and cursors with all 20693 RNG calls matching; its captured prefix covers zero-based steps 0 through 570.",
     "Saved accepted-latest-js-v79-wrong-altar-amulet-action6.log records the first divergence at zero-based step 571, space key: C cursor [60,0,1] and JS cursor [43,0,1], with C blank at row0,column31 and JS question mark. The step is the conduct disclosure query after offering the real Amulet to high altar Mitra while the neutral hero has the Astral achievement.",
     "C end.c:disclose calls count_achievements and appends \" and achievements\" when the count is nonzero. JavaScript js/end.js currently passes the fixed \"Do you want to see your conduct?\" literal; js/insight.js already exports count_achievements and scripts/insight.test.mjs pins its zero-terminated count behavior.",
-    "Prep’s accepted crosswalk excludes the prior v75 unopened-box disclosure issue: it was an ordinary quit with no achievement and did not enter the nonzero-count conditional."
+    "Prep’s accepted crosswalk excludes the prior v75 unopened-box disclosure issue: it was an ordinary quit with no achievement and did not enter the nonzero-count conditional.",
+    "After the change, a full comparison against the unchanged official C recording matches 574/575 screens, 575/575 cursors, and 20693/20693 RNG calls. The first remaining difference is at zero-based step 574, after disclose has completed: C prints “Since you were in wizard mode, the score list will not be checked.” while JS retains the prior map screen. The source lead is end.c:really_done -> topten.c:topten; this later output is outside the claimed end.c:disclose scope.",
+    "Focused bounded run run-DMWa3x passed 92/92 tests across scripts/end-really-done.test.mjs and scripts/insight.test.mjs. The new test pins the C count-and-suffix branch to the JS query construction; existing insight tests pin count_achievements list semantics.",
+    "npm run lint passed for js/ and scripts/.",
+    "scripts/synthetic-range-evidence.mjs verified the admitted v79 segment 0 from steps 0 through 573 against the corrected implementation."
   ],
   "goal": "fix-v79-disclose-achievement-prompt-20261015",
   "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
