@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
+  "corpus": "synthetic",
+  "batch": "v79",
+  "caseId": "v79-wrong-altar-amulet-action6",
+  "manifestPath": "challenges/manifests/v79.json",
+  "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
+  "recordingSha256": "a03899faaf465f9a274072edcb401dfbdd7d1cbceaf442212191f4c3b103055d",
+  "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+  "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+  "remainingScreens": 2,
+  "recordedSteps": 575,
+  "status": "partial",
+  "commit": "d13f8193845494f87d975762882295b8ca7e81de",
+  "mismatch": {
+    "screen": {
+      "index": 571,
+      "segment": 0,
+      "key": " ",
+      "row": 0,
+      "column": 31,
+      "cCell": " ",
+      "jsCell": "?"
+    },
+    "cursor": {
+      "index": 571,
+      "c": [
+        60,
+        0,
+        1
+      ],
+      "js": [
+        43,
+        0,
+        1
+      ]
+    },
+    "rng": null,
+    "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
+    "remainingScreens": 2
+  },
+  "summary": "The wrong-god offer of the real Amulet on Astral fully matches. The first later mismatch is the conduct disclosure query at step 571: C asks “Do you want to see your conduct and achievements?” because the hero has an achievement; JavaScript asks only about conduct. end.c:disclose calls insight.c:count_achievements and appends the suffix when its result is nonzero, while js/end.js currently hardcodes the shorter prompt even though js/insight.js already implements the helper.",
+  "source": {
+    "file": "end.c",
+    "functions": [
+      "disclose"
+    ],
+    "branch": "end.c:disclose asks the conduct query only when should_query_disclose_option('c') says to prompt. It calls count_achievements and appends \" and achievements\" when the returned count is positive. In this route the Astral achievement makes that suffix visible; RNG remains fully matched.",
+    "callers": [
+      "end.c:really_done calls disclose(how, taken) after final payment and inventory identification. js/end.js:really_done awaits the corresponding disclose function; this runtime path is exercised by the admitted endgame route."
+    ],
+    "dependencies": [
+      "insight.c:count_achievements is already implemented by js/insight.js:count_achievements and tested for zero-terminated achievement lists in scripts/insight.test.mjs; disclose must use its return value to match C."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "selectionReason": "Selected the independently owned v79 wrong-altar amulet case. The admitted source replay reaches a fully matching wrong-god offer, then first diverges at the endgame conduct disclosure prompt. Prep’s accepted exact prefix proves screens, cursors, and all RNG calls match through zero-based step 570.",
+  "evidence": [
+    "Official v79 evaluation reports 573/575 screens, 574/575 cursors, and 20693/20693 RNG calls, with no exception. Its source pointer is end.c:disclose670-680 -> insight.c:count_achievements.",
+    "Saved accepted-fixed-prefix-v79-wrong-altar-amulet-action6.json proves an unchanged-input prefix of 571 screens and cursors with all 20693 RNG calls matching; its captured prefix covers zero-based steps 0 through 570.",
+    "Saved accepted-latest-js-v79-wrong-altar-amulet-action6.log records the first divergence at zero-based step 571, space key: C cursor [60,0,1] and JS cursor [43,0,1], with C blank at row0,column31 and JS question mark. The step is the conduct disclosure query after offering the real Amulet to high altar Mitra while the neutral hero has the Astral achievement.",
+    "C end.c:disclose calls count_achievements and appends \" and achievements\" when the count is nonzero. JavaScript js/end.js currently passes the fixed \"Do you want to see your conduct?\" literal; js/insight.js already exports count_achievements and scripts/insight.test.mjs pins its zero-terminated count behavior.",
+    "Prep’s accepted crosswalk excludes the prior v75 unopened-box disclosure issue: it was an ordinary quit with no achievement and did not enter the nonzero-count conditional."
+  ],
+  "goal": "fix-v79-disclose-achievement-prompt-20261015",
+  "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+  "sourceBase": "d13f8193845494f87d975762882295b8ca7e81de",
+  "selectionProvenance": {
+    "corpus": "synthetic",
+    "batch": "v79",
+    "caseId": "v79-wrong-altar-amulet-action6",
+    "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
+    "manifestPath": "challenges/manifests/v79.json",
+    "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
+    "recording": "challenges/cases/v79/v79-wrong-altar-amulet-action6.session.json",
+    "recordingPath": "challenges/cases/v79/v79-wrong-altar-amulet-action6.session.json",
+    "recordingSha256": "a03899faaf465f9a274072edcb401dfbdd7d1cbceaf442212191f4c3b103055d",
+    "recipe": "challenges/cases/v79/v79-wrong-altar-amulet-action6.recipe.session.json",
+    "recipeSha256": "d758bc9bcf81a8c8f62cf0a07832add6d05e33be2f8b545bdee4c0c7ef97ccba",
+    "replayInputSha256": "3c2fb99b67e2b5e3577ee296e8a33b8f7db3214135ff5f26bafa3c1befd9db5e",
+    "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+    "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+    "evaluationUtc": "2026-10-15T03:03:34.560Z",
+    "recordedSteps": 575
+  }
+}
