@@ -317678,7 +317678,7 @@
     {
       "id": "divergence-v83-monster-digest-virtual-corpse-timer-cleanup-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mhitm_ad_dgst from uhitm.c",
       "cFile": "uhitm.c",
       "sessions": [
@@ -317688,15 +317688,77 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
       "delivered": null,
       "function": "mhitm_ad_dgst",
-      "session": "synthetic/v83/v83-mm-digest-chameleon-action2"
+      "session": "synthetic/v83/v83-mm-digest-chameleon-action2",
+      "closeStanding": {
+        "sha": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "target": "synthetic/v83/v83-mm-digest-chameleon-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d8f97252d0095956bf3887e1b3b7302b6ac0fb2d/run-hosted-9gTauT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mhitm_ad_dgst",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_dgst",
+            "sourceReview": "Read all of uhitm.c:mhitm_ad_dgst (4492-4567), including hero and hero-defender zero-damage arms, Rider fatal/lifesaved handling, verbose burp and wake_nearto ordering, defender HP/lifesaver/corpse_chance handling, and tame non-minion nutrition. The relevant branch creates a virtual CORPSE, assigns corpsenm (which starts its corpse timeout), computes dog_nutrition, deallocates the timed object, then changes meating and EDOG hungrytime. Read mkobj.c:set_corpsenm and dealloc_obj plus timeout.c:obj_stop_timers: dealloc_obj stops timers when obj->timed, and obj_stop_timers unlinks attached timers and clears obj->timed. The JS function mirrors this sequence; its dealloc_obj deliberately requires lifecycle hooks. It now supplies stopObjectTimers at the virtual-corpse environment, delegates to the existing obj_stop_timers implementation, and preserves a caller-provided hook. No other deallocator or timer behavior changed. The virtual-corpse cleanup path uses the existing C-aligned object/timer implementations; no unported helper is substituted or called through note_unported().",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping dispatches AD_DGST to mhitm_ad_dgst for monster-versus-monster attacks; the JS switch dispatches the same helper with active state and environment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-dgst.test.mjs"
+            ],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-digest-chameleon-action2",
+                "segment": 0,
+                "fromStep": 923,
+                "throughStep": 924,
+                "source": "uhitm.c:mhitm_adtyping -> mhitm_ad_dgst; a tame purple worm digests a corpse-eligible chameleon that has become a titanothere, creates and cleans up the timed virtual corpse, then applies pet nutrition."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The production entry is uhitm.c:mhitm_adtyping AD_DGST dispatch for monster-versus-monster attacks. The admitted v83 replay exercises a tame purple worm swallowing the chameleon/titanothere at steps 923-924; the exact recording now matches in full after the virtual-corpse timer cleanup.",
+        "entryPoints": [
+          {
+            "name": "Tame monster digests a corpse-eligible monster",
+            "functions": [
+              "mhitm_ad_dgst"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-digest-chameleon-action2",
+                "segment": 0,
+                "fromStep": 923,
+                "throughStep": 924,
+                "source": "uhitm.c:mhitm_adtyping -> mhitm_ad_dgst creates and deallocates a timed virtual corpse before updating pet nutrition."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "isolate-planned-glob-rng-v83-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement obj_nexto_xy from mkobj.c",
       "cFile": "mkobj.c",
       "sessions": [
@@ -317706,15 +317768,146 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
       "delivered": null,
       "function": "obj_nexto_xy",
-      "session": "synthetic/v83/v83-mm-slime-transform-action1"
+      "session": "synthetic/v83/v83-mm-slime-transform-action1",
+      "closeStanding": {
+        "sha": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "target": "synthetic/v83/v83-mm-slime-transform-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d8f97252d0095956bf3887e1b3b7302b6ac0fb2d/run-hosted-9gTauT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "obj_nexto",
+            "implementation": "js/obj.js",
+            "symbol": "obj_nexto",
+            "sourceReview": "Read mkobj.c:obj_nexto() lines 3643-3654. The wrapper checks for a missing object, then delegates to obj_nexto_xy() at the object's coordinates with recurs=TRUE. The JavaScript wrapper now also forwards the caller-owned random provider. On the existing null-object path, C discards impossible()'s return; JS retains note_unported('pline.c impossible') and returns null.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "make_corpse",
+                "source": "mon.c:make_corpse() lines 706-729 creates a glob and calls obj_nexto() while nearby globs can merge. JS now passes make_corpse's objectEnv.random, which comes from its active caller and is cloned during planned monster turns."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/obj-nexto.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-slime-transform-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1648,
+                "source": "planned monster attack -> mhitm.c:mdamagem -> mon.c:monkilled/mondied -> mon.c:make_corpse green-slime glob branch -> mkobj.c:obj_nexto -> mkobj.c:obj_nexto_xy"
+              }
+            ]
+          },
+          {
+            "name": "obj_nexto_xy",
+            "implementation": "js/obj.js",
+            "symbol": "obj_nexto_xy",
+            "sourceReview": "Read mkobj.c:obj_nexto_xy() lines 3661-3693. It checks the current square before the recurs gate; when recurs is true and no merge candidate exists, C draws exactly rn2(2) once for each axis, then calls itself on neighboring squares with recurs=false. JS uses the supplied random.rn2 when present, defaults to coreRn2 for ordinary live callers, and carries the same provider into recursion. The speculative planning route therefore advances only the cloned RNG and leaves the next live combat draw untouched.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "obj_nexto",
+                "source": "mkobj.c:obj_nexto() line 3649 delegates to obj_nexto_xy(..., TRUE); JS forwards the same optional provider."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "flooreffects",
+                "source": "do.c:flooreffects() line 308 searches neighboring globs with obj_nexto_xy(..., TRUE); JS passes rawEnv.random and forwards it through recursive search."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/obj-nexto.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-slime-transform-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1648,
+                "source": "planned monster attack -> mhitm.c:mdamagem -> mon.c:monkilled/mondied -> mon.c:make_corpse green-slime glob branch -> mkobj.c:obj_nexto -> mkobj.c:obj_nexto_xy"
+              },
+              {
+                "batch": "v70",
+                "caseId": "v70-cube-glob-scout2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 350,
+                "source": "hero drops a green-slime glob -> do.c:dodrop/do.c:flooreffects globby branch -> mkobj.c:obj_nexto_xy"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The helper has two active production paths. mon.c:make_corpse uses obj_nexto for glob corpses, and do.c:flooreffects calls obj_nexto_xy when a glob lands; both can search neighboring squares and consume two source rn2(2) calls. The v83 admitted replay reaches the corpse path during planned monster combat and now matches completely. The v70 admitted replay reaches the floor-drop path and now matches completely. A synthetic unit test also pins the injected draw count and recursive provider wiring. The null-object diagnostic in obj_nexto is the existing discarded-result pline.c impossible gap; no new C gap was added.",
+        "entryPoints": [
+          {
+            "name": "Merge a glob created by a planned monster death",
+            "functions": [
+              {
+                "sourceFile": "mkobj.c",
+                "name": "obj_nexto"
+              },
+              {
+                "sourceFile": "mkobj.c",
+                "name": "obj_nexto_xy"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-slime-transform-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1648,
+                "source": "planned monster attack -> mhitm.c:mdamagem -> mon.c:monkilled/mondied -> mon.c:make_corpse green-slime glob branch -> mkobj.c:obj_nexto -> mkobj.c:obj_nexto_xy"
+              }
+            ]
+          },
+          {
+            "name": "Drop a glob and search neighboring floor globs",
+            "functions": [
+              {
+                "sourceFile": "mkobj.c",
+                "name": "obj_nexto_xy"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v70",
+                "caseId": "v70-cube-glob-scout2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 350,
+                "source": "hero drops a green-slime glob -> do.c:dodrop/do.c:flooreffects globby branch -> mkobj.c:obj_nexto_xy"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-mon-consume-wraith-growth-v83-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement m_consume_obj from mon.c",
       "cFile": "mon.c",
       "sessions": [
@@ -317724,15 +317917,98 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
       "delivered": null,
       "function": "m_consume_obj",
-      "session": "synthetic/v83/v83-mm-digest-wraith-action1"
+      "session": "synthetic/v83/v83-mm-digest-wraith-action1",
+      "closeStanding": {
+        "sha": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "target": "synthetic/v83/v83-mm-digest-wraith-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d8f97252d0095956bf3887e1b3b7302b6ac0fb2d/run-hosted-9gTauT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "m_consume_obj",
+            "implementation": "js/mon.js",
+            "symbol": "m_consume_obj",
+            "sourceReview": "Reviewed the complete mon.c:1392-1453 m_consume_obj body and the PM_WRAITH branch's mlevelgain macro. The port captures corpsenm before deletion, deletes the corpse, then awaits the already-portable makemon.c:grow_up(mtmp, NULL) only when the eater is untamed or below data->mlevel + 15. C discards grow_up's return; the port does not use it. This preserves grow_up's no-victim rnd(8), HP/level changes and any evolution output before later corpse effects. Other source branches remain the existing explicit gaps/refusals.",
+            "callers": [
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_eat",
+                "source": "dogmove.c:dog_move -> dog_eat -> mon.c:m_consume_obj. The pet movement adapter in js/unported_monster_actions.js supplies dog_eat as dogmove.js:dog_move's eatObject operation; dogmove.js:dog_eat awaits m_consume_obj. The admitted v83 route reaches this caller chain."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "meatmetal",
+                "source": "mon.c:meatmetal calls m_consume_obj; js/mon.js:meatmetal awaits it. The C caller only reaches this helper after is_metallic(otmp), so it cannot pass a corpse to the new PM_WRAITH branch."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "meatobj",
+                "source": "mon.c:meatobj calls m_consume_obj for edible floor objects; js/mon.js:meatobj awaits it. js/monmove.js:postmov awaits meatobj."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "meatcorpse",
+                "source": "mon.c:meatcorpse calls m_consume_obj for eligible corpses; js/mon.js:meatcorpse awaits it. js/monmove.js:postmov awaits meatcorpse."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "gelcube_digests",
+                "source": "monmove.c:gelcube_digests calls m_consume_obj after extraction; js/monmove.js:dochug awaits gelcube_digests, which awaits m_consume_obj."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove-quickmimic.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-digest-wraith-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 871,
+                "source": "dogmove.c:dog_move -> dog_eat -> mon.c:m_consume_obj; JS pet movement adapter -> dogmove.js:dog_move -> dog_eat -> mon.js:m_consume_obj"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected live entry point is a pet eating a floor wraith corpse during dogmove.c:dog_move; C calls dog_eat and then mon.c:m_consume_obj. The admitted v83 replay exercises that path through step 871. In JavaScript, unported_monster_actions.js:moveSimplePet supplies dog_eat to dogmove.js:dog_move's eatObject operation, and dogmove.js:dog_eat awaits mon.js:m_consume_obj. Other callers remain wired and awaited: meatobj and meatcorpse from monmove.js:postmov, and gelcube_digests from monmove.js:dochug. meatmetal only calls m_consume_obj for a metallic object and cannot reach mlevelgain for a corpse. This task changes only the shared PM_WRAITH branch; it does not claim separate runtime coverage for the other monster actions.",
+        "entryPoints": [
+          {
+            "name": "Pet eats a floor wraith corpse",
+            "functions": [
+              "m_consume_obj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-digest-wraith-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 871,
+                "source": "dogmove.c:dog_move -> dog_eat -> mon.c:m_consume_obj"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "divergence-v83-monster-acid-resistant-attack-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mhitm_ad_acid from uhitm.c",
       "cFile": "uhitm.c",
       "sessions": [
@@ -317742,15 +318018,88 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
       "delivered": null,
       "function": "mhitm_ad_acid",
-      "session": "synthetic/v83/v83-mm-acid-resistant-action1"
+      "session": "synthetic/v83/v83-mm-acid-resistant-action1",
+      "closeStanding": {
+        "sha": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "target": "synthetic/v83/v83-mm-acid-resistant-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d8f97252d0095956bf3887e1b3b7302b6ac0fb2d/run-hosted-9gTauT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mhitm_ad_acid",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_acid",
+            "sourceReview": "Read the complete uhitm.c:mhitm_ad_acid() definition (2742-2786) and its uhitm.c:mhitm_adtyping() dispatcher (4781-4832). Preserved all three source branches and order: hero attacker resistance/defense; monster attacker versus hero, including hitmsg, cancellation and rn2(3); and monster versus monster, including cancellation early return, resistance message and damage zeroing, then rn2(30) armor corrosion and rn2(6) weapon acid damage regardless of resistance. The production dispatcher calls the helper for AD_ACID and no longer stops at the unported refusal. Direct callees erode_armor and acid_damage are existing JavaScript ports.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm -> hitmm -> mdamagem -> uhitm.c:mhitm_adtyping -> mhitm_ad_acid"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping -> mhitm_ad_acid when the selected attack reaches hitmu with AD_ACID"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum -> uhitm.c:mhitm_adtyping -> mhitm_ad_acid when a polymorphed hero's selected attack reaches damageum with AD_ACID"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-acid.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-acid-resistant-action1",
+                "segment": 0,
+                "fromStep": 1304,
+                "throughStep": 1305,
+                "source": "mhitm.c:mattackm -> hitmm -> mdamagem -> uhitm.c:mhitm_adtyping -> mhitm_ad_acid; the ochre jelly's acid attack hits an acid-resistant gray ooze and retains both source erosion checks."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Reviewed the dispatcher and all three C callers. The admitted v83 range exercises the active monster-versus-monster entry point through mdamagem. The hero-defender caller is traced through mhitu.c:mattacku -> hitmu, but the current recipe only reaches gulpmu for the ochre jelly's normal AT_ENGL AD_ACID attack; mcalcdistress -> mon_regen decrements the ordinary unstuck cooldown before the next attack, so that recipe does not establish this handler's hero-defender branch. The two committed blocked recipes record the unmet mspec_used fallback condition and are not cited as runtime evidence. The hero-attacker branch is source implemented and directly source-pinned by the focused tests; the existing v33 ochre-jelly engulf case goes through gulpum, so it is deliberately not cited as mhitm_ad_acid runtime evidence. No entry-point completion is claimed for either hero-directed branch.",
+        "entryPoints": [
+          {
+            "name": "A monster's AD_ACID melee attack damages another monster",
+            "functions": [
+              "mhitm_ad_acid"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-acid-resistant-action1",
+                "segment": 0,
+                "fromStep": 1304,
+                "throughStep": 1305,
+                "source": "mhitm.c:mattackm -> hitmm -> mdamagem -> uhitm.c:mhitm_adtyping -> mhitm_ad_acid"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-rust-monster-floor-goal-rng-v83-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement zap_over_floor from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -317760,10 +318109,76 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
       "delivered": null,
       "function": "zap_over_floor",
-      "session": "synthetic/v83/v83-mm-rust-iron-action2"
+      "session": "synthetic/v83/v83-mm-rust-iron-action2",
+      "closeStanding": {
+        "sha": "d8f97252d0095956bf3887e1b3b7302b6ac0fb2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "target": "synthetic/v83/v83-mm-rust-iron-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/d8f97252d0095956bf3887e1b3b7302b6ac0fb2d/run-hosted-9gTauT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "zap_over_floor",
+            "implementation": "js/zap.js",
+            "symbol": "zap_over_floor",
+            "sourceReview": "Read zap.c:zap_over_floor() lines 5141-5497, including its ZT_POISON_GAS arm. C creates a one-square poison cloud when ZAP_POS accepts the traversed square; region activation reaches block_point and rebuilds shared vision transparency. In planned monster turns, JS calls admitPlannedVisionChange before create_gas_cloud so preflight restores that borrowed index from the live level. The existing unported floor-effect branches remain outside this task.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "planSimpleMonsterScan",
+                "source": "mon.c:movemon_singlemon scans the monster action; its dochug path can select iron-golem breath, which reaches mthrowu.c:breamu/breamm, zap.c:dobuzz, and zap.c:zap_over_floor. The planned caller now supplies admitPlannedVisionChange."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-zhitu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-rust-iron-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 858,
+                "source": "mon.c:movemon_singlemon -> monmove.c:dochug -> mthrowu.c:breamu/breamm -> zap.c:dobuzz -> zap.c:zap_over_floor ZT_POISON_GAS region activation; JS planning callback admits/restores shared vision transparency"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is monster-turn planning through mon.c:movemon_singlemon, whose action dispatch can reach an iron-golem poison breath and zap.c:zap_over_floor. The planner passes the vision-admission callback through the same production path. The direct focused test verifies admission occurs before region activation; the admitted v83 replay verifies the production route through step 858. The later screen divergence at step 859 remains and is not claimed as fixed.",
+        "entryPoints": [
+          {
+            "name": "Planned iron-golem poison breath creates a cloud during the monster scan",
+            "functions": [
+              {
+                "sourceFile": "zap.c",
+                "name": "zap_over_floor"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v83",
+                "caseId": "v83-mm-rust-iron-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 858,
+                "source": "mon.c:movemon_singlemon -> monmove.c:dochug -> mthrowu.c:breamu/breamm -> zap.c:dobuzz -> zap.c:zap_over_floor ZT_POISON_GAS region activation; JS planning callback admits/restores shared vision transparency"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
