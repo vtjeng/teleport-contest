@@ -318345,6 +318345,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-v85-mounted-chat-down-steed-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dochat from sounds.c",
+      "cFile": "sounds.c",
+      "sessions": [
+        "synthetic/v85/v85-p13-mounted-chat-down-attempt4"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v85-p13-mounted-chat-down-attempt4-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dochat",
+      "session": "synthetic/v85/v85-p13-mounted-chat-down-attempt4"
     }
   ]
 }
