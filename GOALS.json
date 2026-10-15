@@ -316982,7 +316982,7 @@
     {
       "id": "fix-v79-split-candle-object-timer-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement splitobj from mkobj.c",
       "cFile": "mkobj.c",
       "sessions": [
@@ -316992,15 +316992,115 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
       "delivered": null,
       "function": "splitobj",
-      "session": "synthetic/v79/v79-candle-lit-action2"
+      "session": "synthetic/v79/v79-candle-lit-action2",
+      "closeStanding": {
+        "sha": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+        "target": "synthetic/v79/v79-candle-lit-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/8155d9d2b099ff46dda8eea011fd5e9aeff05dee/run-hosted-aEQOPW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "splitobj",
+            "implementation": "js/obj.js",
+            "symbol": "splitobj",
+            "sourceReview": "mkobj.c:splitobj (457-503) resets child timer/light state after copying, then calls obj_split_timers for timed source objects before duplicating light sources. JS now calls the existing timer implementation at that source point; explicit splitObjectTimers hooks remain available to scoped test callers.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "splitobj",
+                "source": "mkobj.c:splitobj is the direct caller of obj_split_timers; existing production splitobj call sites all reach this common implementation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/obj-split-timers.test.mjs",
+              "scripts/object-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-candle-lit-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 284,
+                "source": "apply.c:use_candle reaches mkobj.c:splitobj while attaching the lit candle stack to the Candelabrum."
+              }
+            ]
+          },
+          {
+            "name": "obj_split_timers",
+            "implementation": "js/timeout.js",
+            "symbol": "obj_split_timers",
+            "sourceReview": "timeout.c:obj_split_timers (2359-2371) walks gt.timer_base, saves curr->next because start_timer inserts a node, and duplicates each TIMER_OBJECT entry for src onto dest with timeout curr->timeout - svm.moves. The start_timer return is discarded and that implementation already exists.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "splitobj",
+                "source": "mkobj.c:splitobj is the sole C caller and discards this void result; it calls the helper before light-source cloning."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/obj-split-timers.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-candle-lit-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 284,
+                "source": "mkobj.c:splitobj calls timeout.c:obj_split_timers for the timed source stack before light-source duplication."
+              }
+            ],
+            "sourceFile": "timeout.c"
+          }
+        ],
+        "entryPointReview": "The exact admitted v79 segment reaches the use_candle split path and exercises the missing timer-copy body before existing light-source copying. The helper mutates the object timer queue. Its only direct C caller is splitobj; all existing JavaScript splitobj callers reach the same common implementation.",
+        "entryPoints": [
+          {
+            "name": "Split a lit object stack while attaching candles",
+            "functions": [
+              {
+                "name": "splitobj",
+                "sourceFile": "mkobj.c"
+              },
+              {
+                "name": "obj_split_timers",
+                "sourceFile": "timeout.c"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-candle-lit-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 284,
+                "source": "apply.c:use_candle -> mkobj.c:splitobj -> timeout.c:obj_split_timers -> light.c:obj_split_light_source; the Candelabrum attaches seven lit candles and the remaining candles retain their live burn timers."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-minion-demon-talk-v79-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Fix the demon_talk sibling relocation context and partial-bribe charisma order; preserve domonnoise caller context.",
       "cFile": "minion.c",
       "sessions": [
@@ -317011,15 +317111,146 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
       "delivered": null,
       "function": "demon_talk",
-      "session": "synthetic/v79/v79-demon-sibling-action1"
+      "session": "synthetic/v79/v79-demon-sibling-action1",
+      "closeStanding": {
+        "sha": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+        "target": "synthetic/v79/v79-demon-sibling-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/8155d9d2b099ff46dda8eea011fd5e9aeff05dee/run-hosted-aEQOPW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "demon_talk",
+            "implementation": "js/minion.js",
+            "symbol": "demon_talk",
+            "sourceReview": "Read minion.c:demon_talk() lines 263-359. Preserved its ordering around artifact refusal, fainting/occupation handling, demon-form greeting and tele_restrict, demand calculation, and bribe outcomes. The sibling branch passes the existing random environment into tele_restrict and awaits rloc with the same environment/random source when C calls rloc(mtmp, RLOC_MSG); the partial-offer branch now uses ACURR(A_CHA) in C order, acurr(state, A_CHA), before rnd(5 * charisma). No new RNG draw or message was introduced.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug calls demon_talk(mtmp) for the peaceful demon’s monster-turn interaction and consumes its return value."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise MS_BRIBE arm calls demon_talk(mtmp) for a peaceful, untamed bribe demon and discards the return value; JS now forwards rawEnv to preserve caller planning/random operations."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/minion-bribe.test.mjs",
+              "scripts/sounds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/minion.c/demon-bribe-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-demon-sibling-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 223,
+                "source": "monmove.c:dochug -> minion.c:demon_talk demon-form sibling greeting -> tele_restrict -> rloc(RLOC_MSG)"
+              },
+              {
+                "batch": "v79",
+                "caseId": "v79-demon-partial-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 367,
+                "source": "monmove.c:dochug -> minion.c:demon_talk partial bribe -> bribe -> rnd(5 * ACURR(A_CHA))"
+              }
+            ]
+          },
+          {
+            "name": "domonnoise",
+            "sourceFile": "sounds.c",
+            "implementation": "js/sounds.js",
+            "symbol": "domonnoise",
+            "sourceReview": "Read sounds.c:domonnoise() and its MS_BRIBE case at lines 1139-1147. For a peaceful untamed MS_BRIBE monster, C calls demon_talk(mtmp) and discards its result. JS awaits the same call and forwards rawEnv, preserving the #chat/planning caller context; all other MS_BRIBE conditions retain the source fallthrough to cuss().",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dotalk",
+                "source": "sounds.c:dotalk dispatches the #chat command to domonnoise for the selected adjacent monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sounds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/minion.c/demon-bribe-independent.session.json"
+            ]
+          }
+        ],
+        "entryPointReview": "The changed minion.c demon_talk branches are reached through two distinct production callers. The v79 sibling and partial-payment ranges below enter through monmove.c:dochug and remain separate from the #chat path. The sound caller is covered independently by the committed Geryon recipe/recording: #chat selects a peaceful untamed Geryon with MS_BRIBE, sounds.c:domonnoise calls demon_talk, and the recording contains the C demon_talk RNG annotation. That recording matches current JavaScript completely. The sound dispatch test also pins the C discarded-result call and JS rawEnv forwarding.",
+        "entryPoints": [
+          {
+            "name": "Peaceful demon sibling greeting during monster turn",
+            "functions": [
+              "demon_talk"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-demon-sibling-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 223,
+                "source": "monmove.c:dochug -> minion.c:demon_talk sibling greeting and relocation"
+              }
+            ]
+          },
+          {
+            "name": "Partial demon bribe during monster turn",
+            "functions": [
+              "demon_talk"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-demon-partial-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 367,
+                "source": "monmove.c:dochug -> minion.c:demon_talk -> bribe partial-payment charisma check"
+              }
+            ]
+          },
+          {
+            "name": "#chat with peaceful untamed MS_BRIBE demon",
+            "functions": [
+              {
+                "sourceFile": "sounds.c",
+                "name": "domonnoise"
+              },
+              "demon_talk"
+            ],
+            "recordings": [
+              "recordings/minion.c/demon-bribe-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "fix-v79-disclose-achievement-prompt-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement disclose from undefined",
       "cFile": "end.c",
       "sessions": [
@@ -317029,15 +317260,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
       "delivered": null,
       "function": "disclose",
-      "session": "synthetic/v79/v79-wrong-altar-amulet-action6"
+      "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
+      "closeStanding": {
+        "sha": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+        "target": "synthetic/v79/v79-wrong-altar-amulet-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/8155d9d2b099ff46dda8eea011fd5e9aeff05dee/run-hosted-aEQOPW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "disclose",
+            "implementation": "js/end.js",
+            "symbol": "disclose",
+            "sourceReview": "end.c:disclose (619-699), especially 670-680, asks the conduct question only when configured to prompt, counts achievements, conditionally appends the suffix, then passes the resulting string to yn_function. The JavaScript implementation now uses the existing count_achievements helper in that branch.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "really_done",
+                "source": "end.c:really_done calls disclose after final payment and inventory identification; js/end.js:really_done awaits disclose on the corresponding game-ending path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/end-really-done.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-wrong-altar-amulet-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 573,
+                "source": "The admitted route offers the real Amulet to high altar Mitra and enters end.c:disclose; the Astral achievement exercises count_achievements > 0 and the achievement-suffixed query."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted segment reaches the actual wrong-alignment Amulet offer and the end.c:disclose conduct query. After the fix, the replay matches through zero-based step 573, including all RNG and cursors; this verifies disclose and its existing count_achievements dependency on the selected entry point. The first later mismatch at step 574 is the separate topten wizard-mode message, outside this task’s claimed function.",
+        "entryPoints": [
+          {
+            "name": "Conduct disclosure after an Astral wrong-altar offer",
+            "functions": [
+              "disclose"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-wrong-altar-amulet-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 573,
+                "source": "The admitted route offers the real Amulet to high altar Mitra and enters end.c:disclose; the Astral achievement exercises count_achievements > 0 and the achievement-suffixed query."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "divergence-v79-amulet-portal-heat-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement amulet from wizard.c",
       "cFile": "wizard.c",
       "sessions": [
@@ -317047,10 +317341,101 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
       "delivered": null,
       "function": "amulet",
-      "session": "synthetic/v79/v79-amulet-portal-action2"
+      "session": "synthetic/v79/v79-amulet-portal-action2",
+      "closeStanding": {
+        "sha": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "7704917fabaa7aa788c5b7b0de7b64c834ef8dcc",
+        "target": "synthetic/v79/v79-amulet-portal-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/8155d9d2b099ff46dda8eea011fd5e9aeff05dee/run-hosted-aEQOPW/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "amulet",
+            "implementation": "js/wizard.js",
+            "symbol": "amulet",
+            "sourceReview": "Read wizard.c:61-103 in full. The body first selects a worn real Amulet, otherwise a wielded real Amulet; only that selection enables rn2(15). On zero it scans gf.ftrap in chain order, handles only the first MAGIC_PORTAL, uses squared Euclidean distu and thresholds 9/64/144 for hot/very warm/warm, then breaks. It then returns when no Wizard exists; otherwise it scans fmon in order, skips DEADMONSTER, and tests each sleeping Wizard with rn2(40), clearing msleeping on zero and messaging only when m_next2u is false. Read allmain.c:177-585 in full; moveloop_core calls amulet after invault and before engraving wear when u.uhave.amulet is true. The JS caller preserves that order and passes the active random source and planning/live message seam. No unported callees remain in amulet; Tobjnam, distu/dist2, and m_next2u are existing implementations.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterHunger",
+                "source": "allmain.c:moveloop_core calls wizard.c:amulet after invault() and before u_wipe_engr() when u.uhave.amulet is set; the JS elapsed-turn helper makes the same guarded call in the same position."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/amulet-sleeping-wizard-no-wake-check.session.json",
+              "recordings/wizard.c/amulet-sleeping-wizard-valkyrie.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-amulet-portal-action2",
+                "segment": 0,
+                "fromStep": 211,
+                "throughStep": 245,
+                "source": "allmain.c:moveloop_core -> wizard.c:amulet; real worn Amulet selects rn2(15), then the first nearby MAGIC_PORTAL produces the hot feedback."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active recorder entry is allmain.c:moveloop_core's once-per-turn Amulet guard. The admitted v79 range verifies the carried real-Amulet portal-hint branch. Two independent matching recordings use Barbarian and Valkyrie roles and reach the sleeping Wizard scan with nonzero rn2(40) results (6 and 30), so they verify the wake-check/no-wake outcome under both role setups. The source's successful rn2(40)=0 branch that clears msleeping and may print the distant-notice message is implemented from C, but no matching recorded play reaches that outcome; it is not claimed as runtime-verified.",
+        "entryPoints": [
+          {
+            "name": "real Amulet portal hint during elapsed-turn upkeep",
+            "functions": [
+              "amulet"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-amulet-portal-action2",
+                "segment": 0,
+                "fromStep": 211,
+                "throughStep": 245,
+                "source": "allmain.c:moveloop_core -> wizard.c:amulet; rn2(15) succeeds and the nearby magic portal triggers the hot hint."
+              }
+            ]
+          },
+          {
+            "name": "sleeping Wizard nonzero wake-check/no-wake outcome (Barbarian)",
+            "functions": [
+              "amulet"
+            ],
+            "recordings": [
+              "recordings/wizard.c/amulet-sleeping-wizard-no-wake-check.session.json"
+            ]
+          },
+          {
+            "name": "sleeping Wizard nonzero wake-check/no-wake outcome (Valkyrie)",
+            "functions": [
+              "amulet"
+            ],
+            "recordings": [
+              "recordings/wizard.c/amulet-sleeping-wizard-valkyrie.session.json"
+            ]
+          },
+          {
+            "name": "sleeping Wizard successful rn2(40) wake outcome (not claimed)",
+            "functions": [
+              "amulet"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
