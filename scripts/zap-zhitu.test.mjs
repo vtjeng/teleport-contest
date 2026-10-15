@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
-import { zhitu, ubreatheu } from '../js/zap.js';
-import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
+import { zhitu, ubreatheu, zap_over_floor } from '../js/zap.js';
+import {
+    admitPlannedVisionChange, planningState, preflightSimpleMonsterActions,
+} from '../js/unported_monster_actions.js';
 import { HeroDeathPlanningError } from '../js/hack.js';
 import {
     ACID_RES, ANTIMAGIC, COLD_RES, DISINT_RES, FIRE_RES, FROMOUTSIDE,
@@ -17,6 +19,7 @@ import { breamm } from '../js/mthrowu.js';
 import { mksobj } from '../js/obj.js';
 import { KATANA, SHORT_SWORD, TOWEL, POT_BOOZE } from '../js/objects.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
+import { block_point } from '../js/vision.js';
 
 async function hero() {
     // Independent Wizard startup supplies canonical property, attribute,
@@ -322,4 +325,39 @@ test('a cold ray shattered-potion death retains the planner environment', async 
     assert.deepEqual(random.calls, [
         ['d', 1, 6], ['rn2', 3], ['rn2', 5], ['rnd', 4], ['rn2', 3],
     ]);
+});
+
+
+test('planned monster poison clouds admit the borrowed vision change before region activation', async () => {
+    const state = await hero();
+    const planned = planningState(state);
+    const liveRegionCount = state.level.regions?.length ?? 0;
+    const originalRegionCount = planned.level.regions?.length ?? 0;
+    const x = planned.u.ux - 1;
+    const y = planned.u.uy;
+    let blockPointSawAdmission = false;
+    // A room tile and type 6 are chosen because zap.c names damage type 6
+    // ZT_POISON_GAS and the C arm accepts ordinary room squares.
+    planned.level.at(x, y).typ = ROOM;
+    await zap_over_floor(
+        x, y, 6, { value: false }, true, 0, planned, scripted(),
+        {
+            ...quiet,
+            admitPlannedVisionChange,
+            blockPoint: (cloudX, cloudY, owner) => {
+                // The one-square cloud calls block_point while its region
+                // activates; the borrowed index must already be marked.
+                assert.deepEqual(owner._plannedVisionChange, { x, y });
+                blockPointSawAdmission = true;
+                block_point(cloudX, cloudY, owner);
+            },
+            canSee: () => false,
+            newsym: () => {},
+        },
+    );
+    assert.equal(blockPointSawAdmission, true);
+    assert.deepEqual(planned._plannedVisionChange, { x, y });
+    // The planned cloud remains on the clone; the real level is replayed later.
+    assert.equal(planned.level.regions?.length ?? 0, originalRegionCount + 1);
+    assert.equal(state.level.regions?.length ?? 0, liveRegionCount);
 });

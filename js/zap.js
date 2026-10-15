@@ -5390,6 +5390,18 @@ export async function zap_over_floor(
         // Poison gas with range one is the green dragon/iron golem breath
         // arm.  Wall squares are deliberately ignored by C's ZAP_POS test.
         if (ZAP_POS(lev.typ)) {
+            // add_region() rebuilds vision.c's shared transparency index for
+            // the planned cloud map. Mark that borrowed index first so the
+            // planning wrapper restores it from the live level afterwards.
+            if (env.planning) {
+                if (typeof env.admitPlannedVisionChange !== 'function') {
+                    throw new TypeError(
+                        'planned poison gas requires '
+                        + 'admitPlannedVisionChange',
+                    );
+                }
+                env.admitPlannedVisionChange(x, y, state);
+            }
             await create_gas_cloud(x, y, 1, 8, {
                 ...env,
                 allowPositiveDamage: true,

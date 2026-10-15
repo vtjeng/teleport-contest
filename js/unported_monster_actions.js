@@ -2019,6 +2019,11 @@ async function planSimpleMonsterTurn(
                             random,
                             displayRandom,
                             planning: true,
+                            // movemon_singlemon() can reach monster breath
+                            // attacks that create regions. Those rebuild the
+                            // shared vision transparency index, so admit the
+                            // planned mutation before the cloud is installed.
+                            admitPlannedVisionChange,
                         });
                     },
                     clearBypasses: () => clear_bypasses(planned),
