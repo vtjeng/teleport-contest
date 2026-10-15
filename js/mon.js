@@ -258,6 +258,7 @@ import { mkcorpstat } from './corpstat.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
     freemcorpsenm,
+    grow_up,
     is_home_elemental,
     mbirth_limit,
     mkclass_poly,
@@ -1475,10 +1476,10 @@ export async function meatbox(mon, obj, rawEnv = {}) {
 // C ref: mon.c m_consume_obj() (1392-1453), the tame-monster branch for a
 // corpse. dogmove.c dog_eat() is its live caller. Its uball/uchain arms use
 // read.c:unpunish before the ball deletion or chain-free return. After delobj,
-// corpses that
-// trigger polyfood, mlevelgain, mhealup, mstoning, sliming, or pyrolisk
-// explosion remain explicit fail-closed gaps; mon_givit is ported below. The
-// source's pre-consumption healing is shared by every non-pet object eater.
+// corpses that trigger polyfood, mhealup, mstoning, sliming, or pyrolisk
+// explosion remain explicit fail-closed gaps; mlevelgain and mon_givit are
+// ported below. The source's pre-consumption healing is shared by every
+// non-pet object eater.
 export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = rawEnv.unsupported;
@@ -1588,8 +1589,10 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
             || dmgtype(corpseSpecies, AD_POLY)))
         stop('a non-polymorphing corpse');
     // GLOB_OF_GREEN_SLIME is caught by the non-CORPSE branch above.
-    // mlevelgain: PM_WRAITH
-    if (corpsenm === PM_WRAITH) stop('a non-wraith corpse');
+    // mon.c:1411 mlevelgain(otmp), defined in obj.h as ofood plus
+    // corpsenm == PM_WRAITH. C saves this before delobj() and grows the eater
+    // after deletion, subject to the pet's form-level cap.
+    const gainsLevel = corpsenm === PM_WRAITH;
     // mhealup: PM_NURSE
     if (corpsenm === PM_NURSE) stop('a non-nurse corpse');
     // mstoning: flesh_petrifies
@@ -1604,6 +1607,14 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     }
 
     delobj(otmp, objectGenerationEnv({ ...rawEnv, state })); /* munch */
+
+    // C mon.c:1430-1434 discards grow_up's return. The awaited port keeps its
+    // rnd(8), hit-point changes, level increment, and any evolution message in
+    // source order before the later corpse effects.
+    if (gainsLevel
+        && (!mtmp.mtame || mtmp.m_lev < mtmp.data.mlevel + 15)) {
+        await grow_up(mtmp, null, { ...rawEnv, state });
+    }
 
     // Mimic corpses trigger quickmimic for tame pets (C line 1446-1447).
     if (isMimic) {
