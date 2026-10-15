@@ -1,0 +1,123 @@
+{
+  "session": "synthetic/v79/v79-demon-sibling-action1",
+  "corpus": "synthetic",
+  "batch": "v79",
+  "caseId": "v79-demon-sibling-action1",
+  "remainingScreens": 53,
+  "recordedSteps": 224,
+  "manifestPath": "challenges/manifests/v79.json",
+  "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
+  "recordingSha256": "256906644451599ee1efb5a980d45a7bf5143429f3f4d4486b75b058043138b7",
+  "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+  "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+  "status": "complete",
+  "commit": "a5d11d956028254893ea83651831a68930b8b752",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v79",
+    "caseId": "v79-demon-sibling-action1",
+    "session": "synthetic/v79/v79-demon-sibling-action1",
+    "manifestPath": "challenges/manifests/v79.json",
+    "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
+    "recording": "challenges/cases/v79/v79-demon-sibling-action1.session.json",
+    "recordingPath": "challenges/cases/v79/v79-demon-sibling-action1.session.json",
+    "recordingSha256": "256906644451599ee1efb5a980d45a7bf5143429f3f4d4486b75b058043138b7",
+    "recipe": "challenges/cases/v79/v79-demon-sibling-action1.recipe.session.json",
+    "recipeSha256": "bae7f7a663cef9dee2b1db783e9cde98049ea530bcbf7f8c41d424369bb246dc",
+    "replayInputSha256": "a67057566c1d01a81dd6935f564dde922be438bf29e5756f200ad3597bdeddb2",
+    "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+    "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+    "evaluationArtifact": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+    "evaluationUtc": "2026-10-15T03:03:34.560Z",
+    "remainingScreens": 53,
+    "recordedSteps": 224,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 171,
+        "total": 224
+      },
+      "rng": {
+        "matched": 2946,
+        "total": 2967
+      },
+      "cursors": {
+        "matched": 224,
+        "total": 224
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 171,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 171,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 16,
+        "column": 55,
+        "cCell": {
+          "ch": "&",
+          "color": 5,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": ".",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2942,
+        "cEntry": "rn2(5)=4",
+        "cCaller": "tactics(wizard.c:413)",
+        "jsEntry": "rnd(79)=44",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 171,
+          "key": "."
+        },
+        "stepIndex": 171
+      },
+      "cursor": null
+    },
+    "step": 171,
+    "kind": "rng",
+    "sourceFile": "wizard.c",
+    "function": "tactics",
+    "message": null,
+    "cFile": "wizard.c",
+    "luaFile": null,
+    "line": 413
+  },
+  "summary": "When a peaceful demon speaks to a polymorphed demon hero, minion.c demon_talk() checks tele_restrict() and discards rloc()’s return while retaining its relocation side effect. The JS demon_talk() call omits the current planning environment and random source, so teleport.js rloc() uses live RNG during preflight. The delegated RNG trace records rnd(79)=44 from randomPlace at minion.js:302 where C advances to tactics() and records rn2(5)=4. Preserve the planning context when calling rloc(); the same demon_talk() implementation also owns the separately assigned partial-payment charisma mismatch.",
+  "source": {
+    "file": "minion.c",
+    "branch": "The hero is polymorphed into a demon, the peaceful MS_BRIBE monster is in range and addresses the hero directly, and teleport.c tele_restrict() permits relocation. demon_talk() says the sibling greeting and calls rloc(mtmp, RLOC_MSG), discarding its return while performing relocation.",
+    "functions": [
+      "demon_talk"
+    ],
+    "callers": [
+      "monmove.c:823 dochug() calls demon_talk() for adjacent peaceful untamed MS_BRIBE monsters and consumes its return to end the monster turn.",
+      "sounds.c:1143 domonnoise() calls demon_talk() for peaceful untamed MS_BRIBE monsters and discards its return."
+    ],
+    "dependencies": [
+      "teleport.c:tele_restrict() determines whether relocation is allowed.",
+      "teleport.c:rloc() performs the side-effecting relocation; demon_talk() discards its Boolean return.",
+      "monmove.c:dochug() is the admitted v79 runtime entry point.",
+      "wizard.c:tactics() is the C caller associated with the next RNG entry after the greeting branch."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v79 evaluation identifies step 171 of synthetic/v79/v79-demon-sibling-action1 as the first mismatch: C records rn2(5)=4 from wizard.c tactics(), while JS records rnd(79)=44; the C/JS screens first differ at the demon position and all 224 cursor positions match. The manifest digest is 6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416 and the recording digest is 256906644451599ee1efb5a980d45a7bf5143429f3f4d4486b75b058043138b7.",
+    "The delegated RNG trace at index 2942 runs through teleport.js randomPlace(), teleport.js rloc(), minion.js demon_talk() and the planning call chain planSimpleMonsterTurn() -> preflightSimpleMonsterActions() -> planElapsedTurn(). This is evidence that the current minion.js call to rloc(mtmp, RLOC_MSG, { state }) loses the planning RNG/environment. The task will preserve the source call and its discarded Boolean result while forwarding that environment and awaiting the side effect.",
+    "minion.c:263-359 contains the complete demon_talk() implementation. Its sibling arm at lines 305-315 performs the greeting, checks tele_restrict(), and discards rloc()’s result. The production callers are monmove.c:823 and sounds.c:1143; the synthetic case reaches it from dochug()."
+  ]
+}
