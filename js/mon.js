@@ -5696,7 +5696,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
             objectEnv,
         );
         while (obj) {
-            const other = obj_nexto(obj, state);
+            const other = obj_nexto(obj, state, objectEnv.random);
             if (!other) break;
             await pudding_merge_message(obj, other, state, objectEnv);
             obj = obj_meld(obj, other, state, {
