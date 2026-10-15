@@ -10,6 +10,7 @@ import {
     A_WIS,
     MIN_QUEST_ALIGN,
     MIN_QUEST_LEVEL,
+    STRAT_WAITMASK,
     LL_ACHIEVE,
     helpless,
     UTOTYPE_NONE,
@@ -21,16 +22,21 @@ import {
     FAKE_AMULET_OF_YENDOR,
 } from './objects.js';
 import { yn_function } from './cmd.js';
-import { exercise, exercise_nonphysical } from './attrib.js';
+import { adjalign, exercise, exercise_nonphysical } from './attrib.js';
 import { dungeon_branch, Is_special, on_level } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { carrying, fully_identify_obj, update_inventory } from './invent.js';
-import { setmangry } from './mon.js';
+import { angry_guards, setmangry } from './mon.js';
 import { align_str } from './insight.js';
 import { monnear } from './monmove.js';
-import { MS_DJINNI, MS_GUARDIAN, MS_NEMESIS } from './monsters.js';
+import {
+    MS_DJINNI,
+    MS_GUARDIAN,
+    MS_NEMESIS,
+    PM_PRISONER,
+} from './monsters.js';
 import {
     com_pager,
     is_quest_artifact,
@@ -39,7 +45,8 @@ import {
 } from './questpgr.js';
 import { rn2, rnd } from './rng.js';
 import { the, xname } from './objnam.js';
-import { noit_mon_nam } from './do_name.js';
+import { Monnam, noit_mon_nam } from './do_name.js';
+import { canseemon } from './display.js';
 import { ttyPline } from './tty_message.js';
 import {
     heroDeaf,
@@ -47,7 +54,6 @@ import {
     verbalize,
 } from './pline.js';
 import { observe_object } from './o_init.js';
-import { note_unported } from './unported.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
 // pager's window-port calls, pline(), the wizard-mode prompt, the random
@@ -453,9 +459,26 @@ export async function quest_talk(mtmp, env = {}) {
     if (msound === MS_NEMESIS)
         await nemesis_speaks(ops);
     if (msound === MS_DJINNI)
-        // quest.c:quest_talk discards prisoner_speaks()'s void result. Preserve
-        // the unported side-effect gap without refusing the whole dispatch.
-        note_unported('quest.c prisoner_speaks');
+        await prisoner_speaks(mtmp, ops);
+}
+
+// C ref: quest.c prisoner_speaks() (451-468), called by quest_talk() for
+// MS_DJINNI. The prisoner loses its waiting strategy and becomes peaceful
+// only after the visible speech and alignment side effect have run.
+async function prisoner_speaks(mtmp, ops) {
+    const { state } = ops;
+    if (mtmp.data !== state.mons?.[PM_PRISONER]
+        || !(mtmp.mstrategy & STRAT_WAITMASK)) return;
+
+    if (canseemon(mtmp, state))
+        await ops.message(`${Monnam(mtmp, state, ops)} speaks:`, state);
+    // include/sndprocs.h compiles SetVoice() to an empty macro in the
+    // recorder's no-sound build.
+    await verbalize("I'm finally free!", state, { message: ops.message });
+    mtmp.mstrategy &= ~STRAT_WAITMASK;
+    mtmp.mpeaceful = true;
+    adjalign(3, state);
+    await angry_guards(false, { ...ops, state });
 }
 
 // C ref: quest.c nemesis_speaks() (403-422). The battle flag was set earlier
