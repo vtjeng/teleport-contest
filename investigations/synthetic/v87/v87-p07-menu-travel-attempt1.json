@@ -13,6 +13,8 @@
   "status": "complete",
   "commit": "386ecf0d1b08b094f8fa49037d5007b933960c8c",
   "mismatch": {
+    "session": "synthetic/v87/v87-p07-menu-travel-attempt1",
+    "remainingScreens": 2,
     "step": 18,
     "segment": 0,
     "key": "\n",
