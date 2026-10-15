@@ -214,7 +214,7 @@ import {
 import { monster_census } from './minion.js';
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import {
-    flash_mon, killed, kill_genocided_monsters, mongone, setmangry,
+    flash_mon, killed, kill_genocided_monsters, mondied, mongone, setmangry,
     wake_nearto, wakeup,
 } from './mon.js';
 import {
@@ -2442,7 +2442,7 @@ export async function drop_boulder_on_monster(
                 await killed(monster, state, env);
             } else {
                 await message(`${Monnam(monster, state)} is killed.`, state);
-                note_unported('mon.c mondied');
+                await mondied(monster, state, env);
             }
         } else {
             await wakeup(monster, byu, { ...env, state });

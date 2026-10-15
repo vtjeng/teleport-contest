@@ -36,7 +36,7 @@ test('avoid_ceiling follows dungeon.c quest and ceiling predicates', () => {
     assert.equal(avoid_ceiling({ dnum: 9, dlevel: 5 }, state), false);
 });
 
-test('a by-you earth boulder uses the source monster-kill path', () => {
+test('Earth boulder deaths use the source monster-kill paths', () => {
     // This selected branch is the lethal by-you boulder in read.c's
     // drop_boulder_on_monster; the admitted v54 recording reaches it when its
     // boulder kills the lichen. C calls killed() before wake_nearto().
@@ -62,8 +62,11 @@ test('a by-you earth boulder uses the source monster-kill path', () => {
         /const\s+redraw\s*=\s*rawEnv\.redraw\s*\?\?\s*rawEnv\.newsym\s*\?\?\s*\(rawEnv\.planning\s*\?\s*\(\)\s*=>\s*\{\}\s*:\s*newsym\)/u,
     'planned boulder placement cannot repaint the live global map');
     assert.match(jsFunction,
-        /else\s*\{\s*await message\([\s\S]*?note_unported\('mon\.c mondied'\);/u,
-    'the separate non-player mondied gap remains visible');
+        /else\s*\{\s*await message\([\s\S]*?await mondied\(monster, state, env\);/u,
+    'non-player boulder deaths complete the C mondied lifecycle');
+    assert.ok(jsFunction.indexOf('await mondied(monster, state, env)')
+        < jsFunction.indexOf('await wake_nearto(x, y, 4 * 4'),
+    'death cleanup remains before C’s nearby-monster wakeup');
 });
 
 test('Earth boulder planning keeps messages and redraws off the live display', () => {
