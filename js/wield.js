@@ -829,14 +829,25 @@ export async function dowield(state = game) {
         /* if player chose a partial stack but can't wield it, undo split */
         const split = state.context?.objsplit;
         if (wep.o_id && split && wep.o_id === split.child_oid)
-            throw new UnsupportedWieldError('unsplitobj() after welded');
+            unsplitobj(wep, { state });
         return ECMD_FAIL;
     }
     if (wep.o_id && state.context?.objsplit
         && wep.o_id === state.context.objsplit.child_oid) {
-        // The counted-selection path: getobj returned a partial stack.
-        // getobj() itself stops at the count path, so this is unreachable.
-        throw new UnsupportedWieldError('objsplit child in dowield');
+        // C: wield.c:dowield checks whether the split parent is already the
+        // primary weapon. If so, restore the stack and use the common
+        // already_wielded result; otherwise give the child its own inventory
+        // letter before continuing through the wielding label.
+        if (state.uwep
+            && state.uwep.o_id === state.context.objsplit.parent_oid) {
+            unsplitobj(wep, { state });
+            wep = state.uwep;
+            await ttyPline('You are already wielding that!', state);
+            if (is_weptool(wep, state) || is_wet_towel(wep, state))
+                state.unweapon = false; /* [see setuwep()] */
+            return ECMD_FAIL;
+        }
+        finish_splitting(wep, state);
     }
 
     /* Handle no object, or object in other slot */

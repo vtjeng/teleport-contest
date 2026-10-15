@@ -8,6 +8,7 @@ import test from 'node:test';
 
 import {
     CQ_CANNED,
+    ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
     LAST_PROP,
@@ -18,7 +19,7 @@ import {
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
-import { cmdq_add_key } from '../js/cmd.js';
+import { cmdq_add_int, cmdq_add_key } from '../js/cmd.js';
 import { GameDisplay } from '../js/game_display.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
@@ -219,6 +220,45 @@ test('dowield splits one arrow from the quiver and keeps the rest readied',
         assert.equal(state.uwep.quan, 1);
         assert.notStrictEqual(state.uwep, quiver);
         assert.equal(state.uwep.owornmask & W_WEP, W_WEP);
+    });
+
+test('dowield finishes a counted split before wielding the selected child',
+    async () => {
+        assert.match(WIELD_C,
+            /else if \(wep->o_id && wep->o_id == svc\.context\.objsplit\.child_oid\)[\s\S]*?finish_splitting\(wep\);[\s\S]*?goto wielding;/u);
+
+        const state = makeState();
+        const arrows = item(state, ARROW, { quan: 5 });
+        state.invent = arrows;
+        cmdq_add_int(CQ_CANNED, 2, state);
+        cmdq_add_key(CQ_CANNED, 'a', state);
+        initRng(74022022);
+
+        assert.equal(await dowield(state), ECMD_TIME);
+        assert.equal(arrows.quan, 3);
+        assert.equal(state.uwep.quan, 2);
+        assert.notStrictEqual(state.uwep, arrows);
+        assert.notEqual(state.uwep.invlet, arrows.invlet);
+        assert.equal(state.uwep.owornmask & W_WEP, W_WEP);
+    });
+
+test('dowield restores a counted split when its parent is already wielded',
+    async () => {
+        assert.match(WIELD_C,
+            /if \(uwep && uwep->o_id == svc\.context\.objsplit\.parent_oid\)[\s\S]*?unsplitobj\(wep\);[\s\S]*?wep = uwep;[\s\S]*?goto already_wielded;/u);
+
+        const state = makeState();
+        const arrows = item(state, ARROW, { quan: 5, owornmask: W_WEP });
+        state.invent = arrows;
+        state.uwep = arrows;
+        cmdq_add_int(CQ_CANNED, 2, state);
+        cmdq_add_key(CQ_CANNED, 'a', state);
+        initRng(74022023);
+
+        assert.equal(await dowield(state), ECMD_FAIL);
+        assert.strictEqual(state.uwep, arrows);
+        assert.equal(arrows.quan, 5);
+        assert.match(pending(state), /already wielding that/u);
     });
 
 test('seed0101 quiver witness completes after quivering and throwing', async () => {
