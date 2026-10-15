@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T01:55:27.735Z",
+  "capturedAt": "2026-10-15T02:17:26.780Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130537,11 +130537,202 @@
         "type": "accepted",
         "at": "2026-10-15T01:53:07.048Z",
         "task": "A2-investigation-v76-search-actions2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v76-shop-force-followup-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T01:55:39.167Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Tracing the v76 shop-chest lock-picking boundary after the accepted keeper-name fix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v76-shop-chest-lock-billing-investigation-20261015",
+        "type": "assign",
+        "at": "2026-10-15T01:55:47.058Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v76-shop-chest-force-action2-20261015-7dc8ef69215f5905a9cd440a574d45591507d318",
+        "type": "published",
+        "at": "2026-10-15T01:56:01.229Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "commit": "7dc8ef69215f5905a9cd440a574d45591507d318"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v76-search-actions2-20261015-7dc8ef69215f5905a9cd440a574d45591507d318",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T01:56:05.245Z",
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "commit": "7dc8ef69215f5905a9cd440a574d45591507d318",
+        "knownBy": "2026-10-15T01:56:01.229Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v76-shop-chest-breakchestlock-20261015",
+        "type": "implement",
+        "at": "2026-10-15T01:58:00.721Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "goal": "divergence-v76-shop-chest-billing-breakchestlock-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4750087ff429b393ac1760abe1a288b332091bd5",
+        "type": "ready",
+        "at": "2026-10-15T02:02:45.120Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "delivery": "4750087ff429b393ac1760abe1a288b332091bd5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-v76-delivery-no-independent-queue-20261015",
+        "type": "turn",
+        "at": "2026-10-15T02:03:11.648Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C submitted the v76 chest billing correction. No independent unclaimed source case is in the current queue; the only other entry is the parked v48 profile blocker. Waiting for a newly admitted queue or coordinator direction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v76-chest-4750087f",
+        "type": "received",
+        "at": "2026-10-15T02:03:25.052Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "delivery": "4750087ff429b393ac1760abe1a288b332091bd5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-v76-report-correction-20261015",
+        "type": "turn",
+        "at": "2026-10-15T02:03:31.041Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is correcting a report SHA typo in the v76 chest billing delivery; saved source checks and replay evidence remain valid."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-C-v76-chest-report-sha-4750087f",
+        "type": "feedback",
+        "at": "2026-10-15T02:03:35.896Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "delivery": "4750087ff429b393ac1760abe1a288b332091bd5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-v76-report-correction-20261015",
+        "type": "resume",
+        "at": "2026-10-15T02:03:56.002Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1b973d61204d01f8330d50fe1a524a3171f5b266",
+        "type": "ready",
+        "at": "2026-10-15T02:04:05.190Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "delivery": "1b973d61204d01f8330d50fe1a524a3171f5b266"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-v76-correction-ready-no-independent-queue-20261015",
+        "type": "turn",
+        "at": "2026-10-15T02:04:19.555Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "C resubmitted the corrected v76 chest billing delivery. No independent unclaimed source case is in the current queue; the other entry remains parked at the v48 build-profile blocker. Waiting for a newly admitted queue or coordinator direction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v76-chest-corrected-1b973d61",
+        "type": "received",
+        "at": "2026-10-15T02:04:34.986Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "delivery": "1b973d61204d01f8330d50fe1a524a3171f5b266"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e-3b06ac4bbefa504e4d79da8ab21113dfcd0806db955bfb2eee07b06546f27631-C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T02:05:04.162Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "integration": "77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e",
+        "validationGroup": [
+          "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3994b96c0a0174165cfbb5fbca0f21dc8bd08c99",
+        "type": "ready",
+        "at": "2026-10-15T02:11:30.237Z",
+        "task": "Prep42",
+        "delivery": "3994b96c0a0174165cfbb5fbca0f21dc8bd08c99"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep43-v79-20261015",
+        "type": "assign",
+        "at": "2026-10-15T02:12:19.811Z",
+        "task": "Prep43",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-Prep42-v78-3994b96c",
+        "type": "received",
+        "at": "2026-10-15T02:13:12.798Z",
+        "task": "Prep42",
+        "delivery": "3994b96c0a0174165cfbb5fbca0f21dc8bd08c99"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep43-v79-source-design-20261015",
+        "type": "turn",
+        "at": "2026-10-15T02:14:53.954Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep43/v79: source-first design across demon negotiation, religion and endgame tool routes; checking historical branch coverage before independent game recordings. Prep42/v78 is ready for coordinator review."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015-77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e-validated",
+        "type": "validated",
+        "at": "2026-10-15T02:15:06.132Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015-77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T02:15:40.541Z",
+        "task": "C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "Prep42",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "ready",
+        "delivery": "3994b96c0a0174165cfbb5fbca0f21dc8bd08c99",
+        "batch": "v78",
+        "since": "2026-10-15T02:11:30.237Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -131707,8 +131898,8 @@
     "reservations": {}
   },
   "development": {
-    "executionCommit": "88718556869241efa4427ad22af43f4402c94ee0",
-    "measuredAt": "2026-10-15T01:48:23.730Z",
+    "executionCommit": "77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e",
+    "measuredAt": "2026-10-15T02:10:52.626Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

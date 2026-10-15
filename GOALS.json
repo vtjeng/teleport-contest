@@ -316901,7 +316901,7 @@
     {
       "id": "divergence-v76-shop-chest-billing-breakchestlock-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement breakchestlock from lock.c",
       "cFile": "lock.c",
       "sessions": [
@@ -316911,10 +316911,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e",
       "delivered": null,
       "function": "breakchestlock",
-      "session": "synthetic/v76/v76-shop-chest-force-action2"
+      "session": "synthetic/v76/v76-shop-chest-force-action2",
+      "closeStanding": {
+        "sha": "77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "88718556869241efa4427ad22af43f4402c94ee0",
+        "target": "synthetic/v76/v76-shop-chest-force-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/77ec65a35d1563e558ac32aa40eb7c2d7bb0c45e/run-hosted-AMdGWx/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "breakchestlock",
+            "implementation": "js/lock.js",
+            "symbol": "breakchestlock",
+            "sourceReview": "Read upstream lock.c:breakchestlock() (162-212) in full. Compared the destroyit=false bill-and-lock-state branch and destroyit=true shop lookup, destruction message, content extraction loop, rn2(3)/potion shatter condition, stolen_value-before-free/useup ordering, ICE_BOX corpse handling, placement/stacking, box billing, combined debt output, and delobj order. Verified callers: lock.c:forcelock() passes destroyit for blunt-force success and dokick.c:really_kick_object() passes FALSE; JS lock.js:forcelock and dokick.js preserve those call paths. Existing costly_spot, shop_keeper, stolen_value, currency and delobj ports provide the required callees; no new unported callee.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "forcelock",
+                "source": "C lock.c:doforce schedules lock.c:forcelock as the forcing occupation; on successful blunt force forcelock calls breakchestlock(box, !picktyp && !rn2(3)). JS lock.js:doforce schedules the same lock.js:forcelock callback, which awaits breakchestlock before reset_pick."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/force-lock.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v76",
+                "caseId": "v76-shop-chest-force-action2",
+                "segment": 0,
+                "fromStep": 434,
+                "throughStep": 506,
+                "source": "C lock.c:doforce -> forcelock -> breakchestlock(destroyit=true); successful shop chest destruction, content/box billing and debt output."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is #force on a locked chest in a shop: cmd.c:rhack dispatches lock.c:doforce, doforce schedules lock.c:forcelock as the occupation callback, and successful blunt forcing reaches breakchestlock(..., TRUE). JavaScript cmd.js dispatches lock.js:doforce, which schedules lock.js:forcelock and awaits breakchestlock. The admitted v76 replay exercises that production path and matches the full replay. dokick.c:really_kick_object is a second caller but passes FALSE; JS dokick.js retains that call and the false branch is unchanged.",
+        "entryPoints": [
+          {
+            "name": "#force occupation destroys a locked chest in a shop",
+            "functions": [
+              "breakchestlock"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v76",
+                "caseId": "v76-shop-chest-force-action2",
+                "segment": 0,
+                "fromStep": 434,
+                "throughStep": 506,
+                "source": "C cmd.c:rhack -> lock.c:doforce -> forcelock -> breakchestlock(destroyit=true)."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
