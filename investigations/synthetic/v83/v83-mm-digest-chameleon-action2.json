@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v83/v83-mm-digest-chameleon-action2",
+  "corpus": "synthetic",
+  "batch": "v83",
+  "caseId": "v83-mm-digest-chameleon-action2",
+  "manifestPath": "challenges/manifests/v83.json",
+  "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+  "recordingSha256": "495756051cbba37151437011ae033a68eac27e624b5576e63d516bb954c2c558",
+  "evaluationPath": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+  "evaluationCommit": "8ea329b39e1d58519ed59f949365104e0bf86c2d",
+  "remainingScreens": 779,
+  "recordedSteps": 1702,
+  "status": "complete",
+  "commit": "46c7065c4e2a9044146fc60dbfbb5154cf4cb6ec",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v83",
+    "caseId": "v83-mm-digest-chameleon-action2",
+    "session": "synthetic/v83/v83-mm-digest-chameleon-action2",
+    "manifestPath": "challenges/manifests/v83.json",
+    "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+    "recording": "challenges/cases/v83/v83-mm-digest-chameleon-action2.session.json",
+    "recordingPath": "challenges/cases/v83/v83-mm-digest-chameleon-action2.session.json",
+    "recordingSha256": "495756051cbba37151437011ae033a68eac27e624b5576e63d516bb954c2c558",
+    "recipe": "challenges/cases/v83/v83-mm-digest-chameleon-action2.recipe.session.json",
+    "recipeSha256": "c80730c08f8cf3ad4a4745ac411094aee56295285565475215e98a7c57bb6621",
+    "replayInputSha256": "55e46cc170706b0305dcf8ab1389e406372a3bfd083ecc68fb0cd0ac7c79555a",
+    "evaluationPath": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+    "evaluationCommit": "8ea329b39e1d58519ed59f949365104e0bf86c2d",
+    "evaluationArtifact": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+    "evaluationUtc": "2026-10-15T05:20:10.740Z",
+    "remainingScreens": 779,
+    "recordedSteps": 1702,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 923,
+        "total": 1702
+      },
+      "rng": {
+        "matched": 3519,
+        "total": 4205
+      },
+      "cursors": {
+        "matched": 923,
+        "total": 1702
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "stopObjectTimers is not available for otyp 265",
+      "step": 923
+    },
+    "step": 923,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "stopObjectTimers is not available for otyp 265",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first mismatch is the monster-versus-monster digestion path in uhitm.c:mhitm_ad_dgst. A tame, non-minion, corpse-eligible aggressor creates a temporary CORPSE, assigns the swallowed species (which starts a corpse timeout), computes pet nutrition, then deallocates the corpse. C dealloc_obj stops attached timers; JavaScript dealloc_obj requires a stopObjectTimers lifecycle hook, but mhitm_ad_dgst passes only the generic attack environment and state. At step 923, the missing hook stops the replay before the remaining source effects. The cause is localized to the virtual-corpse caller environment; the successful pre-mismatch prefix matches through step 922.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": [
+      "mhitm_ad_dgst"
+    ],
+    "branch": "In the monster-versus-monster AD_DGST arm, after rider handling and the wake/damage/lifesaver/corpse-chance checks, a tame non-minion aggressor whose swallowed species is not G_NOCORPSE creates a temporary CORPSE, calls set_corpsenm, calculates dog nutrition, and deallocates it before applying pet meal-time and half-nutrition updates.",
+    "callers": [
+      "uhitm.c:mhitm_adtyping dispatches AD_DGST to mhitm_ad_dgst for monster-versus-monster attacks.",
+      "js/uhitm.js:mhitm_adtyping dispatches AD_DGST to mhitm_ad_dgst with the active state and environment."
+    ],
+    "dependencies": [
+      "mkobj.c:dealloc_obj stops attached object timers before freeing an object.",
+      "timeout.c:obj_stop_timers removes timers attached to the object and clears its timed count."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The promoted v83 queue identifies the first failure at segment 0 step 923 in synthetic/v83/v83-mm-digest-chameleon-action2: stopObjectTimers is unavailable for object type 265. Its accepted recording SHA-256 is 495756051cbba37151437011ae033a68eac27e624b5576e63d516bb954c2c558; the manifest SHA-256 is b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329. The official baseline is 923/1702 screens, 3519/4205 RNG calls, and 923/1702 cursors before the non-null error.",
+    "The admitted C recording reaches the purple worm’s monster-versus-monster AD_DGST against the chameleon after the earlier matching prefix. Prep’s saved C caller observation identifies the actual target as a chameleon that became a titanothere; C continues through digestion and later swallows it. The exact unchanged challenge recording is available at challenges/cases/v83/v83-mm-digest-chameleon-action2.session.json.",
+    "C uhitm.c:4492-4567 handles hero and hero-defender arms by setting zero damage; Rider defenders kill or life-save the aggressor and finish the attack; other monster defenders may produce the burp, wake nearby monsters, copy defender HP, use lifesaving, and run corpse_chance. For a tame non-minion aggressor and corpse-eligible non-G_NOCORPSE defender, it creates a virtual CORPSE, sets its species, obtains dog_nutrition, calls dealloc_obj, then adjusts meating and EDOG hungrytime.",
+    "C mkobj.c:set_corpsenm starts a corpse timeout for species other than lizard/lichen. C mkobj.c:dealloc_obj at 2745-2767 calls obj_stop_timers when obj->timed is set; timeout.c:obj_stop_timers unlinks the matching object timers and clears obj->timed.",
+    "The existing JS uhitm.js:mhitm_ad_dgst mirrors that order and already calls set_corpsenm and dealloc_obj. Its virtual-corpse objectEnv is only {...env, state}; JS obj.js:dealloc_obj deliberately requires the stopObjectTimers hook for timed objects, so the temporary titanothere corpse throws before the source cleanup and subsequent pet nutrition updates. The needed repair is at this caller environment; no change to the generic deallocator or timeout semantics is indicated.",
+    "The preceding v83 prefix matches through segment 0 step 922. Similar earlier digestion cases do not exercise this branch: the accepted stone-golem digestion uses a G_NOCORPSE species, while the nurse case exits through corpse_chance before creating the virtual corpse."
+  ]
+}
