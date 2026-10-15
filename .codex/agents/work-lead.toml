@@ -2,9 +2,9 @@ model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
 developer_instructions = """
 Follow AGENTS.md, .agents/architecture.md, and .agents/loop.md.
-You are Main, the work lead below the responsive conversation coordinator.
-Prep and Process are your siblings. Dispatch the three persistent workers
-using their worker role profile and the shared queue. Own integration,
+You are the Work lead below the responsive Coordinator.
+The Challenge lead and Process analyst are your siblings. Dispatch the three
+persistent workers using their worker role profile and the shared queue. Own integration,
 validation, acceptance, admission, central records, and publication.
 Keep agent and worktree ownership within the documented hierarchy.
 """

@@ -14,7 +14,7 @@ every valid seed, date and time, set of options, and input sequence.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
   goal being integrated and the goals queued after it
   (`node scripts/goal-log.mjs --current`). Agent hierarchy and queue/worktree ownership are defined in
-  `.agents/architecture.md`; `.agents/loop.md` covers Main's integration loop.
+  `.agents/architecture.md`; `.agents/loop.md` covers Work lead's integration loop.
   `node scripts/goal-log.mjs roadmap` lists C declarations separately from
   verified functions, and every Lua program with its completion evidence.
 
@@ -61,7 +61,7 @@ historical “Synthetic local holdout” label).
 workload. `score-development.mjs` is its aggregate scorer. The separate
 `score-holdout.mjs` evaluator remains available for provenance and historical
 comparison, while workers leave all aggregate score recording to the
-orchestrator.
+work lead.
 
 ## Read the instructions for your task
 
@@ -79,11 +79,12 @@ selection or closure. Existing spans and slices remain historical records. A
 assembled from exploration results, without admission or scoring; see the
 architecture's separate execution-task and deliverable lifecycles.
 
-Read `.agents/architecture.md` for the single prioritized queue, sibling
-Main/Prep/Process leads, three persistent general workers, rework, and
-worktrees. That file also identifies the current tooling migration boundary;
+Read `.agents/architecture.md` for the Coordinator, sibling Work lead,
+Challenge lead and Process analyst, the single prioritized queue, three
+persistent general workers, rework, and worktrees. That file also identifies
+the current tooling migration boundary;
 use the supported enable/migration commands without discarding legacy work.
-`.agents/loop.md` owns Main's integration and publication procedures;
+`.agents/loop.md` owns Work lead's integration and publication procedures;
 `.claude/agents/queue-worker.md` is the common worker entry point.
 
 | Before you... | Read... |
@@ -95,12 +96,12 @@ use the supported enable/migration commands without discarding legacy work.
 | Implement game behavior | `.agents/glossary.md` and `.agents/validation.md` |
 | Validate game behavior | `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
-| Complete an implementation task as a loop worker | `.claude/agents/span-worker.md` |
-| Prepare a synthetic challenge batch as a loop worker | `.claude/agents/challenge-prep-worker.md`, `.agents/selection.md`, `.agents/validation.md`, and `.agents/scoring.md` |
+| Complete an implementation task as a loop worker | `.claude/agents/implementation-worker.md` |
+| Prepare a synthetic challenge batch as a loop worker | `.claude/agents/challenge-lead.md`, `.agents/selection.md`, `.agents/validation.md`, and `.agents/scoring.md` |
 | Commit game implementation | `.agents/validation.md` |
-| Append a `SCORE.tsv` event row or read an aggregate remote-holdout result (orchestrator only) | `.agents/scoring.md` |
+| Append a `SCORE.tsv` event row or read an aggregate remote-holdout result (work lead only) | `.agents/scoring.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run a synthetic local challenge evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
-| Decide whether a correctness review is warranted, or run or record one (orchestrator only) | `.agents/review.md` and the skill it names for that review |
+| Decide whether a correctness review is warranted, or run or record one (work lead only) | `.agents/review.md` and the skill it names for that review |
 
 ## GitHub push authorization
 
@@ -293,7 +294,7 @@ challenge cases into the regression corpus. Keep blocked recipes with a comment
 naming the source function that blocks their recording.
 
 Workers submit source findings and runtime evidence as `.agents/validation.md`,
-"Source completion evidence", specifies. Main accepts from saved CI results
+"Source completion evidence", specifies. Work lead accepts from saved CI results
 under `.agents/loop.md`; it does not repeat source review or require
 `goal-log.mjs record-evidence` or `close-goal`. Whole-source certification is
 outside the normal loop and requires a user-requested audit. An isolated test

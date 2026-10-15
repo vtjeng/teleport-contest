@@ -10,7 +10,7 @@ retires it.
 ## Assess asynchronous GitHub validation
 
 **Integration-speed worklist.** The user requested completion of the whole
-list, with measured improvements sent to the main agent for integration:
+list, with measured improvements sent to the Work lead for integration:
 
 - Immediate worker continuation after acceptance: integrated as `37b4aff3`.
 - Prune redundant test setup and reassess obsolete workflow support:
@@ -28,7 +28,7 @@ list, with measured improvements sent to the main agent for integration:
   and records acceptance without repeating aggregate validation. Focused
   checks exercise real goal and ledger commands, stale evidence, two-batch
   completeness, recovery, and preparation tasks. Workers own source review;
-  Main owns integration, CI, acceptance, dispatch, and publication. Whole-source
+  Work lead owns integration, CI, acceptance, dispatch, and publication. Whole-source
   certification is outside normal acceptance. The two-batch fixture needs one caller command instead of
   seven; its elapsed-time difference remains unresolved within measured
   variation. Complete hosted validation precedes acceptance.
@@ -89,7 +89,7 @@ closure. Keep the actual measured commit and runtime provenance; do not
 pretend a hosted result used the local execution environment. Compare paired
 local and hosted runs before changing acceptance instructions. A candidate
 branch can preserve pre-acceptance validation without publishing unaccepted
-work to main; the orchestrator remains the only acceptance and score writer.
+work to main; the work lead remains the only acceptance and score writer.
 
 **Current boundary.** The user approved hosted validation for the exact
 committed candidate. Run `37587607727` passed at `7f51250e`; the actual fetch
@@ -98,7 +98,7 @@ the matching commit and GitHub provenance. `.agents/validation.md` defines
 the hosted route. Keep the full gate before acceptance rather than defer
 required checks until publication; the paired trial supports parallelizing
 the gate without dropping coverage. The fetcher does not record synthetic
-scores: it prints the copy and explicit record steps for orchestrator review.
+scores: it prints the copy and explicit record steps for work lead review.
 
 ## Maintain the existing score baseline
 
@@ -111,7 +111,7 @@ legitimate positional RNG shifts across segments under `.agents/scoring.md`.
 
 **What prompted it.** Candidate `49ad63ae` passed checkpoint against an older
 baseline while reducing Development screens from 10,346 to 9,250. The
-orchestrator caught the loss manually and parked the flee fix pending
+work lead caught the loss manually and parked the flee fix pending
 `display.c feel_location()`. The existing baseline-raising command is not
 part of the acceptance path.
 

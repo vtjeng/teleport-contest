@@ -50,7 +50,7 @@ For an opened local-holdout recording, use its explicit fixed-workload path:
 path in its admitted manifest without relocating or rewriting the recording.
 
 Record the proposed goal's C file, function, session, and step in the worker's
-task context. The orchestrator queues it with `node scripts/goal-log.mjs
+task context. The work lead queues it with `node scripts/goal-log.mjs
 queue-goal --kind divergence-fix` before dispatch or at integration. Put these
 facts in the goal's `--detail`:
 
@@ -62,7 +62,7 @@ facts in the goal's `--detail`:
 
 Write `.cache/task-context.json` with the functions the fix will read and the
 source fields `goal`, `cFile`, `functions`, `lineRanges`, `cLines`, `jsFile`,
-and `sessions`. The orchestrator registers the goal at integration under
+and `sessions`. The work lead registers the goal at integration under
 `.agents/loop.md`. On resumption, inspect its recorded state and continue the
 existing task. Preserve historical span context; normal task acceptance does
 not require its source-certification closure path.
@@ -95,7 +95,7 @@ Validate in this order:
 - a refreshed mismatch queue.
 
 In the multi-worker loop, the worker submits focused and fresh-differential
-results; the orchestrator obtains the combined candidate's checkpoint under
+results; the work lead obtains the combined candidate's checkpoint under
 `.agents/validation.md`, using hosted validation by default. A standalone fix
 uses the same post-commit validation policy. When the fix
 changes the development score, the goal's `SCORE.tsv` rows record it; a fix

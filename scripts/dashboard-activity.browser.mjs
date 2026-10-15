@@ -150,7 +150,7 @@ try {
     const visibleCount = await page.evaluate(group => {
       const end = Math.min(Date.parse(DATA.activity.capturedAt),
         Math.max(...DATA.activity.segments.map(segment => Date.parse(segment.end))));
-      return mainIntegrationDurations(DATA.activity)[group]
+      return integrationDurations(DATA.activity)[group]
         .filter(point => Date.parse(point.end) >= end - 6 * 3600000 && Date.parse(point.end) <= end).length;
     }, group);
     if (!visibleCount) continue;
@@ -171,7 +171,7 @@ try {
     const clickPosition = await page.evaluate(group => {
       const end = Math.min(Date.parse(DATA.activity.capturedAt),
         Math.max(...DATA.activity.segments.map(segment => Date.parse(segment.end)))), start = end - 6 * 3600000;
-      const points = Object.values(mainIntegrationDurations(DATA.activity)).flat()
+      const points = Object.values(integrationDurations(DATA.activity)).flat()
         .filter(point => Date.parse(point.end) >= start && Date.parse(point.end) <= end);
       const point = points.filter(point => (DATA.activity.segments[point.sourceIndex].kind === 'challenge-preparation')
         === (group === 'preparation')).at(-1);
@@ -384,7 +384,7 @@ try {
   assert.match(await pending.innerText(), /Ready to integrate · 1/u);
   assert.match(await pending.innerText(), /Batches to admit · 1/u);
   assert.match(await pending.innerText(), /Waiting for dependencies · 1/u);
-  assert.match(await pending.innerText(), /Awaiting integration: 1 implementation task · 1 Prep batch/u);
+  assert.match(await pending.innerText(), /Awaiting integration: 1 implementation task · 1 challenge batch/u);
   assert.ok((await pending.innerText()).includes(knownTitle));
   const waiting = pending.locator('.main-work-item').filter({hasText: 'Challenge batch v999'});
   await waiting.locator('summary').focus(); await waiting.locator('summary').press('Enter');
@@ -397,7 +397,7 @@ try {
   if (screenshot) await pending.locator('..').screenshot({path: screenshot.replace(/\.png$/u, '-queue-mobile.png')});
   await page.unroute(url);
   await page.setViewportSize({width: 1440, height: 1200});
-  console.log('Main queue: readable titles, separate actions, keyboard dependency details and narrow layouts passed.');
+  console.log('Work lead backlog: readable titles, separate actions, keyboard dependency details and narrow layouts passed.');
   async function loadData(data) {
     const begin = originalHTML.indexOf('const DATA = '), end = originalHTML.indexOf('\n', begin);
     const html = originalHTML.slice(0, begin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(data))
@@ -424,7 +424,7 @@ try {
   await loadData(groupData);
   assert.match(await page.locator(preparation ? '#prepIntegrationDurationSummary' : '#integrationDurationSummary').innerText(), /1 attempt/u);
   const groupBar = page.locator('.activity-bar.phase-integrating').first();
-  assert.match(await groupBar.getAttribute('aria-label'), preparation ? /Prep group · 4 tasks/u : /Implementation group · 4 tasks/u);
+  assert.match(await groupBar.getAttribute('aria-label'), preparation ? /Challenge group · 4 tasks/u : /Implementation group · 4 tasks/u);
   await groupBar.scrollIntoViewIfNeeded();
   const groupFrame = await page.locator('#timeline').boundingBox();
   await groupBar.click();
@@ -448,7 +448,7 @@ try {
     probe(2, 2, 'blocked'), probe(1, 5, 'done', 'failure'), probe(3, 5, 'done', 'match'),
   ];
   await loadData({...originalData, activity: activityTimeline({events: prepEvents}, at(6))});
-  assert.match(await page.locator('#activityMetrics').innerText(), /A\/B\/C[\s\S]*Prep lead[\s\S]*Prep lanes[\s\S]*Main/u);
+  assert.match(await page.locator('#activityMetrics').innerText(), /A\/B\/C[\s\S]*Challenge lead[\s\S]*Prep lanes[\s\S]*Work lead/u);
   assert.equal(await page.locator('#prepProbeSummary').count(), 0);
   const laneLabels = await page.locator('.activity-label').allTextContents();
   assert.equal(laneLabels.length, 11, 'A/B/C, lead, six explorers and Main remain separate agents');
@@ -458,7 +458,7 @@ try {
   const prepFrame = await plot.boundingBox(), prepScroll = await page.evaluate(() => scrollY);
   await probeBar.click();
   const probeDetails = await readout.innerText();
-  assert.match(probeDetails, /Prep task[\s\S]*Prep-pilot[\s\S]*C target[\s\S]*fixture.c:target1[\s\S]*Probe result[\s\S]*failure/u);
+  assert.match(probeDetails, /Batch task[\s\S]*Prep-pilot[\s\S]*C target[\s\S]*fixture.c:target1[\s\S]*Probe result[\s\S]*failure/u);
   await page.locator('.activity-bar.phase-blocked').first().hover();
   assert.equal(await readout.innerText(), probeDetails);
   assert.deepEqual(await plot.boundingBox(), prepFrame);

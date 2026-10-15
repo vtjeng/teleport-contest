@@ -1,7 +1,7 @@
 # Score recording
 
 Read this file when you append a `SCORE.tsv` row or answer a score question
-from the log. Only the orchestrator appends rows; an implementation worker
+from the log. Only the work lead appends rows; an implementation worker
 states its score evidence in its report. The local-holdout recordings are open under
 `AGENTS.md` and are included in the operational fixed workload.
 Run `node scripts/score-holdout.mjs [--goal <id>]` for the separate historical
@@ -98,7 +98,7 @@ in history and need a new evaluation before they can authorize selection.
 The import checks evidence and appends one `event=challenge` row, with development and holdout fields empty.
 Import in measurement order and commit the artifact and row together. Do not
 use `--generate-note` for challenges or copy their counts into development
-fields. Only the main orchestrator records implementation-loop measurements;
+fields. Only the Work lead records implementation-loop measurements;
 the experiment agent may import its separately authorized pilot evidence.
 
 Preserve first results and do not add cases to the frozen manifest. A new

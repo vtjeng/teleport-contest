@@ -1,5 +1,5 @@
 ---
-name: span-worker
+name: implementation-worker
 description: Source implementation and evidence procedure for a general worker assigned an implementation or implementation-rework task.
 ---
 
@@ -16,17 +16,17 @@ Read these sources:
 - `.cache/task-context.json`, once source scope is known: the current task's
   goal ID, C or Lua source file, source units,
   source line ranges, line count, JavaScript file, and the sessions whose
-  first mismatch the goal addresses. The orchestrator prepares the initial
+  first mismatch the goal addresses. The work lead prepares the initial
   context; you prepare subsequent contexts using the `goal-log.mjs` planner's
   schema and source-order rules under `.agents/selection.md`
-- The orchestrator's initial assignment and your subsequent scope
+- The work lead's initial assignment and your subsequent scope
   announcements: absolute worktree, branch and base SHA, source reservations,
   allowed paths, dependencies and task ID. Preserve each delivery's context.
   `GOALS.json` supplies existing completion evidence, but its current open
   goal belongs to central integration and may differ from your assignment
 - `.agents/validation.md`: what validating this task requires
 - `.agents/glossary.md`: the work vocabulary
-- `.agents/loop.md`: the orchestrator's scheduling and acceptance procedures
+- `.agents/loop.md`: the work lead's scheduling and acceptance procedures
 - `.agents/selection.md`: source scope, reservations and seed continuation
 
 For an unresolved session, start from its saved queue entry and findings;
@@ -53,8 +53,8 @@ discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 Finish this assignment and preserve its immutable result, then claim the next
 eligible queue task. Keep the same agent and private worktree across task
 types; use the assignment branch/base and stopping condition. Leave central
-goal records, integration, acceptance, and publication to Main.
-Do not open `.agents/review.md`; formal reviews belong to the orchestrator.
+goal records, integration, acceptance, and publication to Work lead.
+Do not open `.agents/review.md`; formal reviews belong to the work lead.
 This restriction overrides the AGENTS.md reading row that names it.
 
 ## Scope
@@ -64,17 +64,17 @@ task at a time, including its investigation: the source it ports, the code and
 tests it changes, the recipes and recordings it adds, and its immutable delivery commits. Run
 focused tests, `npm run lint`, and required fresh differentials before
 handoff. Do not push or perform a central merge. Run a full checkpoint only
-if the orchestrator explicitly grants that validation slot. The orchestrator
+if the work lead explicitly grants that validation slot. The work lead
 integrates and validates the combined candidate, closes the goal record, records
 scores and publishes. A submitted task is ready for integration, not yet
 accepted.
 
 Beyond code and tests:
 
-- Propose the `QUALITY.json` area for each new `js/` file; the orchestrator
+- Propose the `QUALITY.json` area for each new `js/` file; the work lead
   applies the assignment before combined validation.
 - Leave central `GOALS.json`, `SCORE.tsv`, quality/review records, instructions,
-  aggregate scans and scoring to the orchestrator. Never merge worker copies
+  aggregate scans and scoring to the work lead. Never merge worker copies
   of those records into main.
 
 Do not run formal review passes or launch reviewer skills. If the task
@@ -85,9 +85,9 @@ workload under `AGENTS.md`. Inspect and replay them when the task needs them;
 default fixed scans and checkpoint scoring include all 44. Synthetic local
 holdout failures now drive new work under `.agents/selection.md`; preserve
 the assigned batch identity, recording hashes, and source investigation.
-The orchestrator owns admitting new batches and their aggregate evaluations.
+The work lead owns admitting new batches and their aggregate evaluations.
 Leave `scripts/score-holdout.mjs` and aggregate score bookkeeping to the
-orchestrator; implement behavior from the C source. The remote competition
+work lead; implement behavior from the C source. The remote competition
 holdout is outside this workspace.
 
 Kill only a process you started; other agents may be active in this tree
@@ -106,7 +106,7 @@ The commands in this section operate on the claim's implementation
 `transport`, not its execution task ID. They preserve existing evidence and
 acceptance gates within the one ledger; they are not a separate scheduler.
 
-Use the orchestrator's absolute shared-ledger path with
+Use the work lead's absolute shared-ledger path with
 `scripts/worker-state.mjs --file`. Read `--help` for event fields and command
 syntax. Record your connection, turn state, task, scope changes, and delivery
 as they happen; do not edit the ledger JSON by hand.
@@ -133,19 +133,19 @@ record an `implement` event with its goal ID, complete source reservations,
 and allowed paths, retaining the session reservation and investigation paths.
 This atomically claims source scope without waiting for a central goal or an
 acknowledgement. If another worker owns the cause, send it the findings and
-report path and block this assignment with the reason; Main may supersede it.
+report path and block this assignment with the reason; Work lead may supersede it.
 Use the
-shared claim policy for another eligible task. Ask the orchestrator only when ownership or a shared contract needs a
+shared claim policy for another eligible task. Ask the work lead only when ownership or a shared contract needs a
 decision. Commit the investigation separately before the code so the
-orchestrator can preserve the diagnosis separately from the fix; include both in the delivery.
+work lead can preserve the diagnosis separately from the fix; include both in the delivery.
 
 For an already diagnosed task, the queue claim still controls ownership.
 Use its source context and transport ID; if it begins as an investigation,
 claim implementation scope through `implement` before edits. A scope conflict
-is a dependency to report to Main, not permission to bypass queue priority. Reserve the selected session,
+is a dependency to report to Work lead, not permission to bypass queue priority. Reserve the selected session,
 functions and shared-state contracts you need; do not reserve whole files
 indefinitely.
-Ask the orchestrator before changing another worker's reserved function or
+Ask the work lead before changing another worker's reserved function or
 a shared contract. Update your allowed paths and reservations with a `scope`
 event before expanding your edits.
 
@@ -167,7 +167,7 @@ path to a committed `blockedRecipe` under `recipes/<source-file>/`. The
 delivery needs either a verified function or a replay-verified entry point
 for one of the incomplete functions. Acceptance preserves the worker's claims
 and blockers without certifying whole functions or requiring a second source
-review by the orchestrator.
+review by the work lead.
 
 Receipt, acceptance, and wakeups follow `.agents/loop.md`, "Notifications".
 Completing the execution task does not accept its deliverable or release
@@ -180,7 +180,7 @@ over an immutable submitted revision to prepare for unrelated work.
 ## Source assistance
 
 Workers do not spawn subagents. Propose a bounded survey or follow-up through
-Main or Prep using the same queue. Continue source comparison within your
+Work lead or Challenge lead using the same queue. Continue source comparison within your
 current scope and verify returned pointers by reading the source yourself;
 a summary is not a substitute for the complete C functions being ported.
 
@@ -201,7 +201,7 @@ a summary is not a substitute for the complete C functions being ported.
   `.agents/validation.md`, "Source completion evidence". Identify source
   coverage, production callers, pure-function tests, impure-function
   recordings or synthetic ranges, and the entry-point coverage plan. The
-  orchestrator preserves these claims without independently certifying them;
+  work lead preserves these claims without independently certifying them;
   do not edit `GOALS.json` yourself.
 - Before handoff, reconcile each source unit in `.cache/task-context.json`
   against `evidence.functions` or `evidence.incompleteFunctions`, including
@@ -212,7 +212,7 @@ a summary is not a substitute for the complete C functions being ported.
 - Focused tests and lint pass, and each cited synthetic case matches through
   its cited steps. Fresh C/JavaScript cases needed for coverage match completely
   and reach the claimed entries. State blockers honestly;
-  the orchestrator's combined checkpoint establishes aggregate non-regression.
+  the work lead's combined checkpoint establishes aggregate non-regression.
 - When a matching admitted synthetic range covers an entry point, cite its
   batch, case, segment, steps, and source path in the evidence. Run
   `node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json` before
@@ -223,7 +223,7 @@ a summary is not a substitute for the complete C functions being ported.
   every command you started has finished or has been handed off with its handle.
   Include the exact base and delivery SHAs; never amend a submitted snapshot.
 
-Notify Main with the saved implementation result packet, or report a concrete
+Notify Work lead with the saved implementation result packet, or report a concrete
 blocker. Complete the execution assignment only after preserving evidence and
 owned process outcomes; the deliverable still awaits acceptance. Claim the
 next eligible shared task without waiting for acceptance or another worker.
@@ -241,7 +241,7 @@ procedure above for delivery messages. Cover:
 - Base and delivery commits, exact delivery commit list, dependency SHAs,
   changed paths/functions, focused/lint/fresh-case commands and results,
   delivery-specific evidence path, and any running process handle. Include a
-  checkpoint result only if the orchestrator assigned that run.
+  checkpoint result only if the work lead assigned that run.
 - What you ported, from which C functions or Lua program, and every gap you recorded with
   the C callee it stands for.
 - Every bug and surprise you hit, and what you did about it.
@@ -253,5 +253,5 @@ procedure above for delivery messages. Cover:
 - Whether the task matched its plan. Say so when landing it meant tracing far
   more C source, or touching more files, than the task context implied.
 
-The orchestrator verifies the shared summary and artifacts directly; do not
+The work lead verifies the shared summary and artifacts directly; do not
 repeat their score totals in prose or run another checkpoint for the handoff.

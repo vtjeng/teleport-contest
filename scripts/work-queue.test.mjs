@@ -87,7 +87,7 @@ test('dirty files and wrong producer/worker roots are rejected without changing 
     assert.equal(readFileSync(f.file, 'utf8'), before);
     assert.equal(f.git(cwd, 'branch', '--show-current'), 'initial/Worker-1');
     assert.throws(() => queueCommand('claim', {file: f.file, worker}, f.paths['Worker-2']), /registered worker worktree/);
-    assert.throws(() => queueCommand('refresh', {file: f.file, queue: 'unused'}, f.paths.Prep), /only Main|Prep may/);
+    assert.throws(() => queueCommand('refresh', {file: f.file, queue: 'unused'}, f.paths.Prep), /only the Work lead|Challenge lead may/);
 });
 
 test('distinct assignment IDs with punctuation get separate valid Git branches', t => {

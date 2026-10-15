@@ -460,9 +460,9 @@ test('session rows distinguish submitted targets and shared-source reservations 
     }))};
     const rendered = renderDashboard(data, queue);
     const html = rendered.get('challengeTable').innerHTML;
-    assert.match(html, /Submitted—awaiting Main/u);
+    assert.match(html, /Submitted—awaiting Work lead/u);
     assert.match(html, /Reserved by submitted work/u);
-    assert.match(html, /Task A-task · Worker A · Submitted—awaiting Main/u);
+    assert.match(html, /Task A-task · Worker A · Submitted—awaiting Work lead/u);
     assert.match(html, /<td>0<\/td><td>0<\/td><td>1<\/td>/u);
     assert.match(rendered.get('sessionSummary').textContent, /3 sessions need work/u);
     for (const [state, label] of [['working', 'In progress'], ['integrating', 'Integration and checks'],
@@ -471,7 +471,7 @@ test('session rows distinguish submitted targets and shared-source reservations 
         assert.ok(renderDashboard(data, queue).get('challengeCards').innerHTML.includes(label), state);
     }
     data.workerReservations = null;
-    assert.doesNotMatch(renderDashboard(data, queue).get('challengeTable').innerHTML, /Submitted—awaiting Main|Not available for assignment/u,
+    assert.doesNotMatch(renderDashboard(data, queue).get('challengeTable').innerHTML, /Submitted—awaiting Work lead|Not available for assignment/u,
         'an older snapshot does not invent current ownership');
 });
 
@@ -705,11 +705,38 @@ test('batch notices group repeated errors without repeating them in the score ca
     assert.match(renderDashboard(data).get('stats').innerHTML, /aggregate evaluation failed/u);
 });
 
-test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {
+test('legacy queue identities display current role names without changing stored activity', () => {
+    const data = sourceDashboardData();
+    const at = minute => new Date(Date.UTC(2026, 9, 15, 10, minute)).toISOString();
+    data.activity = activityTimeline({events: [
+        {type: 'assign', task: 'batch', worker: 'Prep', kind: 'challenge-preparation', batch: 'v90', at: at(0)},
+        {type: 'ready', task: 'batch', at: at(1)},
+        {type: 'integrating', task: 'batch', at: at(2)},
+    ]}, at(3));
+    data.assignmentQueue = {readySessions: 1, threshold: 5, reason: 'Prefer exploration.',
+        workers: [{worker: 'Worker-1', state: 'idle', assignment: null}], blocked: [],
+        tasks: [
+            {id: 'explore', type: 'exploration', output: 'exploration', status: 'ready',
+                producer: 'Prep', recipient: 'Prep', batch: 'v91', sessions: []},
+            {id: 'fix', type: 'implementation', output: 'implementation', status: 'ready',
+                producer: 'Main', recipient: 'Main', sessions: ['synthetic/v90/case']},
+        ]};
+    const before = JSON.stringify(data), rendered = renderDashboard(data);
+    const queue = rendered.get('assignmentQueue').innerHTML;
+    assert.match(queue, /Producer Challenge lead · result to Challenge lead/u);
+    assert.match(queue, /Producer Work lead · result to Work lead/u);
+    assert.doesNotMatch(queue, /Producer (?:Main|Prep)\b/u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">Challenge lead/u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">Work lead/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Challenge lead[\s\S]*Work lead/u);
+    assert.equal(JSON.stringify(data), before, 'display names must not rewrite historical identities');
+});
+
+test('Work lead backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
     assert.ok(template.includes('<section class="section" aria-labelledby="pendingMainWorkTitle">'),
         'pending work has its own named section');
-    assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Main queue</h3>'),
+    assert.ok(template.includes('<h3 class="section-title" id="pendingMainWorkTitle">Work lead backlog</h3>'),
         'pending work uses the same heading level and style as Worker activity');
     // Keep the original compact summary size; only the section title is a heading.
     assert.ok(template.includes('.activity-backlog { font-size: 12px;'), 'summary text is not enlarged');
@@ -731,7 +758,7 @@ test('Main backlog distinguishes unmerged deliveries, accepted reserve batches, 
     assert.doesNotMatch(html, /Await &lt;source&gt; owner|C1/u);
     assert.match(rendered.get('parkedTasks').innerHTML, /Await &lt;source&gt; owner\./u);
     data.pendingMainWork = { deliveries: [], preparedBatches: [], parkedTasks: [] };
-    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /0 implementation tasks[\s\S]*0 Prep batches/u);
+    assert.match(renderDashboard(data).get('pendingMainWork').innerHTML, /0 implementation tasks[\s\S]*0 challenge batches/u);
     data.pendingMainWork = null;
     assert.match(renderDashboard(data).get('pendingMainWork').textContent, /snapshot is refreshed/u);
 });
@@ -842,7 +869,7 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     assert.equal(rendered.get('integrationDurationReadout').innerHTML, pinnedDuration,
         'hover cannot replace a deliberately selected attempt');
     assert.match(rendered.get('timelineReadout').innerHTML, /A1/u, 'duration selection selects the same stage in task history');
-    assert.match(rendered.get('activityMetrics').innerHTML, /A\/B\/C[\s\S]*Prep[\s\S]*Main/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /A\/B\/C[\s\S]*Challenge lead[\s\S]*Work lead/u);
     assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /Ready → integration|activity-metric|Longest block/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
     // Only the recorded workers A and B, plus Main, need lanes.
@@ -862,7 +889,7 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     assert.match(rendered.get('timelineReadout').innerHTML, /Delivery pending/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Task lifespan/u);
     // Group worker stages separately from Main's ordered acceptance lifecycle.
-    assert.match(rendered.get('timelineLegend').innerHTML, /Workers[\s\S]*phase-working[\s\S]*phase-rework[\s\S]*phase-parked[\s\S]*Main[\s\S]*phase-review[\s\S]*phase-integrating[\s\S]*phase-acceptance[\s\S]*phase-publication[\s\S]*Availability[\s\S]*phase-blocked[\s\S]*phase-idle[\s\S]*phase-unrecorded/u);
+    assert.match(rendered.get('timelineLegend').innerHTML, /Workers[\s\S]*phase-working[\s\S]*phase-rework[\s\S]*phase-parked[\s\S]*Work lead[\s\S]*phase-review[\s\S]*phase-integrating[\s\S]*phase-acceptance[\s\S]*phase-publication[\s\S]*Availability[\s\S]*phase-blocked[\s\S]*phase-idle[\s\S]*phase-unrecorded/u);
     const mainIndex = data.activity.stages.findIndex(row => row.task === 'B1'
         && row.phase === 'integrating');
     const timeline = rendered.get('timeline');
@@ -872,7 +899,7 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
     timeline.listeners.pointerup[0]({ type: 'pointerup', pointerId: 2, target: timeline });
     assert.doesNotMatch(rendered.get('timelineReadout').innerHTML, /overlapped this stage|Overlap alone/u);
     // The selected integration stage appears once, highlighted within the lifespan.
-    assert.match(rendered.get('timelineReadout').innerHTML, /class="selected"><button[^>]*aria-current="step"[^>]*>Main · Integration/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /class="selected"><button[^>]*aria-current="step"[^>]*>Work lead · Integration/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /<time>[^<]+<\/time> → <time>[^<]+<\/time>/u);
     assert.doesNotMatch(rendered.get('timelineReadout').innerHTML, /Selected stage/u);
     // Selecting a history stage outside the current window must not pan or rebuild the plot.
@@ -922,9 +949,9 @@ test('activity view labels preparation and escapes public wait reasons', () => {
     const html = rendered.get('timeline').innerHTML;
     for (const phase of ['review', 'admission', 'baseline', 'blocked'])
         assert.match(html, new RegExp(`phase-${phase}`, 'u'));
-    assert.match(html, /activity-label">Prep/u);
+    assert.match(html, /activity-label">Challenge lead/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Await main &lt;admission&gt;/u);
-    assert.match(rendered.get('activityMetrics').innerHTML, /Prep[\s\S]*25%[\s\S]*40%/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Challenge lead[\s\S]*25%[\s\S]*40%/u);
     const index = data.activity.stages.findIndex(row => row.task === 'P1' && row.phase === 'admission');
     rendered.get('timeline').listeners.click[0]({ target: { classList: { contains: value => value === 'activity-bar' },
         dataset: { segment: String(index) } } });
@@ -951,16 +978,16 @@ test('Prep exploration has separate agent rows, pooled lane utilization and batc
         probe(2, 2, 'blocked'), probe(2, 4), probe(1, 5, 'done', 'failure'), probe(3, 5, 'done', 'match'),
     ]}, at(6));
     const rendered = renderDashboard(data), timeline = rendered.get('timeline');
-    assert.match(timeline.innerHTML, /title="Prep lead"/u);
+    assert.match(timeline.innerHTML, /activity-label">Challenge lead/u);
     for (let n = 1; n <= 6; n++) assert.match(timeline.innerHTML, new RegExp(`activity-label">P${n}<`, 'u'));
     assert.equal((timeline.innerHTML.match(/class="activity-row(?: main)?"/gu) || []).length, 8,
         'one lead, six explorers and Main, without parallel task subrows');
-    assert.match(rendered.get('activityMetrics').innerHTML, /Prep lead[\s\S]*Prep lanes/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Challenge lead[\s\S]*Prep lanes/u);
     const index = data.activity.stages.findIndex(row => row.lane === 'Prep-1');
     timeline.listeners.click[0]({target: {classList: {contains: value => value === 'activity-bar'}, dataset: {segment: String(index)}}});
     const details = rendered.get('timelineReadout').innerHTML;
     assert.match(details, /<dt>Worker<\/dt><dd>P1<\/dd>/u);
-    assert.match(details, /<dt>Prep task<\/dt><dd>Prep47<\/dd>/u);
+    assert.match(details, /<dt>Batch task<\/dt><dd>Prep47<\/dd>/u);
     assert.match(details, /Synthetic local holdout v83/u);
     assert.match(details, /<dt>C target<\/dt><dd>fixture.c:target1<\/dd>/u);
     assert.match(details, /<dt>Probe result<\/dt><dd>failure<\/dd>/u);
@@ -1129,7 +1156,7 @@ test('activity details distinguish idle workers from tasks and Main stages from 
     html = rendered.get('timelineReadout').innerHTML;
     assert.match(html, /<dt>Task<\/dt><dd><strong>A177<\/strong><\/dd>/u);
     assert.match(html, /<dt>Worker<\/dt><dd>A<\/dd>/u);
-    assert.match(html, /<dt>Stage<\/dt><dd>Main · Integration and checks<\/dd>/u);
+    assert.match(html, /<dt>Stage<\/dt><dd>Work lead · Integration and checks<\/dd>/u);
     assert.match(html, /<dt>Status<\/dt><dd>integrating<\/dd>/u);
     assert.match(html, /<dt>Goal<\/dt><dd>source &lt;port&gt;<\/dd>/u);
 });
@@ -1351,7 +1378,7 @@ test('integration backlog counts submitted implementation and Prep work separate
         {...row, task: 'checks', status: 'integrating'}, {...row, task: 'rework', status: 'changes-required'},
     ], preparedBatches: [{...row, task: 'accepted', kind: 'challenge-preparation', batch: 'v2', status: 'awaiting-admission'}], parkedTasks: []};
     const html = renderDashboard(data).get('pendingMainWork').innerHTML;
-    assert.match(html, /Awaiting integration: <strong>2 implementation tasks<\/strong> · <strong>1 Prep batch<\/strong>/u);
+    assert.match(html, /Awaiting integration: <strong>2 implementation tasks<\/strong> · <strong>1 challenge batch<\/strong>/u);
     assert.match(html, /Batches to admit · 1/u);
 });
 

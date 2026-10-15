@@ -15,7 +15,7 @@ every admitted batch.
 `.agents/architecture.md`. Source criteria below do not override its claim-time
 priority; seed continuity is a tie-breaker, not a second dispatch policy.
 
-The orchestrator runs `node scripts/mismatch-queue.mjs --work --json` and
+The work lead runs `node scripts/mismatch-queue.mjs --work --json` and
 uses its sessions and investigation records for selection. Queue order is a
 diagnostic display order, not an implementation requirement.
 Use `--fixed --json` for the separate fixed 44-session diagnostic queue.
@@ -119,18 +119,18 @@ Whole-source completion and caller evidence remain required for every port.
 
 ## Generating the next synthetic batch
 
-Prep plans exploration and assembles batches while the three general workers
+Challenge lead plans exploration and assembles batches while the three general workers
 execute queued assignments. `.agents/architecture.md` owns hierarchy,
-producer permissions, the five-ready-session priority, and worktrees. Prep
+producer permissions, the five-ready-session priority, and worktrees. Challenge lead
 adds bounded exploration and follow-up tasks to that queue and does not spawn
-or dispatch separate explorers. Main owns acceptance and admission; only a
+or dispatch separate explorers. Work lead owns acceptance and admission; only a
 complete admitted baseline produces runnable implementation work.
 
-Maintain one active batch plan. After submitting it, Prep can plan the next
+Maintain one active batch plan. After submitting it, Challenge lead can plan the next
 unused version without waiting for acceptance, while retaining correction
 context for earlier deliveries. Prioritize queued corrections according to
 the shared policy. Acceptance does not admit a batch. Apply the exploration
-evidence requirements in `.claude/agents/challenge-prep-worker.md`.
+evidence requirements in `.claude/agents/challenge-lead.md`.
 
 After each current evaluation and worker handoff, check the combined queue and
 reservations for selectable investigations and independent source tasks.
@@ -187,7 +187,7 @@ If no failures qualify, report the searched behaviors and blockers, then
 continue with other targets. Park only for a concrete blocker.
 Choose further candidate behaviors from the C source and coverage gaps; do not
 alter a recipe to exploit a JavaScript result. Local mismatch counts are
-provisional because main can advance during preparation. The orchestrator's
+provisional because main can advance during preparation. The work lead's
 first saved evaluation after admission is authoritative and may find fewer
 remaining mismatches.
 
@@ -196,7 +196,7 @@ Do not filter, replace, or extend an admitted batch based on those results.
 The worker submits case recipes and C recordings under
 `challenges/cases/<batch>/`. Keep the manifest in immutable delivery evidence,
 outside `challenges/manifests/`, with an independent C replay result in each
-case's `reproducibility` field. The orchestrator checks the cases, merges the
+case's `reproducibility` field. The work lead checks the cases, merges the
 recipes and recordings into `main`, runs the combined checkpoint, and accepts
 the delivery. Keep those files and their hashes unchanged. Compare each
 mismatching candidate's reached C behavior, relevant state, and action history with
@@ -279,12 +279,12 @@ A worker completes its current assignment and then claims from the shared
 queue under `.agents/architecture.md`. Continuing the same seed is a
 preference only between otherwise equally eligible tasks. Do not privately
 create a next implementation goal or bypass exploration/rework priority.
-Main or Prep may add a proposed follow-up through the queue's producer rules.
+Work lead or Challenge lead may add a proposed follow-up through the queue's producer rules.
 
 The claimed implementation task still needs a complete source scope, base,
 write set, and atomic source/session reservations before edits. Another
 worker's reservation or an unclear shared contract is a dependency to resolve
-through Main, not permission to widen the task. The queue preserves the
+through Work lead, not permission to widen the task. The queue preserves the
 original assignment and stopping condition through that investigation.
 
 Explain any seed-continuation tie-breaker, related sessions, and reservations
@@ -300,11 +300,11 @@ Store each session's source investigation in
 `investigations/<session>.json`, using the queue's canonical session ID.
 Preserve the `holdout/` prefix as a subdirectory and give synthetic cases a
 separate batch-qualified namespace. This tracked cache supplies
-both worker handoffs and the CI-built dashboard. The orchestrator commits
+both worker handoffs and the CI-built dashboard. The work lead commits
 completed and partial results by explicit path at the next commit boundary
 that preserves checkpoint ownership, then pushes them. Uncommitted results
 are not published. Follow `.agents/validation.md`, "Routine validation", to
-avoid changing checkpoint inputs during goal closure. The orchestrator may seed an entry from an existing
+avoid changing checkpoint inputs during goal closure. The work lead may seed an entry from an existing
 investigation with the required evidence and recorded count, without repeating
 its work.
 
@@ -407,7 +407,7 @@ A Lua program correction uses `lua-port` so its top-level behavior remains in
 scope. The same source-tracing and replay requirements apply.
 
 Write a worker-local task context for the selected scope before implementation;
-the orchestrator registers its central goal at integration and leaves it queued
+the work lead registers its central goal at integration and leaves it queued
 until acceptance. A source port includes
 every unit in its selected range without recorded completion evidence,
 including previously declared functions. Submit worker findings as
@@ -432,7 +432,7 @@ recorder defect, update `investigations/synthetic/<batch>/<case>.json`.
 Keep its recording identity and measured counts current, set `status` to
 `"complete"`, and add `resolution` with `kind` (`"build-provenance"` or
 `"recorder-defect"`), `reason`, and `disposition`. Cite the supporting evidence.
-Main refreshes the work queue with `scripts/mismatch-queue.mjs --work --json`
+Work lead refreshes the work queue with `scripts/mismatch-queue.mjs --work --json`
 and confirms the case appears under `excluded`. Preserve original recordings
 and raw score history. Reopen the case if new evidence shows a gameplay
 defect or the relevant build-profile contract changes.

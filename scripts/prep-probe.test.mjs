@@ -7,7 +7,7 @@ import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import {createLedger, nextActions, recordEvent, summarizeLedger} from './worker-state.mjs';
 import {activityFromLedger} from './dashboard-snapshot.mjs';
-import {activityTimeline, activityUtilization, mainIntegrationDurations} from './dashboard-activity.mjs';
+import {activityTimeline, activityUtilization, integrationDurations} from './dashboard-activity.mjs';
 
 const ROOT = '/tmp/prep-probe-fixture';
 const BASE = 'a'.repeat(40); // Synthetic transport commit, not gameplay data.
@@ -99,9 +99,9 @@ test('dashboard exposes separate Prep histories, blocks and outcomes without pri
   assert.deepEqual(stages.map(row => row.phase), ['working', 'blocked', 'working']);
   assert.equal(stages[1].reason, 'Waiting for source clarification.');
   assert.ok(stages.every(row => row.parentTask === child.parentTask));
-  assert.deepEqual(mainIntegrationDurations(timeline), {implementation: [], preparation: []});
+  assert.deepEqual(integrationDurations(timeline), {implementation: [], preparation: []});
   const utilization = activityUtilization(timeline.stages, Date.parse(at(0)), Date.parse(at(6)));
-  assert.equal(utilization.find(row => row.role === 'Prep lead').total, 6 * 60000); // Lead only.
+  assert.equal(utilization.find(row => row.role === 'Challenge lead').total, 6 * 60000); // Lead only.
   const lanes = utilization.find(row => row.role === 'Prep lanes');
   assert.equal(lanes.total, 8 * 60000); // Two distinct workers, each observed for four minutes.
   assert.equal(lanes.work, 6 * 60000); assert.equal(lanes.blocked, 2 * 60000);

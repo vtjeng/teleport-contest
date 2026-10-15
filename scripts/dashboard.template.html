@@ -470,7 +470,7 @@ canvas {
 .activity-navigation .chart-range { min-width: 165px; text-align: left; }
 .activity-utilization { width: 100%; max-width: 520px; table-layout: fixed; border-collapse: collapse; margin: 0 0 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .activity-utilization th, .activity-utilization td { padding: 2px; text-align: right; white-space: nowrap; }
-.activity-utilization th:first-child { width: 20%; text-align: left; padding-left: 0; }
+.activity-utilization th:first-child { width: 112px; text-align: left; padding-left: 0; }
 .activity-utilization thead th { font-weight: 400; color: var(--ink-muted); }
 .activity-utilization tbody th { font-weight: 500; }
 .activity-utilization .utilization-work { font-weight: 600; }
@@ -498,8 +498,8 @@ canvas {
   border-bottom: 1px solid var(--border);
 }
 .activity-label {
-  width: 56px;
-  min-width: 56px;
+  width: 112px;
+  min-width: 112px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   color: var(--ink-secondary);
@@ -587,7 +587,7 @@ canvas {
 .activity-axis {
   height: 24px;
   position: relative;
-  margin-left: 56px;
+  margin-left: 112px;
   border-bottom: 1px solid var(--baseline);
 }
 .activity-tick {
@@ -907,7 +907,7 @@ canvas {
 
 
 <section class="section" aria-labelledby="pendingMainWorkTitle">
-  <h3 class="section-title" id="pendingMainWorkTitle">Main queue</h3>
+  <h3 class="section-title" id="pendingMainWorkTitle">Work lead backlog</h3>
   <div class="activity-backlog" id="pendingMainWork"></div>
 </section>
 
@@ -929,21 +929,21 @@ canvas {
     <div id="activityMetrics" aria-label="Recorded worker utilization in the visible time window"></div>
 
     <details class="activity-help"><summary>Stage key and definitions</summary><div class="legend" id="timelineLegend"></div><p>Bars show elapsed stages, including waits. Work means assigned time, not CPU use. Unknown time is unrecorded, not idle. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
-    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
-    <canvas id="activityMinimap" tabindex="0" aria-label="Main activity across the full history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
+    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Work lead activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
+    <canvas id="activityMinimap" tabindex="0" aria-label="Work lead activity across the full history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
     <div class="activity-details">
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
     </div>
     <details class="integration-duration dashboard-disclosure" id="integrationDisclosure" open>
-      <summary>Main integration time</summary>
+      <summary>Work lead integration time</summary>
       <div class="integration-scale"><span>Elapsed time, including CI waits</span><div class="history-controls" role="group" aria-label="Integration time scale"><button class="chart-reset" id="integrationTypicalRange" type="button" aria-pressed="true">0–30 min</button><button class="chart-reset" id="integrationFullRange" type="button" aria-pressed="false">All durations</button></div></div>
       <div class="integration-duration-summary">
         <p class="integration-duration-series"><span class="integration-duration-key" aria-hidden="true"></span><strong>Implementation</strong>: <span id="integrationDurationSummary"></span></p>
-        <p class="integration-duration-series"><span class="integration-duration-key prep" aria-hidden="true"></span><strong>Prep</strong>: <span id="prepIntegrationDurationSummary"></span></p>
+        <p class="integration-duration-series"><span class="integration-duration-key prep" aria-hidden="true"></span><strong>Challenge batches</strong>: <span id="prepIntegrationDurationSummary"></span></p>
       </div>
       <div class="integration-legend"><span>Lines: median of the last 10 attempts</span><span><span class="outlier-symbol" aria-hidden="true">▲</span> Over 30 min; triangles sit at the top of the 0–30 min scale</span></div>
       <p class="activity-note" id="integrationOverflow"></p>
-      <canvas id="integrationDurationChart" tabindex="0" aria-label="Main integration duration. Blue circles: implementation; orange squares: Prep. Select a point to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
+      <canvas id="integrationDurationChart" tabindex="0" aria-label="Work lead integration duration. Blue circles: implementation; orange squares: challenge batches. Select a point to pin task details; arrow keys move between attempts, Home and End jump, Escape clears the selection."></canvas>
       <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
     </details>
 
@@ -1018,7 +1018,12 @@ canvas {
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
 const activityUtilization = /*UTILIZATION_PLACEHOLDER*/null;
-const mainIntegrationDurations = /*INTEGRATION_DURATION_PLACEHOLDER*/null;
+const integrationDurations = /*INTEGRATION_DURATION_PLACEHOLDER*/null;
+// Main and Prep are stored ledger keys; role names change only at presentation.
+const agentName = value => value === 'Main' ? 'Work lead' : value === 'Prep' ? 'Challenge lead'
+  : /^Worker-[1-3]$/.test(value) ? value.replace('-', ' ') : value;
+const workerName = value => value === 'Prep' || /^Worker-[1-3]$/.test(value)
+  ? agentName(value) : 'Worker ' + (value === 'A2' ? 'A' : value);
 const QUEUE = /*QUEUE_PLACEHOLDER*/null;
 
 // --- Helpers ---
@@ -1139,7 +1144,7 @@ document.getElementById('stats').innerHTML = [
   const queueRows = QUEUE?.sessions || [];
   const queueById = new Map(queueRows.map(row => [row.session, row]));
   const unavailable = new Map((QUEUE?.workerWork?.unavailable || []).map(row => [row.session, row]));
-  const taskState = {working: 'In progress', ready: 'Submitted—awaiting Main',
+  const taskState = {working: 'In progress', ready: 'Submitted—awaiting Work lead',
     integrating: 'Integration and checks', validated: 'Awaiting acceptance',
     'changes-required': 'Needs correction', parked: 'Parked—needs recheck'};
   const owners = row => (unavailable.get(row.id)?.blockedBy || [])
@@ -1148,7 +1153,7 @@ document.getElementById('stats').innerHTML = [
     const tasks = owners(row);
     if (!tasks.length) return null;
     if (tasks.every(task => task.status === 'ready')) return tasks.some(task => task.seed === row.id
-      || task.reservations.includes('session:' + row.id)) ? 'Submitted—awaiting Main' : 'Reserved by submitted work';
+      || task.reservations.includes('session:' + row.id)) ? 'Submitted—awaiting Work lead' : 'Reserved by submitted work';
     return tasks.map(task => taskState[task.status] || 'Reserved').filter((state, i, all) => all.indexOf(state) === i).join('; ');
   };
   const metricComplete = result => result?.passed === true && !result.error
@@ -1220,8 +1225,8 @@ document.getElementById('stats').innerHTML = [
     if (!q) return row.outcome ? '<p>' + esc(row.outcome) + '</p>' : '';
     const ownership = owners(row);
     const reserved = ownership.length ? '<p>Not available for assignment. '
-      + ownership.map(task => 'Task ' + esc(task.id) + ' · Worker '
-        + esc(task.worker === 'A2' ? 'A' : task.worker) + ' · '
+      + ownership.map(task => 'Task ' + esc(task.id) + ' · '
+        + esc(workerName(task.worker)) + ' · '
         + esc(taskState[task.status] || 'Reserved')).join('; ') + '.</p>' : '';
     const finding = q.investigation?.result?.summary;
     const remaining = q.corpus === 'fixed'
@@ -1705,8 +1710,8 @@ document.getElementById('stats').innerHTML = [
     + queue.workers.map(worker => esc(worker.worker.replace('-', ' ')) + ': ' + esc(worker.state)
       + (worker.assignment ? ' (' + esc(worker.assignment) + ')' : '')).join(' · ') + '</p>'
     + (pending.length ? pending.map(task => '<details><summary>' + esc(label(task)) + ' · '
-      + esc(task.id) + ' · ' + esc(task.status) + '</summary><p>Producer ' + esc(task.producer)
-      + ' · result to ' + esc(task.recipient) + (task.batch ? ' · batch ' + esc(task.batch) : '')
+      + esc(task.id) + ' · ' + esc(task.status) + '</summary><p>Producer ' + esc(agentName(task.producer))
+      + ' · result to ' + esc(agentName(task.recipient)) + (task.batch ? ' · batch ' + esc(task.batch) : '')
       + (task.target ? ' · corrects ' + esc(task.target.slice(0, 12)) : '')
       + '</p>' + (task.sessions.length ? '<p>' + task.sessions.map(esc).join(', ') + '</p>' : '')
       + (task.status === 'blocked' ? '<p>' + esc(queue.blocked.find(row => row.task === task.id)?.reason
@@ -1736,7 +1741,7 @@ document.getElementById('stats').innerHTML = [
   const title = row => row.batch ? 'Challenge batch ' + row.batch : (goals.has(row.goal) ? goalTitle(goals.get(row.goal)) : row.goal || row.task);
   const taskLabels = new Map([...rows, ...parked].map(row => [row.task, title(row)]));
   const item = row => '<details class="main-work-item"><summary><span class="main-work-name">' + esc(title(row))
-    + '<small>Worker ' + esc(row.worker === 'A2' ? 'A' : row.worker)
+    + '<small>' + esc(workerName(row.worker))
     + (goals.get(row.goal)?.sourceFile ? ' · ' + esc(goals.get(row.goal).sourceFile) : '')
     + '</small></span><span class="main-work-age" title="Since ' + esc(row.since) + '">' + age(row) + '</span></summary>'
     + '<div class="main-work-detail"><p>Task ' + esc(row.task)
@@ -1757,7 +1762,7 @@ document.getElementById('stats').innerHTML = [
   const prepCount = awaiting.filter(row => row.kind === 'challenge-preparation').length;
   const summary = '<p class="integration-backlog">Awaiting integration: <strong>' + implementationCount
     + (implementationCount === 1 ? ' implementation task' : ' implementation tasks') + '</strong> · <strong>' + prepCount
-    + (prepCount === 1 ? ' Prep batch' : ' Prep batches') + '</strong></p>';
+    + (prepCount === 1 ? ' challenge batch' : ' challenge batches') + '</strong></p>';
   container.innerHTML = summary + (rows.length ? groups.filter(([, items]) => items.length)
     .map(([label, items]) => '<section class="main-work-group"><h4>' + label + ' · ' + items.length + '</h4>'
       + items.map(item).join('') + '</section>').join('') : '');
@@ -1777,9 +1782,9 @@ document.getElementById('stats').innerHTML = [
   const windowSelect = document.getElementById('activityWindow');
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = activity.segments || [];
-  const durationPoints = mainIntegrationDurations(activity);
+  const durationPoints = integrationDurations(activity);
   const durationSeries = [['implementation', 'integrationDuration', 'Implementation', '--integration-blue'],
-    ['preparation', 'prepIntegrationDuration', 'Prep', '--integration-orange']].map(([group, prefix, label, color]) => ({
+    ['preparation', 'prepIntegrationDuration', 'Challenge batches', '--integration-orange']].map(([group, prefix, label, color]) => ({
     points: durationPoints[group], label, color, prep: group === 'preparation',
     summary: document.getElementById(prefix + 'Summary'),
   }));
@@ -1800,7 +1805,7 @@ document.getElementById('stats').innerHTML = [
     blocked: 'Blocked', idle: 'Idle (worker report)', unrecorded: 'Unrecorded time' };
   const legendGroups = [
     ['Workers', ['working', 'rework', 'parked']],
-    ['Main', ['review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']],
+    ['Work lead', ['review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']],
     ['Availability', ['blocked', 'idle', 'unrecorded']],
   ];
   document.getElementById('timelineLegend').innerHTML = legendGroups.map(([label, phases]) =>
@@ -1834,12 +1839,11 @@ document.getElementById('stats').innerHTML = [
   // A2 replaced A. Share the display row only while their histories do not overlap.
   const aEnd = Math.max(...segments.filter(row => row.lane === 'A').map(row => Date.parse(row.end)));
   const a2Start = Math.min(...segments.filter(row => row.lane === 'A2').map(row => Date.parse(row.start)));
-  const hasPrepLanes = segments.some(row => /^Prep-[1-6]$/u.test(row.lane));
-  const displayLane = lane => /^Worker-[1-3]$/.test(lane) ? lane.replace('-', ' ') : lane === 'A2' && aEnd <= a2Start ? 'A'
-    : hasPrepLanes && lane === 'Prep' ? 'Prep lead' : lane.replace(/^Prep-([1-6])$/u, 'P$1');
+  const displayLane = lane => lane === 'A2' && aEnd <= a2Start ? 'A'
+    : agentName(lane.replace(/^Prep-([1-6])$/u, 'P$1'));
   const lanes = [...new Set(history.map(segment => segment.lane).filter(lane => lane !== 'Main')
     .sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(displayLane))];
-  lanes.push('Main');
+  lanes.push('Work lead');
   const minSpan = Math.min(20 * 60000, latest - first || hourMs);
   const domainEnd = Math.max(latest, first + minSpan);
   let hours = Math.min(6, (domainEnd - first) / hourMs);
@@ -1979,8 +1983,8 @@ document.getElementById('stats').innerHTML = [
       }
     }
     plottedDurations.sort((a, b) => Date.parse(a.point.end) - Date.parse(b.point.end) || a.point.sourceIndex - b.point.sourceIndex);
-    durationChart.setAttribute('aria-label', 'Main integration time. ' + series.map(row => row.label + ': ' + row.summary.textContent).join('. ')
-      + '. Blue circles and solid line: implementation. Orange squares and dashed line: Prep. Each stepped line is its own last-ten-attempt median. Triangles mark durations above the visible scale; recorded values are unchanged. Arrow keys select attempts.');
+    durationChart.setAttribute('aria-label', 'Work lead integration time. ' + series.map(row => row.label + ': ' + row.summary.textContent).join('. ')
+      + '. Blue circles and solid line: implementation. Orange squares and dashed line: challenge batches. Each stepped line is its own last-ten-attempt median. Triangles mark durations above the visible scale; recorded values are unchanged. Arrow keys select attempts.');
     describeDuration(pinnedDuration);
   }
   function nearestDuration(event) {
@@ -2010,7 +2014,7 @@ document.getElementById('stats').innerHTML = [
   const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
   const batch = segment => taskById.get(segment.task)?.batch || segment.batch;
   const barName = segment => segment.phase === 'integrating' && (segment.validationGroup || segment.prepGroup)
-    ? (segment.kind === 'challenge-preparation' ? 'Prep' : 'Implementation') + ' group · '
+    ? (segment.kind === 'challenge-preparation' ? 'Challenge' : 'Implementation') + ' group · '
       + (segment.validationGroup || segment.prepGroup).length + ' tasks'
     : name(segment) + (segment.assignmentType ? ' · ' + (segment.assignmentType === 'rework' ? 'Rework'
       : segment.output === 'exploration' ? 'Exploration' : 'Implementation') : '')
@@ -2039,7 +2043,7 @@ document.getElementById('stats').innerHTML = [
       + '<dt>Stage</dt><dd>' + (actor === worker ? '' : esc(actor) + ' · ') + esc(phaseNames[segment.phase]) + '</dd>'
       + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
       + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
-      + (task?.parentTask ? '<dt>Prep task</dt><dd>' + esc(taskById.get(task.parentTask)?.label || task.parentTask) + '</dd>' : '')
+      + (task?.parentTask ? '<dt>Batch task</dt><dd>' + esc(taskById.get(task.parentTask)?.label || task.parentTask) + '</dd>' : '')
       + (task?.source ? '<dt>C target</dt><dd>' + esc(task.source) + '</dd>' : '')
       + (task?.outcome ? '<dt>Probe result</dt><dd>' + esc(task.outcome) + '</dd>' : '')
       + (batch(segment) ? '<dt>Batch</dt><dd>Synthetic local holdout ' + esc(batch(segment)) + '</dd>' : '')
@@ -2106,9 +2110,9 @@ document.getElementById('stats').innerHTML = [
         ...row, a: Math.max(Date.parse(row.segment.start), start),
         b: Math.min(Date.parse(row.segment.end), viewEnd),
       })).sort((a, b) => a.a - b.a);
-      html += '<div class="activity-row' + (lane === 'Main' ? ' main' : '')
+      html += '<div class="activity-row' + (lane === 'Work lead' ? ' main' : '')
         + '" style="height:48px"><div class="activity-label">'
-        + (lane === 'Prep lead' ? '<span title="Prep lead">Prep</span>' : esc(lane)) + '</div><div class="activity-track">'
+        + esc(lane) + '</div><div class="activity-track">'
         + bars.map(bar => '<div class="activity-bar phase-' + bar.segment.phase
           + (Date.parse(bar.segment.start) < start ? ' continues-left' : '')
           + (Date.parse(bar.segment.end) > viewEnd ? ' continues-right' : '')
@@ -2118,7 +2122,7 @@ document.getElementById('stats').innerHTML = [
           + ', ' + fmt(duration(bar.segment))) + '" style="left:'
           + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
           + '%;top:13px;height:22px">' + (((bar.b - bar.a) / span)
-            * Math.max(1, container.getBoundingClientRect().width - 56) > barName(bar.segment).length * 6 + 16
+            * Math.max(1, container.getBoundingClientRect().width - 112) > barName(bar.segment).length * 6 + 16
             && name(bar.segment) !== lane
             ? esc(barName(bar.segment)) : '') + '</div>').join('')
         + (!bars.length ? '<span class="activity-empty">No recorded activity in this window</span>' : '')
@@ -2223,7 +2227,7 @@ document.getElementById('stats').innerHTML = [
     if (!event.ctrlKey && !event.metaKey) return;
     event.preventDefault();
     const rect = container.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left - 56) / Math.max(1, rect.width - 56)));
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left - 112) / Math.max(1, rect.width - 112)));
     zoom(Math.exp(event.deltaY * 0.002), viewEnd - hours * hourMs * (1 - ratio));
   }, { passive: false });
   windowSelect.addEventListener('change', () => {
@@ -2247,7 +2251,7 @@ document.getElementById('stats').innerHTML = [
     const dx = event.clientX - panning.x;
     if (Math.abs(dx) > 5) panning.moved = true;
     if (!panning.moved) return;
-    const width = Math.max(1, container.getBoundingClientRect().width - 56);
+    const width = Math.max(1, container.getBoundingClientRect().width - 112);
     viewEnd = panning.end - dx / width * hours * hourMs;
     container.classList.add('is-panning');
     render();

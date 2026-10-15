@@ -15,7 +15,7 @@ import { readRows } from './score-log.mjs';
 import { publicationConfirmations } from './worker-publication.mjs';
 import {applyQueueEvent, authorizeQueueEvent, isQueueEvent, queueDeliveryEvent, queueWork} from './assignment-queue.mjs';
 
-export const USAGE = `Usage (run from the coordinator or assigned worker checkout root):
+export const USAGE = `Usage (run from the Work lead or assigned worker checkout root):
   node scripts/worker-state.mjs init --run <run-id> [--file <ledger.json>]
   node scripts/worker-state.mjs event --json '<event>' [--file <ledger.json>]
   node scripts/worker-state.mjs status [--file <ledger.json>]
@@ -30,7 +30,7 @@ export const USAGE = `Usage (run from the coordinator or assigned worker checkou
   node scripts/worker-state.mjs sync-main --commit <revision> [--file <ledger.json>]
 
 The default file is .cache/worker-state.json. init never overwrites a ledger.
-For the unified architecture, register Prep and Worker-1..Worker-3, then use
+For the unified architecture, register the Challenge lead as Prep and Worker-1..Worker-3, then use
 work-queue.mjs enable/refresh/enqueue/claim. All state shares this event log.
 The claim returns an implementation transport ID for implement/scope/submit.
 Verified submit completes execution; feedback automatically queues linked
@@ -61,17 +61,17 @@ by this command, not the caller. Required fields by type:
         state (active, idle, blocked or done), summary (public), processes, recording (boolean)
         first event also needs worktree, branch, handle and source (C target)
         done needs outcome (failure, match, duplicate or deferred)
-  coordinator: handle (string or null), processes (array of live handles)
+  coordinator: handle (string or null), processes (array of live handles; Work lead observation)
   assign: task (unique id), worker, seed (string or null), base,
           reservations, allowedPaths; optional kind (implementation,
           investigation or challenge-preparation), goal (required for implementation), and
-          span (accepted for historical tasks); coordinator-only controlCases
+          span (accepted for historical tasks); Work lead only controlCases
           lists explicitly requested matching case IDs for Prep
   scope: task, reservations, allowedPaths (expand working scope; include old entries)
   implement: task, goal, reservations, allowedPaths (claim an investigation's source scope)
   received: task, delivery (exact SHA being acknowledged)
   activity: task, phase (review, admission, baseline, waiting or done), reason (public)
-            records coordinator time only; does not change task/validation state
+            records Work lead time only; does not change task/validation state
   feedback: task, delivery, reason (queued correction, not an interrupt)
   integrating: task, integration (exact combined SHA)
   prep-integrating: tasks (consecutive batches), integration (shared SHA)
@@ -89,7 +89,7 @@ by this command, not the caller. Required fields by type:
 Workers pass --file with the shared ledger path. They may connect, record their
 own turn, claim/expand/resume their own tasks and submit. They may park their own
 investigation when its cause belongs to another worker. All other event types
-are coordinator-only, except prep-probe: the Prep lead starts probes; the lead
+are Work lead only, except prep-probe: the Challenge lead starts probes; the lead
 or assigned probe worktree records later observations. The ledger supports up
 to four live registered workers and six probe role names. These are schema
 limits, not separate thread quotas; follow .agents/architecture.md
@@ -98,7 +98,7 @@ Each lane runs one command at a time, independently of the other lanes.
 Before launching C recording/replay or JavaScript comparison, record
 recording: true. Retain the actual process handle after interruption until
 the command is confirmed stopped. Record recording: false after collecting it.
-Observation events do not start or stop processes. Completed probes never become Main
+Observation events do not start or stop processes. Completed probes never become Work lead
 deliveries or implementation reservations.
 Git resolves revisions and checks registration, assignment, candidate and
 checkpoint identity. Publication is recorded only after local and remote main
@@ -110,7 +110,7 @@ evaluations must match their named source commit's challenge manifest.
 Historical evaluations are publishable records, not current acceptance evidence.
 Reports must be regular non-executable files. Other input changes need validation.
 tooling-published records a standalone, passing imported checkpoint already
-published to local and remote Main. Only tooling and bookkeeping may change
+published to local and remote main. Only tooling and bookkeeping may change
 since the accepted baseline. It advances accepted-main without reopening a
 delivery, accepting worker source code, recording scores, or changing tasks.
 This publication allowance does not broaden checkpoint reuse or rewrite receipts.
@@ -123,9 +123,9 @@ objects with kind (focused, lint, fresh or comparison), command (argument array)
 exitCode (0), and log (absolute path). Implementation tasks include focused
 and lint results, plus fresh results when recordings are needed. Challenge
 preparation tasks include one fresh C replay and one saved comparison check
-with caseId per case. See the Prep worker instructions for comparison provenance.
+with caseId per case. See the Challenge lead instructions for comparison provenance.
 Their task evidence contains missionPlan and the prepared manifest.
-Logs are preserved, not rerun; the coordinator still verifies the claims.
+Logs are preserved, not rerun; the Work lead still verifies the claims.
 Raw ready events are not accepted by the CLI. Retry submit with the same inputs
 and --head SHA to preserve its first submission time even after advancing HEAD.
 Dependencies default to unaccepted ancestor deliveries. For a correction made
@@ -136,7 +136,7 @@ The queue retains the task's earlier commits as required parts of its correction
 next is a read-only work list: connections, unread deliveries, worker turn
 actions, pending corrections and the next dependency-ready integration.
 Pass a saved combined mismatch queue with --queue to list worker candidates
-separately from Main's delivery backlog. Counts are provisional: workers must
+separately from the Work lead's delivery backlog. Counts are provisional: workers must
 check source independence and recheck parked blockers. Admission suggestions
 do not interrupt an active checkpoint or waive baseline/admission checks.
 wakeups lists idle/blocked workers whose last report predates a new admitted
@@ -746,10 +746,10 @@ export function nextActions(state, admittedBatches = [], queue = null) {
 function authorizeWorker(state, root, event) {
     if (isQueueEvent(event?.type)) return authorizeQueueEvent(state, root, event);
     check(event && ['assign', 'scope', 'implement', 'ready', 'connect', 'turn', 'resume', 'park', 'prep-probe'].includes(event.type),
-        'only coordinator may record this event');
-    check(event.controlCases === undefined, 'only coordinator may authorize user-requested controlCases');
+        'only the Work lead may record this event');
+    check(event.controlCases === undefined, 'only the Work lead may authorize user-requested controlCases');
     if (event.type === 'park') check(state.tasks[event.task]?.kind === 'investigation',
-        'only coordinator may park implementation or preparation tasks');
+        'only the Work lead may park implementation or preparation tasks');
     const parent = event.type === 'prep-probe' ? state.workers[state.tasks[event.task]?.worker] : null;
     const workerId = event.worker ?? state.tasks[event.task]?.worker;
     const worker = event.type === 'prep-probe'
@@ -757,7 +757,7 @@ function authorizeWorker(state, root, event) {
     check(worker && worker.worktree === root, 'event does not belong to this registered worker worktree');
     const branch = spawnSync('git', ['-C', root, 'branch', '--show-current'], { encoding: 'utf8' });
     check(branch.status === 0 && branch.stdout.trim() === worker.branch, 'worker branch differs from registration');
-    check(worker.handle !== null, 'worker has no live owner; coordinator must recover ownership');
+    check(worker.handle !== null, 'worker has no live owner; Work lead must recover ownership');
 }
 
 export function recordEvent(ledger, event, at = new Date().toISOString()) {
@@ -797,7 +797,7 @@ export function updateLedger(file, coordinatorRoot, update, workerEvent = null) 
         }
         const next = update(ledger);
         summarizeLedger(next);
-        check(next.coordinatorRoot === (ledger?.coordinatorRoot ?? coordinatorRoot), 'coordinator root cannot change');
+        check(next.coordinatorRoot === (ledger?.coordinatorRoot ?? coordinatorRoot), 'Work lead root cannot change');
         const out = openSync(temp, 'wx', 0o600);
         try { writeFileSync(out, JSON.stringify(next, null, 2) + '\n'); fsyncSync(out); }
         finally { closeSync(out); }
@@ -840,7 +840,7 @@ export function main(argv = process.argv.slice(2)) {
     const file = resolve(root, options['--file'] || '.cache/worker-state.json');
     if (command === 'reconcile-publications') {
         const plan = ledger => {
-            check(root === ledger?.coordinatorRoot, 'only coordinator may reconcile publication');
+            check(root === ledger?.coordinatorRoot, 'only the Work lead may reconcile publication');
             return publicationConfirmations(root, summarizeLedger(ledger));
         };
         let events;
@@ -856,7 +856,7 @@ export function main(argv = process.argv.slice(2)) {
     if (['status', 'accepted-main', 'next', 'preflight', 'sync-main'].includes(command)) {
         const state = summarizeLedger(JSON.parse(readFileSync(file, 'utf8')));
         let result = { file, ...state };
-        if (!['status', 'accepted-main'].includes(command)) check(root === state.coordinatorRoot, 'only coordinator may run this command');
+        if (!['status', 'accepted-main'].includes(command)) check(root === state.coordinatorRoot, 'only the Work lead may run this command');
         if (command === 'accepted-main') result = acceptedMain(state);
         if (command === 'next') {
             const batches = admittedBatchIds(root);

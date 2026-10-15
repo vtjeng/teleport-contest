@@ -13,29 +13,30 @@ root and every nesting level. A configuration setting cannot raise the host
 limit. Use fewer agents if the host reports a lower limit.
 
 ```text
-Conversation coordinator
-  Main (work lead)
+Coordinator
+  Work lead
     Worker 1
     Worker 2
     Worker 3
-  Prep lead
-  Process agent
+  Challenge lead
+  Process analyst
 ```
 
-Main, Prep, and Process are siblings and message one another directly.
-The conversation coordinator stays available for user requests, priorities,
-and decisions; it does not relay routine task traffic. Main owns dispatch,
+The Work lead, Challenge lead, and Process analyst are siblings and message
+one another directly. The Coordinator stays available for user requests,
+priorities, and decisions; it does not relay routine task traffic. The Work lead owns dispatch,
 integration, validation, acceptance, admission, central records, and
-publication. It is the dashboard's Main, irrespective of agent parentage.
+publication. The dashboard uses the same role names irrespective of agent parentage.
 
-Prep plans exploration, adds bounded investigation tasks, evaluates returned
-evidence, deduplicates causes, and assembles batches for Main. Prep does not
-spawn explorers or independently assign workers. The Process agent observes
+The Challenge lead plans exploration, adds bounded investigation tasks,
+evaluates returned evidence, deduplicates causes, and assembles batches for
+the Work lead. It does not spawn explorers or independently assign workers.
+The Process analyst observes
 the queue and deliveries, develops process proposals, and reports to the
-conversation coordinator. Main integrates approved changes at safe task or
-validation boundaries. Process does not change active claims or priorities.
+Coordinator. The Work lead integrates approved changes at safe task or
+validation boundaries. The Process analyst does not change active claims or priorities.
 
-Workers are persistent generalists and remain children of Main. An assignment
+Workers are persistent generalists and remain children of the Work lead. An assignment
 can involve exploration, implementation, or rework; its type does not rename,
 reparent, suspend, or restart the worker. Workers do not spawn more agents.
 Read-only surveys and validation follow-ups also use these three workers;
@@ -44,9 +45,9 @@ there is no extra helper quota or permanent Prep-1..Prep-6 team.
 ## Models and launch
 
 The role profiles registered in `.codex/config.toml` define model and reasoning
-effort: use `main` for Main, `prep` for Prep, `process` for Process, and `worker`
-for all three general workers. The conversation coordinator uses the user's
-selected conversation settings.
+effort: use `work_lead`, `challenge_lead`, `process_analyst`, and `worker`.
+All three general workers use the worker profile. The Coordinator uses the
+user's selected conversation settings.
 
 Apply the matching profile when launching each agent. If the host's spawn API
 does not select named profiles, read the referenced role file and pass its
@@ -58,17 +59,24 @@ unavailable requested model or effort rather than silently substituting it.
 
 ## One queue, two producers
 
+Existing ledger records and command fields retain `Main` for the Work lead
+and `Prep` for the Challenge lead. The ledger's `coordinatorRoot` belongs to
+the Work lead's checkout, not the conversation Coordinator. These are stored
+protocol identities, not extra agents. The dashboard displays the current
+role names without rewriting events. Existing helper names and flags such as
+`prep-handoff.mjs` and `--prep` remain supported; new profiles have no aliases.
+
 The queue is shared state and tooling, not an agent. It stores executable
 assignments; diagnostic mismatch lists are inputs, not competing schedulers.
 Keep the queue, claims, and immutable result packets in a shared location
 outside changing task branches. Update them through the supported atomic
 commands, never by hand or by copying worker-local ledgers together.
 
-Prep produces exploration tasks and exploration follow-ups. Main produces
+Challenge lead produces exploration tasks and exploration follow-ups. Work lead produces
 implementation tasks from admitted mismatches, validation corrections,
 regression repairs, and tasks needed to unblock work. Workers return results
 and may propose follow-ups; the responsible producer approves additions.
-Process proposals become scoped work only after Main approves them.
+Process analyst proposals become scoped work only after Work lead approves them.
 
 Every task identifies its immutable ID, type, producer/result recipient,
 batch or target deliverable when applicable, question or desired result,
@@ -81,7 +89,7 @@ Tasks are ready, claimed, blocked, completed, or superseded. A worker claims
 one ready task atomically; source and session reservations prevent competing
 claims. A successful claim supplies the worker's branch, worktree, context,
 and result recipient. Workers report through shared state and message the
-recipient directly. Main owns the dispatch policy even when Prep receives
+recipient directly. Work lead owns the dispatch policy even when Challenge lead receives
 the result. No producer can bypass that policy by messaging an assignment.
 
 Complete an assignment only after preserving its result and collecting or
@@ -92,7 +100,7 @@ After completion, claim the next eligible item using the same policy; no
 per-task user permission or manual worker-role transfer is needed.
 
 Block work that cannot proceed and name the dependency and owner. Silence or
-a timeout alone does not release a claim: Main checks the agent and processes
+a timeout alone does not release a claim: Work lead checks the agent and processes
 and preserves a recovery packet before reassignment. Do not duplicate live
 work. Deduplicate related causes and retire tasks made obsolete by accepted
 changes. Reassess stale evidence before dispatch, retaining earlier results.
@@ -122,15 +130,15 @@ Seed continuation is only a tie-breaker within this policy.
 
 ## Batches and admission
 
-Prep maintains one active batch plan, varying source behaviors and independent
+Challenge lead maintains one active batch plan, varying source behaviors and independent
 C inputs under `.agents/selection.md`. Workers perform queued investigations
-and return reproducible C evidence. Prep can assemble a batch while workers
+and return reproducible C evidence. Challenge lead can assemble a batch while workers
 continue other assignments. Finish included recordings and preserve hashes
 before submitting; unfinished investigations remain separate queue items.
 
-Main accepts batch deliveries using `.agents/validation.md`. Acceptance does
+Work lead accepts batch deliveries using `.agents/validation.md`. Acceptance does
 not admit a batch or make every observed mismatch current. Only after
-admission and a complete baseline against accepted JavaScript does Main add
+admission and a complete baseline against accepted JavaScript does Work lead add
 the still-unresolved sessions to the queue. If a fix lands first, reassess
 the baseline instead of dispatching obsolete work. Preserve earlier batches,
 recordings, evaluation history, and the fixed workload.
@@ -143,11 +151,11 @@ creates a new rework task linked to its exact revision, findings, affected
 scope, required base/dependencies, and checks. Rework produces a new revision
 and supersedes the earlier candidate without erasing commits or failed CI.
 
-Main creates implementation or batch-validation rework. Prep creates
-corrections and follow-ups to exploration evidence. Prep remains responsible
+Work lead creates implementation or batch-validation rework. Challenge lead creates
+corrections and follow-ups to exploration evidence. Challenge lead remains responsible
 for assembling a corrected batch; scope its queued worker rework to the case
-or evidence correction and name Prep as result recipient. Batch assembly and
-Main's acceptance steps remain coordinator work, not extra worker queues.
+or evidence correction and name Challenge lead as result recipient. Batch assembly and
+the Work lead's acceptance steps remain lead work, not extra worker queues.
 Prefer the original worker's context when available, but do not wait
 indefinitely or interrupt its current assignment. Another worker may claim
 rework from a complete evidence packet. Freeze dependent work whose
@@ -157,9 +165,10 @@ never release them merely because the first execution task completed.
 
 ## Worktrees and branches
 
-Use six writable checkouts: Main's existing checkout, one Prep worktree, one
-Process worktree, and one persistent worktree for each of the three workers.
-The conversation coordinator needs no additional checkout and does not write
+Use six writable checkouts: the Work lead's existing checkout, one Challenge
+lead worktree, one Process analyst worktree, and one persistent worktree for
+each of the three workers.
+The Coordinator needs no additional checkout and does not write
 into another agent's working tree. All worktree paths stay explicit.
 These are the routine checkouts. Validation or a user-requested audit may
 require an additional temporary checkout pinned to its tested revision under
@@ -167,7 +176,7 @@ require an additional temporary checkout pinned to its tested revision under
 slot or a second owner for a live worker worktree.
 
 Keep each worker in its own worktree across task types. Use a branch per
-assignment and an explicit base: accepted Main for ordinary work, or the
+assignment and an explicit base: the accepted base for ordinary work, or the
 specified deliverable revision plus required accepted dependencies for rework.
 Before switching assignments, finish owned processes, commit/preserve changes,
 freeze submission packets and logs outside the moving worktree state, and
@@ -182,15 +191,15 @@ and refresh those prerequisites before relying on retained outputs.
 Each worktree that records C games needs a private recorder installation,
 including its mutable saves and lock files. Do not share live recorder state.
 
-Prep imports only selected case files and their evidence into its batch
-branch, preserving exact worker result references. Process edits only its
-assigned tooling/instruction scope. Main integrates exact submitted revisions
+Challenge lead imports only selected case files and their evidence into its batch
+branch, preserving exact worker result references. Process analyst edits only its
+assigned tooling/instruction scope. Work lead integrates exact submitted revisions
 and retains the existing single-candidate validation/publication gates.
 
 ## Dashboard and recovery
 
 Show stable Worker 1..3 lanes and label each assignment Exploration,
-Implementation, or Rework. Show Prep's planning/assembly and Main's delivery,
+Implementation, or Rework. Show Challenge lead's planning/assembly and Work lead's delivery,
 validation, admission, and publication activity separately. Show ready task
 counts, the implementation-session count, blocked reasons, and the dispatch
 reason. Do not infer CPU use or idleness from elapsed ownership or silence.
@@ -210,22 +219,22 @@ are projections of the same log, not two dispatch queues. `work-queue.mjs`
 is the verified CLI for enqueueing, prioritizing, claiming, and results.
 
 For a new run, initialize the ledger with `worker-state.mjs init --run
-loop-YYYYMMDD --file <absolute-shared-ledger>`. Main registers Prep and
+loop-YYYYMMDD --file <absolute-shared-ledger>`. Work lead registers Challenge lead and
 Worker-1..Worker-3 in their real private worktrees with the existing
 `register` event (actual branch, HEAD, and agent handle). Existing connections
 and observations remain supported. Use six agents below the conversation
 root; no queue command itself launches an agent.
 
-From Main, enable and feed the queue:
+From Work lead, enable and feed the queue:
 
 ```sh
-node scripts/work-queue.mjs enable --prep <absolute-Prep-worktree> --file <absolute-ledger>
+node scripts/work-queue.mjs enable --prep <absolute-challenge-lead-worktree> --file <absolute-ledger>
 node scripts/work-queue.mjs refresh --queue <saved-combined-mismatch-queue.json> --file <absolute-ledger>
 node scripts/work-queue.mjs next --file <absolute-ledger>
 ```
 
 Refresh verifies admitted-batch membership and current recorded evaluations
-at accepted Main HEAD. It enqueues unresolved implementation sessions,
+at accepted base HEAD. It enqueues unresolved implementation sessions,
 including investigated ones, rechecks pending imported sessions, and retires
 resolved unclaimed work. Known source reservations prevent dispatching
 competing fixes. Missing/stale evidence blocks ordinary claims rather than
@@ -233,7 +242,7 @@ pretending there is no implementation work. Use `reassess --task <id>
 --reason <new-evidence>` for a pending source-plan task whose explicit base
 needs updating after a refresh. Never reassess a live claim by branch switch.
 
-From Prep, enqueue a JSON assignment file with `work-queue.mjs enqueue
+From Challenge lead, enqueue a JSON assignment file with `work-queue.mjs enqueue
 --json <file> --file <absolute-ledger>`. An exploration assignment has:
 
 ```json
@@ -242,7 +251,7 @@ From Prep, enqueue a JSON assignment file with `work-queue.mjs enqueue
   "producer": "Prep", "recipient": "Prep", "batch": "v90",
   "question": "Reach and trace the named C behavior.",
   "stop": "Return reproducible evidence or a bounded blocker.",
-  "base": "<accepted-Main-SHA>", "dependencies": [], "sessions": [],
+  "base": "<accepted-base-SHA>", "dependencies": [], "sessions": [],
   "reservations": ["source:mkroom.c:mkroom"],
   "allowedPaths": ["challenges/cases/v90/", ".cache/"],
   "checks": ["fresh", "comparison"],
@@ -251,10 +260,10 @@ From Prep, enqueue a JSON assignment file with `work-queue.mjs enqueue
 ```
 
 The JSON is a file, not inline shell text. Use full SHA references in task
-packets. Main may enqueue scoped implementation/rework using the same schema;
+packets. Work lead may enqueue scoped implementation/rework using the same schema;
 rework also needs `target` and `findings`, and exploration rework names
 `targetTask` when targeting a worker result rather than a batch delivery.
-Implementation transport IDs are derived, not producer-assigned. Prep cannot
+Implementation transport IDs are derived, not producer-assigned. Challenge lead cannot
 enqueue implementation or change worker claims through either CLI.
 Producer IDs cannot use the reserved `session:`, `rework:`, or `delivery:`
 prefixes. Generated branches hash the run and assignment identity, so punctuation
@@ -262,11 +271,11 @@ does not create collisions or invalid Git names. Existing transport identities
 cannot be reused for unrelated work. Implementation feedback already creates
 its correction: use that rework assignment rather than enqueueing a duplicate.
 
-For a bounded survey or validation follow-up, Main can enqueue exploration
-with `purpose: "support"`, producer/recipient Main, no batch, and only
+For a bounded survey or validation follow-up, Work lead can enqueue exploration
+with `purpose: "support"`, producer/recipient `Main`, no batch, and only
 `.cache/` write scope. This uses the same workers and priority policy.
 Support results may retain observed nonzero check exits with outcome `failure`;
-Prep's C evidence checks must pass before a result completes.
+Challenge lead's C evidence checks must pass before a result completes.
 
 From a worker's persistent worktree, `work-queue.mjs claim --worker Worker-1
 --file <absolute-ledger>` atomically chooses priority and creates a clean
@@ -281,10 +290,10 @@ committed `paths`, and successful `checks` with kind, command array, exitCode,
 and absolute log path. The command checks scope, freezes artifact hashes and
 log contents in `<ledger>.results`, and completes the execution assignment.
 Use `block --worker Worker-1 --reason <dependency>` only after preserving a
-clean recovery commit and collecting commands. Main uses `unblock` or
+clean recovery commit and collecting commands. Work lead uses `unblock` or
 `supersede` with `--task` and `--reason`; silence never reassigns a worker.
 An unblocked attempt starts from its preserved recovery commit and keeps the
-original comparison base. If accepted Main changed, reassessment requires that
+original comparison base. If accepted base changed, reassessment requires that
 recovery commit to include it; retain stale recovery work rather than discard it.
 Every command requires `--file <absolute-ledger>`; see `--help` for full syntax.
 
@@ -296,18 +305,18 @@ delivery automatically creates a separate urgent rework assignment, which
 another worker can claim; acceptance/publication helpers still consume the
 transport ID. The completed original assignment and its evidence remain.
 
-Prep starts a clean batch branch with `work-queue.mjs batch --branch prep/v90
+Challenge lead starts a clean batch branch with `work-queue.mjs batch --branch prep/v90
 --file <absolute-ledger>` before existing batch assignment/submission commands.
 For a rejected batch, pass `--base <rejected-delivery-SHA>` to resume its
-transport on a new correction branch; Main enqueues the needed worker rework.
-The branch command preserves Prep's producer identity and refuses live batch
+transport on a new correction branch; Work lead enqueues the needed worker rework.
+The branch command preserves Challenge lead's producer identity and refuses live batch
 work or commands. Admission import adds unresolved new sessions as blocked
 assignments. Refresh after accepted publication to make their current evidence
 runnable; imported baseline evidence alone does not authorize a candidate.
 
 For a running legacy loop, finish or explicitly preserve all execution claims
 and commands before `enable`. Record the validated tooling publication under
-`.agents/validation.md` so accepted Main includes this protocol before workers
+`.agents/validation.md` so accepted base includes this protocol before workers
 branch from it. Release old A/B/C handles with supported
 observations; do not rename events or discard submissions. Register the new
 Worker-1..3 identities only after their old owners have relinquished their

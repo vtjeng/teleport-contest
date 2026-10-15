@@ -66,7 +66,7 @@ export function queueWork(state) {
             || (task.status === 'ready' && (!dependenciesReady(state, task) || reserved(state, task)
                 || (task.type !== 'rework' && task.base !== currentBase))))
             .map(task => ({task: task.id, reason: task.reason ?? (task.base !== currentBase
-                ? 'Reassess assignment at accepted Main base.' : 'Waiting for dependencies or reservations.')})),
+                ? 'Reassess assignment at the accepted base.' : 'Waiting for dependencies or reservations.')})),
         claimed: tasks.filter(task => task.status === 'claimed').map(task => ({task: task.id, worker: task.worker})),
         counts: Object.fromEntries(['ready', 'claimed', 'blocked', 'completed', 'superseded']
             .map(status => [status, tasks.filter(task => task.status === status).length])),
@@ -82,7 +82,7 @@ function validateTask(state, event) {
     ensure(['exploration', 'implementation'].includes(task.output), 'assignment needs its output type');
     ensure(task.type === 'rework' || task.type === task.output, 'assignment type/output differ');
     ensure(['Main', 'Prep'].includes(task.producer) && ['Main', 'Prep'].includes(task.recipient), 'invalid producer/recipient');
-    ensure(task.producer === 'Main' || task.output === 'exploration', 'Prep may enqueue exploration only');
+    ensure(task.producer === 'Main' || task.output === 'exploration', 'Challenge lead may enqueue exploration only');
     ensure(text(task.question) && text(task.stop), 'assignment needs a question and stopping condition');
     ensure(sha(task.base), 'assignment base must be a full SHA');
     for (const key of ['sessions', 'dependencies', 'reservations', 'allowedPaths', 'checks', 'artifacts'])
@@ -93,12 +93,12 @@ function validateTask(state, event) {
         'sessions must use canonical corpus/batch IDs');
     ensure(task.dependencies.every(key => state.queue.tasks[key] || state.deliveries[key]), 'unknown assignment dependency');
     ensure(task.output !== 'implementation' || (task.sessions.length > 0 && task.recipient === 'Main'),
-        'implementation needs session provenance and Main as recipient');
+        'implementation needs session provenance and recipient Main (Work lead)');
     if (task.output === 'exploration') {
         const support = task.purpose === 'support';
         ensure(support ? task.producer === 'Main' && task.recipient === 'Main' && task.batch === undefined
             : /^v[1-9]\d*$/u.test(task.batch) && task.recipient === 'Prep',
-        'exploration needs a Prep batch or a Main-owned support assignment');
+        'exploration needs a challenge batch or a Work lead support assignment');
         ensure(task.allowedPaths.every(value => value === '.cache/'
             || (!support && value.startsWith(`challenges/cases/${task.batch}/`))),
         'exploration writes must stay in its batch or scratch');
@@ -175,7 +175,7 @@ export function applyQueueEvent(state, event, at, legacy) {
     if (event.type === 'queue-prep-branch') {
         const worker = state.workers.Prep;
         ensure(worker?.worktree === state.queue.prepRoot && !worker.processes.length && sha(event.base)
-            && text(event.branch), 'Prep branch change needs its private worktree and no live commands');
+            && text(event.branch), 'Challenge lead branch change needs its private worktree and no live commands');
         ensure(!Object.values(state.tasks).some(task => task.worker === 'Prep' && task.status === 'working'),
             'finish the current batch before changing Prep branches');
         Object.assign(worker, {branch: event.branch, base: event.base});
@@ -344,12 +344,12 @@ export function queueDeliveryEvent(state, event, at) {
 }
 
 export function authorizeQueueEvent(state, root, event) {
-    ensure(state.queue, 'only Main can enable the queue');
+    ensure(state.queue, 'only the Work lead can enable the queue');
     if (root === state.coordinatorRoot) return;
     if (root === state.queue.prepRoot) {
         if (event.type === 'queue-prep-branch') return;
         ensure(event.type === 'queue-enqueue' && event.assignment?.producer === 'Prep'
-            && event.assignment.output === 'exploration', 'Prep may only enqueue exploration and its rework');
+            && event.assignment.output === 'exploration', 'Challenge lead may only enqueue exploration and its rework');
         return;
     }
     const worker = state.workers[event.worker];

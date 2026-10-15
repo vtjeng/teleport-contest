@@ -1,7 +1,7 @@
 # Review methodology
 
 Read this file before deciding whether a correctness review is warranted, and
-before running or recording one. Only the orchestrator does this work.
+before running or recording one. Only the work lead does this work.
 `.agents/loop.md` defines the loop that may call for a review.
 `.agents/glossary.md` defines the terms this file uses.
 Review capacity and checkout ownership follow `.agents/architecture.md`;
@@ -11,7 +11,7 @@ audits below remain in force.
 
 A **formal review pass** reviews a frozen committed range, or a named set of
 functions at a frozen commit, for one of four concerns: correctness, clarity,
-simplification, or copyediting. The orchestrator invokes the skill, reviews
+simplification, or copyediting. The work lead invokes the skill, reviews
 each reported finding, and applies only confirmed fixes. All four kinds follow
 "Running formal review passes" below. **Audit** is a synonym; it appears in
 the skill names and the `Audit-fix-for:` commit trailer.
@@ -115,7 +115,7 @@ checkpoint.
 ## Running formal review passes
 
 - Obtain the user's explicit approval before launching a multi-agent pass.
-- Launch each pass by invoking its skill from the orchestrator only. Do not
+- Launch each pass by invoking its skill from the work lead only. Do not
   override the model or reasoning effort the skill selects unless the user
   asks.
 - Give reviewers the committed range or the function list, the affected

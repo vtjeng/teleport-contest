@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { activityUtilization, mainIntegrationDurations } from './dashboard-activity.mjs';
+import { activityUtilization, integrationDurations } from './dashboard-activity.mjs';
 import { workerWork } from './worker-backlog.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -36,7 +36,7 @@ export function injectDashboardData(template, data, queueData, commit) {
     .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
     .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString())
-    .replace('/*INTEGRATION_DURATION_PLACEHOLDER*/null', () => mainIntegrationDurations.toString());
+    .replace('/*INTEGRATION_DURATION_PLACEHOLDER*/null', () => integrationDurations.toString());
   if (commit === undefined) return html;
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Expected a full dashboard commit SHA');
   // The template omits explicit head/body tags. Prefix metadata rather than

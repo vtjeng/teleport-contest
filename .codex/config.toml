@@ -4,22 +4,18 @@ max_concurrent_threads_per_session = 6
 default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "high"
 
-[agents.main]
-description = "Main work lead: dispatches shared-queue workers and owns integration and acceptance."
-config_file = "agents/main.toml"
+[agents.work_lead]
+description = "Work lead: dispatches shared-queue workers and owns integration and acceptance."
+config_file = "agents/work-lead.toml"
 
-[agents.prep]
-description = "Prep lead: plans queued exploration and assembles batches as Main's sibling."
-config_file = "agents/prep.toml"
+[agents.challenge_lead]
+description = "Challenge lead: plans queued exploration and assembles batches as the Work lead's sibling."
+config_file = "agents/challenge-lead.toml"
 
-[agents.process]
-description = "Process agent: observes the loop and develops improvements for the conversation coordinator."
-config_file = "agents/process.toml"
+[agents.process_analyst]
+description = "Process analyst: observes the loop and develops improvements for the Coordinator."
+config_file = "agents/process-analyst.toml"
 
 [agents.worker]
 description = "Persistent general worker for queued exploration, implementation, and rework."
-config_file = "agents/worker.toml"
-
-[agents.prep-explorer]
-description = "Legacy role-name alias for worker; use worker for new general-worker agents."
 config_file = "agents/worker.toml"

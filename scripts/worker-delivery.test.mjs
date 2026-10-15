@@ -337,7 +337,7 @@ test('Prep submissions enforce saved comparisons, preserve old packets and requi
     const unauthorized = f.run(['event', '--file', f.file, '--json', JSON.stringify({id: 'approve-own-control',
         type: 'assign', task: 'prep-v2', worker: 'B', kind: 'challenge-preparation', seed: null, base: f.base,
         reservations: ['challenge-batch:v2'], allowedPaths: ['challenges/cases/v2/'], controlCases: ['alpha']})], worker);
-    assert.match(unauthorized.stderr, /only coordinator may authorize/u);
+    assert.match(unauthorized.stderr, /only the Work lead may authorize/u);
     f.event({ type: 'assign', task: 'prep-v2', worker: 'B',
         kind: 'challenge-preparation', seed: null, base: f.base,
         reservations: ['challenge-batch:v2'], allowedPaths: ['challenges/cases/v2/'] }, worker);
@@ -657,7 +657,7 @@ test('a valid acceptance event remains coordinator-only', (t) => {
     const result = f.run(['event', '--file', f.file, '--json',
         JSON.stringify({ id: 'worker-accept', type: 'accepted', task: 'A-1' })], f.workers.A);
     assert.equal(result.status, 1); // Every state precondition holds; only actor ownership rejects it.
-    assert.match(result.stderr, /only coordinator/);
+    assert.match(result.stderr, /only the Work lead/);
     assert.equal(readFileSync(f.file, 'utf8'), before);
     assert.equal(f.event({ type: 'accepted', task: 'A-1' }).tasks['A-1'].status, 'accepted');
 });

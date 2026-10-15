@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 
-import { activityTimeline, activityUtilization, mainIntegrationDurations, agentStages, syntheticGainByCommit, goalHistory } from './dashboard-activity.mjs';
+import { activityTimeline, activityUtilization, integrationDurations, agentStages, syntheticGainByCommit, goalHistory } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity, reservationSnapshot } from './dashboard-snapshot.mjs';
 import {createLedger, recordEvent} from './worker-state.mjs';
 
@@ -46,7 +46,7 @@ test('a shared Prep run stays in every task lifespan but counts once in Main tim
   const stages = timeline.segments.filter(segment => segment.phase === 'integrating');
   assert.equal(stages.length, 2, 'both task histories retain the shared attempt');
   assert.deepEqual(stages[0].prepGroup, ['Prep-v2', 'Prep-v3']);
-  const points = mainIntegrationDurations(timeline).preparation;
+  const points = integrationDurations(timeline).preparation;
   assert.equal(points.length, 1);
   assert.equal(points[0].durationMs / 60000, 5);
   assert.equal(points[0].sampleSize, 1);
@@ -63,11 +63,11 @@ test('integration timing retains retries and outliers but excludes open and unkn
     row('open', 740, 750, { ongoing: true }), row('unknown', 750, 750, { durationUnknown: true }),
     row('other', 760, 765, { phase: 'acceptance' }), row('invalid', 780, 770),
     row('missing-end', 790, 790, { superseded: true })] };
-  const points = mainIntegrationDurations(activity).implementation;
+  const points = integrationDurations(activity).implementation;
   assert.deepEqual(points.map(point => point.durationMs / 60000), [5, 10, 720]);
   assert.deepEqual(points.map(point => point.attempt), [1, 2, 1]);
   assert.equal(points[1].rollingMeanMs / 60000, 7.5, 'early means use the two available samples');
-  assert.deepEqual(mainIntegrationDurations({ segments: [] }), { implementation: [], preparation: [] });
+  assert.deepEqual(integrationDurations({ segments: [] }), { implementation: [], preparation: [] });
 });
 
 test('an implementation group appears in each task history but contributes one timing sample per attempt', () => {
@@ -98,7 +98,7 @@ test('an implementation group appears in each task history but contributes one t
   const stages = timeline.segments.filter(segment => segment.phase === 'integrating');
   assert.equal(stages.length, 4, 'both histories retain both shared attempts');
   assert.deepEqual(stages[0].validationGroup, ['A1', 'A2']);
-  const points = mainIntegrationDurations(timeline).implementation;
+  const points = integrationDurations(timeline).implementation;
   assert.deepEqual(points.map(point => point.durationMs / 60000), [5, 3]);
   assert.deepEqual(points.map(point => point.sampleSize), [1, 2]);
   assert.deepEqual(points[0].validationGroup, ['A1', 'A2']);
@@ -111,7 +111,7 @@ test('integration rolling mean uses the last ten complete attempts before the vi
   const segments = Array.from({ length: 11 }, (_, index) => ({ task: `task-${index}`, lane: 'Main',
     phase: 'integrating', start: new Date(index * 3600000).toISOString(),
     end: new Date(index * 3600000 + (index + 1) * 60000).toISOString() }));
-  const points = mainIntegrationDurations({ segments: [...segments].reverse() }).implementation;
+  const points = integrationDurations({ segments: [...segments].reverse() }).implementation;
   assert.equal(points.at(-1).sampleSize, 10);
   assert.equal(points.at(-1).rollingMeanMs / 60000, 6.5, 'mean of durations 2 through 11');
   assert.equal(points.at(-1).durationMs / 60000, 11, 'display filtering never clips a stage duration');
@@ -123,7 +123,7 @@ test('Prep and implementation integration have independent rolling means and sam
   const row = (task, start, end, kind) => ({ task, kind, lane: 'Main', phase: 'integrating',
     start: at(start), end: at(end) });
   // Interleave short implementation attempts with much longer Prep attempts.
-  const result = mainIntegrationDurations({ segments: [
+  const result = integrationDurations({ segments: [
     row('A1', 0, 5, 'implementation'), row('Prep1', 5, 105, 'challenge-preparation'),
     row('A1', 105, 120, 'implementation'), row('Prep1', 120, 320, 'challenge-preparation'),
   ] });
@@ -155,9 +155,9 @@ test('utilization pools clipped agent-stage time and keeps idle, blocked and unk
   assert.equal(result[0].blocked, 5 * minute);
   assert.equal(result[0].unknown, 5 * minute);
   assert.equal(result[0].utilization, 0.2);
-  assert.equal(result[1].role, 'Prep');
+  assert.equal(result[1].role, 'Challenge lead');
   assert.equal(result[1].utilization, 0.5);
-  assert.equal(result[2].role, 'Main');
+  assert.equal(result[2].role, 'Work lead');
   assert.equal(result[2].utilization, 0.5);
   assert.equal(result[0].workers.find(worker => worker.lane === 'A2').utilization, 0);
   assert.equal(result[0].workers.find(worker => worker.lane === 'B').utilization, 0.5);
@@ -540,7 +540,7 @@ test('integration medians retain outliers without letting one dominate the trend
   // A five-minute attempt, a seven-hour wait, then a nine-minute attempt.
   // The middle rolling sample uses the mean of the two middle values; the
   // third has a nine-minute median while preserving the full long duration.
-  const points = mainIntegrationDurations({segments: [5, 420, 9].map((minutes, index) => ({
+  const points = integrationDurations({segments: [5, 420, 9].map((minutes, index) => ({
     task: String(index), lane: 'Main', phase: 'integrating',
     start: new Date(index * 86400000).toISOString(),
     end: new Date(index * 86400000 + minutes * 60000).toISOString(),

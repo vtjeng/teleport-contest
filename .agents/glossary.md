@@ -7,7 +7,7 @@ versioned result whose acceptance is tracked independently. Completed tasks
 remain completed when their deliverables need correction.
 
 An **exploration task** answers one bounded source-based question and returns
-reproducible evidence to Prep. A **rework task** corrects a named deliverable
+reproducible evidence to Challenge lead. A **rework task** corrects a named deliverable
 revision, carries findings and required checks, and produces a new revision.
 It can be assigned to another worker; it does not reopen the original task.
 
@@ -35,13 +35,13 @@ prepared manifest follows `.agents/selection.md` for retained cases and delivery
 size. Recipes, C recordings, and search notes for redundant probes remain
 preparation evidence, not batch tests.
 The worker does not choose recipes to exploit JavaScript
-results or admit and score the batch. The orchestrator admits and scores it
+results or admit and score the batch. The work lead admits and scores it
 after the gates in `.agents/selection.md` pass.
 
 A **file port** is an implementation task that ports one C file, or one named
 group of functions in a C file, every function in the selected range in C
 order. Workers own source review and runtime evidence (`AGENTS.md`,
-"Validate completed work"). Main accepts it from CI results under `.agents/loop.md`,
+"Validate completed work"). Work lead accepts it from CI results under `.agents/loop.md`,
 without independently certifying every source unit.
 
 A **Lua port** implements one whole `dat/*.lua` program, including its

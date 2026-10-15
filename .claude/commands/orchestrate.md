@@ -1,10 +1,10 @@
 ---
-description: Drive the continuous-operation loop as its orchestrator. Use as `/loop /orchestrate`.
+description: Drive the continuous-operation loop as its work lead. Use as `/loop /orchestrate`.
 ---
 
-You are Main, the work lead. Read `.agents/architecture.md`, including its
-tooling transition, then `.agents/loop.md`. Prep and Process are siblings;
-Main dispatches three persistent general workers through the shared queue.
+You are the Work lead. Read `.agents/architecture.md`, including its
+tooling transition, then `.agents/loop.md`. Challenge lead and Process analyst are siblings;
+Work lead dispatches three persistent general workers through the shared queue.
 Use work-queue.mjs for claims; legacy assignment events cannot bypass it.
 
 Under `/loop`, subagent completion notifications advance the loop. The

@@ -10,8 +10,8 @@ import {admittedBatchIds} from './challenge-results.mjs';
 import {investigationReservations, savedQueueIssues} from './worker-backlog.mjs';
 import {readRows} from './score-log.mjs';
 
-export const USAGE = `Usage (from Main, Prep or a registered worker checkout root):
-  node scripts/work-queue.mjs enable --prep <Prep-worktree> --file <absolute-ledger>
+export const USAGE = `Usage (from the Work lead, Challenge lead or a registered worker checkout root):
+  node scripts/work-queue.mjs enable --prep <challenge-lead-worktree> --file <absolute-ledger>
   node scripts/work-queue.mjs refresh --queue <saved-combined-mismatch-queue> --file <ledger>
   node scripts/work-queue.mjs enqueue --json <assignment.json> --file <ledger>
   node scripts/work-queue.mjs batch --branch <batch-branch> [--base <rejected-revision>] --file <ledger>
@@ -22,11 +22,11 @@ export const USAGE = `Usage (from Main, Prep or a registered worker checkout roo
   node scripts/work-queue.mjs block --worker Worker-1 --reason <reason> --file <ledger>
   node scripts/work-queue.mjs unblock|supersede|reassess --task <id> --reason <reason> --file <ledger>
 
-Register Prep and up to three Worker-1..Worker-3 worktrees with worker-state first.
+Register the Challenge lead as Prep and up to three Worker-1..Worker-3 worktrees with worker-state first.
 enable preserves the existing ledger; no live legacy execution may remain.
 enqueue reads a JSON file, not inline JSON. Assignment schema and examples are
-in .agents/architecture.md. Prep can enqueue exploration/rework for Prep only;
-Main owns all other producer operations. claim atomically selects the next
+in .agents/architecture.md. The Challenge lead can enqueue exploration/rework for itself (stored recipient Prep);
+The Work lead owns all other producer operations. claim atomically selects the next
 prioritized task and switches a clean worker worktree to a new assignment branch.
 It never resets dirty files or amends submitted commits. Complete implementation
 through the existing verified worker-state submit --task <transport> command;
@@ -34,7 +34,7 @@ that automatically completes the execution assignment. complete freezes
 exploration artifacts/check logs into <ledger>.results. Explicitly track running
 handles with processes; completion/blocking refuses live commands.
 No command launches agents, invents acceptance, or starts a second scheduler.
-Only Main may refresh mismatch evidence or reassess/unblock/supersede tasks.
+Only the Work lead may refresh mismatch evidence or reassess/unblock/supersede tasks.
 next is read-only and contains private assignment paths; do not publish it raw.`;
 
 const ensure = (value, message) => {if (!value) throw new Error(message);};
@@ -84,16 +84,16 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
     updateLedger(file, root, current => {
         const state = summarizeLedger(current);
         if (command === 'enable') {
-            ensure(root === state.coordinatorRoot && options.prep, 'only Main enables the queue with --prep');
+            ensure(root === state.coordinatorRoot && options.prep, 'only the Work lead enables the queue with --prep');
             event.prepRoot = realpathSync(options.prep);
-            ensure(event.prepRoot !== root, 'Prep needs its own producer worktree');
-            ensure(state.workers.Prep?.worktree === event.prepRoot, 'register the Prep producer worktree first');
+            ensure(event.prepRoot !== root, 'Challenge lead needs its own producer worktree');
+            ensure(state.workers.Prep?.worktree === event.prepRoot, 'register the Challenge lead producer worktree as Prep first');
             ensure(git(root, 'rev-parse', '--path-format=absolute', '--git-common-dir')
                 === git(event.prepRoot, 'rev-parse', '--path-format=absolute', '--git-common-dir'),
-            'Prep must belong to the same repository');
+            'Challenge lead must belong to the same repository');
             event.base = git(root, 'rev-parse', 'HEAD');
         } else if (command === 'refresh') {
-            ensure(root === state.coordinatorRoot && options.queue, 'only Main refreshes queue evidence');
+            ensure(root === state.coordinatorRoot && options.queue, 'only the Work lead refreshes queue evidence');
             const bytes = readFileSync(resolve(root, options.queue));
             const queue = JSON.parse(bytes);
             const issues = savedQueueIssues(queue, admittedBatchIds(root), readRows(join(root, 'SCORE.tsv')));
@@ -101,7 +101,7 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 `current complete mismatch evidence required: ${issues.join('; ')}`);
             event.type = 'queue-refresh';
             event.base = queueBase(state);
-            ensure(git(root, 'rev-parse', 'HEAD') === event.base, 'refresh at accepted Main HEAD');
+            ensure(git(root, 'rev-parse', 'HEAD') === event.base, 'refresh at the accepted base at HEAD');
             event.digest = hash(bytes);
             event.sessions = [...new Set(queue.sessions.map(row => row.session))];
             event.populate = true;
@@ -113,14 +113,14 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 'producer must match the actual producer checkout');
             event.assignment.base = git(root, 'rev-parse', `${event.assignment.base}^{commit}`);
         } else if (command === 'batch') {
-            ensure(root === state.queue.prepRoot && options.branch, 'batch branch changes run from Prep with --branch');
+            ensure(root === state.queue.prepRoot && options.branch, 'batch branch changes run from the Challenge lead with --branch');
             event.type = 'queue-prep-branch';
             event.branch = options.branch;
             event.base = options.base ? git(root, 'rev-parse', `${options.base}^{commit}`) : queueBase(state);
             if (event.base !== queueBase(state)) {
                 const task = Object.values(state.tasks).find(task => task.worker === 'Prep'
                     && task.status === 'changes-required' && task.deliveries.at(-1) === event.base);
-                ensure(task, 'batch base must be accepted Main or an exact rejected Prep delivery');
+                ensure(task, 'batch base must be the accepted base or an exact rejected challenge-batch delivery');
                 event.resume = task.id;
             }
             const next = recordEvent(current, event);
@@ -200,7 +200,7 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 }
             }
         } else {
-            ensure(root === state.coordinatorRoot, 'only Main changes task readiness');
+            ensure(root === state.coordinatorRoot, 'only the Work lead changes task readiness');
             event.task = options.task;
             event.reason = options.reason;
             if (command === 'reassess') {

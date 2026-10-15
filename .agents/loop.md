@@ -1,6 +1,6 @@
 # Continuous operation
 
-This guide is for Main, the work lead. Use it when the user asks for
+This guide is for the Work lead. Use it when the user asks for
 continuous implementation, within the limits they set. Common worker
 procedures are in `.claude/agents/queue-worker.md`.
 
@@ -22,13 +22,13 @@ follow `.claude/agents/queue-worker.md` plus the guide for their assignment.
 
 ## Queue coordination
 
-Main dispatches the three persistent workers. Prep is Main's sibling and
-adds exploration tasks; it does not own an explorer team. Main adds admitted
+Work lead dispatches the three persistent workers. Challenge lead is Work lead's sibling and
+adds exploration tasks; it does not own an explorer team. Work lead adds admitted
 implementation work and validation rework. Workers take the next eligible
 assignment from the shared policy instead of selecting a private next goal.
 Source-selection criteria remain in `.agents/selection.md`; batch acceptance
 and admission remain in `.agents/validation.md`. Process improvements reach
-Main as approved changes, not instructions to interrupt active workers.
+Work lead as approved changes, not instructions to interrupt active workers.
 
 ## Worker scheduling
 
@@ -42,7 +42,7 @@ write set, reservations, and result recipient. Prepare a source context for
 implementation or a bounded probe plan for exploration; rework also names
 its rejected deliverable revision. Workers still investigate unresolved
 sessions and claim source scope before editing, but do not bypass queue
-priority to start their next assignment. Main records implementation goals
+priority to start their next assignment. Work lead records implementation goals
 centrally as required at integration.
 
 Use `worker-worktree.mjs prepare --branch <assigned-branch>` for supported
@@ -75,7 +75,7 @@ the missing dependency or next action and its owner. Keep private paths,
 process handles, and internal notes in `reason`, which is not published.
 Update the turn when work resumes. The dashboard distinguishes these reported
 waits from unrecorded time; neither assignment nor a blank interval measures
-CPU use. Track Prep planning and assembly separately from worker execution;
+CPU use. Track Challenge lead planning and assembly separately from worker execution;
 legacy snapshots retain their existing role records.
 
 Use `next` for routine coordination, including pending deliveries, parked
@@ -93,12 +93,12 @@ returned state into tracked records or progress messages.
 You own `main`, `GOALS.json`, `SCORE.tsv`, quality and review records, aggregate
 checks, batch admission, and publication. Implementation workers own their
 code, claimed investigation reports, focused tests, recipes, and recordings.
-Exploration workers own their case evidence; Prep owns the assembled batch
+Exploration workers own their case evidence; Challenge lead owns the assembled batch
 and prepared manifest in delivery evidence. Apply
 workers' proposed `QUALITY.json` changes yourself. Do not merge worker copies
 of central records.
 
-Prep plans and assembles one active batch at a time under
+Challenge lead plans and assembles one active batch at a time under
 `.agents/selection.md`. It can start the next plan after submission without
 waiting for acceptance or admission. Reserve each batch identity in the
 ledger and retain each prepared manifest in immutable delivery evidence.
@@ -109,11 +109,11 @@ retain dependencies on any pending ancestor results without modifying them.
 Apply the integration and admission priority in `.agents/selection.md` at each
 safe integration boundary. Preserve validation and baseline requirements.
 Continue assigning fixes from older batches.
-The preparation worker does not monitor implementation assignments. If it
+The Challenge lead does not monitor implementation assignments. If it
 reports a search blocker, use its saved attempts and source findings to redirect
 the search. Follow `.agents/selection.md` for delivery size and retained cases,
-and `.claude/agents/challenge-prep-worker.md` for queued exploration. Keep missed
-and deferred targets in the handoff; the orchestrator owns admission.
+and `.claude/agents/challenge-lead.md` for queued exploration. Keep missed
+and deferred targets in the handoff; the work lead owns admission.
 
 Handle worker messages and finished turns under "Notifications" below.
 Do not create routine nested implementation workers.
@@ -127,8 +127,8 @@ unavoidable, record what is needed and who will provide it. Follow
 ## Notifications
 
 Workers notify the assignment's recipient after saving a result. Exploration
-results go to Prep; implementation results and batch submissions reach Main
-as `READY_TO_MERGE` with their immutable packet reference. Main records receipt and acceptance
+results go to Challenge lead; implementation results and batch submissions reach Work lead
+as `READY_TO_MERGE` with their immutable packet reference. Work lead records receipt and acceptance
 in the ledger; it does not send routine `QUEUED_FOR_MERGE` or `ACCEPTED`
 messages. Workers read `accepted-main` at clean task boundaries.
 
@@ -165,7 +165,7 @@ even if its notification fails.
 
 Group all compatible, received implementation deliveries under
 `.agents/validation.md`, "Implementation acceptance groups".
-Group consecutive ready Prep submissions under "Prep acceptance groups".
+Group consecutive ready Challenge lead submissions under "Challenge lead acceptance groups".
 Dependencies must be accepted or included earlier in the group.
 Choose preparation or implementation using `.agents/selection.md`, "Generating
 the next synthetic batch". Within that choice, integrate deliveries that unblock
@@ -190,7 +190,7 @@ Recheck later work affected by a correction. Other workers continue.
 
 Keep a task's reservations until it is accepted or parked. If a worker has
 already started a second task, accepting its first task releases only the
-first task's reservations. Workers use the accepted Main reference returned by
+first task's reservations. Workers use the accepted base reference returned by
 `worker-state.mjs accepted-main --file <shared-ledger>` as an ordinary task's
 base. Switch cleanly to its assignment branch under the architecture's
 worktree rules; do not merge into or amend an immutable submitted branch. Follow "Notifications" for wakeups.
@@ -203,7 +203,7 @@ or amend submitted delivery commits.
 
 Build implementation groups on candidate branches; keep local `main` at its
 accepted commit until the group passes. Handle one candidate at a time and
-push only accepted work to `main`. Workers own source review. Main integrates, runs exact-commit hosted
+push only accepted work to `main`. Workers own source review. Work lead integrates, runs exact-commit hosted
 CI, accepts, and publishes.
 
 Acceptance checks saved results: an assigned target must improve, and no fixed
@@ -216,7 +216,7 @@ certification is outside the normal loop; do not start a background audit
 unless requested.
 
 CI runs the full test suite, lint, generated/static checks, and all session
-evaluations for each candidate. Main runs focused tests or replays locally only
+evaluations for each candidate. Work lead runs focused tests or replays locally only
 to test a merge-conflict resolution or integration edit, investigate a failed
 check, or verify a specific result it suspects is wrong. Do not repeat
 successful CI checks locally.
@@ -284,7 +284,7 @@ successful CI checks locally.
    Follow `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
    case files unadmitted and record no challenge score or mismatch-queue entry.
-   Use the Prep group procedure under `.agents/validation.md`; preparation
+   Use the Challenge lead group procedure under `.agents/validation.md`; preparation
    tasks skip goal closure and synthetic import.
    For preparation, review the saved C mission and replay evidence; skip
    implementation-only synthetic regression comparison.

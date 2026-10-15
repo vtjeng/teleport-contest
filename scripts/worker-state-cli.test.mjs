@@ -64,5 +64,5 @@ test('CLI preserves events and limits worker writes to owned task transitions', 
     }
     const denied = workerEvent({ id: 'discard-code', type: 'park', task: claim.task, reason: 'Drop code.' });
     assert.equal(denied.status, 1);
-    assert.match(denied.stderr, /only coordinator may park implementation/);
+    assert.match(denied.stderr, /only the Work lead may park implementation/);
 });

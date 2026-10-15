@@ -6,7 +6,7 @@ description: Persistent general worker executing one queued exploration, impleme
 # Persistent queue worker
 
 Read `AGENTS.md` and `.agents/architecture.md` first, including its enable/migration commands. You remain the same worker, in the same private worktree, across
-assignment types. Main is your dispatch authority and parent. Do not spawn
+assignment types. Work lead is your dispatch authority and parent. Do not spawn
 subagents, create a private work queue, or select work outside queue priority.
 
 At a supported atomic claim, read the complete assignment packet: task type,
@@ -19,16 +19,16 @@ it is not permission to guess a new task or broaden its scope.
 
 For an **exploration** assignment, read `.agents/selection.md`, "Generating
 the next synthetic batch", `.agents/validation.md`, and
-`.claude/agents/challenge-prep-worker.md`, "Exploration assignments".
-Execute the bounded source-based plan and return evidence to Prep. A Main-owned
+`.claude/agents/challenge-lead.md`, "Exploration assignments".
+Execute the bounded source-based plan and return evidence to Challenge lead. A Work lead-owned
 `purpose: "support"` exploration instead follows its bounded survey or validation
-plan and returns to Main; it does not need a batch. Do not
+plan and returns to Work lead; it does not need a batch. Do not
 claim batch ownership, implement game fixes, admit cases, or score batches.
 
 For an **implementation** assignment, follow
-`.claude/agents/span-worker.md` for source investigation, implementation, and
-evidence. Return its immutable delivery to Main. Use the claim's `transport` ID for that guide's existing evidence/submission
-commands; it is separate from your execution assignment ID. Leave central goal records and publication to Main.
+`.claude/agents/implementation-worker.md` for source investigation, implementation, and
+evidence. Return its immutable delivery to Work lead. Use the claim's `transport` ID for that guide's existing evidence/submission
+commands; it is separate from your execution assignment ID. Leave central goal records and publication to Work lead.
 
 For **rework**, read the exact linked deliverable and findings, then use the
 exploration or implementation evidence procedure applicable to its output.

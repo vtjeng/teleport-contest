@@ -13,12 +13,12 @@ Queue assignment and deliverable identities are separate under
 commands below retain their delivery-transport IDs. In unified mode,
 verified submission completes execution; feedback on a linked implementation
 delivery automatically enqueues separate rework. Batch feedback still needs
-scoped worker rework enqueued by Main. Preserve all CI, evidence, acceptance,
+scoped worker rework enqueued by Work lead. Preserve all CI, evidence, acceptance,
 and admission gates.
 
 ## Routine validation
 
-- Before committing worker changes or Main's integration edits, run focused tests with
+- Before committing worker changes or Work lead's integration edits, run focused tests with
   `node --test <file>`.
   Put Node test options before the file. `npm test` selects the default
   suite; it does not forward file selections or Node test options.
@@ -30,7 +30,7 @@ and admission gates.
 - Run validation commands directly. Keep existing replay watchdogs and CI job
   timeouts. Retain the terminal session handle for any running command and
   collect its result before starting another copy.
-- After committing a combined integration candidate, the orchestrator obtains
+- After committing a combined integration candidate, the work lead obtains
   a passing hosted checkpoint for that exact commit by default. Use a local
   checkpoint only when hosted validation is unavailable or blocked, and state
   the concrete reason in the progress report. Workers submit immutable
@@ -38,8 +38,8 @@ and admission gates.
   do not run a redundant branch-only full checkpoint before each handoff. A
   standalone game change outside the multi-worker loop still requires a
   post-commit checkpoint.
-  Main's standard checks run in CI: the full suite, lint, generated/static
-  checks, and all session evaluations. Main runs focused tests or replays
+  Work lead's standard checks run in CI: the full suite, lint, generated/static
+  checks, and all session evaluations. Work lead runs focused tests or replays
   locally only for integration edits, conflict resolutions, failed checks, or
   a specific result it suspects is wrong. Do not repeat successful CI checks.
   The local `npm run checkpoint` command tests HEAD in a fresh
@@ -90,7 +90,7 @@ and admission gates.
   over: an agent interruption does not prove its command exited. Wait for the
   existing command or inspect its completed result before deciding to rerun.
 - Keep at most one full suite, checkpoint, mutation run or aggregate scorer
-  active locally for the loop. The orchestrator owns the slot; workers may
+  active locally for the loop. The work lead owns the slot; workers may
   continue focused checks and independent fresh cases using private recorder
   installations. Request an exceptional worker full run rather than starting
   one concurrently. Wait for that validation command to finish, then release its
@@ -130,7 +130,7 @@ and admission gates.
   with `mkdir -p recordings/<source-file>` before recording it:
   `node scripts/record-session.mjs recipes/<source-file>/<name>.session.json
   recordings/<source-file>/<name>.session.json`. Verify the fresh differential
-  matches before committing the recording. The orchestrator's combined
+  matches before committing the recording. The work lead's combined
   `npm run checkpoint` compares the PRNG log, the complete 24x80 screens with their
   attributes, and the cursor positions of every recording. Commit the
   recording only when it matches completely, as `AGENTS.md`, "Validate
@@ -152,13 +152,13 @@ missing evidence; do not repeat source review. Local `main` stays unchanged.
 
 Use bootstrap only to recover an unrecorded tooling publication when committed
 tooling fixes need to share a validation run with ready implementation submissions.
-Prefer ordinary `tooling-published` recording or Prep acceptance when sufficient.
-Bootstrap requires an earlier accepted Main and an imported passing checkpoint
+Prefer ordinary `tooling-published` recording or Challenge lead acceptance when sufficient.
+Bootstrap requires an earlier accepted base and an imported passing checkpoint
 for the tooling publication.
 
 From clean local `main` with no active integration, run
 `node scripts/implementation-handoff.mjs bootstrap --ledger <shared-ledger> --checkpoint <saved-summary> --published <SHA> --tooling <SHA1,SHA2>`.
-Unpublished Main changes and listed commits must contain only tooling or
+Unpublished Work lead changes and listed commits must contain only tooling or
 bookkeeping. Bootstrap freezes the publication proof and commits into one
 candidate. Continue with the hosted checkpoint, acceptance and publication below.
 If interrupted after saving the plan, resume with `integrate`.
@@ -185,18 +185,18 @@ In the existing helper, after receiving the correction, retry `integrate` to reb
 with all original and correction commits. Resolve unfinished cherry-picks first.
 
 After a ledger protocol update, workers with older checkouts use the accepted
-Main checkout's `worker-state.mjs` from their own assigned checkout until they
-can merge accepted Main at a clean boundary.
+Work lead checkout's `worker-state.mjs` from their own assigned checkout until they
+can merge the accepted base at a clean boundary.
 
 After publishing a standalone tooling change, record a `tooling-published`
 event with its tested commit, published commit and saved checkpoint.
 This advances `accepted-main` without reopening deliveries or changing scores.
 The command rejects game or corpus changes, failed or mismatched evidence,
-and publications that do not match local and remote Main.
+and publications that do not match local and remote `main`.
 
-## Prep acceptance groups
+## Challenge lead acceptance groups
 
-At a safe boundary, acknowledge the ready Prep submissions, then run
+At a safe boundary, acknowledge the ready Challenge lead submissions, then run
 `node scripts/prep-handoff.mjs integrate --ledger <shared-ledger>`. It freezes
 consecutive ready batches in version order, with no size cap. Dependencies must
 be accepted or included in the group. Verify saved overlap evidence and any
@@ -214,7 +214,7 @@ Retry the helper after an interruption; it retains the frozen submissions.
 If integration or CI fails, preserve the candidate and frozen plan, resolve the
 failure, and revalidate before acceptance. Do not accept a subset using the
 failed result or run a checkpoint per task.
-When a batch needs correction, Main creates linked rework for Prep and its
+When a batch needs correction, Work lead creates linked rework for Challenge lead and its
 required worker corrections under `.agents/architecture.md`. The current
 legacy `feedback` event releases its group siblings back to ready; it does
 not itself enqueue general-worker rework. After the corrected submission is
@@ -351,9 +351,9 @@ The preparation worker checks recipe and recording hashes and independently
 replays every case in the prepared manifest before submitting. Excluded overlap
 probes need only the C observation specified in `.agents/selection.md`. The
 worker compares included replayed cases with JavaScript locally. The
-orchestrator verifies those checks, then runs the combined checkpoint before
+work lead verifies those checks, then runs the combined checkpoint before
 accepting the case files. Prepared cases do not enter synthetic evaluations
-or dashboard totals until the orchestrator admits a manifest and saves its
+or dashboard totals until the work lead admits a manifest and saves its
 first evaluation. Create independent matching recipes and recordings only for
 source-port paths that lack verified synthetic coverage.
 

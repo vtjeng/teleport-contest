@@ -256,14 +256,14 @@ export function activityTimeline(activity, capturedAt) {
 export function activityUtilization(stages, start, end) {
   const work = new Set(['working', 'rework', 'review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']);
   const hasPrepLanes = stages.some(stage => /^Prep-[1-6]$/u.test(stage.lane));
-  const prepRole = hasPrepLanes ? 'Prep lead' : 'Prep';
-  const roles = hasPrepLanes ? ['A/B/C', prepRole, 'Prep lanes', 'Main'] : ['A/B/C', prepRole, 'Main'];
+  const challengeRole = 'Challenge lead';
+  const roles = hasPrepLanes ? ['A/B/C', challengeRole, 'Prep lanes', 'Work lead'] : ['A/B/C', challengeRole, 'Work lead'];
   if (stages.some(stage => /^Worker-[1-3]$/u.test(stage.lane))) roles.splice(1, 0, 'Workers');
   const groups = roles.map(role => ({ role, workers: new Map() }));
   for (const stage of stages) {
     if (['queued', 'pending'].includes(stage.phase)) continue;
-    const role = /^Worker-[1-3]$/u.test(stage.lane) ? 'Workers' : stage.lane === 'Main' ? 'Main' : /^Prep-[1-6]$/u.test(stage.lane) ? 'Prep lanes'
-      : /^Prep\d*$/u.test(stage.lane) ? prepRole
+    const role = /^Worker-[1-3]$/u.test(stage.lane) ? 'Workers' : stage.lane === 'Main' ? 'Work lead' : /^Prep-[1-6]$/u.test(stage.lane) ? 'Prep lanes'
+      : /^Prep\d*$/u.test(stage.lane) ? challengeRole
       : /^[ABC]\d*$/u.test(stage.lane) ? 'A/B/C' : null;
     const group = groups.find(row => row.role === role);
     const a = Math.max(start, Date.parse(stage.start)), b = Math.min(end, Date.parse(stage.end));
@@ -287,7 +287,7 @@ export function activityUtilization(stages, start, end) {
 // Full elapsed durations of completed integration/checks attempts, not CPU
 // time. Keep retries and outliers; never treat an open snapshot as an endpoint.
 // Embedded in the dashboard so the chart and tests use the same calculation.
-export function mainIntegrationDurations(activity) {
+export function integrationDurations(activity) {
   const windowSize = 10;
   const points = (activity?.segments ?? []).map((segment, sourceIndex) => ({ segment, sourceIndex }))
     .filter(({ segment }) => segment.lane === 'Main' && segment.phase === 'integrating'
@@ -380,7 +380,7 @@ export function agentStages(segments, events = []) {
             && other.start > row.start && other.start <= start)))
           .sort((a, b) => a.start.localeCompare(b.start)).at(-1);
         if (!chosen) chosen = { ...present[0], task: `gap:Main:${start}`, label: 'Main', worker: 'Main', phase: 'unrecorded',
-          reason: 'An earlier stage has no end event; Main has since started other work.' };
+          reason: 'An earlier stage has no end event; The Work lead has since started other work.' };
       } else {
         const assignment = assignments.filter(row => row.at <= start).at(-1);
         const turn = turns.filter(row => row.at <= start).at(-1);

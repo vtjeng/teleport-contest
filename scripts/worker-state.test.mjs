@@ -293,7 +293,7 @@ test('atomic updates preserve old data on failure, refuse concurrent writers and
     const original = readFileSync(file, 'utf8');
     assert.throws(() => updateLedger(file, root, () => { throw new Error('invalid event'); }), /invalid event/);
     assert.equal(readFileSync(file, 'utf8'), original);
-    assert.throws(() => updateLedger(file, `${root}/worker`, (value) => value), /coordinator/);
+    assert.throws(() => updateLedger(file, `${root}/worker`, (value) => value), /Work lead/);
     writeFileSync(`${file}.lock`, 'a retained writer handle');
     assert.throws(() => updateLedger(file, root, (value) => value), /locked/);
     assert.equal(readFileSync(file, 'utf8'), original);
