@@ -83,5 +83,27 @@
   "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
   "goal": "fix-v76-oil-snuff-light-cocktail-reacquisition-20261015",
   "sourceBase": "f99270767b8956ae054ad52597b0cc7c7a2ee780",
-  "selectionReason": "Selected synthetic/v76/v76-oil-snuff-merge-action2 from its hosted v76 evaluation. The first mismatch is the split-one reacquisition inside apply.c:light_cocktail(): JS has added the child but refuses before the existing C encumber_msg call because its caller omitted the required hook. The later snuff/merge actions are downstream and are not the first cause."
+  "selectionReason": "Selected synthetic/v76/v76-oil-snuff-merge-action2 from its hosted v76 evaluation. The first mismatch is the split-one reacquisition inside apply.c:light_cocktail(): JS has added the child but refuses before the existing C encumber_msg call because its caller omitted the required hook. The later snuff/merge actions are downstream and are not the first cause.",
+  "resolution": {
+    "status": "implemented",
+    "sourceChange": "js/apply.js:light_cocktail now supplies the existing pickup.c:encumber_msg port as the encumberMessage hook when reacquiring the split oil potion; an explicit caller hook remains authoritative, and the same message sink is used for the burden update.",
+    "tests": [
+      "scripts/apply-light-cocktail.test.mjs"
+    ],
+    "validation": {
+      "focused": {
+        "command": "node scripts/run-bounded.mjs focused -- node --test scripts/apply-light-cocktail.test.mjs",
+        "result": "4/4 passed"
+      },
+      "lint": {
+        "command": "npx eslint js/apply.js scripts/apply-light-cocktail.test.mjs",
+        "result": "passed"
+      },
+      "admittedReplay": {
+        "command": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
+        "result": "v76/v76-oil-snuff-merge-action2 segment 0 through step 224 matched"
+      }
+    },
+    "runtimeEvidence": "The production #apply path lights one item from a three-potion stack, reacquires the burning child, refreshes burden state, then continues through subsequent snuff/merge actions. The complete 225-step admitted segment matches screens, RNG, and cursors."
+  }
 }
