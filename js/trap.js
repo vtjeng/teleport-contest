@@ -246,6 +246,7 @@ import {
     HeroDeathPlanningError,
     nomul, unmul, losehp, You_can_move_again,
     u_locomotion,
+    movobj,
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { goodpos } from './teleport.js';
@@ -2089,9 +2090,8 @@ export async function float_down(hmask, emask, state = game) {
         u.uy0 = u.uy;
         u.ux = state.uball.ox;
         u.uy = state.uball.oy;
-        // C movobj() moves the chain object with the ball. The object-map
-        // relocation helper is not ported in this source owner.
-        note_unported('obj.c movobj');
+        // C ref: trap.c float_down() relocates uchain with hack.c movobj().
+        movobj(state.uchain, u.ux, u.uy, state);
         newsym(u.ux0, u.uy0, state);
         state.vision_full_recalc = 1;
     }

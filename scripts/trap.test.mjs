@@ -568,3 +568,47 @@ test('float_down runs lava effects and removes every worn item before destructio
     assert.doesNotMatch(jsLava.slice(wornCheck, helperCall),
         /note_unported\(['"]steal\.c remove_worn_item/u);
 });
+
+test('float_down moves the chain with the punished ball before redrawing the old square', () => {
+    const cFloatDown = cFunction(
+        C_TRAP,
+        'float_down(\n    long hmask,',
+        '\n/* shared code for climbing out of a pit */',
+    );
+    const cRelocate = cFloatDown.indexOf('u.ux = uball->ox;');
+    const cMoveChain = cFloatDown.indexOf(
+        'movobj(uchain, uball->ox, uball->oy);', cRelocate,
+    );
+    const cRedrawOld = cFloatDown.indexOf('newsym(u.ux0, u.uy0);', cMoveChain);
+    assert.ok(cRelocate >= 0 && cMoveChain > cRelocate && cRedrawOld > cMoveChain);
+
+    const jsFloatStart = JS_TRAP.indexOf('export async function float_down(');
+    const jsFloatEnd = JS_TRAP.indexOf(
+        '\n}\n\n// C ref: trap.c climb_pit()', jsFloatStart,
+    ) + 3;
+    assert.ok(jsFloatStart >= 0 && jsFloatEnd > jsFloatStart);
+    const jsFloatDown = JS_TRAP.slice(jsFloatStart, jsFloatEnd);
+    const jsRelocate = jsFloatDown.indexOf('u.ux = state.uball.ox;');
+    const jsMoveChain = jsFloatDown.indexOf(
+        'movobj(state.uchain, u.ux, u.uy, state);', jsRelocate,
+    );
+    const jsRedrawOld = jsFloatDown.indexOf(
+        'newsym(u.ux0, u.uy0, state);', jsMoveChain,
+    );
+    assert.ok(jsRelocate >= 0 && jsMoveChain > jsRelocate
+        && jsRedrawOld > jsMoveChain);
+    assert.doesNotMatch(jsFloatDown, /note_unported\(['"](?:obj|hack)\.c movobj/u);
+
+    const cMovobj = cFunction(
+        C_HACK,
+        'movobj(struct obj *obj, coordxy ox, coordxy oy)',
+        '\nstaticfn void\ndosinkfall',
+    );
+    assert.match(cMovobj,
+        /remove_object\(obj\);\s*maybe_unhide_at\(obj->ox, obj->oy\);\s*newsym\(obj->ox, obj->oy\);\s*place_object\(obj, ox, oy\);\s*newsym\(ox, oy\);/u);
+    const jsMovobjStart = JS_HACK.indexOf('export function movobj(');
+    const jsMovobjEnd = JS_HACK.indexOf('\n}\n', jsMovobjStart) + 3;
+    assert.ok(jsMovobjStart >= 0 && jsMovobjEnd > jsMovobjStart);
+    assert.match(JS_HACK.slice(jsMovobjStart, jsMovobjEnd),
+        /remove_object\(obj,[\s\S]*?maybe_unhide_at\(obj\.ox, obj\.oy, state\);\s*newsym\(obj\.ox, obj\.oy\);\s*place_object\(obj, ox, oy,[\s\S]*?newsym\(ox, oy\);/u);
+});
