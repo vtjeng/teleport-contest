@@ -38,8 +38,8 @@ implementation-worker ledger; the work lead is its sole coordinator.
 Reserve the root, work lead, and process agent, leaving four shared execution
 slots. Count a Prep lead, each explorer, implementation worker, reviewer, and
 survey helper against the same pool regardless of parent. Prep has historically
-been the bottleneck: default to a Prep lead and three explorers while the
-independent implementation backlog is insufficient. When useful fixes are
+been the bottleneck: when fewer than five eligible sessions remain unstarted,
+prefer a Prep lead and three explorers as slots become available. When useful fixes are
 available, use A/B plus Prep and one explorer, or A plus Prep and two explorers.
 A/B/C plus Prep with no explorer is also valid when implementation dominates.
 An allocated Prep lead can record probes itself when no explorer is available.
@@ -59,8 +59,27 @@ threads. The dashboard continues to show those roles; the conversation and
 process agents do not acquire worker rows merely to reserve slots.
 
 Rebalance at deliveries, completed probes, validation boundaries, or concrete
-blockers. Use the saved queue and batch backlog to favor implementation when
-independent admitted work is plentiful and Prep when the queue is drying up.
+blockers. Before granting a newly available slot, count distinct eligible,
+unstarted sessions in the current saved combined queue using its corpus/batch
+identities and the shared ledger. A session already claimed for investigation
+or implementation is started, including parked work and submitted deliveries;
+an existing valid investigation also means work has started. Exclude blocked
+or reserved sessions. Count sessions, not source groups, goals, or workers.
+Missing or stale queue evidence makes the count unknown, not zero; refresh it
+before using the threshold.
+
+While this count is below five (zero through four), prefer assigning free or
+yielded slots to Prep rather than starting another implementation worker:
+allocate the Prep lead first, then explorers. Apply this to spawning and
+retasking existing threads. Tell a finishing A/B worker to yield before it
+claims another task when its slot is needed for Prep. Five or more unstarted
+sessions permits additional implementation workers, subject to source
+independence and existing admission priorities; it does not require them.
+This allocation preference does not interrupt active tasks or commands,
+remove correction ownership, or supersede regression repairs. Record the
+count and allocation reason in the handoff notes and public yield summary
+(for example, "Prep priority: 3 unstarted sessions; threshold 5"). Prep uses
+Main's allocation and does not inspect implementation assignments itself.
 Announce a pending reallocation before the worker selects another task.
 In particular, A/B can yield their slots to Prep explorers after submitting
 or deliberately parking their current tasks, then resume implementation when

@@ -121,6 +121,10 @@ Whole-source completion and caller evidence remain required for every port.
 An allocated Prep lead prepares new batches while implementation workers
 repair current mismatches. Prep and its explorers share the execution pool
 with implementation workers under `.agents/loop.md`, "Shared agent pool".
+Main prefers new Prep allocations while fewer than five eligible sessions
+remain unstarted; count sessions rather than source groups, using the saved
+combined queue and claim/investigation history as defined there. This governs
+free-slot allocation, not interruption of active tasks or batch admission.
 While allocated, keep Prep working on one batch at a time. After submission,
 unless Main has requested a pool handoff, claim the next unused version without waiting for
 acceptance, admission, or a queue threshold. Handle requested corrections and
