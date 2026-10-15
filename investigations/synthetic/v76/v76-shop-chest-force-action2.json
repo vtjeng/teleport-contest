@@ -1,0 +1,58 @@
+{
+  "session": "synthetic/v76/v76-shop-chest-force-action2",
+  "corpus": "synthetic",
+  "batch": "v76",
+  "caseId": "v76-shop-chest-force-action2",
+  "manifestPath": "challenges/manifests/v76.json",
+  "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+  "recordingSha256": "762c86aa3ebae36e75a0038a8d900b71e58064b8d4be36adbfb9ecc8d167c32d",
+  "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+  "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+  "remainingScreens": 74,
+  "recordedSteps": 507,
+  "status": "complete",
+  "commit": "b821e2b1a6f8608899c2b1aac5e21aea1a784b0e",
+  "mismatch": {
+    "session": "synthetic/v76/v76-shop-chest-force-action2",
+    "remainingScreens": 74,
+    "step": 63,
+    "kind": "screen",
+    "sourceFile": "shknam.c",
+    "function": "nameshk",
+    "message": "Minetown lighting-shop welcome names the keeper differently",
+    "metrics": {
+      "screens": { "matched": 433, "total": 507 },
+      "rng": { "matched": 3947, "total": 4015 },
+      "cursors": { "matched": 433, "total": 507 }
+    },
+    "firstMismatch": {
+      "screenIndex": 63,
+      "location": { "segmentIndex": 0, "stepIndex": 63, "key": " " },
+      "kind": "ch",
+      "row": 0,
+      "column": 28,
+      "cCell": { "ch": "I", "color": 8, "attr": 0, "decgfx": 0 },
+      "jsCell": { "ch": "V", "color": 8, "attr": 0, "decgfx": 0 }
+    }
+  },
+  "summary": "The first mismatch occurs when the hero enters Minetown and the lighting-store greeting is printed. C names the keeper Izchak; JavaScript selects a generic name. C shknam.c:nameshk has a special case for the shklight list on a Mines special level marked town, but js/shknam.js skips it because a comment treats the lighting store as unreachable. The special-level loader does create this shop, so the branch is reachable.",
+  "source": {
+    "file": "shknam.c",
+    "functions": ["nameshk"],
+    "branch": "When the original name-list pointer is shklight, the current level is in the Mines, and Is_special returns a special level whose town flag is true, nameshk assigns '+Izchak' and sets the keeper male. This branch skips seeded generic-name selection, duplicate-name retries, and their possible RNG calls.",
+    "callers": [
+      "C shknam.c:stock_room calls shkinit for the lighting shop; shkinit initializes the keeper and calls nameshk(shk, shp->shknms).",
+      "C shknam.c:nameshk receives the exact shklight list from the shop type; the Minetown level is supplied by the special-level loader with its town flag set.",
+      "JS shknam.js:stock_room calls shkinit, whose finishShopkeeper passes shop.shknms to nameshk; the generated shtypes_data.js already exports the identical shklight list."
+    ],
+    "dependencies": ["dungeon.c:Is_special", "shknam.c:stock_room", "shknam.c:shkinit"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The v76 admission evaluation reports 433/507 screens, 3,947/4,015 RNG calls, and 433/507 cursors. Its first screen mismatch is step 63, segment 0, key space, row 0 column 28: C prints the Izchak greeting and JavaScript has a different keeper name.",
+    "The saved accepted-source prefix at /home/vtjeng/development/vtjeng/teleport-contest/.cache/prep40-recovery/prep76/logs/latest-94076-fixed-prefix-v76-shop-chest-force-action2.json matches 3,505 RNG calls, 63 screens, and 63 cursors before step 63.",
+    "C shknam.c:nameshk at lines 487-544 checks nlp == shklight, In_mines(&u.uz), and a non-null Is_special result with flags.town. It then assigns '+Izchak' and female=false, bypassing the generic seeded-name selection loop.",
+    "JS shknam.js:nameshk at lines 267-280 says the Minetown shklight branch is unreachable, then proceeds directly to generic name selection. js/shtypes_data.js already exports shklight, and JS stock_room/shkinit passes the selected shop name list to nameshk.",
+    "The saved C recording prints \"Hello, wizard! Welcome to Izchak's lighting store!\" at step 63. Prep40's source adjudication records that later chest-destruction and billing behavior is not the first mismatch; this task addresses the earlier nameshk branch only."
+  ]
+}
