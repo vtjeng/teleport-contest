@@ -46,6 +46,7 @@ import {
     GC_CONDHIST,
     GC_ECHOFIRST,
     GC_SAVEHIST,
+    GLOC_INTERESTING,
     LOOK_ONCE,
     LOOK_QUICK,
     LOOK_TRADITIONAL,
@@ -230,7 +231,7 @@ import {
 import { tty_yn_function } from './topl.js';
 import { game } from './gstate.js';
 import { getnow } from './calendar.js';
-import { getpos } from './getpos.js';
+import { getpos, getpos_menu } from './getpos.js';
 import {
     dooverview,
     donamelevel,
@@ -2697,10 +2698,9 @@ export async function do_fight(state = game) {
     return ECMD_OK;
 }
 
-// C ref: cmd.c dotravel() (5299-5343). This owns the ordinary keyboard route
-// only. Menu travel and the cancellation/selection settings outside the
-// default getpos configuration remain later slices.
-async function dotravel(key, state = game) {
+// C ref: cmd.c dotravel() (5299-5343). The keyboard route accepts either the
+// ordinary getpos prompt or the menu-requested interesting-location picker.
+async function dotravel(state = game) {
     state.iflags ??= {};
     const cached = state.iflags.travelcc ?? { x: 0, y: 0 };
     const cc = { x: cached.x, y: cached.y };
@@ -2711,20 +2711,23 @@ async function dotravel(key, state = game) {
 
     state.iflags.getloc_travelmode = true;
     if (state.iflags.menu_requested) {
-        state.iflags.getloc_travelmode = false;
-        throw new UnsupportedHeroCommandBranchBoundaryError(
-            'dotravel menu target selection is not ported',
-            key,
+        const filter = state.iflags.getloc_filter;
+        state.iflags.getloc_filter = GFILTER_VIEW;
+        if (!await getpos_menu(cc, GLOC_INTERESTING, state)) {
+            state.iflags.getloc_filter = filter;
+            state.iflags.getloc_travelmode = false;
+            return ECMD_OK;
+        }
+        state.iflags.getloc_filter = filter;
+    } else {
+        await ttyPline('Where do you want to travel to?', state);
+        const getposResult = await getpos(
+            cc, true, 'the desired destination', state,
         );
-    }
-
-    await ttyPline('Where do you want to travel to?', state);
-    const getposResult = await getpos(
-        cc, true, 'the desired destination', state,
-    );
-    if (getposResult < 0) {
-        state.iflags.getloc_travelmode = false;
-        return ECMD_CANCEL;
+        if (getposResult < 0) {
+            state.iflags.getloc_travelmode = false;
+            return ECMD_CANCEL;
+        }
     }
 
     state.iflags.travelcc = { x: cc.x, y: cc.y };
@@ -5916,7 +5919,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // C ref: cmd.c dotravel() and dotravel_target(). The target
             // selection and cached destination state are ported here; the
             // call into hack.c findtravelpath() is the next boundary.
-            const res = await dotravel(key, state);
+            const res = await dotravel(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

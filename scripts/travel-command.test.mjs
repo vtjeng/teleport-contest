@@ -53,3 +53,28 @@ test('ordinary travel selects downstairs and follows the shortest path',
         assert.equal(game.travelmap, null);
     }
 });
+
+test('menu-prefixed keyboard travel restores its filter after Escape',
+    async () => {
+    // This independent wizard seed gives #wizmap visible targets so m_ opens
+    // the interesting-location picker before Escape cancels it.
+    const segment = {
+        seed: 91273,
+        datetime: '20861015143100',
+        nethackrc: [
+            'OPTIONS=name:TravelMenuTest,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics',
+            '',
+        ].join('\n'),
+        // #wizmap exposes locations; m_ requests menu travel; Escape cancels.
+        moves: '#wizmap\nm_\u001b',
+    };
+    const replay = await runSegment(segment);
+
+    assert.ok(replay.getScreens().some(
+        screen => screen.includes('Pick an interesting thing in view for travel destination'),
+    ));
+    assert.equal(game.iflags.getloc_filter, 0);
+    assert.equal(game.iflags.getloc_travelmode, false);
+    assert.equal(game.iflags.menu_requested, false);
+    assert.deepEqual(game.iflags.travelcc, { x: 0, y: 0 });
+});
