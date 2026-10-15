@@ -127,5 +127,28 @@
     "source": "mon.c:movemon_singlemon caller wiring",
     "implementation": "js/unported_monster_actions.js:planSimpleMonsterTurn passes admitPlannedVisionChange into the planned movemon_singlemon environment.",
     "runtime": "The exact admitted v83 replay reached 1351 screens and ended without a boundary refusal. Its first remaining divergence is the screen at step 859; the original RNG mismatch at step 598 is gone."
+  },
+  "followupInvestigation": {
+    "session": "synthetic/v83/v83-mm-rust-iron-action2",
+    "batch": "v83",
+    "caseId": "v83-mm-rust-iron-action2",
+    "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+    "recordingSha256": "23ce268870b27cc5d3d586799e60319095f197bfe3e9eff6b52df42ea47053fb",
+    "step": 859,
+    "source": {
+      "file": "region.c",
+      "function": "run_regions",
+      "lines": "414-474",
+      "branch": "When gas_cloud_diss_seen is nonzero, run_regions calls You_see(\"%s gas cloud%s dissipate.\", ...). pline.c:You_see selects \"You sense\" when Blind is true."
+    },
+    "javaScript": {
+      "file": "js/region.js",
+      "function": "run_regions",
+      "lines": "565-634",
+      "branch": "The gas_cloud_diss_seen branch hardcodes \"You see a gas cloud dissipate.\" or its plural and does not apply the hero blindness prefix."
+    },
+    "observation": "The recorded step 858 status line ends in Blind. At step 859, C reports \"You sense a gas cloud dissipate.\" while JavaScript reports a screen whose first message differs at column 6, consistent with the hardcoded \"You see\" branch. The initial RNG mismatch is gone; this is a later independent screen mismatch.",
+    "rootCause": "js/region.js run_regions must compose the message through the existing You_see behavior so blindness produces the C wording. The current helper is js/monmove.js:youSee, which implements pline.c:You_see; confirm the dependency and safe call path before edits.",
+    "status": "source-traced; implementation scope not yet claimed"
   }
 }
