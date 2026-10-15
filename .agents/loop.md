@@ -396,7 +396,27 @@ unnecessary.
 
 Capture enough context for later triage without delaying dispatch or
 validation; commit entries at the next safe record boundary. Logging does
-not require investigation or a fix. Triage waits for the user's request.
+not require a fix. The user has requested ongoing friction triage as a standing
+Process analyst responsibility; it no longer waits for a separate request.
+
+The Process analyst reviews rejected deliveries, repeated failures, and recurring
+coordination mistakes independently of worker execution. Reflect briefly after
+each completed batch and periodically at safe boundaries during active work.
+Use existing friction entries and saved queue, delivery, and validation evidence;
+do not interrupt workers or repeat successful checks to produce a reflection.
+Append new evidence or recurrences to `.agents/friction.md`, and keep pending
+ideas in `.agents/proposals.md`. A reflection with no new finding needs only a
+brief update, not another permanent report.
+
+Prefer small, evidence-backed proposals stating the observed cost, expected
+benefit, tradeoff, and a follow-up measurement. When a change is adopted, the
+Process analyst drafts its entry in `.agents/decisions.md`; Work lead integrates
+the entry alongside the scoped implementation at a safe boundary, with existing
+checks intact. Each entry records the date/change, why with friction or proposal
+links, implementation commit or PR, expected benefit/tradeoff, and follow-up
+evidence initially marked `unmeasured`. Preserve earlier entries and link later
+reversals. Update follow-up evidence when comparable observations become
+available; do not claim improvement from an unmeasured change.
 
 ## Reports
 

@@ -1,7 +1,11 @@
 # Workflow friction log
 
-Observations for later triage, not confirmed defects or approved changes.
-The main orchestrator records its own friction and relevant worker reports.
+Observations for ongoing triage, not confirmed defects or approved changes.
+The Work lead records its own friction and relevant worker reports. The Process
+analyst reviews these records under the standing responsibility in
+[loop.md](loop.md#workflow-friction), appending evidence and recurrences without
+interrupting execution. Pending changes belong in [proposals.md](proposals.md);
+adopted changes and follow-up measurements belong in [decisions.md](decisions.md).
 Append short entries; add recurrences to an existing entry when recognized.
 
 For each entry, record:
@@ -20,6 +24,50 @@ No solution or priority is required. Preserve entries and append later
 triage decisions or fix references.
 
 ## Observations
+
+### 2026-10-15 — fresh-ledger baseline has no first publication route
+
+- Context: clean-run startup at published `851aa5c0b1cdc9f0bd4da5d3c03c805667e6a5d7`,
+  with no recovered runtime ledger or checkpoint archive. A local checkpoint
+  was started after GitHub API access returned `Forbidden`.
+- Friction: `accepted-main` returned `null`, while the enabled queue used its
+  `initialBase` for exploration. Source inspection found that both
+  `verifyToolingPublication()` and implementation bootstrap require a previous
+  accepted anchor. A proposed first genuine batch acceptance route then proved
+  insufficient: `verifyPrepComparisons()` also requires an accepted comparison
+  commit and excludes `queue.initialBase`. No first submission failure or
+  elapsed-time cost is claimed; this is a source-proven future submission block.
+- Evidence: `scripts/worker-backlog.mjs` `acceptedMain()`,
+  `scripts/assignment-queue.mjs` `queueBase()`, and
+  `scripts/worker-delivery.mjs` `verifyToolingPublication()` and
+  `verifyPrepComparisons()` at the commit above. The shared ledger contained no
+  accepted deliveries or tooling publications when inspected.
+- Reason: preserve exact-checkpoint and published-main proof without inventing
+  accepted deliveries or bypassing comparison provenance.
+- Outcome: Work lead and Coordinator informed. The analyst corrected its earlier
+  acceptance-only assessment after Challenge lead identified the submission
+  guard. Runtime recovery remains separate from the standing-triage change.
+
+### 2026-10-15 — exploration completion requirements are unconditional
+
+- Context: Challenge lead prepared bounded v90 exploration assignments against
+  the same published base while checking how to retain misses and deferrals.
+- Friction: `work-queue.mjs complete` requires every declared artifact and a
+  successful result for every required check kind regardless of `miss` or
+  `deferred` outcome. A source-only deferral cannot truthfully supply a missing
+  C capture or successful recorder check. No worker completion failure or time
+  loss has yet been measured.
+- Evidence: `scripts/work-queue.mjs` `complete` checks and
+  `.claude/agents/challenge-lead.md`, "Exploration assignments", which allows a
+  bounded miss or deferred target to complete when its evidence and stop rule
+  are satisfied. Only Main-owned support tasks with outcome `failure` can
+  retain nonzero check exits.
+- Reason: enforce bounded exploration and preserve truthful failed observations
+  without weakening the successful C-evidence gate for retained batch cases.
+- Outcome: producers can scope source-only reconnaissance with no promised case
+  artifacts/checks; a valid captured setup miss can retain its real passing
+  checks. Recorder failures retain clean recovery and block on their dependency.
+  Outcome-specific completion requirements remain a proposal, not an adopted fix.
 
 ### 2026-10-10 — accepted dependency verification exceeded the Git patch buffer
 

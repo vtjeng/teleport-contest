@@ -31,10 +31,22 @@ publication. The dashboard uses the same role names irrespective of agent parent
 The Challenge lead plans exploration, adds bounded investigation tasks,
 evaluates returned evidence, deduplicates causes, and assembles batches for
 the Work lead. It does not spawn explorers or independently assign workers.
-The Process analyst observes
-the queue and deliveries, develops process proposals, and reports to the
-Coordinator. The Work lead integrates approved changes at safe task or
-validation boundaries. The Process analyst does not change active claims or priorities.
+The Process analyst continuously reviews queue and delivery friction, including
+rejected deliveries, repeated failures, and recurring coordination mistakes.
+This is the user's standing request for ongoing triage; no new request is needed
+for each review. Keep reviews independent of worker execution. Reflect briefly
+after each completed batch and periodically at safe boundaries during active
+work, using saved evidence rather than interrupting workers or repeating checks.
+Record observations in [friction.md](friction.md), develop small evidence-backed
+changes in [proposals.md](proposals.md), and report actionable findings to the
+Coordinator. Measure adopted changes against the observed friction when comparable
+evidence becomes available; leave unknown benefits explicitly unmeasured.
+
+The Process analyst drafts concise adopted-change entries in
+[decisions.md](decisions.md). The Work lead integrates approved changes and their
+entries together at safe task or validation boundaries, preserving all existing
+validation and publication gates. The Process analyst does not change active
+claims or priorities, interrupt workers, or add worker capacity.
 
 Workers are persistent generalists and remain children of the Work lead. An assignment
 can involve exploration, implementation, or rework; its type does not rename,

@@ -4,8 +4,17 @@ This file collects proposed changes to tooling and process. For unimplemented
 game behavior, run `node scripts/goal-log.mjs roadmap`. Agents do not select goals from this file.
 
 Each entry states what it would change, what it costs, what prompted it, and
-what it leaves unfixed. Delete an entry when the change lands or a decision
-retires it.
+what it leaves unfixed. The Process analyst uses existing [friction](friction.md)
+and saved evidence for ongoing triage, with a brief reflection after each
+completed batch and periodically during active work. Prefer small proposals
+with a follow-up measurement; a recurring inconvenience alone is not approval.
+
+When an adopted change lands, record its rationale, implementation commit or PR,
+tradeoff, and initially `unmeasured` follow-up in [decisions.md](decisions.md).
+Then delete its pending entry; preserve a commit-specific proposal link in the
+decision when that proposal supplies the rationale. Retired unimplemented ideas
+need no adopted-change entry. Preserve existing decision entries and link any
+later reversal.
 
 ## Assess asynchronous GitHub validation
 
