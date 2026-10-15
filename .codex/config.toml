@@ -4,9 +4,17 @@ max_concurrent_threads_per_session = 6
 default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "high"
 
+[agents.main]
+description = "Main work lead: dispatches shared-queue workers and owns integration and acceptance."
+config_file = "agents/main.toml"
+
 [agents.prep]
 description = "Prep lead: plans queued exploration and assembles batches as Main's sibling."
 config_file = "agents/prep.toml"
+
+[agents.process]
+description = "Process agent: observes the loop and develops improvements for the conversation coordinator."
+config_file = "agents/process.toml"
 
 [agents.worker]
 description = "Persistent general worker for queued exploration, implementation, and rework."

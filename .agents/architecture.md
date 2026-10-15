@@ -41,6 +41,21 @@ reparent, suspend, or restart the worker. Workers do not spawn more agents.
 Read-only surveys and validation follow-ups also use these three workers;
 there is no extra helper quota or permanent Prep-1..Prep-6 team.
 
+## Models and launch
+
+The role profiles registered in `.codex/config.toml` define model and reasoning
+effort: use `main` for Main, `prep` for Prep, `process` for Process, and `worker`
+for all three general workers. The conversation coordinator uses the user's
+selected conversation settings.
+
+Apply the matching profile when launching each agent. If the host's spawn API
+does not select named profiles, read the referenced role file and pass its
+model and effort explicitly. Full-history forks may inherit their parent's
+settings; use a fresh agent with an explicit handoff when required to apply a
+different profile. Confirm the actual selection instead of assuming the
+repository's generic subagent default overrides inheritance. Report an
+unavailable requested model or effort rather than silently substituting it.
+
 ## One queue, two producers
 
 The queue is shared state and tooling, not an agent. It stores executable
