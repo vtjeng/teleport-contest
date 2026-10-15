@@ -425,10 +425,6 @@ canvas {
   touch-action: pan-y;
 }
 
-#progressMinimap.is-sliding {
-  cursor: grabbing;
-}
-
 .history-controls { display: flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
 .history-controls .chart-reset { border: 0; border-radius: 0; }
 .history-controls .chart-reset + .chart-reset { border-left: 1px solid var(--border); }
@@ -471,7 +467,6 @@ canvas {
 }
 .activity-window-select { margin-left: auto; font: inherit; font-size: 12px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .activity-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
-.activity-nav-buttons { display: flex; align-items: center; gap: 8px; }
 .activity-navigation .chart-range { min-width: 165px; text-align: left; }
 .activity-utilization { width: 100%; max-width: 520px; table-layout: fixed; border-collapse: collapse; margin: 0 0 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .activity-utilization th, .activity-utilization td { padding: 2px; text-align: right; white-space: nowrap; }
@@ -841,25 +836,18 @@ canvas {
 
 
 /* Keep current work prominent; diagnostics open only when requested. */
-.activity-zoom { display: flex; gap: 4px; }
-.activity-zoom button { min-width: 30px; }
 .activity-help { margin: 12px 0; color: var(--ink-secondary); font-size: 12px; }
 .activity-help summary, .integration-duration > summary { cursor: pointer; }
 .activity-help .legend { margin: 12px 0; }
 .activity-help p { max-width: 75ch; }
-#activityMinimap { display: block; width: 100%; height: 64px; margin-top: 14px; cursor: ew-resize; touch-action: none; }
+#activityMinimap { display: block; width: 100%; height: 64px; margin-top: 14px; cursor: crosshair; touch-action: none; }
 #activityMinimap:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 3px; }
 .integration-duration { border-top: 1px solid var(--border); padding-top: 16px; }
-.integration-duration > summary { font-size: 13px; font-weight: 600; }
 .integration-scale { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 16px 0 12px; color: var(--ink-secondary); font-size: 12px; }
 .integration-scale button[aria-pressed="true"] { color: var(--ink-primary); border-color: var(--ink-primary); }
 #integrationOverflow { height: 36px; overflow-y: auto; }
 #pendingMainWorkTitle { font-size: 14px; }
 #parkedTaskHistory { margin-top: 12px; }
-#parkedTaskHistory > summary { cursor: pointer; color: var(--ink-primary); font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; }
-#goalHistoryDisclosure > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; cursor: pointer; }
-#goalHistoryDisclosure > summary::before { content: '▸'; }
-#goalHistoryDisclosure[open] > summary::before { content: '▾'; }
 #goalHistoryDisclosure .section-title { margin: 0; }
 #tableSubtitle { color: var(--ink-secondary); font-size: 12px; }
 #goalHistoryDisclosure .chart-wrap { margin-top: 16px; }
@@ -886,9 +874,19 @@ canvas {
 .integration-legend { display: flex; flex-wrap: wrap; gap: 4px 20px; color: var(--ink-secondary); font-size: 12px; margin-bottom: 8px; }
 .outlier-symbol { color: var(--ink-primary); }
 .attempt-count { color: var(--ink-secondary); }
-.integration-scale .history-controls [aria-pressed="true"] { background: var(--progress-area); font-weight: 600; }
+.integration-scale .history-controls .chart-reset { font-weight: 600; }
+.integration-scale .history-controls [aria-pressed="true"] { background: var(--progress-area); }
 
 .stat-unmatched { color: var(--ink-primary); font-size: 13px; font-weight: 600; min-height: 20px; margin-top: 4px; }
+
+.dashboard-disclosure > summary { display: flex; align-items: baseline; gap: 8px; list-style: none; cursor: pointer;
+  font: 600 14px/1.5 'JetBrains Mono', monospace; color: var(--ink-primary); }
+.dashboard-disclosure > summary::-webkit-details-marker { display: none; }
+.dashboard-disclosure > summary::marker { content: ''; }
+.dashboard-disclosure > summary::before { content: ''; display: block; flex: 0 0 8px; width: 8px; height: 8px;
+  background: currentColor; clip-path: polygon(20% 5%, 95% 50%, 20% 95%); transform-origin: center; }
+.dashboard-disclosure[open] > summary::before { transform: rotate(90deg); }
+.dashboard-disclosure > summary .section-title { margin: 0; }
 
 /* --- Time axis --- */
 </style>
@@ -966,8 +964,6 @@ canvas {
   <div class="activity-controls">
     <div class="activity-navigation">
       <span class="chart-range" id="activityWindowLabel"></span>
-      <div class="activity-nav-buttons"><div class="activity-zoom" role="group" aria-label="Activity zoom"><button class="chart-reset" id="activityZoomOut" type="button" aria-label="Zoom out">−</button><button class="chart-reset" id="activityZoomIn" type="button" aria-label="Zoom in">+</button></div>
-      <button class="chart-reset" id="activityLatest" type="button">Latest</button></div>
     </div>
     <select class="activity-window-select" id="activityWindow" aria-label="Activity time range">
       <option value="6" selected>6 hours</option>
@@ -986,7 +982,7 @@ canvas {
     <div class="activity-details">
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
     </div>
-    <details class="integration-duration" id="integrationDisclosure" open>
+    <details class="integration-duration dashboard-disclosure" id="integrationDisclosure" open>
       <summary>Main integration time</summary>
       <div class="integration-scale"><span>Elapsed time, including CI waits</span><div class="history-controls" role="group" aria-label="Integration time scale"><button class="chart-reset" id="integrationTypicalRange" type="button" aria-pressed="true">0–30 min</button><button class="chart-reset" id="integrationFullRange" type="button" aria-pressed="false">All durations</button></div></div>
       <div class="integration-duration-summary">
@@ -1002,9 +998,9 @@ canvas {
   </div>
 </div>
 
-<details class="section" id="parkedTaskHistory"><summary id="parkedTaskSummary">Paused worker tasks</summary><div class="activity-backlog" id="parkedTasks"></div></details>
+<details class="section dashboard-disclosure" id="parkedTaskHistory"><summary id="parkedTaskSummary">Paused worker tasks</summary><div class="activity-backlog" id="parkedTasks"></div></details>
 
-<details class="section" id="goalHistoryDisclosure">
+<details class="section dashboard-disclosure" id="goalHistoryDisclosure">
   <summary><h3 class="section-title">Goal history</h3><span id="tableSubtitle"></span></summary>
   <div class="chart-wrap">
     <div class="goal-table-wrap" id="goalTableWrap">
@@ -1057,6 +1053,24 @@ function relativeTime(iso) {
 
 // --- Last updated ---
 document.getElementById('updated').textContent = 'Snapshot ' + relativeTime(DATA.summary.generatedAt);
+
+// Shared range geometry for the score and activity overview charts.
+function drawRangeSelector(ctx, left, right, height, ink) {
+  ctx.fillStyle = ink.area; ctx.fillRect(left, 0, right - left, height);
+  ctx.strokeStyle = ink.border; ctx.lineWidth = 1;
+  ctx.strokeRect(Math.round(left) + 0.5, 0.5, Math.round(right - left), height - 1);
+  const center = height / 2, handleHeight = 26;
+  for (const edge of [left, right]) {
+    ctx.fillStyle = ink.card;
+    ctx.beginPath(); ctx.roundRect(edge - 4, center - handleHeight / 2, 8, handleHeight, 3); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    for (const offset of [-1.5, 1.5]) {
+      ctx.moveTo(edge + offset, center - handleHeight / 4);
+      ctx.lineTo(edge + offset, center + handleHeight / 4);
+    }
+    ctx.stroke();
+  }
+}
 
 // --- Stat tiles ---
 const s = DATA.summary;
@@ -1503,13 +1517,7 @@ document.getElementById('stats').innerHTML = [
       drawAdditions(ctx, entry, x, top + 39, 3, ink);
     });
     const left = x(view.t0), right = x(view.t1), bottom = MINI_ROW * shown.length;
-    ctx.fillStyle = ink.area; ctx.fillRect(left, 0, right - left, bottom);
-    ctx.strokeStyle = ink.muted; ctx.lineWidth = 1;
-    ctx.strokeRect(Math.round(left) + 0.5, 0.5, Math.round(right - left), bottom - 1);
-    for (const px of [left, right]) {
-      ctx.fillStyle = ink.card; ctx.strokeStyle = ink.muted;
-      ctx.beginPath(); ctx.roundRect(px - 4, bottom / 2 - 15, 8, 30, 3); ctx.fill(); ctx.stroke();
-    }
+    drawRangeSelector(ctx, left, right, bottom, {area: ink.area, border: ink.muted, card: ink.card});
     ctx.fillStyle = ink.muted; ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'left'; ctx.fillText(day(domain.t0), pad.left, height - 3);
     ctx.textAlign = 'right'; ctx.fillText(day(domain.t1), width - pad.right, height - 3);
@@ -1608,18 +1616,28 @@ document.getElementById('stats').innerHTML = [
       cursor = point.time; pinned = true; render();
     });
   });
-  minimap.addEventListener('pointerdown', event => {
-    if (event.button !== 0) return;
+  function slideTarget(event) {
     const rect = minimap.getBoundingClientRect(), px = event.clientX - rect.left;
     const left = scaleX(view.t0, rect.width, domain), right = scaleX(view.t1, rect.width, domain);
     const tolerance = event.pointerType === 'touch' ? 18 : 9;
     const near = Math.min(Math.abs(px - left), Math.abs(px - right)) <= tolerance;
-    const target = near ? (Math.abs(px - left) < Math.abs(px - right) ? 'start' : 'end') : px >= left && px <= right ? 'window' : 'track';
+    return near ? (Math.abs(px - left) < Math.abs(px - right) ? 'start' : 'end') : px >= left && px <= right ? 'window' : 'track';
+  }
+  function slideCursor(event) {
+    const target = sliding?.target || slideTarget(event);
+    minimap.style.cursor = target === 'start' || target === 'end' ? 'ew-resize'
+      : target === 'window' ? (sliding ? 'grabbing' : 'grab') : 'crosshair';
+  }
+  minimap.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    const target = slideTarget(event);
     sliding = { target, anchor: timeAt(minimap, event.clientX, domain), t0: view.t0, t1: view.t1 };
     minimap.setPointerCapture(event.pointerId);
+    slideCursor(event);
     if (target === 'track') { setView(sliding.anchor, sliding.anchor + MIN_SPAN); render(); }
   });
   minimap.addEventListener('pointermove', event => {
+    slideCursor(event);
     if (!sliding) return;
     const time = timeAt(minimap, event.clientX, domain);
     cursor = null; pinned = false;
@@ -1631,6 +1649,7 @@ document.getElementById('stats').innerHTML = [
   });
   function endSlide(event) {
     sliding = null;
+    slideCursor(event);
     if (minimap.hasPointerCapture(event.pointerId)) minimap.releasePointerCapture(event.pointerId);
   }
   minimap.addEventListener('pointerup', endSlide); minimap.addEventListener('pointercancel', endSlide);
@@ -1730,7 +1749,6 @@ document.getElementById('stats').innerHTML = [
   const durationReadout = document.getElementById('integrationDurationReadout');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
-  const latestButton = document.getElementById('activityLatest');
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = activity.segments || [];
   const durationPoints = mainIntegrationDurations(activity);
@@ -1869,10 +1887,11 @@ document.getElementById('stats').innerHTML = [
     const pad = { left: 44, right: 12, top: 12, bottom: 28 };
     const max = Math.max(1, ...visible.flatMap(point => [point.durationMs, point.rollingMedianMs]).map(ms => ms / 60000),
       ...series.flatMap(row => row.before ? [row.before.rollingMedianMs / 60000] : []));
-    const magnitude = 10 ** Math.floor(Math.log10(max / 5));
-    const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= max / 5);
-    const ceiling = fullDurationRange ? Math.ceil(max / step) * step : 30;
-    const tickStep = fullDurationRange ? step : 10;
+    const tickCount = 3;
+    const magnitude = 10 ** Math.floor(Math.log10(max / tickCount));
+    const step = [1, 1.5, 2, 2.5, 3, 5, 10].map(n => n * magnitude).find(n => n >= max / tickCount);
+    const ceiling = fullDurationRange ? tickCount * step : 30;
+    const tickStep = ceiling / tickCount;
     const overflow = visible.filter(point => point.durationMs / 60000 > ceiling);
     const clippedTrend = series.some(row => row.before?.rollingMedianMs / 60000 > ceiling
       || row.visible.some(point => point.rollingMedianMs / 60000 > ceiling));
@@ -1886,7 +1905,8 @@ document.getElementById('stats').innerHTML = [
     const y = ms => height - pad.bottom - Math.min(ms / 60000, ceiling) / ceiling * (height - pad.top - pad.bottom);
     ctx.font = "11px 'Inter', sans-serif";
     ctx.textAlign = 'right'; ctx.fillStyle = color('--ink-secondary');
-    for (let value = 0; value <= ceiling; value += tickStep) {
+    for (let tick = 0; tick <= tickCount; tick++) {
+      const value = tick * tickStep;
       const at = y(value * 60000);
       ctx.strokeStyle = color('--gridline'); ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, at); ctx.lineTo(width - pad.right, at); ctx.stroke();
@@ -2049,7 +2069,6 @@ document.getElementById('stats').innerHTML = [
     utilization(start, viewEnd);
     drawDurations(start, viewEnd);
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
-    latestButton.disabled = viewEnd >= domainEnd;
     const preset = [6, 24, 168].find(value => Math.abs(value - hours) < 0.001);
     windowSelect.value = Math.abs(span - (domainEnd - first)) < 1 ? 'all' : preset ? String(preset) : 'custom';
     sessionStorage.setItem('activityWindow', JSON.stringify([start, viewEnd]));
@@ -2128,11 +2147,10 @@ document.getElementById('stats').innerHTML = [
       ctx.fillRect(x(Date.parse(stage.start)), 12, Math.max(1, x(Date.parse(stage.end)) - x(Date.parse(stage.start))), 18);
     }
     const left = x(start), right = x(end);
-    ctx.fillStyle = style.getPropertyValue('--progress-area').trim(); ctx.fillRect(left, 0, right - left, 42);
-    ctx.strokeStyle = style.getPropertyValue('--ink-primary').trim(); ctx.lineWidth = 1;
-    ctx.strokeRect(left, 1, right - left, 40);
-    ctx.fillStyle = style.getPropertyValue('--surface-card').trim();
-    for (const edge of [left, right]) { ctx.fillRect(edge - 4, 8, 8, 26); ctx.strokeRect(edge - 4, 8, 8, 26); }
+    drawRangeSelector(ctx, left, right, 42, {
+      area: style.getPropertyValue('--progress-area').trim(), border: style.getPropertyValue('--ink-muted').trim(),
+      card: style.getPropertyValue('--surface-card').trim(),
+    });
     ctx.fillStyle = style.getPropertyValue('--ink-secondary').trim(); ctx.font = "12px 'Inter', sans-serif";
     const day = time => new Date(time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     ctx.textAlign = 'left'; ctx.fillText(day(first), 8, 60);
@@ -2144,18 +2162,29 @@ document.getElementById('stats').innerHTML = [
     const rect = minimap.getBoundingClientRect();
     return first + Math.max(0, Math.min(1, (clientX - rect.left - 8) / (rect.width - 16))) * (domainEnd - first);
   };
-  minimap.addEventListener('pointerdown', event => {
-    if (event.button !== 0) return;
+  function slideTarget(event) {
     const time = miniTime(event.clientX), start = viewEnd - hours * hourMs;
     const tolerance = (event.pointerType === 'touch' ? 18 : 9) / Math.max(1, minimap.getBoundingClientRect().width - 16) * (domainEnd - first);
     const near = Math.min(Math.abs(time - start), Math.abs(time - viewEnd)) < tolerance;
-    const target = near ? (Math.abs(time - start) < Math.abs(time - viewEnd) ? 'start' : 'end')
+    return near ? (Math.abs(time - start) < Math.abs(time - viewEnd) ? 'start' : 'end')
       : time >= start && time <= viewEnd ? 'window' : 'track';
+  }
+  function slideCursor(event) {
+    const target = sliding?.target || slideTarget(event);
+    minimap.style.cursor = target === 'start' || target === 'end' ? 'ew-resize'
+      : target === 'window' ? (sliding ? 'grabbing' : 'grab') : 'crosshair';
+  }
+  minimap.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    const time = miniTime(event.clientX), start = viewEnd - hours * hourMs;
+    const target = slideTarget(event);
     sliding = { target, anchor: time, start, end: viewEnd };
     minimap.setPointerCapture(event.pointerId);
+    slideCursor(event);
     if (target === 'track') setRange(time - hours * hourMs / 2, time + hours * hourMs / 2);
   });
   minimap.addEventListener('pointermove', event => {
+    slideCursor(event);
     if (!sliding) return;
     const time = miniTime(event.clientX);
     if (sliding.target === 'window') setRange(sliding.start + time - sliding.anchor, sliding.end + time - sliding.anchor);
@@ -2163,7 +2192,7 @@ document.getElementById('stats').innerHTML = [
     else if (sliding.target === 'end') setRange(sliding.start, Math.max(time, sliding.start + minSpan));
     else setRange(time - hours * hourMs / 2, time + hours * hourMs / 2);
   });
-  const endSlide = event => { sliding = null; if (minimap.hasPointerCapture(event.pointerId)) minimap.releasePointerCapture(event.pointerId); };
+  const endSlide = event => { sliding = null; slideCursor(event); if (minimap.hasPointerCapture(event.pointerId)) minimap.releasePointerCapture(event.pointerId); };
   minimap.addEventListener('pointerup', endSlide); minimap.addEventListener('pointercancel', endSlide);
   minimap.addEventListener('keydown', event => {
     if (!['+', '=', '-', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -2187,14 +2216,11 @@ document.getElementById('stats').innerHTML = [
     const span = windowSelect.value === 'all' ? domainEnd - first : Number(windowSelect.value) * hourMs;
     setRange(viewEnd - span, viewEnd);
   });
-  document.getElementById('activityZoomIn').addEventListener('click', () => zoom(0.5));
-  document.getElementById('activityZoomOut').addEventListener('click', () => zoom(2));
   document.getElementById('integrationDisclosure').addEventListener('toggle', () => drawDurations(viewEnd - hours * hourMs, viewEnd));
   fullRangeButton.addEventListener('click', () => { fullDurationRange = true; drawDurations(viewEnd - hours * hourMs, viewEnd); });
   document.getElementById('integrationTypicalRange').addEventListener('click', () => { fullDurationRange = false; drawDurations(viewEnd - hours * hourMs, viewEnd); });
   window.addEventListener('resize', render);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
-  latestButton.addEventListener('click', () => { viewEnd = domainEnd; render(); });
   container.addEventListener('pointerdown', event => {
     if (event.button !== 0) return;
     panning = { x: event.clientX, end: viewEnd, moved: false,

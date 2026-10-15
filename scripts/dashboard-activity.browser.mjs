@@ -26,6 +26,57 @@ try {
   assert.equal(await page.locator('#integrationDisclosure').evaluate(element => element.open), true);
   assert.equal(await page.locator('#goalHistoryDisclosure').evaluate(element => element.open), false);
   assert.equal(await page.locator('#parkedTaskHistory').evaluate(element => element.open), false);
+  assert.equal(await page.locator('#activityZoomIn, #activityZoomOut, #activityLatest').count(), 0);
+  // All section disclosures share one glyph and native keyboard behavior.
+  const disclosureStyles = [];
+  for (const id of ['integrationDisclosure', 'parkedTaskHistory', 'goalHistoryDisclosure']) {
+    const disclosure = page.locator('#' + id), heading = disclosure.locator(':scope > summary');
+    if (await disclosure.evaluate(element => element.open)) {
+      await heading.focus(); await heading.press('Enter');
+    }
+    disclosureStyles.push(await heading.evaluate(element => {
+      const style = getComputedStyle(element, '::before');
+      return [style.width, style.height, style.clipPath, style.transform, getComputedStyle(element).font];
+    }));
+    await heading.focus(); await heading.press('Enter');
+    assert.equal(await disclosure.evaluate(element => element.open), true);
+    assert.notEqual(await heading.evaluate(element => getComputedStyle(element, '::before').transform), 'none');
+    await heading.click();
+    assert.equal(await disclosure.evaluate(element => element.open), false);
+  }
+  assert.deepEqual(disclosureStyles[0], disclosureStyles[1]);
+  assert.deepEqual(disclosureStyles[0], disclosureStyles[2]);
+  await page.locator('#integrationDisclosure > summary').click();
+  // Start with the full domain, resize each edge, then drag the resulting
+  // window. Both overviews must advertise exactly the operation they perform.
+  for (const [id, preset, label, leftPad, rightPad] of [
+    ['progressMinimap', 'progressWindow', 'progressRange', 52, 16],
+    ['activityMinimap', 'activityWindow', 'activityWindowLabel', 8, 8],
+  ]) {
+    const overview = page.locator('#' + id);
+    await page.locator('#' + preset).selectOption('all');
+    await overview.scrollIntoViewIfNeeded();
+    const box = await overview.boundingBox(), y = box.y + (box.height - 20) / 2;
+    const left = box.x + leftPad, right = box.x + box.width - rightPad;
+    const span = right - left;
+    const cursor = () => overview.evaluate(element => getComputedStyle(element).cursor);
+    const before = await page.locator('#' + label).innerText();
+    await page.mouse.move(left, y);
+    assert.equal(await cursor(), 'ew-resize');
+    await page.mouse.down(); await page.mouse.move(left + span / 4, y, {steps: 10});
+    assert.equal(await cursor(), 'ew-resize'); await page.mouse.up();
+    assert.notEqual(await page.locator('#' + label).innerText(), before);
+    await page.mouse.move(right, y); assert.equal(await cursor(), 'ew-resize');
+    await page.mouse.down(); await page.mouse.move(right - span / 4, y, {steps: 10}); await page.mouse.up();
+    await page.mouse.move(left + span / 2, y); assert.equal(await cursor(), 'grab');
+    const resized = await page.locator('#' + label).innerText();
+    await page.mouse.down(); assert.equal(await cursor(), 'grabbing');
+    await page.mouse.move(left + span * 0.6, y, {steps: 10}); await page.mouse.up();
+    assert.equal(await cursor(), 'grab');
+    assert.notEqual(await page.locator('#' + label).innerText(), resized);
+    await page.locator('#' + preset).selectOption(id === 'progressMinimap' ? '7' : '6');
+    await overview.focus(); await overview.press('End');
+  }
   await page.locator('#goalHistoryDisclosure > summary').focus();
   await page.locator('#goalHistoryDisclosure > summary').press('Enter');
   assert.equal(await page.locator('#goalTable thead').getByText('Worker', {exact: true}).count(), 0);
@@ -271,10 +322,10 @@ try {
   // The same range drives utilization, timing and the timeline. Arbitrary
   // zoom, dragged boundaries and All must preserve a deliberately pinned task.
   await page.locator('#activityWindow').selectOption('6');
-  await page.locator('#activityLatest').evaluate(element => element.click());
+  await page.locator('#timeline').focus(); await page.locator('#timeline').press('End');
   const rangeBeforeZoom = await page.locator('#activityWindowLabel').innerText();
   const pinnedBeforeZoom = await page.locator('#timelineReadout').innerText();
-  await page.locator('#activityZoomIn').click();
+  await page.locator('#timeline').press('+');
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), rangeBeforeZoom);
   assert.equal(await page.locator('#activityWindow').inputValue(), 'custom');
   assert.equal(await page.locator('#timelineReadout').innerText(), pinnedBeforeZoom);
@@ -293,15 +344,22 @@ try {
   await navigator.focus(); await navigator.press('+');
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), draggedRange);
   await page.locator('#activityWindow').selectOption('168');
-  await page.locator('#activityLatest').evaluate(element => element.click());
+  await page.locator('#timeline').focus(); await page.locator('#timeline').press('End');
   const overflow = await page.locator('#integrationOverflow').innerText();
   await page.locator('#integrationFullRange').focus();
   const scaleFrame = await durationChart.boundingBox();
+  const scaleControls = page.locator('.integration-scale .history-controls');
+  const scaleButtonFrames = await scaleControls.locator('button').evaluateAll(elements => elements.map(element => {
+    const {x, y, width, height} = element.getBoundingClientRect(); return {x, y, width, height};
+  }));
   if (/above 30 min/u.test(overflow)) {
     await page.locator('#integrationFullRange').focus(); await page.locator('#integrationFullRange').press('Enter');
     assert.equal(await page.locator('#integrationFullRange').getAttribute('aria-pressed'), 'true');
     assert.equal(await page.locator('#integrationTypicalRange').getAttribute('aria-pressed'), 'false');
     assert.deepEqual(await durationChart.boundingBox(), scaleFrame, 'changing the scale keeps a stable plot');
+    assert.deepEqual(await scaleControls.locator('button').evaluateAll(elements => elements.map(element => {
+      const {x, y, width, height} = element.getBoundingClientRect(); return {x, y, width, height};
+    })), scaleButtonFrames, 'scale buttons do not move when selection changes');
     await page.locator('#integrationTypicalRange').click();
     assert.equal(await page.locator('#integrationOverflow').innerText(), overflow);
   }

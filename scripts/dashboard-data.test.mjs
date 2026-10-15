@@ -297,7 +297,7 @@ test('rolling lines carry pre-window medians and step only at completed attempts
 test('integration axis marks overflow and can reveal its full duration', () => {
     const data = sourceDashboardData();
     // The 74-minute attempt exceeds the 30-minute default; full range fits it
-    // at 80 minutes. Neither view changes the recorded 74-minute duration.
+    // at 75 minutes. Neither view changes the recorded 74-minute duration.
     data.activity = { capturedAt: '2026-10-12T10:14:00Z', tasks: [], segments: [{
         task: 'long-attempt', lane: 'Main', phase: 'integrating',
         start: '2026-10-12T09:00:00Z', end: '2026-10-12T10:14:00Z',
@@ -306,15 +306,18 @@ test('integration axis marks overflow and can reveal its full duration', () => {
     const ticks = () => chart.ops.filter(([call, value]) => call === 'fillText' && /^\d+$/u.test(value))
         .map(([, value]) => Number(value));
     assert.deepEqual(ticks(), [0, 10, 20, 30]);
+    const gridPositions = () => chart.ops.filter(([call, value]) => call === 'fillText' && /^\d+$/u.test(value)).map(([, , , y]) => y);
+    const initialGrid = gridPositions();
     assert.match(rendered.get('integrationOverflow').textContent, /1 attempt above 30 min · longest 74.0 min/u);
     chart.listeners.keydown[0]({key: 'End', preventDefault() {}});
     assert.match(rendered.get('integrationDurationReadout').innerHTML, /74\.0 min/u);
     chart.ops.length = 0;
     rendered.get('integrationFullRange').listeners.click[0]();
-    assert.deepEqual(ticks(), [0, 20, 40, 60, 80]);
+    assert.deepEqual(ticks(), [0, 25, 50, 75]);
+    assert.deepEqual(gridPositions(), initialGrid, 'the scale changes labels without moving gridlines');
     chart.ops.length = 0;
     rendered.get('integrationFullRange').listeners.click[0]();
-    assert.deepEqual(ticks(), [0, 20, 40, 60, 80], 'selecting All durations twice keeps that scale');
+    assert.deepEqual(ticks(), [0, 25, 50, 75], 'selecting All durations twice keeps that scale');
     chart.ops.length = 0;
     rendered.get('integrationTypicalRange').listeners.click[0]();
     assert.deepEqual(ticks(), [0, 10, 20, 30], 'the 0–30 min option restores the clipped scale');
@@ -891,7 +894,7 @@ test('activity distinguishes pending deliveries from reported waits and shows ut
         'percentage shares follow the panned window, not whole-history stage durations');
     assert.match(rendered.get('timeline').innerHTML, /B0/u);
     assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
-    rendered.get('activityLatest').listeners.click[0]();
+    timeline.listeners.keydown[0]({key: 'End', target: timeline, preventDefault() {}});
     assert.equal(rendered.get('activityWindowLabel').textContent, shortWindow);
     const select = rendered.get('activityWindow');
     select.value = '24';
@@ -1089,7 +1092,7 @@ test('activity keeps one row per agent across panning and zooming', () => {
     for (const { index, position } of taskPositions.values()) {
         assert.deepEqual(barPosition(index), position, 'panning preserves task rows');
     }
-    rendered.get('activityLatest').listeners.click[0]();
+    timeline.listeners.keydown[0]({key: 'End', target: timeline, preventDefault() {}});
     const select = rendered.get('activityWindow');
     for (const hours of ['24', '168', '6']) {
         select.value = hours;
