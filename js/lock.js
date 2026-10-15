@@ -82,6 +82,7 @@ import {
     obfree,
     stackobj,
     useup,
+    currency,
 } from './invent.js';
 import { m_at } from './monst.js';
 import { wake_nearby, wake_nearto } from './mon.js';
@@ -141,7 +142,12 @@ import {
 import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnd, rnl } from './rng.js';
-import { add_damage, costly_spot } from './shk.js';
+import {
+    add_damage,
+    costly_spot,
+    shop_keeper,
+    stolen_value,
+} from './shk.js';
 import {
     b_trapped,
     chest_trap,
@@ -338,25 +344,23 @@ async function chest_shatter_msg(otmp, state = game) {
 // C ref: lock.c breakchestlock() (162-212). Called after the hero forces a
 // chest lock open, and by really_kick_object(false). The false arm bills
 // before it toggles the source lock flags.
-// When destroyit is true,
-// this slice destroys an ordinary non-shop chest, scatters its contents, and
-// cleans up the lock-picking context.
-//
-// Covered: the destroyit=false arm and the destroyit=true arm for an ordinary
-// non-shop CHEST with potion or non-potion material contents, including potion
-// vapor effects, quantity-one obfree(), survivor placement/stacking, chest
-// deletion, and lock cleanup. Deferred: shop billing, ICE_BOX corpse timers, and
-// the multi-quantity useup branch.
+// The destroyit=true arm also charges a shopkeeper for destroyed contents and
+// the box before deleting it. C refs: lock.c breakchestlock() (162-212),
+// shk.c costly_spot(), shop_keeper(), and stolen_value(). The false arm still
+// bills only for the box before marking its lock broken.
 export async function breakchestlock(box, destroyit, state = game) {
     if (destroyit) {
-        // The shopkeeper lookup and stolen_value() accounting in C are outside
-        // this ordinary-chest slice. Reject that branch before mutating the
-        // container or spending any content randomness.
-        if (costly_spot(state.u.ux, state.u.uy, state)) {
-            throw new UnsupportedLockError(
-                'breakchestlock() shop billing (destroyit=true)',
-            );
-        }
+        // C requires the hero to have a current shop and occupy a costly spot
+        // before it looks up that shop's keeper. costly_spot() performs the
+        // same source lookup used to decide whether the destroyed goods incur
+        // a loss.
+        const shopRoom = state.u.ushops?.[0] ?? 0;
+        const shkp = shopRoom
+            && costly_spot(state.u.ux, state.u.uy, state)
+            ? shop_keeper(shopRoom, state) : null;
+        const costly = Boolean(shkp);
+        const peacefulShk = Boolean(shkp?.mpeaceful);
+        let loss = 0;
 
         await ttyPline(
             `In fact, you've totally destroyed ${the(xnameFresh(box, state), state)}.`,
@@ -372,6 +376,10 @@ export async function breakchestlock(box, destroyit, state = game) {
             // potion-class contents shatter even when that gate is false.
             if (!rn2(3) || otmp.oclass === POTION_CLASS) {
                 await chest_shatter_msg(otmp, state);
+                if (costly)
+                    loss += await stolen_value(
+                        otmp, state.u.ux, state.u.uy, peacefulShk, true, state,
+                    );
                 if (otmp.quan === 1) {
                     obfree(otmp, null, { state });
                     continue;
@@ -390,6 +398,15 @@ export async function breakchestlock(box, destroyit, state = game) {
                 hooks: { extractExternalObject: remove_object },
             });
         }
+        if (costly)
+            loss += await stolen_value(
+                box, state.u.ux, state.u.uy, peacefulShk, true, state,
+            );
+        if (loss)
+            await ttyPline(
+                `You owe ${loss} ${currency(loss, state)} for objects destroyed.`,
+                state,
+            );
         delobj(box, {
             state,
             random: { rn2 },
