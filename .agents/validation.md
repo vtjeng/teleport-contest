@@ -148,12 +148,18 @@ order on an `integration-checkpoint/*` candidate branch. Dependencies must be
 accepted or included earlier in the group. Hold concrete scope conflicts and
 missing evidence; do not repeat source review. Local `main` stays unchanged.
 
-If published tooling has no ledger baseline, use
-`implementation-handoff.mjs bootstrap --ledger <ledger> --checkpoint <saved-summary> --published <SHA> --tooling <commits>`.
-It freezes the verified published baseline, local tooling edits and listed
-commits into one candidate with the received fixes. Run the usual hosted
-checkpoint, acceptance and publication steps. No baseline event or publication
-of unvalidated tooling is needed first.
+Use bootstrap only to recover an unrecorded tooling publication when committed
+tooling fixes need to share a validation run with ready implementation submissions.
+Prefer ordinary `tooling-published` recording or Prep acceptance when sufficient.
+Bootstrap requires an earlier accepted Main and an imported passing checkpoint
+for the tooling publication.
+
+From clean local `main` with no active integration, run
+`node scripts/implementation-handoff.mjs bootstrap --ledger <shared-ledger> --checkpoint <saved-summary> --published <SHA> --tooling <SHA1,SHA2>`.
+Unpublished Main changes and listed commits must contain only tooling or
+bookkeeping. Bootstrap freezes the publication proof and commits into one
+candidate. Continue with the hosted checkpoint, acceptance and publication below.
+If interrupted after saving the plan, resume with `integrate`.
 
 Run one hosted checkpoint at the returned commit and import it once. Keep HEAD
 there and run `implementation-handoff.mjs accept --ledger <shared-ledger>`.
