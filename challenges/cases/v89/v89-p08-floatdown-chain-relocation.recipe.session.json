@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-order correction for nontrivial trap.c:float_down chain relocation. Use the already C-observed valid Wizard options and inventory slots from the same seed: wish/equip levitation ring o, wish/read punishment scroll p at the original hero square, then wish pool while hero, ball, and chain remain co-located there. Move north twice on the observed clear rows so ball stays on pool and chain moves to midpoint; remove ring. Verify actual C positions and descent guard.",
+  "segments": [
+    {
+      "seed": 89053216,
+      "datetime": "20590315140419",
+      "nethackrc": "OPTIONS=name:V89ChainSource5,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nuncursed ring of levitation\nPol #wizwish\ncursed scroll of punishment\nrp #wizwish\npool\nkk R     "
+    }
+  ]
+}
