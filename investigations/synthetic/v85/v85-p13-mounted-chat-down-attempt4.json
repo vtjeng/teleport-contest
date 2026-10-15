@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v85/v85-p13-mounted-chat-down-attempt4",
+  "remainingScreens": 2,
+  "recordedSteps": 56,
+  "corpus": "synthetic",
+  "batch": "v85",
+  "caseId": "v85-p13-mounted-chat-down-attempt4",
+  "manifestPath": "challenges/manifests/v85.json",
+  "manifestSha256": "8a3ca1a027101c88d1a5274290b74fb189e91fe4d4a290d79feec50b03bedecc",
+  "recordingSha256": "8b846b45052240532d9512cd6540a81e1c704b3f3046cd5c9fe9415ed00b0e7b",
+  "evaluationPath": "challenges/evaluations/admission-9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0-v85.json",
+  "evaluationCommit": "9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0",
+  "status": "complete",
+  "commit": "60104b39fd286512ba81efcf76c2bfafdd75ec92",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v85",
+    "caseId": "v85-p13-mounted-chat-down-attempt4",
+    "session": "synthetic/v85/v85-p13-mounted-chat-down-attempt4",
+    "manifestPath": "challenges/manifests/v85.json",
+    "manifestSha256": "8a3ca1a027101c88d1a5274290b74fb189e91fe4d4a290d79feec50b03bedecc",
+    "recording": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.session.json",
+    "recordingPath": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.session.json",
+    "recordingSha256": "8b846b45052240532d9512cd6540a81e1c704b3f3046cd5c9fe9415ed00b0e7b",
+    "recipe": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.recipe.session.json",
+    "recipeSha256": "03792a994c140d4a93cd3460a21132fb1ee910a3351ad5dbf2c72fa181a21096",
+    "replayInputSha256": "f5ce382a11fd37fc9f81cb89d24db263a3fcdd75d1a037a02e56662d501d9f63",
+    "evaluationPath": "challenges/evaluations/admission-9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0-v85.json",
+    "evaluationCommit": "9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0",
+    "evaluationArtifact": "challenges/evaluations/admission-9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0-v85.json",
+    "evaluationUtc": "2026-10-15T07:12:02.023Z",
+    "remainingScreens": 2,
+    "recordedSteps": 56,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 54,
+        "total": 56
+      },
+      "rng": {
+        "matched": 2718,
+        "total": 2746
+      },
+      "cursors": {
+        "matched": 54,
+        "total": 56
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: #chat needs a chat aimed down at a steed",
+      "step": 54
+    },
+    "step": 54,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: #chat needs a chat aimed down at a steed",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "On #chat input aimed down while mounted, C dochat() calls domonnoise(u.usteed) unless the steed is helpless, then returns its ECMD_TIME result. JS dochat() instead throws UnsupportedChatError before the existing domonnoise() path. In this case C displays “The saddled pony whickers.” and continues the timed turn, while JS stops at step 54.",
+  "source": {
+    "file": "sounds.c",
+    "branch": "dochat(): u.usteed && u.dz > 0; helpless steed prints that it does not notice the rider and returns ECMD_TIME, otherwise domonnoise() handles the steed.",
+    "functions": [
+      "dochat"
+    ],
+    "callers": [
+      "dotalk() calls dochat(); extcmdlist_data.js maps #chat to dotalk."
+    ],
+    "dependencies": [
+      "domonnoise() is already implemented in js/sounds.js; its MS_NEIGH branch matches the C pony whicker condition and shared ECMD_TIME tail."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/sounds.c:1297-1302 checks u.usteed && u.dz > 0; the nonhelpless arm returns domonnoise(u.usteed), while the helpless arm prints the notice line and returns ECMD_TIME.",
+    "nethack-c/upstream/src/sounds.c:911-922 implements MS_NEIGH: mtame >= 5 and svm.moves <= EDOG(mtmp)->hungrytime selects “whickers.” js/sounds.js:1161-1165 already implements the corresponding message and domonnoise() returns ECMD_TIME at its shared tail.",
+    "js/sounds.js:1505-1507 currently throws UnsupportedChatError on the mounted-downward branch before calling domonnoise(). Production wiring is dotalk() -> dochat() through the #chat extended command in js/extcmdlist_data.js and js/cmd.js.",
+    "The official v85 recording first diverges at segment 0 step 54, key “>”. C records “The saddled pony whickers.”; the accepted JS runner stops before that screen and its timed-turn follow-up. The original prefix through step 53 matches exactly.",
+    "Prep packet .cache/worker-state-loop-20260925.json.deliveries/22219e99e1608bc05be00ecd6d05cec3b5b145bdba6fe45d3501e44c600f6afd.json and .cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/first-boundary-trace.txt preserve the C-first source trace, recording hash, and official comparison."
+  ]
+}
