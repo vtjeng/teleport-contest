@@ -49,7 +49,7 @@ list, with measured improvements sent to the main agent for integration:
 - Flaky resource limits: `237ad770` separates regex correctness from explicit
   CPU/RSS measurements, preserving adversarial cases and hang watchdogs.
   `4f9d5ee0` clears and relaxes the nurse event watchdog. Integrated as
-  `1d5439f1` and `b555195f`. Retain local memory limits, replay
+  `1d5439f1` and `b555195f`. Retain replay
   hang watchdogs and CI job timeouts; they protect execution rather than
   assert performance. The five-second corpse-worker watchdog is retained
   pending evidence that it causes failures.

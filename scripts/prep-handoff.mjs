@@ -10,7 +10,6 @@ import {acceptedDependency} from './worker-backlog.mjs';
 import {readCheckpointResult} from './checkpoint-results.mjs';
 import {digest} from './challenge-results.mjs';
 import {publishTask} from './task-handoff.mjs';
-import {boundedMain} from './run-bounded.mjs';
 import {integrateTaskCommits} from './integration-commits.mjs';
 
 const USAGE = `Usage: node scripts/prep-handoff.mjs <plan|integrate|accept|publish> --ledger <shared-ledger>
@@ -219,11 +218,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (process.argv.slice(2).includes('--help')) console.log(USAGE);
         else {
             const options = parsePrepArgs(process.argv.slice(2));
-            process.exitCode = await boundedMain('focused', () => {
-                const handlers = {plan: planPrepGroup, integrate: integratePrepGroup, accept: acceptPrepGroup, publish: publishPrepGroup};
-                console.log(JSON.stringify(handlers[options.phase](options), null, 2));
-                return 0;
-            });
+            const handlers = {plan: planPrepGroup, integrate: integratePrepGroup, accept: acceptPrepGroup, publish: publishPrepGroup};
+            console.log(JSON.stringify(handlers[options.phase](options), null, 2));
         }
     } catch (error) {console.error(`prep-handoff: ${error.message}`); process.exitCode = 1;}
 }

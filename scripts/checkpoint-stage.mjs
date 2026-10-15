@@ -9,7 +9,6 @@ import { isDeepStrictEqual } from 'node:util';
 import { checkpointGroups, checkpointSummary, requireCleanCheckpointTree,
     runCheckpointChecks } from './checkpoint-checks.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
-import { boundedMain } from './run-bounded.mjs';
 import { digest } from './checkpoint-reuse.mjs';
 
 const VERSION = 1;
@@ -165,7 +164,7 @@ async function main(args) {
     }
     process.chdir(PROJECT_ROOT);
     if (args.length === 3 && args[0] === 'run')
-        return boundedMain('full', () => runStage(args[1], resolve(args[2])));
+        return runStage(args[1], resolve(args[2]));
     if (args.length === 2 && args[0] === 'combine') return combineDirectory(resolve(args[1]));
     throw new Error(USAGE);
 }

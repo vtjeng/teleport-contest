@@ -1,6 +1,5 @@
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { boundedMain } from './run-bounded.mjs';
 
 import {
     formatReport,
@@ -155,7 +154,7 @@ export function runMatrixCli(moduleUrl, run, label, {
         setExitCode(2);
         return Promise.resolve(2);
     }
-    const execute = () => run().then((result) => {
+    return run().then((result) => {
         const status = result.passed ? 0 : 1;
         setExitCode(status);
         return status;
@@ -163,12 +162,5 @@ export function runMatrixCli(moduleUrl, run, label, {
         write(`${label}: ${error?.message || error}\n`);
         setExitCode(2);
         return 2;
-    });
-    // Injected argv exercises argument handling in unit tests. Only an actual
-    // CLI entry starts a service; imports remain ordinary library calls.
-    if (argv !== process.argv) return execute();
-    return boundedMain('focused', execute).then(status => {
-        setExitCode(status);
-        return status;
     });
 }

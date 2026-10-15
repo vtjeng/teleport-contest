@@ -115,15 +115,12 @@ paths, the accepted comparison commit, and its source-based probe plan.
 Use `worker-worktree.mjs` for recorder setup. Start each lane worktree at the
 parent task's base and prefix its case IDs with its unique probe ID.
 Keep scratch and returned artifacts in `.cache/` so the worktree stays clean
-for the next accepted base. Keep at most two bounded lane commands running
-across Prep, including C recording, replay and JavaScript comparison. Retain
-the bounded-command limits. Reserve before launch with `recording: true` in
-the lane's `prep-probe` event. Record the process handle when available, then
-release the slot only after the command exits. If both slots are reserved,
-record the blocker and wait for a release notification; do not poll.
-The lead wakes recorder-blocked lanes when a slot is released. While lanes
-are running, keep C commands in those lanes rather than launching extra
-recordings from the lead worktree.
+for the next accepted base. Run one command at a time per lane; lanes run
+independently without a shared command cap. Before launch, record
+`recording: true` in the lane's `prep-probe` event. Retain the process handle
+until the command exits, then record `recording: false`.
+Keep C commands in the lanes rather than launching extra recordings from
+the lead worktree.
 
 Each lane creates its recipe, records the reached C behavior, compares it
 with JavaScript, and returns the result. For a distinct failure, independently

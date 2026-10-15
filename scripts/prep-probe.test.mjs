@@ -52,21 +52,19 @@ test('six Prep lanes coexist with A/B/C and produce only one Main delivery', () 
   assert.deepEqual(nextActions(state).preparationProbes, []);
 });
 
-test('recorder reservations allow two launches and preserve blocked capacity across observations', () => {
+test('all six Prep lanes can run commands independently while preserving process ownership', () => {
   const f = fixture();
-  f.send(f.probe(1, {recording: true})); f.send(f.probe(2, {recording: true}));
-  const before = f.ledger();
-  assert.throws(() => f.send(f.probe(3, {recording: true})), /both Prep recorder slots/u);
-  assert.deepEqual(f.ledger(), before, 'a denied reservation must not create a probe');
-  // A slot is claimed before launch, then its actual process handle is saved.
-  f.send(f.probe(1, {recording: true, processes: ['bounded-run-1']}));
-  assert.throws(() => f.send(f.probe(1, {processes: ['bounded-run-1']})), /retain its slot/u);
-  assert.throws(() => f.send(f.probe(1, {recording: true, processes: ['one', 'two']})), /one bounded command/u);
+  // Six is the configured exploration-lane count, not a shared command cap.
+  for (let n = 1; n <= 6; n++) f.send(f.probe(n, {recording: true, processes: [`session-${n}`]}));
+  assert.equal(Object.values(f.state().probes).filter(row => row.recording).length, 6);
+  assert.throws(() => f.send(f.probe(1, {processes: ['session-1']})), /retain its handle/u);
+  assert.throws(() => f.send(f.probe(1, {recording: true, processes: ['one', 'two']})), /one command/u);
   assert.throws(() => f.send(f.probe(1, {state: 'blocked', recording: true})), /reap commands/u);
-  assert.throws(() => f.send(f.probe(1, {state: 'done', outcome: 'failure', processes: ['bounded-run-1']})), /until reaped/u);
+  assert.throws(() => f.send(f.probe(1, {state: 'done', outcome: 'failure', processes: ['session-1']})), /retain its handle/u);
   f.send(f.probe(1, {recording: false}));
-  f.send(f.probe(3, {recording: true}));
-  assert.equal(Object.values(f.state().probes).filter(row => row.recording).length, 2);
+  assert.equal(Object.values(f.state().probes).filter(row => row.recording).length, 5);
+  f.send(f.probe(1, {recording: true, processes: ['next-session']}));
+  assert.equal(Object.values(f.state().probes).filter(row => row.recording).length, 6);
 });
 
 test('probe ownership, target and outcome cannot silently change', () => {
@@ -87,8 +85,8 @@ test('probe ownership, target and outcome cannot silently change', () => {
 test('dashboard exposes separate Prep histories, blocks and outcomes without private data or fake CI', () => {
   const f = fixture();
   f.send(f.probe(1), 1); f.send(f.probe(2), 1);
-  f.send(f.probe(1, {state: 'blocked', summary: 'Waiting for a recorder slot.'}), 2);
-  f.send(f.probe(1, {summary: 'Recorder slot released.'}), 4);
+  f.send(f.probe(1, {state: 'blocked', summary: 'Waiting for source clarification.'}), 2);
+  f.send(f.probe(1, {summary: 'Source clarification received.'}), 4);
   f.send(f.probe(1, {state: 'done', outcome: 'failure', summary: 'First mismatch traced to fixture.c.'}), 5);
   f.send(f.probe(2, {state: 'done', outcome: 'match', summary: 'Matched; evidence retained outside manifest.'}), 5);
   const activity = activityFromLedger(f.ledger());
@@ -99,7 +97,7 @@ test('dashboard exposes separate Prep histories, blocks and outcomes without pri
   assert.equal(child.parentTask, 'loop-20261015/Prep47'); assert.equal(child.outcome, 'failure');
   const stages = timeline.stages.filter(row => row.lane === 'Prep-1');
   assert.deepEqual(stages.map(row => row.phase), ['working', 'blocked', 'working']);
-  assert.equal(stages[1].reason, 'Waiting for a recorder slot.');
+  assert.equal(stages[1].reason, 'Waiting for source clarification.');
   assert.ok(stages.every(row => row.parentTask === child.parentTask));
   assert.deepEqual(mainIntegrationDurations(timeline), {implementation: [], preparation: []});
   const utilization = activityUtilization(timeline.stages, Date.parse(at(0)), Date.parse(at(6)));
@@ -143,7 +141,7 @@ test('actual CLI allows the Prep lead and assigned lane but rejects sibling work
     worktree: paths.lane, branch: 'worker/lane', handle: 'lane', source: 'fixture.c:route'};
   event(paths.Prep, probe);
   const {worktree: _worktree, branch: _branch, handle: _handle, source: _source, ...turn} = probe;
-  event(paths.lane, {...turn, state: 'blocked', summary: 'Waiting for a recorder slot.'});
+  event(paths.lane, {...turn, state: 'blocked', summary: 'Waiting for source clarification.'});
   const before = readFileSync(file, 'utf8');
   const denied = event(paths.sibling, {...turn, state: 'done', outcome: 'match'}, false);
   assert.equal(denied.status, 1); assert.match(denied.stderr, /registered worker worktree/u);

@@ -8,7 +8,6 @@ import { isDeepStrictEqual } from 'node:util';
 import { challengeInputSnapshot, readChallengeBatches, saveEvaluation, totalsFor } from './challenge-results.mjs';
 import { replayChallengeCases, scorerIdentity } from './score-challenges.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
-import { boundedMain } from './run-bounded.mjs';
 import { requireCleanCheckpointTree } from './checkpoint-checks.mjs';
 
 // Shared by checkpoint replays and new-case admission baselines.
@@ -111,8 +110,6 @@ function main(args) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
     try {
-        const args = process.argv.slice(2);
-        if (args[0] === 'run') await boundedMain('full', () => main(args));
-        else main(args);
+        main(process.argv.slice(2));
     } catch (error) { console.error(`synthetic-ci: ${error.message}`); process.exitCode = 1; }
 }

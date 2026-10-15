@@ -13,7 +13,6 @@ import { readDelivery, validateHistoricalEvaluation, verifyEvent } from './worke
 import { appendRow, generateNote, readRows, standing } from './score-log.mjs';
 import { challengeInputSnapshot, evaluationBatch, readChallengeBatches, validateEvaluation } from './challenge-results.mjs';
 import { recordEvaluations } from './score-challenges.mjs';
-import { boundedMain } from './run-bounded.mjs';
 import { reviewTasks } from './task-verdict.mjs';
 import { recordTaskAcceptance, validateGoals } from './goal-log.mjs';
 
@@ -236,10 +235,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (process.argv.slice(2).includes('--help')) console.log(USAGE);
         else {
             const options = parseAcceptanceArgs(process.argv.slice(2));
-            process.exitCode = await boundedMain('focused', () => {
-                console.log(JSON.stringify(acceptTask(options), null, 2));
-                return 0;
-            });
+            console.log(JSON.stringify(acceptTask(options), null, 2));
         }
     } catch (error) { console.error(`accept-task: ${error.message}`); process.exitCode = 1; }
 }

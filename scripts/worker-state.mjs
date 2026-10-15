@@ -85,11 +85,11 @@ investigation when its cause belongs to another worker. All other event types
 are coordinator-only, except prep-probe: the Prep lead starts probes; the lead
 or assigned probe worktree records later observations. Up to four persistent
 workers may hold live ownership, plus six nested Prep exploration lanes.
-Before launching C recording/replay, reserve a slot with recording: true.
-At most two probes can reserve slots; preserve a reservation after interruption
-until its command is confirmed stopped. Record the actual process handle when
-available. Release with recording: false after reaping the command. Observation
-events do not start or stop processes. Completed probes never become Main
+Each lane runs one command at a time, independently of the other lanes.
+Before launching C recording/replay or JavaScript comparison, record
+recording: true. Retain the actual process handle after interruption until
+the command is confirmed stopped. Record recording: false after collecting it.
+Observation events do not start or stop processes. Completed probes never become Main
 deliveries or implementation reservations.
 Git resolves revisions and checks registration, assignment, candidate and
 checkpoint identity. Publication is recorded only after local and remote main
@@ -305,9 +305,9 @@ function applyEvent(state, event, at) {
         string(event.summary, 'public probe summary'); list(event.processes, 'processes', string, true);
         check(typeof event.recording === 'boolean', 'recording must be boolean');
         check(event.processes.length <= 1 && (event.processes.length === 0 || event.recording),
-            'one bounded command per probe; retain its slot until reaped');
+            'one command per probe; retain its handle until reaped');
         check(event.state === 'active' || (!event.recording && event.processes.length === 0),
-            'reap commands and release the recorder slot before waiting or completing');
+            'reap commands before waiting or completing');
         if (previous) {
             check(previous.state !== 'done', 'completed probe cannot be reopened; assign a new probe');
             for (const key of ['task', 'worker', 'worktree', 'branch', 'handle', 'source'])
@@ -326,9 +326,6 @@ function applyEvent(state, event, at) {
         if (event.state === 'done') check(['failure', 'match', 'duplicate', 'deferred'].includes(event.outcome),
             'completed probe needs an outcome');
         else check(event.outcome === undefined, 'only a completed probe has an outcome');
-        if (event.recording) check(Object.values(state.probes)
-            .filter(row => row.probe !== event.probe && row.recording).length < 2,
-        'both Prep recorder slots are reserved; wait for a release');
         state.probes[event.probe] = { ...previous, ...event, startedAt: previous?.startedAt ?? at, updatedAt: at };
         return;
     }

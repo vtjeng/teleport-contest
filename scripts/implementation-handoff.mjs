@@ -12,7 +12,6 @@ import {digest} from './challenge-results.mjs';
 import {integrateTaskCommits} from './integration-commits.mjs';
 import {acceptTasks} from './accept-task.mjs';
 import {publishTask} from './task-handoff.mjs';
-import {boundedMain} from './run-bounded.mjs';
 
 const USAGE = `Usage: node scripts/implementation-handoff.mjs <plan|integrate|bootstrap|accept|publish|split> --ledger <shared-ledger>
   bootstrap: --checkpoint <saved-summary> --published <SHA> --tooling <comma-separated-commits>
@@ -322,11 +321,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (process.argv.slice(2).includes('--help')) console.log(USAGE);
         else {
             const options = parseImplementationArgs(process.argv.slice(2));
-            process.exitCode = await boundedMain('focused', () => {
-                const handlers = {plan: planImplementationGroup, integrate: integrateImplementationGroup, bootstrap: bootstrapImplementationGroup,
-                    accept: acceptImplementationGroup, split: splitImplementationGroup, publish: publishImplementationGroup};
-                console.log(JSON.stringify(handlers[options.phase](options), null, 2)); return 0;
-            });
+            const handlers = {plan: planImplementationGroup, integrate: integrateImplementationGroup, bootstrap: bootstrapImplementationGroup,
+                accept: acceptImplementationGroup, split: splitImplementationGroup, publish: publishImplementationGroup};
+            console.log(JSON.stringify(handlers[options.phase](options), null, 2));
         }
     } catch (error) {console.error(`implementation-handoff: ${error.message}`); process.exitCode = 1;}
 }

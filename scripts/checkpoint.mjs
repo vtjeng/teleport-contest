@@ -10,7 +10,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { localTmpdir } from './local-tmpdir.mjs';
 import { checkpointResultsDirectory } from './checkpoint-results.mjs';
 import { digest, readReusableResult, reuseKey } from './checkpoint-reuse.mjs';
-import { boundedMain } from './run-bounded.mjs';
 
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const C_PATH = 'nethack-c/upstream';
@@ -218,8 +217,7 @@ export async function runCheckpoint({ root = PROJECT_ROOT, revision = 'HEAD', ve
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
     try {
-        process.exitCode = await boundedMain('full', () =>
-            runCheckpoint(parseCheckpointOptions(process.argv.slice(2))));
+        process.exitCode = await runCheckpoint(parseCheckpointOptions(process.argv.slice(2)));
     } catch (error) {
         console.error(`checkpoint: ${error.message}`);
         process.exitCode = 1;

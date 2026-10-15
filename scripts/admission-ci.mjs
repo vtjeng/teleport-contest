@@ -8,7 +8,6 @@ import {admissionPlan} from './admission-proof.mjs';
 import {verifyPreparedRecordings} from './admit-challenge-batch.mjs';
 import {combine, groupCases, runGroup} from './synthetic-ci.mjs';
 import {PROJECT_ROOT} from './scoring-workspace.mjs';
-import {boundedMain} from './run-bounded.mjs';
 
 const OUTPUT = '.cache/admission-ci';
 export function main(args) {
@@ -33,8 +32,6 @@ export function main(args) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
     try {
-        const args = process.argv.slice(2);
-        if (args[0] === 'run') await boundedMain('full', () => main(args));
-        else main(args);
+        main(process.argv.slice(2));
     } catch (error) { console.error(`admission-ci: ${error.message}`); process.exitCode = 1; }
 }

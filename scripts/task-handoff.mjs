@@ -14,7 +14,6 @@ import { reviewTask } from './task-verdict.mjs';
 import { writeDashboardSnapshot } from './dashboard-snapshot.mjs';
 import { checkPublishedCI } from './check-published-ci.mjs';
 import { readRows } from './score-log.mjs';
-import { boundedMain } from './run-bounded.mjs';
 
 const USAGE = `Usage: node scripts/task-handoff.mjs <review|accept|publish> --task <id> --ledger <file>
   review:  [--baseline <accepted-checkpoint-summary>] [--evaluations <directory>]
@@ -134,12 +133,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (process.argv.slice(2).includes('--help')) console.log(USAGE);
         else {
             const options = parseHandoffArgs(process.argv.slice(2));
-            process.exitCode = await boundedMain('focused', () => {
-                const result = options.phase === 'review' ? reviewTask(options)
-                    : options.phase === 'accept' ? acceptTask(options) : publishTask(options);
-                console.log(JSON.stringify(result, null, 2));
-                return result.reviewRequired || result.publicationCI?.failed ? 1 : 0;
-            });
+            const result = options.phase === 'review' ? reviewTask(options)
+                : options.phase === 'accept' ? acceptTask(options) : publishTask(options);
+            console.log(JSON.stringify(result, null, 2));
+            process.exitCode = result.reviewRequired || result.publicationCI?.failed ? 1 : 0;
         }
     } catch (error) { console.error(`task-handoff: ${error.message}`); process.exitCode = 2; }
 }

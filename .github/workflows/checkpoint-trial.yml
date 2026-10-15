@@ -12,9 +12,6 @@ on:
 permissions:
   contents: read
 
-env:
-  TELEPORT_VALIDATION_EXTERNAL: '1'
-
 jobs:
   synthetic-plan:
     name: Plan admitted synthetic batches

@@ -11,22 +11,17 @@ competition holdout is outside this workspace.
 ## Routine validation
 
 - Before committing worker changes or Main's integration edits, run focused tests with
-  `node scripts/run-bounded.mjs focused -- node --test <file>`.
+  `node --test <file>`.
   Put Node test options before the file. `npm test` selects the default
   suite; it does not forward file selections or Node test options.
   Leave the routine full-suite run to checkpoint.
 - If a focused run reports only a file-level `test failed`, run
-  `node scripts/run-bounded.mjs focused -- node <test-file>` to expose its
+  `node <test-file>` to expose its
   underlying assertions. Changing the
   reporter alone is not a reason to repeat the test.
-- The bounded runner limits a focused command and its descendants to
-  2 GiB and two minutes, and a full validation run to 6 GiB and 15 minutes.
-  All bounded validation shares a 10 GiB limit, with swap disabled.
-  Run it outside the Codex sandbox. It requires Linux and a working
-  systemd user manager; it fails without those protections.
-- Keep the printed run ID. Use the runner's `status`, `wait`, or `stop`
-  command to recover or stop that run; `--help` gives the syntax.
-  Do not start another copy to check whether the first has finished.
+- Run validation commands directly. Keep existing replay watchdogs and CI job
+  timeouts. Retain the terminal session handle for any running command and
+  collect its result before starting another copy.
 - After committing a combined integration candidate, the orchestrator obtains
   a passing hosted checkpoint for that exact commit by default. Use a local
   checkpoint only when hosted validation is unavailable or blocked, and state
@@ -75,8 +70,7 @@ competition holdout is outside this workspace.
   publication checks remain separate. Trust the CI combine steps; do not rerun
   their checks locally.
   Keep HEAD at the candidate until import and closure finish. The hosted
-  summary retains its actual GitHub run and per-stage attempts. Hosted runners
-  use job timeouts and isolation rather than the local systemd wrapper.
+  summary retains its actual GitHub run and per-stage attempts.
   Reuse the imported scan cache and evaluation artifacts for acceptance;
   the acceptance helper compares them with accepted evidence under `.agents/scoring.md`.
   Do not replay them merely because they were measured remotely.
