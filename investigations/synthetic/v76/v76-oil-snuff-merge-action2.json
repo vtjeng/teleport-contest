@@ -13,97 +13,33 @@
   "status": "complete",
   "commit": "f99270767b8956ae054ad52597b0cc7c7a2ee780",
   "mismatch": {
-    "corpus": "synthetic",
-    "batch": "v76",
-    "caseId": "v76-oil-snuff-merge-action2",
     "session": "synthetic/v76/v76-oil-snuff-merge-action2",
-    "manifestPath": "challenges/manifests/v76.json",
-    "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
-    "recording": "challenges/cases/v76/v76-oil-snuff-merge-action2.session.json",
-    "recordingPath": "challenges/cases/v76/v76-oil-snuff-merge-action2.session.json",
-    "recordingSha256": "60e06d0f1a21b0e6426c4efeb068c15a0630a796657f43810a23d8ff1e1bbb2c",
-    "recipe": "challenges/cases/v76/v76-oil-snuff-merge-action2.recipe.session.json",
-    "recipeSha256": "05d357408b6d209cdac7686f2a5cf7843291c0b355b8ad50f77498d5aeaa2114",
-    "replayInputSha256": "56bf17d1c44694537cd9162f1d3b5a5751d4255698c0a64c8aa4676b3b9362c8",
-    "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
-    "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
-    "remainingScreens": 100,
-    "recordedSteps": 225,
-    "regression": false,
-    "passed": false,
-    "metrics": {
-      "screens": {
-        "matched": 125,
-        "total": 225
-      },
-      "rng": {
-        "matched": 2370,
-        "total": 2378
-      },
-      "cursors": {
-        "matched": 125,
-        "total": 225
-      }
-    },
-    "firstMismatch": {
-      "kind": "stop",
-      "step": 125,
-      "key": " ",
-      "location": {
-        "segmentIndex": 0,
-        "stepIndex": 125
-      },
-      "javascript": "UnsupportedHeroCommandBoundaryError: encumberMessage is not available for otyp 321",
-      "c": "invent.c:hold_another_object() returns the reacquired lit oil potion after calling encumber_msg()"
-    }
+    "remainingScreens": 100
   },
-  "summary": "The admitted v76 action lights one potion from an inventory stack of three. apply.c:light_cocktail() splits the selected oil potion, starts its burn, removes the child from inventory, and calls invent.c:hold_another_object() to reacquire it. The C helper adds it, updates inventory, then calls pickup.c:encumber_msg(). JavaScript ports these helpers, but light_cocktail() supplies only the message hook, so invent.js:hold_another_object() fails closed at step 125 when it requires the missing encumberMessage callback. The later snuff and merge actions occur after this first cause.",
+  "summary": "The admitted v76 action first diverged when light_cocktail split one oil potion from a stack and called hold_another_object without the encumberMessage callback. The caller now passes the existing pickup.c:encumber_msg implementation, and the exact 225-step segment matches.",
   "source": {
     "file": "apply.c",
-    "branch": "In light_cocktail(), the item is unlit, the hero is not swallowed or underwater, and quan > 1. The selected potion is split, made known, lit with begin_burn(), detached from inventory, and passed to invent.c:hold_another_object(). On successful reacquisition, hold_another_object() updates inventory and calls pickup.c:encumber_msg() before returning the object pointer.",
     "functions": [
       "light_cocktail"
     ],
+    "branch": "For an unlit oil potion stack, light_cocktail splits one child, starts its burn, detaches it, and reacquires it through invent.c:hold_another_object. That helper updates inventory and calls pickup.c:encumber_msg before returning. JavaScript now supplies the existing encumber_msg implementation through the required hook while preserving any explicit hook and the message sink.",
     "callers": [
-      "apply.c:doapply() POT_OIL arm calls light_cocktail(&obj); js/apply.js:doapply() awaits light_cocktail(objp, state, env) and then reads objp.obj."
+      "apply.c:doapply() POT_OIL calls light_cocktail(&obj); js/apply.js:doapply() awaits light_cocktail and then reads the returned object pointer."
     ],
     "dependencies": [
-      "invent.c:hold_another_object() is implemented by js/invent.js and requires an injected encumberMessage hook after update_inventory().",
-      "pickup.c:encumber_msg() is implemented by js/pickup.js and updates go.oldcap after any load-change message."
+      "invent.c:hold_another_object() is implemented in js/invent.js and invokes the required encumberMessage hook after update_inventory().",
+      "pickup.c:encumber_msg() is implemented in js/pickup.js and refreshes go.oldcap after any burden-change message."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The hosted v76 evaluation records 125/225 screens and cursors matched and 2370/2378 RNG entries matched; JavaScript stops at zero-based step 125 on the missing encumberMessage hook.",
-    "At the failing action, the hero applies one item from a three-potion oil stack. C reaches apply.c:light_cocktail() with the unlit potion, splits one child, calls makeknown() and begin_burn(), removes the split child, and calls invent.c:hold_another_object().",
-    "Upstream nethack-c/upstream/src/apply.c:1704-1765 orders the split, burn, and reacquisition. invent.c:1208-1293 adds a holdable item, calls update_inventory(), then calls encumber_msg() at line 1290. pickup.c:1977-2020 implements that message and updates go.oldcap.",
-    "The saved accepted-prefix trace matches all 125 preceding screens, RNG entries, and cursors, then reports: encumberMessage is not available for otyp 321. js/apply.js:light_cocktail() builds hooks with message only; js/invent.js:hold_another_object() requires the acquisition encumberMessage callback after adding the item.",
-    "The source correction belongs at the light_cocktail() caller: pass the existing pickup.c:encumber_msg port through the hold_another_object hook, preserving a supplied caller hook when present. The existing invent.c and pickup.c implementations need no edits."
+    "The hosted v76 evaluation had 125/225 screens and cursors matched and 2370/2378 RNG calls matched before stopping at step 125 because hold_another_object lacked encumberMessage.",
+    "Upstream apply.c:1704-1765 and invent.c:1208-1293 show the split-child reacquisition order and the call to encumber_msg after inventory refresh; pickup.c:1977-2020 updates the old burden state.",
+    "The regression test lights one potion from a three-potion stack and checks the child pointer, remaining stack, both inventory entries, and refreshed go.oldcap.",
+    "The exact admitted v76 segment 0 matches through step 224: all 225 recorded screens, RNG calls, and cursors."
   ],
   "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
   "goal": "fix-v76-oil-snuff-light-cocktail-reacquisition-20261015",
   "sourceBase": "f99270767b8956ae054ad52597b0cc7c7a2ee780",
-  "selectionReason": "Selected synthetic/v76/v76-oil-snuff-merge-action2 from its hosted v76 evaluation. The first mismatch is the split-one reacquisition inside apply.c:light_cocktail(): JS has added the child but refuses before the existing C encumber_msg call because its caller omitted the required hook. The later snuff/merge actions are downstream and are not the first cause.",
-  "resolution": {
-    "status": "implemented",
-    "sourceChange": "js/apply.js:light_cocktail now supplies the existing pickup.c:encumber_msg port as the encumberMessage hook when reacquiring the split oil potion; an explicit caller hook remains authoritative, and the same message sink is used for the burden update.",
-    "tests": [
-      "scripts/apply-light-cocktail.test.mjs"
-    ],
-    "validation": {
-      "focused": {
-        "command": "node scripts/run-bounded.mjs focused -- node --test scripts/apply-light-cocktail.test.mjs",
-        "result": "4/4 passed"
-      },
-      "lint": {
-        "command": "npx eslint js/apply.js scripts/apply-light-cocktail.test.mjs",
-        "result": "passed"
-      },
-      "admittedReplay": {
-        "command": "node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json",
-        "result": "v76/v76-oil-snuff-merge-action2 segment 0 through step 224 matched"
-      }
-    },
-    "runtimeEvidence": "The production #apply path lights one item from a three-potion stack, reacquires the burning child, refreshes burden state, then continues through subsequent snuff/merge actions. The complete 225-step admitted segment matches screens, RNG, and cursors."
-  }
+  "selectionReason": "Selected synthetic/v76/v76-oil-snuff-merge-action2 from its hosted v76 evaluation. The first mismatch is the split-one reacquisition inside apply.c:light_cocktail(): JS has added the child but refuses before the existing C encumber_msg call because its caller omitted the required hook. The later snuff/merge actions are downstream and are not the first cause."
 }
