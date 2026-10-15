@@ -315668,6 +315668,96 @@
           }
         ]
       }
+    },
+    {
+      "id": "wire-eat-start-tin-drop-environment-v74",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement start_tin from eat.c",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v74/v74-glib-tin-stack-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v74-glib-tin-stack-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "start_tin",
+      "session": "synthetic/v74/v74-glib-tin-stack-action1"
+    },
+    {
+      "id": "fix-v74-trapper-cockatrice-engulf-stoning-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement gulpmu from mhitu.c",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v74/v74-cockatrice-trapper-engulf-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "gulpmu",
+      "session": "synthetic/v74/v74-cockatrice-trapper-engulf-action2"
+    },
+    {
+      "id": "fix-mon-xkilled-buried-corpse-v74-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement xkilled from mon.c",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v74/v74-jelly-carrier-burial-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "xkilled",
+      "session": "synthetic/v74/v74-jelly-carrier-burial-action6"
+    },
+    {
+      "id": "fix-wield-quivered-stack-split-v74",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dowield from wield.c",
+      "cFile": "wield.c",
+      "sessions": [
+        "synthetic/v74/v74-wield-quiver-split-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v74-wield-quiver-split-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dowield",
+      "session": "synthetic/v74/v74-wield-quiver-split-action2"
+    },
+    {
+      "id": "fix-v74-offhand-sting-oname-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement oname from do_name.c",
+      "cFile": "do_name.c",
+      "sessions": [
+        "synthetic/v74/v74-offhand-sting-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v74-offhand-sting-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "oname",
+      "session": "synthetic/v74/v74-offhand-sting-action2"
     }
   ]
 }
