@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T02:36:16.668Z",
+  "capturedAt": "2026-10-15T03:09:12.110Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130788,6 +130788,149 @@
         "task": "Prep42",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep42-244c65176f63d06d6c52b1e0cb8e2c4480261f8e",
+        "type": "published",
+        "at": "2026-10-15T02:36:22.954Z",
+        "task": "Prep42",
+        "commit": "244c65176f63d06d6c52b1e0cb8e2c4480261f8e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep43-v79-adjudication-20261015",
+        "type": "turn",
+        "at": "2026-10-15T02:45:06.748Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep43/v79: thirty valid C pairs and thirteen independent replays; five provisional first failures and eight matching reached branches. Finishing source overlap and saved-proof packaging while reduced membership is reviewed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e58e54e9c119b06d4cf8e6faf7f8c990baa1fbe4",
+        "type": "ready",
+        "at": "2026-10-15T02:48:55.475Z",
+        "task": "Prep43",
+        "delivery": "e58e54e9c119b06d4cf8e6faf7f8c990baa1fbe4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-Prep43-v79-e58e54e9",
+        "type": "received",
+        "at": "2026-10-15T02:50:08.854Z",
+        "task": "Prep43",
+        "delivery": "e58e54e9c119b06d4cf8e6faf7f8c990baa1fbe4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep43-preintegration-review-e58e54e9",
+        "type": "activity",
+        "at": "2026-10-15T02:50:25.475Z",
+        "task": "Prep43",
+        "phase": "review",
+        "reason": "Verify v79 independent C evidence, all five first-failure prefixes, and distinct control coverage before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep44-v80-20261015",
+        "type": "assign",
+        "at": "2026-10-15T02:50:29.514Z",
+        "task": "Prep44",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v80"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-ef68c66203a204a1fb139d6bc68f518194ed5979d5e5c5249a386e74013ac6ca-652ab3f81a33ff73847b030c9a9790e371fd90e9-Prep43",
+        "type": "integrating",
+        "at": "2026-10-15T02:50:59.271Z",
+        "task": "Prep43",
+        "integration": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "prepGroup": [
+          "Prep43"
+        ],
+        "validationGroup": [
+          "Prep43"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep44-v80-source-design-20261015",
+        "type": "turn",
+        "at": "2026-10-15T02:59:25.523Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep44/v80: source-first design of writing, form abilities, web/trap callers and mounted actions; twenty-two routes frozen before game comparisons. Reviewing historical overlap and legal setup feasibility."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep43-652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "type": "validated",
+        "at": "2026-10-15T03:00:43.543Z",
+        "task": "Prep43",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep43-652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "type": "accepted",
+        "at": "2026-10-15T03:00:43.543Z",
+        "task": "Prep43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep43-admission-preparing-652ab3f8",
+        "type": "activity",
+        "at": "2026-10-15T03:00:54.628Z",
+        "task": "Prep43",
+        "phase": "admission",
+        "reason": "Checkpoint passed; preparing the reviewed v79 manifest for hosted baseline and worker assignments."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep43-6ab105044702d5a14596f9895360bd363bf22773",
+        "type": "activity",
+        "at": "2026-10-15T03:05:42.804Z",
+        "task": "Prep43",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep43-6ab105044702d5a14596f9895360bd363bf22773",
+        "type": "activity",
+        "at": "2026-10-15T03:05:43.679Z",
+        "task": "Prep43",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-active-v79-amulet-portal-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:08:54.658Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "C is starting the independent v79 amulet portal investigation after the checked baseline handoff."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v79-demon-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:09:01.849Z",
+        "worker": "A2",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v79-demon-sibling-20261015",
+        "type": "assign",
+        "at": "2026-10-15T03:09:06.455Z",
+        "task": "A2-investigation-v79-demon-talk-20261015",
+        "worker": "A2",
+        "kind": "investigation"
       }
     ]
   },
@@ -131953,13 +132096,28 @@
           "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
+      },
+      "A2-investigation-v79-demon-talk-20261015": {
+        "id": "A2-investigation-v79-demon-talk-20261015",
+        "worker": "A2",
+        "status": "working",
+        "seed": "synthetic/v79/v79-demon-sibling-action1",
+        "reservations": [
+          "session:synthetic/v79/v79-demon-sibling-action1"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "session:synthetic/v79/v79-demon-sibling-action1": {
+        "tasks": [
+          "A2-investigation-v79-demon-talk-20261015"
+        ]
+      }
+    }
   },
   "development": {
-    "executionCommit": "5196dd8c1dc7578c938ff47fb5ca35e4bba7d40f",
-    "measuredAt": "2026-10-15T02:24:26.600Z",
+    "executionCommit": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+    "measuredAt": "2026-10-15T02:56:34.182Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
