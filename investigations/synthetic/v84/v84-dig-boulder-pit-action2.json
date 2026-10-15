@@ -10,7 +10,7 @@
   "evaluationCommit": "3064817236950de52046810d2f2ffae0456138bb",
   "remainingScreens": 33,
   "recordedSteps": 304,
-  "status": "resolved",
+  "status": "complete",
   "commit": "1aa9187851f163175f4195d035ea737a1d048637",
   "mismatch": {
     "session": "synthetic/v84/v84-dig-boulder-pit-action2",
@@ -43,7 +43,7 @@
     "The separate v61 pet-eats-royal-jelly case reaches dog_eat -> bee_eat_jelly -> delobj and identifies a different caller; it does not provide dighole's floor adapter. The v84 floor-boulder action2 case exercises this same dighole caller and is not a separate source cause.",
     "After the caller hook fix, the bounded full admitted replay is exact: 304/304 screens, 304/304 cursors, and 2968/2968 RNG calls; no error or mismatch. The case scan emitted 304 screens, exhausted all inputs, and reported no divergence."
   ],
-  "resolution": {
+  "after": {
     "sourceFix": "js/dig.js dighole now supplies remove_object for extractExternalObject and the default recalc_block_point hook when deleting a floor boulder; caller-provided hooks remain authoritative.",
     "focused": {
       "runId": "run-42it0R",
