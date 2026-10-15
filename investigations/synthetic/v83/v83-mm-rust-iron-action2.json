@@ -147,8 +147,26 @@
       "lines": "565-634",
       "branch": "The gas_cloud_diss_seen branch hardcodes \"You see a gas cloud dissipate.\" or its plural and does not apply the hero blindness prefix."
     },
-    "observation": "The recorded step 858 status line ends in Blind. At step 859, C reports \"You sense a gas cloud dissipate.\" while JavaScript reports a screen whose first message differs at column 6, consistent with the hardcoded \"You see\" branch. The initial RNG mismatch is gone; this is a later independent screen mismatch.",
-    "rootCause": "js/region.js run_regions must compose the message through the existing You_see behavior so blindness produces the C wording. The current helper is js/monmove.js:youSee, which implements pline.c:You_see; confirm the dependency and safe call path before edits.",
-    "status": "source-traced; implementation scope not yet claimed"
+    "observation": "At step 859, run_regions emitted the gas-cloud dissipation message after a callback made the hero blind. C printed “You sense a gas cloud dissipate.”; JavaScript printed “You see a gas cloud dissipate.” The differing first character at column 6 was caused by JavaScript bypassing pline.c:You_see, not by RNG or cursor behavior.",
+    "rootCause": "region.c:run_regions passes the formatted line to You_see, which selects “You sense” when Blind is true and “You dream that you see” when Unaware is true. The JavaScript run_regions branch hard-coded the “You see” prefix. It now calls the existing js/monmove.js:youSee helper with the current game state; that helper implements pline.c:You_see and gives Unaware precedence over Blind.",
+    "status": "implemented and replay-verified through segment 0, step 859; the screen, cursor and RNG streams match through the formerly divergent message."
+  },
+  "followupImplementation": {
+    "source": "region.c:run_regions (414-474), including its call to pline.c:You_see (453-470)",
+    "implementation": "js/region.js:run_regions calls js/monmove.js:youSee for the singular and plural gas-cloud dissipation messages.",
+    "callers": [
+      "allmain.c:moveloop reaches run_regions each turn; js/allmain.js calls run_regions in the corresponding main-loop path.",
+      "region.c:run_regions calls pline.c:You_see when gas_cloud_diss_seen is nonzero."
+    ],
+    "test": "scripts/region.test.mjs: run_regions uses the current blindness prefix for aggregate dissipation; the fixture counts a visible cloud before a later region callback changes blindness.",
+    "runtime": {
+      "batch": "v83",
+      "caseId": "v83-mm-rust-iron-action2",
+      "segment": 0,
+      "fromStep": 0,
+      "throughStep": 859,
+      "source": "allmain.c:moveloop -> region.c:run_regions -> pline.c:You_see"
+    },
+    "check": "node scripts/synthetic-range-evidence.mjs .cache/a2-v83-859-prefix.json matched v83/v83-mm-rust-iron-action2 segment 0 through step 859."
   }
 }

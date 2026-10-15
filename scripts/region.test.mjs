@@ -681,6 +681,44 @@ test('run_regions performs harmless gas dissipation, redraw, then aggregate mess
     assert.equal(state.gg.gas_cloud_diss_seen, 0);
 });
 
+test('run_regions uses the current blindness prefix for aggregate dissipation', async () => {
+    const state = regionState();
+    state.level.at(10, 9).typ = ROOM; // The sole visible cloud square is beside the hero.
+    const cloud = pointRegion(10, 9, {
+        // A thin cloud at ttl 0 takes expire_gas_cloud's dissipation branch.
+        arg: 0, expire_f: 'expire_gas_cloud', ttl: 0, visible: true,
+    });
+    // This later array entry is outside the hero and only changes blindness
+    // after the cloud has recorded one visible square.
+    const laterBlindness = pointRegion(3, 3, {
+        expire_f: 'become_blind', ttl: 0, visible: false,
+    });
+    // C expires regions from the array tail toward the front: count the visible
+    // cloud first, then change blindness before run_regions calls You_see().
+    state.level.regions = [laterBlindness, cloud];
+    const messages = [];
+
+    await run_regions({
+        state,
+        callbacks: {
+            become_blind() {
+                // The active intrinsic bit makes pline.c:You_see choose "sense".
+                state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+                return true;
+            },
+        },
+        doesBlock() { return false; },
+        unblockPoint() {},
+        canSee() { return true; },
+        newsym() {},
+        async message(text) { messages.push(text); },
+    });
+
+    // pline.c:You_see adds this prefix after the callbacks change blindness.
+    assert.deepEqual(messages, ['You sense a gas cloud dissipate.']);
+    assert.deepEqual(state.level.regions, []);
+});
+
 test('run_regions executes positive-damage fog callback before aging completes', async () => {
     const state = regionState({
         youmonst: newMonster({

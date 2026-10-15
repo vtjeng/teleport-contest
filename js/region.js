@@ -33,6 +33,7 @@ import { losehp } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { youSee } from './monmove.js';
 import {
     haseyes,
     is_silent,
@@ -625,9 +626,12 @@ export async function run_regions(rawEnv = {}) {
     const seen = env.state.gg.gas_cloud_diss_seen;
     if (seen) {
         await message(
-            seen === 1
-                ? 'You see a gas cloud dissipate.'
-                : 'You see some gas clouds dissipate.',
+            youSee(
+                seen === 1
+                    ? 'a gas cloud dissipate.'
+                    : 'some gas clouds dissipate.',
+                env.state,
+            ),
             env.state,
             env,
         );
