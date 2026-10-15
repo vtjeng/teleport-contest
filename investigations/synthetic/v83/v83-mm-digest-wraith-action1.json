@@ -13,6 +13,8 @@
   "status": "complete",
   "commit": "b2cfd792157cc4762a73d1ba66d29af1acdec1e2",
   "mismatch": {
+    "session": "synthetic/v83/v83-mm-digest-wraith-action1",
+    "remainingScreens": 779,
     "step": 871,
     "kind": "stop",
     "message": "simple monster action requires a non-wraith corpse"
