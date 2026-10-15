@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap role variation for the blocked hero-defender recipe of uhitm.c:mhitm_ad_acid. A hostile ochre jelly gets the same bounded wait sequence against a human Monk. C still routes the natural AT_ENGL AD_ACID attack through mhitu.c:gulpmu; ordinary expulsion's mspec_used cooldown is decremented by monmove.c:mon_regen before the next attack. This recipe does not establish mhitm_ad_acid hero-defender coverage.",
+  "segments": [
+    {
+      "seed": 84062027,
+      "datetime": "20351009132500",
+      "nethackrc": "OPTIONS=name:AcidMonk,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile ochre jelly\n...................."
+    }
+  ]
+}
