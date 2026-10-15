@@ -6,7 +6,7 @@ import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
 import {acceptImplementationGroup, integrateImplementationGroup, parseImplementationArgs,
-    planImplementationGroup, publishImplementationGroup, splitImplementationGroup} from './implementation-handoff.mjs';
+    planImplementationGroup, publishImplementationGroup, splitImplementationGroup, bootstrapImplementationGroup} from './implementation-handoff.mjs';
 import {acceptTask} from './accept-task.mjs';
 import {createLedger, recordEvent, summarizeLedger} from './worker-state.mjs';
 import {deliveryGit, verifyEvent} from './worker-delivery.mjs';
@@ -120,8 +120,78 @@ test('implementation group CLI rejects missing, duplicate and unrelated flags', 
         {phase: 'split', ledger: 'ledger', tasks: 'A1,A2'});
     assert.deepEqual(parseImplementationArgs(['integrate', '--ledger', 'ledger', '--retain', 'abc,def']),
         {phase: 'integrate', ledger: 'ledger', retain: 'abc,def'}); // The CLI resolves commit identifiers before changing branches.
+    assert.deepEqual(parseImplementationArgs(['bootstrap', '--ledger', 'ledger', '--checkpoint', 'summary',
+        '--published', 'public', '--tooling', 'helper']),
+    {phase: 'bootstrap', ledger: 'ledger', checkpoint: 'summary', published: 'public', tooling: 'helper'});
     for (const args of [[], ['integrate'], ['split', '--ledger', 'x'], ['accept', '--ledger', 'x', '--tasks', 'A1'],
-        ['plan', '--ledger', 'x', '--ledger', 'y']]) assert.throws(() => parseImplementationArgs(args), /Usage/);
+        ['plan', '--ledger', 'x', '--ledger', 'y'], ['bootstrap', '--ledger', 'x']])
+        assert.throws(() => parseImplementationArgs(args), /Usage/);
+});
+
+function bootstrapFixture(t) {
+    const f = fixture(t);
+    f.save('.agents/published.md', 'Already validated and published tooling.\n');
+    f.git('add', '.agents/published.md'); f.git('commit', '-qm', 'Published tooling without a delivery');
+    const published = f.git('rev-parse', 'HEAD'), checkpoint = f.checkpoint(published, []);
+    f.git('init', '--bare', '-q', join(f.parent, 'remote.git'));
+    f.git('remote', 'add', 'origin', join(f.parent, 'remote.git')); f.git('push', '-q', 'origin', 'main');
+    f.save('.agents/friction.md', 'Unpublished coordinator notes must remain under the next gate.\n');
+    f.git('add', '.agents/friction.md'); f.git('commit', '-qm', 'Local coordinator notes');
+    const local = f.git('rev-parse', 'HEAD');
+    f.git('switch', '-qc', 'tooling/helper');
+    f.save('.agents/helper.md', 'New helper code represented by an instruction fixture.\n');
+    f.git('add', '.agents/helper.md'); f.git('commit', '-qm', 'Unvalidated helper');
+    const tooling = f.git('rev-parse', 'HEAD'); f.git('switch', '-q', 'main');
+    return {...f, published, local, tooling,
+        bootstrap: {...f.options, checkpoint, published, tooling}};
+}
+
+test('bootstrap validates helper, unpublished notes and all ports together without a baseline event or ref rewind', t => {
+    const f = bootstrapFixture(t);
+    assert.throws(() => planImplementationGroup(f.options, f.root), /unvalidated changes/u);
+    const group = bootstrapImplementationGroup(f.bootstrap, f.root);
+    assert.equal(f.git('rev-parse', 'main'), f.local, 'local Main never rewinds or advances before acceptance');
+    assert.equal(f.git('ls-remote', 'origin', 'refs/heads/main').split(/\s/u)[0], f.published,
+        'neither the helper nor unpublished notes reach public Main before CI');
+    assert.equal(f.state().toolingPublications.length, 0, 'no new reader protocol event precedes validation');
+    assert.match(f.git('show', `${group.commit}:.agents/helper.md`), /New helper/u);
+    assert.match(f.git('show', `${group.commit}:.agents/friction.md`), /Unpublished/u);
+    const plan = JSON.parse(readFileSync(join(f.root, '.cache/implementation-group.json')));
+    assert.equal(plan.baselinePublication.commit, f.published); assert.equal(plan.base, f.local);
+    assert.equal(plan.baselinePublication.anchor, f.base, 'the comparison proof retains its original accepted anchor');
+    assert.equal(integrateImplementationGroup(f.options, f.root).commit, group.commit, 'normal integrate resumes the frozen bootstrap');
+    f.checkpoint(group.commit); // One combined candidate checkpoint, with the prior published baseline already saved.
+    assert.equal(acceptImplementationGroup(f.options, f.root).tasks.length, 4);
+    // Recover a historical partial acceptance while preserving the reports
+    // already written for the entire group. accepted-main now names a source
+    // member, but the published tooling proof still uses its frozen old anchor.
+    const acceptedLedger = JSON.parse(readFileSync(join(f.root, f.options.ledger)));
+    const firstAccepted = acceptedLedger.events.findIndex(event => event.type === 'accepted' && event.task === 'A1');
+    f.save(f.options.ledger, {...acceptedLedger, events: acceptedLedger.events.slice(0, firstAccepted + 1)});
+    assert.equal(acceptedMain(f.state()).commit, group.commit);
+    assert.equal(acceptImplementationGroup(f.options, f.root).tasks.length, 4);
+    const goals = JSON.parse(readFileSync(join(f.root, 'GOALS.json')));
+    assert.ok(goals.goals.every(goal => goal.acceptance.baseline === f.published));
+    const result = publishImplementationGroup(f.options, f.root,
+        {checkCI: () => ({checked: 0, pending: [], completed: [], failed: false})});
+    assert.equal(acceptedMain(f.state()).commit, result.commit);
+});
+
+test('bootstrap rejects invalid baseline ancestry and source commits before freezing or changing ownership', t => {
+    const f = bootstrapFixture(t), ledger = readFileSync(join(f.root, f.options.ledger), 'utf8');
+    // The old accepted base precedes the checkpoint; it cannot be its publication.
+    assert.throws(() => bootstrapImplementationGroup({...f.bootstrap, published: f.base}, f.root),
+        /checkpoint must follow accepted Main and precede publication/u);
+    // A valid worker delivery must not bypass its task by being listed as tooling.
+    assert.throws(() => bootstrapImplementationGroup({...f.bootstrap, tooling: f.deliveries[0]}, f.root),
+        /only tooling and bookkeeping/u);
+    assert.equal(f.git('rev-parse', 'HEAD'), f.local);
+    assert.equal(readFileSync(join(f.root, f.options.ledger), 'utf8'), ledger);
+    assert.equal(existsSync(join(f.root, '.cache/implementation-group.json')), false);
+    f.save('js/f1.js', 'export function f1() { return 1; }\n');
+    f.git('add', 'js/f1.js'); f.git('commit', '-qm', 'Unaccepted local game change');
+    assert.throws(() => bootstrapImplementationGroup(f.bootstrap, f.root), /only tooling and bookkeeping/u);
+    assert.equal(existsSync(join(f.root, '.cache/implementation-group.json')), false);
 });
 
 test('published tooling advances the frozen baseline without reopening a delivery', t => {

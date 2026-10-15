@@ -148,6 +148,13 @@ order on an `integration-checkpoint/*` candidate branch. Dependencies must be
 accepted or included earlier in the group. Hold concrete scope conflicts and
 missing evidence; do not repeat source review. Local `main` stays unchanged.
 
+If published tooling has no ledger baseline, use
+`implementation-handoff.mjs bootstrap --ledger <ledger> --checkpoint <saved-summary> --published <SHA> --tooling <commits>`.
+It freezes the verified published baseline, local tooling edits and listed
+commits into one candidate with the received fixes. Run the usual hosted
+checkpoint, acceptance and publication steps. No baseline event or publication
+of unvalidated tooling is needed first.
+
 Run one hosted checkpoint at the returned commit and import it once. Keep HEAD
 there and run `implementation-handoff.mjs accept --ledger <shared-ledger>`.
 Every assigned target must improve against the same frozen accepted baseline,

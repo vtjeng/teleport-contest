@@ -441,31 +441,46 @@ export function verifyPublicationChanges(root, tested, published, admission) {
     }
 }
 
-function verifyPublicMain(root, commit) {
-    check(resolveCommit(root, 'refs/heads/main') === commit, 'local main differs; run sync-main first');
+export function verifyToolingChanges(root, base, head) {
+    const changed = git(root, 'diff', '--name-only', '--no-renames', '-z', base, head).split('\0').filter(Boolean);
+    check(changed.every(path => BOOKKEEPING_FILES.includes(path) || path === 'AGENTS.md'
+        || /^(?:scripts|\.agents|\.claude|\.codex|\.github)\//u.test(path)),
+    'standalone publication accepts only tooling and bookkeeping, not game or corpus changes');
+}
+
+function verifyPublicMain(root, commit, {localTooling = false} = {}) {
+    const main = resolveCommit(root, 'refs/heads/main');
+    if (localTooling) {
+        check(isAncestor(root, commit, main), 'local main must contain the published tooling baseline');
+        verifyToolingChanges(root, commit, main);
+    } else check(main === commit, 'local main differs; run sync-main first');
     const remote = git(root, 'ls-remote', '--exit-code', 'origin', 'refs/heads/main').split(/\s/u)[0];
     check(remote === commit, 'remote main does not match; publish successfully before recording publication');
+}
+
+export function verifyToolingPublication(root, state, proof, options) {
+    // Only a frozen bootstrap plan can retain a historical accepted anchor.
+    const anchor = options?.localTooling ? proof.anchor : acceptedMain(state)?.commit;
+    const accepted = Object.values(state.deliveries).some(delivery => delivery.acceptedAt
+        && [delivery.integration, delivery.publishedCommit].includes(anchor))
+        || state.toolingPublications.some(publication => publication.commit === anchor);
+    const summary = JSON.parse(readFileSync(proof.checkpoint, 'utf8'));
+    check(summary.allPassed === true && summary.commit === proof.tested && summary.executionCommit === proof.tested,
+        'tooling publication requires a passing exact-commit checkpoint');
+    check(isDeepStrictEqual(summary, readCheckpointResult(root, proof.tested)),
+        'tooling checkpoint must match the imported result');
+    check(accepted && isAncestor(root, anchor, proof.tested) && isAncestor(root, proof.tested, proof.commit),
+        'tooling checkpoint must follow accepted Main and precede publication');
+    verifyToolingChanges(root, anchor, proof.tested);
+    verifyPublicationChanges(root, proof.tested, proof.commit);
+    verifyPublicMain(root, proof.commit, options);
 }
 
 export function verifyEvent(root, state, input) {
     const event = resolveEventCommits(root, input);
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
-    if (event.type === 'tooling-published') {
-        const baseline = acceptedMain(state), summary = JSON.parse(readFileSync(event.checkpoint, 'utf8'));
-        check(summary.allPassed === true && summary.commit === event.tested && summary.executionCommit === event.tested,
-            'tooling publication requires a passing exact-commit checkpoint');
-        check(isDeepStrictEqual(summary, readCheckpointResult(root, event.tested)),
-            'tooling checkpoint must match the imported result');
-        check(baseline && isAncestor(root, baseline.commit, event.tested) && isAncestor(root, event.tested, event.commit),
-            'tooling checkpoint must follow accepted Main and precede publication');
-        const changed = git(root, 'diff', '--name-only', '--no-renames', '-z', baseline.commit, event.tested).split('\0').filter(Boolean);
-        check(changed.every(path => BOOKKEEPING_FILES.includes(path) || path === 'AGENTS.md'
-            || /^(?:scripts|\.agents|\.claude|\.codex|\.github)\//u.test(path)),
-        'standalone publication accepts only tooling and bookkeeping, not game or corpus changes');
-        verifyPublicationChanges(root, event.tested, event.commit);
-        verifyPublicMain(root, event.commit);
-    }
+    if (event.type === 'tooling-published') verifyToolingPublication(root, state, event);
     if (event.type === 'prep-probe' && !state.probes[event.probe]) {
         check(git(event.worktree, 'rev-parse', '--path-format=absolute', '--git-common-dir')
             === git(root, 'rev-parse', '--path-format=absolute', '--git-common-dir'),

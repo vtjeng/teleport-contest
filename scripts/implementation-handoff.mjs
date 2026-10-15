@@ -4,7 +4,8 @@ import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {isDeepStrictEqual} from 'node:util';
-import {git, hasSubmittedSnapshot, isAncestor, preflightDelivery, readDelivery, resolveCommit, syncMain, verifyEvent, verifyPublicationChanges} from './worker-delivery.mjs';
+import {git, hasSubmittedSnapshot, isAncestor, preflightDelivery, readDelivery, resolveCommit, syncMain,
+    verifyEvent, verifyPublicationChanges, verifyToolingChanges, verifyToolingPublication} from './worker-delivery.mjs';
 import {recordEvent, summarizeLedger, updateLedger} from './worker-state.mjs';
 import {acceptedDependency, acceptedMain, pendingMainWork} from './worker-backlog.mjs';
 import {digest} from './challenge-results.mjs';
@@ -13,7 +14,8 @@ import {acceptTasks} from './accept-task.mjs';
 import {publishTask} from './task-handoff.mjs';
 import {boundedMain} from './run-bounded.mjs';
 
-const USAGE = `Usage: node scripts/implementation-handoff.mjs <plan|integrate|accept|publish|split> --ledger <shared-ledger>
+const USAGE = `Usage: node scripts/implementation-handoff.mjs <plan|integrate|bootstrap|accept|publish|split> --ledger <shared-ledger>
+  bootstrap: --checkpoint <saved-summary> --published <SHA> --tooling <comma-separated-commits>
   split: --tasks <comma-separated-task-ids>
   integrate, split: [--retain <comma-separated-coordinator-commit-ids>]
   publish: [--queue <saved-work-queue>] [--admission <hosted-receipt>]
@@ -30,11 +32,19 @@ Use --retain for tooling fixes, quality records, friction notes and prerequisite
 diagnoses already committed on the failed candidate. They are frozen in history
 order and reapplied before worker submissions on corrected rebuilds and splits.
 Worker source fixes stay in their task submissions, not the retained list.
+bootstrap starts from an imported checkpoint already published to remote Main
+when no delivery recorded that tooling baseline. Unpublished local Main edits
+and listed commits must be tooling/bookkeeping only. It applies those commits
+before the received fixes and freezes their published comparison proof. Run one
+checkpoint for the combined candidate, then use normal accept and publish.
+No new ledger event or unvalidated push is needed first. If interrupted after
+the plan is saved, resume with integrate rather than bootstrapping again.
 New arrivals wait for the next group. No worker messages or game replay occur.`;
 
 export function parseImplementationArgs(args) {
     const [phase, ...rest] = args, options = {phase};
-    const extra = {plan: [], integrate: ['retain'], accept: [], publish: ['queue', 'admission'], split: ['tasks', 'retain']};
+    const extra = {plan: [], integrate: ['retain'], bootstrap: ['checkpoint', 'published', 'tooling'],
+        accept: [], publish: ['queue', 'admission'], split: ['tasks', 'retain']};
     if (!Object.hasOwn(extra, phase)) throw new Error(USAGE);
     for (let i = 0; i < rest.length; i += 2) {
         const key = rest[i]?.slice(2);
@@ -43,6 +53,7 @@ export function parseImplementationArgs(args) {
         options[key] = rest[i + 1];
     }
     if (!options.ledger || (phase === 'split' && !options.tasks)) throw new Error(USAGE);
+    if (phase === 'bootstrap' && (!options.checkpoint || !options.published || !options.tooling)) throw new Error(USAGE);
     return options;
 }
 
@@ -92,16 +103,48 @@ export function planImplementationGroup(options, root = process.cwd()) {
         || !isAncestor(ctx.root, accepted.commit, base))
         throw new Error('start an implementation group from accepted local main');
     verifyPublicationChanges(ctx.root, accepted.commit, base);
+    return planTasks(ctx, base, accepted.checkpoint);
+}
+
+function planTasks(ctx, base, baseline) {
     const pending = pendingMainWork(ctx.state).deliveries.filter(row => row.kind === 'implementation');
     pending.sort((a, b) => b.unblocks - a.unblocks || a.since.localeCompare(b.since));
     const candidates = pending.map(row => ctx.state.tasks[row.task])
         .filter(task => task.status === 'ready' && latest(ctx.state, task).receivedAt);
     const tasks = orderTasks(ctx.state, candidates), included = new Set(tasks.map(task => task.id));
     for (const task of tasks) readDelivery(latest(ctx.state, task));
-    return {version: 1, base, baseline: accepted.checkpoint, tasks: members(ctx.state, tasks),
+    return {version: 1, base, baseline, tasks: members(ctx.state, tasks),
         held: pending.filter(row => !included.has(row.task)).map(row => ({task: row.task,
             reason: row.status !== 'ready' ? row.status : !latest(ctx.state, ctx.state.tasks[row.task]).receivedAt
                 ? 'receipt required' : 'dependency or reserved scope outside the group'}))};
+}
+
+export function bootstrapImplementationGroup(options, root = process.cwd()) {
+    const ctx = context(options, root);
+    if (git(ctx.root, 'branch', '--show-current') !== 'main' || git(ctx.root, 'status', '--porcelain')
+        || Object.values(ctx.state.tasks).some(task => ['integrating', 'validated'].includes(task.status)))
+        throw new Error('bootstrap requires clean local main and no active integration');
+    if (existsSync(git(ctx.root, 'rev-parse', '--git-path', 'CHERRY_PICK_HEAD')))
+        throw new Error('resolve the unfinished cherry-pick before bootstrapping');
+    if (existsSync(path(ctx)) && !readPlan(ctx).tasks.every(member => ctx.state.tasks[member.task]?.status === 'accepted'))
+        throw new Error('a group is already frozen; resume it with integrate');
+    const checkpoint = resolve(ctx.root, options.checkpoint), summary = JSON.parse(readFileSync(checkpoint, 'utf8'));
+    const proof = {anchor: acceptedMain(ctx.state)?.commit, tested: summary.commit,
+        commit: resolveCommit(ctx.root, options.published), checkpoint};
+    verifyToolingPublication(ctx.root, ctx.state, proof, {localTooling: true});
+    const base = git(ctx.root, 'rev-parse', 'HEAD');
+    const tooling = options.tooling.split(',').map(sha => resolveCommit(ctx.root, sha));
+    if (!tooling.length || new Set(tooling).size !== tooling.length) throw new Error('tooling commits must be nonempty and unique');
+    for (let index = 0; index < tooling.length; index++) {
+        const sha = tooling[index], parents = git(ctx.root, 'show', '-s', '--format=%P', sha).split(' ');
+        if (parents.length !== 1 || (!isAncestor(ctx.root, parents[0], base) && !tooling.slice(0, index).includes(parents[0])))
+            throw new Error('tooling commit parent must be in local main or an earlier listed tooling commit');
+        verifyToolingChanges(ctx.root, parents[0], sha);
+    }
+    const plan = {...planTasks(ctx, base, checkpoint), baselinePublication: proof, tooling};
+    if (!plan.tasks.length) return {commit: base, tasks: [], held: plan.held};
+    createCandidate(ctx, plan);
+    return integrateImplementationGroup(options, ctx.root);
 }
 
 function readPlan(ctx) {
@@ -148,7 +191,7 @@ function selectRetained(ctx, plan, requested) {
 }
 
 function applyRetained(ctx, plan) {
-    for (const sha of plan.retained ?? []) {
+    for (const sha of [...(plan.tooling ?? []), ...(plan.retained ?? [])]) {
         const parent = git(ctx.root, 'rev-parse', `${sha}^`);
         if (git(ctx.root, 'cherry', 'HEAD', sha, parent).startsWith('+')
             && !hasSubmittedSnapshot(ctx.root, sha, plan.base, 'HEAD'))
@@ -232,7 +275,8 @@ export function integrateImplementationGroup(options, root = process.cwd()) {
 export function acceptImplementationGroup(options, root = process.cwd()) {
     const ctx = context(options, root), plan = readPlan(ctx); checkSubmissions(ctx, plan);
     checkCandidateBranch(ctx, plan);
-    return {tasks: acceptTasks({...options, baseline: plan.baseline}, plan.tasks.map(member => member.task), ctx.root)};
+    return {tasks: acceptTasks({...options, baseline: plan.baseline, baselinePublication: plan.baselinePublication},
+        plan.tasks.map(member => member.task), ctx.root)};
 }
 
 export function splitImplementationGroup(options, root = process.cwd()) {
@@ -279,7 +323,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         else {
             const options = parseImplementationArgs(process.argv.slice(2));
             process.exitCode = await boundedMain('focused', () => {
-                const handlers = {plan: planImplementationGroup, integrate: integrateImplementationGroup,
+                const handlers = {plan: planImplementationGroup, integrate: integrateImplementationGroup, bootstrap: bootstrapImplementationGroup,
                     accept: acceptImplementationGroup, split: splitImplementationGroup, publish: publishImplementationGroup};
                 console.log(JSON.stringify(handlers[options.phase](options), null, 2)); return 0;
             });

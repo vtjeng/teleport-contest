@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { acceptedMain } from './worker-backlog.mjs';
 import { summarizeLedger } from './worker-state.mjs';
-import { git, isAncestor, validateHistoricalEvaluation } from './worker-delivery.mjs';
+import { git, isAncestor, validateHistoricalEvaluation, verifyToolingPublication } from './worker-delivery.mjs';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { evaluationBatch, readChallengeBatches, readEvaluation } from './challenge-results.mjs';
 import { loadEvaluationDirectory, compareChallengeBatches } from './compare-challenge-evaluations.mjs';
@@ -74,14 +74,20 @@ export function reviewTasks(options, taskIds, root = process.cwd()) {
     const baselineDelivery = Object.values(state.deliveries).find(d => d.acceptedAt
         && (d.checkpoint === baselinePath || d.supplementalCheckpoint === baselinePath));
     const tooling = state.toolingPublications.find(publication => publication.checkpoint === baselinePath);
-    if (!baselinePath || (!baselineDelivery && !tooling))
+    const bootstrap = options.baselinePublication;
+    if (bootstrap) {
+        if (bootstrap.checkpoint !== baselinePath) throw new Error('bootstrap proof differs from the frozen checkpoint');
+        verifyToolingPublication(root, state, bootstrap, {localTooling: true});
+    }
+    if (!baselinePath || (!baselineDelivery && !tooling && !bootstrap))
         throw new Error('baseline must identify an accepted checkpoint in the shared ledger');
     const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
     const accepted = baselineDelivery
         ? baselineDelivery.checkpoint === baselinePath ? baselineDelivery.integration === baseline.commit
             : baselineDelivery.publishedCommit && isAncestor(root, baselineDelivery.integration, baseline.commit)
                 && isAncestor(root, baseline.commit, baselineDelivery.publishedCommit)
-        : tooling.tested === baseline.commit && isAncestor(root, baseline.commit, tooling.commit);
+        : tooling ? tooling.tested === baseline.commit && isAncestor(root, baseline.commit, tooling.commit)
+            : bootstrap.tested === baseline.commit;
     if (baseline.allPassed !== true || !isAncestor(root, baseline.commit, candidate) || !accepted)
         throw new Error('baseline checkpoint differs from its accepted integration');
     const candidateDirectory = options.evaluations ? resolve(root, options.evaluations) : join(summary.artifacts, 'synthetic');
