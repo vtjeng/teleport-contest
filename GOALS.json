@@ -316897,6 +316897,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-v76-shop-chest-billing-breakchestlock-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement breakchestlock from lock.c",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v76/v76-shop-chest-force-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v76-shop-chest-lock-picking-billing-action2-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "breakchestlock",
+      "session": "synthetic/v76/v76-shop-chest-force-action2"
     }
   ]
 }
