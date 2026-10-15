@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T03:52:52.901Z",
+  "capturedAt": "2026-10-15T04:10:15.739Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -131490,6 +131490,215 @@
         "type": "accepted",
         "at": "2026-10-15T03:51:15.264Z",
         "task": "C-investigation-v79-amulet-portal-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-v79-topten-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:53:01.150Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Investigating the remaining step-574 wizard score-list message after the disclosure fix was accepted."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-assign-v79-topten-followup-20261015",
+        "type": "assign",
+        "at": "2026-10-15T03:53:08.014Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v79-candle-lit-action2-20261015-84b0fb0a207a8d5ef6672bedd0d1d6e59711e116",
+        "type": "published",
+        "at": "2026-10-15T03:53:30.321Z",
+        "task": "B-investigation-v79-candle-lit-action2-20261015",
+        "commit": "84b0fb0a207a8d5ef6672bedd0d1d6e59711e116"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v79-demon-talk-20261015-84b0fb0a207a8d5ef6672bedd0d1d6e59711e116",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T03:53:34.329Z",
+        "task": "A2-investigation-v79-demon-talk-20261015",
+        "commit": "84b0fb0a207a8d5ef6672bedd0d1d6e59711e116",
+        "knownBy": "2026-10-15T03:53:30.321Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v79-wrong-altar-amulet-action6-20261015-84b0fb0a207a8d5ef6672bedd0d1d6e59711e116",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T03:53:35.851Z",
+        "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
+        "commit": "84b0fb0a207a8d5ef6672bedd0d1d6e59711e116",
+        "knownBy": "2026-10-15T03:53:30.321Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v79-amulet-portal-action2-20261015-84b0fb0a207a8d5ef6672bedd0d1d6e59711e116",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T03:53:37.443Z",
+        "task": "C-investigation-v79-amulet-portal-action2-20261015",
+        "commit": "84b0fb0a207a8d5ef6672bedd0d1d6e59711e116",
+        "knownBy": "2026-10-15T03:53:30.321Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-1ca14a17d90117f52d1d1cdb38f198441e557c30c0bad24e463bad900d5bf5c7-b34e034e6768aa98029f725e7b88ce28d35e71ae-Prep45",
+        "type": "integrating",
+        "at": "2026-10-15T03:54:36.715Z",
+        "task": "Prep45",
+        "integration": "b34e034e6768aa98029f725e7b88ce28d35e71ae",
+        "prepGroup": [
+          "Prep45"
+        ],
+        "validationGroup": [
+          "Prep45"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep46-v82-source-planning-20261015",
+        "type": "turn",
+        "at": "2026-10-15T03:54:58.807Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep46 is planning v82 scroll effects under Confusion,curses and inventory conditions. Thirty source designs are frozen before gameplay; prior covered routes are being excluded. No validation hold or active blocker."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep45-checkpoint-wait-root",
+        "type": "activity",
+        "at": "2026-10-15T03:55:12.369Z",
+        "task": "Prep45",
+        "phase": "waiting",
+        "reason": "Hosted checkpoint38678718469 is validating the exact v81 preparation candidate before admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v79-topten-noreturn-20261015",
+        "type": "implement",
+        "at": "2026-10-15T03:58:01.324Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "goal": "fix-v79-real-amulet-noreturn-caller-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7a4ef43bc10d62c9e1461546496ae6bebe2181af",
+        "type": "ready",
+        "at": "2026-10-15T04:02:00.065Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "delivery": "7a4ef43bc10d62c9e1461546496ae6bebe2181af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-v79-step574-submitted-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:02:20.008Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "V79 final screen fix is submitted with exact replay and source evidence. Remaining current queue candidates are owned or blocked; awaiting an independent admitted case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b-v79-terminal-7a4ef43b",
+        "type": "received",
+        "at": "2026-10-15T04:02:47.432Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "delivery": "7a4ef43bc10d62c9e1461546496ae6bebe2181af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep45-b34e034e6768aa98029f725e7b88ce28d35e71ae",
+        "type": "validated",
+        "at": "2026-10-15T04:04:18.940Z",
+        "task": "Prep45",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep45-b34e034e6768aa98029f725e7b88ce28d35e71ae",
+        "type": "accepted",
+        "at": "2026-10-15T04:04:18.940Z",
+        "task": "Prep45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-b-v79-terminal-bounded-checks",
+        "type": "feedback",
+        "at": "2026-10-15T04:04:34.762Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "delivery": "7a4ef43bc10d62c9e1461546496ae6bebe2181af"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep45-admission-root",
+        "type": "activity",
+        "at": "2026-10-15T04:05:26.758Z",
+        "task": "Prep45",
+        "phase": "admission",
+        "reason": "Accepted v81 manifest is entering hosted new-case baseline evaluation; local preparation launches are released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-resume-v79-topten-bounded-correction-20261015",
+        "type": "resume",
+        "at": "2026-10-15T04:06:42.202Z",
+        "task": "B-investigation-v79-topten-step574-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fbe52cb9dc128691412caeaf8415b39adf1814a8",
+        "type": "ready",
+        "at": "2026-10-15T04:06:48.782Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "delivery": "fbe52cb9dc128691412caeaf8415b39adf1814a8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-idle-v79-topten-bounded-ready-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:06:59.290Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Resubmitted the v79 fix with bounded check receipts. No independent queue case is available; waiting for the next eligible case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-b-v79-terminal-fbe52cb9",
+        "type": "received",
+        "at": "2026-10-15T04:07:13.682Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "delivery": "fbe52cb9dc128691412caeaf8415b39adf1814a8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep45-75c49777e238652f165b19fd8466c7048768fc05",
+        "type": "activity",
+        "at": "2026-10-15T04:08:53.649Z",
+        "task": "Prep45",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep45-75c49777e238652f165b19fd8466c7048768fc05",
+        "type": "activity",
+        "at": "2026-10-15T04:08:54.596Z",
+        "task": "Prep45",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep46-v82-replay-boundary-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:09:41.720Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep46 has24 C pairs and17 byte-identical independent replays. Completing source and coverage checks while Root imports the v81 baseline;new validation launches are held."
       }
     ]
   },
@@ -131507,14 +131716,13 @@
         "unblocks": 0
       },
       {
-        "task": "Prep45",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "worker": "B",
+        "goal": "fix-v79-real-amulet-noreturn-caller-20261015",
+        "kind": "implementation",
         "status": "ready",
-        "delivery": "2d0aed52a284cf87d10e99de5b54e73f8e96732b",
-        "batch": "v81",
-        "since": "2026-10-15T03:48:34.828Z",
+        "delivery": "fbe52cb9dc128691412caeaf8415b39adf1814a8",
+        "since": "2026-10-15T04:06:48.782Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -132691,6 +132899,17 @@
           "source:invent.c:hold_another_object",
           "source:pickup.c:encumber_msg"
         ]
+      },
+      "B-investigation-v79-topten-step574-20261015": {
+        "id": "B-investigation-v79-topten-step574-20261015",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v79/v79-wrong-altar-amulet-action6",
+        "reservations": [
+          "session:synthetic/v79/v79-wrong-altar-amulet-action6",
+          "source:pray.c:dosacrifice",
+          "source:pray.c:offer_real_amulet"
+        ]
       }
     },
     "reservations": {
@@ -132713,12 +132932,27 @@
         "tasks": [
           "A2-investigation-v80-writing-label-action1-20261015"
         ]
+      },
+      "session:synthetic/v79/v79-wrong-altar-amulet-action6": {
+        "tasks": [
+          "B-investigation-v79-topten-step574-20261015"
+        ]
+      },
+      "source:pray.c:dosacrifice": {
+        "tasks": [
+          "B-investigation-v79-topten-step574-20261015"
+        ]
+      },
+      "source:pray.c:offer_real_amulet": {
+        "tasks": [
+          "B-investigation-v79-topten-step574-20261015"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
-    "measuredAt": "2026-10-15T03:45:51.540Z",
+    "executionCommit": "b34e034e6768aa98029f725e7b88ce28d35e71ae",
+    "measuredAt": "2026-10-15T03:59:59.954Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
