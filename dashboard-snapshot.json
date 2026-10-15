@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T00:26:57.441Z",
+  "capturedAt": "2026-10-15T00:39:21.182Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -129718,30 +129718,265 @@
         "type": "accepted",
         "at": "2026-10-15T00:25:05.829Z",
         "task": "B-investigation-v74-offhand-sting-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v74-glib-tin-stack-action1-20261014-4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "type": "published",
+        "at": "2026-10-15T00:27:11.758Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "commit": "4d8c90edf0684794fd1e81bbf0e4347541522dd5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v74-cockatrice-trapper-engulf-action2-20261014-4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T00:27:16.430Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "commit": "4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "knownBy": "2026-10-15T00:27:11.758Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v74-jelly-carrier-burial-action6-20261014-4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T00:27:17.940Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "commit": "4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "knownBy": "2026-10-15T00:27:11.758Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-C-investigation-v74-wield-quiver-split-action2-20261014-4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T00:27:19.461Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "commit": "4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "knownBy": "2026-10-15T00:27:11.758Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v74-offhand-sting-action2-20261014-4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T00:27:20.976Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "commit": "4d8c90edf0684794fd1e81bbf0e4347541522dd5",
+        "knownBy": "2026-10-15T00:27:11.758Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-counted-wield-resume-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:27:25.904Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-counted-wield-20261015",
+        "type": "resume",
+        "at": "2026-10-15T00:27:30.123Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v74-counted-wield-stack-20261015",
+        "type": "implement",
+        "at": "2026-10-15T00:27:45.240Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "goal": "fix-counted-wield-stack-dowield-v74-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-2130ac12f949da1411394fc6ecd71658f4d071d6-81f43f4566e0899ced623a234c621bc3f33be6a682c494d35730bedd0454bda1-C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:28:08.631Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "integration": "2130ac12f949da1411394fc6ecd71658f4d071d6",
+        "validationGroup": [
+          "C-investigation-v75-contained-figurine-stash-action2-20261014",
+          "A2-investigation-v75-prisoner-release-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-2130ac12f949da1411394fc6ecd71658f4d071d6-81f43f4566e0899ced623a234c621bc3f33be6a682c494d35730bedd0454bda1-A2-investigation-v75-prisoner-release-action3-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:28:08.631Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "integration": "2130ac12f949da1411394fc6ecd71658f4d071d6",
+        "validationGroup": [
+          "C-investigation-v75-contained-figurine-stash-action2-20261014",
+          "A2-investigation-v75-prisoner-release-action3-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9c4079ef12f0502713622413682927dced98f825",
+        "type": "ready",
+        "at": "2026-10-15T00:28:35.087Z",
+        "task": "Prep40",
+        "delivery": "9c4079ef12f0502713622413682927dced98f825"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep41-v77-20261015",
+        "type": "assign",
+        "at": "2026-10-15T00:29:44.848Z",
+        "task": "Prep41",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v77"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep40-final-packet-review-9c4079ef",
+        "type": "activity",
+        "at": "2026-10-15T00:29:49.164Z",
+        "task": "Prep40",
+        "phase": "review",
+        "reason": "Checking final static coverage and immutable evidence for the approved reduced v76 batch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-Prep40-9c4079ef",
+        "type": "received",
+        "at": "2026-10-15T00:29:52.713Z",
+        "task": "Prep40",
+        "delivery": "9c4079ef12f0502713622413682927dced98f825"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep40-verified-waiting-safe-boundary-9c4079ef",
+        "type": "activity",
+        "at": "2026-10-15T00:31:34.689Z",
+        "task": "Prep40",
+        "phase": "waiting",
+        "reason": "The reduced v76 packet and saved evidence are verified; awaiting the active implementation checkpoint before the next integration boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7086408e77a2aeb5e20689dc3e70620f268f5efb",
+        "type": "ready",
+        "at": "2026-10-15T00:32:08.128Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "delivery": "7086408e77a2aeb5e20689dc3e70620f268f5efb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bf4f1b67d39871e88b6f9bc460af437cd404883f",
+        "type": "ready",
+        "at": "2026-10-15T00:32:13.547Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "delivery": "bf4f1b67d39871e88b6f9bc460af437cd404883f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-counted-submitted-no-unowned-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:32:34.098Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-idle-after-v75-20261015T003234Z",
+        "type": "turn",
+        "at": "2026-10-15T00:32:42.612Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "Submitted v75 ustatusline; current admitted mismatches are reserved by A2/C or blocked at v48. Waiting for a new independent baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep41-v77-source-plan-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:35:08.473Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v77: replacing previously covered source branches before independent game recordings."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B-v75-ustatusline-7086408e",
+        "type": "received",
+        "at": "2026-10-15T00:35:11.314Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "delivery": "7086408e77a2aeb5e20689dc3e70620f268f5efb"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v74-counted-bf4f1b67",
+        "type": "received",
+        "at": "2026-10-15T00:35:14.713Z",
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "delivery": "bf4f1b67d39871e88b6f9bc460af437cd404883f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v75-contained-figurine-stash-action2-20261014-2130ac12f949da1411394fc6ecd71658f4d071d6-validated",
+        "type": "validated",
+        "at": "2026-10-15T00:37:38.258Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v75-prisoner-release-action3-20261014-2130ac12f949da1411394fc6ecd71658f4d071d6-validated",
+        "type": "validated",
+        "at": "2026-10-15T00:37:38.258Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v75-contained-figurine-stash-action2-20261014-2130ac12f949da1411394fc6ecd71658f4d071d6-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T00:38:08.512Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v75-prisoner-release-action3-20261014-2130ac12f949da1411394fc6ecd71658f4d071d6-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T00:38:08.512Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
-        "worker": "C",
-        "goal": "wire-in-container-figurine-timer-stop-v75",
-        "kind": "implementation",
+        "task": "Prep40",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "1a47d3419c3ca8d3f657ce0c9e9f473ea9427a77",
-        "since": "2026-10-15T00:18:22.607Z",
+        "delivery": "9c4079ef12f0502713622413682927dced98f825",
+        "batch": "v76",
+        "since": "2026-10-15T00:28:35.087Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
-        "worker": "A2",
-        "goal": "fix-prisoner-release-speech-v75-20261014",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "worker": "B",
+        "goal": "fix-v75-glib-self-stethoscope-ustatusline-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "5ed659df2471fd947772d039c6d9046c83a0660d",
-        "since": "2026-10-15T00:19:40.771Z",
+        "delivery": "7086408e77a2aeb5e20689dc3e70620f268f5efb",
+        "since": "2026-10-15T00:32:08.128Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
+        "worker": "C",
+        "goal": "fix-counted-wield-stack-dowield-v74-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "bf4f1b67d39871e88b6f9bc460af437cd404883f",
+        "since": "2026-10-15T00:32:13.547Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -130332,17 +130567,6 @@
         "since": "2026-10-14T06:30:28.196Z",
         "blockedBy": [],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
-      },
-      {
-        "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-15T00:13:47.049Z",
-        "blockedBy": [],
-        "reason": "Source-traced at 946f9d8ef: invent.c:getobj splits the count, then wield.c:dowield should finish_splitting the child and continue to wielding. Implementation awaits release of source:wield.c:dowield reserved by C’s submitted quiver delivery 2b4144ab; resume after acceptance/release."
       }
     ]
   },
@@ -130921,47 +131145,35 @@
       "C-investigation-v74-counted-wield-stack-action1-20261014": {
         "id": "C-investigation-v74-counted-wield-stack-action1-20261014",
         "worker": "C",
-        "status": "parked",
+        "status": "ready",
         "seed": "synthetic/v74/v74-counted-wield-stack-action1",
         "reservations": [
-          "session:synthetic/v74/v74-counted-wield-stack-action1"
-        ],
-        "reason": "Source-traced at 946f9d8ef: invent.c:getobj splits the count, then wield.c:dowield should finish_splitting the child and continue to wielding. Implementation awaits release of source:wield.c:dowield reserved by C’s submitted quiver delivery 2b4144ab; resume after acceptance/release."
+          "session:synthetic/v74/v74-counted-wield-stack-action1",
+          "source:wield.c:dowield"
+        ]
       },
       "B-investigation-v75-glib-self-stethoscope-action1-20261015": {
         "id": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
         "worker": "B",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v75/v75-glib-self-stethoscope-action1",
         "reservations": [
           "session:synthetic/v75/v75-glib-self-stethoscope-action1",
           "source:insight.c:ustatusline"
         ]
-      },
-      "A2-investigation-v75-prisoner-release-action3-20261014": {
-        "id": "A2-investigation-v75-prisoner-release-action3-20261014",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v75/v75-prisoner-release-action3",
-        "reservations": [
-          "session:synthetic/v75/v75-prisoner-release-action3",
-          "source:quest.c:prisoner_speaks",
-          "source:quest.c:quest_talk"
-        ]
-      },
-      "C-investigation-v75-contained-figurine-stash-action2-20261014": {
-        "id": "C-investigation-v75-contained-figurine-stash-action2-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v75/v75-contained-figurine-stash-action2",
-        "reservations": [
-          "session:synthetic/v75/v75-contained-figurine-stash-action2",
-          "source:pickup.c:in_container",
-          "contract:inventory-timer-hooks"
-        ]
       }
     },
     "reservations": {
+      "session:synthetic/v74/v74-counted-wield-stack-action1": {
+        "tasks": [
+          "C-investigation-v74-counted-wield-stack-action1-20261014"
+        ]
+      },
+      "source:wield.c:dowield": {
+        "tasks": [
+          "C-investigation-v74-counted-wield-stack-action1-20261014"
+        ]
+      },
       "session:synthetic/v75/v75-glib-self-stethoscope-action1": {
         "tasks": [
           "B-investigation-v75-glib-self-stethoscope-action1-20261015"
@@ -130971,42 +131183,12 @@
         "tasks": [
           "B-investigation-v75-glib-self-stethoscope-action1-20261015"
         ]
-      },
-      "session:synthetic/v75/v75-prisoner-release-action3": {
-        "tasks": [
-          "A2-investigation-v75-prisoner-release-action3-20261014"
-        ]
-      },
-      "source:quest.c:prisoner_speaks": {
-        "tasks": [
-          "A2-investigation-v75-prisoner-release-action3-20261014"
-        ]
-      },
-      "source:quest.c:quest_talk": {
-        "tasks": [
-          "A2-investigation-v75-prisoner-release-action3-20261014"
-        ]
-      },
-      "session:synthetic/v75/v75-contained-figurine-stash-action2": {
-        "tasks": [
-          "C-investigation-v75-contained-figurine-stash-action2-20261014"
-        ]
-      },
-      "source:pickup.c:in_container": {
-        "tasks": [
-          "C-investigation-v75-contained-figurine-stash-action2-20261014"
-        ]
-      },
-      "contract:inventory-timer-hooks": {
-        "tasks": [
-          "C-investigation-v75-contained-figurine-stash-action2-20261014"
-        ]
       }
     }
   },
   "development": {
-    "executionCommit": "94076a170b2c082e696e612344ca6e67f122cd2d",
-    "measuredAt": "2026-10-15T00:20:33.031Z",
+    "executionCommit": "2130ac12f949da1411394fc6ecd71658f4d071d6",
+    "measuredAt": "2026-10-15T00:33:36.284Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

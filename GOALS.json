@@ -316093,7 +316093,7 @@
     {
       "id": "wire-in-container-figurine-timer-stop-v75",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement in_container from pickup.c",
       "cFile": "pickup.c",
       "sessions": [
@@ -316103,15 +316103,81 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "2130ac12f949da1411394fc6ecd71658f4d071d6",
       "delivered": null,
       "function": "in_container",
-      "session": "synthetic/v75/v75-contained-figurine-stash-action2"
+      "session": "synthetic/v75/v75-contained-figurine-stash-action2",
+      "closeStanding": {
+        "sha": "2130ac12f949da1411394fc6ecd71658f4d071d6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "target": "synthetic/v75/v75-contained-figurine-stash-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/2130ac12f949da1411394fc6ecd71658f4d071d6/run-hosted-99T1lS/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "in_container",
+            "implementation": "js/pickup.js",
+            "symbol": "in_container",
+            "sourceReview": "Read pickup.c:in_container() (2558-2710) and invent.c:freeinv_core() (1364-1399). C validates the item and container, calls freeinv before burning/billing/container-specific work, then inserts it. freeinv_core stops FIG_TRANSFORM for a timed FIGURINE. JS freeinv_core already enforces this operation through stopFigurineTimer, but the in_container call supplied only state, producing UnsupportedObjectOperationError for the recorded stash. The caller now provides the hook backed by timeout.js:stop_timer(FIG_TRANSFORM,...).",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "pickup.c:use_container obtains the selected stash item and calls pickup.c:in_container."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v75",
+                "caseId": "v75-contained-figurine-stash-action2",
+                "segment": 0,
+                "fromStep": 310,
+                "throughStep": 392,
+                "source": "The admitted case selects and stashes a cursed timed figurine. The caller hook cancels FIG_TRANSFORM and the complete segment matches through its final recorded step."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The command entry is pickup.c:use_container -> pickup.c:in_container -> invent.c:freeinv -> invent.c:freeinv_core. The admitted v75 case stashes a cursed timed figurine into a bag at segment 0 step 310. C cancels FIG_TRANSFORM before completing the insertion; JS now supplies the existing timer hook. The complete corrected segment matches.",
+        "entryPoints": [
+          {
+            "name": "Stash a timed figurine into a container",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "in_container"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v75",
+                "caseId": "v75-contained-figurine-stash-action2",
+                "segment": 0,
+                "fromStep": 310,
+                "throughStep": 392,
+                "source": "The admitted case selects and stashes a cursed timed figurine. The caller hook cancels FIG_TRANSFORM and the complete segment matches through its final recorded step."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-prisoner-release-speech-v75-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement prisoner_speaks, quest_talk from quest.c",
       "cFile": "quest.c",
       "sessions": [
@@ -316121,10 +316187,108 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "2130ac12f949da1411394fc6ecd71658f4d071d6",
       "delivered": null,
       "function": "prisoner_speaks",
-      "session": "synthetic/v75/v75-prisoner-release-action3"
+      "session": "synthetic/v75/v75-prisoner-release-action3",
+      "closeStanding": {
+        "sha": "2130ac12f949da1411394fc6ecd71658f4d071d6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "target": "synthetic/v75/v75-prisoner-release-action3",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/2130ac12f949da1411394fc6ecd71658f4d071d6/run-hosted-99T1lS/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "prisoner_speaks",
+            "implementation": "js/quest.js",
+            "symbol": "prisoner_speaks",
+            "sourceReview": "Read quest.c:prisoner_speaks() lines 451-468 in source order. It first requires exact PM_PRISONER identity and STRAT_WAITMASK, prints the visible-speaker line only when canseemon is true, then calls SetVoice (a no-op in the reference recorder build), verbalizes the release line, clears STRAT_WAITMASK, sets peacefulness, raises alignment by 3, and finally calls angry_guards(FALSE). The JavaScript branch preserves that order and awaits its output and guard side effects. quest.c:quest_talk() discards this helper's void result.",
+            "callers": [
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_talk",
+                "source": "quest.c:quest_talk dispatches MS_DJINNI to prisoner_speaks(mtmp) (lines 504-507)."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug calls quest_talk for a mobile, awake STRAT_CLOSE monster within monnear() while the monster is in STRAT_WAITMASK (lines 720-722)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-prisoner-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v75",
+                "caseId": "v75-prisoner-release-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 194,
+                "source": "monmove.c:dochug waiting STRAT_CLOSE gate -> quest.c:quest_talk MS_DJINNI arm -> prisoner_speaks; the visible adjacent prisoner speaks, exits its waiting strategy, becomes peaceful, and adjusts alignment"
+              }
+            ]
+          },
+          {
+            "name": "quest_talk",
+            "implementation": "js/quest.js",
+            "symbol": "quest_talk",
+            "sourceReview": "Read all of quest.c:quest_talk() lines 495-511. It dispatches quest leaders first, then MS_NEMESIS to nemesis_speaks, MS_DJINNI to prisoner_speaks, and otherwise returns silently. The existing leader and nemesis branches remain intact; this task replaces the MS_DJINNI note_unported gap with the source-complete prisoner_speaks call.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:dochug's wait-mask path calls quest_talk after STRAT_CLOSE, awake, and proximity checks (720-722); its ordinary post-action path calls quest_talk when !helpless(mtmp) && nearby (981)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quest-prisoner-talk.test.mjs",
+              "scripts/quest-nemesis-talk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v75",
+                "caseId": "v75-prisoner-release-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 194,
+                "source": "monmove.c:dochug -> quest.c:quest_talk -> prisoner_speaks for the adjacent waiting prisoner"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is a nearby peaceful prisoner with STRAT_CLOSE/STRAT_WAITMASK receiving its first allocated monster action. monmove.c:dochug reaches quest_talk from the wait-mask branch after mobile, awake, proximity checks; quest.c dispatches MS_DJINNI to prisoner_speaks. The admitted v75 recording exercises the C-produced prisoner setup and matches through the full segment after this repair. The other active quest_talk caller is its ordinary post-action nearby speech gate; the same dispatcher is source-wired there, while this case's prisoner preconditions make the waiting gate the relevant entry point.",
+        "entryPoints": [
+          {
+            "name": "An adjacent waiting prisoner speaks on its allocated turn",
+            "functions": [
+              "quest_talk",
+              "prisoner_speaks"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v75",
+                "caseId": "v75-prisoner-release-action3",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 194,
+                "source": "monmove.c:dochug wait-mask branch -> quest_talk -> prisoner_speaks"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
