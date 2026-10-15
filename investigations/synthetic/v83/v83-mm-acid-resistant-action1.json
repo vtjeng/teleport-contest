@@ -89,13 +89,13 @@
     "Source inspection confirms the missing implementation is uhitm.c:mhitm_ad_acid and the production gap is the AD_ACID refusal in js/uhitm.js:mhitm_adtyping. The other damage-type arms in that dispatcher are already routed to source-named implementations. The implementation must remove this refusal and wire the ported function through the same dispatcher.",
     "The admitted v83 recording is the only cited runtime range for this helper: segment 0 steps 1304-1305 pass through the mhitm.c:mattackm -> hitmm -> mdamagem caller and exercise the resistant monster-versus-monster branch. The source-correct output and both acid checks match.",
     "Hero-attacker and hero-defender branches are implemented from C but lack matching production ranges. The previously attempted v33 ochre-jelly attack reaches uhitm.c:gulpum, not mhitm_ad_acid. The two blocked hero-defender recipes document why the ordinary AT_ENGL route uses mhitu.c:gulpmu and why the unstuck mspec_used cooldown is decremented by mcalcdistress -> mon_regen before the next attack. No range from those attempts is claimed.",
-    "The implementation and source-pinned test are in commit 2e5fb2e3d20bb558a71ba20a14f2be7b5b39b72f. Focused test `node --test scripts/uhitm-ad-acid.test.mjs` passed five tests; `npm run lint` passed.",
+    "The implementation and source-pinned test are in commit 2e5fb2e3d298341b1729057b57f6d5a682a0448c. Focused test `node --test scripts/uhitm-ad-acid.test.mjs` passed five tests; `npm run lint` passed.",
     "Required range verification `node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json` matched v83/v83-mm-acid-resistant-action1 segment 0 through step 1305 on the current implementation. The full selected recipe replay also matched all recorded screens, RNG calls and cursors (run-JHXceh).",
     "The source-pinned tests directly check the helper branches but are not production runtime evidence. The blocked hero-defender recipes are recipes/uhitm.c/mhitm-ad-acid-hero-defender-blocked-wizard.session.json and recipes/uhitm.c/mhitm-ad-acid-hero-defender-blocked-monk-variation.session.json; no recording from either attempt is cited."
   ],
   "implementation": {
     "file": "js/uhitm.js",
     "function": "mhitm_ad_acid",
-    "commit": "2e5fb2e3d20bb558a71ba20a14f2be7b5b39b72f"
+    "commit": "2e5fb2e3d298341b1729057b57f6d5a682a0448c"
   }
 }
