@@ -317436,6 +317436,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-writing-label-encumbermessage-v80-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dowrite from write.c",
+      "cFile": "write.c",
+      "sessions": [
+        "synthetic/v80/v80-writing-label-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v80-writing-label-action1-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dowrite",
+      "session": "synthetic/v80/v80-writing-label-action1"
+    },
+    {
+      "id": "fix-v79-real-amulet-noreturn-caller-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dosacrifice from pray.c",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v79/v79-wrong-altar-amulet-action6"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v79-topten-step574-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dosacrifice",
+      "session": "synthetic/v79/v79-wrong-altar-amulet-action6"
     }
   ]
 }
