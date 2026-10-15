@@ -140,6 +140,40 @@ and admission gates.
   changes do not need it when focused tests cover the renderer's input
   contract.
 
+## Fresh-ledger baseline
+
+When no runtime history was recovered, `queue.initialBase` permits exploration
+after a current queue refresh but does not supply an accepted comparison or
+implementation baseline. Before the first Prep submission, Work lead can
+observe an already tested and published initial tooling baseline:
+
+`node scripts/initial-baseline.mjs --ledger <absolute-shared-ledger> --commit <published-SHA> --checkpoint <archived-summary.json>`
+
+Run from the actual Work lead checkout root after its normal complete validation
+and successful publication. Local and remote `main` must exactly match the
+checkpoint's commit and execution commit. Use the original archived
+`summary.json`, matching that commit's latest imported result; failed, reused,
+missing, altered, or nonarchived evidence is refused. The queue must be enabled
+with no accepted delivery/tooling history or active integration. The publication
+must equal `queue.initialBase` or descend through tooling/bookkeeping-only
+changes; game and corpus changes, including reverted intervening changes, are
+refused.
+
+The command hash-freezes the exact checkpoint bytes beside the shared ledger,
+then atomically records a genuine existing `tooling-published` observation.
+It creates no task, delivery, score, or fictional acceptance. Exact retries keep
+the original event and timestamp and reject changed proof. Existing ledger
+readers remain compatible; ordinary `tooling-published` and implementation
+bootstrap retain their earlier-accepted-anchor requirement.
+
+If the observed publication follows the original queue base, saved queue
+evidence becomes stale. Work lead refreshes it and explicitly reassesses pending
+assignments at safe boundaries; active claims and original comparison bases are
+preserved. For an included case whose saved comparison names the old unaccepted
+base, run only the JavaScript comparison of its unchanged C recording in a
+verified scoring workspace at the observed publication. Preserve old packets,
+logs and hashes; do not repeat C recording to update JavaScript provenance.
+
 ## Implementation acceptance groups
 
 At a safe boundary, acknowledge all ready implementation submissions and

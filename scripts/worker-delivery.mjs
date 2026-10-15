@@ -476,7 +476,7 @@ export function verifyToolingChanges(root, base, head) {
     'standalone publication accepts only tooling and bookkeeping, not game or corpus changes');
 }
 
-function verifyPublicMain(root, commit, {localTooling = false} = {}) {
+export function verifyPublicMain(root, commit, {localTooling = false} = {}) {
     const main = resolveCommit(root, 'refs/heads/main');
     if (localTooling) {
         check(isAncestor(root, commit, main), 'local main must contain the published tooling baseline');

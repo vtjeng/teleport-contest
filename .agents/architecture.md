@@ -245,6 +245,19 @@ node scripts/work-queue.mjs refresh --queue <saved-combined-mismatch-queue.json>
 node scripts/work-queue.mjs next --file <absolute-ledger>
 ```
 
+If a fresh ledger has no accepted baseline, observe an already validated and
+published initial tooling commit with
+`node scripts/initial-baseline.mjs --ledger <absolute-ledger> --commit <published-SHA> --checkpoint <archived-summary.json>`.
+This requires the enabled queue, no prior accepted history or active integration,
+an exact passing execution checkpoint, and matching local and remote `main`.
+The publication may equal `queue.initialBase` or follow it through tooling and
+bookkeeping changes only. The command hash-freezes its checkpoint beside the
+ledger and emits the existing `tooling-published` event; it invents no delivery
+or acceptance and leaves claims and original bases unchanged. Exact retries are
+idempotent. Ordinary tooling publication and implementation bootstrap still
+require an earlier accepted anchor. See `.agents/validation.md`, "Fresh-ledger
+baseline", for refresh and comparison handoff.
+
 Refresh verifies admitted-batch membership and current recorded evaluations
 at accepted base HEAD. It enqueues unresolved implementation sessions,
 including investigated ones, rechecks pending imported sessions, and retires
