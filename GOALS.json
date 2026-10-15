@@ -316679,6 +316679,43 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-v76-minetown-lighting-shop-izchak-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement nameshk from shknam.c",
+      "cFile": "shknam.c",
+      "sessions": [
+        "synthetic/v76/v76-shop-chest-force-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v76-shop-chest-force-action2-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "nameshk",
+      "session": "synthetic/v76/v76-shop-chest-force-action2"
+    },
+    {
+      "id": "fix-detect-dosearch0-v76-statue-and-swallowed-search-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dosearch0 from detect.c",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v76/v76-statue-search-action2",
+        "synthetic/v76/v76-swallowed-explicit-search-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v76-search-actions2-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dosearch0",
+      "session": "synthetic/v76/v76-statue-search-action2"
     }
   ]
 }
