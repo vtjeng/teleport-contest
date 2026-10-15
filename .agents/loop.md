@@ -59,9 +59,11 @@ threads. The dashboard continues to show those roles; the conversation and
 process agents do not acquire worker rows merely to reserve slots.
 
 Rebalance at deliveries, completed probes, validation boundaries, or concrete
-blockers. Before granting a newly available slot, count distinct eligible,
-unstarted sessions in the current saved combined queue using its corpus/batch
-identities and the shared ledger. A session already claimed for investigation
+blockers. Before granting a newly available slot, run `worker-state.mjs next
+--queue <latest-saved-combined-queue.json>` and read
+`workerWork.unstartedSessions` and `workerWork.allocation`. These count distinct
+eligible, unstarted sessions using canonical corpus/batch identities and the
+shared ledger. A session already claimed for investigation
 or implementation is started, including parked work and submitted deliveries;
 an existing valid investigation also means work has started. Exclude blocked
 or reserved sessions. Count sessions, not source groups, goals, or workers.

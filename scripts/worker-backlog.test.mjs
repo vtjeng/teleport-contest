@@ -108,6 +108,46 @@ const queue = sessions => ({ mode: 'work', sessions, blockers: [], selectionBloc
 const sourceCase = (session, fn) => ({ session, investigation: { status: 'complete',
     result: { source: { file: 'spell.c', functions: [fn] } } } });
 
+test('allocation prefers Prep below five distinct unstarted sessions and permits implementation at five', () => {
+    const state = availabilityFixture();
+    const entries = Array.from({length: 5}, (_, index) => ({session: `synthetic/v1/case-${index}`}));
+    for (const count of [0, 4, 5]) {
+        const work = nextActions(state, [], queue(entries.slice(0, count))).workerWork;
+        assert.equal(work.unstartedSessions, count);
+        assert.deepEqual(work.allocation, {threshold: 5,
+            action: count < 5 ? 'prefer-preparation' : 'implementation-permitted'});
+    }
+    assert.equal(workerWork(state, queue([...entries, entries[0]])).unstartedSessions, 5);
+    const differentBatch = {...entries[0], session: 'synthetic/v2/case-0'};
+    assert.equal(workerWork(state, queue([...entries, differentBatch])).unstartedSessions, 6);
+});
+
+test('allocation excludes previously started, investigated and reserved sessions without changing candidate groups', () => {
+    const state = availabilityFixture();
+    add(state, 'old-task', 'accepted');
+    state.tasks['old-task'].seed = 'old-session';
+    state.tasks['old-task'].reservations = ['session:related-session'];
+    state.reservations['session:reserved-session'] = {tasks: ['pending'], worker: 'B'};
+    const work = workerWork(state, queue([
+        {session: 'old-session'}, {session: 'related-session'}, {session: 'reserved-session'},
+        sourceCase('investigated-session', 'spelleffects'),
+        {session: 'partial-session', investigation: {status: 'partial'}},
+        {session: 'new-session'},
+    ]));
+    assert.equal(work.unstartedSessions, 1);
+    assert.equal(work.candidateGroups, 5, 'continuation work remains available independently of the allocation preference');
+    assert.equal(work.allocation.action, 'prefer-preparation');
+});
+
+test('allocation with unknown or blocked queue evidence requests a refresh rather than guessing zero', () => {
+    const state = availabilityFixture();
+    for (const input of [null, {...queue([]), selectionBlocked: true}, {...queue([]), blockers: ['stale']}]) {
+        const work = workerWork(state, input);
+        assert.equal(work.unstartedSessions, null);
+        assert.deepEqual(work.allocation, {threshold: 5, action: 'refresh-work-queue'});
+    }
+});
+
 test('submitted work supplies Main but cannot supply independent next work', () => {
     const state = availabilityFixture();
     for (const id of ['submitted', 'assigned']) {

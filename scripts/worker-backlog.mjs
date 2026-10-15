@@ -84,7 +84,8 @@ export function workerWork(state, queue = null) {
         workersNeedingWork: workers.length - workingWorkers.length,
         idleWorkers: workers.filter(w => w.turn === 'idle'
             && !tasks.some(t => t.worker === w.worker && t.status === 'working')).map(w => w.worker),
-        mismatchingSessions: null, candidateGroups: null, investigations: [], sourceTasks: [], unavailable: [] };
+        mismatchingSessions: null, candidateGroups: null, investigations: [], sourceTasks: [], unavailable: [],
+        unstartedSessions: null, allocation: { threshold: 5, action: 'refresh-work-queue' } };
     if (!queue || queue.mode !== 'work' || !Array.isArray(queue.sessions)) return work;
     if (queue.selectionBlocked || queue.blockers?.length) {
         return { ...work, status: 'blocked', blockers: queue.blockers ?? [] };
@@ -126,6 +127,13 @@ export function workerWork(state, queue = null) {
         }
     }
     work.candidateGroups = work.investigations.length + work.sourceTasks.length;
+    const started = new Set(tasks.flatMap(task => [task.seed,
+        ...(task.reservations ?? []).filter(key => key.startsWith('session:')).map(key => key.slice(8))]));
+    const eligible = new Set([...work.investigations, ...work.sourceTasks.flatMap(group => group.sessions)]);
+    work.unstartedSessions = sessions.filter(entry => eligible.has(entry.session)
+        && !started.has(entry.session) && !['complete', 'partial'].includes(entry.investigation?.status)).length;
+    work.allocation.action = work.unstartedSessions < work.allocation.threshold
+        ? 'prefer-preparation' : 'implementation-permitted';
     return work;
 }
 
