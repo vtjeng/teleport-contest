@@ -6,56 +6,157 @@
   "manifestPath": "challenges/manifests/v76.json",
   "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
   "recordingSha256": "762c86aa3ebae36e75a0038a8d900b71e58064b8d4be36adbfb9ecc8d167c32d",
-  "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
-  "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
-  "remainingScreens": 74,
+  "evaluationPath": "challenges/evaluations/accepted-88718556869241efa4427ad22af43f4402c94ee0-v76.json",
+  "evaluationCommit": "88718556869241efa4427ad22af43f4402c94ee0",
+  "remainingScreens": 73,
   "recordedSteps": 507,
   "status": "complete",
-  "commit": "b821e2b1a6f8608899c2b1aac5e21aea1a784b0e",
+  "commit": "88718556869241efa4427ad22af43f4402c94ee0",
   "mismatch": {
     "session": "synthetic/v76/v76-shop-chest-force-action2",
-    "remainingScreens": 74,
-    "step": 63,
-    "kind": "screen",
-    "sourceFile": "shknam.c",
-    "function": "nameshk",
-    "message": "Minetown lighting-shop welcome names the keeper differently",
+    "remainingScreens": 73,
+    "step": 434,
+    "kind": "stop",
+    "sourceFile": "lock.c",
+    "function": "breakchestlock",
+    "message": "an occupation reached picking a lock requires breakchestlock() shop billing (destroyit=true)",
     "metrics": {
-      "screens": { "matched": 433, "total": 507 },
-      "rng": { "matched": 3947, "total": 4015 },
-      "cursors": { "matched": 433, "total": 507 }
+      "screens": {
+        "matched": 434,
+        "total": 507
+      },
+      "rng": {
+        "matched": 3947,
+        "total": 4015
+      },
+      "cursors": {
+        "matched": 434,
+        "total": 507
+      }
     },
     "firstMismatch": {
-      "screenIndex": 63,
-      "location": { "segmentIndex": 0, "stepIndex": 63, "key": " " },
-      "kind": "ch",
-      "row": 0,
-      "column": 28,
-      "cCell": { "ch": "I", "color": 8, "attr": 0, "decgfx": 0 },
-      "jsCell": { "ch": "V", "color": 8, "attr": 0, "decgfx": 0 }
+      "step": 434,
+      "kind": "stop",
+      "message": "an occupation reached picking a lock requires breakchestlock() shop billing (destroyit=true)"
     }
   },
-  "summary": "The first mismatch occurs when the hero enters Minetown and the lighting-store greeting is printed. C names the keeper Izchak; JavaScript selects a generic name. C shknam.c:nameshk has a special case for the shklight list on a Mines special level marked town, but js/shknam.js skips it because a comment treats the lighting store as unreachable. The special-level loader does create this shop, so the branch is reachable.",
+  "summary": "After the accepted Minetown nameshk correction, the v76 case matches the Izchak greeting and reaches the next boundary: JavaScript refuses the destroyit=true shop branch of breakchestlock() before chest destruction. C resolves the shopkeeper from the current shop and charges for the destroyed box and any shattered contents.",
   "source": {
-    "file": "shknam.c",
-    "functions": ["nameshk"],
-    "branch": "When the original name-list pointer is shklight, the current level is in the Mines, and Is_special returns a special level whose town flag is true, nameshk assigns '+Izchak' and sets the keeper male. This branch skips seeded generic-name selection, duplicate-name retries, and their possible RNG calls.",
-    "callers": [
-      "C shknam.c:stock_room calls shkinit for the lighting shop; shkinit initializes the keeper and calls nameshk(shk, shp->shknms).",
-      "C shknam.c:nameshk receives the exact shklight list from the shop type; the Minetown level is supplied by the special-level loader with its town flag set.",
-      "JS shknam.js:stock_room calls shkinit, whose finishShopkeeper passes shop.shknms to nameshk; the generated shtypes_data.js already exports the identical shklight list."
+    "file": "lock.c",
+    "functions": [
+      "breakchestlock"
     ],
-    "dependencies": ["dungeon.c:Is_special", "shknam.c:stock_room", "shknam.c:shkinit"]
+    "branch": "For destroyit=true, C finds a shopkeeper only when the hero is in an active costly spot. It prints the destruction message, extracts each child, charges destroyed contents through stolen_value, handles the box itself through stolen_value, prints the combined loss when nonzero, then delobj() removes the chest. The JS version stops at costly_spot() with an UnsupportedLockError before this branch runs. Existing JS costly_spot(), shop_keeper(), stolen_value(), currency(), and delobj() implementations provide the called behavior; this task owns the lock.c branch and its wiring already exists through forcelock().",
+    "callers": [
+      "C lock.c:forcelock() calls breakchestlock() on successful blunt force, passing destroyit when !picktyp && !rn2(3); JS lock.js:forcelock() awaits the same function before reset_pick().",
+      "C dokick.c:really_kick_object() also calls breakchestlock(..., FALSE); JS dokick.js retains this existing non-destroying path, which must remain unchanged."
+    ],
+    "dependencies": [
+      "shk.c:costly_spot",
+      "shk.c:shop_keeper",
+      "shk.c:stolen_value",
+      "lock.c:forcelock",
+      "dokick.c:really_kick_object"
+    ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The v76 admission evaluation reports 433/507 screens, 3,947/4,015 RNG calls, and 433/507 cursors. Its first screen mismatch is step 63, segment 0, key space, row 0 column 28: C prints the Izchak greeting and JavaScript has a different keeper name.",
-    "The saved accepted-source prefix at /home/vtjeng/development/vtjeng/teleport-contest/.cache/prep40-recovery/prep76/logs/latest-94076-fixed-prefix-v76-shop-chest-force-action2.json matches 3,505 RNG calls, 63 screens, and 63 cursors before step 63.",
-    "C shknam.c:nameshk at lines 487-544 checks nlp == shklight, In_mines(&u.uz), and a non-null Is_special result with flags.town. It then assigns '+Izchak' and female=false, bypassing the generic seeded-name selection loop.",
-    "Before f509c5e88, JS shknam.js:nameshk proceeded directly to generic name selection without the Minetown shklight branch; its comment incorrectly called the branch unreachable. js/shtypes_data.js already exported shklight, and JS stock_room/shkinit passes the selected shop name list to nameshk.",
-    "The saved C recording prints \"Hello, wizard! Welcome to Izchak's lighting store!\" at step 63. Prep40's source adjudication records that later chest-destruction and billing behavior is not the first mismatch; this task addresses the earlier nameshk branch only.",
-    "Implementation commit f509c5e88a195101e628f473e44920f9308d5aae adds the C special branch before generic birthday naming. The focused Minetown source test covers the matching town/Mines/shklight identity case, both location or town near misses, list-pointer identity, and the no-RNG property.",
-    "The exact v76 replay after f509c5e88 matches 434/507 screens, 3,947/4,015 RNG calls, and 434/507 cursors with no error, improving the official baseline by one screen and cursor while preserving RNG totals. The evidence verifier confirms parity through segment 0, step 63, where the Izchak greeting is displayed.",
-    "Later replay behavior remains unresolved after the Minetown name is corrected: the diagnostic reaches the #force lock-picking continuation and stops at the unported breakchestlock() shop-billing path. This task claims only the earlier nameshk mismatch."
-  ]
+    "The accepted v76 evaluation at source commit 88718556869241efa4427ad22af43f4402c94ee0 reports 434/507 screens, 3,947/4,015 RNG calls, and 434/507 cursors with error null. Its first current stop is step 434 at breakchestlock() shop billing (destroyit=true).",
+    "The prior nameshk delivery f509c5e88 restored the +Izchak special Minetown greeting, improving the accepted baseline by one screen and cursor. Its separate report remains preserved under history.previousDiagnosis.",
+    "C lock.c:breakchestlock() lines 162-212 reaches shop lookup, destroyed-content accounting, final box billing, combined debt output, and delobj() in this order. JS lock.js:breakchestlock() currently throws at the costly_spot() gate before mutation; its existing caller forcelock() already awaits the function.",
+    "The source helpers used by the missing branch are present in JS: shk.js costly_spot(), shop_keeper(), and stolen_value(); invent.js currency(); and invent.js delobj(). stolen_value() returns the amount after billing and accepts the silent=true argument used by C here."
+  ],
+  "history": {
+    "previousDiagnosis": {
+      "session": "synthetic/v76/v76-shop-chest-force-action2",
+      "corpus": "synthetic",
+      "batch": "v76",
+      "caseId": "v76-shop-chest-force-action2",
+      "manifestPath": "challenges/manifests/v76.json",
+      "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+      "recordingSha256": "762c86aa3ebae36e75a0038a8d900b71e58064b8d4be36adbfb9ecc8d167c32d",
+      "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+      "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+      "remainingScreens": 74,
+      "recordedSteps": 507,
+      "status": "complete",
+      "commit": "b821e2b1a6f8608899c2b1aac5e21aea1a784b0e",
+      "mismatch": {
+        "session": "synthetic/v76/v76-shop-chest-force-action2",
+        "remainingScreens": 74,
+        "step": 63,
+        "kind": "screen",
+        "sourceFile": "shknam.c",
+        "function": "nameshk",
+        "message": "Minetown lighting-shop welcome names the keeper differently",
+        "metrics": {
+          "screens": {
+            "matched": 433,
+            "total": 507
+          },
+          "rng": {
+            "matched": 3947,
+            "total": 4015
+          },
+          "cursors": {
+            "matched": 433,
+            "total": 507
+          }
+        },
+        "firstMismatch": {
+          "screenIndex": 63,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 63,
+            "key": " "
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 28,
+          "cCell": {
+            "ch": "I",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": "V",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        }
+      },
+      "summary": "The first mismatch occurs when the hero enters Minetown and the lighting-store greeting is printed. C names the keeper Izchak; JavaScript selects a generic name. C shknam.c:nameshk has a special case for the shklight list on a Mines special level marked town, but js/shknam.js skips it because a comment treats the lighting store as unreachable. The special-level loader does create this shop, so the branch is reachable.",
+      "source": {
+        "file": "shknam.c",
+        "functions": [
+          "nameshk"
+        ],
+        "branch": "When the original name-list pointer is shklight, the current level is in the Mines, and Is_special returns a special level whose town flag is true, nameshk assigns '+Izchak' and sets the keeper male. This branch skips seeded generic-name selection, duplicate-name retries, and their possible RNG calls.",
+        "callers": [
+          "C shknam.c:stock_room calls shkinit for the lighting shop; shkinit initializes the keeper and calls nameshk(shk, shp->shknms).",
+          "C shknam.c:nameshk receives the exact shklight list from the shop type; the Minetown level is supplied by the special-level loader with its town flag set.",
+          "JS shknam.js:stock_room calls shkinit, whose finishShopkeeper passes shop.shknms to nameshk; the generated shtypes_data.js already exports the identical shklight list."
+        ],
+        "dependencies": [
+          "dungeon.c:Is_special",
+          "shknam.c:stock_room",
+          "shknam.c:shkinit"
+        ]
+      },
+      "goalKind": "divergence-fix",
+      "evidence": [
+        "The v76 admission evaluation reports 433/507 screens, 3,947/4,015 RNG calls, and 433/507 cursors. Its first screen mismatch is step 63, segment 0, key space, row 0 column 28: C prints the Izchak greeting and JavaScript has a different keeper name.",
+        "The saved accepted-source prefix at /home/vtjeng/development/vtjeng/teleport-contest/.cache/prep40-recovery/prep76/logs/latest-94076-fixed-prefix-v76-shop-chest-force-action2.json matches 3,505 RNG calls, 63 screens, and 63 cursors before step 63.",
+        "C shknam.c:nameshk at lines 487-544 checks nlp == shklight, In_mines(&u.uz), and a non-null Is_special result with flags.town. It then assigns '+Izchak' and female=false, bypassing the generic seeded-name selection loop.",
+        "Before f509c5e88, JS shknam.js:nameshk proceeded directly to generic name selection without the Minetown shklight branch; its comment incorrectly called the branch unreachable. js/shtypes_data.js already exported shklight, and JS stock_room/shkinit passes the selected shop name list to nameshk.",
+        "The saved C recording prints \"Hello, wizard! Welcome to Izchak's lighting store!\" at step 63. Prep40's source adjudication records that later chest-destruction and billing behavior is not the first mismatch; this task addresses the earlier nameshk branch only.",
+        "Implementation commit f509c5e88a195101e628f473e44920f9308d5aae adds the C special branch before generic birthday naming. The focused Minetown source test covers the matching town/Mines/shklight identity case, both location or town near misses, list-pointer identity, and the no-RNG property.",
+        "The exact v76 replay after f509c5e88 matches 434/507 screens, 3,947/4,015 RNG calls, and 434/507 cursors with no error, improving the official baseline by one screen and cursor while preserving RNG totals. The evidence verifier confirms parity through segment 0, step 63, where the Izchak greeting is displayed.",
+        "Later replay behavior remains unresolved after the Minetown name is corrected: the diagnostic reaches the #force lock-picking continuation and stops at the unported breakchestlock() shop-billing path. This task claims only the earlier nameshk mismatch."
+      ]
+    },
+    "acceptedPriorDelivery": "1e7d2ef1ecfb628736b572255f219201fd789855"
+  }
 }
