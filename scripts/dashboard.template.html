@@ -849,7 +849,7 @@ canvas {
 #pendingMainWorkTitle { font-size: 14px; }
 #parkedTaskHistory { margin-top: 12px; }
 #goalHistoryDisclosure .section-title { margin: 0; }
-#tableSubtitle { color: var(--ink-secondary); font-size: 12px; }
+.disclosure-count { color: var(--ink-secondary); font-size: 12px; }
 #goalHistoryDisclosure .chart-wrap { margin-top: 16px; }
 #goalTable { table-layout: fixed; }
 #goalTable th:first-child, #goalTable td:first-child { width: calc(100% - 96px); min-width: 0; max-width: none; white-space: normal; }
@@ -997,10 +997,10 @@ canvas {
   </div>
 </div>
 
-<details class="section dashboard-disclosure" id="parkedTaskHistory"><summary id="parkedTaskSummary">Paused worker tasks</summary><div class="activity-backlog" id="parkedTasks"></div></details>
+<details class="section dashboard-disclosure" id="parkedTaskHistory"><summary id="parkedTaskSummary"><span>Paused worker tasks</span><span class="disclosure-count" id="parkedTaskCount"></span></summary><div class="activity-backlog" id="parkedTasks"></div></details>
 
 <details class="section dashboard-disclosure" id="goalHistoryDisclosure">
-  <summary><h3 class="section-title">Goal history</h3><span id="tableSubtitle"></span></summary>
+  <summary><h3 class="section-title">Goal history</h3><span class="disclosure-count" id="tableSubtitle"></span></summary>
   <div class="chart-wrap">
     <div class="goal-table-wrap" id="goalTableWrap">
       <table class="goal-table" id="goalTable"></table>
@@ -1735,7 +1735,7 @@ document.getElementById('stats').innerHTML = [
     .map(([label, items]) => '<section class="main-work-group"><h4>' + label + ' · ' + items.length + '</h4>'
       + items.map(item).join('') + '</section>').join('') : '');
   document.getElementById('parkedTaskHistory').hidden = !parked.length;
-  document.getElementById('parkedTaskSummary').textContent = 'Paused worker tasks · ' + parked.length;
+  document.getElementById('parkedTaskCount').textContent = parked.length;
   document.getElementById('parkedTasks').innerHTML = parked.map(item).join('');
 
 })();
