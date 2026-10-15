@@ -316479,6 +316479,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-v76-earth-mold-mondied-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement drop_boulder_on_monster from read.c",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v76/v76-monster-earth-mold-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v76-monster-earth-mold-action3-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "drop_boulder_on_monster",
+      "session": "synthetic/v76/v76-monster-earth-mold-action3"
+    },
+    {
+      "id": "fix-v76-oil-snuff-light-cocktail-reacquisition-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement light_cocktail from apply.c",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v76/v76-oil-snuff-merge-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v76-oil-snuff-merge-action2-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "light_cocktail",
+      "session": "synthetic/v76/v76-oil-snuff-merge-action2"
     }
   ]
 }
