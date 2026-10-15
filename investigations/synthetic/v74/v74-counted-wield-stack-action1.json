@@ -8,7 +8,7 @@
   "recordingSha256": "b302d82b253410c1cbf628b329d5abddbec74adb1d9d5f5ea8a7c132679130f4",
   "evaluationPath": "challenges/evaluations/admission-8f280fd706dcfdad7c302cc39301cb056753af10-v74.json",
   "evaluationCommit": "8f280fd706dcfdad7c302cc39301cb056753af10",
-  "remainingScreens": 0,
+  "remainingScreens": 50,
   "recordedSteps": 168,
   "status": "complete",
   "commit": "d043bf8db515b7d9df362307023eba82447467bf",
