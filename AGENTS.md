@@ -80,6 +80,8 @@ recordings without admitting or scoring it.
 The loop uses one main orchestrator and up to four persistent workers, each
 in its own Git worktree. A, B, and C implement source tasks; the dedicated
 Prep worker prepares future challenge batches.
+Prep may manage nested exploration lanes under its worker instructions;
+these do not own implementation tasks or submit directly to Main.
 Workers notify the orchestrator when a task is ready to merge; only the
 orchestrator integrates, runs combined validation, admits batches, and
 publishes. Implementation workers own a selected session's investigation through

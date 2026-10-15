@@ -443,6 +443,15 @@ export function verifyEvent(root, state, input) {
     const event = resolveEventCommits(root, input);
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
+    if (event.type === 'prep-probe' && !state.probes[event.probe]) {
+        check(git(event.worktree, 'rev-parse', '--path-format=absolute', '--git-common-dir')
+            === git(root, 'rev-parse', '--path-format=absolute', '--git-common-dir'),
+        'probe must belong to the same Git repository');
+        check(git(event.worktree, 'branch', '--show-current') === event.branch,
+            'probe branch does not match checkout');
+        check(resolveCommit(event.worktree, 'HEAD') === task?.base,
+            'probe must start at the preparation comparison base');
+    }
     if (event.type === 'feedback' && delivery?.prepGroup) event.prepGroup = delivery.prepGroup;
     if (event.type === 'feedback' && delivery?.implementationGroup) event.implementationGroup = delivery.implementationGroup;
     if (['prep-integrating', 'implementation-integrating'].includes(event.type)) {

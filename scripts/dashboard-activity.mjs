@@ -20,10 +20,11 @@ export function activityTimeline(activity, capturedAt) {
     if (start && Date.parse(at) >= Date.parse(start)) {
       segments.push({ task: task.id, goal: task.goal, worker: task.worker,
         kind: task.kind, ...(task.batch ? { batch: task.batch } : {}), phase, start, end: at, ...(ongoing ? { ongoing: true } : {}),
+        ...(task.kind === 'challenge-probe' ? {parentTask: task.parentTask, reason: task.reason} : {}),
         ...(task.prepGroup ? {prepGroup: task.prepGroup, integration: task.integration} : {}),
         ...(task.validationGroup ? {validationGroup: task.validationGroup, integration: task.integration} : {}),
         ...(phase === 'parked' ? { reason: task.parkedReason } : {}),
-        lane: ['working', 'rework', 'queued', 'parked'].includes(phase) ? task.worker : 'Main' });
+        lane: task.kind === 'challenge-probe' || ['working', 'rework', 'queued', 'parked'].includes(phase) ? task.worker : 'Main' });
     }
     task.starts[phase] = null;
   }
@@ -31,6 +32,25 @@ export function activityTimeline(activity, capturedAt) {
 
   for (const event of events) {
     const taskId = event.runId ? event.runId + '/' + event.task : event.task;
+    if (event.type === 'prep-probe') {
+      // Probes have their own history, but never acquire integration/acceptance
+      // stages or compete with their parent for the Prep lead's row.
+      const id = (event.runId ? event.runId + '/' : '') + 'probes/' + event.probe;
+      let probe = tasks.get(id);
+      if (!probe) {
+        probe = {id, label: event.probe, parentTask: taskId, worker: event.worker,
+          kind: 'challenge-probe', batch: tasks.get(taskId)?.batch,
+          source: event.source, goal: null, assignedAt: event.at, starts: {}};
+        tasks.set(id, probe);
+      }
+      for (const phase of Object.keys(probe.starts)) close(probe, phase, event.at);
+      probe.reason = event.reason;
+      probe.status = event.state;
+      if (event.state === 'done') probe.completedAt = event.at;
+      if (event.outcome) probe.outcome = event.outcome;
+      if (event.state !== 'done') begin(probe, event.state === 'active' ? 'working' : event.state, event.at);
+      continue;
+    }
     if (event.type === 'assign') {
       const task = { id: taskId, label: event.task, goal: event.goal ?? null,
         worker: event.worker, kind: event.kind ?? 'implementation',
@@ -223,10 +243,14 @@ export function activityTimeline(activity, capturedAt) {
 // is also embedded in the buildless dashboard so the browser uses the same math.
 export function activityUtilization(stages, start, end) {
   const work = new Set(['working', 'rework', 'review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']);
-  const groups = ['A/B/C', 'Prep', 'Main'].map(role => ({ role, workers: new Map() }));
+  const hasPrepLanes = stages.some(stage => /^Prep-[1-6]$/u.test(stage.lane));
+  const prepRole = hasPrepLanes ? 'Prep lead' : 'Prep';
+  const roles = hasPrepLanes ? ['A/B/C', prepRole, 'Prep lanes', 'Main'] : ['A/B/C', prepRole, 'Main'];
+  const groups = roles.map(role => ({ role, workers: new Map() }));
   for (const stage of stages) {
     if (['queued', 'pending'].includes(stage.phase)) continue;
-    const role = stage.lane === 'Main' ? 'Main' : /^Prep\d*$/u.test(stage.lane) ? 'Prep'
+    const role = stage.lane === 'Main' ? 'Main' : /^Prep-[1-6]$/u.test(stage.lane) ? 'Prep lanes'
+      : /^Prep\d*$/u.test(stage.lane) ? prepRole
       : /^[ABC]\d*$/u.test(stage.lane) ? 'A/B/C' : null;
     const group = groups.find(row => row.role === role);
     const a = Math.max(start, Date.parse(stage.start)), b = Math.min(end, Date.parse(stage.end));

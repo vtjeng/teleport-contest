@@ -125,6 +125,8 @@ acceptance, admission, or a queue threshold. Handle requested corrections and
 resume a parked batch before starting a later version. Submitted batches may
 wait for Main; `worker-state next` keeps them visible. Acceptance does not
 admit a batch. Preparation does not require the current batch to match.
+Prep may delegate probes under "Exploration lanes" in
+`.claude/agents/challenge-prep-worker.md`. Main still receives one batch delivery.
 
 After each current evaluation and worker handoff, check the combined queue and
 reservations for selectable investigations and independent source tasks.
@@ -152,49 +154,40 @@ families, action histories, and relevant character or state conditions;
 changing only seeds is insufficient. Follow
 `experiments/generalization/plan.md`, "Expanding challenges", and
 `.agents/validation.md` for C exploration and recording.
-After independent C replay, compare each case retained for the prepared
-manifest with the JavaScript port in the preparation worktree. Count a
-session toward the batch target when it has a local mismatch and the C
+Compare valid C probes provisionally against a fixed accepted JavaScript
+commit. Independently replay every case retained in the prepared manifest.
+A case qualifies when it has a local mismatch and the C
 behavior responsible for its first mismatch is source-traced and distinct
 from the first mismatching behavior of every other counted session. Later mismatches in that session are allowed. Record the
 first mismatch step, source behavior, and owner for each counted session.
 Keep distinct, valid, reproducible mismatching cases in the prepared manifest.
 A missed mission can count if its first mismatch meets the criterion above.
 Matching cases and cases with duplicate or unresolved first mismatch behaviors
-do not count toward the 12. Retain valid overlap probes outside that manifest
+do not qualify. Retain valid overlap probes outside that manifest
 with their C evidence and the earlier case they duplicate. Reject invalid setup
 or recorder failures with recorded C evidence. Resolve recorder-environment
 differences before treating them as game defects.
 
-For matching controls, search saved coverage in the fixed workload, regression
-recordings, admitted batches, earlier submitted batches, and other included
-cases. Include a control only when its observed C/Lua behavior has a clear,
-documented difference in branch, state condition, or action history. Cite the
-closest existing coverage and the difference in its selection rationale.
-A different seed, session name, or intended target is not enough.
-If no useful difference is readily established, save the recipe, C recording
-and search notes as preparation evidence, but leave the case out of the
-batch's test list (manifest). CI will not replay it as a batch test.
-Do not start a separate coverage investigation or replay the archive for this
-check. This rule also applies to matching cases that missed their intended target.
+Leave matching probes out of new prepared manifests unless the user requests
+a specific regression control. Preserve their recipes and C evidence as
+preparation evidence; do not investigate their novelty. Keep existing admitted
+controls unchanged. This rule also applies to cases that missed their target.
+Preserve already-submitted batches and their saved control rationales.
 
 After two materially different C setups fail to reach a difficult target,
 defer it with the observed reason and try another; a cheap source-proven route
 can justify another attempt. Replace deferred targets with different reachable
-behaviors and keep trying to find 12 qualifying sessions. Do not shrink a batch
-solely because one behavior is rare. If repeated, meaningfully different
-candidate behaviors find no new qualifying first mismatches, report the search
-attempts and source or recorder blockers, then park the preparation task with
-its valid recordings. The orchestrator may accept a smaller batch with a
-recorded reason or redirect the search. The target is not a cap on valid cases.
+behaviors. The 12-candidate planning minimum is not a delivery minimum: submit
+a nonempty, validated group of distinct failures without waiting to find 12.
+If no failures qualify, report the searched behaviors and blockers, then
+continue with other targets. Park only for a concrete blocker.
 Choose further candidate behaviors from the C source and coverage gaps; do not
 alter a recipe to exploit a JavaScript result. Local mismatch counts are
 provisional because main can advance during preparation. The orchestrator's
-first saved evaluation after admission is authoritative and may find fewer than
-12 remaining mismatching sessions.
+first saved evaluation after admission is authoritative and may find fewer
+remaining mismatches.
 
-The per-batch preparation target is not an admission requirement. Do not
-filter, replace, or extend an admitted batch to fill the target.
+Do not filter, replace, or extend an admitted batch based on those results.
 
 The worker submits case recipes and C recordings under
 `challenges/cases/<batch>/`. Keep the manifest in immutable delivery evidence,
@@ -213,13 +206,12 @@ regression validation still covers every admitted case.
 Shared startup and command setup do not by themselves constitute overlap; the
 substantive behavior exercised must differ. Cite comparable cases from that set
 and the causal distinction for each mismatching candidate, including target
-misses. Check matching controls against the saved-coverage rule above. Keep valid
+misses. Keep valid
 overlapping C probes outside the prepared manifest with their C observation
 and the earlier case they duplicate. They do not need independent replay unless
 needed to establish a blocker. During the existing pre-admission review,
-recheck overlap and matching-control rationales against current saved evidence;
-require a corrected delivery for overlapping cases or controls without a clear
-coverage difference. Until admission, the cases do not enter synthetic scoring,
+recheck overlap against current saved evidence; require a corrected delivery
+for overlapping cases or unrequested matching controls. Until admission, the cases do not enter synthetic scoring,
 the mismatch queue, or the dashboard's scored batch charts. The dashboard lists
 ready batches awaiting admission separately.
 

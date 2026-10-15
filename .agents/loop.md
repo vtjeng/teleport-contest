@@ -118,12 +118,10 @@ Apply the integration and admission priority in `.agents/selection.md` at each
 safe integration boundary. Preserve validation and baseline requirements.
 Continue assigning fixes from older batches.
 The preparation worker does not monitor implementation assignments. If it
-reports that it cannot find 12 locally mismatching sessions with distinct
-source-traced first mismatch behaviors after switching to other plausible
-behaviors, review its valid recordings, search attempts, and source-based
-blockers. Decide whether to accept a smaller batch with that reason or direct
-the worker toward other targets. Keep missed and deferred targets in the
-handoff; the orchestrator owns the scheduling decision.
+reports a search blocker, use its saved attempts and source findings to redirect
+the search. Follow `.agents/selection.md` for delivery size and retained cases,
+and `.claude/agents/challenge-prep-worker.md` for exploration lanes. Keep missed
+and deferred targets in the handoff; the orchestrator owns admission.
 
 Handle worker messages and finished turns under "Notifications" below.
 Do not create routine nested implementation workers.
@@ -349,6 +347,10 @@ completed tests solely to change a task's status. Changed code still needs
 the checks required by `.agents/validation.md`.
 
 ## Worker support
+
+Prep's exploration lanes are a separate exception to the read-only helper
+rules below. Follow `.claude/agents/challenge-prep-worker.md`,
+"Exploration lanes".
 
 Use read-only helpers when they can answer a specific question while an
 implementation worker continues. Use one for a cross-file survey, or up to

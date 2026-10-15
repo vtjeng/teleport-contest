@@ -1,0 +1,156 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import test from 'node:test';
+import {fileURLToPath} from 'node:url';
+import {createLedger, nextActions, recordEvent, summarizeLedger} from './worker-state.mjs';
+import {activityFromLedger} from './dashboard-snapshot.mjs';
+import {activityTimeline, activityUtilization, mainIntegrationDurations} from './dashboard-activity.mjs';
+
+const ROOT = '/tmp/prep-probe-fixture';
+const BASE = 'a'.repeat(40); // Synthetic transport commit, not gameplay data.
+const DELIVERY = 'b'.repeat(40); // A parent delivery distinct from the base.
+const at = minute => new Date(Date.UTC(2026, 9, 15, 10, minute)).toISOString();
+
+function fixture() {
+  let ledger = createLedger('loop-20261015', ROOT, at(0)), sequence = 0;
+  const send = (event, minute = sequence) => {
+    ledger = recordEvent(ledger, {id: `event-${++sequence}`, ...event}, at(minute));
+    return summarizeLedger(ledger);
+  };
+  // The existing four workers remain registered: Prep lanes are additional,
+  // not replacement implementation workers or additional Main submissions.
+  for (const worker of ['A', 'B', 'C', 'Prep']) send({type: 'register', worker,
+    worktree: `${ROOT}/${worker}`, branch: `worker/${worker}`, base: BASE, handle: `private-${worker}`}, 0);
+  send({type: 'assign', task: 'Prep47', worker: 'Prep', kind: 'challenge-preparation',
+    seed: null, base: BASE, reservations: ['challenge-batch:v83'], allowedPaths: ['challenges/cases/v83/']}, 0);
+  const probe = (n, patch = {}) => ({type: 'prep-probe', task: 'Prep47', probe: `v83-probe-${n}`,
+    worker: `Prep-${n}`, state: 'active', summary: `Investigating C target ${n}.`,
+    processes: [], recording: false, worktree: `${ROOT}/lane-${n}`, branch: `prep/lane-${n}`,
+    handle: `private-lane-${n}`, source: `fixture.c:target${n}`, ...patch});
+  const ready = () => send({type: 'ready', task: 'Prep47', delivery: DELIVERY,
+    base: BASE, commits: [DELIVERY], paths: ['challenges/cases/v83/case.recipe.json'],
+    evidence: `${ROOT}/packet.json`, dependencies: []});
+  return {send, probe, ready, ledger: () => ledger, state: () => summarizeLedger(ledger)};
+}
+
+test('six Prep lanes coexist with A/B/C and produce only one Main delivery', () => {
+  const f = fixture();
+  for (let n = 1; n <= 6; n++) f.send(f.probe(n)); // Approved lane cap, not a throughput claim.
+  assert.equal(Object.keys(f.state().workers).length, 4);
+  assert.equal(Object.keys(f.state().probes).length, 6);
+  assert.equal(Object.keys(f.state().tasks).length, 1);
+  assert.equal(nextActions(f.state()).preparationProbes.length, 6);
+  assert.throws(() => f.send(f.probe(7)), /Prep-1 through Prep-6/u);
+  assert.throws(f.ready, /finish outstanding/u);
+  assert.throws(() => f.send({type: 'park', task: 'Prep47', reason: 'Pause parent.'}), /finish outstanding/u);
+  for (let n = 1; n <= 6; n++) f.send(f.probe(n, {state: 'done', outcome: n === 1 ? 'failure' : 'match'}));
+  const state = f.ready();
+  assert.equal(Object.keys(state.deliveries).length, 1);
+  assert.deepEqual(nextActions(state).preparationProbes, []);
+});
+
+test('recorder reservations allow two launches and preserve blocked capacity across observations', () => {
+  const f = fixture();
+  f.send(f.probe(1, {recording: true})); f.send(f.probe(2, {recording: true}));
+  const before = f.ledger();
+  assert.throws(() => f.send(f.probe(3, {recording: true})), /both Prep recorder slots/u);
+  assert.deepEqual(f.ledger(), before, 'a denied reservation must not create a probe');
+  // A slot is claimed before launch, then its actual process handle is saved.
+  f.send(f.probe(1, {recording: true, processes: ['bounded-run-1']}));
+  assert.throws(() => f.send(f.probe(1, {processes: ['bounded-run-1']})), /retain its slot/u);
+  assert.throws(() => f.send(f.probe(1, {recording: true, processes: ['one', 'two']})), /one bounded command/u);
+  assert.throws(() => f.send(f.probe(1, {state: 'blocked', recording: true})), /reap commands/u);
+  assert.throws(() => f.send(f.probe(1, {state: 'done', outcome: 'failure', processes: ['bounded-run-1']})), /until reaped/u);
+  f.send(f.probe(1, {recording: false}));
+  f.send(f.probe(3, {recording: true}));
+  assert.equal(Object.values(f.state().probes).filter(row => row.recording).length, 2);
+});
+
+test('probe ownership, target and outcome cannot silently change', () => {
+  const f = fixture();
+  f.send(f.probe(1));
+  for (const patch of [{worker: 'Prep-2'}, {worktree: `${ROOT}/other`}, {source: 'other.c:target'},
+    {handle: 'replacement'}, {branch: 'other'}, {outcome: 'failure'}])
+    assert.throws(() => f.send(f.probe(1, patch)));
+  assert.throws(() => f.send(f.probe(2, {worktree: `${ROOT}/A`})), /private owner/u);
+  assert.throws(() => f.send(f.probe(2, {handle: 'private-lane-1'})), /unfinished probe/u);
+  assert.throws(() => f.send(f.probe(1, {probe: 'new-probe'})), /unfinished probe/u);
+  assert.throws(() => f.send(f.probe(1, {state: 'done'})), /outcome/u);
+  f.send(f.probe(1, {state: 'done', outcome: 'deferred'}));
+  assert.throws(() => f.send(f.probe(1)), /cannot be reopened/u);
+  f.send(f.probe(1, {probe: 'next-probe'})); // A persistent lane can take another target.
+});
+
+test('dashboard exposes separate Prep histories, blocks and outcomes without private data or fake CI', () => {
+  const f = fixture();
+  f.send(f.probe(1), 1); f.send(f.probe(2), 1);
+  f.send(f.probe(1, {state: 'blocked', summary: 'Waiting for a recorder slot.'}), 2);
+  f.send(f.probe(1, {summary: 'Recorder slot released.'}), 4);
+  f.send(f.probe(1, {state: 'done', outcome: 'failure', summary: 'First mismatch traced to fixture.c.'}), 5);
+  f.send(f.probe(2, {state: 'done', outcome: 'match', summary: 'Matched; evidence retained outside manifest.'}), 5);
+  const activity = activityFromLedger(f.ledger());
+  assert.doesNotMatch(JSON.stringify(activity), /private-|worktree|processes|recording|branch/u);
+  const timeline = activityTimeline(activity, at(6));
+  const child = timeline.tasks.find(row => row.label === 'v83-probe-1');
+  assert.equal(child.batch, 'v83'); assert.equal(child.source, 'fixture.c:target1');
+  assert.equal(child.parentTask, 'loop-20261015/Prep47'); assert.equal(child.outcome, 'failure');
+  const stages = timeline.stages.filter(row => row.lane === 'Prep-1');
+  assert.deepEqual(stages.map(row => row.phase), ['working', 'blocked', 'working']);
+  assert.equal(stages[1].reason, 'Waiting for a recorder slot.');
+  assert.ok(stages.every(row => row.parentTask === child.parentTask));
+  assert.deepEqual(mainIntegrationDurations(timeline), {implementation: [], preparation: []});
+  const utilization = activityUtilization(timeline.stages, Date.parse(at(0)), Date.parse(at(6)));
+  assert.equal(utilization.find(row => row.role === 'Prep lead').total, 6 * 60000); // Lead only.
+  const lanes = utilization.find(row => row.role === 'Prep lanes');
+  assert.equal(lanes.total, 8 * 60000); // Two distinct workers, each observed for four minutes.
+  assert.equal(lanes.work, 6 * 60000); assert.equal(lanes.blocked, 2 * 60000);
+  assert.equal(lanes.utilization, 0.75);
+});
+
+test('actual CLI allows the Prep lead and assigned lane but rejects sibling worktrees and fake ownership', t => {
+  const root = mkdtempSync(join(tmpdir(), 'prep-probe-cli-'));
+  t.after(() => rmSync(root, {recursive: true, force: true}));
+  const git = (...args) => {
+    const result = spawnSync('git', ['-C', root, '-c', 'core.hooksPath=/dev/null', ...args], {encoding: 'utf8'});
+    assert.equal(result.status, 0, result.stderr); return result.stdout.trim();
+  };
+  git('init', '-q'); git('config', 'user.name', 'Prep fixture');
+  git('config', 'user.email', 'fixture@example.invalid'); git('config', 'commit.gpgsign', 'false');
+  writeFileSync(join(root, 'tracked'), 'fixture\n'); git('add', 'tracked'); git('commit', '-qm', 'fixture');
+  const base = git('rev-parse', 'HEAD'), file = join(root, '.cache/ledger.json');
+  const paths = Object.fromEntries(['Prep', 'lane', 'sibling'].map(name => {
+    const path = join(root, name); git('worktree', 'add', '-qb', `worker/${name}`, path); return [name, path];
+  }));
+  const script = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
+  const run = (cwd, args) => spawnSync(process.execPath, [script, ...args, '--file', file], {cwd, encoding: 'utf8'});
+  const pass = (cwd, args) => {
+    const result = run(cwd, args); assert.equal(result.status, 0, result.stderr); return JSON.parse(result.stdout);
+  };
+  let sequence = 0;
+  const event = (cwd, payload, ok = true) => {
+    const args = ['event', '--json', JSON.stringify({id: `cli-${++sequence}`, ...payload})];
+    return ok ? pass(cwd, args) : run(cwd, args);
+  };
+  pass(root, ['init', '--run', 'loop-20261015']);
+  event(root, {type: 'register', worker: 'Prep', worktree: paths.Prep, branch: 'worker/Prep', base, handle: 'prep'});
+  event(paths.Prep, {type: 'assign', task: 'Prep1', worker: 'Prep', kind: 'challenge-preparation', seed: null,
+    base, reservations: ['challenge-batch:v2'], allowedPaths: ['challenges/cases/v2/']});
+  const probe = {type: 'prep-probe', task: 'Prep1', probe: 'v2-route', worker: 'Prep-1', state: 'active',
+    summary: 'Explore source route.', processes: [], recording: false,
+    worktree: paths.lane, branch: 'worker/lane', handle: 'lane', source: 'fixture.c:route'};
+  event(paths.Prep, probe);
+  const {worktree: _worktree, branch: _branch, handle: _handle, source: _source, ...turn} = probe;
+  event(paths.lane, {...turn, state: 'blocked', summary: 'Waiting for a recorder slot.'});
+  const before = readFileSync(file, 'utf8');
+  const denied = event(paths.sibling, {...turn, state: 'done', outcome: 'match'}, false);
+  assert.equal(denied.status, 1); assert.match(denied.stderr, /registered worker worktree/u);
+  assert.equal(readFileSync(file, 'utf8'), before);
+  const fake = event(paths.Prep, {...probe, probe: 'v2-fake', worker: 'Prep-2',
+    worktree: paths.sibling, branch: 'fake-branch', handle: 'fake'}, false);
+  assert.equal(fake.status, 1); assert.match(fake.stderr, /branch does not match/u);
+  event(paths.lane, {...turn, state: 'done', outcome: 'match'});
+  assert.equal(pass(root, ['status']).probes['v2-route'].outcome, 'match');
+});

@@ -175,7 +175,8 @@ can merge accepted Main at a clean boundary.
 At a safe boundary, acknowledge the ready Prep submissions, then run
 `node scripts/prep-handoff.mjs integrate --ledger <shared-ledger>`. It freezes
 consecutive ready batches in version order, with no size cap. Dependencies must
-be accepted or included in the group. Verify saved overlap and control rationales;
+be accepted or included in the group. Verify saved overlap evidence and any
+user-requested controls under `.agents/selection.md`;
 hold batches with concrete evidence or dependency problems.
 
 Run one hosted checkpoint at the returned commit and import it once. Keep HEAD
@@ -199,7 +200,7 @@ earlier plan, and uses the corrected delivery. New arrivals still wait.
 At a safe boundary with a passing checkpoint at HEAD, run
 `node scripts/admit-challenge-batch.mjs --ledger <shared-ledger>` to write all
 accepted, unadmitted manifests. Existing batches need current complete
-measurements. Recheck the saved overlap and control rationales under
+measurements. Recheck the saved overlap evidence and any user-requested controls under
 `.agents/selection.md` before including a batch.
 
 Commit only the new manifests, adding `Admission-base: <tested-HEAD>` as a Git

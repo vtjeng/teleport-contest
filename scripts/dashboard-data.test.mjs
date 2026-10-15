@@ -916,6 +916,40 @@ test('activity keeps selected-stage details without a separate Inspect list', ()
     assert.doesNotMatch(template, /activityListMode|activityWaitList/u);
 });
 
+test('Prep exploration has separate agent rows, pooled lane utilization and batch-linked results', () => {
+    const data = sourceDashboardData();
+    const at = minute => new Date(Date.UTC(2026, 9, 15, 10, minute)).toISOString();
+    const probe = (n, minute, state = 'active', outcome) => ({type: 'prep-probe', task: 'Prep47',
+        probe: `v83-probe-${n}`, worker: `Prep-${n}`, source: `fixture.c:target${n}`,
+        reason: state === 'blocked' ? 'Waiting for a recorder slot.' : 'Explore C behavior.',
+        state, ...(outcome ? {outcome} : {}), at: at(minute)});
+    data.activity = activityTimeline({events: [
+        {type: 'assign', task: 'Prep47', worker: 'Prep', kind: 'challenge-preparation', batch: 'v83', at: at(0)},
+        ...Array.from({length: 6}, (_, index) => probe(index + 1, 1)), // Six dedicated Prep lanes.
+        probe(2, 2, 'blocked'), probe(2, 4), probe(1, 5, 'done', 'failure'), probe(3, 5, 'done', 'match'),
+    ]}, at(6));
+    const rendered = renderDashboard(data), timeline = rendered.get('timeline');
+    assert.match(timeline.innerHTML, /title="Prep lead"/u);
+    for (let n = 1; n <= 6; n++) assert.match(timeline.innerHTML, new RegExp(`activity-label">Prep-${n}<`, 'u'));
+    assert.equal((timeline.innerHTML.match(/class="activity-row(?: main)?"/gu) || []).length, 8,
+        'one lead, six explorers and Main, without parallel task subrows');
+    assert.match(rendered.get('activityMetrics').innerHTML, /Prep lead[\s\S]*Prep lanes/u);
+    assert.match(rendered.get('prepProbeSummary').textContent, /4 active/u);
+    assert.match(rendered.get('prepProbeSummary').textContent, /1 failure[\s\S]*1 match kept outside manifests/u);
+    const index = data.activity.stages.findIndex(row => row.lane === 'Prep-1');
+    timeline.listeners.click[0]({target: {classList: {contains: value => value === 'activity-bar'}, dataset: {segment: String(index)}}});
+    const details = rendered.get('timelineReadout').innerHTML;
+    assert.match(details, /<dt>Worker<\/dt><dd>Prep-1<\/dd>/u);
+    assert.match(details, /<dt>Prep task<\/dt><dd>Prep47<\/dd>/u);
+    assert.match(details, /Synthetic local holdout v83/u);
+    assert.match(details, /<dt>C target<\/dt><dd>fixture.c:target1<\/dd>/u);
+    assert.match(details, /<dt>Probe result<\/dt><dd>failure<\/dd>/u);
+    assert.doesNotMatch(details, /Integration and checks|Publication/u);
+    timeline.listeners.pointerover[0]({target: {classList: {contains: value => value === 'activity-bar'},
+        dataset: {segment: String(data.activity.stages.findIndex(row => row.lane === 'Prep-2'))}}});
+    assert.equal(rendered.get('timelineReadout').innerHTML, details, 'hover cannot replace the selected probe');
+});
+
 test('selected stage details stay pinned across hover, focus and time range changes', () => {
     const data = sourceDashboardData();
     // Separate tasks let hover and explicit selection be distinguished.

@@ -972,6 +972,7 @@ canvas {
       <div class="integration-duration-readout" id="integrationDurationReadout" aria-live="polite"></div>
     </div>
     <h3 class="worker-timeline-heading">Worker timeline</h3>
+    <p class="activity-note" id="prepProbeSummary" hidden></p>
     <p class="activity-note">One row per agent; pending deliveries stay in task history. Blocks and parked tasks show reasons; idle and unrecorded time are separate. Hover to inspect; select to pin. Arrows mark clipped stages; details scroll.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
@@ -1807,7 +1808,9 @@ document.getElementById('stats').innerHTML = [
   // A2 replaced A. Share the display row only while their histories do not overlap.
   const aEnd = Math.max(...segments.filter(row => row.lane === 'A').map(row => Date.parse(row.end)));
   const a2Start = Math.min(...segments.filter(row => row.lane === 'A2').map(row => Date.parse(row.start)));
-  const displayLane = lane => lane === 'A2' && aEnd <= a2Start ? 'A' : lane;
+  const hasPrepLanes = segments.some(row => /^Prep-[1-6]$/u.test(row.lane));
+  const displayLane = lane => lane === 'A2' && aEnd <= a2Start ? 'A'
+    : hasPrepLanes && lane === 'Prep' ? 'Prep lead' : lane;
   const lanes = [...new Set(history.map(segment => displayLane(segment.lane))
     .filter(lane => lane !== 'Main'))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   lanes.push('Main');
@@ -1979,6 +1982,9 @@ document.getElementById('stats').innerHTML = [
       + '<dt>Stage</dt><dd>' + (actor === worker ? '' : esc(actor) + ' · ') + esc(phaseNames[segment.phase]) + '</dd>'
       + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
       + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
+      + (task?.parentTask ? '<dt>Prep task</dt><dd>' + esc(taskById.get(task.parentTask)?.label || task.parentTask) + '</dd>' : '')
+      + (task?.source ? '<dt>C target</dt><dd>' + esc(task.source) + '</dd>' : '')
+      + (task?.outcome ? '<dt>Probe result</dt><dd>' + esc(task.outcome) + '</dd>' : '')
       + (batch(segment) ? '<dt>Batch</dt><dd>Synthetic local holdout ' + esc(batch(segment)) + '</dd>' : '')
       + (segment.validationGroup || segment.prepGroup ? '<dt>Shared CI run</dt><dd>'
         + esc((segment.validationGroup || segment.prepGroup).join(', ')) + '</dd>' : '')
@@ -2017,6 +2023,22 @@ document.getElementById('stats').innerHTML = [
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
       .sort((a, b) => duration(b.segment) - duration(a.segment));
     const blocks = waits.filter(({ segment }) => isBlock(segment));
+    const probes = (activity.tasks || []).filter(task => task.kind === 'challenge-probe'
+      && history.some(row => row.task === task.id && Date.parse(row.end) > start && Date.parse(row.start) < viewEnd));
+    const probeSummary = document.getElementById('prepProbeSummary');
+    probeSummary.hidden = probes.length === 0;
+    const counts = new Map();
+    for (const probe of probes) {
+      const last = history.filter(row => row.task === probe.id && Date.parse(row.start) < viewEnd).at(-1);
+      const state = Date.parse(probe.completedAt) <= viewEnd ? probe.outcome
+        : last?.phase === 'blocked' ? 'blocked' : last?.phase === 'idle' ? 'idle' : 'active';
+      counts.set(state, (counts.get(state) || 0) + 1);
+    }
+    const labels = {active: ['active', 'active'], blocked: ['blocked', 'blocked'], idle: ['idle', 'idle'],
+      failure: ['failure', 'failures'], match: ['match kept outside manifests', 'matches kept outside manifests'],
+      duplicate: ['duplicate', 'duplicates'], deferred: ['deferred', 'deferred']};
+    probeSummary.textContent = 'Prep probes in this window: ' + Object.entries(labels)
+      .filter(([key]) => counts.has(key)).map(([key, label]) => counts.get(key) + ' ' + label[counts.get(key) === 1 ? 0 : 1]).join(' · ') + '.';
     utilization(start, viewEnd);
     drawDurations(start, viewEnd);
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
@@ -2042,7 +2064,7 @@ document.getElementById('stats').innerHTML = [
       })).sort((a, b) => a.a - b.a);
       html += '<div class="activity-row' + (lane === 'Main' ? ' main' : '')
         + '" style="height:48px"><div class="activity-label">'
-        + esc(lane) + '</div><div class="activity-track">'
+        + (lane === 'Prep lead' ? '<span title="Prep lead">Prep</span>' : esc(lane)) + '</div><div class="activity-track">'
         + bars.map(bar => '<div class="activity-bar phase-' + bar.segment.phase
           + (Date.parse(bar.segment.start) < start ? ' continues-left' : '')
           + (Date.parse(bar.segment.end) > viewEnd ? ' continues-right' : '')

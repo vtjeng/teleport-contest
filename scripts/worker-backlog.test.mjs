@@ -6,7 +6,7 @@ import { nextActions } from './worker-state.mjs';
 // Small ledger projections isolate backlog display from Git and validation.
 const at = minute => `2026-10-08T10:${String(minute).padStart(2, '0')}:00Z`;
 function fixture() {
-    return { tasks: {}, deliveries: {} };
+    return { tasks: {}, deliveries: {}, probes: {} };
 }
 function add(state, id, status = 'ready', dependencies = []) {
     const delivery = `${id}-delivery`;

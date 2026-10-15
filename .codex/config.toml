@@ -5,3 +5,7 @@ default_subagent_reasoning_effort = "high"
 [agents.prep]
 description = "Dedicated preparation worker for independent C challenge batches."
 config_file = "agents/prep.toml"
+
+[agents.prep-explorer]
+description = "Explore one independent C behavior for the Prep lead; return a classified probe."
+config_file = "agents/prep-explorer.toml"

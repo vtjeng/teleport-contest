@@ -20,11 +20,10 @@ slices; `GOALS.json` keeps them as history.
 
 A **challenge preparation task** creates a future synthetic batch from C
 source, recipes, recordings, and independent C replays. Local JavaScript
-comparisons identify the 12 mismatching sessions with distinct source-traced
-first mismatch behaviors required for the batch target. The prepared manifest
-keeps distinct valid mismatching cases and matching controls with documented
-added coverage, as `.agents/selection.md` specifies. Recipes, C recordings, and
-search notes for redundant probes remain preparation evidence, not batch tests.
+comparisons identify distinct source-traced first mismatch behaviors. The
+prepared manifest follows `.agents/selection.md` for retained cases and delivery
+size. Recipes, C recordings, and search notes for redundant probes remain
+preparation evidence, not batch tests.
 The worker does not choose recipes to exploit JavaScript
 results or admit and score the batch. The orchestrator admits and scores it
 after the gates in `.agents/selection.md` pass.

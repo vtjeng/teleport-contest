@@ -50,6 +50,10 @@ by this command, not the caller. Required fields by type:
   connected: worker, handle (coordinator acknowledges that connection)
   turn: worker, state (active, idle or blocked), reason (text or null), processes
         optional summary (public dashboard explanation; omit private paths and handles)
+  prep-probe: task (parent Prep task), probe (unique id), worker (Prep-1..Prep-6),
+        state (active, idle, blocked or done), summary (public), processes, recording (boolean)
+        first event also needs worktree, branch, handle and source (C target)
+        done needs outcome (failure, match, duplicate or deferred)
   coordinator: handle (string or null), processes (array of live handles)
   assign: task (unique id), worker, seed (string or null), base,
           reservations, allowedPaths; optional kind (implementation,
@@ -76,7 +80,15 @@ by this command, not the caller. Required fields by type:
 Workers pass --file with the shared ledger path. They may connect, record their
 own turn, claim/expand/resume their own tasks and submit. They may park their own
 investigation when its cause belongs to another worker. All other event types
-are coordinator-only. Up to four persistent workers may hold live ownership.
+are coordinator-only, except prep-probe: the Prep lead starts probes; the lead
+or assigned probe worktree records later observations. Up to four persistent
+workers may hold live ownership, plus six nested Prep exploration lanes.
+Before launching C recording/replay, reserve a slot with recording: true.
+At most two probes can reserve slots; preserve a reservation after interruption
+until its command is confirmed stopped. Record the actual process handle when
+available. Release with recording: false after reaping the command. Observation
+events do not start or stop processes. Completed probes never become Main
+deliveries or implementation reservations.
 Git resolves revisions and checks registration, assignment, candidate and
 checkpoint identity. Publication is recorded only after local and remote main
 match the accepted commit. sync-main performs a safe local fast-forward only;
@@ -161,6 +173,7 @@ const FIELDS = {
     observe: ['worker', 'handle', 'processes'],
     connect: ['worker', 'handle'], connected: ['worker', 'handle'],
     turn: ['worker', 'state', 'reason', 'processes'],
+    'prep-probe': ['task', 'probe', 'worker', 'state', 'summary', 'processes', 'recording'],
     coordinator: ['handle', 'processes'],
     assign: ['task', 'worker', 'seed', 'base', 'reservations', 'allowedPaths'],
     scope: ['task', 'reservations', 'allowedPaths'],
@@ -179,7 +192,8 @@ const FIELDS = {
     park: ['task', 'reason'], resume: ['task'],
 };
 const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
-    feedback: ['prepGroup', 'implementationGroup'], turn: ['summary'] };
+    feedback: ['prepGroup', 'implementationGroup'], turn: ['summary'],
+    'prep-probe': ['worktree', 'branch', 'handle', 'source', 'outcome'] };
 
 function check(condition, message) {
     if (!condition) throw new Error(message);
@@ -265,6 +279,43 @@ function applyEvent(state, event, at) {
     for (const key of Object.keys(event)) check(allowed.includes(key), `unexpected event field: ${key}`);
     for (const key of ['id', 'type', ...FIELDS[type]]) check(Object.hasOwn(event, key), `missing event field: ${key}`);
     identifier(event.id, 'event id');
+    if (type === 'prep-probe') {
+        identifier(event.task, 'parent task'); identifier(event.probe, 'probe');
+        const parent = state.tasks[event.task], previous = state.probes[event.probe];
+        check(parent?.kind === 'challenge-preparation' && parent.status === 'working',
+            'probe requires a working preparation parent');
+        check(/^Prep-[1-6]$/u.test(event.worker), 'probe worker must be Prep-1 through Prep-6');
+        check(['active', 'idle', 'blocked', 'done'].includes(event.state), 'invalid probe state');
+        string(event.summary, 'public probe summary'); list(event.processes, 'processes', string, true);
+        check(typeof event.recording === 'boolean', 'recording must be boolean');
+        check(event.processes.length <= 1 && (event.processes.length === 0 || event.recording),
+            'one bounded command per probe; retain its slot until reaped');
+        check(event.state === 'active' || (!event.recording && event.processes.length === 0),
+            'reap commands and release the recorder slot before waiting or completing');
+        if (previous) {
+            check(previous.state !== 'done', 'completed probe cannot be reopened; assign a new probe');
+            for (const key of ['task', 'worker', 'worktree', 'branch', 'handle', 'source'])
+                check(event[key] === undefined || event[key] === previous[key], `probe ${key} cannot change`);
+        } else {
+            check(event.state === 'active', 'new probe must start active');
+            absolute(event.worktree, 'probe worktree'); string(event.branch, 'probe branch');
+            string(event.handle, 'probe handle'); string(event.source, 'probe source');
+            check(!Object.values(state.workers).some(row => row.worktree === event.worktree
+                || row.branch === event.branch || row.handle === event.handle), 'probe must have a private owner');
+            for (const other of Object.values(state.probes).filter(row => row.state !== 'done'))
+                check(other.worker !== event.worker && other.worktree !== event.worktree
+                    && other.branch !== event.branch && other.handle !== event.handle,
+                'exploration lane already owns an unfinished probe');
+        }
+        if (event.state === 'done') check(['failure', 'match', 'duplicate', 'deferred'].includes(event.outcome),
+            'completed probe needs an outcome');
+        else check(event.outcome === undefined, 'only a completed probe has an outcome');
+        if (event.recording) check(Object.values(state.probes)
+            .filter(row => row.probe !== event.probe && row.recording).length < 2,
+        'both Prep recorder slots are reserved; wait for a release');
+        state.probes[event.probe] = { ...previous, ...event, startedAt: previous?.startedAt ?? at, updatedAt: at };
+        return;
+    }
     if (type === 'implementation-released') {
         list(event.tasks, 'tasks', value => identifier(value, 'task'));
         sha(event.integration, 'integration'); string(event.reason, 'reason');
@@ -460,6 +511,8 @@ function applyEvent(state, event, at) {
         Object.assign(task, { reservations: [...event.reservations], allowedPaths: [...event.allowedPaths], scopeUpdatedAt: at });
     } else if (type === 'ready') {
         requireStatus('working');
+        check(!Object.values(state.probes).some(probe => probe.task === task.id && probe.state !== 'done'),
+            'finish outstanding preparation probes before submission');
         check(task.kind !== 'investigation', 'claim implementation scope before submitting a delivery');
         sha(event.delivery, 'delivery'); sha(event.base, 'base');
         check(!Object.hasOwn(state.deliveries, event.delivery), 'delivery SHA already exists; corrections need a new SHA');
@@ -535,6 +588,8 @@ function applyEvent(state, event, at) {
             publicationEvidenceTask: event.evidenceTask, publicationConfirmedAt: at });
     } else if (type === 'park') {
         requireStatus('working', 'ready', 'validated', 'changes-required');
+        check(!Object.values(state.probes).some(probe => probe.task === task.id && probe.state !== 'done'),
+            'finish outstanding preparation probes before parking the parent');
         string(event.reason, 'reason');
         task.parkedFrom = task.status;
         Object.assign(task, { status: 'parked', parkedAt: at, reason: event.reason });
@@ -551,7 +606,7 @@ function applyEvent(state, event, at) {
 export function summarizeLedger(ledger) {
     validateLedger(ledger);
     const state = { runId: ledger.runId, coordinatorRoot: ledger.coordinatorRoot,
-        coordinator: { handle: null, processes: [] }, workers: {}, tasks: {}, deliveries: {}, reservations: {} };
+        coordinator: { handle: null, processes: [] }, workers: {}, tasks: {}, deliveries: {}, reservations: {}, probes: {} };
     const seen = new Set();
     for (const { at, ...event } of ledger.events) {
         check(!seen.has(event.id), 'duplicate event id in ledger'); seen.add(event.id);
@@ -597,6 +652,9 @@ export function nextActions(state, admittedBatches = [], queue = null) {
             ? prepAction
             : { action: 'check-independence' };
     return {
+        preparationProbes: Object.values(state.probes).filter(probe => probe.state !== 'done')
+            .map(({probe, task, worker, state, summary, handle, processes, recording}) =>
+                ({probe, task, worker, state, summary, handle, processes, recording})),
         wakeups: batchWakeups(state, admittedBatches, queue),
         connections: Object.values(state.workers).filter(w => w.connectionRequestedAt && !w.connectedAt)
             .map(w => ({ worker: w.worker, handle: w.handle })),
@@ -622,12 +680,14 @@ export function nextActions(state, admittedBatches = [], queue = null) {
 }
 
 function authorizeWorker(state, root, event) {
-    check(event && ['assign', 'scope', 'implement', 'ready', 'connect', 'turn', 'resume', 'park'].includes(event.type),
+    check(event && ['assign', 'scope', 'implement', 'ready', 'connect', 'turn', 'resume', 'park', 'prep-probe'].includes(event.type),
         'only coordinator may record this event');
     if (event.type === 'park') check(state.tasks[event.task]?.kind === 'investigation',
         'only coordinator may park implementation or preparation tasks');
+    const parent = event.type === 'prep-probe' ? state.workers[state.tasks[event.task]?.worker] : null;
     const workerId = event.worker ?? state.tasks[event.task]?.worker;
-    const worker = state.workers[workerId];
+    const worker = event.type === 'prep-probe'
+        ? (parent?.worktree === root ? parent : state.probes[event.probe]) : state.workers[workerId];
     check(worker && worker.worktree === root, 'event does not belong to this registered worker worktree');
     const branch = spawnSync('git', ['-C', root, 'branch', '--show-current'], { encoding: 'utf8' });
     check(branch.status === 0 && branch.stdout.trim() === worker.branch, 'worker branch differs from registration');

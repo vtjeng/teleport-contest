@@ -14,6 +14,7 @@ const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
   'integrating', 'validated', 'accepted', 'published', 'publication-confirmed', 'activity', 'turn', 'register', 'observe',
   'prep-integrating', 'implementation-integrating', 'implementation-released',
+  'prep-probe',
 ]);
 
 export function activityFromLedger(ledger) {
@@ -52,6 +53,9 @@ export function activityFromLedger(ledger) {
       ...(event.passed !== undefined ? { passed: event.passed } : {}),
       ...(event.phase ? { phase: event.phase } : {}),
       ...(event.state ? { state: event.state } : {}),
+      ...(event.type === 'prep-probe' ? {probe: event.probe, reason: event.summary,
+        ...(event.source ? {source: event.source} : {}),
+        ...(event.outcome ? {outcome: event.outcome} : {})} : {}),
       ...(['activity', 'park'].includes(event.type) ? { reason: event.reason } : {}),
       ...(event.type === 'turn' && event.summary ? { reason: event.summary } : {}),
       ...(['register', 'observe'].includes(event.type)

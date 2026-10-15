@@ -5,6 +5,7 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { escapeJsonForScript } from './build-dashboard.mjs';
+import { activityTimeline } from './dashboard-activity.mjs';
 
 const [url, screenshot] = process.argv.slice(2);
 if (!url || process.argv.length > 4) throw new Error('Usage: node scripts/dashboard-activity.browser.mjs <dashboard-url> [screenshot.png]');
@@ -137,7 +138,8 @@ try {
     await showAll.press('Space');
     const all = await sessionNames();
     for (const item of excludedCases) assert.ok(all.includes(item.name), item.name);
-    const excludedRows = page.locator('#challengeTable tbody tr').filter({ hasText: 'Excluded' });
+    const excludedRows = page.locator('#challengeTable tbody tr')
+      .filter({has: page.getByRole('cell', {name: 'Excluded', exact: true})});
     assert.equal(await excludedRows.count(), excludedCases.length);
     await excludedRows.first().locator('summary').click();
     assert.ok((await excludedRows.first().innerText()).includes(excludedCases[0].reason));
@@ -151,7 +153,15 @@ try {
   const readout = page.locator('#timelineReadout');
   await plot.evaluate(element => window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 450));
   console.log(await page.locator('#activityMetrics').innerText());
-  const first = page.locator('.activity-bar.phase-working').first();
+  // A clipped sliver at the window edge can be narrower than its neighbour's
+  // minimum hit target. Exercise a full-size bar, not an arbitrary first node.
+  async function widestBar(selector) {
+    const bars = page.locator(selector);
+    const index = await bars.evaluateAll(elements => elements.map((element, index) =>
+      ({index, width: element.getBoundingClientRect().width})).sort((a, b) => b.width - a.width)[0]?.index ?? 0);
+    return bars.nth(index);
+  }
+  const first = await widestBar('.activity-bar.phase-working');
   const frame = await plot.boundingBox(), scroll = await page.evaluate(() => scrollY);
   await first.click();
   const pinned = await readout.innerText();
@@ -166,7 +176,7 @@ try {
   await page.locator('#activityWindow').selectOption('24');
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), range);
   assert.equal(await readout.innerText(), pinned, 'range changes must preserve a deliberate selection');
-  const prep = page.locator('.activity-bar.phase-working[aria-label*="Prep"][aria-label*=" · v"]').first();
+  const prep = await widestBar('.activity-bar.phase-working[aria-label*="Prep"][aria-label*=" · v"]');
   if (await prep.count()) {
     await prep.click();
     assert.match(await readout.innerText(), /Synthetic local holdout v\d+/u);
@@ -246,6 +256,14 @@ try {
   assert.deepEqual(errors, []);
   if (screenshot) await page.getByRole('heading', { name: 'Worker activity', exact: true }).locator('..').screenshot({ path: screenshot });
   const originalData = await page.evaluate('DATA');
+  async function loadData(data) {
+    const begin = originalHTML.indexOf('const DATA = '), end = originalHTML.indexOf('\n', begin);
+    const html = originalHTML.slice(0, begin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(data))
+      + ';\n' + originalHTML.slice(end + 1);
+    await page.unroute(url);
+    await page.route(url, route => route.fulfill({contentType: 'text/html', body: html}));
+    await page.reload();
+  }
   // A shared attempt must remain one Main interval and one duration sample.
   // Four tasks exercise the uncapped group display without running games or CI.
   const groupEnd = originalData.activity.capturedAt;
@@ -260,11 +278,7 @@ try {
   const groupData = {...originalData, activity: {capturedAt: groupEnd, segments: groupSegments,
     events: [], tasks: validationGroup.map((task, index) => ({id: task, label: task, worker, kind,
       ...(preparation ? {batch: `v${58 + index}`} : {}), assignedAt: groupStart, status: 'accepted'}))}};
-  const groupBegin = originalHTML.indexOf('const DATA = '), groupFinish = originalHTML.indexOf('\n', groupBegin);
-  const groupHTML = originalHTML.slice(0, groupBegin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(groupData))
-    + ';\n' + originalHTML.slice(groupFinish + 1);
-  await page.route(url, route => route.fulfill({contentType: 'text/html', body: groupHTML}));
-  await page.reload();
+  await loadData(groupData);
   assert.match(await page.locator(preparation ? '#prepIntegrationDurationSummary' : '#integrationDurationSummary').innerText(), /1 attempt/u);
   const groupBar = page.locator('.activity-bar.phase-integrating').first();
   assert.match(await groupBar.getAttribute('aria-label'), preparation ? /Prep group · 4 tasks/u : /Implementation group · 4 tasks/u);
@@ -275,6 +289,52 @@ try {
   assert.deepEqual(await page.locator('#timeline').boundingBox(), groupFrame, 'group selection does not shift the plot');
   await page.unroute(url);
   }
+  // Exercise the new Prep rows even before production has emitted probe events.
+  const at = minute => new Date(Date.parse(groupEnd) - (10 - minute) * 60000).toISOString();
+  const probe = (n, minute, state = 'active', outcome) => ({type: 'prep-probe', task: 'Prep-pilot',
+    probe: `v83-probe-${n}`, worker: `Prep-${n}`, source: `fixture.c:target${n}`,
+    state, outcome, reason: state === 'blocked' ? 'Waiting for a recorder slot.' : 'Explore C behavior.', at: at(minute)});
+  const prepEvents = [
+    {type: 'assign', task: 'Prep-pilot', worker: 'Prep', kind: 'challenge-preparation', batch: 'v83', at: at(0)},
+    ...['A', 'B', 'C'].flatMap(worker => [
+      {type: 'assign', task: worker + '-fixture', worker, at: at(0)},
+      {type: 'turn', worker, state: 'idle', reason: 'No independent admitted mismatch.', at: at(1)},
+    ]),
+    ...Array.from({length: 6}, (_, index) => probe(index + 1, 1)),
+    probe(2, 2, 'blocked'), probe(1, 5, 'done', 'failure'), probe(3, 5, 'done', 'match'),
+  ];
+  await loadData({...originalData, activity: activityTimeline({events: prepEvents}, at(6))});
+  assert.match(await page.locator('#activityMetrics').innerText(), /A\/B\/C[\s\S]*Prep lead[\s\S]*Prep lanes[\s\S]*Main/u);
+  assert.match(await page.locator('#prepProbeSummary').innerText(), /1 blocked[\s\S]*1 failure[\s\S]*1 match kept outside manifests/u);
+  const laneLabels = await page.locator('.activity-label').allTextContents();
+  assert.equal(laneLabels.length, 11, 'A/B/C, lead, six explorers and Main remain separate agents');
+  for (let n = 1; n <= 6; n++) assert.ok(laneLabels.includes('Prep-' + n));
+  const probeBar = page.locator('.activity-bar[aria-label*="v83-probe-1"]').first();
+  await probeBar.scrollIntoViewIfNeeded();
+  const prepFrame = await plot.boundingBox(), prepScroll = await page.evaluate(() => scrollY);
+  await probeBar.click();
+  const probeDetails = await readout.innerText();
+  assert.match(probeDetails, /Prep task[\s\S]*Prep-pilot[\s\S]*C target[\s\S]*fixture.c:target1[\s\S]*Probe result[\s\S]*failure/u);
+  await page.locator('.activity-bar.phase-blocked').first().hover();
+  assert.equal(await readout.innerText(), probeDetails);
+  assert.deepEqual(await plot.boundingBox(), prepFrame);
+  assert.equal(await page.evaluate(() => scrollY), prepScroll);
+  await probeBar.focus(); await probeBar.press('Enter');
+  assert.deepEqual(await plot.boundingBox(), prepFrame);
+  if (screenshot) await page.getByRole('heading', {name: 'Worker activity', exact: true}).locator('..')
+    .screenshot({path: screenshot.replace(/\.png$/u, '-prep-lanes.png')});
+  for (const width of [1440, 900, 600, 390, 320]) {
+    await page.setViewportSize({width, height: 1200});
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      'Prep labels and utilization must not overflow at ' + width);
+    const before = await plot.boundingBox();
+    await page.locator('#activityWindow').selectOption('24');
+    assert.deepEqual(await plot.boundingBox(), before, 'changing range preserves all Prep row positions');
+    await page.locator('#activityWindow').selectOption('6');
+  }
+  console.log('Prep lanes: distinct workers, batch/target/outcome details, pooled utilization, pinned selection and responsive layout passed.');
+  await page.setViewportSize({width: 1440, height: 1200});
+  await page.unroute(url);
   await page.reload();
   const emptyFrames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
   // The chart must retain its frame when no duration is measurable, including
@@ -285,11 +345,7 @@ try {
   for (const segments of [[], [open]]) {
     const data = { ...originalData, activity: { capturedAt, segments, tasks: segments.length
       ? [{ id: 'open', label: 'Open C task', worker: 'C', assignedAt: open.start, status: 'integrating' }] : [] } };
-    const begin = originalHTML.indexOf('const DATA = '), end = originalHTML.indexOf('\n', begin);
-    const html = originalHTML.slice(0, begin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(data))
-      + ';\n' + originalHTML.slice(end + 1);
-    await page.route(url, route => route.fulfill({ contentType: 'text/html', body: html }));
-    await page.reload();
+    await loadData(data);
     for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
       assert.match(await page.locator('#' + prefix + 'Summary').innerText(), /No completed attempts/u);
     }
