@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v76/v76-statue-search-action2",
+  "remainingScreens": 400,
+  "recordedSteps": 751,
+  "corpus": "synthetic",
+  "batch": "v76",
+  "caseId": "v76-statue-search-action2",
+  "manifestPath": "challenges/manifests/v76.json",
+  "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+  "recordingSha256": "37e96364c06c400997f3759bbe66bf332410dde8e85deb5fedc353b89f7d6838",
+  "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+  "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+  "status": "complete",
+  "commit": "e5254c1c2e18eb080aa2674e93822057f80493e1",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v76",
+    "caseId": "v76-statue-search-action2",
+    "session": "synthetic/v76/v76-statue-search-action2",
+    "manifestPath": "challenges/manifests/v76.json",
+    "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+    "recording": "challenges/cases/v76/v76-statue-search-action2.session.json",
+    "recordingPath": "challenges/cases/v76/v76-statue-search-action2.session.json",
+    "recordingSha256": "37e96364c06c400997f3759bbe66bf332410dde8e85deb5fedc353b89f7d6838",
+    "recipe": "challenges/cases/v76/v76-statue-search-action2.recipe.session.json",
+    "recipeSha256": "547a03cef0ef34f158787892e47bd42b8f6a96331025d3516640c9b608519012",
+    "replayInputSha256": "56bf17d1c44694537cd9162f1d3b5a5751d4255698c0a64c8aa4676b3b9362c8",
+    "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+    "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+    "evaluationArtifact": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+    "evaluationUtc": "2026-10-15T00:53:47.313Z",
+    "remainingScreens": 400,
+    "recordedSteps": 751,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 351,
+        "total": 751
+      },
+      "rng": {
+        "matched": 2748,
+        "total": 2772
+      },
+      "cursors": {
+        "matched": 351,
+        "total": 751
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: detect.c activate_statue_trap() is not ported",
+      "step": 351
+    },
+    "step": 351,
+    "kind": "stop",
+    "sourceFile": "trap.c",
+    "function": "activate_statue_trap",
+    "message": "unsupported hero command: an unported branch of this command: detect.c activate_statue_trap() is not ported",
+    "cFile": "trap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "An explicit search that selects an unseen adjacent statue trap reaches the existing activate_statue_trap implementation in C. JavaScript refuses during preflight because detect.js has no default activateStatueTrap operation, although trap.js already exports the complete callee. Wire that existing behavior into the production search environment; keep the swallowed explicit-search branch in the same dosearch0 task.",
+  "source": {
+    "file": "detect.c",
+    "branch": "dosearch0(0) searches each adjacent non-secret square; when an unseen trap is selected by rnl(8) and has type STATUE_TRAP, it clears multi, calls activate_statue_trap(trap, x, y, FALSE), conditionally exercises wisdom when a monster is returned, then returns 1.",
+    "functions": [
+      "dosearch0",
+      "dosearch"
+    ],
+    "callers": [
+      "rhack explicit s command -> dosearch -> dosearch0(0)",
+      "automatic search moveloop_core -> dosearch0(1)"
+    ],
+    "dependencies": [
+      "trap.c:activate_statue_trap (already implemented in js/trap.js; its returned monster determines whether exercise(A_WIS, TRUE) runs)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/detect.c:2016-2099: dosearch0 handles explicit search; lines 2080-2087 call activate_statue_trap only after rnl(8) selects an unseen statue trap, exercise wisdom only when it returns a monster, and return immediately.",
+    "nethack-c/upstream/src/detect.c:2100-2105: dosearch is the explicit command wrapper and returns ECMD_TIME when dosearch0(0) succeeds.",
+    "js/detect.js:2066-2120 sets activateStatueTrap to null by default; js/detect.js:2197-2203 requires that operation during explicit-search preflight; js/detect.js:2910-2921 calls it in the selected statue branch.",
+    "js/trap.js:3600-3620 already implements activate_statue_trap, including trap removal, unique-monster retry, square refresh, and returning the animated monster.",
+    "The admitted v76 statue recording first stops at segment 0 step 351 on explicit search, with the UnsupportedHeroCommandBoundaryError naming detect.c activate_statue_trap; its prefix matches 351 screens/cursors and 2748 RNG calls. C recording SHA is 37e96364c06c400997f3759bbe66bf332410dde8e85deb5fedc353b89f7d6838; official evaluation commit is 890cd18c3d67a0d04d57e12c1f48cffc045c877f."
+  ]
+}
