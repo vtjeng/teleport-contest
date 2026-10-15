@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v76/v76-swallowed-explicit-search-action2",
+  "remainingScreens": 50,
+  "recordedSteps": 1096,
+  "corpus": "synthetic",
+  "batch": "v76",
+  "caseId": "v76-swallowed-explicit-search-action2",
+  "manifestPath": "challenges/manifests/v76.json",
+  "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+  "recordingSha256": "6395e34ca8446a3ebca27ee67abff04b0b24b52252447c16a4916e105349046c",
+  "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+  "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+  "status": "complete",
+  "commit": "30d54c46a",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v76",
+    "caseId": "v76-swallowed-explicit-search-action2",
+    "session": "synthetic/v76/v76-swallowed-explicit-search-action2",
+    "manifestPath": "challenges/manifests/v76.json",
+    "manifestSha256": "c2795883d9d180e9d7ff29589b8f128f75d40712947b6b180a99158478d031b5",
+    "recording": "challenges/cases/v76/v76-swallowed-explicit-search-action2.session.json",
+    "recordingPath": "challenges/cases/v76/v76-swallowed-explicit-search-action2.session.json",
+    "recordingSha256": "6395e34ca8446a3ebca27ee67abff04b0b24b52252447c16a4916e105349046c",
+    "recipe": "challenges/cases/v76/v76-swallowed-explicit-search-action2.recipe.session.json",
+    "recipeSha256": "f7b911ba031e24b5352cbf4cb59da6bcc4a30c309683557b812f1a0ea2cc28be",
+    "replayInputSha256": "56bf17d1c44694537cd9162f1d3b5a5751d4255698c0a64c8aa4676b3b9362c8",
+    "evaluationPath": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+    "evaluationCommit": "890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+    "evaluationArtifact": "challenges/evaluations/admission-890cd18c3d67a0d04d57e12c1f48cffc045c877f-v76.json",
+    "evaluationUtc": "2026-10-15T00:53:47.313Z",
+    "remainingScreens": 50,
+    "recordedSteps": 1096,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 1046,
+        "total": 1096
+      },
+      "rng": {
+        "matched": 3102,
+        "total": 3118
+      },
+      "cursors": {
+        "matched": 1046,
+        "total": 1096
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: searching while swallowed is not ported",
+      "step": 1046
+    },
+    "step": 1046,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: searching while swallowed is not ported",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "An explicit search while swallowed should print the source Norep message, consume the turn, and then allow the swallowing monster action. JavaScript preflight throws UnsupportedSearchError before the command reaches that branch, omitting the message and the rest of the turn. Remove the swallowed refusal and use the normal message path in dosearch0.",
+  "source": {
+    "file": "detect.c",
+    "branch": "When u.uswallow is true, dosearch0 skips the adjacent-square loop; for aflag == 0 it calls Norep with the exit question, then returns 1 so dosearch maps the result to ECMD_TIME.",
+    "callers": [
+      "rhack explicit s command -> dosearch -> dosearch0(0)",
+      "automatic search moveloop_core -> dosearch0(1)"
+    ],
+    "functions": [
+      "dosearch0",
+      "dosearch"
+    ],
+    "dependencies": [
+      "Norep (message deduplication wrapper; the selected recording shows the first message after the prior distinct swallowed-turn messages)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/detect.c:2020-2023: swallowed state bypasses the search loop; explicit search calls Norep(\"What are you looking for?  The exit?\"). The function then returns 1 at line 2098.",
+    "nethack-c/upstream/src/detect.c:2100-2105: dosearch converts the successful return into ECMD_TIME, so the command does not abort the rest of the game turn.",
+    "js/detect.js:2254-2271 throws UnsupportedSearchError for swallowed explicit search during preflight; dosearch0 calls that preflight before its swallowed-state check at lines 2854-2864.",
+    "The admitted v76 recording first stops at segment 0 step 1046 on explicit s. C emits the exit-question line, then the monster consumes the turn; JavaScript raises UnsupportedHeroCommandBoundaryError before the screen or RNG tail. The C prefix matches through 1045 prior inputs, including 3102 RNG calls and 1046 screens/cursors.",
+    "C recording SHA is 6395e34ca8446a3ebca27ee67abff04b0b24b52252447c16a4916e105349046c; official evaluation commit is 890cd18c3d67a0d04d57e12c1f48cffc045c877f."
+  ]
+}
