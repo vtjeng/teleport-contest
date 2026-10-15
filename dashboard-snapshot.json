@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T00:13:56.370Z",
+  "capturedAt": "2026-10-15T00:26:57.441Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -129426,63 +129426,322 @@
         "at": "2026-10-15T00:13:47.049Z",
         "task": "C-investigation-v74-counted-wield-stack-action1-20261014",
         "reason": "Source-traced at 946f9d8ef: invent.c:getobj splits the count, then wield.c:dowield should finish_splitting the child and continue to wielding. Implementation awaits release of source:wield.c:dowield reserved by C’s submitted quiver delivery 2b4144ab; resume after acceptance/release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-B-v75-stethoscope-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:13:54.095Z",
+        "worker": "B",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B-v75-stethoscope-investigation-20261015",
+        "type": "assign",
+        "at": "2026-10-15T00:13:58.298Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep39-8be18e6815322537b675d2172c630266f48e69e2",
+        "type": "published",
+        "at": "2026-10-15T00:14:02.524Z",
+        "task": "Prep39",
+        "commit": "8be18e6815322537b675d2172c630266f48e69e2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-active-v75-prisoner-release-20261014",
+        "type": "turn",
+        "at": "2026-10-15T00:14:10.977Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v75 prisoner-release speech mismatch and tracing its quest.c dispatch before source edits."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v75-prisoner-release-20261014",
+        "type": "assign",
+        "at": "2026-10-15T00:14:15.237Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v75-figurine-20261014",
+        "type": "turn",
+        "at": "2026-10-15T00:14:28.055Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v75-contained-figurine-stash-action2-20261014",
+        "type": "assign",
+        "at": "2026-10-15T00:14:32.297Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-94076a170b2c082e696e612344ca6e67f122cd2d-b1c06a1da92bd1974bd4fe7b51a2af6e1d571e298440e633f0389bd8c70d856c-C-investigation-v74-glib-tin-stack-action1-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:15:07.347Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "integration": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "validationGroup": [
+          "C-investigation-v74-glib-tin-stack-action1-20261014",
+          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+          "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+          "C-investigation-v74-wield-quiver-split-action2-20261014",
+          "B-investigation-v74-offhand-sting-action2-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-94076a170b2c082e696e612344ca6e67f122cd2d-b1c06a1da92bd1974bd4fe7b51a2af6e1d571e298440e633f0389bd8c70d856c-B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:15:07.347Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "integration": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "validationGroup": [
+          "C-investigation-v74-glib-tin-stack-action1-20261014",
+          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+          "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+          "C-investigation-v74-wield-quiver-split-action2-20261014",
+          "B-investigation-v74-offhand-sting-action2-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-94076a170b2c082e696e612344ca6e67f122cd2d-b1c06a1da92bd1974bd4fe7b51a2af6e1d571e298440e633f0389bd8c70d856c-A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:15:07.347Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "integration": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "validationGroup": [
+          "C-investigation-v74-glib-tin-stack-action1-20261014",
+          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+          "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+          "C-investigation-v74-wield-quiver-split-action2-20261014",
+          "B-investigation-v74-offhand-sting-action2-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-94076a170b2c082e696e612344ca6e67f122cd2d-b1c06a1da92bd1974bd4fe7b51a2af6e1d571e298440e633f0389bd8c70d856c-C-investigation-v74-wield-quiver-split-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:15:07.347Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "integration": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "validationGroup": [
+          "C-investigation-v74-glib-tin-stack-action1-20261014",
+          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+          "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+          "C-investigation-v74-wield-quiver-split-action2-20261014",
+          "B-investigation-v74-offhand-sting-action2-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-94076a170b2c082e696e612344ca6e67f122cd2d-b1c06a1da92bd1974bd4fe7b51a2af6e1d571e298440e633f0389bd8c70d856c-B-investigation-v74-offhand-sting-action2-20261014",
+        "type": "integrating",
+        "at": "2026-10-15T00:15:07.347Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "integration": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "validationGroup": [
+          "C-investigation-v74-glib-tin-stack-action1-20261014",
+          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+          "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+          "C-investigation-v74-wield-quiver-split-action2-20261014",
+          "B-investigation-v74-offhand-sting-action2-20261014"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v75-contained-figurine-stash-20261014",
+        "type": "implement",
+        "at": "2026-10-15T00:15:17.962Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "goal": "wire-in-container-figurine-timer-stop-v75"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-B-v75-stethoscope-20261015",
+        "type": "implement",
+        "at": "2026-10-15T00:16:08.737Z",
+        "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "goal": "fix-v75-glib-self-stethoscope-ustatusline-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v75-prisoner-release-20261014",
+        "type": "implement",
+        "at": "2026-10-15T00:16:16.367Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "goal": "fix-prisoner-release-speech-v75-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1a47d3419c3ca8d3f657ce0c9e9f473ea9427a77",
+        "type": "ready",
+        "at": "2026-10-15T00:18:22.607Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "delivery": "1a47d3419c3ca8d3f657ce0c9e9f473ea9427a77"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-idle-after-v75-figurine-20261014",
+        "type": "turn",
+        "at": "2026-10-15T00:18:44.744Z",
+        "worker": "C",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-C-v75-figurine-1a47d341",
+        "type": "received",
+        "at": "2026-10-15T00:18:51.384Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "delivery": "1a47d3419c3ca8d3f657ce0c9e9f473ea9427a77"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5ed659df2471fd947772d039c6d9046c83a0660d",
+        "type": "ready",
+        "at": "2026-10-15T00:19:40.771Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "delivery": "5ed659df2471fd947772d039c6d9046c83a0660d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A2-v75-prisoner-5ed659df",
+        "type": "received",
+        "at": "2026-10-15T00:20:07.928Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "delivery": "5ed659df2471fd947772d039c6d9046c83a0660d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-idle-after-v75-prisoner-release-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:20:16.465Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "V75 prisoner-release delivery is ready; waiting for acceptance or a refreshed queue with another independent case. Other current mismatches are owned by A2, B, or C, and v48 remains blocked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v74-glib-tin-stack-action1-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T00:24:25.990Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v74-cockatrice-trapper-engulf-action2-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T00:24:25.990Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v74-jelly-carrier-burial-action6-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T00:24:25.990Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v74-wield-quiver-split-action2-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T00:24:25.990Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v74-offhand-sting-action2-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-validated",
+        "type": "validated",
+        "at": "2026-10-15T00:24:25.990Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep40-v76-adjudication-20261015",
+        "type": "turn",
+        "at": "2026-10-15T00:24:45.893Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Preparing v76: five source failures and five proposed controls; reviewing final coverage while coordinator validation finishes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v74-glib-tin-stack-action1-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T00:25:05.829Z",
+        "task": "C-investigation-v74-glib-tin-stack-action1-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v74-cockatrice-trapper-engulf-action2-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T00:25:05.829Z",
+        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v74-jelly-carrier-burial-action6-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T00:25:05.829Z",
+        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v74-wield-quiver-split-action2-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T00:25:05.829Z",
+        "task": "C-investigation-v74-wield-quiver-split-action2-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v74-offhand-sting-action2-20261014-94076a170b2c082e696e612344ca6e67f122cd2d-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T00:25:05.829Z",
+        "task": "B-investigation-v74-offhand-sting-action2-20261014"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "C-investigation-v74-glib-tin-stack-action1-20261014",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
         "worker": "C",
-        "goal": "wire-eat-start-tin-drop-environment-v74",
+        "goal": "wire-in-container-figurine-timer-stop-v75",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "60c9002c79375f083437f1ca0bdbfcdd9b8e77d3",
-        "since": "2026-10-14T23:30:59.396Z",
+        "delivery": "1a47d3419c3ca8d3f657ce0c9e9f473ea9427a77",
+        "since": "2026-10-15T00:18:22.607Z",
         "blockedBy": [],
         "unblocks": 0
       },
       {
-        "task": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
-        "worker": "B",
-        "goal": "fix-v74-trapper-cockatrice-engulf-stoning-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "8bd6904346b67cbb1f800a69f22682fe422ce358",
-        "since": "2026-10-14T23:32:09.173Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
         "worker": "A2",
-        "goal": "fix-mon-xkilled-buried-corpse-v74-20261014",
+        "goal": "fix-prisoner-release-speech-v75-20261014",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "754ee98c817fdb436a80317a1ebab25a1586f4da",
-        "since": "2026-10-14T23:34:01.976Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "C-investigation-v74-wield-quiver-split-action2-20261014",
-        "worker": "C",
-        "goal": "fix-wield-quivered-stack-split-v74",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2b4144ab4a6e473970b0a53cae76110c80a07d76",
-        "since": "2026-10-14T23:35:30.044Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v74-offhand-sting-action2-20261014",
-        "worker": "B",
-        "goal": "fix-v74-offhand-sting-oname-20261014",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ab61515dfebb44ad5f2135129835a11c1652f38d",
-        "since": "2026-10-14T23:40:52.613Z",
+        "delivery": "5ed659df2471fd947772d039c6d9046c83a0660d",
+        "since": "2026-10-15T00:19:40.771Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -130659,56 +130918,6 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "C-investigation-v74-glib-tin-stack-action1-20261014": {
-        "id": "C-investigation-v74-glib-tin-stack-action1-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v74/v74-glib-tin-stack-action1",
-        "reservations": [
-          "session:synthetic/v74/v74-glib-tin-stack-action1",
-          "source:eat.c:start_tin"
-        ]
-      },
-      "A2-investigation-v74-jelly-carrier-burial-action6-20261014": {
-        "id": "A2-investigation-v74-jelly-carrier-burial-action6-20261014",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v74/v74-jelly-carrier-burial-action6",
-        "reservations": [
-          "session:synthetic/v74/v74-jelly-carrier-burial-action6",
-          "source:mon.c:xkilled"
-        ]
-      },
-      "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014": {
-        "id": "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v74/v74-cockatrice-trapper-engulf-action2",
-        "reservations": [
-          "session:synthetic/v74/v74-cockatrice-trapper-engulf-action2",
-          "source:mhitu.c:gulpmu"
-        ]
-      },
-      "C-investigation-v74-wield-quiver-split-action2-20261014": {
-        "id": "C-investigation-v74-wield-quiver-split-action2-20261014",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v74/v74-wield-quiver-split-action2",
-        "reservations": [
-          "session:synthetic/v74/v74-wield-quiver-split-action2",
-          "source:wield.c:dowield"
-        ]
-      },
-      "B-investigation-v74-offhand-sting-action2-20261014": {
-        "id": "B-investigation-v74-offhand-sting-action2-20261014",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v74/v74-offhand-sting-action2",
-        "reservations": [
-          "session:synthetic/v74/v74-offhand-sting-action2",
-          "source:do_name.c:oname"
-        ]
-      },
       "C-investigation-v74-counted-wield-stack-action1-20261014": {
         "id": "C-investigation-v74-counted-wield-stack-action1-20261014",
         "worker": "C",
@@ -130718,64 +130927,86 @@
           "session:synthetic/v74/v74-counted-wield-stack-action1"
         ],
         "reason": "Source-traced at 946f9d8ef: invent.c:getobj splits the count, then wield.c:dowield should finish_splitting the child and continue to wielding. Implementation awaits release of source:wield.c:dowield reserved by C’s submitted quiver delivery 2b4144ab; resume after acceptance/release."
+      },
+      "B-investigation-v75-glib-self-stethoscope-action1-20261015": {
+        "id": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
+        "worker": "B",
+        "status": "working",
+        "seed": "synthetic/v75/v75-glib-self-stethoscope-action1",
+        "reservations": [
+          "session:synthetic/v75/v75-glib-self-stethoscope-action1",
+          "source:insight.c:ustatusline"
+        ]
+      },
+      "A2-investigation-v75-prisoner-release-action3-20261014": {
+        "id": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "worker": "A2",
+        "status": "ready",
+        "seed": "synthetic/v75/v75-prisoner-release-action3",
+        "reservations": [
+          "session:synthetic/v75/v75-prisoner-release-action3",
+          "source:quest.c:prisoner_speaks",
+          "source:quest.c:quest_talk"
+        ]
+      },
+      "C-investigation-v75-contained-figurine-stash-action2-20261014": {
+        "id": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v75/v75-contained-figurine-stash-action2",
+        "reservations": [
+          "session:synthetic/v75/v75-contained-figurine-stash-action2",
+          "source:pickup.c:in_container",
+          "contract:inventory-timer-hooks"
+        ]
       }
     },
     "reservations": {
-      "session:synthetic/v74/v74-glib-tin-stack-action1": {
+      "session:synthetic/v75/v75-glib-self-stethoscope-action1": {
         "tasks": [
-          "C-investigation-v74-glib-tin-stack-action1-20261014"
+          "B-investigation-v75-glib-self-stethoscope-action1-20261015"
         ]
       },
-      "source:eat.c:start_tin": {
+      "source:insight.c:ustatusline": {
         "tasks": [
-          "C-investigation-v74-glib-tin-stack-action1-20261014"
+          "B-investigation-v75-glib-self-stethoscope-action1-20261015"
         ]
       },
-      "session:synthetic/v74/v74-jelly-carrier-burial-action6": {
+      "session:synthetic/v75/v75-prisoner-release-action3": {
         "tasks": [
-          "A2-investigation-v74-jelly-carrier-burial-action6-20261014"
+          "A2-investigation-v75-prisoner-release-action3-20261014"
         ]
       },
-      "source:mon.c:xkilled": {
+      "source:quest.c:prisoner_speaks": {
         "tasks": [
-          "A2-investigation-v74-jelly-carrier-burial-action6-20261014"
+          "A2-investigation-v75-prisoner-release-action3-20261014"
         ]
       },
-      "session:synthetic/v74/v74-cockatrice-trapper-engulf-action2": {
+      "source:quest.c:quest_talk": {
         "tasks": [
-          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014"
+          "A2-investigation-v75-prisoner-release-action3-20261014"
         ]
       },
-      "source:mhitu.c:gulpmu": {
+      "session:synthetic/v75/v75-contained-figurine-stash-action2": {
         "tasks": [
-          "B-investigation-v74-cockatrice-trapper-engulf-action2-20261014"
+          "C-investigation-v75-contained-figurine-stash-action2-20261014"
         ]
       },
-      "session:synthetic/v74/v74-wield-quiver-split-action2": {
+      "source:pickup.c:in_container": {
         "tasks": [
-          "C-investigation-v74-wield-quiver-split-action2-20261014"
+          "C-investigation-v75-contained-figurine-stash-action2-20261014"
         ]
       },
-      "source:wield.c:dowield": {
+      "contract:inventory-timer-hooks": {
         "tasks": [
-          "C-investigation-v74-wield-quiver-split-action2-20261014"
-        ]
-      },
-      "session:synthetic/v74/v74-offhand-sting-action2": {
-        "tasks": [
-          "B-investigation-v74-offhand-sting-action2-20261014"
-        ]
-      },
-      "source:do_name.c:oname": {
-        "tasks": [
-          "B-investigation-v74-offhand-sting-action2-20261014"
+          "C-investigation-v75-contained-figurine-stash-action2-20261014"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
-    "measuredAt": "2026-10-15T00:02:45.983Z",
+    "executionCommit": "94076a170b2c082e696e612344ca6e67f122cd2d",
+    "measuredAt": "2026-10-15T00:20:33.031Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

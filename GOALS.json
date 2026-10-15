@@ -315672,7 +315672,7 @@
     {
       "id": "wire-eat-start-tin-drop-environment-v74",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement start_tin from eat.c",
       "cFile": "eat.c",
       "sessions": [
@@ -315682,15 +315682,81 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "94076a170b2c082e696e612344ca6e67f122cd2d",
       "delivered": null,
       "function": "start_tin",
-      "session": "synthetic/v74/v74-glib-tin-stack-action1"
+      "session": "synthetic/v74/v74-glib-tin-stack-action1",
+      "closeStanding": {
+        "sha": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "target": "synthetic/v74/v74-glib-tin-stack-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/94076a170b2c082e696e612344ca6e67f122cd2d/run-hosted-Pei5wf/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "start_tin",
+            "implementation": "js/eat.js",
+            "symbol": "start_tin",
+            "sourceReview": "Read eat.c:start_tin() in full (1723-1799). The Glib/no-opener branch emits both source messages, splits one object if the stack has more than one, calls dropx only when carried, and returns without starting the tin occupation. C do.c:dropx proceeds through dropz, which redraws with newsym and emits encumber_msg. JS doeat already builds eatEnv with the needed hooks, but start_tin discarded them by calling dropx(otmp,{state}); passing dropCommandEnv(state,env) preserves those hooks and supplies standard drop defaults. The matching invalid-uwep/no-opener arm uses the same corrected call.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "do.c:doeat selects the tin and calls eat.c:start_tin."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-tin.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-glib-tin-stack-action1",
+                "segment": 0,
+                "fromStep": 182,
+                "throughStep": 256,
+                "source": "do.c:doeat -> eat.c:start_tin -> do.c:dropx -> do.c:dropz; the Glib/no-opener branch splits and drops one tin, and the complete segment matches."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The command entry is do.c:doeat -> eat.c:start_tin. The admitted v74 case reaches the no-opener Glib branch at segment 0 step 182, splits one tin from a stack, and reaches do.c:dropx. The complete corrected replay matches the remainder of the segment.",
+        "entryPoints": [
+          {
+            "name": "Glib makes an unopenable carried tin slip from a stack and drop",
+            "functions": [
+              {
+                "sourceFile": "eat.c",
+                "name": "start_tin"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-glib-tin-stack-action1",
+                "segment": 0,
+                "fromStep": 182,
+                "throughStep": 256,
+                "source": "do.c:doeat -> eat.c:start_tin -> do.c:dropx -> do.c:dropz; the Glib/no-opener branch splits and drops one tin, and the complete segment matches."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v74-trapper-cockatrice-engulf-stoning-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement gulpmu from mhitu.c",
       "cFile": "mhitu.c",
       "sessions": [
@@ -315700,15 +315766,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "94076a170b2c082e696e612344ca6e67f122cd2d",
       "delivered": null,
       "function": "gulpmu",
-      "session": "synthetic/v74/v74-cockatrice-trapper-engulf-action2"
+      "session": "synthetic/v74/v74-cockatrice-trapper-engulf-action2",
+      "closeStanding": {
+        "sha": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "target": "synthetic/v74/v74-cockatrice-trapper-engulf-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/94076a170b2c082e696e612344ca6e67f122cd2d/run-hosted-Pei5wf/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "gulpmu",
+            "implementation": "js/mhitu.js",
+            "symbol": "gulpmu",
+            "sourceReview": "Read complete mhitu.c:gulpmu at 1289-1577 and compared the corresponding JavaScript function. In the initial-swallow path, C draws attack damage, moves and binds the engulfer, then when the hero touch-petrifies and the engulfer lacks stone resistance it moves the monster back, calls minstapetrify, restores a punished ball and chain, and clears the stuck link. JS used the undeclared `env` instead of the function’s `rawEnv` argument for that existing call. The fix passes rawEnv without changing call order or effects; trap.c:minstapetrify remains the existing implementation.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku dispatches an adjacent successful AT_ENGL attack to gulpmu; the admitted v74 recording reaches this production call."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulp_blnd_check",
+                "source": "mhitu.c:gulp_blnd_check calls gulpmu for a swallowed AD_BLND attack; that caller enters with u.uswallow already set and does not take the initial-swallow branch changed here."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-cockatrice-trapper-engulf-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 229,
+                "source": "monster turn -> mhitu.c:mattacku selects AT_ENGL -> gulpmu relocates the trapper and reaches the touch_petrifies/non-resistance branch -> trap.c:minstapetrify -> xkilled statue creation; gulpmu then clears u.ustuck."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The changed initial-swallow branch is reached from mattacku through its AT_ENGL dispatch. The other source caller, gulp_blnd_check, only invokes gulpmu after the hero is already swallowed, so it cannot enter this branch. The admitted v74 recording exercises the production mattacku path and matches all 230 frames, including the trapper’s stoning and the hero release.",
+        "entryPoints": [
+          {
+            "name": "a non-stone-resistant trapper engulfs a cockatrice-form hero",
+            "functions": [
+              "gulpmu"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-cockatrice-trapper-engulf-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 229,
+                "source": "monster turn -> mhitu.c:mattacku selects AT_ENGL -> gulpmu relocates the trapper and reaches the touch_petrifies/non-resistance branch -> trap.c:minstapetrify -> xkilled statue creation; gulpmu then clears u.ustuck."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-mon-xkilled-buried-corpse-v74-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement xkilled from mon.c",
       "cFile": "mon.c",
       "sessions": [
@@ -315718,15 +315852,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "94076a170b2c082e696e612344ca6e67f122cd2d",
       "delivered": null,
       "function": "xkilled",
-      "session": "synthetic/v74/v74-jelly-carrier-burial-action6"
+      "session": "synthetic/v74/v74-jelly-carrier-burial-action6",
+      "closeStanding": {
+        "sha": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "target": "synthetic/v74/v74-jelly-carrier-burial-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/94076a170b2c082e696e612344ca6e67f122cd2d/run-hosted-Pei5wf/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "xkilled",
+            "implementation": "js/mon.js",
+            "symbol": "xkilled",
+            "sourceReview": "Read mon.c:xkilled() lines 3477-3740 in source order. The pit/boulder guard sets burycorpse only when the monster is trapped on a pit and carries a boulder; the corpse path passes CORPSTAT_BURIED to make_corpse(), then tests cadaver->where == OBJ_BURIED before the visible buried-corpse message. JavaScript already awaits the corresponding make_corpse()/bury_an_obj() path; this divergence fix imports the existing obj.h enum constant used by the message guard. The random and message ordering remain unchanged.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dobuzz",
+                "source": "zap.c:dobuzz calls zhitm for the death ray, then calls xkilled(mon, xkflags) after the hero's ray kills the monster (4885-4930)."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "killed",
+                "source": "mon.c:killed is the ordinary wrapper that calls xkilled(mtmp, XKILL_GIVEMSG) (3469-3473)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-jelly-carrier-burial-action6",
+                "segment": 0,
+                "fromStep": 722,
+                "throughStep": 771,
+                "source": "zap.c:dobuzz -> zhitm -> xkilled -> make_corpse(CORPSTAT_BURIED) -> bury_an_obj; the carried-boulder jelly dies in the pit and the burial message reads OBJ_BURIED"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is a hero death-ray wand hit on the ochre jelly trapped in a pit while carrying a boulder. zap.c:dobuzz applies the ray through zhitm and calls xkilled after the monster dies. xkilled detects the carried boulder, passes CORPSTAT_BURIED to make_corpse, and prints the visible buried-corpse message only when the returned object has OBJ_BURIED ownership. JavaScript follows this path; its only task defect was the missing OBJ_BURIED import. The admitted v74 case exercises the branch at steps 722-723; the cited matching range continues through the segment's final step.",
+        "entryPoints": [
+          {
+            "name": "A death-ray wand kills a boulder-carrying monster trapped in a pit",
+            "functions": [
+              "xkilled"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-jelly-carrier-burial-action6",
+                "segment": 0,
+                "fromStep": 722,
+                "throughStep": 771,
+                "source": "zap.c:dobuzz -> zhitm -> xkilled -> make_corpse(CORPSTAT_BURIED) -> bury_an_obj"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-wield-quivered-stack-split-v74",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dowield from wield.c",
       "cFile": "wield.c",
       "sessions": [
@@ -315736,15 +315938,81 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "94076a170b2c082e696e612344ca6e67f122cd2d",
       "delivered": null,
       "function": "dowield",
-      "session": "synthetic/v74/v74-wield-quiver-split-action2"
+      "session": "synthetic/v74/v74-wield-quiver-split-action2",
+      "closeStanding": {
+        "sha": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "target": "synthetic/v74/v74-wield-quiver-split-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/94076a170b2c082e696e612344ca6e67f122cd2d/run-hosted-Pei5wf/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dowield",
+            "implementation": "js/wield.js",
+            "symbol": "dowield",
+            "sourceReview": "Read wield.c:dowield() in full (354-457). For the current quivered object, C checks stack size, inventory capacity (inv_cnt(FALSE) < invlet_basic), and splittability. It asks whether to wield one; q returns ECMD_OK, y splits one with splitobj and finish_splitting then continues through ordinary weapon setup. A non-y response asks whether to wield all; declining emits the “remain readied” message and returns ECMD_OK, while accepting clears uquiver. The fallback branch asks about the singular/plural whole item and preserves it on refusal. JS now follows these branches and preserves the existing UnsupportedWieldError only for other unported paths.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "dowield",
+                "source": "The #wield extended command dispatches to wield.c:dowield."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wield.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-wield-quiver-split-action2",
+                "segment": 0,
+                "fromStep": 142,
+                "throughStep": 192,
+                "source": "The admitted case selects the quivered five-arrow stack, answers yes to wield one, and runs through the final recorded step; the complete segment matches."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The command entry is wield.c:dowield. The admitted v74 case selects a five-arrow quiver stack and answers yes to “Wield one?”; splitobj creates one wielded arrow while four remain in the quiver. The complete corrected replay matches the segment.",
+        "entryPoints": [
+          {
+            "name": "Wield one object from a quivered stack",
+            "functions": [
+              {
+                "sourceFile": "wield.c",
+                "name": "dowield"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-wield-quiver-split-action2",
+                "segment": 0,
+                "fromStep": 142,
+                "throughStep": 192,
+                "source": "The admitted case selects the quivered five-arrow stack, answers yes to wield one, and runs through the final recorded step; the complete segment matches."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v74-offhand-sting-oname-20261014",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement oname from do_name.c",
       "cFile": "do_name.c",
       "sessions": [
@@ -315754,10 +316022,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "94076a170b2c082e696e612344ca6e67f122cd2d",
       "delivered": null,
       "function": "oname",
-      "session": "synthetic/v74/v74-offhand-sting-action2"
+      "session": "synthetic/v74/v74-offhand-sting-action2",
+      "closeStanding": {
+        "sha": "94076a170b2c082e696e612344ca6e67f122cd2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "5b9550cd1c07717d83b3062bfd1117886d2e27dd",
+        "target": "synthetic/v74/v74-offhand-sting-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/94076a170b2c082e696e612344ca6e67f122cd2d/run-hosted-Pei5wf/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "oname",
+            "implementation": "js/do_name.js",
+            "symbol": "oname",
+            "sourceReview": "Read do_name.c:oname (372-426) and the corresponding JavaScript oname_steps. On successful artifact creation, C calls untwoweapon when the object is uswapwep, before the primary-weapon intrinsic, unpaid billing, conduct record, and carried-object inventory refresh. JS previously cleared state.u.twoweap directly and recorded a note_unported placeholder, omitting the helper's message and inventory update. The fix yields the existing wield.c:untwoweapon implementation at the same source point.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_oname",
+                "source": "do_name.c:do_oname passes the selected inventory object to oname; JavaScript already awaits oname, and the admitted recording reaches this path with the elven dagger in uswapwep. Other source callers create/name objects outside the hero's secondary weapon slot and cannot enter this conditional branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-offhand-sting-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 389,
+                "source": "#name selects the offhand elven dagger -> do_name.c:do_oname -> oname creates Sting -> do_name.c:oname calls wield.c:untwoweapon -> twoweapon mode clears and inventory updates."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The admitted v74 recording reaches this branch through the production #name command and do_oname caller. That caller already awaits the sync-or-Promise oname API. Other C oname callers name newly created objects or monsters and do not pass the hero's uswapwep pointer; they cannot enter the new wait-bearing branch. The replay matches the complete 390-step segment including the C message, RNG, cursor, and input boundary.",
+        "entryPoints": [
+          {
+            "name": "name Sting on an active secondary weapon",
+            "functions": [
+              "oname"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v74",
+                "caseId": "v74-offhand-sting-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 389,
+                "source": "#name -> do_name.c:do_oname -> oname(uswapwep) -> wield.c:untwoweapon prints the C message, clears two-weapon mode, and refreshes inventory."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
