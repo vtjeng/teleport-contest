@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap C/source protocol correction after preserved wizard prompt miss. makemon.c:create_critters(cnt13,acid_blob,FALSE) asks create_particular in wizard mode. Actual C prompt is answered ESC;source sets askFALSE and still performs fallback makemon(mptr) for all13 iterations. No named monster override or fixture state injection. Second preserved attempt cleared the buffered spaces with one ESC but remained in getlin. Two consecutive ESC keys clear buffered input and then cancel create_particular, allowing the source fallback acid-blob creation.",
+  "segments": [
+    {
+      "seed": 82010846,
+      "datetime": "21020924151000",
+      "nethackrc": "OPTIONS=name:v82-create-blobs-action3,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017blessed scroll of create monster\n                        #wizintrinsic\n1000g\n                        ra                        \n                        \u001b                        \n                        \u001b\u001b                        \n                        "
+    }
+  ]
+}

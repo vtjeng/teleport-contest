@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Actual cursed+0 ring mail worn,notConfused,cursed destroy-armor scroll. Require vibration,spe -1,Stun and armor remains,not disintegration.",
+  "segments": [
+    {
+      "seed": 82010842,
+      "datetime": "21020924151000",
+      "nethackrc": "OPTIONS=name:v82-double-cursed-armor-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed +0 ring mail\n                        Wa                        \u0017cursed scroll of destroy armor\n                        rb                        \n                        i                        "
+    }
+  ]
+}

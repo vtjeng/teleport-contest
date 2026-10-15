@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Source read.c:seffect_confuse_monster nonhuman S_ORC branch adds HConfusion rather than hand buff. Normal handsy orc form;scroll reading permitted in source even without free hands.",
+  "segments": [
+    {
+      "seed": 82010824,
+      "datetime": "21020823141000",
+      "nethackrc": "OPTIONS=name:v82-confuse-orc-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\norc\n                        \u0017uncursed scroll of confuse monster\n                        ra                        \n                        "
+    }
+  ]
+}

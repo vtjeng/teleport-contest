@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source branch. Source G_GONE light branch. Legally genocide black light (source G_GENO),thenConfused cursed light;actual Tiny lights sparkle instead of any new lights.",
+  "segments": [
+    {
+      "seed": 82010863,
+      "datetime": "21021025161000",
+      "nethackrc": "OPTIONS=name:v82-light-gone-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed scroll of genocide\n                        ra                        black light\n                        \u0017cursed scroll of light\n                        #wizintrinsic\n1000g\n                        ra                        \n                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source branch. Actual ordinary punishment before Confused uncursed remove curse;!confused unpunish guard false,actual chain retained. Attributes before/after verify rather than assuming lack of message.",
+  "segments": [
+    {
+      "seed": 82010865,
+      "datetime": "21021025161000",
+      "nethackrc": "OPTIONS=name:v82-confused-remove-keeps-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed scroll of punishment\n                        ra                        #attributes\n                        \u001b                        \u0017uncursed scroll of remove curse\n                        #wizintrinsic\n1000g\n                        ra                        \n                        #attributes\n                        \u001b                        "
+    }
+  ]
+}

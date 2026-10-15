@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Source read.c:seffect_charging Confused blessed energy path:actual full energy plus6d4 raises maximum,no item picker.",
+  "segments": [
+    {
+      "seed": 82010821,
+      "datetime": "21020823141000",
+      "nethackrc": "OPTIONS=name:v82-charging-max-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017blessed scroll of charging\n                        #wizintrinsic\n1000g\n                        ra                        \n                        "
+    }
+  ]
+}

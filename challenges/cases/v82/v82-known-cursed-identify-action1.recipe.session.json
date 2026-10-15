@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Permanently known identify type before reading cursed copy. Source known-type arm must enter actual single-object picker;prior unknown cursed scroll only self-identifies. Require C pick/identification,not mere scroll discovery.",
+  "segments": [
+    {
+      "seed": 82010913,
+      "datetime": "21021126171000",
+      "nethackrc": "OPTIONS=name:v82-known-cursed-identify-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed scroll of identify\n                        \u0017uncursed wand of digging\n                        #wizidentify\na\n                        ra                        b                        \n                        i                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Source read.c:seffect_charging Confused cursed branch sets current energy0,maximum unchanged,no item picker.",
+  "segments": [
+    {
+      "seed": 82010822,
+      "datetime": "21020823141000",
+      "nethackrc": "OPTIONS=name:v82-charging-zero-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed scroll of charging\n                        #wizintrinsic\n1000g\n                        ra                        \n                        "
+    }
+  ]
+}

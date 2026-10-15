@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Actual worn fire-resistance ring a,scroll b observed beforeBlind;Confusion thenBlind,read fire. Require shield/pleasant warmth in hands rather than visible pretty-fire or damage.",
+  "segments": [
+    {
+      "seed": 82010847,
+      "datetime": "21020924151000",
+      "nethackrc": "OPTIONS=name:v82-blind-fire-resistant-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed ring of fire resistance\n                        Pal                        \u0017uncursed scroll of fire\n                        #wizintrinsic\n1000g\n                        #wizintrinsic\n1000i\n                        rb                        \n                        "
+    }
+  ]
+}

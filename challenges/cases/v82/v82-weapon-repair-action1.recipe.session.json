@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Wield actual thoroughly rusty dagger a;Confused uncursed enchant weapon must repair erosion and print as-good-as-new beyond old undamaged proofing.",
+  "segments": [
+    {
+      "seed": 82010843,
+      "datetime": "21020924151000",
+      "nethackrc": "OPTIONS=name:v82-weapon-repair-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed thoroughly rusty dagger\n                        wa                        \u0017uncursed scroll of enchant weapon\n                        #wizintrinsic\n1000g\n                        rb                        \n                        i                        "
+    }
+  ]
+}

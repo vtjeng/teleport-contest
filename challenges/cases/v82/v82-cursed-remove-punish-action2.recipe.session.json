@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source branch. Actual ordinary punishment before cursed remove curse. C source skips inventory on cursed disintegration but still unpunishes when notConfused. Attributes before/after preserve actual chain state. Preserved first attempt used absent letter a; actual C inventory assigns the second wished scroll b. This correction changes only that observed selector.",
+  "segments": [
+    {
+      "seed": 82010864,
+      "datetime": "21021025161000",
+      "nethackrc": "OPTIONS=name:v82-cursed-remove-punish-action2,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed scroll of punishment\n                        ra                        #attributes\n                        \u001b                        \u0017cursed scroll of remove curse\n                        rb                        \n                        #attributes\n                        \u001b                        "
+    }
+  ]
+}

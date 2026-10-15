@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C capture. Source read.c:seffect_confuse_monster alreadyConfused human plus blessed scroll clears confusion with head feedback instead of monster-confusion hand buff.",
+  "segments": [
+    {
+      "seed": 82010823,
+      "datetime": "21020823141000",
+      "nethackrc": "OPTIONS=name:v82-confuse-clears-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017blessed scroll of confuse monster\n                        #wizintrinsic\n1000g\n                        ra                        \n                        "
+    }
+  ]
+}
