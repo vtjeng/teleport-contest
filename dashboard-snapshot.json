@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T04:22:48.282Z",
+  "capturedAt": "2026-10-15T04:40:16.408Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -131823,24 +131823,102 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep47 has30 frozen combat designs and four initial C recipes prepared. Source and overlap checks continue while Root accepts the two-source checkpoint and promotes the queue;new validation launches are held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v80-writing-label-action1-20261015-6d3e4c9bf5f388ef5413c6be817038523b63456b",
+        "type": "published",
+        "at": "2026-10-15T04:23:03.028Z",
+        "task": "A2-investigation-v80-writing-label-action1-20261015",
+        "commit": "6d3e4c9bf5f388ef5413c6be817038523b63456b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v79-topten-step574-20261015-6d3e4c9bf5f388ef5413c6be817038523b63456b",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T04:23:06.922Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "commit": "6d3e4c9bf5f388ef5413c6be817038523b63456b",
+        "knownBy": "2026-10-15T04:23:03.028Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-24cc4c8c9ad7fe06b3983b38c7831b31c4db2ed8d0de37aabcc3dbe88531ccd1-58ebd7d3a504aea7c144dd00e7e62f9486f6add1-Prep46",
+        "type": "integrating",
+        "at": "2026-10-15T04:23:46.904Z",
+        "task": "Prep46",
+        "integration": "58ebd7d3a504aea7c144dd00e7e62f9486f6add1",
+        "prepGroup": [
+          "Prep46"
+        ],
+        "validationGroup": [
+          "Prep46"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep46-checkpoint-wait-root",
+        "type": "activity",
+        "at": "2026-10-15T04:24:19.521Z",
+        "task": "Prep46",
+        "phase": "waiting",
+        "reason": "Hosted checkpoint38681248661 is validating the exact v82 preparation candidate before admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep47-v83-capture-resumed-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:24:50.463Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep47 is recording monster-versus-monster branches. Eight first C pairs are preserved;actual rust and decay kills are reached. The coordinator hold is released;no blocker is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep46-58ebd7d3a504aea7c144dd00e7e62f9486f6add1",
+        "type": "validated",
+        "at": "2026-10-15T04:33:24.330Z",
+        "task": "Prep46",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep46-58ebd7d3a504aea7c144dd00e7e62f9486f6add1",
+        "type": "accepted",
+        "at": "2026-10-15T04:33:24.330Z",
+        "task": "Prep46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep46-admission-root",
+        "type": "activity",
+        "at": "2026-10-15T04:34:43.656Z",
+        "task": "Prep46",
+        "phase": "admission",
+        "reason": "Accepted v82 manifest is running hosted new-case baseline evaluation; local preparation launches are released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep46-98bea8b070713c3461871c5e837d43c00282e691",
+        "type": "activity",
+        "at": "2026-10-15T04:38:52.383Z",
+        "task": "Prep46",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep46-98bea8b070713c3461871c5e837d43c00282e691",
+        "type": "activity",
+        "at": "2026-10-15T04:38:53.223Z",
+        "task": "Prep46",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "Prep46",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "fe8139e968f0bca0234d9b8b4f6d60512d6cacee",
-        "batch": "v82",
-        "since": "2026-10-15T04:15:45.044Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -133006,8 +133084,8 @@
     "reservations": {}
   },
   "development": {
-    "executionCommit": "c5f33826f6669b10f83edf5ab842d5828d671342",
-    "measuredAt": "2026-10-15T04:16:31.931Z",
+    "executionCommit": "58ebd7d3a504aea7c144dd00e7e62f9486f6add1",
+    "measuredAt": "2026-10-15T04:29:12.216Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
