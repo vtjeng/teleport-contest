@@ -1,0 +1,851 @@
+{
+  "version": 1,
+  "batch": "v85",
+  "status": "prepared-not-admitted",
+  "preparationAssignmentBase": "74914164c525e1e52797e7812562e7c0f83562f0",
+  "deliveryBase": "74914164c525e1e52797e7812562e7c0f83562f0",
+  "comparisonBase": "7330de32cd7abd522e85f666d8ab1e6c998b6a4f",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v85-p13-mounted-chat-down-attempt4",
+      "title": "Chat downward with a mounted pony",
+      "mission": "sounds.c:dochat1297-1302 mounted steed dz>0 -> domonnoise",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sounds.c:dochat1297-1302",
+        "nethack-c/upstream/src/sounds.c:domonnoise MS_NEIGH"
+      ],
+      "sourceTrace": "C actually mounts the southeast saddled pony, then downward #chat calls domonnoise(u.usteed) and whickers at step54. Accepted JavaScript sounds.js1506 explicitly refuses the mounted-downward branch. The delegated observer captures that actual refusal, and all earlier screens/cursors/RNG match.",
+      "recipe": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.recipe.session.json",
+      "recipeSha256": "03792a994c140d4a93cd3460a21132fb1ee910a3351ad5dbf2c72fa181a21096",
+      "recording": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.session.json",
+      "recordingSha256": "8b846b45052240532d9512cd6540a81e1c704b3f3046cd5c9fe9415ed00b0e7b",
+      "reproducibility": "Independent patched-C replay is byte-identical to the first retained recording.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v85-p13-mounted-chat-down-attempt4",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/probes/v85-p13-mounted-chat-down/attempt4/v85-p13-mounted-chat-down-attempt4.recipe.session.json",
+          ".cache/probes/v85-p13-mounted-chat-down/attempt4/v85-p13-mounted-chat-down-attempt4.replay.session.json"
+        ],
+        "workingDirectory": "/tmp/teleport-prep48-lane1-20261015",
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/final-c-replay.stderr.log",
+        "logSha256": "cbe4dc1103bd54679e0c486f2b349c303625927c9a2f90544ea850eb0bc58051",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/v85-p13-mounted-chat-down-attempt4.replay.session.json",
+        "outputSha256": "8b846b45052240532d9512cd6540a81e1c704b3f3046cd5c9fe9415ed00b0e7b",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 91704137,
+            "datetime": "20840123123456",
+            "nethackrc": "OPTIONS=name:ChatDownAttempt4,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+            "moves": " #wizgenesis\ntame saddled pony\n#wizmap\n#ride\nny#chat\n>\n"
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 47,
+          "key": "y",
+          "rng": [
+            "rn2(12)=6 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=3 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=57 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(20)=6 @ gethungry(eat.c:3191)",
+            "rn2(76)=52 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "Force the mount to succeed? [yn] (n)\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            14,
+            17,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 48,
+          "key": "#",
+          "rng": [],
+          "screen": "#\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            2,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 49,
+          "key": "c",
+          "rng": [],
+          "screen": "# c\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            3,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 50,
+          "key": "h",
+          "rng": [],
+          "screen": "# ch\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            4,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 51,
+          "key": "a",
+          "rng": [],
+          "screen": "# chat\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            5,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 52,
+          "key": "t",
+          "rng": [],
+          "screen": "# chat\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            6,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 53,
+          "key": "\n",
+          "rng": [],
+          "screen": "Talk to whom? (in what direction)\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            34,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 54,
+          "key": ">",
+          "rng": [
+            "rn2(5)=0 @ distfleeck(monmove.c:538)",
+            "rn2(4)=0 @ dochug(monmove.c:886)",
+            "rn2(5)=3 @ distfleeck(monmove.c:538)",
+            "rn2(5)=3 @ distfleeck(monmove.c:538)",
+            "rn2(5)=0 @ distfleeck(monmove.c:538)",
+            "rn2(12)=0 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=2 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=25 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(20)=8 @ gethungry(eat.c:3191)",
+            "rn2(76)=9 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "The saddled pony whickers.\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|..........|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            14,
+            17,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 55,
+          "key": "\n",
+          "rng": [
+            "rn2(5)=1 @ distfleeck(monmove.c:538)",
+            "rn2(4)=0 @ dochug(monmove.c:886)",
+            "rn2(5)=4 @ distfleeck(monmove.c:538)",
+            "rn2(5)=4 @ distfleeck(monmove.c:538)",
+            "rn2(8)=1 @ m_move(monmove.c:1963)",
+            "rn2(5)=1 @ distfleeck(monmove.c:538)",
+            "rn2(5)=3 @ distfleeck(monmove.c:538)",
+            "rn2(4)=1 @ dochug(monmove.c:886)",
+            "rn2(5)=4 @ distfleeck(monmove.c:538)",
+            "rn2(12)=11 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=7 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=61 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(12)=0 @ mcalcmove(mon.c:1164)",
+            "rn2(20)=7 @ gethungry(eat.c:3191)",
+            "rn2(76)=17 @ moveloop_core(allmain.c:360)",
+            "rn2(5)=0 @ distfleeck(monmove.c:538)",
+            "rn2(4)=3 @ dochug(monmove.c:886)",
+            "rn2(5)=1 @ distfleeck(monmove.c:538)"
+          ],
+          "screen": "\n\n\n\u001b[7C#\u001b[10C#\n\u001b[5C----------------\u001b[50C#\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[17C-----\u001b[5C##############    --------\n\u001b[5C|\u001b[90m..............\u001b[39m|\u001b[16C#\u001b[33m+\u001b[90m...\u001b[39m|\u001b[5C#----------  ##   |\u001b[90m.^.\u001b[33m^\u001b[90m..\u001b[39m|\n\u001b[5C--.----------\u001b[33m+\u001b[39m--\u001b[16C#|\u001b[90m...\u001b[39m.######\u001b[33m+\u001b[90m........\u001b[39m|#######.\u001b[90m......\u001b[39m|\n\u001b[7C####\u001b[6C##\u001b[18C#|\u001b[90m...\u001b[39m|#    #|\u001b[90m^.......\u001b[33m+\u001b[39m#\u001b[6C|\u001b[90m....\u001b[39m>\u001b[90m.\u001b[39m|\n\u001b[10C###    #\u001b[19C#|\u001b[90m...\u001b[39m|##   #|\u001b[90m........\u001b[39m|#\u001b[6C--\u001b[33m+\u001b[39m-----\n\u001b[12C#    #\u001b[19C#|\u001b[90m...\u001b[39m| #   #|\u001b[90m........\u001b[39m|#\u001b[8C#\n\u001b[12C#### #\u001b[19C#|\u001b[90m...\u001b[33m+\u001b[39m######.\u001b[90m........\u001b[39m|###\u001b[6C#\n\u001b[15C######\u001b[16C#-----\u001b[6C----------# #\u001b[6C#\n\u001b[10C-----.----.-\u001b[15C#\u001b[17C##### ##\u001b[5C##\n\u001b[10C|...........######\u001b[9C##\u001b[23C#\u001b[6C#\n\u001b[10C|..........|\u001b[5C#   ########\u001b[23C#    # ###\n\u001b[10C|..\u001b[93m<\u001b[39m.......|\u001b[5C#  ##\u001b[6C#\u001b[23C#----.---.-\n\u001b[10C|..........|\u001b[5C#  #-------#\u001b[23C#|\u001b[90m.\u001b[34m^\u001b[90m......\u001b[39m|\n\u001b[10C|..........\u001b[33m+\u001b[39m#########\u001b[33m-\u001b[90m..\u001b[39m_\u001b[90m..\u001b[39m.#\u001b[23C#.\u001b[90m........\u001b[39m|\n\u001b[10C|...\u001b[33mu\u001b[39m......|\u001b[9C|\u001b[90m.....\u001b[39m|\u001b[25C|\u001b[90m........\u001b[39m|\n\u001b[10C------------\u001b[9C--\u001b[33m|\u001b[39m----\u001b[25C----------\n\u001b[33C#\nWizard the Evoker\u001b[14CSt:9 Dx:12 Co:14 In:18 Wi:10 Ch:12 Neutral\nDlvl:1 $:0 HP:12(12) Pw:7(7) AC:9 Xp:1 Ride",
+          "cursor": [
+            14,
+            19,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": true,
+      "matchingControl": false,
+      "firstMismatch": {
+        "segment": 0,
+        "step": 54,
+        "key": ">",
+        "source": "sounds.c:dochat1297-1302 mounted steed dz>0 -> domonnoise",
+        "owner": "sounds.c:dochat",
+        "summary": "unsupported hero command: an unported branch of this command: #chat needs a chat aimed down at a steed",
+        "comparisonBase": "7330de32cd7abd522e85f666d8ab1e6c998b6a4f",
+        "officialComparison": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2746,
+              "js": 2718
+            },
+            "screens": {
+              "c": 56,
+              "js": 54
+            },
+            "cursors": {
+              "c": 56,
+              "js": 54
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2718,
+            "cEntry": "rn2(5)=0",
+            "cCaller": "distfleeck(monmove.c:538)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 54,
+              "key": ">"
+            }
+          },
+          "screenMismatch": {
+            "index": 54,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 54,
+              "key": ">"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 54,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 54,
+              "key": ">"
+            },
+            "cCursor": [
+              14,
+              17,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "matchingPrefix": {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/final-capture-diagnostic.json",
+          "sha256": "d32e9e9e7f2269b38a617674528ee29f63628c7ed7fcf235a210e79bba282c59",
+          "caseId": "v85-p13-mounted-chat-down-attempt4",
+          "acceptedBase": "7330de32cd7abd522e85f666d8ab1e6c998b6a4f",
+          "captureHook": true,
+          "capturedScreenCount": 54,
+          "errorDuringStep": 54,
+          "error": {
+            "name": "UnsupportedHeroCommandBoundaryError",
+            "message": "unsupported hero command: an unported branch of this command: #chat needs a chat aimed down at a steed",
+            "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: #chat needs a chat aimed down at a steed\n    at failClosedCommand (file:///tmp/teleport-score-hRvv6Q/js/cmd.js:3045:19)\n    at async doextcmd (file:///tmp/teleport-score-hRvv6Q/js/cmd.js:5310:20)\n    at async failClosedCommand (file:///tmp/teleport-score-hRvv6Q/js/cmd.js:3039:16)\n    at async rhack (file:///tmp/teleport-score-hRvv6Q/js/cmd.js:5832:25)\n    at async moveloop_core (file:///tmp/teleport-score-hRvv6Q/js/allmain.js:1802:9)\n    at async Module.runSegment (file:///tmp/teleport-score-hRvv6Q/js/jsmain.js:784:13)\n    at async file:///tmp/teleport-prep48-lane1-20261015/.cache/probes/v85-p13-mounted-chat-down/attempt4/final-validation.mjs:82:13",
+            "boundaryObserver": true
+          },
+          "prefixComparison": {
+            "passed": true,
+            "error": null,
+            "lengths": {
+              "rng": {
+                "c": 2718,
+                "js": 2718
+              },
+              "screens": {
+                "c": 54,
+                "js": 54
+              },
+              "cursors": {
+                "c": 54,
+                "js": 54
+              },
+              "animFrames": {
+                "c": 0,
+                "js": 0
+              }
+            },
+            "rngMismatch": null,
+            "screenMismatch": null,
+            "cursorMismatch": null,
+            "animMismatch": null,
+            "segmentMismatch": null
+          },
+          "delegatedCaptureHook": true,
+          "gameInputsUnchanged": true
+        },
+        "closestEarlierEvidence": "No mounted-downward chat first cause in111 immutable preparation packets, fixed44, frozen v1 or regression query. Closest saved fixed ride/chat histories chat before mounting; v14 mounted downward stethoscope and leash use different source callers, and ordinary pony/dog chat has no mounted downward dochat dispatch."
+      },
+      "localComparison": {
+        "caseId": "v85-p13-mounted-chat-down-attempt4",
+        "acceptedBase": "7330de32cd7abd522e85f666d8ab1e6c998b6a4f",
+        "official": {
+          "completeResult": true,
+          "status": 0,
+          "comparison": {
+            "passed": false,
+            "error": null,
+            "lengths": {
+              "rng": {
+                "c": 2746,
+                "js": 2718
+              },
+              "screens": {
+                "c": 56,
+                "js": 54
+              },
+              "cursors": {
+                "c": 56,
+                "js": 54
+              },
+              "animFrames": {
+                "c": 0,
+                "js": 0
+              }
+            },
+            "rngMismatch": {
+              "index": 2718,
+              "cEntry": "rn2(5)=0",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": ">"
+              }
+            },
+            "screenMismatch": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": ">"
+              },
+              "kind": "js-missing"
+            },
+            "cursorMismatch": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": ">"
+              },
+              "cCursor": [
+                14,
+                17,
+                1
+              ]
+            },
+            "animMismatch": null,
+            "segmentMismatch": null
+          },
+          "stdout": "__FRESH_DIFF_RESULT__\n{\"passed\":false,\"error\":null,\"lengths\":{\"rng\":{\"c\":2746,\"js\":2718},\"screens\":{\"c\":56,\"js\":54},\"cursors\":{\"c\":56,\"js\":54},\"animFrames\":{\"c\":0,\"js\":0}},\"rngMismatch\":{\"index\":2718,\"cEntry\":\"rn2(5)=0\",\"cCaller\":\"distfleeck(monmove.c:538)\",\"location\":{\"segmentIndex\":0,\"stepIndex\":54,\"key\":\">\"}},\"screenMismatch\":{\"index\":54,\"location\":{\"segmentIndex\":0,\"stepIndex\":54,\"key\":\">\"},\"kind\":\"js-missing\"},\"cursorMismatch\":{\"index\":54,\"location\":{\"segmentIndex\":0,\"stepIndex\":54,\"key\":\">\"},\"cCursor\":[14,17,1]},\"animMismatch\":null,\"segmentMismatch\":null}\n",
+          "stderr": ""
+        },
+        "provenance": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/comparison-provenance.json"
+      },
+      "closestSavedEvidence": [
+        "static-raw-crosswalk.json",
+        "initial-fixed-regression-crosswalk.json",
+        "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/source-plan.md"
+      ]
+    }
+  ],
+  "preservedAttemptInventory": [
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p01-skeleton-bones/v85-p01-skeleton-bones.session.json",
+      "recordingSha256": "929668839b897d5a45b8d5f2fc83e1b39a8fac0633ec93495c23fc6c45fa30aa",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p01-skeleton-bones/v85-p01-skeleton-bones.recipe.session.json",
+          "sha256": "284f68f38605670291f7fdcbb422a8277cde142e748eaebf9fda25992f636eab"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 87123021,
+          "datetime": "20681202120000",
+          "nethackrc": "OPTIONS=name:PrepBones,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+          "moves": "#wizgenesis\ntame skeleton\n#wizmap\n#chat\nl\n"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p01-skeleton-bones/bounded-run/stderr.log",
+          "sha256": "2fa32e500dab55db1a49fded704b1d54898c00a723840aab80bc7aa95c12590b"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p01-skeleton-bones/wrapper-output.log",
+          "sha256": "f26967589982f1db5b977beea878717036e0cdf0ec43632e2da809c25ab188a1"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p07-skeleton-chat-west/v85-p07-skeleton-chat-west.session.json",
+      "recordingSha256": "a17474c5de24ff0df76fe3eac540f8d86e62de5091c1e5295c3f7c1f0c10ee0d",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p07-skeleton-chat-west/v85-p07-skeleton-chat-west.recipe.session.json",
+          "sha256": "1674452195d6bdfb8c5a604beda0c21616bbbe615838e0011e80cb3dd3f238a3"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 78420113,
+          "datetime": "20681105125900",
+          "nethackrc": "OPTIONS=name:BoneProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+          "moves": "#wizgenesis\ntame skeleton\n#wizmap\n#chat\ny\n"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p07-skeleton-chat-west/bounded-run/stderr.log",
+          "sha256": "65eb3c43e8f91a57469d9094ff372441d9b3fc8634649cae0695376c9f46f68e"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p07-skeleton-chat-west/wrapper-output.log",
+          "sha256": "5e2b69737ceaadace758408a097a76d8ff1e9cd97491502cfb035a1d1a2dd49c"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt2/v85-p13-mounted-chat-down-attempt2.session.json",
+      "recordingSha256": "d381c36013dc99eddc94af42c925d587d9d4536bd71d151205b1d6d541f5f40b",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt2/v85-p13-mounted-chat-down-attempt2.recipe.session.json",
+          "sha256": "ed6508588490bc2e7221b704e460702fb6243574d7efc140a4e04fd8e9ac76c4"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 91704137,
+          "datetime": "20840123123456",
+          "nethackrc": "OPTIONS=name:ChatDownScout2,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+          "moves": " #wizgenesis\ntame saddled pony\n#wizmap\n"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt2/record-session.stdout.log",
+          "sha256": "921739e4467597e1d60ad7cf693c321a869387896a8b9bea14b817c57d8ca334"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt3/v85-p13-mounted-chat-down-attempt3.session.json",
+      "recordingSha256": "2a07e69d9c9c83dca5148e4a9e995aaf4b601b0ed8589cfaea9b5c8a52e39163",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt3/v85-p13-mounted-chat-down-attempt3.recipe.session.json",
+          "sha256": "97c1cef92b60187bd079053038a429aff04a32ccda03272f1b9baf00d0a32f49"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 91704137,
+          "datetime": "20840123123456",
+          "nethackrc": "OPTIONS=name:ChatDownTarget3,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+          "moves": " #wizgenesis\ntame saddled pony\n#wizmap\n#ride\njy#chat\n>\n"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt3/record-session.stdout.log",
+          "sha256": "0219bb6f1e83326b07321f95e0733dbd4357c1493e339724297cbd28bc01ab73"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/v85-p13-mounted-chat-down-attempt4.session.json",
+      "recordingSha256": "8b846b45052240532d9512cd6540a81e1c704b3f3046cd5c9fe9415ed00b0e7b",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/v85-p13-mounted-chat-down-attempt4.recipe.session.json",
+          "sha256": "03792a994c140d4a93cd3460a21132fb1ee910a3351ad5dbf2c72fa181a21096"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 91704137,
+          "datetime": "20840123123456",
+          "nethackrc": "OPTIONS=name:ChatDownAttempt4,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+          "moves": " #wizgenesis\ntame saddled pony\n#wizmap\n#ride\nny#chat\n>\n"
+        }
+      ],
+      "validFirstPair": true,
+      "included": true,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/record-session.stdout.log",
+          "sha256": "5550a125e3df1086c9d5fc5aaa1352469057c0cef743350ea201421ec550f564"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/v85-p13-mounted-chat-down.session.json",
+      "recordingSha256": "75fde74296abfd9268133579f8f2559a22d82dda3e60419fba0adfd14469e93c",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/v85-p13-mounted-chat-down.recipe.session.json",
+          "sha256": "538c6de0849b78d2dc89691df7a63301afe04f98863171fc46889b506144a18f"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 91704137,
+          "datetime": "20840123123456",
+          "nethackrc": "OPTIONS=name:ChatDownScout,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+          "moves": "#wizgenesis\ntame saddled pony\n#wizmap\n#ride\nhy#chat\n>\n"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/record-session.stdout.log",
+          "sha256": "8ad8ac88e47430e8139c2c75ddb6df76ca14bb954c2f366f17d007bf9f654a57"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-2/v85-p02-kitten-landmine/v85-p02-kitten-landmine-scout1.session.json",
+      "recordingSha256": "0ea35e18f2a1083fd3204e9b3c6fd3c80cef33e64c490c0dad4874ead040b368",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-2/v85-p02-kitten-landmine/v85-p02-kitten-landmine-scout1.recipe.session.json",
+          "sha256": "99ca44fb19f443ed94510c9c079340970cb1f7509fec5d7b6d73616e1c6ed8b3"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 8502147,
+          "datetime": "20851014112233",
+          "nethackrc": "OPTIONS=name:V85KittenMineScout,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+          "moves": " h#wizwish\nland mine\n#wizgenesis\nhostile kitten\nj"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-2/v85-p02-kitten-landmine/record-session.launch.log",
+          "sha256": "b54dfed5999de47e7d0274796e59c0d560cdfed7474baef2a9f04bcb77e8fca3"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-2/v85-p02-kitten-landmine/stderr.log",
+          "sha256": "0cad1b092aed4233b07775d1c5047d5c4bf1ff2ee7ff52b6a89b1ba0646d2bec"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/v85-p03-carried-dragon-egg-attempt2.session.json",
+      "recordingSha256": "6b7a138260505f5409a4527522629445a1feea9e29b610564318783817eca94b",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/v85-p03-carried-dragon-egg-attempt2.recipe.session.json",
+          "sha256": "3879909efc200f3f4f6b88aa6128aea197e1c22cbddeaa70c82c19fe1d5f73a2"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 85003017,
+          "datetime": "20591207140832",
+          "nethackrc": "OPTIONS=name:V85CarriedDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+          "moves": "#wizwish\n+20 ring of protection\nPor#wizwish\negg of red dragon\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/v85-p03-carried-dragon-egg-attempt2.stderr.log",
+          "sha256": "9a94540ec0dd543c020536eec6de9a9c7389d722eec403ccbf19f78f3ed3f71a"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/v85-p03-carried-dragon-egg-attempt2.stdout.log",
+          "sha256": "62bd0950735fc621cef32db93e4e78f5d667a8afcdd0a60e0b769f9c624b50be"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/v85-p03-carried-dragon-egg.session.json",
+      "recordingSha256": "fd2df21ab3778fc89be3f46d83320f66d67a34b47d5b93e34510f2b0d957c1f4",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/v85-p03-carried-dragon-egg.recipe.session.json",
+          "sha256": "a629ebdb9194f9724f462955c971bf3ad26d88c7d5a8eedbe018d08ead47d55c"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 85003017,
+          "datetime": "20591207140832",
+          "nethackrc": "OPTIONS=name:V85CarriedDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+          "moves": "#wizwish\n+20 ring of protection\nPnr#wizwish\negg of red dragon\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/cfirst.stderr.log",
+          "sha256": "132352ad87e320e0df573e06eb629f6d92934ed26e2091b6aa275aac6c9e954e"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-3/v85-p03-carried-dragon-egg/cfirst.stdout.log",
+          "sha256": "a1cca9404c2f876552f05a3d63534d8d4cac10119d9063f07a7b730dae46c218"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-4/v85-p04-ball-web/recording.session.json",
+      "recordingSha256": "f2cc7a3cc08cce7d0a94b7ad989bb4bce6436f7eb39180517e66e316f7b400c2",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-4/v85-p04-ball-web/recipe.session.json",
+          "sha256": "8cdaf9f326401fc4a14087df77891a4a004df303b03897a41f9571cf25a3358d"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 8510241,
+          "datetime": "20520124092115",
+          "nethackrc": "OPTIONS=name:BallWeb8510241,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+          "moves": "l\u0017uncursed scroll of punishment\nre ,\u0017web\nlhtfl"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-4/v85-p04-ball-web/run.stderr.log",
+          "sha256": "976a953ce977e0fe43239112e617d9cbcf8c3f122c00309c5ad3b45339da286f"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/attempt2.session.json",
+      "recordingSha256": "9b5c108b122cff149392b9c0c258936d22df67e0f4e404c3a242ae38c776d990",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/attempt2.recipe.json",
+          "sha256": "083a86ca022358b0a06926729c13d4e7328b8e755cfbeff88d0fcd66679a3f5e"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/recipe-draft.json",
+          "sha256": "1f4cea5dd4bae742c2f240e6086032a0c4eff4ad546996c6720d11be9af13729"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 91827031,
+          "datetime": "20461014133700",
+          "nethackrc": "OPTIONS=name:AxeWormV85,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+          "moves": " \u0007hostile long worm\n\u0017axe\ni"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/attempt2.log",
+          "sha256": "1e97c6cb6ac92979538f0798faa68c7656cf4f0b5c6f0d408fbbd46100ae81f7"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/attempt2.stderr.log",
+          "sha256": "8fd924dac3382b429d76b6e3c8b7f27187980b516f3b60722d36bcefd25dd7a8"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/scout.session.json",
+      "recordingSha256": "95fb5030845147605145a40c5b9e787bf17e5c64886e67e01a12885af8263309",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/scout-input.recipe.json",
+          "sha256": "dca09a19abde157a0ea3303bc3dbebaf6ee5bb4cf963545b29dac38ac17b9919"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 91827031,
+          "datetime": "20461014133700",
+          "nethackrc": "OPTIONS=name:AxeWormV85,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+          "moves": "\u0007hostile long worm\n\u0017axe\ni"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/bounded-stderr.log",
+          "sha256": "bd08f1a857348e2cd71763fe935cedeb2fe5d620c806ae2d9a3104b9ad15bc83"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-5/v85-p05-thrown-axe-worm/scout.log",
+          "sha256": "d5bf8a1bcdc19dab296c23fdc707d91c5ac557ac3d224b0fc16207e52d6ab042"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-6/v85-p06-ball-bear/attempt2.recording.session.json",
+      "recordingSha256": "2a5168059e1788df3f8eb4f5e658b124312daceba8ee3b8f952de232baed58e6",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-6/v85-p06-ball-bear/attempt2.recipe.session.json",
+          "sha256": "489c3d1246d0f29364a3be9e14c7bad755e1ce956f1431f5b829802cd3c3ff67"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 85101739,
+          "datetime": "20691017173900",
+          "nethackrc": "OPTIONS=name:V85BearBall,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+          "moves": " #wizwish\nuncursed scroll of punishment\nre e , h#wizwish\ntrapped bear trap\nlh tfl"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-6/v85-p06-ball-bear/attempt2-cfirst-stderr.log",
+          "sha256": "76d716500ef2ec563c6ed54262f76bb3e334df8bb62306a955faa0400b9e7666"
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-6/v85-p06-ball-bear/recording.session.json",
+      "recordingSha256": "5f15e1963019d641ce4df6c187d0eec56d06ff7fb8889c0a09af601dfe3b0081",
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-6/v85-p06-ball-bear/recipe.session.json",
+          "sha256": "1ce80a4a0f1f8aa1a511426dbfe32e4a9b57e21945af593410ff55fa157c8a1d"
+        }
+      ],
+      "inputs": [
+        {
+          "seed": 85101739,
+          "datetime": "20691017173900",
+          "nethackrc": "OPTIONS=name:V85BearBall,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+          "moves": " #wizwish\nuncursed scroll of punishment\nre e , h#wizwish\ntrapped bear trap\nlh t e l"
+        }
+      ],
+      "validFirstPair": true,
+      "included": false,
+      "logs": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep49-recovery/lanes/Prep-6/v85-p06-ball-bear/cfirst-stderr.log",
+          "sha256": "63b10010cafae024ea97740b43d9ba24b0d04eee04343cecc1660cb6cc823e0a"
+        }
+      ]
+    }
+  ],
+  "preservedDataFiles": [
+    {
+      "path": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.recipe.session.json",
+      "sha256": "03792a994c140d4a93cd3460a21132fb1ee910a3351ad5dbf2c72fa181a21096"
+    },
+    {
+      "path": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.session.json",
+      "sha256": "8b846b45052240532d9512cd6540a81e1c704b3f3046cd5c9fe9415ed00b0e7b"
+    }
+  ],
+  "finalRouteAdjudication": {
+    "rule": "User-approved pilot retains distinct failures only and delivers a nonempty validated group without waiting for12 failures.",
+    "included": [
+      "v85-p13-mounted-chat-down-attempt4"
+    ],
+    "qualifyingDistinctFailures": 1,
+    "matchingControls": 0,
+    "matchesOutsideManifest": [
+      {
+        "probe": "v85-p04-ball-web",
+        "rng": 2301,
+        "screens": 47,
+        "cursors": 47
+      },
+      {
+        "probe": "v85-p07-skeleton-chat-west",
+        "rng": 2602,
+        "screens": 43,
+        "cursors": 43
+      },
+      {
+        "probe": "v85-p03-carried-dragon-egg",
+        "rng": 7197,
+        "screens": 483,
+        "cursors": 483
+      },
+      {
+        "probe": "v85-p06-ball-bear",
+        "rng": 2444,
+        "screens": 82,
+        "cursors": 82,
+        "limit": "Ends at bear-pull More/two RNG calls; no later severe-leg/reset/landing claim."
+      }
+    ],
+    "deferred": [
+      {
+        "probe": "v85-p02-kitten-landmine",
+        "reason": "C scout hits south wall; kitten weight gate unreached; observed source continuation retained."
+      },
+      {
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "C live worm/axe geometry reached; no throw/cutworm or tail-order claim. Preserve coordinates/decoder for later alignment."
+      },
+      {
+        "probe": "v85-p08-ball-pit",
+        "reason": "Cached source recipe unexecuted at delivery boundary."
+      },
+      {
+        "probe": "v85-p09-humanoid-beg",
+        "reason": "Source requires long hungry-pet survival/visibility setup, unresolved; no game attempt/exhaustion claim."
+      }
+    ],
+    "setupHistory": "Preserve startup-pager, ring-selector, throw-cancellation, south-wall and skeleton-direction misses. p13 south-selector statement was wrong and superseded by programmatic southeast n coordinates. Initial p01 terminal ledger outcome failure was premature: it is only a setup miss and does not qualify.",
+    "unlaunchedCandidates": "Retain remaining frozen source designs, including airborne mine, contained egg expiry, nonlevitating ball jerk-back and monster-to-monster acid spit, without coverage or exhaustion claims.",
+    "ownership": "Root final live check found no dochat/whole sounds.c reservation and no queued exact mounted-chat first cause.",
+    "admission": "Prepared only; Main owns official baseline and admission."
+  }
+}
