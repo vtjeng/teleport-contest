@@ -740,11 +740,11 @@ test('primary dashboard sections put sessions before activity and historical det
     const template = readFileSync(TEMPLATE, 'utf8');
     const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',
         'class="diagnostics"', 'id="sourceWorkDisclosure"', 'id="pendingMainWorkTitle"', 'id="timeline"',
-        'id="goalTable"', 'id="remainingWorkDisclosure"']
+        'id="goalTable"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
-    assert.doesNotMatch(template, /id="queueDisclosure"|Known mismatches|<h2[^>]*>Challenges<\/h2>/u);
+    assert.doesNotMatch(template, /id="remainingWorkDisclosure"|id="queueDisclosure"|Known mismatches|<h2[^>]*>Challenges<\/h2>/u);
 });
 
 test('one sessions table includes both sets with exact scores and distinct mismatch counts', () => {

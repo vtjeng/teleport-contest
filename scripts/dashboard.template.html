@@ -260,9 +260,6 @@ h1 {
 #challengeTable td:first-child details summary { cursor: pointer; }
 .session-finding { max-width: 420px; white-space: normal; line-height: 1.4; color: var(--ink-secondary); }
 .session-finding p { margin: 6px 0; }
-#remainingWorkList details { border-top: 1px solid var(--border); padding: 9px 0; font-size: 12px; }
-#remainingWorkList summary { cursor: pointer; overflow-wrap: anywhere; }
-#remainingWorkList p { color: var(--ink-secondary); line-height: 1.5; }
 
 .challenge-outcome {
   white-space: normal;
@@ -994,13 +991,6 @@ canvas {
     </div>
   </div>
 </div>
-
-<details class="section" id="remainingWorkDisclosure">
-  <summary><h3 class="section-title" id="remainingWorkTitle">Parked goals</h3></summary>
-  <p class="subtitle">Recorded deferrals, not current worker activity or whole-source coverage.</p>
-  <label class="challenge-filter">Filter <input type="search" id="remainingWorkFilter" placeholder="Goal or blocker"></label>
-  <div class="chart-wrap" id="remainingWorkList"></div>
-</details>
 
 </section>
 
@@ -2167,29 +2157,6 @@ document.getElementById('stats').innerHTML = [
       + '</td><td>' + stamp(row.assignedAt) + '</td><td>'
       + (row.publicationKnownBy ? 'By ' + stamp(row.publishedAt > row.publicationKnownBy ? row.publishedAt : row.publicationKnownBy)
         : stamp(row.publishedAt)) + '</td></tr>').join('') + '</tbody>';
-})();
-
-// --- Parked goal history, separate from current worker activity ---
-(function() {
-  const goals = (DATA.workGoals || []).filter(goal => goal.status === 'parked');
-  const list = document.getElementById('remainingWorkList');
-  const filter = document.getElementById('remainingWorkFilter');
-  const esc = value => String(value ?? '').replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  document.getElementById('remainingWorkTitle').textContent
-    = 'Parked goals · ' + goals.length;
-  function render() {
-    const query = String(filter.value ?? '').toLowerCase().trim();
-    const rows = goals.filter(goal => !query || (goal.id + ' ' + goal.parkedReason)
-      .toLowerCase().includes(query));
-    list.innerHTML = rows.length ? rows.map(goal => {
-      return '<details><summary>' + esc(goal.id) + '</summary><p>'
-        + esc(goal.parkedReason || 'No remaining-work reason recorded.') + '</p>'
-        + '</details>';
-    }).join('') : '<p class="table-note">No matching source goals.</p>';
-  }
-  filter.addEventListener('input', render);
-  render();
 })();
 
 // --- Cut names expand on tap ---

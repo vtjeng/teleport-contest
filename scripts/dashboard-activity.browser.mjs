@@ -32,8 +32,8 @@ try {
   await sourceHistory.locator('summary').first().press('Enter');
   assert.equal(await sourceHistory.evaluate(element => element.open), false,
     'source history remains keyboard-accessible without the removed coverage help');
-  const parked = page.locator('#remainingWorkDisclosure');
-  await parked.locator('summary').first().click();
+  assert.equal(await page.getByRole('heading', { name: /^Parked goals/u }).count(), 0,
+    'older goal deferrals are hidden from the dashboard');
   const durationChart = page.locator('#integrationDurationChart');
   const pending = page.locator('#pendingMainWork');
   const submittedBatches = await page.evaluate(() => DATA.pendingMainWork?.deliveries
@@ -124,8 +124,6 @@ try {
     if (screenshot) await chart.locator('..').screenshot({ path: screenshot.replace(/\.png$/u, '-' + group + '-integration.png') });
   }
   console.log('Integration duration: pointer and keyboard selection, pinned hover, stable frame and scroll passed.');
-  assert.doesNotMatch(await parked.innerText(), /Unverified functions|Remaining source work/u);
-  await parked.locator('summary').first().click();
   const excludedCases = await page.evaluate(() => challengeCases
     .filter(item => challengeExclusion(item))
     .map(item => ({ name: item.title || item.id, reason: challengeExclusion(item).reason })));
