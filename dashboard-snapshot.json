@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T08:27:56.408Z",
+  "capturedAt": "2026-10-15T08:40:16.134Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -137495,23 +137495,443 @@
         "state": "active",
         "probe": "v88-p13-mhurtle-cockatrice-healer",
         "reason": "Reserved one C slot for the single geometry/target scout; map and target location will determine the action direction."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep51-b174dc00db588660937074dc72281eceab1d472b",
+        "type": "published",
+        "at": "2026-10-15T08:28:04.068Z",
+        "task": "Prep51",
+        "commit": "b174dc00db588660937074dc72281eceab1d472b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v87-menu-travel-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T08:28:20.614Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the v87 menu travel path from the source and admitted recording."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-v87-p07-menu-travel-attempt1-investigation-20261015",
+        "type": "assign",
+        "at": "2026-10-15T08:28:33.587Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p09-acid-spit-run-0NqKyS-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:28:42.496Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p09-monster-acid-spit",
+        "reason": "C setup miss was decoded and durably saved; run-0NqKyS is terminal and the slot is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt1-scout-geometry-observed-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:28:58.910Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "C geometry scout terminal: #wizmap shows Healer at (7,9) and adjacent peaceful cockatrice at (8,9), open floor. Telekinesis getpos starts at Healer; action recipe will move cursor east to cockatrice then direct it west into bare-torso Healer. Scout itself did not select/act."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-9cfdefe6b87f9f4904328719e5ccb856a9fcdc50-5955d089335c01c51efd88be41f4981865b80e6f9589171f76979beeb38c7dc0-B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T08:29:17.798Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "integration": "9cfdefe6b87f9f4904328719e5ccb856a9fcdc50",
+        "validationGroup": [
+          "B-investigation-v86-p01-retravel-unset-attempt1-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p09-acid-spit-capture-attempt2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:29:24.157Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p09-monster-acid-spit",
+        "reason": "Recording source-directed second C setup after attempt1 showed point-blank placement"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt2-action-reserve-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:29:30.327Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "C action attempt: select the map-observed east-adjacent cockatrice from Healer, then direct it west into bare-torso Healer; target path comes from C scout map."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p09-acid-spit-run-1DDQi8-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:29:42.577Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p09-monster-acid-spit",
+        "reason": "C recorder run-1DDQi8 finished; collecting its output and releasing the slot."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt2-action-c-terminal-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:30:12.480Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "C action terminal at target collision, step 66: cockatrice hisses and bumps into Healer, More pending. Does not yet show petrification/death aftermath."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p09-acid-spit-run-1DDQi8-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:30:31.348Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v88-p09-monster-acid-spit",
+        "reason": "Second C setup miss decoded and durably saved; run-1DDQi8 is terminal and the slot is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt2-e5ca-js-reserve-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:30:45.645Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "Reserved bounded JS comparison of C-reached cockatrice-to-Healer collision recording against accepted e5ca7d5058b42155868f633abf031483df289cc9."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v88-p09-acid-spit-deferred-two-setups-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:30:56.174Z",
+        "task": "Prep52",
+        "worker": "Prep-5",
+        "state": "done",
+        "probe": "v88-p09-monster-acid-spit",
+        "reason": "Deferred after two distinct C setup misses: attempt1 put the tame naga adjacent to the hostile giant, blocking AT_SPIT at the point-blank gate in mhitm.c:mattackm; attempt2 moved into the spawned giant and the More prompt consumed the planned naga creation. No ranged spit, venom hit, or ohitmon damage was reached or compared.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt2-e5ca-js-reservation-released-unlaunched-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:31:02.772Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "Released unused JS reservation before the authorized C continuation; the More prompt pauses before mhurtle_step reaches instapetrify, so extending actual C input first."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt3-more-continuation-c-reserve-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:31:22.627Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "C continuation repeats the reached source-directed collision and appends one space at the actual collision More prompt to observe the instapetrify result in mhurtle_step."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt3-c-terminal-instapetrify-observed-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:31:45.218Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "C continuation terminal after step 67 space: The cockatrice bumps into Healer then screen displays You turn to stone...--More--, confirming instapetrify caller reached."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-A2-v87-menu-travel-20261015",
+        "type": "implement",
+        "at": "2026-10-15T08:31:52.081Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "goal": "port-cmd-dotravel-menu-travel-v87-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt3-e5ca-comparison-reserve-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:32:08.592Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "Reserved JS comparison of C-confirmed instapetrify prefix against accepted e5ca7d5058b42155868f633abf031483df289cc9, retaining raw result and provenance."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p10-sit-mounted-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:32:22.463Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Reserving one bounded C capture for sit.c:dosit mounted-steed early return."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt3-e5ca-comparison-handle-58763-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:32:32.815Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "JS comparison process retained from exec session 58763; waiting for terminal result."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p10-sit-mounted-attempt1-wrapper-run-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:32:45.624Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Bounded wrapper returned flock spawnSync EPERM after creating run-WqkFRp receipt; inspecting that exact unit before deciding command status."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-attempt3-e5ca-comparison-terminal-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:32:55.399Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "Accepted e5ca JS comparison completed; raw result saved for source/overlap adjudication."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p10-sit-mounted-attempt1-flock-not-started-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:33:35.650Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Sandbox run-WqkFRp failed at flock with EPERM before service launch; official bounded status confirms unit not found, no recorder ran. Slot released and failure receipt preserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p10-sit-mounted-attempt1-outside-sandbox-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:33:42.940Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Reserving bounded C recording outside the sandbox after prior wrapper launch was confirmed not started."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p10-sit-mounted-attempt1-run-dxK7c2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:34:04.772Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Bounded C run-dxK7c2 completed successfully and wrapper reaped it; recording target reach is being checked."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "v88-p13-collision-instapetrify-e5ca-first-mismatch-complete-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:34:35.978Z",
+        "task": "Prep52",
+        "worker": "Prep-6",
+        "state": "done",
+        "probe": "v88-p13-mhurtle-cockatrice-healer",
+        "reason": "C-reached dothrow.c:mhurtle_step instapetrify with an ordinary Healer and adjacent generated cockatrice; accepted e5ca comparison matches steps 0-66 and first differs at step 67 after More. Evidence and raw provenance saved to Prep-6 durable lane artifacts.",
+        "outcome": "failure"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p10-sit-mounted-attempt1-run-dxK7c2-setup-miss-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:35:00.873Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Run-dxK7c2 was terminal and reaped. C map parsing showed pony west of hero; north selector missed, and #sit hit stairs, so preserve as setup miss and release slot."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p10-sit-mounted-attempt2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:35:18.911Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Reserving corrected bounded C recording using C-observed west direction for the mounted pony sit guard."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p10-sit-mounted-attempt2-run-O1c8vn-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:35:36.986Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Bounded C run-O1c8vn completed successfully and the wrapper reaped it; checking mount and mounted-sit response."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v86-p01-retravel-unset-attempt1-20261015-9cfdefe6b87f9f4904328719e5ccb856a9fcdc50-validated",
+        "type": "validated",
+        "at": "2026-10-15T08:35:48.542Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p10-sit-mounted-attempt2-run-O1c8vn-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:35:55.899Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Run-O1c8vn was terminal and reaped; C reached the mounted-steed dosit early return. Evidence is durable and the bounded slot is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p10-sit-mounted-js-compare-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:36:32.991Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Reserving one accepted e5ca comparison for the reached mounted-steed sit C recording."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v86-p01-retravel-unset-attempt1-20261015-9cfdefe6b87f9f4904328719e5ccb856a9fcdc50-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T08:36:38.684Z",
+        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p10-sit-mounted-js-compare-run-PWfCMM-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:36:51.346Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Accepted e5ca comparison run-PWfCMM returned a full match (2,996 RNG entries; 53 screens/cursors); collecting terminal wrapper state."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p10-sit-mounted-js-compare-run-PWfCMM-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:37:26.498Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "Accepted e5ca comparison run-PWfCMM was terminal and reaped; it fully matched the mounted-sit capture and the slot is released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v88-p10-sit-mounted-e5ca-match-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:37:36.266Z",
+        "task": "Prep52",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v88-p10-sit-mounted",
+        "reason": "C reached sit.c:dosit mounted-steed early return and printed You are already sitting on the saddled pony. Accepted e5ca comparison run-PWfCMM matched all 2,996 RNG entries, 53 screens and cursors with no mismatch. Preserve and exclude this match; no replay.",
+        "source": "sit.c:dosit u.usteed early return",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v88-p12-blessed-gain-ability-vapor-capture1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:37:44.972Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-blessed-gain-ability-vapor",
+        "reason": "Reserving one independent C capture of the blessed potion toss-up into potion.c:potionbreathe POT_GAIN_ABILITY.",
+        "source": "dothrow.c:toss_up -> potion.c:potionhit -> potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v88-p12-blessed-gain-ability-vapor-run-D6qL0T-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:38:07.905Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-blessed-gain-ability-vapor",
+        "reason": "Bounded C recording run-D6qL0T completed successfully; collecting the terminal recording and checking actual toss-up and ability effects.",
+        "source": "dothrow.c:toss_up -> potion.c:potionhit -> potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v88-p12-blessed-gain-ability-vapor-run-D6qL0T-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:38:29.293Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v88-p12-blessed-gain-ability-vapor",
+        "reason": "C run-D6qL0T is terminal and reaped; recording and bounded receipt are preserved while source reach is assessed.",
+        "source": "dothrow.c:toss_up -> potion.c:potionhit -> potionbreathe POT_GAIN_ABILITY"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v88-p12-blessed-gain-ability-vapor-attempt1-setup-miss-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T08:39:10.015Z",
+        "task": "Prep52",
+        "worker": "Prep-4",
+        "state": "done",
+        "probe": "v88-p12-blessed-gain-ability-vapor",
+        "reason": "One C capture completed, but the initial welcome --More-- consumed the leading dot and the wish failed; the throw selected an uncursed spellbook of wizard lock, not the potion. Preserve as a setup miss with no target coverage/comparison claim; stop per the single-capture plan.",
+        "source": "dothrow.c:toss_up -> potion.c:potionhit -> potionbreathe POT_GAIN_ABILITY",
+        "outcome": "deferred"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
-        "worker": "B",
-        "goal": "fix-v86-retravel-unset-dispatch-20261015",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "1723409c46e6f8016acfa9f8e1428290aac53a36",
-        "since": "2026-10-15T08:01:13.648Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -138673,33 +139093,39 @@
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
       },
-      "B-investigation-v86-p01-retravel-unset-attempt1-20261015": {
-        "id": "B-investigation-v86-p01-retravel-unset-attempt1-20261015",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v86/v86-p01-retravel-unset-attempt1",
+      "A2-investigation-v87-p07-menu-travel-attempt1-20261015": {
+        "id": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "worker": "A2",
+        "status": "working",
+        "seed": "synthetic/v87/v87-p07-menu-travel-attempt1",
         "reservations": [
-          "session:synthetic/v86/v86-p01-retravel-unset-attempt1",
+          "session:synthetic/v87/v87-p07-menu-travel-attempt1",
+          "source:cmd.c:dotravel",
           "source:cmd.c:doextcmd"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v86/v86-p01-retravel-unset-attempt1": {
+      "session:synthetic/v87/v87-p07-menu-travel-attempt1": {
         "tasks": [
-          "B-investigation-v86-p01-retravel-unset-attempt1-20261015"
+          "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
+        ]
+      },
+      "source:cmd.c:dotravel": {
+        "tasks": [
+          "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
         ]
       },
       "source:cmd.c:doextcmd": {
         "tasks": [
-          "B-investigation-v86-p01-retravel-unset-attempt1-20261015"
+          "A2-investigation-v87-p07-menu-travel-attempt1-20261015"
         ]
       }
     }
   },
   "development": {
-    "executionCommit": "b67616caebaeeade1934c3b026d64259927e0460",
-    "measuredAt": "2026-10-15T08:19:59.976Z",
+    "executionCommit": "9cfdefe6b87f9f4904328719e5ccb856a9fcdc50",
+    "measuredAt": "2026-10-15T08:35:01.087Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
