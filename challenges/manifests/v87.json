@@ -1,0 +1,673 @@
+{
+  "version": 1,
+  "batch": "v87",
+  "status": "prepared-not-admitted",
+  "preparationAssignmentBase": "90f779bfee6d1cffe2e49075fc8d2793cdb6a6b6",
+  "deliveryBase": "90f779bfee6d1cffe2e49075fc8d2793cdb6a6b6",
+  "comparisonBase": "76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v87-p07-menu-travel-attempt1",
+      "title": "Cancel the travel destination menu",
+      "mission": "cmd.c:dotravel menu_requested -> getpos_menu(GLOC_INTERESTING)",
+      "sourcePointers": [
+        "nethack-c/upstream/src/cmd.c:dotravel5298-5330",
+        "nethack-c/upstream/src/getpos.c:getpos_menu"
+      ],
+      "sourceTrace": "C m#travel reaches the actual interesting-location menu at step18 and Escape cancels at step19. cmd.c:dotravel sets GFILTER_VIEW and calls getpos_menu; cancellation restores the filter and clears travel mode. JS dotravel refuses the menu_requested branch before calling the existing helper. The throw is attributed from source; normal producer output records the missing screen/cursor, without a delegated runtime-error hook.",
+      "recipe": "challenges/cases/v87/v87-p07-menu-travel-attempt1.recipe.session.json",
+      "recipeSha256": "14c7e9a2d23cd0b0cb61a3e2640245281b6dd6bd07b4d0eff4427f155c48d2d2",
+      "recording": "challenges/cases/v87/v87-p07-menu-travel-attempt1.session.json",
+      "recordingSha256": "febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39",
+      "reproducibility": "Independent patched-C replay is byte-identical.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v87-p07-menu-travel-attempt1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          ".cache/probes/v87-p07-menu-travel/attempt1-c-compare-20261015/v87-p07-menu-travel-attempt1.recipe.session.json",
+          ".cache/probes/v87-p07-menu-travel/attempt1-c-compare-20261015/v87-p07-menu-travel-attempt1-independent-replay.session.json"
+        ],
+        "workingDirectory": "/tmp/teleport-prep48-lane1-20261015",
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/attempt1-independent-replay.stderr.log",
+        "logSha256": "1e78c46dfa1050d6457a1c6b6668257f305e906e55d02e6e4d984ef34fe1eea3",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/v87-p07-menu-travel-attempt1-independent-replay.session.json",
+        "outputSha256": "febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "version": 5,
+        "comment": "Prep51 C-first independent probe of cmd.c:dotravel()'s menu_requested/getpos_menu(GLOC_INTERESTING) branch. The leading space dismisses the observed startup boundary; #wizmap reveals current-level features, then m#travel requests the menu and Escape exercises its cancellation/cleanup branch. C must show the actual travel-location menu before cancellation is claimed.",
+        "segments": [
+          {
+            "seed": 87155197,
+            "datetime": "20861015143100",
+            "nethackrc": "OPTIONS=name:TravelMenu87,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+            "moves": " #wizmap\nm#travel\n\u001b"
+          }
+        ]
+      },
+      "qualifyingDistinctMismatch": true,
+      "matchingControl": false,
+      "firstMismatch": {
+        "segment": 0,
+        "step": 18,
+        "key": "\n",
+        "owner": "cmd.c:dotravel",
+        "source": "menu_requested -> getpos_menu(GLOC_INTERESTING) omitted production caller",
+        "summary": "C travel menu screen/cursor is missing in JS; dotravel menu branch explicitly refuses instead of invoking its existing callee.",
+        "comparisonBase": "76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96",
+        "officialComparison": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 6390,
+              "js": 6390
+            },
+            "screens": {
+              "c": 20,
+              "js": 18
+            },
+            "cursors": {
+              "c": 20,
+              "js": 18
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": {
+            "index": 18,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 18,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 18,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 18,
+              "key": "\n"
+            },
+            "cCursor": [
+              28,
+              6,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null,
+          "provenance": {
+            "commit": "76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96",
+            "recordingSha256": "febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39"
+          }
+        },
+        "matchingPrefix": {
+          "method": "Official first screen/cursor mismatch at index18; all preceding18 match. Entire6390-call RNG streams match.",
+          "screens": 18,
+          "cursors": 18,
+          "rng": 6390,
+          "rawLog": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/attempt1-comparison.stdout.log",
+          "rawLogSha256": "06fe1de2db0d701fc42117e2cc0a1f52acc44f41a150aca4da24dea0fd98572d"
+        },
+        "closestEarlierEvidence": "v48 menu case calls getpos_menu from getpos for monster naming; accepted getpos delivery explicitly wires only ordinary getpos travel and location-cycle menus. v86 retravel fails in doextcmd dispatch. Current failure is the separate direct dotravel menu_requested caller."
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 6390,
+            "js": 6390
+          },
+          "screens": {
+            "c": 20,
+            "js": 18
+          },
+          "cursors": {
+            "c": 20,
+            "js": 18
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 18,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 18,
+            "key": "\n"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 18,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 18,
+            "key": "\n"
+          },
+          "cCursor": [
+            28,
+            6,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96",
+          "recordingSha256": "febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39"
+        }
+      },
+      "comparisonCheck": {
+        "kind": "comparison",
+        "caseId": "v87-p07-menu-travel-attempt1",
+        "command": [
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          ".cache/probes/v87-p07-menu-travel/attempt1-c-compare-20261015/v87-p07-menu-travel-attempt1.session.json",
+          "/tmp/teleport-score-RjGsDG",
+          "76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96"
+        ],
+        "workingDirectory": "/tmp/teleport-prep48-lane1-20261015",
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/attempt1-comparison.stdout.log",
+        "logSha256": "06fe1de2db0d701fc42117e2cc0a1f52acc44f41a150aca4da24dea0fd98572d",
+        "output": "__FRESH_DIFF_RESULT__\n{\"passed\":false,\"error\":null,\"lengths\":{\"rng\":{\"c\":6390,\"js\":6390},\"screens\":{\"c\":20,\"js\":18},\"cursors\":{\"c\":20,\"js\":18},\"animFrames\":{\"c\":0,\"js\":0}},\"rngMismatch\":null,\"screenMismatch\":{\"index\":18,\"location\":{\"segmentIndex\":0,\"stepIndex\":18,\"key\":\"\\n\"},\"kind\":\"js-missing\"},\"cursorMismatch\":{\"index\":18,\"location\":{\"segmentIndex\":0,\"stepIndex\":18,\"key\":\"\\n\"},\"cCursor\":[28,6,1]},\"animMismatch\":null,\"segmentMismatch\":null,\"provenance\":{\"commit\":\"76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96\",\"recordingSha256\":\"febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39\"}}\n"
+      },
+      "closestSavedEvidence": [
+        ".cache/prep87/menu-travel-packet-crosswalk.json",
+        ".cache/prep87/fixed44-v1-regression-crosswalk.json",
+        "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/attempt1-first-boundary.md"
+      ]
+    }
+  ],
+  "preservedDataFiles": [
+    {
+      "path": "challenges/cases/v87/v87-p07-menu-travel-attempt1.recipe.session.json",
+      "sha256": "14c7e9a2d23cd0b0cb61a3e2640245281b6dd6bd07b4d0eff4427f155c48d2d2"
+    },
+    {
+      "path": "challenges/cases/v87/v87-p07-menu-travel-attempt1.session.json",
+      "sha256": "febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39"
+    }
+  ],
+  "preservedAttemptInventory": [
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p01-ride-cockatrice/attempt1-setup-scout-20261015/v87-p01-ride-cockatrice-attempt1.session.json",
+      "sha256": "b3ca7e03a28263093c428f2e632f706a49afe58908943b9e4ca447a1911c6762",
+      "steps": 47,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p01-ride-cockatrice/attempt1-setup-scout-20261015/v87-p01-ride-cockatrice-attempt1.recipe.session.json",
+          "sha256": "041d3854e9a3b54db3caa7d1da8b2f1d1d40bc131dd27529d7bb9cfda10199e1"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p01-ride-cockatrice/attempt1-setup-scout-20261015/v87-p01-ride-cockatrice-attempt1.c-run.stderr.log",
+          "sha256": "4aad60745f06791f2cb63aa0bb06c18d5c1605d0205b0cd8b34920af875e220a",
+          "bytes": 405
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/v87-p07-menu-travel-attempt1.session.json",
+      "sha256": "febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39",
+      "steps": 20,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/v87-p07-menu-travel-attempt1.recipe.session.json",
+          "sha256": "14c7e9a2d23cd0b0cb61a3e2640245281b6dd6bd07b4d0eff4427f155c48d2d2"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/attempt1-comparison.stderr.log",
+          "sha256": "53078198b8ca7ecb2811268d6120db32992b2c4639a4de18059f2a76d368229e",
+          "bytes": 211
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/attempt1-independent-replay.stderr.log",
+          "sha256": "1e78c46dfa1050d6457a1c6b6668257f305e906e55d02e6e4d984ef34fe1eea3",
+          "bytes": 414
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-1/v87-p07-menu-travel/attempt1-c-compare-20261015/v87-p07-menu-travel-attempt1.c-run.stderr.log",
+          "sha256": "b6fe10288dcfc6433d29544bd368178dd25257e160c29017946f5c77cdfedba3",
+          "bytes": 395
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-2/v87-p02-airborne-landmine/attempt1/recording.session.json",
+      "sha256": "0717da7d179023c4dc4915566c7925281b85a7d63e17334aaa343ad41f06fbfb",
+      "steps": 107,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-2/v87-p02-airborne-landmine/attempt1/recipe.session.json",
+          "sha256": "0494cdd92cf0cd5d70eb32cc22e7a324cce5ab8a7c6d3d3ceef24db02c72588e"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-2/v87-p02-airborne-landmine/attempt1/record-session.log",
+          "sha256": "b82d551308132d5a929f1a893354f945515230ddaaa49bf1754ce73d94d10e5f",
+          "bytes": 363
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-2/v87-p02-airborne-landmine/attempt2/recording.session.json",
+      "sha256": "9386bf2614703d2f414c70f214294070d88c20150a5058f1e45262c3e11d5235",
+      "steps": 125,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-2/v87-p02-airborne-landmine/attempt2/recipe.session.json",
+          "sha256": "530c546e8b0f0b1f6e28bccd271c1a59b9d4026e8d2aeec778c48dfbc7a262f9"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-2/v87-p02-airborne-landmine/attempt2/record-session.log",
+          "sha256": "b1371f96d4732a934993e6a11d5b7b5911e8807b6be9dff65f215183b074a18f",
+          "bytes": 363
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p03-contained-egg/attempt1.session.json",
+      "sha256": "f3a7bfacfe362669486991d908fd36c006b95fee177d90170fdfb348b281e1af",
+      "steps": 484,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p03-contained-egg/attempt1.recipe.session.json",
+          "sha256": "ccfa52ebce96f776f5ddba094a09dbce3c299ba9ca1d1ebaca73e1c529ea308a"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p03-contained-egg/cfirst.log",
+          "sha256": "761808d43a08120c75ce093e3216837400652e8eae7c8476983deaf896b687ab",
+          "bytes": 350
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p03-contained-egg/cfirst.stderr.log",
+          "sha256": "690d5686411423a6f651cf0ff04f2726f528f7c4e116e6854fa17ef076d64e7d",
+          "bytes": 139
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p09-zombie-genocided/attempt1.session.json",
+      "sha256": "41315ddec6d3e2ca8fd6fa2f3b299188614e63cc7ebf4e7284c5989a3d34c3cc",
+      "steps": 141,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p09-zombie-genocided/attempt1.recipe.session.json",
+          "sha256": "199969309f83dc95b159815e80cd0cbcf942c5c2cc8c26b3f8469c1a8db8cf91"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p09-zombie-genocided/cfirst.log",
+          "sha256": "92df8837d7a0909f6ec0ae9c2b6e5a5bcacc3a395dcee656f4244081fe649f0c",
+          "bytes": 353
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-3/v87-p09-zombie-genocided/cfirst.stderr.log",
+          "sha256": "02a7ac16a84f3ff994513bb594432e7825e3f003e94fedfba149c08b1add57d9",
+          "bytes": 142
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p04-ball-pit/attempt2/recording.session.json",
+      "sha256": "40bb3d9b10b69d326b3f602319f15bce771b34ff0367e3ac5d0a5e707cfd4207",
+      "steps": 49,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p04-ball-pit/attempt1/recipe.session.json",
+          "sha256": "1ce5f69e0c6e6c7a142a4cd3c327d273eebd510818e3aa55a30052052d5c5510"
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p04-ball-pit/attempt2/recipe.session.json",
+          "sha256": "a76429181a05baa859203d9766428693db91776b7c8440261311314c332d9a08"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p04-ball-pit/attempt2/bounded-stderr.log",
+          "sha256": "51c604adb9f7f0d4822127490a0f9ce65ea16abaa19e42536f39a03c5472af4d",
+          "bytes": 142
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p08-ball-jerk-back/attempt1/recording.session.json",
+      "sha256": "106fa0953006ec8eeff31b2053903f68fc8817f8e7782fff8b59fd1f1bb1aa9a",
+      "steps": 52,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p08-ball-jerk-back/attempt1/recipe.session.json",
+          "sha256": "87fa424f5e78d85b2c926b42d42c7c8b22f693a42740802422c51f7e64d0b43d"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p08-ball-jerk-back/attempt1/bounded-stderr.log",
+          "sha256": "0413281684e9fe78ba1ce6753af9f0a9a73c0a2e0a1aa180c5e735489ace5e7d",
+          "bytes": 148
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p08-ball-jerk-back/attempt2/recording.session.json",
+      "sha256": "2e67f1ae1b1577548ac854bd3e88fc1fb9eca6e1d051bf2be315046f2e16d4ff",
+      "steps": 52,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p08-ball-jerk-back/attempt2/recipe.session.json",
+          "sha256": "adc62f491f2df61666371229ad95e9c91b142defa6687fc31438c704c3fd620f"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-4/v87-p08-ball-jerk-back/attempt2/bounded-stderr.log",
+          "sha256": "0ee6aafd0675d81bda7bcf3673fdb416a1f261b54c90e6b50247f91ecf31b768",
+          "bytes": 148
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt1.session.json",
+      "sha256": "82c573c05e3b047119c383c0eefa89a546398f444e27a8dc746e79a3dbe48ca9",
+      "steps": 28,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt1.recipe.json",
+          "sha256": "993a4103911ec13d02bbb4b8182435765c7187c5ca25e2f94ae1007dadf19df5"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt1.stderr.log",
+          "sha256": "90e15ed17f378d1d83194023e8653af45886437d9e4e456442b1fce63640207f",
+          "bytes": 133
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt2.stderr.log",
+          "sha256": "a926f662c8ed7ac62e244b627693db0b5f8d027627d20331bcf8ea3350e87975",
+          "bytes": 133
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt2.session.json",
+      "sha256": "d15210168734f76eccdb59a420118848da654bdb78b75c9c78b6fa0ef5a0745e",
+      "steps": 27,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt2.recipe.json",
+          "sha256": "f218355b3a8ccd856e5233db19da7d411ed0d2271f3f19a04716230385ddff97"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt1.stderr.log",
+          "sha256": "90e15ed17f378d1d83194023e8653af45886437d9e4e456442b1fce63640207f",
+          "bytes": 133
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-5/v87-p05-axe-worm/attempt2.stderr.log",
+          "sha256": "a926f662c8ed7ac62e244b627693db0b5f8d027627d20331bcf8ea3350e87975",
+          "bytes": 133
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt1-cfirst-run-D0OPSI.session.json",
+      "sha256": "e8a4de3c75da922cb388775fff61a889f143796ba4d631a15bc11f053df46402",
+      "steps": 15,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt1.recipe.session.json",
+          "sha256": "2788f04a4596023527cb3a7b283dec55160d1d389d058f288863691b9f24b6ca"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt1-cfirst-run-D0OPSI.stderr.log",
+          "sha256": "4ea23d8c4ccae66facccc7b923af26b3ef655a9b32b1393a66484867383ed933",
+          "bytes": 153
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt2-cfirst-run-3DIKam.stderr.log",
+          "sha256": "1c7525f0de53d06dfd7e9c34996a354d2d1577770706db37b96ad8327f1e4ac1",
+          "bytes": 153
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt3-cfirst-run-o2PIJL.stderr.log",
+          "sha256": "6c93f041c95309ad7d584974728f433747f6ae4d1792bd536df0e8a0e9fb41d6",
+          "bytes": 153
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt2-cfirst-run-3DIKam.session.json",
+      "sha256": "895fac268d81bf487e95d44bc81bb3d7cab08799431d44a45ef2bde48e10caa7",
+      "steps": 16,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt2.recipe.session.json",
+          "sha256": "1194246a47e08032bed89db2ed1d194d2c3fb5db6df24f0f018ff281989b3f0d"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt1-cfirst-run-D0OPSI.stderr.log",
+          "sha256": "4ea23d8c4ccae66facccc7b923af26b3ef655a9b32b1393a66484867383ed933",
+          "bytes": 153
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt2-cfirst-run-3DIKam.stderr.log",
+          "sha256": "1c7525f0de53d06dfd7e9c34996a354d2d1577770706db37b96ad8327f1e4ac1",
+          "bytes": 153
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt3-cfirst-run-o2PIJL.stderr.log",
+          "sha256": "6c93f041c95309ad7d584974728f433747f6ae4d1792bd536df0e8a0e9fb41d6",
+          "bytes": 153
+        }
+      ]
+    },
+    {
+      "recording": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt3-cfirst-run-o2PIJL.session.json",
+      "sha256": "9efaf206ab325c9d88d6d90e2ae32a6761e7e78ce0f6fb82d844f9ea56b7b9d9",
+      "steps": 16,
+      "recipes": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt3.recipe.session.json",
+          "sha256": "bfd0cc0659491c82f9bc63611891b67a60eade1d23acae38d288adc4129d3da1"
+        }
+      ],
+      "firstLogCandidates": [
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt1-cfirst-run-D0OPSI.stderr.log",
+          "sha256": "4ea23d8c4ccae66facccc7b923af26b3ef655a9b32b1393a66484867383ed933",
+          "bytes": 153
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt2-cfirst-run-3DIKam.stderr.log",
+          "sha256": "1c7525f0de53d06dfd7e9c34996a354d2d1577770706db37b96ad8327f1e4ac1",
+          "bytes": 153
+        },
+        {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep51-recovery/lanes/Prep-6/v87-p06-opener-no-tin/attempt3-cfirst-run-o2PIJL.stderr.log",
+          "sha256": "6c93f041c95309ad7d584974728f433747f6ae4d1792bd536df0e8a0e9fb41d6",
+          "bytes": 153
+        }
+      ]
+    }
+  ],
+  "finalRouteAdjudication": {
+    "included": [
+      "v87-p07-menu-travel-attempt1"
+    ],
+    "strictMatches": [
+      {
+        "probe": "v87-p03-contained-egg",
+        "rng": 3584,
+        "screens": 484,
+        "cursors": 484,
+        "note": "Timeout174/objectid3; no replay."
+      },
+      {
+        "probe": "v87-p04-ball-pit",
+        "rng": 2573,
+        "screens": 49,
+        "cursors": 49,
+        "animFrames": 3,
+        "note": "Actual pit pull matched; no replay."
+      },
+      {
+        "probe": "v87-p06-opener-no-tin",
+        "rng": 2803,
+        "screens": 16,
+        "cursors": 16,
+        "note": "Actual no-tin guard matched; no replay."
+      }
+    ],
+    "excludedOrDeferred": [
+      {
+        "probe": "v87-p01-ride-cockatrice",
+        "reason": "Source-proven saddleability guard prevents assigned petrification branch; adjacent cockatrice scout preserved."
+      },
+      {
+        "probe": "v87-p02-airborne-landmine",
+        "reason": "Welcome and auto-dropped-boulder prompt misses; corrected attempt3/final-stop route unlaunched."
+      },
+      {
+        "probe": "v87-p05-axe-worm",
+        "reason": "Inventory action-menu miss and reached geometry scout; actual throw attempt3 unlaunched."
+      },
+      {
+        "probe": "v87-p08-ball-jerk-back",
+        "reason": "Two distinct blockers: lichen sticky move and pit wish on upstairs; source trace preserved, no drag_ball reached."
+      },
+      {
+        "probe": "v87-p09-zombie-genocided",
+        "reason": "Pending zombify timer turn12/id4 observed; wrong scroll p instead of o. Corrected attempt2 unlaunched; no genocide/callback claim."
+      }
+    ],
+    "runnerException": "run-nZ1Hqa sandbox flock EPERM/unit-lost produced no C recording; excluded from valid-first-pair count. Documented outside-sandbox retry preserved separately.",
+    "remainingFrozenPlans": [
+      {
+        "id": "v87-ride-cockatrice",
+        "source": "steed.c:mount_steed -> instapetrify",
+        "stateAndActions": "Bare ordinary hero attempts to mount cockatrice",
+        "cObservation": "Petrification call before tame check",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-ride-cockatrice"
+      },
+      {
+        "id": "v87-p02-kitten-landmine",
+        "source": "trap.c:trapeffect_landmine weight gate",
+        "stateAndActions": "Extend own C placement scout with source-supported kitten forced placement onto mine",
+        "cObservation": "rn2(151) weight guard; no explosion and mine intact",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-p02-kitten-landmine"
+      },
+      {
+        "id": "v87-airborne-landmine",
+        "source": "trap.c:trapeffect_landmine airborne branch",
+        "stateAndActions": "Hurtle winged gargoyle onto actual mine",
+        "cObservation": "Air-current roll/message; conditional explosion/pit refusal",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-airborne-landmine"
+      },
+      {
+        "id": "v87-contained-egg",
+        "source": "timeout.c:hatch_egg location failure",
+        "stateAndActions": "Due live egg timer while retained inside sack",
+        "cObservation": "Egg remains; timer consumed with no hatch",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-contained-egg"
+      },
+      {
+        "id": "v87-zombie-genocided",
+        "source": "do.c:zombify_mon G_GENOD",
+        "stateAndActions": "Zombifying corpse due after target zombie species genocide",
+        "cObservation": "Valid-form genocided guard selects rot_corpse",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-zombie-genocided"
+      },
+      {
+        "id": "v87-p04-ball-pit",
+        "source": "ball.c:drop_ball TT_PIT",
+        "stateAndActions": "Trapped pit hero throws carried attached ball",
+        "cObservation": "Pit pull/reset/relocation C observation",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-p04-ball-pit"
+      },
+      {
+        "id": "v87-ball-jerk-back",
+        "source": "ball.c:drag_ball nonlevitating terrain",
+        "stateAndActions": "Source A/B/C/D chain-ball geometry places old chain in pit before next move",
+        "cObservation": "Jerk-back message; stopped move and relocated hero",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-ball-jerk-back"
+      },
+      {
+        "id": "v87-p05-axe-worm",
+        "source": "dothrow.c:thitmonst -> cutworm",
+        "stateAndActions": "Extend own C worm/axe geometry to actual nonhead segment hit",
+        "cObservation": "Actual target coordinate and cutworm call; no rare roll quota",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-p05-axe-worm"
+      },
+      {
+        "id": "v87-mm-acid-spit",
+        "source": "mthrowu.c:spitmm -> ohitmon",
+        "stateAndActions": "Black naga at distance spits at acid-susceptible monster",
+        "cObservation": "Monster-to-monster venom hit/damage",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-mm-acid-spit"
+      },
+      {
+        "id": "v87-p06-opener-no-tin",
+        "source": "apply.c:doapply -> eat.c:use_tin_opener",
+        "stateAndActions": "Apply actual tin opener with no TIN in inventory",
+        "cObservation": "You have no tin to open early return",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-p06-opener-no-tin"
+      },
+      {
+        "id": "v87-worn-amulet-eat",
+        "source": "eat.c:doeat W_AMUL",
+        "stateAndActions": "Xorn attempts to eat worn iron amulet",
+        "cObservation": "Cannot eat something worn guard before eataccessory",
+        "plannedBeforeFirstGameplayComparison": true,
+        "carriedFrom": "v86-worn-amulet-eat"
+      }
+    ],
+    "timingCorrections": "Read timeout and object-id columns separately: contained egg174/id3, zombify12/id4. Earlier combined-digit readings remain history; durable analyses corrected.",
+    "ownership": "Root current summarized ledger cleared cmd.c/getpos.c and exact menu caller.",
+    "admission": "Preparation only; Main owns authoritative baseline/admission."
+  }
+}
