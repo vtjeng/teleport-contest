@@ -14,6 +14,15 @@ test('synthetic jobs take consecutive cases in numeric batch order', () => {
     ]);
 });
 
+test('default synthetic grouping takes 300 cases per job and preserves the final partial job', () => {
+    // Two full 300-case jobs and one trailing case exercise the requested size
+    // and ensure a remainder is neither omitted nor duplicated.
+    const cases = Array.from({length: 601}, (_, index) => ({id: `case-${index}`}));
+    const groups = groupCases([{batch: 'v1', cases}]);
+    assert.deepEqual(groups.map(group => group.cases.length), [300, 300, 1]);
+    assert.deepEqual(groups.flatMap(group => group.cases), cases.map(entry => ({batch: 'v1', ...entry})));
+});
+
 test('synthetic results keep repeated case IDs separate and reject missing or stale work', () => {
     const groups = groupCases(batches, 3);
     const identity = { sha: 'candidate' }; // Distinguishes this candidate from stale artifacts.
