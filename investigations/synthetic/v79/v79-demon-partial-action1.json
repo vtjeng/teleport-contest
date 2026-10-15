@@ -1,0 +1,99 @@
+{
+  "session": "synthetic/v79/v79-demon-partial-action1",
+  "corpus": "synthetic",
+  "batch": "v79",
+  "caseId": "v79-demon-partial-action1",
+  "remainingScreens": 0,
+  "recordedSteps": 368,
+  "manifestPath": "challenges/manifests/v79.json",
+  "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
+  "recordingSha256": "48bd906c95e33ca7e1aa2c1baa60ddefed14939f39bf9405fd164650c120dbb1",
+  "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+  "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+  "status": "complete",
+  "commit": "a5d11d956028254893ea83651831a68930b8b752",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v79",
+    "caseId": "v79-demon-partial-action1",
+    "session": "synthetic/v79/v79-demon-partial-action1",
+    "manifestPath": "challenges/manifests/v79.json",
+    "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
+    "recording": "challenges/cases/v79/v79-demon-partial-action1.session.json",
+    "recordingPath": "challenges/cases/v79/v79-demon-partial-action1.session.json",
+    "recordingSha256": "48bd906c95e33ca7e1aa2c1baa60ddefed14939f39bf9405fd164650c120dbb1",
+    "recipe": "challenges/cases/v79/v79-demon-partial-action1.recipe.session.json",
+    "recipeSha256": "830221f7dea0a99e86dd5e9b8c07d19acd8c3b15eef2803e19f5e4cbb9ad9156",
+    "replayInputSha256": "a67057566c1d01a81dd6935f564dde922be438bf29e5756f200ad3597bdeddb2",
+    "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+    "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+    "evaluationArtifact": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+    "evaluationUtc": "2026-10-15T03:03:34.560Z",
+    "remainingScreens": 0,
+    "recordedSteps": 368,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 368,
+        "total": 368
+      },
+      "rng": {
+        "matched": 2814,
+        "total": 2815
+      },
+      "cursors": {
+        "matched": 368,
+        "total": 368
+      }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": {
+        "index": 2800,
+        "cEntry": "rnd(30)=21",
+        "cCaller": "demon_talk(minion.c:340)",
+        "jsEntry": "rnd(15)=6",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 343,
+          "key": "\n"
+        },
+        "stepIndex": 343
+      },
+      "cursor": null
+    },
+    "step": 343,
+    "kind": "rng",
+    "sourceFile": "minion.c",
+    "function": "demon_talk",
+    "message": null,
+    "cFile": "minion.c",
+    "luaFile": null,
+    "line": 340
+  },
+  "summary": "When an unpolymorphed hero offers less than the demon’s demand but more than zero, minion.c demon_talk() tests the offer against a random multiple of ACURR(A_CHA). JS calls acurr(A_CHA, state), but attrib.js defines acurr(state, chridx); this evaluates the wrong state/attribute and changes the random bound from C’s 30 to JS’s 15 in this recording. Call acurr(state, A_CHA) to preserve C’s charisma-dependent branch.",
+  "source": {
+    "file": "minion.c",
+    "branch": "The hero has money, can move, is not Deaf, lacks the Amulet, and offers a positive amount below the demand. The demon uses the second refusal branch when rnd(5 * ACURR(A_CHA)) exceeds demand minus the offer.",
+    "functions": [
+      "demon_talk"
+    ],
+    "callers": [
+      "monmove.c:823 dochug() calls demon_talk() for adjacent peaceful untamed MS_BRIBE monsters and consumes its return to end the monster turn."
+    ],
+    "dependencies": [
+      "attrib.c:ACURR(A_CHA) resolves the hero current charisma used as the upper bound of the partial-payment random roll.",
+      "attrib.js:acurr(state, chridx) is the existing current-attribute implementation and expects state before the attribute index.",
+      "minion.c:bribe() supplies the positive offer whose amount demon_talk() compares with its demand."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v79 evaluation reports that synthetic/v79/v79-demon-partial-action1 matches all 368 screens and cursors, then first diverges in RNG at step 343: C calls rnd(30)=21 from minion.c demon_talk() at line 340 while JS calls rnd(15)=6. The manifest digest is 6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416 and the recording digest is 48bd906c95e33ca7e1aa2c1baa60ddefed14939f39bf9405fd164650c120dbb1.",
+    "minion.c:340 evaluates 5 * ACURR(A_CHA) after bribe() returns a positive partial offer. attrib.js:acurr is declared acurr(state = game, chridx), so minion.js:341 reverses the declared argument order. The recorded hero’s current charisma is 6, which gives C the bound 30; the reversed call reads the defaulted wrong attribute as 3 and gives JS the bound 15.",
+    "The v79 replay reaches this branch through monmove.c:823 dochug(). The task shares minion.c demon_talk() with the sibling greeting and fixes both reported branches in one implementation scope."
+  ]
+}
