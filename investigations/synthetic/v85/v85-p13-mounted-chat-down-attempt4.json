@@ -10,7 +10,7 @@
   "recordingSha256": "8b846b45052240532d9512cd6540a81e1c704b3f3046cd5c9fe9415ed00b0e7b",
   "evaluationPath": "challenges/evaluations/admission-9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0-v85.json",
   "evaluationCommit": "9f9cb4dcd0136d0b6f02f334ab3c6b4dc20163a0",
-  "status": "resolved",
+  "status": "complete",
   "commit": "60104b39fd286512ba81efcf76c2bfafdd75ec92",
   "mismatch": {
     "corpus": "synthetic",
@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "Mounted downward #chat now follows sounds.c:dochat(): helpless steeds get the notice and spend ECMD_TIME, while an awake steed reaches domonnoise(). The admitted v85 replay matches all 56 screens, cursors, and RNG calls through step 55.",
+  "summary": "The source-traced mounted-downward #chat branch now follows sounds.c:dochat(): helpless steeds get the notice and spend ECMD_TIME, while an awake steed reaches domonnoise(). The worker replay matches all 56 screens, cursors, and RNG calls.",
   "source": {
     "file": "sounds.c",
     "branch": "dochat(): u.usteed && u.dz > 0; helpless steed prints that it does not notice the rider and returns ECMD_TIME, otherwise domonnoise() handles the steed.",
@@ -85,7 +85,7 @@
     "The official v85 recording first diverges at segment 0 step 54, key \u201c>\u201d. C records \u201cThe saddled pony whickers.\u201d; the accepted JS runner stops before that screen and its timed-turn follow-up. The original prefix through step 53 matches exactly.",
     "Prep packet .cache/worker-state-loop-20260925.json.deliveries/22219e99e1608bc05be00ecd6d05cec3b5b145bdba6fe45d3501e44c600f6afd.json and .cache/prep49-recovery/lanes/Prep-1/v85-p13-mounted-chat-down/attempt4/first-boundary-trace.txt preserve the C-first source trace, recording hash, and official comparison."
   ],
-  "resolution": {
+  "after": {
     "implementationCommit": "9c2db3ceb",
     "freshDifferential": {
       "recipe": "challenges/cases/v85/v85-p13-mounted-chat-down-attempt4.recipe.session.json",
