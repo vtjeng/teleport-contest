@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     MM_NOWAIT,
+    MAGIC_PORTAL,
     NO_MM_FLAGS,
     PROT_FROM_SHAPE_CHANGERS,
     RLOC_MSG,
@@ -17,6 +18,7 @@ import { GameMap } from '../js/game.js';
 import { AT_MAGC, PM_WIZARD_OF_YENDOR } from '../js/monsters.js';
 import {
     choose_stairs,
+    amulet,
     aggravate,
     clonewiz,
     mon_has_arti,
@@ -33,6 +35,7 @@ import {
 import {
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,
+    FAKE_AMULET_OF_YENDOR,
 } from '../js/objects.js';
 import { NASTIES } from '../js/nasties_data.js';
 
@@ -614,4 +617,58 @@ test('nasty substitute cap reads the supplied planning dungeon', async () => {
         assert.equal(calls, 2);
         assert.equal(capBound, endgame ? 3 : 7);
     }
+});
+
+test('amulet checks a worn real Amulet before waking the first Wizard', async () => {
+    const state = {
+        u: {
+            ux: 10, // C hero coordinate used by distu()/m_next2u().
+            uy: 10, // Keeps the sleeping Wizard within m_next2u() range.
+        },
+        uamul: { otyp: AMULET_OF_YENDOR }, // C uamul points at the real Amulet.
+        context: { no_of_wizards: 1 }, // Enables the Wizard scan after portal hints.
+        level: {
+            traps: [{ ttyp: MAGIC_PORTAL, tx: 30, ty: 10 }], // Far portal emits no hint.
+            monlist: {
+                mhp: 10,
+                iswiz: true,
+                msleeping: true,
+                mx: 11, // Adjacent Wizard suppresses the creepy-feeling message.
+                my: 10,
+                nmon: null,
+            },
+        },
+    };
+    const draws = [];
+    const random = {
+        rn2(bound) {
+            draws.push(bound);
+            return bound === 15 ? 1 : 0; // Skip the hint, then wake the Wizard.
+        },
+    };
+    const messages = [];
+
+    await amulet(state, { random, message: async (value) => messages.push(value) });
+
+    assert.deepEqual(draws, [15, 40], 'C rolls portal hints before the Wizard wake chance');
+    assert.equal(state.level.monlist.msleeping, false, 'zero rn2(40) wakes the Wizard');
+    assert.deepEqual(messages, [], 'm_next2u suppresses the distant-notice message nearby');
+});
+
+test('amulet does not roll for a fake or unworn, unwielded Amulet', async () => {
+    const state = {
+        u: { ux: 10, uy: 10 },
+        uamul: null,
+        uwep: null,
+        context: {},
+        level: { traps: [], monlist: null },
+    };
+    const draws = [];
+    const random = { rn2: (bound) => (draws.push(bound), 0) };
+
+    await amulet(state, { random });
+    state.uamul = { otyp: FAKE_AMULET_OF_YENDOR };
+    await amulet(state, { random });
+
+    assert.deepEqual(draws, [], 'C enters the hint roll only for the real worn or wielded Amulet');
 });

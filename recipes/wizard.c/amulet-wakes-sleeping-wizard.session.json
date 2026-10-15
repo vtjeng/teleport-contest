@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first recipe for wizard.c:amulet's sleeping-Wizard wake branch. It uses #wizwish for the real Amulet, answers the Amulet's granted free wish, then creates a sleeping hostile Wizard of Yendor and spends elapsed turns for the source rn2(40) wake check. This uses fresh character, seed, date and inputs.",
+  "segments": [
+    {
+      "seed": 79020993,
+      "datetime": "21000103124500",
+      "nethackrc": "OPTIONS=name:AmuletWakeProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#wizwish\nAmulet of Yendor\n  nothing\n#wizgenesis\nsleeping hostile Wizard of Yendor\ny...................................................................................................."
+    }
+  ]
+}

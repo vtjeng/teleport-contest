@@ -28,6 +28,7 @@ import {
     MM_NOMSG,
     MM_NOWAIT,
     LARGEST_INT,
+    MAGIC_PORTAL,
     u_at,
     helpless,
 } from './const.js';
@@ -78,7 +79,7 @@ import { enexto, enexto_core } from './teleport.js';
 import { monster_census, msummon } from './minion.js';
 import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
-import { distant_name, donameFresh } from './objnam.js';
+import { distant_name, donameFresh, Tobjnam } from './objnam.js';
 import { add_to_minv } from './invent.js';
 import { mksobj } from './obj.js';
 import { messageAt } from './startup_a11y.js';
@@ -88,6 +89,8 @@ import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canspotmon } from './display.js';
 import { mnexto as moveMonsterNextTo, wake_nearto } from './mon.js';
+import { dist2 } from './hacklib.js';
+import { m_next2u } from './mhitu.js';
 import { verbalize } from './pline.js';
 
 // C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
@@ -104,6 +107,52 @@ const M3_WANTSBELL = 0x0002;
 const M3_WANTSBOOK = 0x0004;
 const M3_WANTSCAND = 0x0008;
 const M3_WANTSARTI = 0x0010;
+
+// C ref: wizard.c amulet() (61-103). moveloop_core owns the uhave.amulet
+// guard; this helper handles portal feedback and the sleeping Wizard check.
+export async function amulet(state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2 };
+    const roll = random.rn2 ?? rn2;
+    const message = rawEnv.message ?? ttyPline;
+    const amu = state.uamul?.otyp === AMULET_OF_YENDOR
+        ? state.uamul
+        : state.uwep?.otyp === AMULET_OF_YENDOR ? state.uwep : null;
+
+    if (amu && !roll(15)) {
+        for (const trap of state.level?.traps ?? []) {
+            if (trap.ttyp !== MAGIC_PORTAL) continue;
+
+            const distance = dist2(
+                trap.tx, trap.ty, state.u.ux, state.u.uy,
+            );
+            if (distance <= 9) {
+                await message(`${Tobjnam(amu, 'feel', state)} hot!`, state);
+            } else if (distance <= 64) {
+                await message(`${Tobjnam(amu, 'feel', state)} very warm.`, state);
+            } else if (distance <= 144) {
+                await message(`${Tobjnam(amu, 'feel', state)} warm.`, state);
+            }
+            break;
+        }
+    }
+
+    if (!state.context?.no_of_wizards) return;
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp < 1) continue;
+        if (!monster.iswiz || !monster.msleeping || roll(40) !== 0) continue;
+
+        monster.msleeping = false;
+        if (!m_next2u(monster, state)) {
+            await message(
+                'You get the creepy feeling that somebody noticed your taking the Amulet.',
+                state,
+            );
+        }
+        return;
+    }
+}
 
 function heroIsDeaf(state) {
     const deafness = state.u?.uprops?.[DEAF];

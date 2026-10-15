@@ -200,6 +200,7 @@ import { clear_splitobjs } from './obj.js';
 import { makewish } from './zap.js';
 import { clear_bypasses } from './worn.js';
 import { canseemon } from './display.js';
+import { amulet } from './wizard.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
 // allmain.c:newgame() calls mklev(). Asynchronous only because u_init_misc()
@@ -1174,6 +1175,8 @@ async function finishElapsedTurnAfterHunger(state, random, { planning = false } 
         stopOccupation: () => stop_occupation(state),
         unmul: (msg) => unmul(msg, state),
     });
+    if (state.u.uhave?.amulet)
+        await amulet(state, { random, message: turnMessage });
     maybeWipeHeroEngraving(state, random);
 
     // C ref: allmain.c moveloop_core() (379-388), the last statement of the
