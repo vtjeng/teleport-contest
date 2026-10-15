@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed combat with legal huge,handed Titan hero to avoid source engulf_target hero swallow while rings remain equipped. INVULNERABLE only protects relevant damage paths;prior C shows it does not suppress all attacks or swallowing,so no such claim. uhitm.c:mhitm_ad_dgst actual Rider kills engulfing attacker;force genuine Death rather than substitute. Actual actor/state/message/RNG proof required.",
+  "segments": [
+    {
+      "seed": 83011093,
+      "datetime": "21031227231000",
+      "nethackrc": "OPTIONS=name:v83-mm-digest-rider-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                                \u0017uncursed +50 gray dragon scale mail\n                        Wa                        \u0017uncursed ring of free action\n                        Pbl                        \u0017uncursed ring of conflict\n                        Pcr                        #wizintrinsic\n1000a\n                        #polyself\ntitan\n                        #wizgenesis\nhostile Death\ny                        #wizgenesis\ntame purple worm\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

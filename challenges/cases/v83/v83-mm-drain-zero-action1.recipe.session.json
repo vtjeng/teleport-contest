@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed combat with legal #wizintrinsic INVULNERABLE timeout1000 from observed menu a. uhitm.c:mhitm_ad_drli level0 target killed regardless currentHP on actual successful drain roll. This setup suppresses hero-target attacks while retaining monster-vs-monster branch conditions. Actual C reachability still required;no fixture state injection.",
+  "segments": [
+    {
+      "seed": 83011064,
+      "datetime": "21031227231000",
+      "nethackrc": "OPTIONS=name:v83-mm-drain-zero-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                                \u0017uncursed +50 gray dragon scale mail\n                        Wa                        \u0017uncursed ring of free action\n                        Pbl                        \u0017uncursed ring of conflict\n                        Pcr                        #wizintrinsic\n1000a\n                        #wizgenesis\nhostile newt\n                        #wizgenesis\ntame wraith\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

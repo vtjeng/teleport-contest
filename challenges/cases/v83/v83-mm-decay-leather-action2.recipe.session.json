@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed actor combat. uhitm.c:mhitm_ad_dcay monster-vs-monster complete rot killing leather golem,not corrosion. Legal level30,+50 mail and free action protect hero while Conflict and explicit tame/hostile actors provide combat opportunity. Count only actual C actor/branch evidence;setup request is not reachability. Preserved first attempt failed protection/Conflict setup because level30 promotion pages consumed the following wish. Extend only the observed promotion acknowledgments before wishing inventory;actual armor and ring letters must be verified.",
+  "segments": [
+    {
+      "seed": 83011012,
+      "datetime": "21031227181000",
+      "nethackrc": "OPTIONS=name:v83-mm-decay-leather-action2,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                                \u0017uncursed +50 gray dragon scale mail\n                        Wa                        \u0017uncursed ring of free action\n                        Pbl                        \u0017uncursed ring of conflict\n                        Pcr                        #wizgenesis\nhostile leather golem\n                        #wizgenesis\ntame brown pudding\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

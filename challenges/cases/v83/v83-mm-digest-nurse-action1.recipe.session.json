@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed combat. mhitm.c:gulpmm/mdamagem actual nonhero nurse digestion and attacker healing. Verify actual actor/state/branch in C;requested actor and intended special response are not proof. Protection and Conflict inventory letters use the first capture corrected promotion acknowledgments.",
+  "segments": [
+    {
+      "seed": 83011036,
+      "datetime": "21031227231000",
+      "nethackrc": "OPTIONS=name:v83-mm-digest-nurse-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                                                                                                \u0017uncursed +50 gray dragon scale mail\n                        Wa                        \u0017uncursed ring of free action\n                        Pbl                        \u0017uncursed ring of conflict\n                        Pcr                        #wizgenesis\nhostile nurse\n                        #wizgenesis\ntame purple worm\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

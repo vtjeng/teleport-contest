@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed actor combat. uhitm.c:mhitm_ad_rust monster-vs-monster complete rust killing iron golem. Legal level30,+50 mail and free action protect hero while Conflict and explicit tame/hostile actors provide combat opportunity. Count only actual C actor/branch evidence;setup request is not reachability.",
+  "segments": [
+    {
+      "seed": 83011011,
+      "datetime": "21031227181000",
+      "nethackrc": "OPTIONS=name:v83-mm-rust-iron-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n30\n                        \u0017uncursed +50 gray dragon scale mail\n                        Wa                        \u0017uncursed ring of free action\n                        Pbl                        \u0017uncursed ring of conflict\n                        Pcr                        #wizgenesis\nhostile iron golem\n                        #wizgenesis\ntame rust monster\n                        #wizmap\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}
