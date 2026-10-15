@@ -1,0 +1,1178 @@
+{
+  "version": 1,
+  "batch": "v84",
+  "status": "prepared-not-admitted",
+  "preparationAssignmentBase": "6fceddc153d015f6e9ccd515aed17c25ccbadc64",
+  "deliveryBase": "6fceddc153d015f6e9ccd515aed17c25ccbadc64",
+  "comparisonBase": "12b0eb941989675d49342fe14eb7b11376327b22",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v84-dig-boulder-pit-action2",
+      "title": "Dig through a floor boulder over a spiked pit",
+      "mission": "dig.c:dighole floor-boulder deletion caller",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c:dighole949-960 -> delobj(boulder_here)",
+        "nethack-c/upstream/src/invent.c:delobj -> obj_extract_self"
+      ],
+      "sourceTrace": "C dighole settles a boulder into the spiked pit at step271 and deletes it. JavaScript dig.js calls existing delobj without the floor extraction hook; invent.js preflightObjectExtraction refuses extractExternalObject for BOULDER475 before the next screen. The existing helper is implemented; this production caller omits its floor adapter.",
+      "recipe": "challenges/cases/v84/v84-dig-boulder-pit-action2.recipe.session.json",
+      "recipeSha256": "94ae24a23ca5344897a4b7c0cd7fa107eaf6a48bf7f16a57aca6df8e1cbb914f",
+      "recording": "challenges/cases/v84/v84-dig-boulder-pit-action2.session.json",
+      "recordingSha256": "51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25",
+      "reproducibility": "Independent patched-C replay byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v84-dig-boulder-pit-action2",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v84/v84-dig-boulder-pit-action2.recipe.session.json",
+          ".cache/prep84/v84-dig-boulder-pit-action2.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/replay-v84-dig-boulder-pit-action2.log",
+        "logSha256": "f0058da4d77252a385288d75d39198b8c4615376101d8501ff1c5de5cceb6c4d",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/v84-dig-boulder-pit-action2.replay.session.json",
+        "outputSha256": "51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 98411013,
+            "datetime": "21121217112300",
+            "nethackrc": "OPTIONS=name:Ground84,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+            "moves": "    #levelchange\n30\n                                                                                                l            #wizwish\nroom\n            #wizwish\nuncursed wand of digging (0:8)\n            #wizwish\nboulder\n            #wizwish\nspiked pit\n            za>                                "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 256,
+          "key": "\n",
+          "rng": [],
+          "screen": "A spiked pit.\n\n\n\n\n\n\n\n\n\n\n\u001b[26C---------\n\u001b[26C|.......|\n\u001b[26C|\u001b[93m$<\u001b[97m@\u001b[39m....\u001b[33m+\u001b[39m\n\u001b[26C........|\n\u001b[26C-.-------\n\n\n\n\n\n\nWizard the Conqueress\u001b[10CSt:18 Dx:17 Co:18 In:8 Wi:8 Ch:6 Neutral\nDlvl:1 $:0 HP:218(218) Pw:89(89) AC:10 Xp:30",
+          "cursor": [
+            29,
+            13,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 270,
+          "key": "a",
+          "rng": [],
+          "screen": "In what direction?\n\n\n\n\n\n\n\n\n\n\n\u001b[26C---------\n\u001b[26C|.......|\n\u001b[26C|\u001b[93m$<\u001b[97m@\u001b[39m....\u001b[33m+\u001b[39m\n\u001b[26C........|\n\u001b[26C-.-------\n\n\n\n\n\n\nWizard the Conqueress\u001b[10CSt:18 Dx:17 Co:18 In:8 Wi:8 Ch:6 Neutral\nDlvl:1 $:0 HP:218(218) Pw:89(89) AC:10 Xp:30",
+          "cursor": [
+            19,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 271,
+          "key": ">",
+          "rng": [
+            "rn2(19)=14 @ exercise(attrib.c:509)",
+            "rn2(2)=1 @ dighole(dig.c:944)",
+            "rn2(100)=34 @ obj_resists(zap.c:1469)",
+            "rn2(19)=6 @ exercise(attrib.c:509)",
+            "rn2(5)=0 @ distfleeck(monmove.c:538)",
+            "rn2(5)=1 @ distfleeck(monmove.c:538)"
+          ],
+          "screen": "The boulder settles into the pit.\n\n\n\n\n\n\n\n\n\n\n\u001b[26C---------\n\u001b[26C|.......|\n\u001b[26C|\u001b[93m$<\u001b[97m@\u001b[39m....\u001b[33m+\u001b[39m\n\u001b[26C........|\n\u001b[26C-.-------\n\n\n\n\n\n\nWizard the Conqueress\u001b[10CSt:18 Dx:17 Co:18 In:8 Wi:8 Ch:6 Neutral\nDlvl:1 $:0 HP:218(218) Pw:89(89) AC:10 Xp:30",
+          "cursor": [
+            29,
+            13,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 272,
+          "key": " ",
+          "rng": [],
+          "screen": "Unknown command ' '.\n\n\n\n\n\n\n\n\n\n\n\u001b[26C---------\n\u001b[26C|.......|\n\u001b[26C|\u001b[93m$<\u001b[97m@\u001b[39m....\u001b[33m+\u001b[39m\n\u001b[26C........|\n\u001b[26C-.-------\n\n\n\n\n\n\nWizard the Conqueress\u001b[10CSt:18 Dx:17 Co:18 In:8 Wi:8 Ch:6 Neutral\nDlvl:1 $:0 HP:218(218) Pw:89(89) AC:10 Xp:30",
+          "cursor": [
+            29,
+            13,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": true,
+      "matchingControl": false,
+      "firstMismatch": {
+        "segment": 0,
+        "step": 271,
+        "source": "dig.c:dighole",
+        "owner": "dig.c:dighole floor extraction caller",
+        "summary": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 475",
+        "comparisonBase": "12b0eb941989675d49342fe14eb7b11376327b22",
+        "officialComparison": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2968,
+              "js": 2965
+            },
+            "screens": {
+              "c": 304,
+              "js": 271
+            },
+            "cursors": {
+              "c": 304,
+              "js": 271
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2965,
+            "cEntry": "rn2(19)=6",
+            "cCaller": "exercise(attrib.c:509)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 271,
+              "key": ">"
+            }
+          },
+          "screenMismatch": {
+            "index": 271,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 271,
+              "key": ">"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 271,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 271,
+              "key": ">"
+            },
+            "cCursor": [
+              29,
+              13,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "matchingPrefix": {
+          "caseId": "v84-dig-boulder-pit-action2",
+          "comparisonBase": "12b0eb941989675d49342fe14eb7b11376327b22",
+          "error": {
+            "name": "UnsupportedHeroCommandBoundaryError",
+            "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 475",
+            "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 475\n    at failClosedCommand (file:///tmp/teleport-score-boUuZR/js/cmd.js:3045:19)\n    at async rhack (file:///tmp/teleport-score-boUuZR/js/cmd.js:6044:25)\n    at async moveloop_core (file:///tmp/teleport-score-boUuZR/js/allmain.js:1802:9)\n    at async Module.runSegment (file:///tmp/teleport-score-boUuZR/js/jsmain.js:784:13)\n    at async file:///tmp/teleport-loop-worker-prep-20261008/.cache/prep84/boundary-prefix-accepted.mjs:3:1155",
+            "boundaryObserver": true
+          },
+          "capturedScreenCount": 271,
+          "errorDuringStep": 271,
+          "prefixComparison": {
+            "passed": true,
+            "error": null,
+            "lengths": {
+              "rng": {
+                "c": 2962,
+                "js": 2962
+              },
+              "screens": {
+                "c": 271,
+                "js": 271
+              },
+              "cursors": {
+                "c": 271,
+                "js": 271
+              },
+              "animFrames": {
+                "c": 0,
+                "js": 0
+              }
+            },
+            "rngMismatch": null,
+            "screenMismatch": null,
+            "cursorMismatch": null,
+            "animMismatch": null,
+            "segmentMismatch": null
+          },
+          "delegatedCaptureHook": true,
+          "gameInputsUnchanged": true
+        },
+        "closestEarlierEvidence": "v61-pet-bee-eats-floor-jelly-action2 reaches dog_eat -> bee_eat_jelly -> delobj for FOOD royal jelly286. This independent dighole BOULDER475 caller is omitted separately; repairing bee floor extraction does not supply dighole rawEnv. Floor-action2 is the same dighole cause and excluded."
+      },
+      "localComparison": {
+        "caseId": "v84-dig-boulder-pit-action2",
+        "base": "12b0eb941989675d49342fe14eb7b11376327b22",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v84/v84-dig-boulder-pit-action2.session.json",
+          "/tmp/teleport-score-cwzCic"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/accepted-latest-js-v84-dig-boulder-pit-action2.log",
+        "logSha256": "f8ea0ae62f456942189790a1ff07b4335bbda7733f07af9cff00b2a7cff55c91",
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2968,
+              "js": 2965
+            },
+            "screens": {
+              "c": 304,
+              "js": 271
+            },
+            "cursors": {
+              "c": 304,
+              "js": 271
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2965,
+            "cEntry": "rn2(19)=6",
+            "cCaller": "exercise(attrib.c:509)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 271,
+              "key": ">"
+            }
+          },
+          "screenMismatch": {
+            "index": 271,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 271,
+              "key": ">"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 271,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 271,
+              "key": ">"
+            },
+            "cCursor": [
+              29,
+              13,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "closestSavedEvidence": [
+        "boulder-first-cause-raw-crosswalk.json",
+        "initial-fixed-regression-crosswalk.json",
+        "initial-raw-crosswalk.json"
+      ]
+    }
+  ],
+  "preservedAttemptInventory": [
+    {
+      "id": "v84-dig-settable-trap-action1",
+      "recipe": "challenges/cases/v84/v84-dig-settable-trap-action1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-settable-trap-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-settable-trap-action1.recipe.session.json",
+        "challenges/cases/v84/v84-dig-settable-trap-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-settable-trap-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "ae59bbfd0c9385439fde42d3f90d284a03a7b9639b27bd0fc3df2d841c59b5c3",
+      "recordingSha256": "0402e2d07d23dc30f7e972ba69852230f171fc06c6b82468786521067ffd2a6c",
+      "logSha256": "dc33963b50e3f70067e28e0dc9e507dec294b0180aa8f3aba52e181b36d8760d",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-dig-boulder-pit-action1",
+      "recipe": "challenges/cases/v84/v84-dig-boulder-pit-action1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-boulder-pit-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-boulder-pit-action1.recipe.session.json",
+        "challenges/cases/v84/v84-dig-boulder-pit-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-boulder-pit-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "4649b6050ed266f1e0fc63b8e554bf50dab5844c02a22fa44d742403a6fca5c8",
+      "recordingSha256": "57952d2bf9cddfa754003dc6be289c665342d18a719126bb1151194d73a0a944",
+      "logSha256": "ad5f4792e09e8be38e07e6761d1065a4ba9c942ed19153b05055f9589fffb2d2",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-dig-boulder-floor-action1",
+      "recipe": "challenges/cases/v84/v84-dig-boulder-floor-action1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-boulder-floor-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-boulder-floor-action1.recipe.session.json",
+        "challenges/cases/v84/v84-dig-boulder-floor-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-boulder-floor-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "a34045bb4a91080d234bcb0c6ddc26b89ebac835fb4cd782f85b861bac4fa4e6",
+      "recordingSha256": "43e5d82dd29d68509131d7aec7cecbaa00327beab64fa39466842cbdf987f0d9",
+      "logSha256": "a50084f8b95e0a4d1b629d3d95a7eead177aa44c281e65f44366e412a8ea47ba",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-dig-water-slosh-action1",
+      "recipe": "challenges/cases/v84/v84-dig-water-slosh-action1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-water-slosh-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-water-slosh-action1.recipe.session.json",
+        "challenges/cases/v84/v84-dig-water-slosh-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-water-slosh-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "f94bb4c2cf068d83e07f25ce3d74b85ec269bcd0fb741b46c23fd5b0d1e8499e",
+      "recordingSha256": "0a23440453a1bf31c19785c5f8bec4f5743ef6ef8011654556d1cac1dfc57b77",
+      "logSha256": "1ed4fc677bf2b21a9cec7275d74c9735da116cc10d77137c995b717941274f27",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-dig-settable-trap-action2",
+      "recipe": "challenges/cases/v84/v84-dig-settable-trap-action2.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-settable-trap-action2.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-settable-trap-action2.recipe.session.json",
+        "challenges/cases/v84/v84-dig-settable-trap-action2.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-settable-trap-action2.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "16259f2ef8d6956f462e3013f6a74c4f72bc6309b3fa63794279cd49ec890c91",
+      "recordingSha256": "5fbc9ae6d69524647ac5414f02641571dbc221191e613df66522766ab3bd5eed",
+      "logSha256": "5a72d6f537d207b5c177cb854363fa096e822952c29dfa222946a9332044dd7a",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": {
+        "id": "v84-dig-settable-trap-action2",
+        "recipe": "challenges/cases/v84/v84-dig-settable-trap-action2.recipe.session.json",
+        "recording": "challenges/cases/v84/v84-dig-settable-trap-action2.session.json",
+        "output": ".cache/prep84/v84-dig-settable-trap-action2.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v84/v84-dig-settable-trap-action2.recipe.session.json",
+          ".cache/prep84/v84-dig-settable-trap-action2.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep84/logs/replay-v84-dig-settable-trap-action2.log",
+        "recipeSha256": "16259f2ef8d6956f462e3013f6a74c4f72bc6309b3fa63794279cd49ec890c91",
+        "recordingSha256": "5fbc9ae6d69524647ac5414f02641571dbc221191e613df66522766ab3bd5eed",
+        "replaySha256": "5fbc9ae6d69524647ac5414f02641571dbc221191e613df66522766ab3bd5eed",
+        "logSha256": "c1ebd2b26732b49d74de8f2cb458864adcd819e068eecedd2b84931cea6227b6"
+      }
+    },
+    {
+      "id": "v84-dig-boulder-pit-action2",
+      "recipe": "challenges/cases/v84/v84-dig-boulder-pit-action2.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-boulder-pit-action2.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-boulder-pit-action2.recipe.session.json",
+        "challenges/cases/v84/v84-dig-boulder-pit-action2.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-boulder-pit-action2.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": true,
+      "recipeSha256": "94ae24a23ca5344897a4b7c0cd7fa107eaf6a48bf7f16a57aca6df8e1cbb914f",
+      "recordingSha256": "51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25",
+      "logSha256": "e164b0af0284b1407f0e8c90c90aa6fea8750a87eaae2a957794ac781c7472f1",
+      "disposition": "included-distinct-first-failure",
+      "independentReplay": {
+        "id": "v84-dig-boulder-pit-action2",
+        "recipe": "challenges/cases/v84/v84-dig-boulder-pit-action2.recipe.session.json",
+        "recording": "challenges/cases/v84/v84-dig-boulder-pit-action2.session.json",
+        "output": ".cache/prep84/v84-dig-boulder-pit-action2.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v84/v84-dig-boulder-pit-action2.recipe.session.json",
+          ".cache/prep84/v84-dig-boulder-pit-action2.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep84/logs/replay-v84-dig-boulder-pit-action2.log",
+        "recipeSha256": "94ae24a23ca5344897a4b7c0cd7fa107eaf6a48bf7f16a57aca6df8e1cbb914f",
+        "recordingSha256": "51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25",
+        "replaySha256": "51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25",
+        "logSha256": "f0058da4d77252a385288d75d39198b8c4615376101d8501ff1c5de5cceb6c4d"
+      }
+    },
+    {
+      "id": "v84-dig-boulder-floor-action2",
+      "recipe": "challenges/cases/v84/v84-dig-boulder-floor-action2.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-boulder-floor-action2.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-boulder-floor-action2.recipe.session.json",
+        "challenges/cases/v84/v84-dig-boulder-floor-action2.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-boulder-floor-action2.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "f41a68ba40582986d06cf2a7d95c958b24408918e8d3bcb2c96dc4275d1c2986",
+      "recordingSha256": "70f6dcd3d5d1c7fe559d96e705de58d3120f0b8aee3a8f63d8c66c29b147115e",
+      "logSha256": "2a009745455f156002a4fb23de730f05ac9f23470b9094a1be4f58b04b3f7e88",
+      "disposition": "same dighole floor-extraction caller; duplicate outside manifest",
+      "independentReplay": {
+        "id": "v84-dig-boulder-floor-action2",
+        "recipe": "challenges/cases/v84/v84-dig-boulder-floor-action2.recipe.session.json",
+        "recording": "challenges/cases/v84/v84-dig-boulder-floor-action2.session.json",
+        "output": ".cache/prep84/v84-dig-boulder-floor-action2.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v84/v84-dig-boulder-floor-action2.recipe.session.json",
+          ".cache/prep84/v84-dig-boulder-floor-action2.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep84/logs/replay-v84-dig-boulder-floor-action2.log",
+        "recipeSha256": "f41a68ba40582986d06cf2a7d95c958b24408918e8d3bcb2c96dc4275d1c2986",
+        "recordingSha256": "70f6dcd3d5d1c7fe559d96e705de58d3120f0b8aee3a8f63d8c66c29b147115e",
+        "replaySha256": "70f6dcd3d5d1c7fe559d96e705de58d3120f0b8aee3a8f63d8c66c29b147115e",
+        "logSha256": "d133db6f01ddd843ec02b7185c1b8dfac9e262bb7e1160902fe103a00d6e9653"
+      }
+    },
+    {
+      "id": "v84-dig-water-slosh-action2",
+      "recipe": "challenges/cases/v84/v84-dig-water-slosh-action2.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-water-slosh-action2.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-water-slosh-action2.recipe.session.json",
+        "challenges/cases/v84/v84-dig-water-slosh-action2.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-water-slosh-action2.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "d39347ff13bbb867d3686f829b3a1b1e83320dc8f97382befb32ded6a272f8a9",
+      "recordingSha256": "0c19e54b8a311d46a8f0435ff6b5aca79fb977c230bd74594e88aaed46f693a4",
+      "logSha256": "ee7f87c2dd45807841f51ba14a858329fa29c3e4e6a6ffdc6443fd2e5071cb53",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": {
+        "id": "v84-dig-water-slosh-action2",
+        "recipe": "challenges/cases/v84/v84-dig-water-slosh-action2.recipe.session.json",
+        "recording": "challenges/cases/v84/v84-dig-water-slosh-action2.session.json",
+        "output": ".cache/prep84/v84-dig-water-slosh-action2.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v84/v84-dig-water-slosh-action2.recipe.session.json",
+          ".cache/prep84/v84-dig-water-slosh-action2.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep84/logs/replay-v84-dig-water-slosh-action2.log",
+        "recipeSha256": "d39347ff13bbb867d3686f829b3a1b1e83320dc8f97382befb32ded6a272f8a9",
+        "recordingSha256": "0c19e54b8a311d46a8f0435ff6b5aca79fb977c230bd74594e88aaed46f693a4",
+        "replaySha256": "0c19e54b8a311d46a8f0435ff6b5aca79fb977c230bd74594e88aaed46f693a4",
+        "logSha256": "17ac6e7a9da4e95efc73d0298d3598b85a02e07efdfdc1038913ad73039fd7a6"
+      }
+    },
+    {
+      "id": "v84-mount-rusty-armor-scout1",
+      "recipe": "challenges/cases/v84/v84-mount-rusty-armor-scout1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-mount-rusty-armor-scout1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-mount-rusty-armor-scout1.recipe.session.json",
+        "challenges/cases/v84/v84-mount-rusty-armor-scout1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-mount-rusty-armor-scout1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "f55e5137e4b957f38e14471e7c56cb8edd1700c4bbabf46c6f720357481e932f",
+      "recordingSha256": "01733647dee3f72322bfbe02785a5c570e76c0aded8eaaf44c615bd923ae1ff9",
+      "logSha256": "818f62aaec8f91f5714fe2ee3a71e94ead733473dd6564accc413e798df0362c",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-mount-levitation-scout1",
+      "recipe": "challenges/cases/v84/v84-mount-levitation-scout1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-mount-levitation-scout1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-mount-levitation-scout1.recipe.session.json",
+        "challenges/cases/v84/v84-mount-levitation-scout1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-mount-levitation-scout1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "9138e85273d7a1cebe83820f8d573425ebc4d9e78718f016611e8bf037d5f944",
+      "recordingSha256": "29011ae47a7fb39402d2b4e9a8542d6705b48605d77a6988738b60704760efc0",
+      "logSha256": "41036718d6f5c7ccf0930fdf2b4af17ec77b04781482878759b48af906576eeb",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-saddle-clay-stone-scout1",
+      "recipe": "challenges/cases/v84/v84-saddle-clay-stone-scout1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-saddle-clay-stone-scout1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-saddle-clay-stone-scout1.recipe.session.json",
+        "challenges/cases/v84/v84-saddle-clay-stone-scout1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-saddle-clay-stone-scout1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "052f07c2dc53e26878d82fdcf7a72619cd31e5335a0294a6fcbd783b155c9b93",
+      "recordingSha256": "0c547237566a740d0753392d67772e2607821c37c0fa4f50660a714300447ed6",
+      "logSha256": "fee6db07c2a534cc734d129c3637283861558b4c3e162426ab461e09c316f607",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-mount-greased-saddle-scout1",
+      "recipe": "challenges/cases/v84/v84-mount-greased-saddle-scout1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-mount-greased-saddle-scout1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-mount-greased-saddle-scout1.recipe.session.json",
+        "challenges/cases/v84/v84-mount-greased-saddle-scout1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-mount-greased-saddle-scout1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "d2d2538d2c6fe0e53a5319bc7ef678134fde9f2d6b3ca9cb023f51a4ce8f4093",
+      "recordingSha256": "07b2c1d2f3f821cc0810baeed2ff5425d0d2e87161328c3de43bb6f33a361ae1",
+      "logSha256": "f84bba462220b8c0f604d9553a82c8bea8a12afe088d3b298a06e4057e14478c",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-dig-altar-action1",
+      "recipe": "challenges/cases/v84/v84-dig-altar-action1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-altar-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-altar-action1.recipe.session.json",
+        "challenges/cases/v84/v84-dig-altar-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-altar-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "0d32ead0e072e47ac31e487c3f3d4751ba3e7b7c2eee0f41be59e214b9477583",
+      "recordingSha256": "0b7084273a150906a1ce413f5b78acacb4725b40fb2626838f1671c862da84b9",
+      "logSha256": "7b7382f9ae863826053c9d326d9cc24fdb3ba33277e2d3a65535ea1017f32183",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    },
+    {
+      "id": "v84-dig-throne-action1",
+      "recipe": "challenges/cases/v84/v84-dig-throne-action1.recipe.session.json",
+      "recording": "challenges/cases/v84/v84-dig-throne-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v84/v84-dig-throne-action1.recipe.session.json",
+        "challenges/cases/v84/v84-dig-throne-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/logs/cfirst-v84-dig-throne-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "validFirstPair": true,
+      "included": false,
+      "recipeSha256": "960c3e5e6b61ed9a3a1f6638b37ca426bffa11df0d3d5e5605710f5884972505",
+      "recordingSha256": "fea61c04ab602e789006773318bb2ebcfc66b64cd055ce06450d72bbd8002f6f",
+      "logSha256": "e7c3b84783a92df6558e21e577f4ab6a6cb852a58a6316720861c4bcb2786902",
+      "disposition": "Preserved matching, setup-miss or unfinished route; see original mission and pilot adjudication. No intended behavior is inferred.",
+      "independentReplay": null
+    }
+  ],
+  "preservedDataFiles": [
+    {
+      "path": "challenges/cases/v84/v84-dig-altar-action1.recipe.session.json",
+      "sha256": "0d32ead0e072e47ac31e487c3f3d4751ba3e7b7c2eee0f41be59e214b9477583"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-altar-action1.session.json",
+      "sha256": "0b7084273a150906a1ce413f5b78acacb4725b40fb2626838f1671c862da84b9"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-floor-action1.recipe.session.json",
+      "sha256": "a34045bb4a91080d234bcb0c6ddc26b89ebac835fb4cd782f85b861bac4fa4e6"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-floor-action1.session.json",
+      "sha256": "43e5d82dd29d68509131d7aec7cecbaa00327beab64fa39466842cbdf987f0d9"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-floor-action2.recipe.session.json",
+      "sha256": "f41a68ba40582986d06cf2a7d95c958b24408918e8d3bcb2c96dc4275d1c2986"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-floor-action2.session.json",
+      "sha256": "70f6dcd3d5d1c7fe559d96e705de58d3120f0b8aee3a8f63d8c66c29b147115e"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-pit-action1.recipe.session.json",
+      "sha256": "4649b6050ed266f1e0fc63b8e554bf50dab5844c02a22fa44d742403a6fca5c8"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-pit-action1.session.json",
+      "sha256": "57952d2bf9cddfa754003dc6be289c665342d18a719126bb1151194d73a0a944"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-pit-action2.recipe.session.json",
+      "sha256": "94ae24a23ca5344897a4b7c0cd7fa107eaf6a48bf7f16a57aca6df8e1cbb914f"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-boulder-pit-action2.session.json",
+      "sha256": "51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-settable-trap-action1.recipe.session.json",
+      "sha256": "ae59bbfd0c9385439fde42d3f90d284a03a7b9639b27bd0fc3df2d841c59b5c3"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-settable-trap-action1.session.json",
+      "sha256": "0402e2d07d23dc30f7e972ba69852230f171fc06c6b82468786521067ffd2a6c"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-settable-trap-action2.recipe.session.json",
+      "sha256": "16259f2ef8d6956f462e3013f6a74c4f72bc6309b3fa63794279cd49ec890c91"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-settable-trap-action2.session.json",
+      "sha256": "5fbc9ae6d69524647ac5414f02641571dbc221191e613df66522766ab3bd5eed"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-throne-action1.recipe.session.json",
+      "sha256": "960c3e5e6b61ed9a3a1f6638b37ca426bffa11df0d3d5e5605710f5884972505"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-throne-action1.session.json",
+      "sha256": "fea61c04ab602e789006773318bb2ebcfc66b64cd055ce06450d72bbd8002f6f"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-water-slosh-action1.recipe.session.json",
+      "sha256": "f94bb4c2cf068d83e07f25ce3d74b85ec269bcd0fb741b46c23fd5b0d1e8499e"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-water-slosh-action1.session.json",
+      "sha256": "0a23440453a1bf31c19785c5f8bec4f5743ef6ef8011654556d1cac1dfc57b77"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-water-slosh-action2.recipe.session.json",
+      "sha256": "d39347ff13bbb867d3686f829b3a1b1e83320dc8f97382befb32ded6a272f8a9"
+    },
+    {
+      "path": "challenges/cases/v84/v84-dig-water-slosh-action2.session.json",
+      "sha256": "0c19e54b8a311d46a8f0435ff6b5aca79fb977c230bd74594e88aaed46f693a4"
+    },
+    {
+      "path": "challenges/cases/v84/v84-mount-greased-saddle-scout1.recipe.session.json",
+      "sha256": "d2d2538d2c6fe0e53a5319bc7ef678134fde9f2d6b3ca9cb023f51a4ce8f4093"
+    },
+    {
+      "path": "challenges/cases/v84/v84-mount-greased-saddle-scout1.session.json",
+      "sha256": "07b2c1d2f3f821cc0810baeed2ff5425d0d2e87161328c3de43bb6f33a361ae1"
+    },
+    {
+      "path": "challenges/cases/v84/v84-mount-levitation-scout1.recipe.session.json",
+      "sha256": "9138e85273d7a1cebe83820f8d573425ebc4d9e78718f016611e8bf037d5f944"
+    },
+    {
+      "path": "challenges/cases/v84/v84-mount-levitation-scout1.session.json",
+      "sha256": "29011ae47a7fb39402d2b4e9a8542d6705b48605d77a6988738b60704760efc0"
+    },
+    {
+      "path": "challenges/cases/v84/v84-mount-rusty-armor-scout1.recipe.session.json",
+      "sha256": "f55e5137e4b957f38e14471e7c56cb8edd1700c4bbabf46c6f720357481e932f"
+    },
+    {
+      "path": "challenges/cases/v84/v84-mount-rusty-armor-scout1.session.json",
+      "sha256": "01733647dee3f72322bfbe02785a5c570e76c0aded8eaaf44c615bd923ae1ff9"
+    },
+    {
+      "path": "challenges/cases/v84/v84-saddle-clay-stone-scout1.recipe.session.json",
+      "sha256": "052f07c2dc53e26878d82fdcf7a72619cd31e5335a0294a6fcbd783b155c9b93"
+    },
+    {
+      "path": "challenges/cases/v84/v84-saddle-clay-stone-scout1.session.json",
+      "sha256": "0c547237566a740d0753392d67772e2607821c37c0fa4f50660a714300447ed6"
+    }
+  ],
+  "pilotProbeAdjudication": [
+    {
+      "probe": "v84-p01-dighole-boulder",
+      "outcome": "failure",
+      "included": true,
+      "reusedCase": "v84-dig-boulder-pit-action2"
+    },
+    {
+      "probe": "v84-p02-rusty-mount",
+      "outcome": "match",
+      "run": "run-KCBLFw",
+      "rng": 2754,
+      "screens": 309,
+      "cursors": 309
+    },
+    {
+      "probe": "v84-p03-saddle-stone",
+      "outcome": "match",
+      "run": "run-t7fFr8",
+      "rng": 2908,
+      "screens": 262,
+      "cursors": 262,
+      "limit": "Ends at touch/stone-golem More; no later saddle rejection claimed."
+    },
+    {
+      "probe": "v84-p04-ball-web",
+      "outcome": "deferred",
+      "reason": "Unexecuted template; selectors/directions unresolved. Carry source plan into next batch."
+    },
+    {
+      "probe": "v84-p05-thrown-axe-worm",
+      "outcome": "deferred",
+      "reason": "Source plan only; no game capture. Carry into next batch."
+    },
+    {
+      "probe": "v84-p06-ball-bear",
+      "outcome": "deferred",
+      "reason": "Unexecuted draft; no game capture. Carry into next batch."
+    },
+    {
+      "probe": "v84-p07-altar-guard",
+      "outcome": "match",
+      "run": "run-jns8nW",
+      "rng": 5801,
+      "screens": 263,
+      "cursors": 263,
+      "reusedCase": "v84-dig-altar-action1"
+    }
+  ],
+  "pilotArtifactInventory": [
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p01-dighole-boulder/evidence-summary.md",
+      "sha256": "2b9baf45ad5dade58227f07a52e3969b46d4c95f9387a72e19fd5b10bc5a59be",
+      "bytes": 2509
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p01-dighole-boulder/ledger-release.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p01-dighole-boulder/ledger-release.stdout.log",
+      "sha256": "c55732360a3f432f70036bd956a1df6e0b6d0ab726f9dd40144d81c94f0630aa",
+      "bytes": 5369332
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p01-dighole-boulder/receipt.json",
+      "sha256": "d633e4fb8196586fd665602b060a94a25c2c992a9405089202a78f9ae538dd51",
+      "bytes": 1269
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p01-dighole-boulder/recorder-prepare.output.log",
+      "sha256": "3b5b9306d0c4f354a4d5f036e5ec166dc2670f61c68755bc9ed9ba421bce38c0",
+      "bytes": 503
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p01-dighole-boulder/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p01-dighole-boulder/stdout.log",
+      "sha256": "88b184bcc3ac9b64ca2e1b00482f462e6b5356baa4b9ab92cc46de4aabbf933a",
+      "bytes": 412
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/accepted-js-comparison.json",
+      "sha256": "028f875ac0a2832373447ba6bf4fd1bbea37a2c35e3f6ff79a5ffc8656ee5da0",
+      "bytes": 1167
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/accepted-js-comparison.log",
+      "sha256": "a7873c87dfb1e5512390990ea01b25fcfb87cc64570e2d5a2d46723fed78a8f3",
+      "bytes": 493
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/compare-accepted.mjs",
+      "sha256": "bd5a1c3e428e66dad244f4831958da6bcc15b37a26e49231440009f3ff95f1dd",
+      "bytes": 2764
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/comparison-summary.md",
+      "sha256": "109b66a73cbdfe5d49f63b8f4122346a642155e2cf7bd7d57017247df11e0433",
+      "bytes": 1589
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/ledger-block.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/ledger-block.stdout.log",
+      "sha256": "ac0e2d0e1118da3504d6f0793108b8f4538cee2dd50654f9e108da7487e5f51c",
+      "bytes": 5385902
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/ledger-comparison-start.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/ledger-comparison-start.stdout.log",
+      "sha256": "02d50f933eead93305fce41b83f4a8c7e6c4d41a5843b617ef989e0b50d8e29f",
+      "bytes": 5386670
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/ledger-done.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/ledger-done.stdout.log",
+      "sha256": "157e3fba126fa86fbea1efe476706df41b1ad34657abc3e11125dd13213b9d4f",
+      "bytes": 5386667
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/receipt.json",
+      "sha256": "58178275aaa095e50a97c8cf16d357814c591e5c69897e440fb6f0a6aa91c522",
+      "bytes": 1167
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/source-plan.md",
+      "sha256": "0b0cef88c1f46311f83593f5262a54bf43787042121da0d2b01ebb0a5148e882",
+      "bytes": 2047
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-1/v84-p07-altar-guard/stdout.log",
+      "sha256": "a5a8acf6ebb2c25a718ee433fe037ad8bc1456154ef0cf04b33f7bb07d27cd88",
+      "bytes": 282
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/accepted-source-comparison.fullstdout.log",
+      "sha256": "52a90d18318c7b22de60ba45523e7a11935b4ad646c78db5b062ac4505342069",
+      "bytes": 282
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/accepted-source-comparison.launcher.log",
+      "sha256": "081ae0fbdf13b34ba53cbc6681fd8aadba8870fc3a0294019dce6756ef954dde",
+      "bytes": 493
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/accepted-source-comparison.provenance.json",
+      "sha256": "9ac9b776113fec8425473505f74e22480d540af812c0f6224fd7788ceff841ac",
+      "bytes": 740
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/accepted-source-comparison.receipt.json",
+      "sha256": "9c43ed4d71450014824cfe88eef830fc9454b05994947cbd90aade4c880dfc9f",
+      "bytes": 1157
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/accepted-source-comparison.result.json",
+      "sha256": "7afd53f94ebd14835b04df77112a2a298b3c6cdbafad6358c19d58224a521ee5",
+      "bytes": 1074
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/accepted-source-comparison.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/cfirst-receipt.json",
+      "sha256": "3dfb84cf590f7d84f8180042f6a688763060925346c64e14368e236cacaa8d59",
+      "bytes": 1246
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/cfirst-stderr.log",
+      "sha256": "0f0b474c3bb61ec6f8ff0d8d286668dcbe1be46ea125cb7a4f70e53be57063c9",
+      "bytes": 149
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/cfirst-stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/comparison-plan.json",
+      "sha256": "9ac9b776113fec8425473505f74e22480d540af812c0f6224fd7788ceff841ac",
+      "bytes": 740
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/prepare-accepted-comparison.mjs",
+      "sha256": "53f035427b82dbb2a2abd49dd42bb4199eb8698eda14be09e95e822f936966ee",
+      "bytes": 1783
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/setup-receipt.json",
+      "sha256": "8bf7115c56431f828d867b22b2014e095555ce9ebdf91e41ab83a1771996ee41",
+      "bytes": 1269
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/setup-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/setup-stdout.log",
+      "sha256": "4356c49a3db50d53f63c99d2c0cc029531b1296ff7354ea940158a28a6c71892",
+      "bytes": 412
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/v84-p02-rusty-mount.recipe.session.json",
+      "sha256": "14baaea3b690592e5ce25965c0fc14ef41a7d1c1a36137de25de406d786518b0",
+      "bytes": 988
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-2/v84-p02-rusty-mount/v84-p02-rusty-mount.session.json",
+      "sha256": "160ebd12033f8885b871756f7b7d8d7008e42e06aa52d75f5007639b16e9caa4",
+      "bytes": 248783
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/accepted-comparison.json",
+      "sha256": "9ba58bbc9de62082b601ab2f9bbd33be8acafa5f37e91ed44692e4ed13e9f711",
+      "bytes": 730
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/cfirst.receipt.json",
+      "sha256": "89c63dd9b5dad6322c4791193146b9a1f151dcefec53038b5c839d801201aedb",
+      "bytes": 1282
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/cfirst.stderr.log",
+      "sha256": "b30ea0fb5b806c982289cc702a658a41ab30379d856bddfb5a0b6350fd728671",
+      "bytes": 166
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/cfirst.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/cfirst.wrapper-output.log",
+      "sha256": "bfb4ec63bde779ae0d5606c8b389bc3142e4fc9e01f0fe65a2a0d0cca422c013",
+      "bytes": 377
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/compare-accepted.mjs",
+      "sha256": "d9f1429c101a512ef12666e3cc3245b59d428203dd49f9ef306b5219e581cd5d",
+      "bytes": 1366
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/comparison-plan.json",
+      "sha256": "71b5fc8439a3339497ef612d503568d65d450308b24a846a09501fed33538726",
+      "bytes": 607
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/comparison-provenance.json",
+      "sha256": "4473146b9e2c1b8bcf2a01568bc5d95a1fbb46aa0168c6c0b3ebcba849f13377",
+      "bytes": 1055
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/js-comparison.receipt.json",
+      "sha256": "06bb9c6fa26f96cda98567ca4b0cd8d3f83ad55bad7744104dad0fc135591743",
+      "bytes": 1039
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/js-comparison.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/js-comparison.stdout.log",
+      "sha256": "9ba58bbc9de62082b601ab2f9bbd33be8acafa5f37e91ed44692e4ed13e9f711",
+      "bytes": 730
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/setup.receipt.json",
+      "sha256": "46d0a1fc6cb28718c88a8218f4c9f80f77fb7468d0a3d24cd3999af271b1e906",
+      "bytes": 1269
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/setup.stdout.log",
+      "sha256": "548ea2af1e1a49b89fbff8aa0132780fb7f21c729ce266ad2c9d2feb029a9251",
+      "bytes": 412
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/source-plan.json",
+      "sha256": "483b8295656b14e6af1ac2ea3249dc9c5e7dfe876fb58c0d7881978c58a33876",
+      "bytes": 1019
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/v84-p03-saddle-stone-clay-cockatrice.recipe.session.json",
+      "sha256": "e41b2684d2471005f26ecc84328761eb182b9c9ceebae973a98324a895a9fc88",
+      "bytes": 982
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-3/v84-p03-saddle-stone/v84-p03-saddle-stone-clay-cockatrice.session.json",
+      "sha256": "399544cc0bf4cbf96e6e9f2f0d9d4603e925d1a6251e062570543fb10c538304",
+      "bytes": 248092
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-4/v84-p04-ball-web/candidate-recipe.session.json",
+      "sha256": "95442fe70b9fcbd16e0fe024053817cb349e7a8a03e76f0d9876d2634f6cfe60",
+      "bytes": 1361
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-4/v84-p04-ball-web/setup.receipt.json",
+      "sha256": "50065fb99f58c8af7d09bfc13c674e3fd00cc6e0425df600aade4c6ae6d395cd",
+      "bytes": 1269
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-4/v84-p04-ball-web/setup.stdout.log",
+      "sha256": "f0e9d3da1e54540ace60e56413621afded334fdb14635b393693a88017b97130",
+      "bytes": 412
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-4/v84-p04-ball-web/source-plan.json",
+      "sha256": "fbd5499c1dea5177c77593010e197c3eafdd64b1f70773b0828a01d2acb6913b",
+      "bytes": 4266
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-5/v84-p05-thrown-axe-worm/plan.md",
+      "sha256": "2ce3d2ab1966de0bdd8f3816c5d988ee5b416b9ba36a957c987b3605e3440fe4",
+      "bytes": 2908
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-5/v84-p05-thrown-axe-worm/setup-ledger-event.out",
+      "sha256": "d078a6ae2f9a8aacb72d9e476f17ff7ad807d4680dfe5f865615a0cdd33b5b26",
+      "bytes": 5385167
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-5/v84-p05-thrown-axe-worm/setup-receipt.json",
+      "sha256": "7392960582b0bc6558e9706f5036ee7a7533d505cb36b6dffc687c24333b1d57",
+      "bytes": 1269
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-5/v84-p05-thrown-axe-worm/setup.stdout.log",
+      "sha256": "d5716fcc9834367941a61775b7e91958346d53ae0713ee3e1cf9d61718d4dd77",
+      "bytes": 623
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-6/v84-p06-ball-bear/plan.md",
+      "sha256": "b69a066c819acb3517dc088430fc8abb1fcffd7cccacb1ecea108a553767baa6",
+      "bytes": 7134
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-6/v84-p06-ball-bear/recipe-draft.json",
+      "sha256": "f346c9b6329b64d806712f6229bec6c93f2e411b95339b8c9a7d25380c1026e7",
+      "bytes": 1095
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-6/v84-p06-ball-bear/setup-receipt.json",
+      "sha256": "a529af39780eb06e4e7fbc4e3fb57560cb83eaa4c60655bc1b9d470922bb86d4",
+      "bytes": 1269
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-6/v84-p06-ball-bear/setup-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-6/v84-p06-ball-bear/setup-stdout.log",
+      "sha256": "518a8183854c26448a3b00725452f42e7512b8f9a511bc6b9ddbb8f07a903dcd",
+      "bytes": 412
+    },
+    {
+      "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/lanes/Prep-6/v84-p06-ball-bear/unexecuted-recipe-draft.json",
+      "sha256": "266e80ef7d18de82ccaf2d436f525b51613e6459d7bc8a53ce4b2efc8d2d1f56",
+      "bytes": 1165
+    }
+  ],
+  "decision": {
+    "approvedBy": "Root under user-approved six-lane pilot",
+    "rule": "Submit a nonempty fully validated distinct failure group without waiting for twelve failures or adding routine controls.",
+    "reason": "One independently reproduced dighole caller failure is ready. Matching probes remain outside membership; unfinished probes are explicitly deferred with their source plans. No exhaustion claim.",
+    "ownership": "Root checked actual reservations: no active/pending dig.c:dighole or floor-extraction contract reservation.",
+    "carryForward": [
+      "ball.c:drop_ball TT_WEB",
+      "dothrow.c:thitmonst thrown axe -> cutworm",
+      "ball.c:drop_ball TT_BEARTRAP",
+      "original v84 throne/mounting scouts and remaining unused candidates"
+    ]
+  }
+}
