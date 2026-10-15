@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T05:36:11.603Z",
+  "capturedAt": "2026-10-15T06:23:26.605Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -132377,6 +132377,1158 @@
         "at": "2026-10-15T05:35:30.453Z",
         "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
         "delivery": "46995d3b15f24c78e4498c6b83b4670613755ac1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v84-p06-ball-bear-no-recorder-slot-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:36:15.179Z",
+        "task": "Prep48",
+        "worker": "Prep-6",
+        "state": "blocked",
+        "probe": "v84-p06-ball-bear",
+        "reason": "Waiting for recorder setup and a shared bounded-command slot.",
+        "source": "ball.c:drop_ball TT_BEARTRAP severe leg damage"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4c1d918a9fb2b2be2b38b74a97ff514ce5632bd0",
+        "type": "ready",
+        "at": "2026-10-15T05:36:21.347Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "delivery": "4c1d918a9fb2b2be2b38b74a97ff514ce5632bd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-v83-A-slime-4c1d918a",
+        "type": "received",
+        "at": "2026-10-15T05:37:01.332Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "delivery": "4c1d918a9fb2b2be2b38b74a97ff514ce5632bd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-v83-B-wraith-9bbbcb47",
+        "type": "received",
+        "at": "2026-10-15T05:37:05.236Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "delivery": "9bbbcb47d0a54873fed9af2f6a8eb90cbce42cd9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-v83-B-wraith-dependencies-9bbbcb47",
+        "type": "feedback",
+        "at": "2026-10-15T05:37:09.275Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "delivery": "9bbbcb47d0a54873fed9af2f6a8eb90cbce42cd9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-setup-v84-p04-ball-web-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:37:15.147Z",
+        "task": "Prep48",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v84-p04-ball-web",
+        "reason": "Private recorder readiness setup reserved;the lane will report its exact bounded handle and release after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-turn-v83-acid-resistant-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:37:22.711Z",
+        "worker": "C",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-setup-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:37:26.973Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Recorder setup is running in the assigned worktree."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-assign-v83-acid-resistant-20261015",
+        "type": "assign",
+        "at": "2026-10-15T05:37:30.943Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-setup-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:37:36.604Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Private C recorder setup passed; awaiting next probe command grant."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-assign-v83-mm-rust-iron-action2-20261015",
+        "type": "assign",
+        "at": "2026-10-15T05:37:57.939Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B-v83-wraith-dependency-correction-20261015",
+        "type": "resume",
+        "at": "2026-10-15T05:38:01.663Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d30c9d97a290a78cd607138bec0d87783805e1b6",
+        "type": "ready",
+        "at": "2026-10-15T05:38:51.315Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "delivery": "d30c9d97a290a78cd607138bec0d87783805e1b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-v83-B-wraith-d30c9d97",
+        "type": "received",
+        "at": "2026-10-15T05:39:09.981Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "delivery": "d30c9d97a290a78cd607138bec0d87783805e1b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-idle-v83-deliveries-owned-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:39:28.654Z",
+        "worker": "B",
+        "state": "idle",
+        "reason": "B is idle after delivering the v83 wraith correction; current v83 cases are assigned to A2/C or queued for integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-setup-v84-p04-ball-web-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:39:37.402Z",
+        "task": "Prep48",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v84-p04-ball-web",
+        "reason": "Recorder readiness setup running as run-5TqXlJ; terminal output is retained by the bounded runner."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-setup-v84-p04-ball-web-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:39:51.169Z",
+        "task": "Prep48",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v84-p04-ball-web",
+        "reason": "Private recorder readiness completed successfully; awaiting a separate recording slot grant."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-setup-v84-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:40:07.449Z",
+        "task": "Prep48",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v84-p05-thrown-axe-worm",
+        "reason": "Private recorder readiness setup reserved;the lane will report its exact bounded handle and release after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-implement-v83-mhitm-ad-acid-20261015",
+        "type": "implement",
+        "at": "2026-10-15T05:40:16.864Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "goal": "divergence-v83-monster-acid-resistant-attack-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-implement-v83-mm-rust-iron-action2-20261015",
+        "type": "implement",
+        "at": "2026-10-15T05:40:35.339Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "goal": "fix-rust-monster-floor-goal-rng-v83-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-setup-v84-p06-ball-bear-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:41:34.417Z",
+        "task": "Prep48",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v84-p06-ball-bear",
+        "reason": "Private recorder readiness setup reserved;the lane will report its exact bounded handle and release after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v84-p01-dighole-boulder-failure-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:41:39.666Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v84-p01-dighole-boulder",
+        "reason": "Existing independently reproduced boulder deletion caller failure returned with preserved hashes;two boulder branches are one cause and no duplicate capture was run.",
+        "outcome": "failure"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep48-Prep-5-v84-p05-thrown-axe-worm-setup-complete-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:41:43.753Z",
+        "task": "Prep48",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v84-p05-thrown-axe-worm",
+        "reason": "Recorder setup passed; awaiting the next slot grant"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v84-p07-altar-guard-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:41:47.606Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v84-p07-altar-guard",
+        "reason": "Reusing the preserved C altar-digging probe for classification;no new C capture and no matching-control novelty search.",
+        "source": "dig.c:dighole IS_ALTAR too-hard guard"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:42:50.776Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "First C game capture reserved for the prepared saddle-contact continuation;require actual stone transformation before any coverage claim."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v84-p06-ball-bear-setup-active-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:43:00.956Z",
+        "task": "Prep48",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v84-p06-ball-bear",
+        "reason": "Granted recorder setup active"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v84-p06-ball-bear-setup-complete-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:43:13.972Z",
+        "task": "Prep48",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v84-p06-ball-bear",
+        "reason": "Recorder setup passed; awaiting a later focused-probe slot"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "blocked-v84-p07-altar-guard-waiting-slot-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:43:34.355Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "blocked",
+        "probe": "v84-p07-altar-guard",
+        "reason": "Waiting for the lead to release a comparison slot; no bounded command is running.",
+        "source": "dig.c:dighole IS_ALTAR too-hard guard"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-cfirst-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:44:22.139Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "First C capture completed; collecting its terminal evidence."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:44:35.947Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "First C capture exited; collecting saved evidence and stopping before comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:44:55.119Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "First private C setup or guarded mount capture reserved for worn rusty armor;actual pony adjacency and ordinary force-declined guard must be observed."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-cfirst-v84-p03-saddle-stone-needs-continuation-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:45:11.738Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "blocked",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "C reached the clay-to-stone transformation; capture ended at More before can_saddle rejection. Waiting for the lead to assign the next step."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-v83-three-source-baseline-registration",
+        "type": "activity",
+        "at": "2026-10-15T05:45:15.351Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "phase": "waiting",
+        "reason": "Three verified source deliveries are ready. Integration is waiting for the helper to recognize the separately validated and published Prep pilot baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:47:44.281Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Accepted-source comparison reserved for the valid saved C transformation prefix;no additional C capture or replay unless a distinct failure requires it."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-cfirst-handle-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:48:13.984Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "Recorded the terminal C recording run handle before releasing the reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:48:23.287Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "First C recording command finished; recorder slot released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-js-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:48:59.837Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Accepted-commit JavaScript comparison is running under the focused bound."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-js-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:49:09.723Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Accepted-commit JS comparison exited; saving result and receipt."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v84-p03-saddle-stone-match-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:49:33.706Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "done",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "C reached clay-golem transformation on cockatrice touch; accepted JS fully matches the saved capture. Later can_saddle rejection was not captured.",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:50:29.624Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "Accepted-source comparison reserved for rusty-armor mounting C probe;matching evidence will remain outside the manifest without routine replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v84-p07-altar-guard-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:50:35.633Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v84-p07-altar-guard",
+        "reason": "Accepted-source comparison reserved for preserved altar-digging C probe;matching evidence will remain outside the manifest without routine replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-js-v84-p07-altar-guard-started-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:52:33.821Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v84-p07-altar-guard",
+        "reason": "Running the single accepted-source JavaScript comparison of the saved altar recording.",
+        "source": "dig.c:dighole IS_ALTAR too-hard guard"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v84-p07-altar-guard-match-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:53:05.460Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v84-p07-altar-guard",
+        "reason": "Accepted-source comparison strictly matches the saved altar C case; no further control check or replay needed.",
+        "source": "dig.c:dighole IS_ALTAR too-hard guard",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-jsrun-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:53:20.204Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "Accepted-source comparison is running; initial strict-parity result is matching pending terminal receipt."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-match-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:53:40.487Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "done",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "C reached the rusty armor refusal and the accepted source matched every recorded trace value.",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-04e34a4c2249ac18442b457525f481e1299757d9",
+        "type": "ready",
+        "at": "2026-10-15T05:53:46.413Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "04e34a4c2249ac18442b457525f481e1299757d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v84-p04-ball-web-handoff-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:53:50.589Z",
+        "task": "Prep48",
+        "worker": "Prep-4",
+        "state": "done",
+        "probe": "v84-p04-ball-web",
+        "reason": "Deferred unexecuted at the authorized nonempty-batch handoff boundary;source plan and private recorder readiness are preserved for the next batch,no gameplay or exhaustion claim.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v84-p05-thrown-axe-worm-handoff-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:53:55.921Z",
+        "task": "Prep48",
+        "worker": "Prep-5",
+        "state": "done",
+        "probe": "v84-p05-thrown-axe-worm",
+        "reason": "Deferred unexecuted at the authorized nonempty-batch handoff boundary;source plan and private recorder readiness are preserved for the next batch,no gameplay or exhaustion claim.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v84-p06-ball-bear-handoff-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:54:01.561Z",
+        "task": "Prep48",
+        "worker": "Prep-6",
+        "state": "done",
+        "probe": "v84-p06-ball-bear",
+        "reason": "Deferred unexecuted at the authorized nonempty-batch handoff boundary;source plan and private recorder readiness are preserved for the next batch,no gameplay or exhaustion claim.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-v83-C-acid-source-sha-04e34a4c",
+        "type": "feedback",
+        "at": "2026-10-15T05:55:13.878Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "04e34a4c2249ac18442b457525f481e1299757d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-resume-acid-report-correction-20261015-v2",
+        "type": "resume",
+        "at": "2026-10-15T05:56:16.212Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-97559d16c33607227a5293f0c360daa6659853ed",
+        "type": "ready",
+        "at": "2026-10-15T05:56:23.552Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-v83-C-acid-97559d16",
+        "type": "received",
+        "at": "2026-10-15T05:57:01.672Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-idle-after-acid-delivery-20261015-v2",
+        "type": "turn",
+        "at": "2026-10-15T05:57:23.833Z",
+        "worker": "C",
+        "state": "idle",
+        "reason": "All currently admitted v83 cases are owned or submitted; I’m waiting for the next admitted batch to select new independent work."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0d6620905edc4884d2342ff8cb6021f8122af8ec",
+        "type": "ready",
+        "at": "2026-10-15T05:57:45.803Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "delivery": "0d6620905edc4884d2342ff8cb6021f8122af8ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0378d2b85aa79574952cbf09240e92ea584c814e",
+        "type": "ready",
+        "at": "2026-10-15T05:58:04.852Z",
+        "task": "Prep48",
+        "delivery": "0378d2b85aa79574952cbf09240e92ea584c814e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-A2-v83-delivered-idle-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:58:27.460Z",
+        "worker": "A2",
+        "state": "idle",
+        "reason": "All current v83 cases are assigned or delivered; waiting for the next admitted independent case."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep49-v85-20261015",
+        "type": "assign",
+        "at": "2026-10-15T05:58:33.045Z",
+        "task": "Prep49",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep49-v85-source-planning-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:59:50.490Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "The next batch is in source planning across six exploration lanes. The preceding batch contains one independently reproduced caller failure; matching probes were retained outside its manifest."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-v83-A-rust-0d662090",
+        "type": "received",
+        "at": "2026-10-15T06:00:26.540Z",
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "delivery": "0d6620905edc4884d2342ff8cb6021f8122af8ec"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-prep48-v84-0378d2b8",
+        "type": "received",
+        "at": "2026-10-15T06:00:31.967Z",
+        "task": "Prep48",
+        "delivery": "0378d2b85aa79574952cbf09240e92ea584c814e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "review-prep48-v84-packet",
+        "type": "activity",
+        "at": "2026-10-15T06:00:37.264Z",
+        "task": "Prep48",
+        "phase": "review",
+        "reason": "Verify the one-case failure packet, saved C replays and prior-caller comparison before priority admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-v83-C-acid-original-04e34a4c",
+        "type": "received",
+        "at": "2026-10-15T06:02:12.091Z",
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "delivery": "04e34a4c2249ac18442b457525f481e1299757d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p01-skeleton-bones-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:02:28.005Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p01-skeleton-bones",
+        "reason": "Independent adjacent skeleton chat and bone-rattle paralysis branch.",
+        "source": "sounds.c:domonnoise MS_BONES nomul"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v85-p01-skeleton-bones-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:02:34.361Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p01-skeleton-bones",
+        "reason": "One independent bounded C game probe reserved; actual handle follows launch, release only after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p04-ball-web-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:02:39.835Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v85-p04-ball-web",
+        "reason": "Carried punished-ball throw while actually web-trapped; web destruction/reset and relocation.",
+        "source": "ball.c:drop_ball TT_WEB"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v85-p04-ball-web-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:02:44.767Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v85-p04-ball-web",
+        "reason": "One independent bounded C game probe reserved; actual handle follows launch, release only after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-a3302bf23ff1c4124b202222098c696071bb13ed8eb3cae6d24e2eaed9aa5b85-f9a2db4e04b84d1123ae86335391bb3b388883e1-Prep48",
+        "type": "integrating",
+        "at": "2026-10-15T06:02:50.808Z",
+        "task": "Prep48",
+        "integration": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "prepGroup": [
+          "Prep48"
+        ],
+        "validationGroup": [
+          "Prep48"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v85-p01-skeleton-bones-run-5lhPye",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:04:41.669Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p01-skeleton-bones",
+        "reason": "C recorder handle run-5lhPye completed; collecting its terminal receipt and output."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p01-skeleton-bones-run-5lhPye",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:04:46.905Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v85-p01-skeleton-bones",
+        "reason": "One valid C setup completed but missed MS_BONES: skeleton spawned west, while the independent recipe chatted east; no bones branch reached.",
+        "outcome": "failure"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p02-kitten-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:04:56.646Z",
+        "task": "Prep49",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v85-p02-kitten-landmine",
+        "reason": "Grounded kitten enters actual landmine and reaches deterministic weight guard.",
+        "source": "trap.c:trapeffect_landmine monster weight immunity"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p03-carried-dragon-egg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:05:01.539Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "Non-own carried dragon egg hatches and tames for female hero.",
+        "source": "timeout.c:hatch_egg carried dragon taming"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:05:06.133Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "Thrown axe hits actual living worm body segment.",
+        "source": "dothrow.c:thitmonst -> worm.c:cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v85-p04-ball-web-run-VwgUMV",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:05:09.822Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v85-p04-ball-web",
+        "reason": "C-first recording completed as run-VwgUMV; collecting terminal output before release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p06-ball-bear-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:05:13.760Z",
+        "task": "Prep49",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v85-p06-ball-bear",
+        "reason": "Carried punishment ball pulls hero from bear trap with wounded leg and relocation.",
+        "source": "ball.c:drop_ball TT_BEARTRAP"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v85-p04-ball-web-run-VwgUMV",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:05:31.778Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v85-p04-ball-web",
+        "reason": "C first probe reached the TT_WEB throw outcome; terminal artifacts collected and no live process remains."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p07-skeleton-chat-west-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:06:00.913Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p07-skeleton-chat-west",
+        "reason": "Cheap C-observed direction correction after skeleton appeared west; original p01 is a setup miss, not a JavaScript failure.",
+        "source": "sounds.c:domonnoise MS_BONES skeleton chat"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v85-p04-ball-web-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:06:54.292Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v85-p04-ball-web",
+        "reason": "Valid C web-destruction branch reached; one fixed accepted-source JavaScript comparison reserved before any independent replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v85-p07-skeleton-chat-west-run-3GNWFm",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:07:32.163Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p07-skeleton-chat-west",
+        "reason": "Focused C recorder run-3GNWFm completed; collecting the terminal receipt before releasing the slot."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v85-p07-skeleton-chat-west-run-3GNWFm",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:07:37.154Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p07-skeleton-chat-west",
+        "reason": "C recording completed and process reaped; recorder slot released while awaiting the JS comparison grant."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v85-p07-skeleton-chat-west-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:08:27.032Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p07-skeleton-chat-west",
+        "reason": "C skeleton bone-rattle branch reached; fixed accepted-source comparison reserved before independent replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v85-p04-ball-web-js-run-PGHOyw",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:08:40.134Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v85-p04-ball-web",
+        "reason": "Bounded JavaScript-only comparison against fixed accepted scoring workspace is running; collecting terminal result.",
+        "source": "ball.c:drop_ball TT_WEB"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p04-ball-web-match-run-PGHOyw",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:09:13.816Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "done",
+        "probe": "v85-p04-ball-web",
+        "reason": "Saved trapped-web C recording strictly matches the fixed accepted JavaScript scoring workspace; no replay or novelty search needed.",
+        "source": "ball.c:drop_ball TT_WEB",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v85-p07-skeleton-chat-west-js-run-OTgGXI",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:09:37.256Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p07-skeleton-chat-west",
+        "reason": "One bounded JS-only comparison run-OTgGXI is live against accepted 7330de32 with official frozen overlays."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v85-p03-carried-dragon-egg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:09:49.341Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "One independent carried dragon egg C probe reserved; source-designed female hero avoids paternity roll."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p07-skeleton-chat-west-js-run-OTgGXI",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:09:55.605Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v85-p07-skeleton-chat-west",
+        "reason": "Accepted-source JS comparison fully matched the saved C skeleton-chat recording: 2,602 RNG calls, 43 screens/cursors, no mismatches.",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v85-p06-ball-bear-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:11:02.308Z",
+        "task": "Prep49",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v85-p06-ball-bear",
+        "reason": "One source-designed C bear-trap punished-ball probe reserved; actual setup or pull observation required."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p08-ball-pit-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:11:07.023Z",
+        "task": "Prep49",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v85-p08-ball-pit",
+        "reason": "Separate frozen TT_PIT punished-ball throw investigation; preparing cached recipe while slots are occupied.",
+        "source": "ball.c:drop_ball TT_PIT -> fill_pit/reset/relocation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-v85-p03-carried-dragon-egg-run-TQRxdj",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:11:35.833Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "Bounded C-first run-TQRxdj exited and was reaped. Valid recorder setup miss: protection-ring inventory slot differed, so the wished dragon egg and hatch callback were never reached; no source failure claimed. Reservation released; awaiting a redesigned recipe/grant.",
+        "source": "timeout.c:hatch_egg carried dragon taming"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-corrected-v85-p03-carried-dragon-egg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:12:21.252Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "One cheap C-observed ring-selector correction reserved; original command was a valid setup miss and reached no egg callback."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p09-humanoid-beg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:13:32.424Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p09-humanoid-beg",
+        "reason": "Frozen hungry unseen humanoid pet begging candidate; source-only feasibility and cached setup while other probes use slots.",
+        "source": "dogmove.c:dog_hunger -> sounds.c:beg MS_HUMANOID unseen/couldsee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-attempt2-v85-p03-run-oKkbmV",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:13:41.921Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "Bounded C-first run-oKkbmV reached the inventory hatch at step 431: baby red dragon flew out of pack and said Gleep. Attempt1 setup miss is preserved separately; no JS comparison or replay yet. Recording reservation released.",
+        "source": "timeout.c:hatch_egg carried dragon taming"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep6-v85-p06-ball-bear-capture-complete-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:13:53.238Z",
+        "task": "Prep49",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v85-p06-ball-bear",
+        "reason": "Single bounded C-first capture completed; saved result for source-state adjudication"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep48-f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "type": "validated",
+        "at": "2026-10-15T06:14:24.148Z",
+        "task": "Prep48",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep48-f9a2db4e04b84d1123ae86335391bb3b388883e1",
+        "type": "accepted",
+        "at": "2026-10-15T06:14:24.148Z",
+        "task": "Prep48"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep49-v85-source-only-import-hold-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:14:51.670Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "The next batch is preserving completed game recordings and reviewing source evidence during a brief coordinator validation window. No preparation command is running."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-js-v85-p03-carried-dragon-egg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:16:21.761Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "C carried dragon hatch reached; fixed accepted-source comparison reserved before replay."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v85-p02-kitten-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:16:28.615Z",
+        "task": "Prep49",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v85-p02-kitten-landmine",
+        "reason": "One independent C scout for grounded kitten landmine weight guard reserved."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep49-v85-launch-release-20261015",
+        "type": "turn",
+        "at": "2026-10-15T06:16:35.171Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Game recording and comparison have resumed across the exploration lanes. Completed matches remain outside the next manifest; source-traced failures will be independently replayed before delivery."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-js-attempt2-v85-p03-run-VCvG27",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:18:31.092Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "One accepted-source JS-only comparison is running against saved attempt2 C recording.",
+        "source": "timeout.c:hatch_egg carried dragon taming"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-v85-p02-kitten-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:19:03.231Z",
+        "task": "Prep49",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v85-p02-kitten-landmine",
+        "reason": "One bounded C scout was reaped; the kitten spawned north of the landmine tile and the planned south step hit a wall, so the target gate was not reached."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "defer-v85-p09-humanoid-beg-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:19:14.085Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "done",
+        "probe": "v85-p09-humanoid-beg",
+        "reason": "Source feasibility requires more than1500 pet turns with unresolved survival/visibility setup; preserved plan, no game attempt or exhaustion claim. Replacing with a cheaper source-traced caller investigation.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "finish-v85-p03-carried-dragon-egg-js-match-run-VCvG27",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:19:19.602Z",
+        "task": "Prep49",
+        "worker": "Prep-3",
+        "state": "done",
+        "probe": "v85-p03-carried-dragon-egg",
+        "reason": "Attempt2 full accepted-source JS comparison matched: 7,197 RNG calls, 483 screens/cursors, no animation frames, no mismatch. C hatch reached step 431; setup miss attempt1 preserved. Stopped without replay or novelty search.",
+        "source": "timeout.c:hatch_egg carried dragon taming",
+        "outcome": "match"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v85-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:20:07.995Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "One independent C geometry scout for thrown axe and actual worm body segment reserved; no cutworm proof inferred from intent."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep48-3064817236950de52046810d2f2ffae0456138bb",
+        "type": "activity",
+        "at": "2026-10-15T06:20:50.339Z",
+        "task": "Prep48",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep48-3064817236950de52046810d2f2ffae0456138bb",
+        "type": "activity",
+        "at": "2026-10-15T06:20:51.264Z",
+        "task": "Prep48",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-unlaunched-v85-p05-root-hold-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:21:17.270Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "Root baseline import hold began before the lead issued a C grant. No game command launched; releasing the unused reservation until explicit hold release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v85-p13-mounted-chat-down-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:22:39.592Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "New source-traced downward mounted-steed chat caller; C dochat calls domonnoise while current JavaScript explicitly refuses this branch. Preparing cached C setup during hold.",
+        "source": "sounds.c:dochat mounted steed dz>0 -> domonnoise"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v85-p13-mounted-chat-down-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:23:16.480Z",
+        "task": "Prep49",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v85-p13-mounted-chat-down",
+        "reason": "Root explicitly released baseline-import hold; one independent bounded C scout reserved, actual handle follows launch."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-after-hold-v85-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T06:23:21.915Z",
+        "task": "Prep49",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v85-p05-thrown-axe-worm",
+        "reason": "Root explicitly released baseline-import hold; one independent bounded C scout reserved, actual handle follows launch."
       }
     ]
   },
@@ -132394,13 +133546,46 @@
         "unblocks": 0
       },
       {
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "worker": "A2",
+        "goal": "isolate-planned-glob-rng-v83-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "4c1d918a9fb2b2be2b38b74a97ff514ce5632bd0",
+        "since": "2026-10-15T05:36:21.347Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
         "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
         "worker": "B",
         "goal": "fix-mon-consume-wraith-growth-v83-20261015",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "9bbbcb47d0a54873fed9af2f6a8eb90cbce42cd9",
-        "since": "2026-10-15T05:35:21.051Z",
+        "delivery": "d30c9d97a290a78cd607138bec0d87783805e1b6",
+        "since": "2026-10-15T05:38:51.315Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "worker": "C",
+        "goal": "divergence-v83-monster-acid-resistant-attack-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "97559d16c33607227a5293f0c360daa6659853ed",
+        "since": "2026-10-15T05:56:23.552Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "worker": "A2",
+        "goal": "fix-rust-monster-floor-goal-rng-v83-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0d6620905edc4884d2342ff8cb6021f8122af8ec",
+        "since": "2026-10-15T05:57:45.803Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -133569,7 +134754,7 @@
       "A2-investigation-v83-mm-slime-transform-action1-20261015": {
         "id": "A2-investigation-v83-mm-slime-transform-action1-20261015",
         "worker": "A2",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v83/v83-mm-slime-transform-action1",
         "reservations": [
           "session:synthetic/v83/v83-mm-slime-transform-action1",
@@ -133597,6 +134782,30 @@
         "reservations": [
           "session:synthetic/v83/v83-mm-digest-wraith-action1",
           "source:mon.c:m_consume_obj"
+        ]
+      },
+      "C-investigation-v83-mm-acid-resistant-action1-20261015": {
+        "id": "C-investigation-v83-mm-acid-resistant-action1-20261015",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v83/v83-mm-acid-resistant-action1",
+        "reservations": [
+          "session:synthetic/v83/v83-mm-acid-resistant-action1",
+          "source:uhitm.c:mhitm_ad_acid",
+          "source:uhitm.c:mhitm_adtyping"
+        ]
+      },
+      "A2-investigation-v83-mm-rust-iron-action2-20261015": {
+        "id": "A2-investigation-v83-mm-rust-iron-action2-20261015",
+        "worker": "A2",
+        "status": "ready",
+        "seed": "synthetic/v83/v83-mm-rust-iron-action2",
+        "reservations": [
+          "session:synthetic/v83/v83-mm-rust-iron-action2",
+          "source:dogmove.c:dog_goal",
+          "source:zap.c:zap_over_floor",
+          "contract:planning-vision-transparency",
+          "source:mon.c:movemon_singlemon"
         ]
       }
     },
@@ -133645,12 +134854,52 @@
         "tasks": [
           "B-investigation-v83-mm-digest-wraith-action1-20261015"
         ]
+      },
+      "session:synthetic/v83/v83-mm-acid-resistant-action1": {
+        "tasks": [
+          "C-investigation-v83-mm-acid-resistant-action1-20261015"
+        ]
+      },
+      "source:uhitm.c:mhitm_ad_acid": {
+        "tasks": [
+          "C-investigation-v83-mm-acid-resistant-action1-20261015"
+        ]
+      },
+      "source:uhitm.c:mhitm_adtyping": {
+        "tasks": [
+          "C-investigation-v83-mm-acid-resistant-action1-20261015"
+        ]
+      },
+      "session:synthetic/v83/v83-mm-rust-iron-action2": {
+        "tasks": [
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      "source:dogmove.c:dog_goal": {
+        "tasks": [
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      "source:zap.c:zap_over_floor": {
+        "tasks": [
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      "contract:planning-vision-transparency": {
+        "tasks": [
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
+      },
+      "source:mon.c:movemon_singlemon": {
+        "tasks": [
+          "A2-investigation-v83-mm-rust-iron-action2-20261015"
+        ]
       }
     }
   },
   "development": {
-    "executionCommit": "c9b28079bfc6cb8fa2da2d327887c3c546c8d1f5",
-    "measuredAt": "2026-10-15T05:31:12.238Z",
+    "executionCommit": "f9a2db4e04b84d1123ae86335391bb3b388883e1",
+    "measuredAt": "2026-10-15T06:08:25.175Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
