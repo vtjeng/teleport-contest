@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Prep51 C-first independent probe of cmd.c:dotravel()'s menu_requested/getpos_menu(GLOC_INTERESTING) branch. The leading space dismisses the observed startup boundary; #wizmap reveals current-level features, then m#travel requests the menu and Escape exercises its cancellation/cleanup branch. C must show the actual travel-location menu before cancellation is claimed.",
+  "segments": [
+    {
+      "seed": 87155197,
+      "datetime": "20861015143100",
+      "nethackrc": "OPTIONS=name:TravelMenu87,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": " #wizmap\nm#travel\n\u001b"
+    }
+  ]
+}
