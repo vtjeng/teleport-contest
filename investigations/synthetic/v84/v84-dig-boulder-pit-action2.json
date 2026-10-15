@@ -1,0 +1,43 @@
+{
+  "session": "synthetic/v84/v84-dig-boulder-pit-action2",
+  "corpus": "synthetic",
+  "batch": "v84",
+  "caseId": "v84-dig-boulder-pit-action2",
+  "manifestPath": "challenges/manifests/v84.json",
+  "manifestSha256": "2281de291fa33f6633420c5c8e4c3d6cd8d49d55a415a9397d2486f4035dd43f",
+  "recordingSha256": "51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25",
+  "evaluationPath": "challenges/evaluations/admission-3064817236950de52046810d2f2ffae0456138bb-v84.json",
+  "evaluationCommit": "3064817236950de52046810d2f2ffae0456138bb",
+  "remainingScreens": 33,
+  "recordedSteps": 304,
+  "status": "verified",
+  "commit": "b343534bd546903de5784378fc8a15f4e2528e20",
+  "mismatch": {
+    "session": "synthetic/v84/v84-dig-boulder-pit-action2",
+    "remainingScreens": 33,
+    "step": 271,
+    "kind": "stop",
+    "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 475"
+  },
+  "summary": "The admitted v84 dig case reaches dig.c:dighole's floor-boulder-over-spiked-pit arm. The JavaScript caller invokes the existing delobj port without the floor extraction adapter, so invent.js fails closed before the screen and movement checks that C emits after deleting BOULDER475.",
+  "source": {
+    "file": "dig.c",
+    "branch": "When dighole finds a boulder over a pit, C either settles it into the pit and changes the trap to PIT, or deletes the floor trap, then calls delobj(boulder_here). delobj_core calls obj_extract_self; for OBJ_FLOOR that calls mkobj.c:remove_object, which removes the boulder from both the per-square and level-wide object chains and recalculates the blocked vision point.",
+    "functions": ["dighole"],
+    "callers": [
+      "dig.c:dig",
+      "zap.c:zap_dig"
+    ],
+    "dependencies": [
+      "invent.c:delobj, invent.c:delobj_core, and mkobj.c:obj_extract_self/remove_object are already implemented in js/invent.js and js/obj.js; C discards the delobj return. js/dig.js already imports remove_object and recalc_block_point."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The official v84 evaluation records 271/304 screens, 271/304 cursors, and 2965/2968 RNG calls; the first missing screen and stop occur at segment 0 step 271 on key >. Its first unmatched C RNG call is rn2(19)=6 at exercise(attrib.c:509), which follows the floor-object deletion branch.",
+    "The saved delegated prefix matches screens, cursors, and RNG through step 270: 271 screens/cursors and 2962 RNG calls. At step 271 the boundary observation reports UnsupportedHeroCommandBoundaryError: extractExternalObject is not available for otyp 475.",
+    "The preserved patched-C independent replay is byte-identical to the admitted recording: recipe SHA-256 94ae24a23ca5344897a4b7c0cd7fa107eaf6a48bf7f16a57aca6df8e1cbb914f; replay and recording SHA-256 51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25; proof at /home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/c-replay-proofs.json.",
+    "Upstream dig.c:885-1022 calls delobj(boulder_here) after the pit/boulder outcome. invent.c:1430-1462 routes floor deletion through obj_extract_self; mkobj.c:2508-2589 defines remove_object and obj_extract_self. js/dig.js:dighole calls delobj(boulder,{...rawEnv,state}) without hooks.extractExternalObject; js/invent.js requires that hook for OBJ_FLOOR, and js/obj.js:remove_object requires recalcBlockPoint for BOULDER.",
+    "The separate v61 pet-eats-royal-jelly case reaches dog_eat -> bee_eat_jelly -> delobj and identifies a different caller; it does not provide dighole's floor adapter. The v84 floor-boulder action2 case exercises this same dighole caller and is not a separate source cause."
+  ]
+}
