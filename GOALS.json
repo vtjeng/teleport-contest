@@ -316289,6 +316289,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-v75-glib-self-stethoscope-ustatusline-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement ustatusline from insight.c",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v75/v75-glib-self-stethoscope-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v75-glib-self-stethoscope-action1-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "ustatusline",
+      "session": "synthetic/v75/v75-glib-self-stethoscope-action1"
+    },
+    {
+      "id": "fix-counted-wield-stack-dowield-v74-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dowield from wield.c",
+      "cFile": "wield.c",
+      "sessions": [
+        "synthetic/v74/v74-counted-wield-stack-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v74-counted-wield-stack-action1-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dowield",
+      "session": "synthetic/v74/v74-counted-wield-stack-action1"
     }
   ]
 }
