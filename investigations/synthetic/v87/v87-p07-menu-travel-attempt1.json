@@ -30,7 +30,7 @@
   "source": {
     "file": "cmd.c",
     "branch": "The user enters menu-prefixed #travel and cancels the visible interesting-location menu with Escape.",
-    "functions": ["doextcmd", "dotravel"],
+    "functions": ["dotravel"],
     "callers": [
       "cmd.c:rhack dispatches the menu-prefixed extended-command key to doextcmd",
       "cmd.c:doextcmd invokes extcmdlist[idx].ef_funct; JS now dispatches dotravel and preserves the accepted dotravel_target arm for #retravel",
@@ -38,7 +38,7 @@
     ],
     "dependencies": []
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
     "The checked v87 evaluation at commit 22b420ef901444824db269774c218757346a630b records 18 of 20 screens and cursors matched, all 6,390 RNG calls matched, and the first missing screen/cursor at segment 0 step 18.",
     "The v87 C recording and independent replay are byte-identical (recording SHA-256 febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39). The C source at cmd.c:5299-5343 sets GFILTER_VIEW, calls getpos_menu(&cc, GLOC_INTERESTING), restores the filter, clears getloc_travelmode on cancellation, and returns ECMD_OK.",
