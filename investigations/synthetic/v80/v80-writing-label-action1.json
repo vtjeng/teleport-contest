@@ -10,9 +10,13 @@
   "recordingSha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb",
   "evaluationPath": "challenges/evaluations/admission-20c21b73ea99b484f48b08da7f005733db35bdfd-v80.json",
   "evaluationCommit": "20c21b73ea99b484f48b08da7f005733db35bdfd",
-  "status": "fixed",
+  "status": "complete",
   "commit": "e046313ef5e8996f68335bd0588f9a2dfa11b7e4",
   "mismatch": {
+    "session": "synthetic/v80/v80-writing-label-action1",
+    "remainingScreens": 50,
+    "kind": "stop",
+    "message": "UnsupportedHeroCommandBoundaryError: encumberMessage is not available for otyp 323",
     "screensMatched": 283,
     "screensTotal": 333,
     "rngMatched": 2820,
@@ -20,51 +24,32 @@
     "cursorsMatched": 283,
     "cursorsTotal": 333,
     "step": 283,
-    "key": "\\n",
-    "error": "UnsupportedHeroCommandBoundaryError: encumberMessage is not available for otyp 323"
+    "key": "\\n"
   },
-  "summary": "The admitted by-description writing case successfully creates the specifically described scroll and merges it into the observed HAPAX LEGOMENON stack. C write.c:dowrite then calls hold_another_object. On the accepted-inventory branch, invent.c:hold_another_object updates inventory and calls pickup.c:encumber_msg. JS writeEnv supplies hooks:{}, so invent.js hold_another_object cannot call its existing encumberMessage hook and the command stops at the first post-write boundary. The missing behavior is caller wiring in writeEnv; the C encumbrance routine is already ported.",
+  "summary": "The admitted by-description writing case creates the chosen scroll and merges it into the observed HAPAX LEGOMENON stack. C then calls hold_another_object, whose successful inventory path updates inventory and calls encumber_msg. JS writeEnv supplied hooks:{}, so hold_another_object raised a missing encumberMessage boundary at step 283. The fix supplies the existing pickup.js encumber_msg callback; the complete recording now matches.",
   "source": {
+    "file": "write.c",
     "functions": [
-      "write.c:dowrite",
-      "invent.c:hold_another_object",
-      "pickup.c:encumber_msg"
+      "dowrite",
+      "hold_another_object",
+      "encumber_msg"
     ],
+    "branch": "Successful by-description scroll creation in write.c:dowrite -> invent.c:hold_another_object keeps the object, updates inventory, then calls pickup.c:encumber_msg. The JavaScript hold helper already requires and awaits encumberMessage; writeEnv was the missing callback.",
     "callers": [
-      "apply.c:use_marker delegates marker application to write.c:dowrite.",
-      "write.c:dowrite successful by-description branch calls invent.c:hold_another_object for the newly created scroll.",
-      "invent.c:hold_another_object accepted-inventory branch calls pickup.c:encumber_msg after update_inventory()."
+      "apply.c:doapply MAGIC_MARKER dispatches to write.c:dowrite; js/apply.js:doapply has the corresponding marker case.",
+      "write.c:dowrite calls invent.c:hold_another_object after successful scroll creation.",
+      "invent.c:hold_another_object calls pickup.c:encumber_msg after successful inventory insertion and update_inventory()."
     ],
-    "findings": [
-      "C write.c:dowrite lines 313-385 creates the selected scroll, observes it when writing by description, then calls hold_another_object at line 380.",
-      "C invent.c:hold_another_object lines 1288-1291 reaches encumber_msg only after the new object remains in inventory and inventory display is updated.",
-      "JS write.js imports encumber_msg but writeEnv currently returns { state, hooks: {} }; invent.js hold_another_object requires hooks.encumberMessage and awaits it at the same successful-inventory point.",
-      "JS pickup.js encumber_msg already implements the burden message and go.oldcap/status update used by C pickup.c:encumber_msg. Supplying that existing function in writeEnv preserves source order and adds no RNG call."
+    "dependencies": [
+      "pickup.c:encumber_msg is already implemented in js/pickup.js and is now supplied through writeEnv."
     ]
   },
   "evidence": [
     "Prep44 C recording and accepted-prefix comparison establish exact parity through 283 boundaries, 2817 RNG calls, and 283 cursors. At the next input boundary, JS reports the missing encumberMessage hook for object type 323.",
     "The official v80 evaluation for this recording reports 283/333 screens, 2820/2826 RNG calls, and 283/333 cursors; the first JS boundary error is at step 283 before C continues its monster movement and burden feedback.",
-    "The recorded input independently reaches the active production path: apply marker -> write.c:dowrite by-description scroll result -> invent.c:hold_another_object accepted inventory -> pickup.c:encumber_msg."
+    "The recorded input independently reaches the active production path: apply marker -> write.c:dowrite by-description scroll result -> invent.c:hold_another_object accepted inventory -> pickup.c:encumber_msg.",
+    "After the callback wiring, the full v80 recording matches all 333 screens, cursors, and RNG calls with no unported path; the synthetic range receipt verifies segment 0 through step 332."
   ],
   "goalKind": "divergence-fix",
-  "evidenceRequired": "Wire the existing pickup.c encumber_msg implementation through writeEnv to the successful dowrite hold_another_object branch; test the write environment hook and require the admitted v80 recording to match through its final step.",
-  "resolution": {
-    "commit": null,
-    "change": "js/write.js writeEnv now supplies encumberMessage: encumber_msg, so hold_another_object can perform the C encumber_msg side effect after accepting the written scroll into inventory.",
-    "tests": "scripts/write.test.mjs pins both the C update_inventory(); encumber_msg(); order and the JS callback wiring.",
-    "replay": {
-      "caseId": "v80-writing-label-action1",
-      "throughStep": 332,
-      "recordedSteps": 333,
-      "matched": true,
-      "unported": []
-    },
-    "checks": [
-      "focused write tests: 24/24 passed",
-      "lint passed",
-      "full admitted v80 replay matched 333/333 screens and cursors with no RNG divergence",
-      "synthetic range evidence matched through step 332"
-    ]
-  }
+  "evidenceRequired": "Wire the existing pickup.c encumber_msg implementation through writeEnv to the successful dowrite hold_another_object branch; test the write environment hook and require the admitted v80 recording to match through its final step."
 }
