@@ -3310,6 +3310,7 @@ export async function light_cocktail(objp, state = game, env = {}) {
         obj_extract_self(obj, { ...env, state });
         obj.nomerge = 1;
         const dropName = donameFresh(obj, state);
+        const holdMessage = env.hooks?.message ?? message;
         obj = await hold_another_object(
             obj,
             'You drop %s!',
@@ -3320,7 +3321,11 @@ export async function light_cocktail(objp, state = game, env = {}) {
                 state,
                 hooks: {
                     ...(env.hooks ?? {}),
-                    message: env.hooks?.message ?? message,
+                    message: holdMessage,
+                    encumberMessage: env.hooks?.encumberMessage
+                        ?? ((targetState) => encumber_msg(targetState, {
+                            message: holdMessage,
+                        })),
                 },
             },
         );

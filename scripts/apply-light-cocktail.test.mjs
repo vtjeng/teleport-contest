@@ -2,8 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { game, resetGame } from '../js/gstate.js';
+import { addinv } from '../js/invent.js';
+import { near_capacity } from '../js/hack.js';
 import { POT_OIL } from '../js/objects.js';
-import { resetGame } from '../js/gstate.js';
+import { mksobj } from '../js/obj.js';
+import { runSegment } from '../js/jsmain.js';
 import { light_cocktail } from '../js/apply.js';
 
 const APPLY_C = readFileSync(
@@ -86,6 +90,11 @@ test('light_cocktail retains the complete C branch and helper order', () => {
         assert.ok(index > previous, `${call} follows the previous JS operation`);
         previous = index;
     }
+    assert.match(jsHelper, /const holdMessage = env\.hooks\?\.message \?\? message;/u);
+    assert.match(
+        jsHelper,
+        /hooks:\s*\{[\s\S]*?message: holdMessage,[\s\S]*?encumberMessage: env\.hooks\?\.encumberMessage\s*\?\?\s*\(\(targetState\) => encumber_msg\(targetState,\s*\{\s*message: holdMessage,/u,
+    );
     assert.doesNotMatch(jsHelper, /check_unpaid\(obj, state\)/u);
     assert.doesNotMatch(jsHelper, /UnsupportedShopError/u);
 
@@ -156,4 +165,37 @@ test('an unlit potion underwater is refused before it is split or discovered', a
     assert.equal(pointer.obj, potion);
     assert.equal(potion.quan, 2);
     assert.equal(state.u.uinwater, 1);
+});
+
+test('lighting one potion reacquires it and refreshes encumbrance', async () => {
+    // This seed creates a reproducible game shell; the test pins the C
+    // split-one reacquisition path, not seed-specific dungeon generation.
+    await runSegment({
+        seed: 761015,
+        datetime: '20500101000000',
+        nethackrc: 'OPTIONS=name:OilReacquisition,role:Wizard,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+    const oil = mksobj(POT_OIL, false, false, { state: game });
+    // A stack of three matches the source branch: splitobj(obj, 1L) leaves
+    // two oil potions in inventory and returns the lit child for reacquisition.
+    oil.quan = 3;
+    addinv(oil, { state: game });
+
+    const pointer = { obj: oil };
+    await light_cocktail(pointer, game, { message: async () => {} });
+
+    assert.ok(pointer.obj, 'hold_another_object returns the reacquired potion');
+    assert.equal(pointer.obj.lamplit, true);
+    assert.equal(pointer.obj.quan, 1);
+    assert.equal(oil.quan, 2);
+    const inventory = [];
+    for (let carried = game.invent; carried; carried = carried.nobj)
+        inventory.push(carried);
+    assert.ok(inventory.includes(oil),
+        'the original two-potion stack remains in inventory');
+    assert.ok(inventory.includes(pointer.obj),
+        'the split child is back in inventory after hold_another_object');
+    assert.equal(game.go.oldcap, near_capacity(game),
+        'pickup.c:encumber_msg refreshes go.oldcap after reacquisition');
 });
