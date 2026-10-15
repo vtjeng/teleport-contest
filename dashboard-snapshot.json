@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T09:04:06.734Z",
+  "capturedAt": "2026-10-15T09:24:07.878Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -138415,6 +138415,590 @@
         "reason": "Deferred at the Prep52 boundary after two C setup misses. The first map scout established exact inventory and dwarf placement; the next west step encountered an arrow-trap prompt, and the corrected west/east path encountered a staircase pager before pickup. No defensive undead-turning action, floor bhito callback, JS comparison, or replay was reached. The observed one-space pager correction is saved as an unexecuted next recipe.",
         "source": "muse.c:use_defensive undead-turning mbhit -> bhito",
         "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A2-investigation-v87-p07-menu-travel-attempt1-20261015-c475f414a5dad80c97316cce9eb8e71ae98e6818",
+        "type": "published",
+        "at": "2026-10-15T09:04:24.854Z",
+        "task": "A2-investigation-v87-p07-menu-travel-attempt1-20261015",
+        "commit": "c475f414a5dad80c97316cce9eb8e71ae98e6818"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-84e270302a91d6fddaf5197f5be726ba345ba763",
+        "type": "ready",
+        "at": "2026-10-15T09:06:37.027Z",
+        "task": "Prep52",
+        "delivery": "84e270302a91d6fddaf5197f5be726ba345ba763"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-Prep52-84e27030-20261015",
+        "type": "received",
+        "at": "2026-10-15T09:07:17.549Z",
+        "task": "Prep52",
+        "delivery": "84e270302a91d6fddaf5197f5be726ba345ba763"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep53-v89-20261015",
+        "type": "assign",
+        "at": "2026-10-15T09:07:46.886Z",
+        "task": "Prep53",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v89"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "activity-Prep52-saved-evidence-review-20261015",
+        "type": "activity",
+        "at": "2026-10-15T09:08:16.664Z",
+        "task": "Prep52",
+        "phase": "review",
+        "reason": "Verify saved paired C inputs, comparison provenance and byte-identical replay; reconcile one local inventory path whose immutable packet bytes remain intact."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-8e2909c94d055f4b4c5f4eed23dfaeb20d2dacba410f7e085bc391e61bdf2571-62960010c9528b0dd6be7a91948d5005f477c124-Prep52",
+        "type": "integrating",
+        "at": "2026-10-15T09:09:49.389Z",
+        "task": "Prep52",
+        "integration": "62960010c9528b0dd6be7a91948d5005f477c124",
+        "prepGroup": [
+          "Prep52"
+        ],
+        "validationGroup": [
+          "Prep52"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v89-p01-defensive-undead-turning-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:10:31.663Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Continue the exact C-observed staircase pager correction into defensive undead-turning bhito caller investigation; no inferred pickup or target reach.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v89-p03-orctown-initial-delivery-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:11:17.245Z",
+        "task": "Prep53",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v89-p03-orctown-initial-delivery",
+        "reason": "Source gap ownership: Orctown stolen_booty -> makemon DF_NONE omitted deliver_obj_to_mon caller. Independent ordinary generation witness prepared; actual variant required.",
+        "source": "makemon.c:makemon DF_NONE deliver_obj_to_mon from mkmaze.c:stolen_booty"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v89-p04-shop-polyobj-pursuit-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:11:58.129Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "Source-only feasibility before C: ordinary input-only shop map, no unrecorded SHOPTYPE environment.",
+        "source": "zap.c:poly_obj billable stock replacement -> hot_pursuit"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v89-p02-singleton-kitten-landmine-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:12:03.663Z",
+        "task": "Prep53",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v89-p02-singleton-kitten-landmine",
+        "reason": "Conditional singleton kitten correction; actual C map and grounded final mine tile required; preserve flyer source blocker.",
+        "source": "trap.c:trapeffect_landmine low monster weight"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v89-p05-dig-drawbridge-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:12:09.066Z",
+        "task": "Prep53",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v89-p05-dig-drawbridge",
+        "reason": "Prioritize concrete omitted digging-to-drawbridge caller; source feasibility and earlier Castle caller crosswalk before C.",
+        "source": "dig.c:dighole/furniture_handled -> destroy_drawbridge"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v89-p03-orctown-initial-delivery-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:12:13.882Z",
+        "task": "Prep53",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v89-p03-orctown-initial-delivery",
+        "reason": "Reserved one C-first run of the independent Wizard/gnome Orctown DF_NONE recipe; require actual minetn-1 selection, otherwise preserve as setup miss."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v89-p06-fainted-pool-timeout-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:12:18.917Z",
+        "task": "Prep53",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v89-p06-fainted-pool-timeout",
+        "reason": "Source-defined faint-before-pool-landing timeout caller; actual pool and timer feasibility before C.",
+        "source": "trap.c:drown -> eat.c:reset_faint after levitation expiry"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p01-defensive-undead-turning-attempt4-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:12:31.287Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Reserve one bounded C capture using the observed staircase-pager dismissal before floor pickup; caller reach must be observed in C.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v89-p04-shop-polyobj-pursuit-two-bounded-slots-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:13:05.130Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "blocked",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "Depth-2 shop-map C scout is ready; waiting for both existing bounded Prep slots to release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "process-v89-p01-defensive-undead-turning-attempt4-run-qOtI2J-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:13:15.208Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Bounded C capture handle run-qOtI2J completed with exit 0; preserving receipt and session before releasing the slot.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-cfirst-v89-p03-orctown-initial-delivery-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:13:27.862Z",
+        "task": "Prep53",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v89-p03-orctown-initial-delivery",
+        "reason": "C run-ftTF4p exited success and is preserved as attempt1; Mines levelport reached Dlvl:8 but current display does not identify the minetn variant. Preparing same-seed #wizmap observation; no seed search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v89-p02-singleton-kitten-landmine-max2-slots-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:13:33.916Z",
+        "task": "Prep53",
+        "worker": "Prep-2",
+        "state": "blocked",
+        "probe": "v89-p02-singleton-kitten-landmine",
+        "reason": "Ready C command is prepared; waiting for one bounded Prep slot to release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p01-defensive-undead-turning-attempt4-run-qOtI2J-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:13:46.398Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Bounded C capture run-qOtI2J completed exit 0 and was reaped; receipt and raw session are saved. Releasing recorder slot while decoding caller reach.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-cfirst-v89-p03-orctown-map-observation-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:13:59.295Z",
+        "task": "Prep53",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v89-p03-orctown-initial-delivery",
+        "reason": "Reserved same-seed #wizmap observation after attempt1 reached Mines Dlvl:8 but did not identify variant; this is map inspection, not seed search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p04-shop-polyobj-pursuit-c-map-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:14:31.030Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "Launching one input-comparable C depth-2 shop-map scout; stock selector will use observed C coordinates only."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep53-v89-concrete-callers-pipeline-20261015",
+        "type": "turn",
+        "at": "2026-10-15T09:14:38.197Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Six lanes are investigating explicit missing production callers and ready corrections. Bounded commands use two atomic slots; matching routes remain excluded."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v89-p03-orctown-initial-delivery-setup-miss-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:14:59.952Z",
+        "task": "Prep53",
+        "worker": "Prep-3",
+        "state": "done",
+        "probe": "v89-p03-orctown-initial-delivery",
+        "reason": "Preserved attempts run-ftTF4p and run-sEWNg6. Same-seed #wizmap showed no iron-bar barricades required by dat/minetn-1.lua; target was not reached. Setup miss; no JS comparison, replay, or seed search.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v89-p04-shop-polyobj-pursuit-run-7fQEEw-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:15:37.601Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "C run-7fQEEw terminal success; actual depth-2 delicatessen and for-sale floor objects observed, but teleport/store More pagers consumed #wizmap before the requested full map."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p04-shop-polyobj-pursuit-run-7fQEEw-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:15:42.934Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "run-7fQEEw terminal success and reaped; shop/for-sale stock reached, awaiting map-correction attempt before any target claim."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p02-singleton-kitten-landmine-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:15:54.216Z",
+        "task": "Prep53",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v89-p02-singleton-kitten-landmine",
+        "reason": "One bounded C capture reserved for the source-prepared singleton kitten mine route; actual placement and final tile remain gated on C output."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep52-62960010c9528b0dd6be7a91948d5005f477c124",
+        "type": "validated",
+        "at": "2026-10-15T09:15:59.066Z",
+        "task": "Prep52",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep52-62960010c9528b0dd6be7a91948d5005f477c124",
+        "type": "accepted",
+        "at": "2026-10-15T09:15:59.066Z",
+        "task": "Prep52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p04-shop-polyobj-pursuit-c-run02-map-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:16:15.092Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "Launching one corrected map scout with observed teleport/shop welcome pager dismissals; target selector remains unset."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v89-p06-map-scout-max2-slots-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:16:38.148Z",
+        "task": "Prep53",
+        "worker": "Prep-6",
+        "state": "blocked",
+        "probe": "v89-p06-fainted-pool-timeout",
+        "reason": "Ready bounded C map scout cannot reserve a recorder: worker-state rejected the request because both Prep recorder slots are reserved. Waiting for a slot-release notification; no C command was launched."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v89-p07-wary-dog-steed-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:17:02.545Z",
+        "task": "Prep53",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v89-p07-wary-dog-steed",
+        "reason": "Source feasibility of explicit wary_dog life-saving untame-steed dismount caller; verify actual amulet/steed route and earlier caller evidence before C.",
+        "source": "dog.c:wary_dog -> dismount_steed(DISMOUNT_THROWN)"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v89-p04-shop-polyobj-pursuit-run-KLNgeA-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:19:00.277Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "C run-KLNgeA terminal success; full #wizmap shows eligible delicatessen, shopkeeper, and for-sale floor objects. Actual hero is adjacent NW to a visible for-sale potion; no polymorph action yet."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p04-shop-polyobj-pursuit-run-KLNgeA-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:19:05.797Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "run-KLNgeA terminal success/reaped; actual shop and adjacent stock map saved, now preparing the source-derived zap suffix."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v89-p02-singleton-kitten-landmine-attempt1-run-W47IZI-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:20:06.188Z",
+        "task": "Prep53",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v89-p02-singleton-kitten-landmine",
+        "reason": "Bounded C run-W47IZI exited 0 and was reaped; actual kitten stayed at its selected square, with no landmine weight roll."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p02-singleton-kitten-landmine-attempt1-terminal-miss-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:20:15.344Z",
+        "task": "Prep53",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v89-p02-singleton-kitten-landmine",
+        "reason": "Released bounded slot after terminal/reaped run-W47IZI; C map confirms placement but no move or rn2(151) target gate."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p01-defensive-undead-turning-attempt5-after-release-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:20:25.581Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Reserve one C setup variation that retrieves and wields the corpse before creating the hostile wand user, then verifies wand pickup and ray setup from screens.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "blocked-v89-p05-dig-drawbridge-max2-slots-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:20:39.511Z",
+        "task": "Prep53",
+        "worker": "Prep-4",
+        "state": "blocked",
+        "probe": "v89-p05-dig-drawbridge",
+        "reason": "Initial Castle-entry C command is prepared; waiting for one bounded Prep recorder slot to release.",
+        "source": "dig.c:dighole/furniture_handled -> destroy_drawbridge"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v89-p02-singleton-kitten-landmine-deferred-after-c-miss-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:20:46.167Z",
+        "task": "Prep53",
+        "worker": "Prep-2",
+        "state": "done",
+        "probe": "v89-p02-singleton-kitten-landmine",
+        "reason": "Deferred after C confirmed kitten/mine setup but the NE hurtle left the kitten at its original square and produced no rn2(151) gate; two prior kitten attempts also missed the gate. Saved the actual map and trace; no JS comparison or replay.",
+        "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p04-shop-polyobj-pursuit-c-run03-witness-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:20:58.718Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "Launching one C witness from C-observed map: wish polymorph wand and zap the actual adjacent NW for-sale floor stock; require shopkeeper pursuit observation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "process-v89-p01-defensive-undead-turning-attempt5-run-DjMOPu-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:21:02.725Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Bounded C setup variation run-DjMOPu completed with exit 0; receipt and session are saved before releasing the recorder slot.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p01-defensive-undead-turning-attempt5-run-DjMOPu-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:21:13.294Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Bounded C setup variation run-DjMOPu completed exit 0 and was reaped; receipt and raw session are saved. Releasing recorder slot while decoding actual state.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep52-00f08904cfa289e5cc7d3757fc777cafac75aca8",
+        "type": "activity",
+        "at": "2026-10-15T09:21:22.708Z",
+        "task": "Prep52",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep52-00f08904cfa289e5cc7d3757fc777cafac75aca8",
+        "type": "activity",
+        "at": "2026-10-15T09:21:23.788Z",
+        "task": "Prep52",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v89-p04-shop-polyobj-pursuit-run-qly9S4-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:21:44.546Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "C run-qly9S4 terminal success: p - uranium wand selected; z-p-y reached adjacent for-sale floor stock; C screen prints “Pameunpeuk gets angry!”, reaching peaceful poly_obj hot_pursuit caller."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p04-shop-polyobj-pursuit-run-qly9S4-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:21:49.478Z",
+        "task": "Prep53",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v89-p04-shop-polyobj-pursuit",
+        "reason": "run-qly9S4 terminal success/reaped; C reaches the billable floor-object polymorph anger branch through poly_obj -> hot_pursuit; preparing the fixed accepted comparison."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p05-dig-drawbridge-attempt1-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:22:04.210Z",
+        "task": "Prep53",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v89-p05-dig-drawbridge",
+        "reason": "Reserved one bounded C setup capture using the source-supported Castle level name; target reach remains unverified.",
+        "source": "dig.c:dighole/furniture_handled -> destroy_drawbridge"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p01-defensive-undead-turning-attempt6-east-correction-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:22:10.977Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Reserve one C capture to move east away from the dwarf spawned west, then verify wand pickup and defensive ray from recorded screens.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v89-p06-map-scout-retry-slots-full-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:22:26.789Z",
+        "task": "Prep53",
+        "worker": "Prep-6",
+        "state": "blocked",
+        "probe": "v89-p06-fainted-pool-timeout",
+        "reason": "Slot-release notification arrived, but atomic reservation again found both Prep recorder slots already reserved by concurrent lanes. Kept map scout ready; no C launch. Waiting for another slot release."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "process-v89-p01-defensive-undead-turning-attempt6-run-jukL6e-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:22:38.269Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Bounded C eastward correction run-jukL6e completed with exit 0; receipt and session saved before releasing the recorder slot.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-v89-p05-dig-drawbridge-run-fQGzOL-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:22:44.775Z",
+        "task": "Prep53",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v89-p05-dig-drawbridge",
+        "reason": "C setup attempt run-fQGzOL exited 0 and was reaped; it stopped on the startup welcome page before the level-port command.",
+        "source": "dig.c:dighole/furniture_handled -> destroy_drawbridge"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p05-dig-drawbridge-run-fQGzOL-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:22:53.844Z",
+        "task": "Prep53",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v89-p05-dig-drawbridge",
+        "reason": "run-fQGzOL is terminal0/reaped; its no-game startup-prompt miss is saved. Releasing the bounded C slot for the one-character prompt correction.",
+        "source": "dig.c:dighole/furniture_handled -> destroy_drawbridge"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v89-p01-defensive-undead-turning-attempt6-run-jukL6e-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:22:58.592Z",
+        "task": "Prep53",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v89-p01-defensive-undead-turning",
+        "reason": "Bounded C eastward correction run-jukL6e completed exit 0 and was reaped; receipt and raw session are saved. Releasing recorder slot while decoding actual state.",
+        "source": "muse.c:use_defensive undead-turning mbhit -> bhito"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v89-p05-dig-drawbridge-attempt2-welcome-ack-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T09:23:17.473Z",
+        "task": "Prep53",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v89-p05-dig-drawbridge",
+        "reason": "Reserved bounded C retry with the startup welcome page acknowledged before wizard level port.",
+        "source": "dig.c:dighole/furniture_handled -> destroy_drawbridge"
       }
     ]
   },
@@ -139585,8 +140169,8 @@
     "reservations": {}
   },
   "development": {
-    "executionCommit": "dff332ab7b4cbed22e4318bb08a252d795d223d1",
-    "measuredAt": "2026-10-15T09:00:29.148Z",
+    "executionCommit": "62960010c9528b0dd6be7a91948d5005f477c124",
+    "measuredAt": "2026-10-15T09:15:19.093Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
