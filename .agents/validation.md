@@ -8,6 +8,12 @@ replay, recording comparison, and checkpoint scoring. Treat all fixed-workload
 recordings as read-only source data while preserving them in place. The remote
 competition holdout is outside this workspace.
 
+Queue assignment and deliverable identities are separate under
+`.agents/architecture.md`. Rework is a new linked queue task. Existing helper
+commands below retain their legacy delivery/task IDs until that protocol is
+migrated; a `feedback` event alone is not a new queue assignment. Preserve
+all CI, evidence, acceptance, and admission gates during that migration.
+
 ## Routine validation
 
 - Before committing worker changes or Main's integration edits, run focused tests with
@@ -169,8 +175,10 @@ and the candidate branch. After the run finishes, use
 `implementation-handoff.mjs split --ledger <shared-ledger> --tasks <ids>` to
 test a smaller group from the original accepted base. Keep required dependencies
 together. Omitted tasks stay ready; never accept a subset from a failed result.
-For corrections, use the usual `feedback` event. It releases sibling tasks;
-after receiving the correction, retry `integrate` to rebuild the frozen group
+For corrections in the legacy transport, `feedback` releases sibling delivery
+records. The unified queue must also create the linked rework assignment
+under `.agents/architecture.md`; do not reopen a completed execution task.
+In the existing helper, after receiving the correction, retry `integrate` to rebuild the frozen group
 with all original and correction commits. Resolve unfinished cherry-picks first.
 
 After a ledger protocol update, workers with older checkouts use the accepted
@@ -203,8 +211,10 @@ Retry the helper after an interruption; it retains the frozen submissions.
 If integration or CI fails, preserve the candidate and frozen plan, resolve the
 failure, and revalidate before acceptance. Do not accept a subset using the
 failed result or run a checkpoint per task.
-When a Prep task needs correction, record its usual `feedback` event. This
-releases its group siblings back to ready. After the corrected submission is
+When a batch needs correction, Main creates linked rework for Prep and its
+required worker corrections under `.agents/architecture.md`. The current
+legacy `feedback` event releases its group siblings back to ready; it does
+not itself enqueue general-worker rework. After the corrected submission is
 received, retry `integrate`; it retains the original group and base, saves the
 earlier plan, and uses the corrected delivery. New arrivals still wait.
 

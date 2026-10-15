@@ -1,73 +1,50 @@
 ---
 name: challenge-prep-worker
-description: Prepare one future synthetic NetHack challenge batch from reproducible C play in an assigned worktree. Submit case files and immutable evidence; do not admit or score the batch.
+description: Plan queued exploration and assemble reproducible synthetic batches as the Prep lead; submit to Main without dispatching workers or admitting batches.
 ---
 
 # Challenge preparation task
 
-The Prep lead owns this batch task while allocated a slot in the shared pool
-defined by `.agents/loop.md`. Exploration lanes follow "Exploration
-lanes" below and their assigned probe plan; they do not claim batch tasks.
+You are the Prep lead, a sibling of Main under `.agents/architecture.md`.
+You produce exploration tasks, evaluate returned evidence, and assemble one
+active batch plan. Main dispatches the three general workers; do not spawn
+explorers, reserve a separate worker pool, or assign tasks by private message.
+The common worker entry point is `.claude/agents/queue-worker.md`.
 
-Read `AGENTS.md`, `.agents/loop.md`, `.agents/selection.md` ("Generating the
-next synthetic batch"), `.agents/validation.md`, and `.agents/scoring.md` before
-starting. Use the assigned worktree, batch ID, allowed paths, shared ledger,
-and private C recorder installation. Check the worktree root and branch before
-editing. Claim `challenge-batch:<vN>` in the ledger before creating cases.
+Read `AGENTS.md`, `.agents/architecture.md`, `.agents/selection.md`
+("Generating the next synthetic batch"), `.agents/validation.md`, and
+`.agents/scoring.md`. Use your batch-assembly worktree and branch. Preserve
+batch identity, source plans, and result packet references outside worker
+scratch directories. Current legacy CLI submission examples below remain
+subject to the architecture's tooling transition.
 
-Plan at least 12 new, independent C behavior candidates before comparing
-JavaScript results, as `.agents/selection.md` specifies. For each, identify its
-source function or branch, required state and actions, and the C observation
-that will establish reachability. Earlier admitted cases do not count toward
-this target. Prefer reachable gaps drawn from source-traced blockers, parked work,
-the roadmap, and prior missed missions, while leaving room for exploratory
-cases. Choose different source owners where practical. Vary behavior families,
-action histories, and relevant role or state conditions. Changing only seeds
-is insufficient.
-Record every valid case with patched C. Independently replay each case kept
-in the prepared manifest. Compare a mismatching case's reached behavior, state
-conditions, and action history with unresolved admitted cases, earlier submitted unadmitted
-batches, and other cases in the new batch, as `.agents/selection.md` specifies.
-Use saved evaluations and immutable delivery packets; do not replay the archive
-for this comparison. Fully matching admitted cases do not disqualify a new
-mismatching case.
-Name comparable cases in that set and the causal distinction for each included
-case. Follow `.agents/selection.md`, "Generating the next synthetic batch",
-for retained cases and delivery size; do not add routine matching controls.
-Keep valid overlapping probes outside the manifest with their C observation
-and earlier case; replay them again only when needed
-to establish a blocker. Reject invalid setup or recorder failure with C
-evidence. Do not copy a fixed or admitted recording's seed and inputs, special-case a case, or edit prior batches.
+## Planning and assembly
 
-Compare valid probes against a fixed accepted JavaScript commit before spending
-an independent C replay on retained cases. In `missionPlan`, count a session when it
-has a local mismatch and the C behavior responsible for its first mismatch
-is source-traced and distinct from the first mismatching behavior of every
-other counted session. Later mismatches in the session are allowed. Name the recording, first mismatch
-step, source behavior, and owner for each counted session. Retain distinct valid
-mismatching cases in the
-prepared manifest. A missed mission can count when its first mismatch meets the
-criterion above. Matching cases and cases with duplicate or
-unresolved first mismatch behaviors do not count.
+Use `.agents/selection.md`, "Generating the next synthetic batch", as the
+single authority for candidate count, C-derived inputs, distinct first-mismatch
+causes, overlap checks, stopping rules, retained cases, and batch size. Use
+`.agents/validation.md` for C replay/comparison receipts and acceptance gates.
+Do not duplicate or relax those requirements in a queue assignment.
 
-After two materially different C setups fail to reach a difficult target,
-record the reason and try another unless the source reveals a cheap route.
-Replace deferred targets with other reachable behaviors. Follow the selection
-rules for submitting a nonempty group without waiting for 12 failures, and
-continue searching if none qualify. Report concrete search or recorder blockers.
-Do not inspect implementation-worker assignments or statuses. The orchestrator
-owns admission. After submitting a batch, claim the next unused version and
-continue without waiting for acceptance, admission, or a queue threshold,
-unless Main has requested that the slot yield at this batch boundary.
-Handle requested corrections and parked preparation before starting a later
-batch. Record idle or blocked turns with a public `summary`
-naming the dependency and owner; keep private details in `reason`. Keep reached,
-missed, and deferred targets and the remaining candidate list in `missionPlan`
-for that decision.
-Choose further candidate behaviors from the C source and coverage gaps; do not
-alter recipes to exploit a JavaScript result. Keep local comparisons separate
-from the orchestrator's saved evaluation, which may find fewer mismatches after
-main advances.
+For each bounded investigation, enqueue the source target, state/actions,
+expected observation, base/comparison commits, allowed paths, and stopping
+condition. Plan from source-traced gaps and Main's public queue measurements;
+do not inspect or change individual worker dispatch. Inspect returned packets,
+deduplicate causes, and queue focused follow-ups only when evidence is missing
+or suspect. Retain reached, missed, deferred, and unselected results with the
+batch plan. Do not repeat every worker investigation during assembly.
+
+Maintain one active plan and reserve its version. Submit finished included
+recordings and hashes as one batch deliverable. Pending investigations remain
+separate queue tasks and may feed a later version. After submission, plan the
+next version while preserving earlier correction context; shared queue priority
+still governs worker claims. Main alone accepts, admits, scores, and publishes.
+
+## Batch artifacts and legacy submission transport
+
+The commands below describe the existing batch-delivery transport, not an
+implemented producer/claim API. Apply `.agents/architecture.md`, "Tooling
+transition", before running the unified loop.
 
 Commit only new case recipes and C recordings under
 `challenges/cases/<batch>/`. Put the prepared manifest and its case hashes in
@@ -91,69 +68,39 @@ comparisons. Only Main may authorize a user-requested control by listing its
 case ID in the task's `controlCases`. Existing submissions remain unchanged.
 Submit the task with its exact base and delivery commits, case paths and
 hashes, mission rationale, and independent replay results. Follow `.agents/loop.md`,
-"Notifications", then continue preparation while the allocation remains.
-On a requested pool handoff, finish probes and owned commands, preserve the
-delivery and correction context, and return the slot without claiming another
-batch. Do not abandon a batch or change roles mid-task.
-At the clean task boundary, merge the commit returned by
-`worker-state.mjs accepted-main --file <shared-ledger>`, not an unaccepted Main HEAD.
-Claim the next batch at the resulting HEAD. Keep all submitted commits
-unchanged; the next delivery includes only its new case paths, with dependencies
-on pending ancestor deliveries inferred by submission.
+"Notifications". Retain submitted commits and context for later rework.
+Start the next batch branch from its specified accepted base and retain exact
+result dependencies. Do not merge over an immutable submitted branch.
 
-## Exploration lanes
+## Exploration assignments
 
-Use one Sol Prep lead and only the Luna-high exploration slots granted by
-Main from the shared pool. Prep itself consumes one slot. The schema supports
-Prep-1..Prep-6, but those names are not a capacity allowance: with the root,
-work lead, and process agent reserved on this host, Prep can have at most
-three explorers when there are no implementation workers. The normal A/B
-allocation leaves one explorer. Never spawn a lane without a slot grant.
-Give each lane one C-behavior investigation
-at a time, with a stopping condition. Keep concurrent lanes on different
-source behaviors or caller paths. Reassign a finished lane without waiting
-for the others. Lanes do not spawn further agents or implement game fixes.
-Explorers and implementation workers share capacity; one does not imply a
-separate permanent team for the other.
-Spawn `prep-explorer`, or explicitly select `gpt-6-luna` with `high` reasoning
-and this procedure when the new role is not loaded yet.
-Start with fresh child context containing its plan and instruction references;
-reuse the lane for subsequent investigations.
+This section supplies execution requirements for an exploration task claimed
+by a general worker. Queue ownership, priority, branch switching, and rework
+are defined in `.agents/architecture.md`; there are no persistent Prep lanes.
 
-Give each lane a private worktree and recorder installation, disjoint case
-paths, the accepted comparison commit, and its source-based probe plan.
-Use `worker-worktree.mjs` for recorder setup. Start each lane worktree at the
-parent task's base and prefix its case IDs with its unique probe ID.
-Keep scratch and returned artifacts in `.cache/` so the worktree stays clean
-for the next accepted base. Run one command at a time per lane; lanes run
-independently without a shared command cap. Before launch, record
-`recording: true` in the lane's `prep-probe` event. Retain the process handle
-until the command exits, then record `recording: false`.
-When explorers are allocated, keep C commands in their private worktrees
-rather than launching extra recordings from the lead worktree. If no explorer
-slot is granted, the lead performs probes serially in its own private recorder
-installation and retains the same mission, comparison, replay, and evidence
-requirements; do not wait indefinitely for an explorer or exceed the pool.
+The assignment names its batch plan, unique probe/case IDs, source target,
+accepted comparison commit, required C observations, allowed paths, and a
+stopping condition. Work in your own persistent worktree on the assignment
+branch with a private recorder. Keep case paths disjoint. Before recording,
+check setup and task context; keep process handles until commands exit.
+Run one recorder/comparison command at a time in that installation.
 
-Each lane creates its recipe, records the reached C behavior, compares it
-with JavaScript, and returns the result. For a distinct failure, independently
-replay it and trace the first mismatch. For a match, duplicate, or deferred
-target, preserve the evidence and stop that investigation. Follow the
-selection rules for target misses and setup retries.
+Create the recipe, record the reached C behavior, compare with the pinned
+JavaScript commit, and classify the result. Independently replay retained
+failures and trace their first mismatch. A match, duplicate, bounded miss,
+or deferred target is also a completed investigation when its evidence and
+stopping condition are satisfied. Do not implement game fixes in exploration.
 
-Record assignments, blocks, completion and process handles with `prep-probe`
-events in the shared ledger. Include the parent task, batch-linked probe,
-source target and outcome; `worker-state.mjs --help` describes the fields.
-The lead starts a probe; its lane or the lead records subsequent observations.
-Report to the Prep lead, not Main. Keep commands and artifacts in the private
-worktree; return their paths and hashes. A lane never submits a Main delivery.
-When a slot is being reclaimed, finish the current command and probe (or save
-an explicit deferred handoff), return the evidence, and yield before starting
-another probe. The lead reports release to Main before a replacement is started.
+Save recipes, recordings, logs, source findings, hashes, base/comparison
+commits, and remaining blockers in an immutable result packet. Notify Prep
+and complete the queue assignment. Missing evidence becomes a scoped
+follow-up/rework task; it does not silently extend a completed assignment.
+Then claim the next eligible task, which may be implementation or rework.
 
-The lead deduplicates returned causes and assembles one immutable batch
-delivery. Recheck ambiguous evidence; do not repeat every investigation.
-Import only retained case files, with saved proofs, into the lead worktree.
-Finish outstanding probes before submission; defer unfinished investigations
-with their evidence and reuse them in the next batch. Keep unused targets for
-that batch. Follow `.agents/selection.md` for retained cases and delivery size.
+Prep deduplicates causes and imports only retained case files and exact result
+references into its assembly branch. Preserve valid unselected evidence
+outside the manifest. Submit only finished included recordings; pending
+investigations may continue as separate tasks and feed a later batch. Main
+receives one immutable batch deliverable, not separate worker submissions for
+each exploration result. Historical `prep-probe` CLI events remain legacy
+transport, not the general worker claim mechanism.

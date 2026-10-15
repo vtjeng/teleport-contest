@@ -7,6 +7,38 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
+## Migrate the approved unified assignment queue
+
+**Approved behavior.** `.agents/architecture.md` is the authority for one
+queue, sibling Main/Prep/Process leads, three persistent general workers,
+new rework assignments linked to immutable deliverable revisions, and one
+worker worktree with a branch per assignment. This replaces the temporary
+A/B/C versus Prep-lane slot-transfer policy. It is an approved design, not
+an implemented queue or a request to choose another hierarchy.
+
+**Remaining implementation.** The current ledger binds branch/worktree
+ownership to legacy workers, uses fixed probe roles, and keeps task acceptance
+and correction revisions together. Its `unstartedSessions` helper excludes
+investigated sessions; the new priority counts ready, unclaimed implementation
+sessions including investigated work. Implement atomic two-producer enqueue,
+priority/claim/dependency and recovery operations, separate execution and
+deliverable lifecycles, and assignment-branch transitions. Preserve existing
+evidence/acceptance gates and outstanding claims while migrating.
+
+**Dashboard.** Add stable Worker 1..3 identity with assignment-type labels,
+queue count/selection reasons, and linked rework revisions. Preserve legacy
+role history and public/private field separation. Tests must cover concurrent
+claims, blocked and stale evidence, 4/5-session priority boundaries, shared
+causes, worker reuse across task types/branches, correction handoff to another
+worker, and completion without acceptance or invented utilization.
+
+**Boundary.** Do not run the purported unified loop or add a second private
+dispatch list until the migration is supported and tested. The docs/config
+consolidation intentionally does not perform that protocol or dashboard
+rewrite. Record concrete migration blockers; no further hierarchy or backend
+preference is needed from the user unless implementation reveals a tradeoff
+that affects the approved behavior.
+
 ## Assess asynchronous GitHub validation
 
 **Integration-speed worklist.** The user requested completion of the whole

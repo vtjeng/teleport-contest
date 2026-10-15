@@ -1,7 +1,13 @@
 ---
 name: span-worker
-description: Persistent NetHack implementation worker in an assigned worktree. Completes one implementation task, notifies the main orchestrator, then selects independent work under standing permission. Runs no formal review pass.
+description: Source implementation and evidence procedure for a general worker assigned an implementation or implementation-rework task.
 ---
+
+This is an assignment-specific guide, not a permanent worker role. Start at
+`.claude/agents/queue-worker.md` and `.agents/architecture.md`. Their queue,
+worktree, and rework rules supersede legacy worker-selection/transport
+examples below. Do not treat existing `assign`/`implement` commands as proof
+that the unified queue is implemented.
 
 ## Read before you start
 
@@ -24,9 +30,9 @@ Read these sources:
 - `.agents/selection.md`: source scope, reservations and seed continuation
 
 For an unresolved session, start from its saved queue entry and findings;
-prepare the source context after diagnosis. Use the orchestrator's selected
-mismatch entry for the initial work and your
-source-traced selection under `.agents/selection.md` for subsequent tasks.
+prepare the source context after diagnosis. Use the claimed mismatch entry
+and `.agents/selection.md` to define source scope within this assignment;
+subsequent tasks come from the same shared queue.
 Do not refresh the global queue or roadmap merely to rediscover the
 assignment. Before any write, verify `pwd`, `git rev-parse --show-toplevel`,
 and the branch against the assignment. Use its absolute worktree path for
@@ -44,15 +50,10 @@ a missing callee in this task when the C uses its return value; when the C
 discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 "Port whole source units and wire their callers", states.
 
-Select subsequent work under `.agents/selection.md`, "Seed continuation".
-Your thread is allocated from the shared pool in `.agents/loop.md`. If Main
-requests its return, finish the current task and owned commands, or explicitly
-park with a complete handoff, then yield without claiming the next task.
-Preserve the role's worktree, immutable deliveries, evidence, and correction
-context. A/B/C are implementation role names, not permanently reserved slots.
-Claim your next scope and submit deliveries through `worker-state.mjs` using
-the procedure below. Leave central goal-selection commands,
-integration, acceptance and publication to the orchestrator.
+Finish this assignment and preserve its immutable result, then claim the next
+eligible queue task. Keep the same agent and private worktree across task
+types; use the assignment branch/base and stopping condition. Leave central
+goal records, integration, acceptance, and publication to Main.
 Do not open `.agents/review.md`; formal reviews belong to the orchestrator.
 This restriction overrides the AGENTS.md reading row that names it.
 
@@ -91,15 +92,19 @@ holdout is outside this workspace.
 
 Kill only a process you started; other agents may be active in this tree
 and `ps` cannot distinguish their processes from yours. Wait for owned
-commands using the waiting rules in the shared instructions' "Operational
-Workflow" section and the harness's process handles. Use a result file for
+commands using the harness's process handles and the ownership rules in
+`.agents/architecture.md`. Use a result file for
 completion only when no process handle or notification is available.
 
 Never amend or force-push a commit that is already on `origin/main`, including
 with `--force-with-lease`. To correct a commit message or a trailer after
 pushing, add a follow-up commit that states the correction.
 
-## Claiming and submitting work
+## Implementation evidence and legacy transport
+
+The commands in this section describe the existing implementation transport.
+Use them only within the supported migration boundary in
+`.agents/architecture.md`; they are not an independent dispatch queue.
 
 Use the orchestrator's absolute shared-ledger path with
 `scripts/worker-state.mjs --file`. Read `--help` for event fields and command
@@ -126,15 +131,15 @@ record an `implement` event with its goal ID, complete source reservations,
 and allowed paths, retaining the session reservation and investigation paths.
 This atomically claims source scope without waiting for a central goal or an
 acknowledgement. If another worker owns the cause, send it the findings and
-report path, park your investigation with the reason, and claim independent
-work. Ask the orchestrator only when ownership or a shared contract needs a
+report path, block or supersede this assignment with the reason, and use the
+shared claim policy for another eligible task. Ask the orchestrator only when ownership or a shared contract needs a
 decision. Commit the investigation separately before the code so the
 orchestrator can preserve the diagnosis separately from the fix; include both in the delivery.
 
 For an already diagnosed task, claim it with an `assign` event through
 `event --json`.
-The command checks ownership and records the claim atomically. If another
-worker owns the scope, choose independent work. Reserve the selected session,
+The command checks legacy ownership atomically. If another worker owns the
+scope, report the dependency to Main; do not privately select a new task. Reserve the selected session,
 functions and shared-state contracts you need; do not reserve whole files
 indefinitely.
 Ask the orchestrator before changing another worker's reserved function or
@@ -147,7 +152,7 @@ Fix a rejected report and submit a new commit.
 Preserve each delivery's context and evidence separately. Include exact base
 and delivery commits, dependencies, changed scope, check results, source
 evidence, recordings and entry points, and unfinished work. Follow
-`.agents/loop.md`, "Notifications". Submit before choosing the next task.
+`.agents/loop.md`, "Notifications". Save the result before claiming another task.
 If notification fails, the saved submission still stands. Report an unfinished
 task's progress or blocker without calling it ready.
 
@@ -162,38 +167,19 @@ and blockers without certifying whole functions or requiring a second source
 review by the orchestrator.
 
 Receipt, acceptance, and wakeups follow `.agents/loop.md`, "Notifications".
-Submission frees you to start independent work while your pool allocation
-remains, but its reservations remain
-until acceptance or parking.
-Acceptance of an earlier task leaves your current task's reservations intact.
-Acceptance requires a passing combined checkpoint, but does not mean the work
-has been pushed or that publication CI has finished.
+Completing the execution task does not accept its deliverable or release
+pending-delivery source reservations. Corrections are new queued rework tasks
+linked to the rejected revision under `.agents/architecture.md`; another
+worker can own them. Preserve original commits and failed evidence. A new
+claim supplies the required base and assignment branch; never amend or merge
+over an immutable submitted revision to prepare for unrelated work.
 
-If corrections are requested while you are working on another task, finish
-or deliberately park that task before making the correction. Use new commits
-and identify affected dependent work; never amend a submitted commit. Merge
-the commit returned by `worker-state.mjs accepted-main --file <shared-ledger>`
-into your worktree at clean task boundaries before selecting new work,
-preserving pending work and history. Do not merge an unaccepted Main HEAD.
+## Source assistance
 
-## Subagents
-
-Use `rg` to find a symbol whose name you know. The orchestrator owns concurrent
-caller and dependency surveys. When the handoff delegates one, continue the
-complete source comparison and implementation without repeating that broad
-survey. Verify every returned pointer by opening the file before relying on it.
-When no survey is delegated, trace production callers yourself as usual. Do not
-pause the task to obtain subagent access or ask the orchestrator to restart you.
-
-For other work, spawn a subagent only when a callable subagent mechanism is
-available, Main has granted a shared-pool slot, and the search is broader:
-the name is uncertain or results need
-classification against a rubric. Use the project's subagent model setting.
-
-A subagent's paraphrase of the C source can invisibly omit branches, so read
-the C you port yourself.
-
-Pass every restriction in this document to each subagent you spawn.
+Workers do not spawn subagents. Propose a bounded survey or follow-up through
+Main or Prep using the same queue. Continue source comparison within your
+current scope and verify returned pointers by reading the source yourself;
+a summary is not a substitute for the complete C functions being ported.
 
 ## Completion conditions
 
@@ -234,14 +220,11 @@ Pass every restriction in this document to each subagent you spawn.
   every command you started has finished or has been handed off with its handle.
   Include the exact base and delivery SHAs; never amend a submitted snapshot.
 
-Send `READY_TO_MERGE` as "Claiming and submitting work" specifies, or
-report a concrete blocker promptly. This handoff does not end your worker
-assignment. Select and announce the next independent scope using the standing
-continuation procedure; do not wait for fresh permission, acknowledgement,
-another worker, central validation, integration, or CI. Ask about conflicting
-ownership or shared-contract changes while continuing independent work.
-If asked to correct a delivery, commit the correction separately and identify
-affected dependent work.
+Notify Main with the saved implementation result packet, or report a concrete
+blocker. Complete the execution assignment only after preserving evidence and
+owned process outcomes; the deliverable still awaits acceptance. Claim the
+next eligible shared task without waiting for acceptance or another worker.
+Any correction is a linked rework task producing a new immutable revision.
 
 A final integration runner, fixture, or test may remain uncommitted while
 changing. Commit production behavior and focused tests as soon as they are
@@ -249,8 +232,8 @@ done, and commit integration artifacts once they stabilize.
 
 ## What to report
 
-Follow `.agents/loop.md`, "Notifications", and "Claiming and submitting work"
-above for delivery messages. Cover:
+Follow `.agents/loop.md`, "Notifications", and the implementation evidence
+procedure above for delivery messages. Cover:
 
 - Base and delivery commits, exact delivery commit list, dependency SHAs,
   changed paths/functions, focused/lint/fresh-case commands and results,

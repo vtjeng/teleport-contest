@@ -1,7 +1,12 @@
 # .cache/
 
 Context passed between agents and caches the tools keep. Replay caches and
-current context files are replaced by their producers. Worker ledgers retain
+assignment context are not authoritative shared queue state. The target
+storage/retention rules and tooling transition are in `.agents/architecture.md`.
+Do not keep a submitted task's only evidence in scratch that will be replaced
+when its worker changes assignment branches.
+
+Replay caches and current context files are replaced by their producers. Worker ledgers retain
 events and delivery packets retain immutable evidence; use `worker-state.mjs`
 to update them. Retained checkpoint evidence lives outside worktrees in the
 shared Git directory; `.agents/validation.md`, "Routine validation", describes

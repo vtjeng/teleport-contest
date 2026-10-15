@@ -4,6 +4,10 @@ Read this file before deciding whether a correctness review is warranted, and
 before running or recording one. Only the orchestrator does this work.
 `.agents/loop.md` defines the loop that may call for a review.
 `.agents/glossary.md` defines the terms this file uses.
+Review capacity and checkout ownership follow `.agents/architecture.md`;
+reviewers have no extra agent quota. Its tooling transition also applies to
+queued follow-ups. The explicit approval requirements for formal multi-agent
+audits below remain in force.
 
 A **formal review pass** reviews a frozen committed range, or a named set of
 functions at a frozen commit, for one of four concerns: correctness, clarity,

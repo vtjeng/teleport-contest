@@ -1,8 +1,8 @@
 # Continuous operation
 
-This guide is for the work lead (the dashboard's Main coordinator). Use it when the user asks for
-continuous implementation, within the limits they set. Worker procedures are
-in `.claude/agents/span-worker.md`.
+This guide is for Main, the work lead. Use it when the user asks for
+continuous implementation, within the limits they set. Common worker
+procedures are in `.claude/agents/queue-worker.md`.
 
 ## Operating mode
 
@@ -15,153 +15,46 @@ next synthetic batch". Follow
 support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
 
-Allocate workers from the shared agent pool below, each editing role in its
-own Git worktree. A/B/C implement source tasks; an allocated Prep lead owns
-synthetic batches. Use the role configurations in `.codex/config.toml`;
-implementation and exploration workers default to `gpt-6-luna`, while the
-Prep lead uses its configured Sol role. Workers test and submit commits;
-you integrate them into local `main`, run combined checks, accept, and
-publish. A worker may start independent work after submitting a task without
-waiting for a merge or for another worker, unless its slot is being reassigned.
+Agent hierarchy, the single queue, claim-time priority, rework, worktrees,
+and dashboard identities are defined once in `.agents/architecture.md`.
+Read its tooling transition before starting or migrating a loop. Workers
+follow `.claude/agents/queue-worker.md` plus the guide for their assignment.
 
-## Shared agent pool
+## Queue coordination
 
-The verified cloud limit is seven total agents, including the conversation
-root and every nested agent. The root stays available for user conversation
-and delegates this loop to the work lead. A sibling process agent observes
-progress and prepares process proposals in its own worktree. It reports to
-the root; it does not change live assignments, central records, or main.
-The work lead alone owns integration and applies approved process changes
-between tasks or validation runs. Keep these coordination agents out of the
-implementation-worker ledger; the work lead is its sole coordinator.
-
-Reserve the root, work lead, and process agent, leaving four shared execution
-slots. Count a Prep lead, each explorer, implementation worker, reviewer, and
-survey helper against the same pool regardless of parent. Prep has historically
-been the bottleneck: when fewer than five eligible sessions remain unstarted,
-prefer a Prep lead and three explorers as slots become available. When useful fixes are
-available, use A/B plus Prep and one explorer, or A plus Prep and two explorers.
-A/B/C plus Prep with no explorer is also valid when implementation dominates.
-An allocated Prep lead can record probes itself when no explorer is available.
-Do not spawn explorers in addition to a full implementation allocation.
-If the process agent is explicitly released, its slot can join the pool;
-restore the reservation before restarting it. A lower reported host limit
-always takes precedence. Configuration does not override the host limit.
-The ledger still permits at most four live registered workers; any extra
-granted slot is for a probe or helper, not a fifth registered worker.
-
-The work lead grants slots before any spawn, including nested spawns. Prep
-requests a specific explorer allocation and never expands it independently.
-Record the current allocation and intended next roles in the work lead's
-handoff notes. Keep the ledger's existing A/B/C, Prep, and Prep-1..Prep-6
-role identities; they describe task ownership, not permanently reserved
-threads. The dashboard continues to show those roles; the conversation and
-process agents do not acquire worker rows merely to reserve slots.
-
-Rebalance at deliveries, completed probes, validation boundaries, or concrete
-blockers. Before granting a newly available slot, run `worker-state.mjs next
---queue <latest-saved-combined-queue.json>` and read
-`workerWork.unstartedSessions` and `workerWork.allocation`. These count distinct
-eligible, unstarted sessions using canonical corpus/batch identities and the
-shared ledger. A session already claimed for investigation
-or implementation is started, including parked work and submitted deliveries;
-an existing valid investigation also means work has started. Exclude blocked
-or reserved sessions. Count sessions, not source groups, goals, or workers.
-Missing or stale queue evidence makes the count unknown, not zero; refresh it
-before using the threshold.
-
-While this count is below five (zero through four), prefer assigning free or
-yielded slots to Prep rather than starting another implementation worker:
-allocate the Prep lead first, then explorers. Apply this to spawning and
-retasking existing threads. Tell a finishing A/B worker to yield before it
-claims another task when its slot is needed for Prep. Five or more unstarted
-sessions permits additional implementation workers, subject to source
-independence and existing admission priorities; it does not require them.
-This allocation preference does not interrupt active tasks or commands,
-remove correction ownership, or supersede regression repairs. Record the
-count and allocation reason in the handoff notes and public yield summary
-(for example, "Prep priority: 3 unstarted sessions; threshold 5"). Prep uses
-Main's allocation and does not inspect implementation assignments itself.
-Announce a pending reallocation before the worker selects another task.
-In particular, A/B can yield their slots to Prep explorers after submitting
-or deliberately parking their current tasks, then resume implementation when
-the batch backlog supplies useful independent work. Prep cannot reclaim a
-slot from an implementation worker itself; the work lead schedules the handoff.
-Workers continue independently within their current allocation, but yield
-at the next clean boundary when requested; do not interrupt a live command
-or a claimed task just to change the mix.
-
-Before releasing a slot, collect owned command results and save the delivery
-or an explicit parked handoff. Finish Prep probes before releasing their
-lead. Preserve worktrees, submitted commits, evidence, reservations, and
-correction ownership. For a registered worker, use supported `turn` and
-`observe` events to record no live processes and a null handle once release
-is confirmed. Do not rewrite ledger history or reuse its role worktree for
-another role. End/release the old agent through the available harness and
-confirm capacity before starting its replacement; an idle turn alone is not
-proof of a free slot. Alternatively, explicitly retask a finished agent within
-its existing slot: end the old assignment and give it a fresh role packet and
-the new role's worktree. Do not let two parents dispatch that slot; Main owns
-implementation assignments, and Prep owns probes only while its grant applies.
-Resume a retained role worktree through setup and the normal connection
-handshake. Give either a reused agent or replacement fresh role instructions,
-scope, base, evidence, and process ownership. Outstanding deliveries
-remain valid and correction requests must be routed to a resumed owner.
-When retasking a nested explorer as an implementation worker, name the work
-lead as its message recipient explicitly; native completion may still notify
-the original Prep parent. Prep forwards such a notification to Main and does
-not dispatch the reassigned thread.
-
-Dashboard rows follow roles, not physical threads. Keep A/B/C history when
-their slots move to Prep-1..Prep-6. Record an idle turn with a public reason
-such as "Slot reassigned to Prep exploration", then `observe` with a null
-handle and no processes; start the explorer with a new `prep-probe` event in
-its separate role worktree. Mark a probe done before returning its thread to
-an implementation role and reconnect that role through `observe` and the
-normal handshake. Do not rename old events, keep released workers apparently
-live, or publish private handles. Parked tasks and queued deliveries remain in
-task history, while released roles stop accumulating agent utilization. The
-host limit is enforced by the harness; the ledger is not a global slot allocator.
+Main dispatches the three persistent workers. Prep is Main's sibling and
+adds exploration tasks; it does not own an explorer team. Main adds admitted
+implementation work and validation rework. Workers take the next eligible
+assignment from the shared policy instead of selecting a private next goal.
+Source-selection criteria remain in `.agents/selection.md`; batch acceptance
+and admission remain in `.agents/validation.md`. Process improvements reach
+Main as approved changes, not instructions to interrupt active workers.
 
 ## Worker scheduling
 
-When starting or resuming, find existing workers and validation processes.
-Reuse live work and keep each role's worktree across deliveries. Replace a
-worker for recovery or a shared-pool handoff only after checking its processes.
-Reuse unfinished code only when its purpose, scope, and remaining checks are
-clear. Otherwise preserve a recoverable copy, remove the abandoned task from
-the queue, and start from validated main.
+When starting or resuming, find existing agents, claims, and validation
+processes. Reuse the three workers and their worktrees across assignment
+types; replacements are for recovery. Preserve unfinished work, evidence,
+and exact submitted revisions before a recovery or branch switch.
 
-Give each worker a session to investigate and implement, a known source task,
-or one challenge preparation task. For a C file port, choose whole functions in a
-selected C-order range under `.agents/selection.md`; it needs no separate span.
-For a known source task, after queuing the goal in the coordinator checkout, run
-`node scripts/goal-log.mjs task-context --goal <id>` there and copy its
-untracked `.cache/task-context.json` into the assigned worktree. Record the
-task ID, absolute worktree path, branch, base commit,
-allowed edits, dependencies, and reserved functions or shared interfaces in
-the ledger assignment. A preparation task instead names its future batch and
-allowed `challenges/cases/<batch>/` paths. Implementation
-workers can claim independent work under `.agents/selection.md`, “Seed continuation”,
-without waiting for you to create a goal. You create the goal during integration.
-For an unresolved session, provide its saved queue entry and findings instead
-of a source task context.
-The worker claims the session, investigates it, then claims its source scope
-before editing code, following its guide.
+A queue claim provides the worker's assignment branch, base, dependencies,
+write set, reservations, and result recipient. Prepare a source context for
+implementation or a bounded probe plan for exploration; rework also names
+its rejected deliverable revision. Workers still investigate unresolved
+sessions and claim source scope before editing, but do not bypass queue
+priority to start their next assignment. Main records implementation goals
+centrally as required at integration.
 
-Check each new worktree before dispatch:
+Use `worker-worktree.mjs prepare --branch <assigned-branch>` for supported
+worktree setup and `check` to validate retained state. Missing prerequisites,
+including a worktree-local recorder, must be fixed before execution.
+The existing `connect`/`connected`, `assign`, and `implement` events are
+legacy transport examples, not a unified queue claim API. Implement and test
+the branch/identity transition before using them for the new worker model.
 
-1. Run `node scripts/worker-worktree.mjs prepare --branch <assigned-branch>`.
-   Fix setup failures, including a missing worktree-local recorder.
-2. Give the worker the absolute path to the shared `.cache/worker-state.json`.
-   Have it record `connect` from its worktree. Acknowledge the connection
-   yourself.
-3. Confirm that it has claimed its task by recording an `assign` event
-   through `worker-state.mjs event --json` before it edits. Workers follow the
-   claim and directory checks in their guide.
-
-Use `scripts/worker-state.mjs` to record changes as they happen. This shared
-task ledger records who owns work, submitted commits, and acceptance. Use
+For existing legacy runs, use `scripts/worker-state.mjs` to record changes
+as they happen. Its examples below remain subject to the architecture's
+migration boundary. This shared legacy ledger records who owns work, submitted commits, and acceptance. Use
 `--help` for its commands; do not edit the JSON by hand. Workers record their
 connections, turns, tasks, scope changes, and submissions. You record receipt,
 integration, validation, acceptance, and publication. Keep accepted
@@ -181,7 +74,8 @@ the missing dependency or next action and its owner. Keep private paths,
 process handles, and internal notes in `reason`, which is not published.
 Update the turn when work resumes. The dashboard distinguishes these reported
 waits from unrecorded time; neither assignment nor a blank interval measures
-CPU use. Include Prep in the shared ledger and snapshot like the other workers.
+CPU use. Track Prep planning and assembly separately from worker execution;
+legacy snapshots retain their existing role records.
 
 Use `next` for routine coordination, including pending deliveries, parked
 tasks, and ready batches awaiting admission. Use `status` when the full ownership
@@ -198,19 +92,18 @@ returned state into tracked records or progress messages.
 You own `main`, `GOALS.json`, `SCORE.tsv`, quality and review records, aggregate
 checks, batch admission, and publication. Implementation workers own their
 code, claimed investigation reports, focused tests, recipes, and recordings.
-A preparation worker owns its case
-recipes, C recordings, and prepared manifest in delivery evidence. Apply
+Exploration workers own their case evidence; Prep owns the assembled batch
+and prepared manifest in delivery evidence. Apply
 workers' proposed `QUALITY.json` changes yourself. Do not merge worker copies
 of central records.
 
-While Prep has an allocation, keep it working on one batch at a time under
-`.agents/selection.md`. Unless its slot is being reassigned, it starts the next batch after submission without
+Prep plans and assembles one active batch at a time under
+`.agents/selection.md`. It can start the next plan after submission without
 waiting for acceptance or admission. Reserve each batch identity in the
 ledger and retain each prepared manifest in immutable delivery evidence.
-Handle corrections and parked preparation before starting a later batch.
-At a clean task boundary, merge accepted main without changing submitted
-commits. Claim the next batch at that HEAD so its delivery contains only the
-new case paths; submission records dependencies on pending ancestor deliveries.
+Prioritize corrections through the shared queue. Start each batch branch from
+its specified accepted base so its delivery contains only the new case paths;
+retain dependencies on any pending ancestor results without modifying them.
 
 Apply the integration and admission priority in `.agents/selection.md` at each
 safe integration boundary. Preserve validation and baseline requirements.
@@ -218,22 +111,23 @@ Continue assigning fixes from older batches.
 The preparation worker does not monitor implementation assignments. If it
 reports a search blocker, use its saved attempts and source findings to redirect
 the search. Follow `.agents/selection.md` for delivery size and retained cases,
-and `.claude/agents/challenge-prep-worker.md` for exploration lanes. Keep missed
+and `.claude/agents/challenge-prep-worker.md` for queued exploration. Keep missed
 and deferred targets in the handoff; the orchestrator owns admission.
 
 Handle worker messages and finished turns under "Notifications" below.
 Do not create routine nested implementation workers.
 
-If a worker is blocked, assign a worker to remove the obstacle unless someone
-already owns that work. Resolve merge conflicts and shared-code ownership
+If a worker is blocked, enqueue a scoped task to remove the obstacle unless
+someone already owns that work; use normal priority and dependency checks. Resolve merge conflicts and shared-code ownership
 yourself. Keep each shared dependency with one owner. When waiting is
 unavoidable, record what is needed and who will provide it. Follow
 "Notifications" when the blocker clears.
 
 ## Notifications
 
-Workers send one `READY_TO_MERGE` message after saving a submission, with its
-packet reference and next task or blocker. Main records receipt and acceptance
+Workers notify the assignment's recipient after saving a result. Exploration
+results go to Prep; implementation results and batch submissions reach Main
+as `READY_TO_MERGE` with their immutable packet reference. Main records receipt and acceptance
 in the ledger; it does not send routine `QUEUED_FOR_MERGE` or `ACCEPTED`
 messages. Workers read `accepted-main` at clean task boundaries.
 
@@ -250,8 +144,11 @@ actionable wakeup before publication or the next integration; do not wait for
 the delivery queue to drain. Refresh the saved queue when a batch wakeup has
 `queueReady: false` before asking the listed workers to recheck.
 
-Send `CHANGES_REQUIRED` with specific findings to the responsible worker.
-Corrections wait until it finishes or deliberately parks its current task.
+When a deliverable needs correction, enqueue a rework task with the exact
+revision and findings under `.agents/architecture.md`. Prefer the original
+worker when available; another worker can claim it from the saved packet.
+Do not interrupt its current assignment. `CHANGES_REQUIRED` may notify the
+producer, but it is not a private correction assignment outside the queue.
 Do not broadcast acceptance or request routine HEAD reports. When no eligible
 work remains, workers record an idle or blocked turn with the dependency and
 owner, then end the turn rather than rechecking an unchanged queue. Recover
@@ -292,9 +189,10 @@ Recheck later work affected by a correction. Other workers continue.
 
 Keep a task's reservations until it is accepted or parked. If a worker has
 already started a second task, accepting its first task releases only the
-first task's reservations. Workers read the latest accepted Main commit with
-`worker-state.mjs accepted-main --file <shared-ledger>` and merge it at a clean
-task boundary before selecting new work. Follow "Notifications" for wakeups.
+first task's reservations. Workers use the accepted Main reference returned by
+`worker-state.mjs accepted-main --file <shared-ledger>` as an ordinary task's
+base. Switch cleanly to its assignment branch under the architecture's
+worktree rules; do not merge into or amend an immutable submitted branch. Follow "Notifications" for wakeups.
 Preserve pending work and submitted commits. Reuse accepted validation after a
 clean merge; run focused checks only for conflict resolutions or pending changes
 combined with accepted code that have not been tested together. Never rebase
@@ -446,19 +344,11 @@ the checks required by `.agents/validation.md`.
 
 ## Worker support
 
-Prep's exploration lanes are a separate exception to the read-only helper
-rules below. Follow `.claude/agents/challenge-prep-worker.md`,
-"Exploration lanes".
-
-Use read-only helpers when they can answer a specific question while an
-implementation worker continues. Use one for a cross-file survey, or up to
-two to test different explanations of a difficult mismatch, only within
-granted shared-pool slots. No helper has an extra capacity allowance. Give each a
-narrow source or artifact scope and a stopping condition. Helpers do not
-edit, enumerate session corpora, record games, or run full validation or
-scoring. Forward useful findings promptly; the worker verifies them and
-keeps implementation ownership. Stop an investigation when its explanation
-is falsified or the cause is resolved.
+Bounded source surveys, exploration, and validation follow-ups are tasks
+for the same persistent workers under `.agents/architecture.md`. They have
+no additional agent quota. Forward useful findings to the assignment's
+recipient; the implementation worker still verifies source pointers and owns
+its fix. Do not start nested helpers or bypass claim priority for a survey.
 
 For a worker expected to be active, check its transcript and process handles
 after ten minutes without an update. New activity or an active operation

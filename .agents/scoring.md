@@ -111,8 +111,9 @@ baseline explicitly for a diagnostic comparison. Normal acceptance performs
 this comparison itself; no separate review command is required. The command does not
 replay games or record scores. Dashboard builds read saved evidence; they do not run challenge
 evaluations. A failed or older measurement retains its failure status or
-measured commit age. Synthetic failures have their own implementation queue;
-they never enter the fixed mismatch queue or its score denominator. Publish
+measured commit age. Synthetic failures retain their own diagnostic corpus and never enter the
+fixed mismatch list or its score denominator. Both diagnostic corpora feed
+the single assignment queue under `.agents/architecture.md`. Publish
 batch identity, current investigations, and remaining synthetic screens on the
 dashboard so an empty fixed queue does not imply that the loop is finished.
 Keep earlier batch results visible after admitting another batch.

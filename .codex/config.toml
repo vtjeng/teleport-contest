@@ -5,9 +5,13 @@ default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "high"
 
 [agents.prep]
-description = "Preparation lead for independent C challenge batches, allocated from the shared agent pool."
+description = "Prep lead: plans queued exploration and assembles batches as Main's sibling."
 config_file = "agents/prep.toml"
 
+[agents.worker]
+description = "Persistent general worker for queued exploration, implementation, and rework."
+config_file = "agents/worker.toml"
+
 [agents.prep-explorer]
-description = "Explore one independent C behavior for the Prep lead; return a classified probe."
-config_file = "agents/prep-explorer.toml"
+description = "Legacy role-name alias for worker; use worker for new general-worker agents."
+config_file = "agents/worker.toml"

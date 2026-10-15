@@ -1,7 +1,15 @@
 # Glossary
 
-A **task** is assigned to one worker. It is either an **implementation task** or
-a **challenge preparation task**.
+Agent hierarchy, scheduling, worktrees, and lifecycle are defined in
+`.agents/architecture.md`. A **task** is one queued execution assignment;
+its type is exploration, implementation, or rework. A **deliverable** is the
+versioned result whose acceptance is tracked independently. Completed tasks
+remain completed when their deliverables need correction.
+
+An **exploration task** answers one bounded source-based question and returns
+reproducible evidence to Prep. A **rework task** corrects a named deliverable
+revision, carries findings and required checks, and produces a new revision.
+It can be assigned to another worker; it does not reopen the original task.
 
 An implementation task can be one of the following:
 
@@ -18,8 +26,10 @@ verified functions, and every Lua program with its completion evidence.
 Goals recorded before 2026-09-05 were boundary ports with a forecast and
 slices; `GOALS.json` keeps them as history.
 
-A **challenge preparation task** creates a future synthetic batch from C
-source, recipes, recordings, and independent C replays. Local JavaScript
+A **batch deliverable** assembles a future synthetic batch from C source,
+recipes, recordings, and independent C replays returned by exploration tasks.
+The legacy ledger calls this a **challenge preparation task**; that historical
+transport identity is not an additional general-worker task queue. Local JavaScript
 comparisons identify distinct source-traced first mismatch behaviors. The
 prepared manifest follows `.agents/selection.md` for retained cases and delivery
 size. Recipes, C recordings, and search notes for redundant probes remain
@@ -48,8 +58,9 @@ mismatch. `.agents/divergence.md` defines its workflow.
 
 Historical **spans** and older **slices** remain readable in `GOALS.json` and
 `SCORE.tsv`. New implementation tasks define their complete scope up front, so
-workers do not plan or close a separate span. A task may need correction
-deliveries before acceptance; they remain part of the same task.
+workers do not plan or close a separate span. A deliverable may need correction revisions before acceptance; the unified
+queue assigns each correction as a linked rework task. Legacy ledger records
+may retain those revisions under their original task identity.
 
 A **gap** is a call to an unported C function that the port records with
 `note_unported()` and skips. `AGENTS.md`, "Port whole source units and wire their callers",
@@ -60,9 +71,9 @@ its recording: on the random-number log, on the screen, or at a refusal the
 port raised. A defect in implemented behavior is a **divergence**; missing or
 partial behavior needs a C or Lua source port. The **mismatch queue** lists
 each fixed-workload session's first mismatch and its source owner when known;
-`node scripts/mismatch-queue.mjs` prints it. The synthetic work queue is
-separate: it selects admitted challenge cases from saved per-batch evaluations
-under `.agents/selection.md`, without changing the fixed workload's denominator.
+`node scripts/mismatch-queue.mjs` prints it. Synthetic diagnostic entries come from saved per-batch evaluations under
+`.agents/selection.md`. Fixed and synthetic inputs retain their provenance and
+score denominators, but both feed the same assignment queue.
 
 A **recipe** is a session file holding replay inputs only: seed, date and
 time, options, and keystrokes, with no recorded steps. A **recording** is a
@@ -75,14 +86,13 @@ form the **recordings corpus** under `recordings/` and replay in
 A **coherent implementation chunk** is one reviewable production change with
 its focused tests, and may be one of several commits inside a task.
 
-A worker's current task is **in progress** from initial assignment or announced
-selection until handoff or an explicit block, as the runtime ledger in
-`.agents/loop.md` records. The central `GOALS.json` open/queued states describe
-integration and its backlog, not all concurrent worker activity; opening and
-closing remain serialized. A worker persists across task deliveries in its
-assigned worktree. A source task closes when its delivery is accepted, not
-when every source unit is certified. A **parked** goal preserves unfinished work while a
-higher-priority blocker is addressed.
+A worker's current queue task is **claimed** until it is completed, blocked,
+or superseded through the supported ownership protocol. `GOALS.json` records
+central integration and accepted implementation outcomes, not every queue
+assignment. A persistent worker keeps its worktree across task types and uses
+a branch per assignment. Acceptance closes a deliverable's integration goal;
+it does not certify every source unit. A **parked** goal or blocked task
+preserves unfinished work and identifies what is needed to resume it.
 
 A **superseded** goal is a retired plan whose work belongs to another named
 goal. It retains its history and evidence but is neither pending nor completed

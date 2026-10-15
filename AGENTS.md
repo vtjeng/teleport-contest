@@ -13,8 +13,8 @@ every valid seed, date and time, set of options, and input sequence.
   produce.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
   goal being integrated and the goals queued after it
-  (`node scripts/goal-log.mjs --current`). Runtime worker assignments are
-  described in `.agents/loop.md`, "Worker scheduling".
+  (`node scripts/goal-log.mjs --current`). Agent hierarchy and queue/worktree ownership are defined in
+  `.agents/architecture.md`; `.agents/loop.md` covers Main's integration loop.
   `node scripts/goal-log.mjs roadmap` lists C declarations separately from
   verified functions, and every Lua program with its completion evidence.
 
@@ -66,39 +66,30 @@ orchestrator.
 ## Read the instructions for your task
 
 Before starting work, find every matching row below and read every listed file.
-Follow all instructions in those files. A **task** is assigned to one worker.
-An **implementation task** is a C **file port**, a **Lua port**, or a
+Follow all instructions in those files. A queue **task** is one execution
+assignment for a worker. A deliverable's acceptance lifecycle is separate; `.agents/architecture.md` defines exploration,
+implementation, and rework assignments. An **implementation task** is a C **file port**, a **Lua port**, or a
 **divergence fix**. A file port implements whole C functions in its selected
 range; a Lua port implements a whole `dat/*.lua` program; a divergence fix
 repairs a source-traced defect. `GOALS.json` records implementation tasks as
 **goals** for historical continuity. New implementation tasks define their
 complete source scope before code edits start and do not require separate span
 selection or closure. Existing spans and slices remain historical records. A
-**challenge preparation task** creates the next batch's C recipes and
-recordings without admitting or scoring it.
+**challenge preparation task** in the legacy ledger represents a batch
+assembled from exploration results, without admission or scoring; see the
+architecture's separate execution-task and deliverable lifecycles.
 
-The conversation coordinator delegates the implementation loop to one work
-lead, which occupies the dashboard's Main role. A sibling process agent
-investigates process changes and reports proposals to the conversation
-coordinator; only the work lead integrates approved changes at safe boundaries.
-The host allows seven total agents across all nesting levels. Reserve those
-three coordination roles and share the remaining four slots between
-implementation workers, a Prep lead, Prep explorers, and temporary helpers.
-These are allocations from one pool, not separate quotas. Each editing role
-uses its own Git worktree. A/B/C identify implementation roles; Prep owns a
-batch only while allocated, and its explorers do not submit directly to Main.
-Reallocate slots at task boundaries under `.agents/loop.md`, "Shared agent
-pool"; do not start a permanent team for every role.
-Workers notify the orchestrator when a task is ready to merge; only the
-orchestrator integrates, runs combined validation, admits batches, and
-publishes. Implementation workers own a selected session's investigation through
-delivery, claiming the session before diagnosis and its source scope before code
-edits. Workers select independent next work under the standing permission
-in `.agents/loop.md`, which defines scheduling and merge requests.
+Read `.agents/architecture.md` for the single prioritized queue, sibling
+Main/Prep/Process leads, three persistent general workers, rework, and
+worktrees. That file also identifies the current tooling migration boundary;
+these instructions do not assert that the unified queue is implemented.
+`.agents/loop.md` owns Main's integration and publication procedures;
+`.claude/agents/queue-worker.md` is the common worker entry point.
 
 | Before you... | Read... |
 | --- | --- |
-| Run or resume the implementation loop | `.agents/loop.md` |
+| Coordinate agents, claim work, or change assignment type | `.agents/architecture.md` and `.claude/agents/queue-worker.md` |
+| Run or resume the implementation loop | `.agents/architecture.md` and `.agents/loop.md` |
 | Choose the next implementation task | `.agents/selection.md` |
 | Generate or admit a new synthetic local holdout batch | `.agents/selection.md`, `.agents/validation.md`, and `.agents/scoring.md` |
 | Implement game behavior | `.agents/glossary.md` and `.agents/validation.md` |

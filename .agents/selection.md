@@ -11,8 +11,9 @@ to repair a regression may precede it; record that dependency in the selection
 reason. Otherwise choose an independently assignable source task from unmatched
 synthetic local holdout cases in the latest valid saved evaluations, across
 every admitted batch.
-`.agents/scoring.md` defines evaluation freshness and comparison. Workers use
-the saved selected queue and the seed-continuation procedure below.
+`.agents/scoring.md` defines evaluation freshness and comparison. The diagnostic mismatch lists feed the one assignment queue described in
+`.agents/architecture.md`. Source criteria below do not override its claim-time
+priority; seed continuity is a tie-breaker, not a second dispatch policy.
 
 The orchestrator runs `node scripts/mismatch-queue.mjs --work --json` and
 uses its sessions and investigation records for selection. Queue order is a
@@ -118,21 +119,18 @@ Whole-source completion and caller evidence remain required for every port.
 
 ## Generating the next synthetic batch
 
-An allocated Prep lead prepares new batches while implementation workers
-repair current mismatches. Prep and its explorers share the execution pool
-with implementation workers under `.agents/loop.md`, "Shared agent pool".
-Main prefers new Prep allocations while fewer than five eligible sessions
-remain unstarted; count sessions rather than source groups, using the saved
-combined queue and claim/investigation history as defined there. This governs
-free-slot allocation, not interruption of active tasks or batch admission.
-While allocated, keep Prep working on one batch at a time. After submission,
-unless Main has requested a pool handoff, claim the next unused version without waiting for
-acceptance, admission, or a queue threshold. Handle requested corrections and
-resume a parked batch before starting a later version. Submitted batches may
-wait for Main; `worker-state next` keeps them visible. Acceptance does not
-admit a batch. Preparation does not require the current batch to match.
-Prep may delegate probes under "Exploration lanes" in
-`.claude/agents/challenge-prep-worker.md`. Main still receives one batch delivery.
+Prep plans exploration and assembles batches while the three general workers
+execute queued assignments. `.agents/architecture.md` owns hierarchy,
+producer permissions, the five-ready-session priority, and worktrees. Prep
+adds bounded exploration and follow-up tasks to that queue and does not spawn
+or dispatch separate explorers. Main owns acceptance and admission; only a
+complete admitted baseline produces runnable implementation work.
+
+Maintain one active batch plan. After submitting it, Prep can plan the next
+unused version without waiting for acceptance, while retaining correction
+context for earlier deliveries. Prioritize queued corrections according to
+the shared policy. Acceptance does not admit a batch. Apply the exploration
+evidence requirements in `.claude/agents/challenge-prep-worker.md`.
 
 After each current evaluation and worker handoff, check the combined queue and
 reservations for selectable investigations and independent source tasks.
@@ -277,39 +275,24 @@ empty fixed queue must not hide pending synthetic investigations.
 
 ## Seed continuation
 
-After a delivery, while still allocated and with no requested pool handoff,
-the persistent worker selects its next source-traced goal
-under the standing permission in `.agents/loop.md`. Prefer continuing the same
-seed when a focused replay of its immutable worker base identifies the next
-goal. If that scope is blocked or overlaps another worker, select another
-independent source-traced task from the saved queue, with regression repairs
-taking priority over other synthetic work.
-Seed continuity is a scheduling preference, not permission to special-case
-that seed or to omit the source behavior in the selected scope.
+A worker completes its current assignment and then claims from the shared
+queue under `.agents/architecture.md`. Continuing the same seed is a
+preference only between otherwise equally eligible tasks. Do not privately
+create a next implementation goal or bypass exploration/rework priority.
+Main or Prep may add a proposed follow-up through the queue's producer rules.
 
-Before editing, check the current runtime ledger and pending scope
-announcements for active and pending-delivery reservations. Prepare the next
-worker-local task context and notify the orchestrator of the base commit,
-next mismatch, source scope, dependencies, and write set. Claim that scope
-with an atomic `assign` event as `.claude/agents/span-worker.md`, "Claiming
-and submitting work", specifies, before editing.
-Do not wait for acknowledgement after a successful claim.
-If ownership is unclear, another worker reserves the function, or a shared
-contract must change, ask the orchestrator to resolve that dependency and
-continue independent work meanwhile. Different functions in the same file
-need not conflict. If no independent goal is ready, investigate the next
-eligible candidate and report the blocker rather than waiting for an
-assignment. Respect the user's task bounds and stop requests throughout.
+The claimed implementation task still needs a complete source scope, base,
+write set, and atomic source/session reservations before edits. Another
+worker's reservation or an unclear shared contract is a dependency to resolve
+through Main, not permission to widen the task. The queue preserves the
+original assignment and stopping condition through that investigation.
 
-Explain seed continuation, related sessions, and source reservations in
-`--selection-reason`.
-A fresh worker-branch observation stays tied to that commit. Include the
-claimed investigation in the delivery; submission checks its recorded count
-and provenance against the cited saved evidence. Do not refresh historical
-counts for acceptance. Before integrating each delivery, reconcile
-work made redundant by intervening integrations rather than implementing it
-again. A submitted delivery may be integrated while another worker proceeds;
-neither dispatch nor integration waits for an entire worker batch.
+Explain any seed-continuation tie-breaker, related sessions, and reservations
+in the task's selection reason. Source observations stay tied to their measured
+commit; retain investigation provenance and do not refresh historical counts
+merely for acceptance. Reconcile work made redundant by intervening accepted
+fixes before dispatching it again. Neither dispatch nor integration waits for
+all workers to finish together.
 
 ## Investigation cache
 
