@@ -279,7 +279,6 @@ import {
     dogenocided,
     dovanquished,
     remove_achievement,
-    UnsupportedEnlightenmentError,
 } from './insight.js';
 import {
     doclassdisco, dodiscovered,
@@ -2880,7 +2879,6 @@ export function failClosedCommandRefusals() {
         // the forgotten-spell, amulet-drain, and non-healing spell paths
         // that this port has not reached.
         UnsupportedSpellCastError,
-        UnsupportedEnlightenmentError,
         UnsupportedShopError,
         // end.c really_done() calls paybill() and paygd() on every death, so
         // a shopkeeper inherits() cannot settle with or a vault guard owed the

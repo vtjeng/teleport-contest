@@ -22,7 +22,6 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
-    FAST,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
@@ -30,24 +29,16 @@ import {
     GLIB,
     HALLUC,
     HALLUC_RES,
-    INVIS,
     LEFT_SIDE,
     MFAST,
     MSLOW,
     REVIVE_MON,
     ROWNO,
-    SICK,
-    SLIMED,
-    STONED,
-    STRANGLED,
     STRAT_WAITFORU,
-    STUNNED,
-    VOMITING,
     W_TOOL,
     WOUNDED_LEGS,
 } from '../js/const.js';
 import {
-    CONFUSION,
     CORR,
     D_CLOSED,
     DOOR,
@@ -3481,78 +3472,66 @@ test('its_dead uses the supplied monster catalog for tiny statues',
         }
     });
 
-test('ustatusline reports supported clauses and stops for unported clauses', async () => {
+test('ustatusline appends its status clauses in C order', async () => {
     await runSegment({ ...segmentFor('ac.'), moves: '.' });
-    // insight.c:3406-3484 appends one fragment per condition, in this order.
-    // A starting hero carries none of them, so each is set by hand and then
-    // cleared. Setting the extrinsic proves the guards read the pair rather
-    // than the intrinsic alone, which is what makes them supersets of the
-    // youprop.h macros they stand for.
-    for (const [propidx, branch] of [
-        [SICK, 'the dying-from-illness clause'],
-        [STONED, 'the solidifying clause'],
-        [SLIMED, 'the becoming-slimy clause'],
-        [STRANGLED, 'the being-strangled clause'],
-        [VOMITING, 'the nauseated clause'],
-        [CONFUSION, 'the confused clause'],
-        [BLINDED, 'the blind clause'],
-        [STUNNED, 'the stunned clause'],
-        [GLIB, 'fingers_or_gloves()'],
-        [FAST, 'the fast clause'],
-        [INVIS, 'the invisible clause'],
-    ]) {
-        game.u.uprops[propidx].extrinsic = 1;
-        await assert.rejects(() => ustatusline(game),
-            (error) => error.branch === branch, branch);
-        game.u.uprops[propidx].extrinsic = 0;
-    }
-
-    // The concealed condition lives outside u.uprops.
-    game.u.uundetected = 1;
-    await assert.rejects(() => ustatusline(game),
-        (error) => error.branch === 'the concealed clause');
-    game.u.uundetected = 0;
-    game.youmonst.m_ap_type = 1; /* M_AP_FURNITURE */
-    await assert.rejects(() => ustatusline(game),
-        (error) => error.branch === 'the disguised clause');
-    game.youmonst.m_ap_type = 0;
-
-    // The last clause, and the only one behind a helper rather than a
-    // property: region.c visible_region_at() answers on a region that is
-    // visible, is not expiring (ttl -2) and covers the square. The shape is
-    // what js/region.js inside_region() reads -- a bounding box and the
-    // rectangles inside it -- both set to the hero's own square.
-    const here = { lx: game.u.ux, hx: game.u.ux,
-        ly: game.u.uy, hy: game.u.uy };
-    game.level.regions = [
-        { visible: true, ttl: -1, bounding_box: here, rects: [here] },
-    ];
-    await assert.rejects(() => ustatusline(game),
-        (error) => error.branch === 'the cloud-of-vapor clause');
-    // Cleared again, so the clean report below proves the refusal was the
-    // region and not some state the stub left behind.
-    game.level.regions = [];
-
-    // insight.c:3442-3450 masks EWounded_legs to the side bits and appends
-    // trapped after the injured-leg clause. LEFT_SIDE stays singular; assert
-    // the exact C-derived status line and clause order.
-    game.u.uprops[WOUNDED_LEGS].extrinsic = LEFT_SIDE;
-    // Any nonzero u.utrap value takes C's trapped clause.
-    game.u.utrap = 3;
-    // The earlier refusals leave the previous topline awaiting acknowledgement.
+    // insight.c:3453-3455 reads Glib's intrinsic timeout, then delegates the
+    // body-part wording to fingers_or_gloves(TRUE). This case has bare hands.
+    game.uarmg = null;
+    game.u.uprops[GLIB].intrinsic = 7;
+    game.wizard = true;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     await ustatusline(game);
     const statusLine = () => game._ttyToplines || pendingTopLine() || topLine();
     assert.equal(
         statusLine(),
-        'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  '
-        + 'AC 8, injured leg, trapped.',
+        'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  AC 8'
+        + ', slippery fingers (7).',
     );
+    game.u.uprops[GLIB].intrinsic = 0;
+    game.wizard = false;
+
+    // insight.c:3474-3476 uses visible_region_at() and reg_damg() after every
+    // status condition, and suppresses this fragment while swallowed.
+    const here = { lx: game.u.ux, hx: game.u.ux,
+        ly: game.u.uy, hy: game.u.uy };
+    game.level.regions = [
+        { visible: true, ttl: -1, arg: 0, bounding_box: here, rects: [here] },
+    ];
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.wizard = false;
+    await ustatusline(game);
+    assert.match(statusLine(), /, in a cloud of vapor\.$/u);
+    game.level.regions[0].arg = 2;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await ustatusline(game);
+    assert.match(statusLine(), /, in a cloud of poison gas\.$/u);
+    game.level.regions = [];
+
+    // The source uses else-if here: uundetected wins over a simultaneous
+    // furniture disguise, then the visible-disguise branch applies alone.
+    game.u.uundetected = 1;
+    game.youmonst.m_ap_type = M_AP_FURNITURE;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await ustatusline(game);
+    assert.match(statusLine(), /, concealed\.$/u);
+    game.u.uundetected = 0;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await ustatusline(game);
+    assert.match(statusLine(), /, disguised\.$/u);
+    game.youmonst.m_ap_type = 0;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    // insight.c:3442-3452 masks EWounded_legs to its side bits and appends
+    // trapped after the leg description.
+    game.u.uprops[WOUNDED_LEGS].extrinsic = LEFT_SIDE;
+    game.u.utrap = 3;
+    await ustatusline(game);
+    assert.match(statusLine(), /, injured leg, trapped\.$/u);
     game.u.uprops[WOUNDED_LEGS].extrinsic = 0;
     game.u.utrap = 0;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-    // With every clause cleared the report is the one line the command draws.
+    // With every clause cleared, the report is the one line the command draws.
     await ustatusline(game);
     assert.equal(
         statusLine(),

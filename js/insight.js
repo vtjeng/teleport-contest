@@ -416,17 +416,6 @@ export function trap_predicament(state = game, final = false, wizxtra = false) {
     return wizxtra ? result + ' {' + u.utrap + '}' : result;
 }
 
-// Thrown where insight.c reaches a branch this port has not ported. Every
-// throw happens while the line list is still being built, so the window has
-// drawn nothing and the keystroke stays retryable.
-export class UnsupportedEnlightenmentError extends Error {
-    constructor(branch) {
-        super(`the attributes window requires ${branch}`);
-        this.name = 'UnsupportedEnlightenmentError';
-        this.branch = branch;
-    }
-}
-
 // C ref: insight.c's shared sentence fragments.
 const You_ = 'You ';
 const are = 'are ';
@@ -3037,32 +3026,6 @@ export function achieve_rank(rank, state = game) {
     return state.flags.female ? -achidx : achidx;
 }
 
-// Conditions ustatusline() names in the trailing `info` clause of its report.
-// The wounded-leg and trapped clauses are implemented below; remaining
-// conditions still stop until their source wording is ported.
-//
-// The still-unported checks retain C's order inside ustatusline(), because C
-// builds `info` by appending in that order and a hero carrying two of them needs both
-// fragments in that sequence. Plain rows use hasProperty(), whose
-// intrinsic-or-extrinsic answer is a superset of every macro listed here:
-// youprop.h defines Sick, Stoned, Slimed, Strangled, Vomiting, Confusion,
-// Glib and Stunned as the intrinsic alone, Fast as the pair, and Blind and
-// Invis as the pair minus a blocking term. So each stop can only fire early,
-// never late.
-const UNPORTED_USTATUS_CONDITIONS = Object.freeze([
-    [SICK, 'the dying-from-illness clause'],
-    [STONED, 'the solidifying clause'],
-    [SLIMED, 'the becoming-slimy clause'],
-    [STRANGLED, 'the being-strangled clause'],
-    [VOMITING, 'the nauseated clause'],
-    [CONFUSION, 'the confused clause'],
-    [BLINDED, 'the blind clause'],
-    [STUNNED, 'the stunned clause'],
-    [GLIB, 'fingers_or_gloves()'],
-    [FAST, 'the fast clause'],
-    [INVIS, 'the invisible clause'],
-]);
-
 // C ref: insight.c mstatusline() (3273-3398), the one-line report a
 // stethoscope or a wand of probing produces for a monster.
 //
@@ -3210,32 +3173,74 @@ export async function mstatusline(mtmp, state = game) {
     );
 }
 
-// C ref: insight.c ustatusline() (3401-3489), the one-line report a
-// stethoscope or a probe applied to the hero produces. This port covers the
-// wounded-leg and trapped clauses; other incomplete clauses still stop. The
-// `u.ustuck` arm adds the swallowed, held, or holding description and names
-// the monster before the report line is printed.
+// C ref: insight.c ustatusline() (3402-3489), the one-line report a
+// stethoscope or a probe applied to the hero produces. Each condition is
+// appended in source order before the status line is printed.
 export async function ustatusline(state = game) {
     const u = state.u;
     let info = '';
 
-    for (const [propidx, branch] of UNPORTED_USTATUS_CONDITIONS) {
-        if (hasProperty(state, propidx))
-            throw new UnsupportedEnlightenmentError(branch);
+    const properties = u.uprops ?? [];
+    if (properties[SICK]?.intrinsic) {
+        info += ', dying from';
+        const vomitable = Boolean(u.usick_type & SICK_VOMITABLE);
+        const nonvomitable = Boolean(u.usick_type & SICK_NONVOMITABLE);
+        if (vomitable) info += ' food poisoning';
+        if (nonvomitable) {
+            if (vomitable) info += ' and';
+            info += ' illness';
+        }
     }
-    if ((u.uprops?.[WOUNDED_LEGS]?.intrinsic
-         || u.uprops?.[WOUNDED_LEGS]?.extrinsic) && !u.usteed) {
-        const legs = Number(u.uprops[WOUNDED_LEGS].extrinsic ?? 0)
+    if (properties[STONED]?.intrinsic) info += ', solidifying';
+    if (properties[SLIMED]?.intrinsic) info += ', becoming slimy';
+    if (properties[STRANGLED]?.intrinsic) info += ', being strangled';
+    if (properties[VOMITING]?.intrinsic) info += ', nauseated';
+    if (properties[CONFUSION]?.intrinsic) info += ', confused';
+    const blind = Boolean(
+        (properties[BLINDED]?.intrinsic || properties[BLINDED]?.extrinsic)
+        && !properties[BLINDED]?.blocked,
+    );
+    if (blind) {
+        info += ', blind';
+        if (u.ucreamed) {
+            const blindedTimeout = Number(properties[BLINDED]?.intrinsic ?? 0)
+                & TIMEOUT;
+            const blindfolded = Boolean(properties[BLINDED]?.extrinsic);
+            if (u.ucreamed < blindedTimeout || blindfolded
+                || !haseyes(state.youmonst.data))
+                info += ', covered';
+            info += ' by sticky goop';
+        }
+    }
+    if (properties[STUNNED]?.intrinsic) info += ', stunned';
+    if ((properties[WOUNDED_LEGS]?.intrinsic
+         || properties[WOUNDED_LEGS]?.extrinsic) && !u.usteed) {
+        const legs = Number(properties[WOUNDED_LEGS]?.extrinsic ?? 0)
             & BOTH_SIDES;
         let what = body_part(LEG, state.youmonst);
         if (legs === BOTH_SIDES) what = makeplural(what);
         info += `, injured ${what}`;
     }
+    const glib = Number(properties[GLIB]?.intrinsic ?? 0);
+    if (glib) {
+        info += `, slippery ${fingers_or_gloves(true, state)}`;
+        if (state.wizard) info += ` (${glib & TIMEOUT})`;
+    }
     if (u.utrap) info += ', trapped';
-    if (u.uundetected)
-        throw new UnsupportedEnlightenmentError('the concealed clause');
-    if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING)
-        throw new UnsupportedEnlightenmentError('the disguised clause');
+    const fastIntrinsic = Number(properties[FAST]?.intrinsic ?? 0);
+    const fastExtrinsic = Number(properties[FAST]?.extrinsic ?? 0);
+    if (fastIntrinsic || fastExtrinsic) {
+        const veryFast = Boolean((fastIntrinsic & ~INTRINSIC) || fastExtrinsic);
+        info += veryFast ? ', very fast' : ', fast';
+    }
+    if (u.uundetected) info += ', concealed';
+    else if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING)
+        info += ', disguised';
+    const invisible = Boolean(
+        (properties[INVIS]?.intrinsic || properties[INVIS]?.extrinsic)
+        && !properties[INVIS]?.blocked,
+    );
+    if (invisible) info += ', invisible';
     if (u.ustuck) {
         if (u.uswallow)
             info += digests(u.ustuck.data)
@@ -3252,8 +3257,13 @@ export async function ustatusline(state = game) {
         info += heldmon;
     }
     // insight.c:3474-3476 excludes regions while swallowed.
-    if (!u.uswallow && visible_region_at(u.ux, u.uy, state))
-        throw new UnsupportedEnlightenmentError('the cloud-of-vapor clause');
+    if (!u.uswallow) {
+        const region = visible_region_at(u.ux, u.uy, state);
+        if (region) {
+            const damage = Math.trunc(region.arg ?? 0);
+            info += `, in a cloud of ${damage ? 'poison gas' : 'vapor'}`;
+        }
+    }
 
     await ttyPline(
         `Status of ${state.plname} `
