@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T04:10:15.739Z",
+  "capturedAt": "2026-10-15T04:22:48.282Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -131699,30 +131699,144 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Prep46 has24 C pairs and17 byte-identical independent replays. Completing source and coverage checks while Root imports the v81 baseline;new validation launches are held."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep45-202117bce60b57300e07b7f3c45362591e0e884b",
+        "type": "published",
+        "at": "2026-10-15T04:10:23.396Z",
+        "task": "Prep45",
+        "commit": "202117bce60b57300e07b7f3c45362591e0e884b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-c5f33826f6669b10f83edf5ab842d5828d671342-792cb52bb6edceb3f6308c82117e53b0a0d7253b3bfb8518dca84780a0c0dc8a-A2-investigation-v80-writing-label-action1-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T04:11:03.626Z",
+        "task": "A2-investigation-v80-writing-label-action1-20261015",
+        "integration": "c5f33826f6669b10f83edf5ab842d5828d671342",
+        "validationGroup": [
+          "A2-investigation-v80-writing-label-action1-20261015",
+          "B-investigation-v79-topten-step574-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-c5f33826f6669b10f83edf5ab842d5828d671342-792cb52bb6edceb3f6308c82117e53b0a0d7253b3bfb8518dca84780a0c0dc8a-B-investigation-v79-topten-step574-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T04:11:03.626Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "integration": "c5f33826f6669b10f83edf5ab842d5828d671342",
+        "validationGroup": [
+          "A2-investigation-v80-writing-label-action1-20261015",
+          "B-investigation-v79-topten-step574-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep46-v82-source-routes-resumed-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:11:08.912Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep46 has17 independently reproduced matching v82 routes and28 first C pairs. Checking the remaining source-designed scroll branches;the coordinator hold is released and no blocker is active."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep46-review-root-20261015",
+        "type": "activity",
+        "at": "2026-10-15T04:14:27.222Z",
+        "task": "Prep46",
+        "phase": "review",
+        "reason": "Reviewing proposed v82 matching controls against saved prior branches, state conditions, caller history and observed C outcomes."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fe8139e968f0bca0234d9b8b4f6d60512d6cacee",
+        "type": "ready",
+        "at": "2026-10-15T04:15:45.044Z",
+        "task": "Prep46",
+        "delivery": "fe8139e968f0bca0234d9b8b4f6d60512d6cacee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-prep46-v82-fe8139e9",
+        "type": "received",
+        "at": "2026-10-15T04:16:27.840Z",
+        "task": "Prep46",
+        "delivery": "fe8139e968f0bca0234d9b8b4f6d60512d6cacee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-Prep47-v83-20261015",
+        "type": "assign",
+        "at": "2026-10-15T04:16:53.952Z",
+        "task": "Prep47",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v83"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep47-v83-source-planning-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:20:08.125Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep47 is planning monster-versus-monster combat,passive defenses and digestion. Thirty designs are frozen;four exact earlier routes are excluded before C. No launch hold or blocker."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v80-writing-label-action1-20261015-c5f33826f6669b10f83edf5ab842d5828d671342-validated",
+        "type": "validated",
+        "at": "2026-10-15T04:21:04.631Z",
+        "task": "A2-investigation-v80-writing-label-action1-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v79-topten-step574-20261015-c5f33826f6669b10f83edf5ab842d5828d671342-validated",
+        "type": "validated",
+        "at": "2026-10-15T04:21:04.631Z",
+        "task": "B-investigation-v79-topten-step574-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v80-writing-label-action1-20261015-c5f33826f6669b10f83edf5ab842d5828d671342-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T04:21:37.651Z",
+        "task": "A2-investigation-v80-writing-label-action1-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B-investigation-v79-topten-step574-20261015-c5f33826f6669b10f83edf5ab842d5828d671342-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T04:21:37.651Z",
+        "task": "B-investigation-v79-topten-step574-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep47-v83-coordinator-hold-20261015",
+        "type": "turn",
+        "at": "2026-10-15T04:22:34.933Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep47 has30 frozen combat designs and four initial C recipes prepared. Source and overlap checks continue while Root accepts the two-source checkpoint and promotes the queue;new validation launches are held."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "A2-investigation-v80-writing-label-action1-20261015",
-        "worker": "A2",
-        "goal": "fix-writing-label-encumbermessage-v80-20261015",
-        "kind": "implementation",
+        "task": "Prep46",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
         "status": "ready",
-        "delivery": "7126048c8acd8904c1f1ed7bf5b228652446e79c",
-        "since": "2026-10-15T03:45:00.156Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "B-investigation-v79-topten-step574-20261015",
-        "worker": "B",
-        "goal": "fix-v79-real-amulet-noreturn-caller-20261015",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "fbe52cb9dc128691412caeaf8415b39adf1814a8",
-        "since": "2026-10-15T04:06:48.782Z",
+        "delivery": "fe8139e968f0bca0234d9b8b4f6d60512d6cacee",
+        "batch": "v82",
+        "since": "2026-10-15T04:15:45.044Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -132887,72 +133001,13 @@
           "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
-      },
-      "A2-investigation-v80-writing-label-action1-20261015": {
-        "id": "A2-investigation-v80-writing-label-action1-20261015",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v80/v80-writing-label-action1",
-        "reservations": [
-          "session:synthetic/v80/v80-writing-label-action1",
-          "source:write.c:dowrite",
-          "source:invent.c:hold_another_object",
-          "source:pickup.c:encumber_msg"
-        ]
-      },
-      "B-investigation-v79-topten-step574-20261015": {
-        "id": "B-investigation-v79-topten-step574-20261015",
-        "worker": "B",
-        "status": "ready",
-        "seed": "synthetic/v79/v79-wrong-altar-amulet-action6",
-        "reservations": [
-          "session:synthetic/v79/v79-wrong-altar-amulet-action6",
-          "source:pray.c:dosacrifice",
-          "source:pray.c:offer_real_amulet"
-        ]
       }
     },
-    "reservations": {
-      "session:synthetic/v80/v80-writing-label-action1": {
-        "tasks": [
-          "A2-investigation-v80-writing-label-action1-20261015"
-        ]
-      },
-      "source:write.c:dowrite": {
-        "tasks": [
-          "A2-investigation-v80-writing-label-action1-20261015"
-        ]
-      },
-      "source:invent.c:hold_another_object": {
-        "tasks": [
-          "A2-investigation-v80-writing-label-action1-20261015"
-        ]
-      },
-      "source:pickup.c:encumber_msg": {
-        "tasks": [
-          "A2-investigation-v80-writing-label-action1-20261015"
-        ]
-      },
-      "session:synthetic/v79/v79-wrong-altar-amulet-action6": {
-        "tasks": [
-          "B-investigation-v79-topten-step574-20261015"
-        ]
-      },
-      "source:pray.c:dosacrifice": {
-        "tasks": [
-          "B-investigation-v79-topten-step574-20261015"
-        ]
-      },
-      "source:pray.c:offer_real_amulet": {
-        "tasks": [
-          "B-investigation-v79-topten-step574-20261015"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "development": {
-    "executionCommit": "b34e034e6768aa98029f725e7b88ce28d35e71ae",
-    "measuredAt": "2026-10-15T03:59:59.954Z",
+    "executionCommit": "c5f33826f6669b10f83edf5ab842d5828d671342",
+    "measuredAt": "2026-10-15T04:16:31.931Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

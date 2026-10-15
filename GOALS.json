@@ -317440,7 +317440,7 @@
     {
       "id": "fix-writing-label-encumbermessage-v80-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dowrite from write.c",
       "cFile": "write.c",
       "sessions": [
@@ -317450,15 +317450,144 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c5f33826f6669b10f83edf5ab842d5828d671342",
       "delivered": null,
       "function": "dowrite",
-      "session": "synthetic/v80/v80-writing-label-action1"
+      "session": "synthetic/v80/v80-writing-label-action1",
+      "closeStanding": {
+        "sha": "c5f33826f6669b10f83edf5ab842d5828d671342",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "b34e034e6768aa98029f725e7b88ce28d35e71ae",
+        "target": "synthetic/v80/v80-writing-label-action1",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c5f33826f6669b10f83edf5ab842d5828d671342/run-hosted-yYTBT6/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dowrite",
+            "implementation": "js/write.js",
+            "symbol": "dowrite",
+            "sourceReview": "Read write.c:dowrite() lines 74-393 and traced the successful by-description path: after identifying the chosen scroll and removing the blank paper, C observes the new object and calls hold_another_object() at lines 380-383. JS follows the same branch, and writeEnv() now supplies the existing encumber_msg callback for hold_another_object’s accepted-inventory path. No object selection, random call, message ordering, or return value changed beyond restoring the omitted C side effect.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply MAGIC_MARKER case calls dowrite(obj) at line 4362; JS dispatches MAGIC_MARKER from doapply to dowrite(obj,state,env)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/write.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v80",
+                "caseId": "v80-writing-label-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 332,
+                "source": "apply.c:doapply -> write.c:dowrite successful by-description scroll creation -> invent.c:hold_another_object accepted-inventory branch -> pickup.c:encumber_msg"
+              }
+            ]
+          },
+          {
+            "name": "hold_another_object",
+            "sourceFile": "invent.c",
+            "implementation": "js/invent.js",
+            "symbol": "hold_another_object",
+            "sourceReview": "Read invent.c:hold_another_object() lines 1208-1311. In its accepted-inventory branch, C updates inventory and then calls encumber_msg(); overflow, fumbling, artifact, and corpse branches leave through their earlier source paths. JS mirrors this order with update_inventory(normalized) followed by the required encumberMessage hook. The writing fix supplies that hook through writeEnv.",
+            "callers": [
+              {
+                "path": "js/write.js",
+                "symbol": "dowrite",
+                "source": "write.c:dowrite successful creation branch calls hold_another_object(new_obj, drop_fmt, drop_arg, null); JS awaits hold_another_object with writeEnv(state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/write.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v80",
+                "caseId": "v80-writing-label-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 332,
+                "source": "apply.c:doapply -> write.c:dowrite successful by-description scroll creation -> invent.c:hold_another_object accepted-inventory branch -> pickup.c:encumber_msg"
+              }
+            ]
+          },
+          {
+            "name": "encumber_msg",
+            "sourceFile": "pickup.c",
+            "implementation": "js/pickup.js",
+            "symbol": "encumber_msg",
+            "sourceReview": "Read pickup.c:encumber_msg() lines 1978-2023. C computes near_capacity(), emits the appropriate increased/decreased burden message and bottom-line update, then stores go.oldcap. The existing JS pickup.encumber_msg implements these same updates; the defect was that the write environment omitted its callback, not that the routine was missing.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "hold_another_object",
+                "source": "invent.c:hold_another_object accepted-inventory branch calls encumber_msg() after update_inventory(); JS awaits normalized.hooks.encumberMessage(state) at that location."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/write.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v80",
+                "caseId": "v80-writing-label-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 332,
+                "source": "apply.c:doapply -> write.c:dowrite successful by-description scroll creation -> invent.c:hold_another_object accepted-inventory branch -> pickup.c:encumber_msg"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The only changed active entry path is applying a magic marker to write a recognized by-description scroll that remains in inventory. The admitted v80 recording enters through apply.c:doapply, reaches write.c:dowrite’s successful by-description branch, then follows invent.c:hold_another_object into pickup.c:encumber_msg. The complete 333-step recording now matches, so this source path has direct runtime evidence; no independent recipe is needed.",
+        "entryPoints": [
+          {
+            "name": "Apply a marker to write a by-description scroll that is accepted into inventory",
+            "functions": [
+              "dowrite",
+              {
+                "sourceFile": "invent.c",
+                "name": "hold_another_object"
+              },
+              {
+                "sourceFile": "pickup.c",
+                "name": "encumber_msg"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v80",
+                "caseId": "v80-writing-label-action1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 332,
+                "source": "apply.c:doapply -> write.c:dowrite successful by-description scroll creation -> invent.c:hold_another_object accepted-inventory branch -> pickup.c:encumber_msg"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-v79-real-amulet-noreturn-caller-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dosacrifice from pray.c",
       "cFile": "pray.c",
       "sessions": [
@@ -317468,10 +317597,83 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c5f33826f6669b10f83edf5ab842d5828d671342",
       "delivered": null,
       "function": "dosacrifice",
-      "session": "synthetic/v79/v79-wrong-altar-amulet-action6"
+      "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
+      "closeStanding": {
+        "sha": "c5f33826f6669b10f83edf5ab842d5828d671342",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "b34e034e6768aa98029f725e7b88ce28d35e71ae",
+        "target": "synthetic/v79/v79-wrong-altar-amulet-action6",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/c5f33826f6669b10f83edf5ab842d5828d671342/run-hosted-yYTBT6/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dosacrifice",
+            "implementation": "js/pray.js",
+            "symbol": "dosacrifice",
+            "sourceReview": "Reviewed pray.c:1854-1896 in full. Checked altar/impaired-state guards, high-altar selection, floorfood return, real-amulet high-altar and low-altar branches, fake-Amulet/corpse dispatch, final nothing_happens tail, and source evaluation order. The real high-altar Amulet call to offer_real_amulet is marked /*NOTREACHED*/ in C; its wrong-alignment branch calls done(ESCAPED), which reaches NORETURN really_done. JS finalization returns with program_state.gameover set, so dosacrifice now returns immediately after the awaited call when gameover is true. Existing unsupported offer_corpse handling remains at its source branch.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "The direct extended-command branch in js/cmd.js:doextcmd dispatches dosacrifice; C's corresponding #offer extended-command route invokes dosacrifice."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:act_on_act queues dosacrifice for MCMD_OFFER; cmd.c:rhack dispatches the queued function pointer. js/cmd.js:rhack handles queuedExtcmdEntry.ef_funct === 'dosacrifice' and awaits dosacrifice before the common ECMD time tail."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_real_amulet",
+                "source": "pray.c:dosacrifice calls offer_real_amulet for a real Amulet on a high altar and marks the following branch NOTREACHED; pray.c:offer_real_amulet calls done(ESCAPED) for the opposing-alignment route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-wrong-altar-amulet-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 574,
+                "source": "cmd.c:act_on_act -> pray.c:dosacrifice -> pray.c:offer_real_amulet -> end.c:done/really_done -> topten.c:topten"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point in the selected source range is the #offer extended command, including MCMD_OFFER queued through cmd.c:act_on_act and dispatched by rhack; both JS dispatch paths are represented in js/cmd.js. The admitted v79 input reaches the real-Amulet, high-altar, opposing-alignment branch through the queued MCMD_OFFER path. Other dosacrifice source branches (refusal guards, low altar, fake Amulet, corpse, and final fallback) are outside this targeted terminal-return correction and retain their existing implementations or explicit source-site gaps.",
+        "entryPoints": [
+          {
+            "name": "#offer / MCMD_OFFER",
+            "functions": [
+              "dosacrifice"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v79",
+                "caseId": "v79-wrong-altar-amulet-action6",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 574,
+                "source": "cmd.c:act_on_act -> pray.c:dosacrifice -> pray.c:offer_real_amulet -> end.c:done/really_done -> topten.c:topten"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
