@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T05:25:21.093Z",
+  "capturedAt": "2026-10-15T05:36:11.603Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -132066,11 +132066,345 @@
         "task": "Prep47",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep47-7330de32cd7abd522e85f666d8ab1e6c998b6a4f",
+        "type": "published",
+        "at": "2026-10-15T05:25:28.909Z",
+        "task": "Prep47",
+        "commit": "7330de32cd7abd522e85f666d8ab1e6c998b6a4f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v83-slime-turn-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:25:45.703Z",
+        "worker": "A2",
+        "state": "active",
+        "reason": "Investigating the first v83 slime-transform mismatch from the saved C trace before claiming its source scope."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v83-slime-investigation-assign-20261015",
+        "type": "assign",
+        "at": "2026-10-15T05:25:50.142Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "worker": "A2",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-C-v83-mm-digest-chameleon-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:25:58.648Z",
+        "worker": "C",
+        "state": "active",
+        "reason": "Investigating the v83 chameleon digest divergence at its C-identified object cleanup boundary."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C-v83-mm-digest-chameleon-20261015",
+        "type": "assign",
+        "at": "2026-10-15T05:26:36.356Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "worker": "C",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-Prep48-v84-six-lane-pilot-20261015",
+        "type": "resume",
+        "at": "2026-10-15T05:27:03.719Z",
+        "task": "Prep48"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-turn-active-v83-digest-wraith-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:27:23.345Z",
+        "worker": "B",
+        "state": "active",
+        "reason": "Tracing the admitted v83 pet wraith-corpse consumption mismatch from C source before implementation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "type": "assign",
+        "at": "2026-10-15T05:27:27.917Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "worker": "B",
+        "kind": "investigation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A2-v83-slime-implement-scope-20261015",
+        "type": "implement",
+        "at": "2026-10-15T05:28:37.130Z",
+        "task": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "goal": "isolate-planned-glob-rng-v83-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B-implement-v83-mm-digest-wraith-action1-20261015",
+        "type": "implement",
+        "at": "2026-10-15T05:28:45.488Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "goal": "fix-mon-consume-wraith-growth-v83-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implement-C-v83-mhitm-ad-dgst-20261015",
+        "type": "implement",
+        "at": "2026-10-15T05:29:52.640Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "goal": "divergence-v83-monster-digest-virtual-corpse-timer-cleanup-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v84-p01-dighole-boulder-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:02.371Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v84-p01-dighole-boulder",
+        "reason": "Reusing preserved boulder-deletion first-cause proofs;checking exact source caller without duplicate capture.",
+        "source": "dig.c:dighole delobj(boulder) floor-extraction caller"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:07.075Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "Planning ordinary mounting refusal with actually worn rusty metallic armor and an adjacent saddled pony.",
+        "source": "steed.c:mount_steed eroded metallic armor guard"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:12.232Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Planning clay-golem saddle contact with cockatrice,requiring actual stone transformation before species rejection.",
+        "source": "steed.c:use_saddle poly_when_stoned -> polymon"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v84-p04-ball-web-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:16.696Z",
+        "task": "Prep48",
+        "worker": "Prep-4",
+        "state": "active",
+        "probe": "v84-p04-ball-web",
+        "reason": "Planning punished-ball throw while web-trapped,requiring actual web removal and relocation.",
+        "source": "ball.c:drop_ball TT_WEB trap destruction"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v84-p05-thrown-axe-worm-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:21.119Z",
+        "task": "Prep48",
+        "worker": "Prep-5",
+        "state": "active",
+        "probe": "v84-p05-thrown-axe-worm",
+        "reason": "Planning a thrown axe at actual long-worm body segment,distinct from prior dagger and melee paths.",
+        "source": "dothrow.c:thitmonst axe chopper -> worm.c:cutworm"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "start-v84-p06-ball-bear-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:25.630Z",
+        "task": "Prep48",
+        "worker": "Prep-6",
+        "state": "active",
+        "probe": "v84-p06-ball-bear",
+        "reason": "Planning punished-ball escape from bear trap,requiring severe leg damage and trap reset.",
+        "source": "ball.c:drop_ball TT_BEARTRAP severe leg damage"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep48-v84-six-lane-pilot-active-20261015",
+        "type": "turn",
+        "at": "2026-10-15T05:32:30.366Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep48 has six dedicated exploration lanes on distinct source behaviors. Private recorder setup is starting under a two-command limit;preserved v84 evidence is retained."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-setup-v84-p01-dighole-boulder-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:35.051Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v84-p01-dighole-boulder",
+        "reason": "Private recorder readiness setup reserved;the lane will report its exact bounded handle and release after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-setup-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:32:40.087Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "Private recorder readiness setup reserved;the lane will report its exact bounded handle and release after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-setup-v84-p01-dighole-boulder-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:33:55.985Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v84-p01-dighole-boulder",
+        "reason": "Recorder setup is running in the assigned private worktree.",
+        "source": "dig.c:dighole delobj(boulder) floor-extraction caller"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v84-p03-saddle-stone-no-recorder-slot-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:34:12.667Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "blocked",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Waiting for a recorder-readiness slot."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v84-p04-ball-web-recorder-slot-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:34:17.610Z",
+        "task": "Prep48",
+        "worker": "Prep-4",
+        "state": "blocked",
+        "probe": "v84-p04-ball-web",
+        "reason": "Waiting for recorder-readiness slot.",
+        "source": "ball.c:drop_ball TT_WEB trap destruction"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep48-Prep-5-v84-p05-thrown-axe-worm-wait-slot-1",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:34:23.468Z",
+        "task": "Prep48",
+        "worker": "Prep-5",
+        "state": "blocked",
+        "probe": "v84-p05-thrown-axe-worm",
+        "reason": "Waiting for recorder-readiness slot"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-setup-v84-p01-dighole-boulder-released-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:34:33.232Z",
+        "task": "Prep48",
+        "worker": "Prep-1",
+        "state": "active",
+        "probe": "v84-p01-dighole-boulder",
+        "reason": "Recorder setup finished successfully at the assigned base; setup slot released.",
+        "source": "dig.c:dighole delobj(boulder) floor-extraction caller"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "observe-setup-handle-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:34:44.485Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "Recorded completed setup handle before releasing the reservation."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-46995d3b15f24c78e4498c6b83b4670613755ac1",
+        "type": "ready",
+        "at": "2026-10-15T05:34:49.616Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "delivery": "46995d3b15f24c78e4498c6b83b4670613755ac1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-setup-v84-p02-rusty-mount-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:35:06.592Z",
+        "task": "Prep48",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v84-p02-rusty-mount",
+        "reason": "Private worktree setup finished successfully at the assigned base; setup slot released."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-setup-v84-p03-saddle-stone-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T05:35:11.823Z",
+        "task": "Prep48",
+        "worker": "Prep-3",
+        "state": "active",
+        "probe": "v84-p03-saddle-stone",
+        "reason": "Private recorder readiness setup reserved;the lane will report its exact bounded handle and release after terminal collection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9bbbcb47d0a54873fed9af2f6a8eb90cbce42cd9",
+        "type": "ready",
+        "at": "2026-10-15T05:35:21.051Z",
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "delivery": "9bbbcb47d0a54873fed9af2f6a8eb90cbce42cd9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-v83-C-chameleon-46995d3b",
+        "type": "received",
+        "at": "2026-10-15T05:35:30.453Z",
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "delivery": "46995d3b15f24c78e4498c6b83b4670613755ac1"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "worker": "C",
+        "goal": "divergence-v83-monster-digest-virtual-corpse-timer-cleanup-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "46995d3b15f24c78e4498c6b83b4670613755ac1",
+        "since": "2026-10-15T05:34:49.616Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "worker": "B",
+        "goal": "fix-mon-consume-wraith-growth-v83-20261015",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9bbbcb47d0a54873fed9af2f6a8eb90cbce42cd9",
+        "since": "2026-10-15T05:35:21.051Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -132657,18 +132991,6 @@
         "since": "2026-10-14T06:30:28.196Z",
         "blockedBy": [],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
-      },
-      {
-        "task": "Prep48",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "parked",
-        "delivery": null,
-        "batch": "v84",
-        "since": "2026-10-15T05:19:00.613Z",
-        "blockedBy": [],
-        "reason": "User authorized pausing the current Prep batch for the six-lane pilot. All handles terminal; 14 C pairs, four independent replays and partial findings preserved in the durable pause snapshot. Resume this batch under updated pilot instructions."
       }
     ]
   },
@@ -133243,13 +133565,92 @@
           "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
+      },
+      "A2-investigation-v83-mm-slime-transform-action1-20261015": {
+        "id": "A2-investigation-v83-mm-slime-transform-action1-20261015",
+        "worker": "A2",
+        "status": "working",
+        "seed": "synthetic/v83/v83-mm-slime-transform-action1",
+        "reservations": [
+          "session:synthetic/v83/v83-mm-slime-transform-action1",
+          "source:mkobj.c:obj_nexto",
+          "source:mkobj.c:obj_nexto_xy",
+          "source:mon.c:make_corpse",
+          "source:do.c:flooreffects"
+        ]
+      },
+      "C-investigation-v83-mm-digest-chameleon-action2-20261015": {
+        "id": "C-investigation-v83-mm-digest-chameleon-action2-20261015",
+        "worker": "C",
+        "status": "ready",
+        "seed": "synthetic/v83/v83-mm-digest-chameleon-action2",
+        "reservations": [
+          "session:synthetic/v83/v83-mm-digest-chameleon-action2",
+          "source:uhitm.c:mhitm_ad_dgst"
+        ]
+      },
+      "B-investigation-v83-mm-digest-wraith-action1-20261015": {
+        "id": "B-investigation-v83-mm-digest-wraith-action1-20261015",
+        "worker": "B",
+        "status": "ready",
+        "seed": "synthetic/v83/v83-mm-digest-wraith-action1",
+        "reservations": [
+          "session:synthetic/v83/v83-mm-digest-wraith-action1",
+          "source:mon.c:m_consume_obj"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "session:synthetic/v83/v83-mm-slime-transform-action1": {
+        "tasks": [
+          "A2-investigation-v83-mm-slime-transform-action1-20261015"
+        ]
+      },
+      "source:mkobj.c:obj_nexto": {
+        "tasks": [
+          "A2-investigation-v83-mm-slime-transform-action1-20261015"
+        ]
+      },
+      "source:mkobj.c:obj_nexto_xy": {
+        "tasks": [
+          "A2-investigation-v83-mm-slime-transform-action1-20261015"
+        ]
+      },
+      "source:mon.c:make_corpse": {
+        "tasks": [
+          "A2-investigation-v83-mm-slime-transform-action1-20261015"
+        ]
+      },
+      "source:do.c:flooreffects": {
+        "tasks": [
+          "A2-investigation-v83-mm-slime-transform-action1-20261015"
+        ]
+      },
+      "session:synthetic/v83/v83-mm-digest-chameleon-action2": {
+        "tasks": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015"
+        ]
+      },
+      "source:uhitm.c:mhitm_ad_dgst": {
+        "tasks": [
+          "C-investigation-v83-mm-digest-chameleon-action2-20261015"
+        ]
+      },
+      "session:synthetic/v83/v83-mm-digest-wraith-action1": {
+        "tasks": [
+          "B-investigation-v83-mm-digest-wraith-action1-20261015"
+        ]
+      },
+      "source:mon.c:m_consume_obj": {
+        "tasks": [
+          "B-investigation-v83-mm-digest-wraith-action1-20261015"
+        ]
+      }
+    }
   },
   "development": {
-    "executionCommit": "d3656bd94356200c4e56fa8c6c18ea9320953bc3",
-    "measuredAt": "2026-10-15T05:13:22.228Z",
+    "executionCommit": "c9b28079bfc6cb8fa2da2d327887c3c546c8d1f5",
+    "measuredAt": "2026-10-15T05:31:12.238Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
