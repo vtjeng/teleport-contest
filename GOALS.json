@@ -318588,6 +318588,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "divergence-v88-mhurtle-monster-to-hero-instapetrify-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement mhurtle_step from dothrow.c",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v88/v88-p13-mhurtle-cockatrice-healer"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v88-p13-mhurtle-cockatrice-healer-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mhurtle_step",
+      "session": "synthetic/v88/v88-p13-mhurtle-cockatrice-healer"
     }
   ]
 }
