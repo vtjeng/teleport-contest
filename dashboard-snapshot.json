@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T10:55:42.211Z",
+  "capturedAt": "2026-10-15T16:42:17.265Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -142030,6 +142030,71 @@
         "type": "accepted",
         "at": "2026-10-15T10:53:52.264Z",
         "task": "B-investigation-v89-p08-floatdown-chain-relocation-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B-investigation-v89-p08-floatdown-chain-relocation-20261015-b420a02eeed56d5e92ba7d13029a833a80a8f572",
+        "type": "published",
+        "at": "2026-10-15T10:56:00.413Z",
+        "task": "B-investigation-v89-p08-floatdown-chain-relocation-20261015",
+        "commit": "b420a02eeed56d5e92ba7d13029a833a80a8f572"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v90-p09-lead-adjudication-filter-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T10:59:07.086Z",
+        "task": "Prep54",
+        "worker": "Prep-6",
+        "state": "blocked",
+        "probe": "v90-p09-confused-book-trycall",
+        "reason": "C replay and unchanged-input diagnostic are complete and preserved; first-cause membership adjudication awaits the preparation lead, whose turn failed with a recurring automatic filter error."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "block-v90-p10-crosswalk-lead-filter-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T10:59:12.091Z",
+        "task": "Prep54",
+        "worker": "Prep-4",
+        "state": "blocked",
+        "probe": "v90-p10-confused-book-overlap",
+        "reason": "Read-only source crosswalk is complete and preserved; batch membership review awaits the preparation lead after its recurring automatic filter failure. No game command is live."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "reserve-v90-p11-teleported-shopkeeper-anger-scout2-wizmap-attempt2-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T10:59:59.309Z",
+        "task": "Prep54",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v90-p11-teleported-shopkeeper-anger",
+        "reason": "Reserve-first C setup continuation: repeat observed minetn menu selection and add #wizmap; map is not treated as shopkeeper proof.",
+        "source": "teleport.c:rloc shopkeeper -> shk.c:make_angry_shk"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "release-v90-p11-teleported-shopkeeper-anger-scout2-wizmap-run-XAzQBL-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T11:01:50.791Z",
+        "task": "Prep54",
+        "worker": "Prep-2",
+        "state": "active",
+        "probe": "v90-p11-teleported-shopkeeper-anger",
+        "reason": "Reserve-first scout run-XAzQBL terminal/reaped exit0; C reached minetn:8 and #wizmap revealed terrain only. No keeper presence/absence or target reach inferred. Preserve original scout chronology and source-correct rloc_to_core attribution in notes; no map or seed search."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "done-v90-p11-scouts-deferred-root-collected-20261015",
+        "type": "prep-probe",
+        "at": "2026-10-15T11:06:28.495Z",
+        "task": "Prep54",
+        "worker": "Prep-2",
+        "state": "done",
+        "probe": "v90-p11-teleported-shopkeeper-anger",
+        "reason": "Both saved scouts are complete and reaped. Terrain was revealed, but shopkeeper presence and the anger branch remain unproved. Deferred with source plan and protocol chronology preserved; no JS comparison or further C continuation.",
+        "outcome": "deferred"
       }
     ]
   },
