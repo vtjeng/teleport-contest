@@ -96,7 +96,7 @@
     "luaFile": null,
     "line": 554
   },
-  "summary": "The first mismatch is caused by a future planned iron-golem poison breath creating clouds through zap_over_floor without marking the borrowed transparency index for restoration. The planned map clone receives the clouds, but block_point rebuilds the module-wide transparency index from that clone; later pet visibility checks therefore observe future cloud state and skip dog_goal apport RNG. C and JavaScript agree through step 597; the first RNG mismatch is the pet’s rn2(8) apport check at step 598. Repair the ZT_POISON_GAS arm to admit the planned vision change before create_gas_cloud mutates cloud-region vision.",
+  "summary": "The initial RNG mismatch came from planned poison clouds, not dogmove.c:dog_goal. A future planned iron-golem breath called zap_over_floor and activated gas regions; block_point rebuilt the shared transparency index from the planning clone, hiding the coin from later pet visibility checks. zap_over_floor now admits that planned vision change before creating the cloud, and planSimpleMonsterTurn passes the callback into movemon_singlemon. The v83 replay now has no RNG divergence and first differs later on screen at step 859.",
   "source": {
     "file": "zap.c",
     "branch": "In zap_over_floor(), the ZT_POISON_GAS arm runs when ZAP_POS(lev->typ) accepts the traversed floor square. During monster-action planning, poison breath may create a cloud on the cloned level; creating the region calls block_point(), which rebuilds vision.c’s module-wide transparency index. The planning pass must mark that borrowed index before the mutation so preflightSimpleMonsterActions() restores it from the live level in its finally block.",
@@ -104,8 +104,8 @@
       "zap_over_floor"
     ],
     "callers": [
-      "mhitu.c:mattacku AT_BREA -> mthrowu.c:breamu -> mthrowu.c:breamm -> zap.c:dobuzz -> zap.c:zap_over_floor; JavaScript passes the planned action environment through breamu, breamm, dobuzz and zap_over_floor.",
-      "zap.c:dobuzz also calls zap_over_floor for ordinary ray traversal and deferred gas-cloud placement; the planned vision callback is supplied only by planning callers."
+      "mon.c:movemon_singlemon enters the ordered monster scan; monmove.c:dochug can select the iron-golem breath action, which reaches mthrowu.c:breamu/breamm, zap.c:dobuzz, and zap.c:zap_over_floor. The planning caller in js/unported_monster_actions.js now passes admitPlannedVisionChange through movemon_singlemon so the ZT_POISON_GAS branch marks the borrowed vision index before adding its region.",
+      "zap.c:dobuzz also calls zap_over_floor for ordinary ray traversal and deferred gas-cloud placement; only planned callers need the vision-admission callback."
     ],
     "dependencies": [
       "region.c:create_gas_cloud/make_gas_cloud/add_region",
@@ -120,6 +120,12 @@
     "Prep’s temporary zap.js caller trace at .cache/prep47-recovery/prep83/logs/rust-cloud-caller-trace.log shows six poison-cloud calls with planning:true and state._plannedVisionChange:null; the C/JS mismatch remains at RNG 2832 / step 598. The trace only read state before each call and did not replace behavior.",
     "C zap.c:zap_over_floor() lines 5141 onward handles ZT_POISON_GAS by calling create_gas_cloud(x,y,1,8) when ZAP_POS(lev->typ) succeeds, then breaks. C region.c:create_gas_cloud() creates a region and make_gas_cloud() adds it; the JavaScript add_region caller invokes blockPoint while adding gas clouds. JavaScript zap.js currently passes raw blockPoint and does not call the existing planned-vision admission callback first.",
     "JavaScript unported_monster_actions.js:admitPlannedVisionChange() clones vision buffers and marks _plannedVisionChange; preflightSimpleMonsterActions() restores the shared transparency index from the live state in a finally block only when that marker exists. The existing createMonsterGasCloud() helper demonstrates the required planning admission pattern for other cloud callers.",
-    "The current first cause is not dogmove.c:dog_goal(): that source path is where C’s next rn2(8) is consumed after the poisoned planning state has already hidden the coin. Later intended monster death/rust behavior is outside the first mismatch."
-  ]
+    "The current first cause is not dogmove.c:dog_goal(): that source path is where C’s next rn2(8) is consumed after the poisoned planning state has already hidden the coin. Later intended monster death/rust behavior is outside the first mismatch.",
+    "The post-fix v83 replay completes without a planner refusal or RNG divergence. It matches through step 858; its first remaining screen divergence is segment 0, step 859 (key space). The admitted case therefore verifies the planned iron-golem breath path only through step 858; the later screen difference remains outside this fix."
+  ],
+  "correction": {
+    "source": "mon.c:movemon_singlemon caller wiring",
+    "implementation": "js/unported_monster_actions.js:planSimpleMonsterTurn passes admitPlannedVisionChange into the planned movemon_singlemon environment.",
+    "runtime": "The exact admitted v83 replay reached 1351 screens and ended without a boundary refusal. Its first remaining divergence is the screen at step 859; the original RNG mismatch at step 598 is gone."
+  }
 }
