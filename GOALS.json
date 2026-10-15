@@ -318679,7 +318679,7 @@
     {
       "id": "divergence-fix-trap-float-down-chain-relocation-v89-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement float_down from trap.c",
       "cFile": "trap.c",
       "sessions": [
@@ -318689,10 +318689,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "635c213d360d7b7829fe4864c838b2271a212db0",
       "delivered": null,
       "function": "float_down",
-      "session": "synthetic/v89/v89-p08-floatdown-chain-relocation"
+      "session": "synthetic/v89/v89-p08-floatdown-chain-relocation",
+      "closeStanding": {
+        "sha": "635c213d360d7b7829fe4864c838b2271a212db0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "6cf5d79f88ac6629663d1e8d73048463c23fa318",
+        "target": "synthetic/v89/v89-p08-floatdown-chain-relocation",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/635c213d360d7b7829fe4864c838b2271a212db0/run-hosted-xW99FU/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "float_down",
+            "implementation": "js/trap.js",
+            "symbol": "float_down",
+            "sourceReview": "Read the full C definition at nethack-c/upstream/src/trap.c:4024-4177 and the corresponding JS definition at js/trap.js. In the Punished branch, C requires an uncarried ball, no monster on its square, and a pool/pit/hole; it saves the old hero location, moves the hero to the ball, calls the already-porting-equivalent hack.c:movobj on uchain at the ball coordinates, redraws the old hero square, and requests full vision recalculation. JS had omitted only the movobj caller and left the gap mislabeled obj.c. Replaced that placeholder with the existing synchronous hack.js:movobj, whose remove/maybe_unhide/newsym/place/newsym order matches hack.c:movobj:824-833. Other source behavior and unrelated preexisting unported calls in float_down were not changed.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_off_or_gone",
+                "source": "do_wear.c:Ring_off_or_gone:1407-1411 calls float_down(0,0) when the levitation ring is removed; the admitted case exercises that production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v89",
+                "caseId": "v89-p08-floatdown-chain-relocation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 105,
+                "source": "do_wear.c:Ring_off_or_gone removes the levitation ring -> trap.c:float_down moves the hero and calls hack.c:movobj(uchain, ball coordinates) -> the existing movobj helper removes and places the chain, redrawing both squares."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This divergence fix is the Punished-ball relocation branch of trap.c:float_down, reached in the admitted v89 case by removing the levitation ring through do_wear.c:Ring_off_or_gone. The branch reaches hack.c:movobj through its existing JS implementation. The saved baseline first differed at step 100 on ring removal; the corrected committed-tree replay matches the whole recording. Other float_down callers and unrelated branches are outside this divergence claim.",
+        "entryPoints": [
+          {
+            "name": "Levitation-ring removal with an uncarried punished ball on pool terrain and a separated chain",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v89",
+                "caseId": "v89-p08-floatdown-chain-relocation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 105,
+                "source": "do_wear.c:Ring_off_or_gone removes the levitation ring -> trap.c:float_down moves the hero and calls hack.c:movobj(uchain, ball coordinates) -> the existing movobj helper removes and places the chain, redrawing both squares."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
