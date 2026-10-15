@@ -1452,17 +1452,9 @@ const WALLTALK = Object.freeze([
 ]);
 
 /**
- * C ref: sounds.c dochat() (1256-1409), every arm that returns before the two
- * price_quote() at :1288 and the normal-target domonnoise() call at :1408
- * remain outside this task.
- *
- * The mounted-downward branch delegates to domonnoise() at :1302; the normal
- * target branch at :1408 remains outside this task. The admitted MS_SEDUCE arm
- * in domonnoise() answers ECMD_TIME. Two pre-monster arms draw, and both
- * belong to a hallucinating hero. The wall reply at :1364 spends rn2(10) on
- * the core stream, which the recorder logs. The statue line at :1338 spends
- * rndmonnam()'s draws on the display stream, which the recorder does not log --
- * but they still choose the name the line prints, so the arm is not free.
+ * C ref: sounds.c:dochat() (1256-1412). This task fills only the mounted,
+ * downward-chat branch at :1297-1302. The shop quote at :1288 and ordinary
+ * targeted domonnoise() call at :1408 remain outside this task.
  */
 async function dochat(state) {
     const u = state.u;
