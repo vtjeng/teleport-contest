@@ -15,7 +15,7 @@
   "dependencies": [],
   "mismatch": {
     "session": "synthetic/v89/v89-p08-floatdown-chain-relocation",
-    "remainingScreens": 0,
+    "remainingScreens": 6,
     "first": {
       "step": 100,
       "key": "R",
@@ -69,7 +69,7 @@
     "Added scripts/trap.test.mjs coverage pinning the caller order and the C-to-JS movobj operation sequence.",
     "Bounded committed-tree candidate replay of v89-p08-floatdown-chain-relocation matches all 106 screens, 106 cursor positions, and 1794 RNG calls with no error; synthetic range evidence verifies segment 0 through zero-based step 105."
   ],
-  "remainingScreens": 0,
+  "remainingScreens": 6,
   "recordedSteps": 106,
   "goalKind": "divergence-fix"
 }
