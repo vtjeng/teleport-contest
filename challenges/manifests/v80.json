@@ -1,0 +1,4132 @@
+{
+  "version": 1,
+  "batch": "v80",
+  "status": "prepared-not-admitted",
+  "preparationAssignmentBase": "fc3758558833d9f45b83033567f55bcbb78e5d21",
+  "deliveryBase": "fc3758558833d9f45b83033567f55bcbb78e5d21",
+  "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+  "caseCount": 14,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 13,
+  "cases": [
+    {
+      "id": "v80-writing-unseen-action1",
+      "title": "v80-writing-unseen-action1",
+      "mission": "write.c:dowrite106-110",
+      "sourcePointers": [
+        "write.c:dowrite106-110"
+      ],
+      "sourceTrace": "Blind before paper acquisition leaves dknown false; unknown-blank early refusal.",
+      "recipe": "challenges/cases/v80/v80-writing-unseen-action1.recipe.session.json",
+      "recipeSha256": "05a4fd5426cc47d4d1cb37aaf7ca8626d8bef0d978b8ac07b349dc5f6e419b53",
+      "recording": "challenges/cases/v80/v80-writing-unseen-action1.session.json",
+      "recordingSha256": "1cce0d62931ea4eea310cf275e83db600e9fba4b7230e8b97c92ae2332b416fd",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-unseen-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-unseen-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-unseen-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-unseen-action1.log",
+        "logSha256": "a0e3848b9ea3e32b8f1fc414291e40ee30daa2015d8e680b84e55e715e0991c1",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-unseen-action1.replay.session.json",
+        "outputSha256": "1cce0d62931ea4eea310cf275e83db600e9fba4b7230e8b97c92ae2332b416fd",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010534,
+            "datetime": "21000315132000",
+            "nethackrc": "OPTIONS=name:v80-writing-unseen-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        #wizintrinsic\n1000i\n                        \u0017uncursed scroll of blank paper\n                        i                        aab                        i                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 253,
+          "key": "b",
+          "rng": [],
+          "screen": "You don't know whether that scroll is blank or not.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n  -.----\n  |\u001b[90m....\u001b[39m|\n  |\u001b[90m.\u001b[93m$\u001b[90m..\u001b[39m|\n  |\u001b[90m..\u001b[97m@\u001b[90m.\u001b[33m+\u001b[39m\n  ------\n\n\nWizard the Plunderess\u001b[10CSt:18 Dx:17 Co:18 In:8 Wi:8 Ch:10 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:1 Blind",
+          "cursor": [
+            5,
+            18,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite106-110",
+        "segment": 0,
+        "steps": [
+          253,
+          253
+        ],
+        "difference": "No same reached guard in raw106/fixed44/frozenv1/recipes. v42 cursed-book blindness is a different reader caller.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2632,
+              "js": 2632
+            },
+            "screens": {
+              "c": 303,
+              "js": 303
+            },
+            "cursors": {
+              "c": 303,
+              "js": 303
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-unseen-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-unseen-action1.session.json",
+          "/tmp/teleport-score-YHaVqq"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-unseen-action1.log",
+        "logSha256": "0686009c8634b62b9c5fa6d876722e302f7dffbeda558dfc7b57504a8dae1784",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2632,
+              "js": 2632
+            },
+            "screens": {
+              "c": 303,
+              "js": 303
+            },
+            "cursors": {
+              "c": 303,
+              "js": 303
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-braille-action1",
+      "title": "v80-writing-braille-action1",
+      "mission": "write.c:dowrite111-116",
+      "sourcePointers": [
+        "write.c:dowrite111-116"
+      ],
+      "sourceTrace": "Paper observed before Blind; known spellbook braille refusal.",
+      "recipe": "challenges/cases/v80/v80-writing-braille-action1.recipe.session.json",
+      "recipeSha256": "c5845178eb8243568df89ec4e91217b69ced994f002645a6e4df1367d6b7e246",
+      "recording": "challenges/cases/v80/v80-writing-braille-action1.session.json",
+      "recordingSha256": "7957ba0caf7b9f0a1f66ef2e6a0890f19553f9b66dd0737c1ac1269225be9e87",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-braille-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-braille-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-braille-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-braille-action1.log",
+        "logSha256": "ed83250a03cba5b6b980b026081fd515c3c1e33bbcf96a4526165396cbbe9e99",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-braille-action1.replay.session.json",
+        "outputSha256": "7957ba0caf7b9f0a1f66ef2e6a0890f19553f9b66dd0737c1ac1269225be9e87",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010533,
+            "datetime": "21000315132000",
+            "nethackrc": "OPTIONS=name:v80-writing-braille-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed spellbook of blank paper\n                        i                        #wizintrinsic\n1000i\n                        aab                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 256,
+          "key": "b",
+          "rng": [],
+          "screen": "Your magic marker can't create braille text.\n\n\u001b[45C-------\n\u001b[45C.\u001b[90m.....\u001b[39m|\n\u001b[45C|\u001b[93m$\u001b[90m.\u001b[33m(\u001b[90m..\u001b[39m|\n\u001b[45C|\u001b[90m.\u001b[97m@\u001b[90m...\u001b[39m|\n\u001b[45C-.-----\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Plunderess\u001b[10CSt:18/02 Dx:17 Co:18 In:7 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:1 Blind",
+          "cursor": [
+            47,
+            5,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite111-116",
+        "segment": 0,
+        "steps": [
+          256,
+          256
+        ],
+        "difference": "Distinct from unseen paper first guard and v42 cursed_book blindness.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2791,
+              "js": 2791
+            },
+            "screens": {
+              "c": 281,
+              "js": 281
+            },
+            "cursors": {
+              "c": 281,
+              "js": 281
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-braille-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-braille-action1.session.json",
+          "/tmp/teleport-score-DyfDPS"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-braille-action1.log",
+        "logSha256": "6a17ca2cdad4c7f78f8bad031f62069468b69f83a9609d36c280285cd86d609c",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2791,
+              "js": 2791
+            },
+            "screens": {
+              "c": 281,
+              "js": 281
+            },
+            "cursors": {
+              "c": 281,
+              "js": 281
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-known-blind-action1",
+      "title": "v80-writing-known-blind-action1",
+      "mission": "write.c:dowrite340-352",
+      "sourcePointers": [
+        "write.c:dowrite340-352"
+      ],
+      "sourceTrace": "Permanent type identification before Blind; ink used, then rnl3 failure consumes paper.",
+      "recipe": "challenges/cases/v80/v80-writing-known-blind-action1.recipe.session.json",
+      "recipeSha256": "2c5fd2a18aec0a2322184e4582f82039470cd4112425b7ae491b2cf4b5443d09",
+      "recording": "challenges/cases/v80/v80-writing-known-blind-action1.session.json",
+      "recordingSha256": "4ec43b3d7001b853a30edd86eb3baa85876700f0160fc20ae32ab9d60628871b",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-known-blind-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-known-blind-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-known-blind-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-known-blind-action1.log",
+        "logSha256": "9dd5acc19283136e3d35f6f7876b10cf47676a99935013f1c100b6486c3f20fb",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-known-blind-action1.replay.session.json",
+        "outputSha256": "4ec43b3d7001b853a30edd86eb3baa85876700f0160fc20ae32ab9d60628871b",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010642,
+            "datetime": "21000418141500",
+            "nethackrc": "OPTIONS=name:v80-writing-known-blind-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed scroll of blank paper\n                        \u0017uncursed scroll of identify\n                        #wizidentify\n_\n                        #wizintrinsic\n1000i\n                        i                        aabidentify\n                        i                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 354,
+          "key": "\n",
+          "rng": [
+            "rnd(2)=2 @ next_ident(mkobj.c:521)",
+            "rn2(7)=3 @ dowrite(write.c:265)",
+            "rn2(19)=10 @ exercise(attrib.c:509)",
+            "rnl(3)=2 @ dowrite(write.c:342)",
+            "rn2(12)=6 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=2 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=2 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=3 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=25 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(400)=235 @ dosounds(sounds.c:213)",
+            "rn2(200)=70 @ dosounds(sounds.c:238)",
+            "rn2(91)=40 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "You fail to write the scroll correctly and it disappears.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[52C- ------------\n\u001b[52C|\u001b[90m..\u001b[97m@\u001b[90m.........\u001b[39m|\n\u001b[52C\u001b[33m+\u001b[90m.......\u001b[93m$\u001b[90m....\u001b[39m|\n\u001b[52C--------------\n\nWizard the Plunderess\u001b[10CSt:18/03 Dx:17 Co:16 In:7 Wi:8 Ch:6 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:2 Blind",
+          "cursor": [
+            55,
+            18,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite340-352",
+        "segment": 0,
+        "steps": [
+          354,
+          354
+        ],
+        "difference": "v27/v35 unknown-name failures stop at earlier rnl15 guard while sighted.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2365,
+              "js": 2365
+            },
+            "screens": {
+              "c": 404,
+              "js": 404
+            },
+            "cursors": {
+              "c": 404,
+              "js": 404
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-known-blind-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-known-blind-action1.session.json",
+          "/tmp/teleport-score-5a5CnQ"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-known-blind-action1.log",
+        "logSha256": "9d33aa20129fe1a1bb326377f99dca1bf4bbe87b60d89a0351bf76e9995da69e",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2365,
+              "js": 2365
+            },
+            "screens": {
+              "c": 404,
+              "js": 404
+            },
+            "cursors": {
+              "c": 404,
+              "js": 404
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-book-action1",
+      "title": "v80-writing-book-action1",
+      "mission": "write.c:dowrite268-278",
+      "sourcePointers": [
+        "write.c:dowrite268-278"
+      ],
+      "sourceTrace": "Marker35 charges crosses basecost70 half-cost guard; actual cost dries it, book remains unfinished.",
+      "recipe": "challenges/cases/v80/v80-writing-book-action1.recipe.session.json",
+      "recipeSha256": "98514f49124ec00a17b2c27db4afe3e1521735eb87ff34c10b13282bc586b34f",
+      "recording": "challenges/cases/v80/v80-writing-book-action1.session.json",
+      "recordingSha256": "c0e2a8c7a787eed01519b8d24044711fdebf17a2533ca8c7232145e30e6f0d0c",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-book-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-book-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-book-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-book-action1.log",
+        "logSha256": "eb39610d1eb239f8a29bed35eb7823f66591cc8d2c260eac3111d2d502351f08",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-book-action1.replay.session.json",
+        "outputSha256": "c0e2a8c7a787eed01519b8d24044711fdebf17a2533ca8c7232145e30e6f0d0c",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010531,
+            "datetime": "21000315132000",
+            "nethackrc": "OPTIONS=name:v80-writing-book-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:35)\n                        \u0017uncursed spellbook of blank paper\n                        i                        aabfinger of death\n                        i                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 228,
+          "key": "\n",
+          "rng": [
+            "rnd(2)=1 @ next_ident(mkobj.c:521)",
+            "rn2(35)=28 @ dowrite(write.c:265)",
+            "rn2(19)=17 @ exercise(attrib.c:509)"
+          ],
+          "screen": "Your marker dries out!--More--\n\n\n\n\n\n\n\n\n\n\u001b[5C----------\n\u001b[5C|........|\n\u001b[5C|........|\n\u001b[5C|.\u001b[97m@\u001b[39m.......\n\u001b[5C|......\u001b[33m[\u001b[39m.|\n\u001b[5C|.........\n\u001b[5C|...\u001b[93m$\u001b[39m....|\n\u001b[5C---.------\n\n\n\n\nWizard the Plunderess\u001b[10CSt:18 Dx:16 Co:18 In:8 Wi:7 Ch:8 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:1",
+          "cursor": [
+            30,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 229,
+          "key": " ",
+          "rng": [
+            "rn2(12)=2 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=4 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=25 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(200)=184 @ dosounds(sounds.c:238)",
+            "rn2(88)=62 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "The spellbook is left unfinished and your writing fades.\n\n\n\n\n\n\n\n\n\n\u001b[5C----------\n\u001b[5C|........|\n\u001b[5C|........|\n\u001b[5C|.\u001b[97m@\u001b[39m.......\n\u001b[5C|......\u001b[33m[\u001b[39m.|\n\u001b[5C|.........\n\u001b[5C|...\u001b[93m$\u001b[39m....|\n\u001b[5C---.------\n\n\n\n\nWizard the Plunderess\u001b[10CSt:18 Dx:16 Co:18 In:8 Wi:7 Ch:8 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:2",
+          "cursor": [
+            7,
+            13,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite268-278",
+        "segment": 0,
+        "steps": [
+          228,
+          229
+        ],
+        "difference": "No reached mid-write book dry-out found; unknown-name diary failure is a later branch.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2506,
+              "js": 2506
+            },
+            "screens": {
+              "c": 278,
+              "js": 278
+            },
+            "cursors": {
+              "c": 278,
+              "js": 278
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-book-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-book-action1.session.json",
+          "/tmp/teleport-score-YUL8wk"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-book-action1.log",
+        "logSha256": "e50546922594f8fd2fa4bb68e41bc5db23b99d8e6d891b130e648767e0fbc4ec",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2506,
+              "js": 2506
+            },
+            "screens": {
+              "c": 278,
+              "js": 278
+            },
+            "cursors": {
+              "c": 278,
+              "js": 278
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-scroll-action1",
+      "title": "v80-writing-scroll-action1",
+      "mission": "write.c:dowrite268-282",
+      "sourcePointers": [
+        "write.c:dowrite268-282"
+      ],
+      "sourceTrace": "Marker7 charges crosses identify basecost14 half-cost guard; actual cost dries marker and consumes scroll.",
+      "recipe": "challenges/cases/v80/v80-writing-scroll-action1.recipe.session.json",
+      "recipeSha256": "96a0d13ff86c8340bc9a48b3fe9c0e7a113ced02cedee03e920be21b23fa3ab3",
+      "recording": "challenges/cases/v80/v80-writing-scroll-action1.session.json",
+      "recordingSha256": "ec4da55eabff21eb4ba4dce04e4aac564c4af07667e94af7c07405cb579af8cd",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-scroll-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-scroll-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-scroll-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-scroll-action1.log",
+        "logSha256": "e4f1c31f091e052a2d601952e3fef9499857c5550c07a39ec4f36690a6b7888f",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-scroll-action1.replay.session.json",
+        "outputSha256": "ec4da55eabff21eb4ba4dce04e4aac564c4af07667e94af7c07405cb579af8cd",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010532,
+            "datetime": "21000315132000",
+            "nethackrc": "OPTIONS=name:v80-writing-scroll-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:7)\n                        \u0017uncursed scroll of blank paper\n                        i                        aabidentify\n                        i                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 217,
+          "key": "\n",
+          "rng": [
+            "rnd(2)=1 @ next_ident(mkobj.c:521)",
+            "rn2(7)=6 @ dowrite(write.c:265)",
+            "rn2(19)=15 @ exercise(attrib.c:509)",
+            "rn2(12)=3 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=4 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=5 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(400)=53 @ dosounds(sounds.c:213)",
+            "rn2(88)=50 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "Your marker dries out!  The scroll is now useless and disappears!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[30C------------\u001b[33m+\u001b[39m---\n\u001b[30C|........\u001b[97m@\u001b[39m.....|\n\u001b[30C...............|\n\u001b[30C|...............\n\u001b[30C....\u001b[33m%\u001b[39m....\u001b[31md\u001b[39m.....|\n\u001b[30C----------------\n\n\nWizard the Plunderess\u001b[10CSt:18/01 Dx:16 Co:17 In:9 Wi:7 Ch:7 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:2",
+          "cursor": [
+            39,
+            15,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite268-282",
+        "segment": 0,
+        "steps": [
+          217,
+          217
+        ],
+        "difference": "Distinct from unfinished-book paper class and earlier unknown-writing failure after ink subtraction.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2177,
+              "js": 2177
+            },
+            "screens": {
+              "c": 267,
+              "js": 267
+            },
+            "cursors": {
+              "c": 267,
+              "js": 267
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-scroll-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-scroll-action1.session.json",
+          "/tmp/teleport-score-Z63u81"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-scroll-action1.log",
+        "logSha256": "fa542187aad692b59ba892667da27178f59619c0fed7234baea21fb6451052b5",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2177,
+              "js": 2177
+            },
+            "screens": {
+              "c": 267,
+              "js": 267
+            },
+            "cursors": {
+              "c": 267,
+              "js": 267
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-label-action1",
+      "title": "v80-writing-label-action1",
+      "mission": "write.c:dowrite167-170,313-318",
+      "sourcePointers": [
+        "write.c:dowrite167-170,313-318"
+      ],
+      "sourceTrace": "Successful by-description writing merges new scroll with observed HAPAX LEGOMENON enchant-armor stack. JS refuses missing encumberMessage at writeEnv.",
+      "recipe": "challenges/cases/v80/v80-writing-label-action1.recipe.session.json",
+      "recipeSha256": "fb85d9efe2da85444273741b8a3beecde9f514f2372fe5cf0ee44410742f8ac0",
+      "recording": "challenges/cases/v80/v80-writing-label-action1.session.json",
+      "recordingSha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-label-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-label-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-label-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-label-action1.log",
+        "logSha256": "ffd0842d2afaf4226646439ce2c5741096bee692c5e773768d62c2aa817dec25",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-label-action1.replay.session.json",
+        "outputSha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010641,
+            "datetime": "21000418141500",
+            "nethackrc": "OPTIONS=name:v80-writing-label-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed scroll of blank paper\n                        \u0017uncursed scroll of enchant armor\n                        i                        aabHAPAX LEGOMENON\n                        i                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 283,
+          "key": "\n",
+          "rng": [
+            "rnd(2)=2 @ next_ident(mkobj.c:521)",
+            "rn2(8)=0 @ dowrite(write.c:265)",
+            "rn2(19)=17 @ exercise(attrib.c:509)",
+            "rn2(12)=2 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=7 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=9 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=10 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=55 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(91)=88 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "c - a scroll labeled HAPAX LEGOMENON (2 in total).\n\n\n -----\n |\u001b[97m@\u001b[39m..|\n |...|\n |..\u001b[93m:\u001b[39m|\n |....\n -----\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Plunderess\u001b[10CSt:17 Dx:17 Co:18 In:9 Wi:7 Ch:7 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:2",
+          "cursor": [
+            2,
+            4,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": true,
+      "matchingControl": false,
+      "firstMismatch": {
+        "segment": 0,
+        "step": 283,
+        "firstOwner": "write.c:dowrite successful acquisition caller",
+        "source": "write.c:dowrite -> invent.c:hold_another_object -> pickup.c:encumber_msg",
+        "behavior": "writeEnv returns empty hooks; successful by-description scroll writing reaches hold_another_object required encumberMessage and refuses. C merges new scroll then continues game turn.",
+        "distinctness": "Prior v27/v35/v36 attempts fail unknown writing before successful acquisition. v33 invoke_create_ammo and accepted v76 light_cocktail1b0d614d omit same helper hook from different source callers. Actual first omitted caller is write.c:dowrite -> hold_another_object, not a new helper implementation.",
+        "officialComparison": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2826,
+              "js": 2820
+            },
+            "screens": {
+              "c": 333,
+              "js": 283
+            },
+            "cursors": {
+              "c": 333,
+              "js": 283
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2820,
+            "cEntry": "rn2(12)=2",
+            "cCaller": "mcalcmove(mon.c:1164)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 283,
+              "key": "\n"
+            }
+          },
+          "screenMismatch": {
+            "index": 283,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 283,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 283,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 283,
+              "key": "\n"
+            },
+            "cCursor": [
+              2,
+              4,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        },
+        "observerError": {
+          "name": "UnsupportedHeroCommandBoundaryError",
+          "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 323",
+          "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 323\n    at failClosedCommand (file:///tmp/teleport-score-hHXeSQ/js/cmd.js:3045:19)\n    at async rhack (file:///tmp/teleport-score-hHXeSQ/js/cmd.js:5984:25)\n    at async moveloop_core (file:///tmp/teleport-score-hHXeSQ/js/allmain.js:1799:9)\n    at async Module.runSegment (file:///tmp/teleport-score-hHXeSQ/js/jsmain.js:784:13)\n    at async file:///tmp/teleport-loop-worker-prep-20261008/.cache/prep80/boundary-prefix-accepted.mjs:3:1155",
+          "boundaryObserver": true
+        },
+        "prefixProof": {
+          "path": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-boundary-prefix-v80-writing-label-action1.json",
+          "sha256": "a316598b1f14a10aa49bf7e8bcc06ce6f71215861cbf7f7400bf73bb9cb7444b",
+          "caseId": "v80-writing-label-action1",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "error": {
+            "name": "UnsupportedHeroCommandBoundaryError",
+            "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 323",
+            "stack": "UnsupportedHeroCommandBoundaryError: unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 323\n    at failClosedCommand (file:///tmp/teleport-score-hHXeSQ/js/cmd.js:3045:19)\n    at async rhack (file:///tmp/teleport-score-hHXeSQ/js/cmd.js:5984:25)\n    at async moveloop_core (file:///tmp/teleport-score-hHXeSQ/js/allmain.js:1799:9)\n    at async Module.runSegment (file:///tmp/teleport-score-hHXeSQ/js/jsmain.js:784:13)\n    at async file:///tmp/teleport-loop-worker-prep-20261008/.cache/prep80/boundary-prefix-accepted.mjs:3:1155",
+            "boundaryObserver": true
+          },
+          "capturedScreenCount": 283,
+          "errorDuringStep": 283,
+          "prefixComparison": {
+            "passed": true,
+            "error": null,
+            "lengths": {
+              "rng": {
+                "c": 2817,
+                "js": 2817
+              },
+              "screens": {
+                "c": 283,
+                "js": 283
+              },
+              "cursors": {
+                "c": 283,
+                "js": 283
+              },
+              "animFrames": {
+                "c": 0,
+                "js": 0
+              }
+            },
+            "rngMismatch": null,
+            "screenMismatch": null,
+            "cursorMismatch": null,
+            "animMismatch": null,
+            "segmentMismatch": null
+          },
+          "delegatedCaptureHook": true,
+          "gameInputsUnchanged": true
+        }
+      },
+      "matchingControlRationale": null,
+      "localComparison": {
+        "caseId": "v80-writing-label-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-label-action1.session.json",
+          "/tmp/teleport-score-yrdIGp"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-label-action1.log",
+        "logSha256": "99a40df54673347350fd8c72aef12c5ac54a4176049becd12c22df8293a78329",
+        "result": {
+          "passed": false,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2826,
+              "js": 2820
+            },
+            "screens": {
+              "c": 333,
+              "js": 283
+            },
+            "cursors": {
+              "c": 333,
+              "js": 283
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": {
+            "index": 2820,
+            "cEntry": "rn2(12)=2",
+            "cCaller": "mcalcmove(mon.c:1164)",
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 283,
+              "key": "\n"
+            }
+          },
+          "screenMismatch": {
+            "index": 283,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 283,
+              "key": "\n"
+            },
+            "kind": "js-missing"
+          },
+          "cursorMismatch": {
+            "index": 283,
+            "location": {
+              "segmentIndex": 0,
+              "stepIndex": 283,
+              "key": "\n"
+            },
+            "cCursor": [
+              2,
+              4,
+              1
+            ]
+          },
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-novel-action1",
+      "title": "v80-writing-novel-action1",
+      "mission": "write.c:dowrite214-237 SPE_NOVEL",
+      "sourcePointers": [
+        "write.c:dowrite214-237 SPE_NOVEL"
+      ],
+      "sourceTrace": "Novel target chooses inspiration failure then give-up, before ink/literacy.",
+      "recipe": "challenges/cases/v80/v80-writing-novel-action1.recipe.session.json",
+      "recipeSha256": "b75590270bead9312f7987f778a161f393616b4a732c1820d4d5358340bb19ad",
+      "recording": "challenges/cases/v80/v80-writing-novel-action1.session.json",
+      "recordingSha256": "cf2aa3be30d5a82179434b59190063c1b276e0ce7448d73ad384a5d8e50fbf0d",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-novel-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-novel-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-novel-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-novel-action1.log",
+        "logSha256": "36f48d71e409402a3fd30087644b82a3f86cd6b8df5773d5424211b80b148aa0",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-novel-action1.replay.session.json",
+        "outputSha256": "cf2aa3be30d5a82179434b59190063c1b276e0ce7448d73ad384a5d8e50fbf0d",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010533,
+            "datetime": "21000315132000",
+            "nethackrc": "OPTIONS=name:v80-writing-novel-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed spellbook of blank paper\n                        i                        aabnovel\n                        i                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 218,
+          "key": "\n",
+          "rng": [
+            "rn2(3)=2 @ dowrite(write.c:216)",
+            "rn2(3)=1 @ dowrite(write.c:216)"
+          ],
+          "screen": "You prepare to write the Great Yendorian Novel, but lack inspiration.--More--\n\n\u001b[45C-------\n\u001b[45C......|\n\u001b[45C|\u001b[93m$\u001b[39m.\u001b[33m(\u001b[39m..|\n\u001b[45C|.\u001b[97m@\u001b[39m...|\n\u001b[45C-.-----\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Plunderess\u001b[10CSt:18/02 Dx:17 Co:18 In:7 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:1",
+          "cursor": [
+            77,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 219,
+          "key": " ",
+          "rng": [
+            "rn2(12)=0 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=8 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=21 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(400)=41 @ dosounds(sounds.c:213)",
+            "rn2(91)=32 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "You give up on the idea.\n\n\u001b[45C-------\n\u001b[45C......|\n\u001b[45C|\u001b[93m$\u001b[39m.\u001b[33m(\u001b[39m..|\n\u001b[45C|.\u001b[97m@\u001b[39m...|\n\u001b[45C-.-----\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Plunderess\u001b[10CSt:18/02 Dx:17 Co:18 In:7 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:2",
+          "cursor": [
+            47,
+            5,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite214-237 SPE_NOVEL",
+        "segment": 0,
+        "steps": [
+          218,
+          219
+        ],
+        "difference": "v52 reads novel; v61 applies novel; v76 cancels novel. Different substantive command branches.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2799,
+              "js": 2799
+            },
+            "screens": {
+              "c": 268,
+              "js": 268
+            },
+            "cursors": {
+              "c": 268,
+              "js": 268
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-novel-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-novel-action1.session.json",
+          "/tmp/teleport-score-g5cZJ5"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-novel-action1.log",
+        "logSha256": "7b4bd27606f2ffbe070032559e47ba7612c895d9bf16e2559af97c1d006afc58",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2799,
+              "js": 2799
+            },
+            "screens": {
+              "c": 268,
+              "js": 268
+            },
+            "cursors": {
+              "c": 268,
+              "js": 268
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-book-dead-action1",
+      "title": "v80-writing-book-dead-action1",
+      "mission": "write.c:dowrite238-240",
+      "sourcePointers": [
+        "write.c:dowrite238-240"
+      ],
+      "sourceTrace": "Book of Dead as writing target refuses before literacy/ink.",
+      "recipe": "challenges/cases/v80/v80-writing-book-dead-action1.recipe.session.json",
+      "recipeSha256": "194c6229df4decdb318aecfdc359744745b0b9b2e1bbf0ef7823a1dff0a5ef91",
+      "recording": "challenges/cases/v80/v80-writing-book-dead-action1.session.json",
+      "recordingSha256": "eebb3cf8cdfa1be42216d352365838b6e834764b13ea306a5ad616f415079db7",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-book-dead-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-book-dead-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-book-dead-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-book-dead-action1.log",
+        "logSha256": "9b97d5cfedf77728d7094d1c687378f50ac24bde892cf85dba1f32f8cdf93b6f",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-book-dead-action1.replay.session.json",
+        "outputSha256": "eebb3cf8cdfa1be42216d352365838b6e834764b13ea306a5ad616f415079db7",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010533,
+            "datetime": "21000315132000",
+            "nethackrc": "OPTIONS=name:v80-writing-book-dead-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed spellbook of blank paper\n                        i                        aabBook of the Dead\n                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 229,
+          "key": "\n",
+          "rng": [
+            "rn2(12)=5 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=7 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=14 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(400)=56 @ dosounds(sounds.c:213)",
+            "rn2(91)=49 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "No mere dungeon adventurer could write that.\n\n\u001b[45C-------\n\u001b[45C......|\n\u001b[45C|\u001b[93m$\u001b[39m.\u001b[33m(\u001b[39m..|\n\u001b[45C|.\u001b[97m@\u001b[39m...|\n\u001b[45C-.-----\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Plunderess\u001b[10CSt:18/02 Dx:17 Co:18 In:7 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:2",
+          "cursor": [
+            47,
+            5,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite238-240",
+        "segment": 0,
+        "steps": [
+          229,
+          229
+        ],
+        "difference": "Prior Book reading/invocation cases do not enter dowrite special target.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2797,
+              "js": 2797
+            },
+            "screens": {
+              "c": 254,
+              "js": 254
+            },
+            "cursors": {
+              "c": 254,
+              "js": 254
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-book-dead-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-book-dead-action1.session.json",
+          "/tmp/teleport-score-TQxNg8"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-book-dead-action1.log",
+        "logSha256": "78fc1ff3af9ffdee68e299a9cbd7725f3e9ec7233b36d2b9a2896485146273d3",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2797,
+              "js": 2797
+            },
+            "screens": {
+              "c": 254,
+              "js": 254
+            },
+            "cursors": {
+              "c": 254,
+              "js": 254
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-writing-nonblank-action1",
+      "title": "v80-writing-nonblank-action1",
+      "mission": "write.c:dowrite103-104,118-122",
+      "sourcePointers": [
+        "write.c:dowrite103-104,118-122"
+      ],
+      "sourceTrace": "Actual Witches Abroad paperback selected as writing paper: That book is not blank, exercises Wisdom.",
+      "recipe": "challenges/cases/v80/v80-writing-nonblank-action1.recipe.session.json",
+      "recipeSha256": "9992108ec54c0d43b4c60f99039d75e9c5869667678f35830fef8b35ed46ddc2",
+      "recording": "challenges/cases/v80/v80-writing-nonblank-action1.session.json",
+      "recordingSha256": "1c991131614839d1cbce346f71d535656928403238265e4d33242101faeb8c72",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-writing-nonblank-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-nonblank-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-nonblank-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-writing-nonblank-action1.log",
+        "logSha256": "035be770f9d31d637930a0ec3a1f50d5300844d8bcf5f7f6fa466d7df39367f4",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-writing-nonblank-action1.replay.session.json",
+        "outputSha256": "1c991131614839d1cbce346f71d535656928403238265e4d33242101faeb8c72",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010643,
+            "datetime": "21000418141500",
+            "nethackrc": "OPTIONS=name:v80-writing-nonblank-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed magic marker (0:80)\n                        \u0017uncursed novel\n                        i                        aab                        i                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 193,
+          "key": "b",
+          "rng": [
+            "rn2(2)=1 @ exercise(attrib.c:509)",
+            "rn2(12)=4 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=7 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=59 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(200)=135 @ dosounds(sounds.c:238)",
+            "rn2(94)=67 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "That book is not blank!\n\n\u001b[29C--------------\n\u001b[29C|...........\u001b[33mr\u001b[39m|\n\u001b[29C.......\u001b[33m%\u001b[97m@\u001b[39m.....\n\u001b[29C----\u001b[33m+\u001b[39m---------\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Plunderess\u001b[10CSt:18 Dx:18 Co:18 In:7 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:16(16) Pw:2(2) AC:10 Xp:1 T:2",
+          "cursor": [
+            37,
+            4,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "write.c:dowrite103-104,118-122",
+        "segment": 0,
+        "steps": [
+          193,
+          193
+        ],
+        "difference": "Distinct from typing novel as target and prior read/apply/cancel novel callers.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2479,
+              "js": 2479
+            },
+            "screens": {
+              "c": 243,
+              "js": 243
+            },
+            "cursors": {
+              "c": 243,
+              "js": 243
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-writing-nonblank-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-writing-nonblank-action1.session.json",
+          "/tmp/teleport-score-Ygxr2P"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-writing-nonblank-action1.log",
+        "logSha256": "bcd205bf9cac53f491891036b05d084d878e0786e853c5e11ee67ef9b28db2ea",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2479,
+              "js": 2479
+            },
+            "screens": {
+              "c": 243,
+              "js": 243
+            },
+            "cursors": {
+              "c": 243,
+              "js": 243
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-web-boulder-action1",
+      "title": "v80-web-boulder-action1",
+      "mission": "polyself.c:dospinweb1585-1590",
+      "sourcePointers": [
+        "polyself.c:dospinweb1585-1590"
+      ],
+      "sourceTrace": "Untrapped giant spider over actual rolling-boulder trap jams/deletes trigger through ability.",
+      "recipe": "challenges/cases/v80/v80-web-boulder-action1.recipe.session.json",
+      "recipeSha256": "2de392ed9feb9a21ec1cd786af181cf8fee11f4ea2fad941461967eab758b36a",
+      "recording": "challenges/cases/v80/v80-web-boulder-action1.session.json",
+      "recordingSha256": "c298e2219d0563a6274bdb142c785edaa3f4aebbc7f8f1a7afb14543512e5dec",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-web-boulder-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-web-boulder-action1.recipe.session.json",
+          ".cache/prep80/v80-web-boulder-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-web-boulder-action1.log",
+        "logSha256": "810403eaaa25be5f07f60ebbe009d5e30d7a991d17a12f5ba9e2c12ebc23657b",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-web-boulder-action1.replay.session.json",
+        "outputSha256": "c298e2219d0563a6274bdb142c785edaa3f4aebbc7f8f1a7afb14543512e5dec",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010752,
+            "datetime": "21000521151600",
+            "nethackrc": "OPTIONS=name:v80-web-boulder-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        h:                        #polyself\ngiant spider\n                        \u0017rolling boulder trap\n                        :                        #monster\n                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 224,
+          "key": "\n",
+          "rng": [
+            "rn2(70)=17 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(94)=12 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "You spin a web, jamming the trigger.\n\n\n\n\n\n\n\n\n\n\u001b[5C------------\n\u001b[5C|........_..\n\u001b[5C|..........|\n\u001b[5C|\u001b[35ms\u001b[93m<\u001b[33m(\u001b[35m!\u001b[39m......|\n\u001b[5C------------\n\n\n\n\n\n\n\nWizard the Giant Spider\u001b[8CSt:18/** Dx:18 Co:18 In:8 Wi:8 Ch:6 Neutral\nDlvl:1 $:0 HP:24(24) Pw:2(2) AC:4 HD:5 T:3",
+          "cursor": [
+            6,
+            13,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "polyself.c:dospinweb1585-1590",
+        "segment": 0,
+        "steps": [
+          224,
+          224
+        ],
+        "difference": "v12 activates rolling boulder/no-launch; v61/62 failed Sokoban web approaches never jam this trigger.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2635,
+              "js": 2635
+            },
+            "screens": {
+              "c": 249,
+              "js": 249
+            },
+            "cursors": {
+              "c": 249,
+              "js": 249
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-web-boulder-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-web-boulder-action1.session.json",
+          "/tmp/teleport-score-vRApRs"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-web-boulder-action1.log",
+        "logSha256": "bdd7bc1e82d17f8b78c3e6cbff37703b7c20614cb671f8612253e118e703c5c9",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2635,
+              "js": 2635
+            },
+            "screens": {
+              "c": 249,
+              "js": 249
+            },
+            "cursors": {
+              "c": 249,
+              "js": 249
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-web-levitation-action1",
+      "title": "v80-web-levitation-action1",
+      "mission": "polyself.c:dospinweb1506-1511",
+      "sourcePointers": [
+        "polyself.c:dospinweb1506-1511"
+      ],
+      "sourceTrace": "Actual worn ring Levitation remains in giant-spider form; refuses before Dexterity exercise or web creation.",
+      "recipe": "challenges/cases/v80/v80-web-levitation-action1.recipe.session.json",
+      "recipeSha256": "916984b39ddabd79adee44678fd62a2b7a844b8293b72ad78d89817bd5135eef",
+      "recording": "challenges/cases/v80/v80-web-levitation-action1.session.json",
+      "recordingSha256": "02262ade5a2c46cb27c007e535965514baa71fa4b5adb15f451dad9723fdfa79",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-web-levitation-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-web-levitation-action1.recipe.session.json",
+          ".cache/prep80/v80-web-levitation-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-web-levitation-action1.log",
+        "logSha256": "4e6594ccd9b443766f8b3bd039c5304d582d0e666bdc2376fd1bce2354b42017",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-web-levitation-action1.replay.session.json",
+        "outputSha256": "02262ade5a2c46cb27c007e535965514baa71fa4b5adb15f451dad9723fdfa79",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010644,
+            "datetime": "21000418141500",
+            "nethackrc": "OPTIONS=name:v80-web-levitation-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed ring of levitation\n                        Pal                        #polyself\ngiant spider\n                        #monster\n                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 207,
+          "key": "\n",
+          "rng": [],
+          "screen": "You must be on the ground to spin a web.\n\n\n\u001b[14C-------\n\u001b[14C|..\u001b[35ms\u001b[39m...\n\u001b[14C......|\n\u001b[14C-------\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Giant Spider\u001b[8CSt:18/** Dx:17 Co:16 In:8 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:25(25) Pw:2(2) AC:4 HD:5 T:2 Lev",
+          "cursor": [
+            17,
+            4,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "polyself.c:dospinweb1506-1511",
+        "segment": 0,
+        "steps": [
+          207,
+          207
+        ],
+        "difference": "Prior float_up/web-vs-TT_WEB and held Sokoban pit attempts concern different conditions; successful floor web differs.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2739,
+              "js": 2739
+            },
+            "screens": {
+              "c": 232,
+              "js": 232
+            },
+            "cursors": {
+              "c": 232,
+              "js": 232
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-web-levitation-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-web-levitation-action1.session.json",
+          "/tmp/teleport-score-LHATfh"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-web-levitation-action1.log",
+        "logSha256": "23447e911d0eded86fd95b667766471568525175cd360e8e5a4f5eae4a9ea76e",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2739,
+              "js": 2739
+            },
+            "screens": {
+              "c": 232,
+              "js": 232
+            },
+            "cursors": {
+              "c": 232,
+              "js": 232
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-gaze-sleeping-action2",
+      "title": "v80-gaze-sleeping-action2",
+      "mission": "polyself.c:dogaze1709-1713",
+      "sourcePointers": [
+        "polyself.c:dogaze1709-1713"
+      ],
+      "sourceTrace": "Gaze skips sleeping eye; post-gaze stethoscope confirms Level3 HP16 AC9 asleep.",
+      "recipe": "challenges/cases/v80/v80-gaze-sleeping-action2.recipe.session.json",
+      "recipeSha256": "4f5601a6f8d6adeffe63fd9ea3fa656fb467adcffb3b4e6f4b4c7c5600f746f9",
+      "recording": "challenges/cases/v80/v80-gaze-sleeping-action2.session.json",
+      "recordingSha256": "c4a727c700689bba7a69fd643292ca7498e2ade71d6eeee57828a6642dc85842",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-gaze-sleeping-action2",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-gaze-sleeping-action2.recipe.session.json",
+          ".cache/prep80/v80-gaze-sleeping-action2.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-gaze-sleeping-action2.log",
+        "logSha256": "35abe24a7bb032b12bf8df47c267c1fb14427affdbff1e3c1a9fb2f89648e501",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-gaze-sleeping-action2.replay.session.json",
+        "outputSha256": "c4a727c700689bba7a69fd643292ca7498e2ade71d6eeee57828a6642dc85842",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010645,
+            "datetime": "21000418141500",
+            "nethackrc": "OPTIONS=name:v80-gaze-sleeping-action2,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n20\n                        #polyself\number hulk\n                        #wizgenesis\nsleeping floating eye\n                        #monster\n                        \u0017uncursed stethoscope\n                        aab                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 223,
+          "key": "\n",
+          "rng": [
+            "rn2(12)=9 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=4 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=5 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=7 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=10 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(3)=0 @ u_calc_moveamt(allmain.c:131)",
+            "rn2(400)=250 @ dosounds(sounds.c:213)",
+            "rn2(200)=108 @ dosounds(sounds.c:238)",
+            "rn2(94)=31 @ moveloop_core(allmain.c:360)",
+            "rn2(31)=14 @ moveloop_core(allmain.c:415)"
+          ],
+          "screen": "You gaze at no place in particular.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[64C--------\n\u001b[64C|......\n\u001b[64C|......|\n\u001b[64C|.....\u001b[33mU\u001b[39m|\n\u001b[64C|....\u001b[34me\u001b[39m.|\n\u001b[64C\u001b[33m+\u001b[39m......|\n\u001b[64C------\u001b[33m+\u001b[39m-\n\nWizard the Umber Hulk\u001b[10CSt:18/** Dx:18 Co:17 In:8 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:42(42) Pw:28(43) AC:2 HD:9 T:2",
+          "cursor": [
+            70,
+            17,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 296,
+          "key": "b",
+          "rng": [],
+          "screen": "Status of the floating eye (neutral, small):  Level 3  HP 16(16)  AC 9, asleep.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[64C--------\n\u001b[64C|......\n\u001b[64C|......|\n\u001b[64C|.....\u001b[33mU\u001b[39m|\n\u001b[64C|....\u001b[34me\u001b[39m.|\n\u001b[64C\u001b[33m+\u001b[39m......|\n\u001b[64C------\u001b[33m+\u001b[39m-\n\nWizard the Umber Hulk\u001b[10CSt:18/** Dx:18 Co:17 In:8 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:42(42) Pw:28(43) AC:2 HD:9 T:2",
+          "cursor": [
+            70,
+            17,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "polyself.c:dogaze1709-1713",
+        "segment": 0,
+        "steps": [
+          223,
+          296
+        ],
+        "difference": "Closest v30 lichen skips !haseyes; new case exercises first helpless operand with eyed target and no retaliatory gaze.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4997,
+              "js": 4997
+            },
+            "screens": {
+              "c": 321,
+              "js": 321
+            },
+            "cursors": {
+              "c": 321,
+              "js": 321
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-gaze-sleeping-action2",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-gaze-sleeping-action2.session.json",
+          "/tmp/teleport-score-XHseqy"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-gaze-sleeping-action2.log",
+        "logSha256": "9200b56cfcd48a69022654d4e357cdebc610034208e0a506ec64fe6f9656463c",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 4997,
+              "js": 4997
+            },
+            "screens": {
+              "c": 321,
+              "js": 321
+            },
+            "cursors": {
+              "c": 321,
+              "js": 321
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-gaze-freeaction-action1",
+      "title": "v80-gaze-freeaction-action1",
+      "mission": "polyself.c:dogaze1742-1755",
+      "sourcePointers": [
+        "polyself.c:dogaze1742-1755"
+      ],
+      "sourceTrace": "Umber hulk gaze confuses eye, then Free_action causes stiffen momentarily retaliation guard.",
+      "recipe": "challenges/cases/v80/v80-gaze-freeaction-action1.recipe.session.json",
+      "recipeSha256": "043d9fb445f6762e32815f8ec803234cf942e1917ac4e52da676649e80decfa8",
+      "recording": "challenges/cases/v80/v80-gaze-freeaction-action1.session.json",
+      "recordingSha256": "59fbf6075f9af80080523461ff8ce64d2141d97a2d1dccff1b4ecd0a21c92b6b",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-gaze-freeaction-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-gaze-freeaction-action1.recipe.session.json",
+          ".cache/prep80/v80-gaze-freeaction-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-gaze-freeaction-action1.log",
+        "logSha256": "843d41a46e7a3907500568066b9a0479540e9f1bf6024bee2cd3a50cea6f854b",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-gaze-freeaction-action1.replay.session.json",
+        "outputSha256": "59fbf6075f9af80080523461ff8ce64d2141d97a2d1dccff1b4ecd0a21c92b6b",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010751,
+            "datetime": "21000521151600",
+            "nethackrc": "OPTIONS=name:v80-gaze-freeaction-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed ring of free action\n                        Pal                        #levelchange\n20\n                        #polyself\number hulk\n                        #wizgenesis\npeaceful floating eye\n                        #monster\ny                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 305,
+          "key": "y",
+          "rng": [],
+          "screen": "Your gaze confuses the floating eye!--More--\n\n\n\u001b[9C--------------\n\u001b[9C|..........\u001b[34me\u001b[39m.|\n\u001b[9C...........\u001b[33mU\u001b[39m..\n\u001b[9C|............|\n\u001b[9C|............\u001b[33m+\u001b[39m\n\u001b[9C-- -----------\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Umber Hulk\u001b[10CSt:18/** Dx:17 Co:18 In:7 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:45(45) Pw:29(44) AC:2 HD:9 T:2",
+          "cursor": [
+            44,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 306,
+          "key": " ",
+          "rng": [
+            "rn2(12)=4 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=1 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=56 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(3)=2 @ u_calc_moveamt(allmain.c:131)",
+            "rn2(400)=7 @ dosounds(sounds.c:213)",
+            "rn2(91)=60 @ moveloop_core(allmain.c:360)",
+            "rn2(12)=10 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=6 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=4 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(3)=0 @ u_calc_moveamt(allmain.c:131)",
+            "rn2(400)=321 @ dosounds(sounds.c:213)",
+            "rn2(91)=84 @ moveloop_core(allmain.c:360)"
+          ],
+          "screen": "You stiffen momentarily under the floating eye's gaze.\n\n\n\u001b[9C--------------\n\u001b[9C|..........\u001b[34me\u001b[39m.|\n\u001b[9C...........\u001b[33mU\u001b[39m..\n\u001b[9C|............|\n\u001b[9C|............\u001b[33m+\u001b[39m\n\u001b[9C-- -----------\n\n\n\n\n\n\n\n\n\n\n\n\n\nWizard the Umber Hulk\u001b[10CSt:18/** Dx:17 Co:18 In:7 Wi:7 Ch:6 Neutral\nDlvl:1 $:0 HP:45(45) Pw:29(44) AC:2 HD:9 T:4",
+          "cursor": [
+            20,
+            5,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "polyself.c:dogaze1742-1755",
+        "segment": 0,
+        "steps": [
+          305,
+          306
+        ],
+        "difference": "v50 same eye gaze freezes hero without Free_action; physical passive and mirror-eye are other callers.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2812,
+              "js": 2812
+            },
+            "screens": {
+              "c": 330,
+              "js": 330
+            },
+            "cursors": {
+              "c": 330,
+              "js": 330
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-gaze-freeaction-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-gaze-freeaction-action1.session.json",
+          "/tmp/teleport-score-K2fE2O"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-gaze-freeaction-action1.log",
+        "logSha256": "f1071df6d09de7f3ae1526727d30acdadd6260614f4658d80741e830ee09b66c",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2812,
+              "js": 2812
+            },
+            "screens": {
+              "c": 330,
+              "js": 330
+            },
+            "cursors": {
+              "c": 330,
+              "js": 330
+            },
+            "animFrames": {
+              "c": 0,
+              "js": 0
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    },
+    {
+      "id": "v80-gaze-resistant-action1",
+      "title": "v80-gaze-resistant-action1",
+      "mission": "polyself.c:dogaze1725-1739",
+      "sourcePointers": [
+        "polyself.c:dogaze1725-1739"
+      ],
+      "sourceTrace": "Pyrolisk gaze d2,6 meets actual red-dragon fire resistance: damage0; level24 item heat check still runs.",
+      "recipe": "challenges/cases/v80/v80-gaze-resistant-action1.recipe.session.json",
+      "recipeSha256": "ed90c3e35dfd70fedf6b9b2cad84162e49b0b33059d8d7c2301947731f64e2b0",
+      "recording": "challenges/cases/v80/v80-gaze-resistant-action1.session.json",
+      "recordingSha256": "39d347b77713b7392541d29d064a664d97899b8fdcddf46e94f733468048ce85",
+      "reproducibility": "Independent C replay is byte-identical to the first capture.",
+      "cReplay": {
+        "kind": "fresh",
+        "caseId": "v80-gaze-resistant-action1",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-gaze-resistant-action1.recipe.session.json",
+          ".cache/prep80/v80-gaze-resistant-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/replay-v80-gaze-resistant-action1.log",
+        "logSha256": "981e8558c1195250abfa4d53cfa1a5028963599d053d2c882fe9ee7dc420d1a0",
+        "output": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/v80-gaze-resistant-action1.replay.session.json",
+        "outputSha256": "39d347b77713b7392541d29d064a664d97899b8fdcddf46e94f733468048ce85",
+        "byteIdentical": true
+      },
+      "inputs": {
+        "segmentCount": 1,
+        "segments": [
+          {
+            "seed": 80010646,
+            "datetime": "21000418141500",
+            "nethackrc": "OPTIONS=name:v80-gaze-resistant-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+            "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        #polyself\npyrolisk\n                        #wizgenesis\npeaceful red dragon\n                        #monster\ny                        "
+          }
+        ]
+      },
+      "cOutcome": [
+        {
+          "segmentIndex": 0,
+          "step": 220,
+          "key": "y",
+          "rng": [
+            "d(2,6)=8 @ dogaze(polyself.c:1715)"
+          ],
+          "screen": "The red dragon roars!  You attack the red dragon with a fiery gaze!--More--\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[53C------------\u001b[33m+\u001b[39m-\n\u001b[53C|............|\n\u001b[53C........\u001b[31mc\u001b[39m....|\n\u001b[53C|......\u001b[31mD\u001b[39m....\u001b[31m%\u001b[39m.\n\u001b[53C|............|\n\u001b[53C|............|\n\u001b[53C--------------\n\n\nWizard the Pyrolisk\u001b[12CSt:17 Dx:17 Co:18 In:7 Wi:7 Ch:9 Neutral\nDlvl:1 $:0 HP:22(22) Pw:40(55) AC:6 HD:6 T:1",
+          "cursor": [
+            75,
+            0,
+            1
+          ]
+        },
+        {
+          "segmentIndex": 0,
+          "step": 221,
+          "key": " ",
+          "rng": [
+            "rn2(20)=4 @ dogaze(polyself.c:1722)",
+            "rn2(5)=1 @ destroy_items(zap.c:5998)",
+            "rn2(12)=10 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=4 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=56 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(3)=2 @ u_calc_moveamt(allmain.c:131)",
+            "rn2(400)=199 @ dosounds(sounds.c:213)",
+            "rn2(200)=126 @ dosounds(sounds.c:238)",
+            "rn2(91)=63 @ moveloop_core(allmain.c:360)",
+            "rn2(5)=1 @ distfleeck(monmove.c:538)",
+            "rn2(25)=3 @ m_lined_up(mthrowu.c:1385)",
+            "rn2(5)=3 @ distfleeck(monmove.c:538)",
+            "rn2(12)=7 @ mcalcmove(mon.c:1164)",
+            "rn2(12)=3 @ mcalcmove(mon.c:1164)",
+            "rn2(70)=67 @ maybe_generate_rnd_mon(allmain.c:166)",
+            "rn2(3)=2 @ u_calc_moveamt(allmain.c:131)",
+            "rn2(400)=382 @ dosounds(sounds.c:213)",
+            "rn2(200)=63 @ dosounds(sounds.c:238)",
+            "rn2(91)=88 @ moveloop_core(allmain.c:360)",
+            "rn2(5)=2 @ distfleeck(monmove.c:538)",
+            "rnd(21)=10 @ mattacku(mhitu.c:806)",
+            "d(3,8)=11 @ hitmu(mhitu.c:1187)",
+            "rn2(3)=0 @ mhitm_knockback(uhitm.c:5258)",
+            "rn2(6)=4 @ mhitm_knockback(uhitm.c:5269)",
+            "rn2(3)=2 @ passiveum(mhitu.c:2523)",
+            "rnd(22)=4 @ mattacku(mhitu.c:806)",
+            "d(1,4)=2 @ hitmu(mhitu.c:1187)"
+          ],
+          "screen": "The fire doesn't burn the red dragon!  The red dragon bites!--More--\n\n\n\n\n\n\n\n\n\n\n\n\n\u001b[53C------------\u001b[33m+\u001b[39m-\n\u001b[53C|............|\n\u001b[53C........\u001b[31mc\u001b[39m....|\n\u001b[53C|......\u001b[31mD\u001b[39m....\u001b[31m%\u001b[39m.\n\u001b[53C|............|\n\u001b[53C|............|\n\u001b[53C--------------\n\n\nWizard the Pyrolisk\u001b[12CSt:17 Dx:17 Co:18 In:7 Wi:7 Ch:9 Neutral\nDlvl:1 $:0 HP:11(22) Pw:40(55) AC:6 HD:6 T:3",
+          "cursor": [
+            68,
+            0,
+            1
+          ]
+        }
+      ],
+      "qualifyingDistinctMismatch": false,
+      "matchingControl": true,
+      "firstMismatch": null,
+      "matchingControlRationale": {
+        "source": "polyself.c:dogaze1725-1739",
+        "segment": 0,
+        "steps": [
+          220,
+          221
+        ],
+        "difference": "v24/v30 newt takes fire damage; v51 shopkeeper targets/attempts do not establish fire-resistant damage0 arm.",
+        "closestSavedEvidence": [
+          "initial-raw-crosswalk.json",
+          "initial-case-cards.json",
+          "initial-fixed-regression-crosswalk.json"
+        ],
+        "completeComparison": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2714,
+              "js": 2714
+            },
+            "screens": {
+              "c": 245,
+              "js": 245
+            },
+            "cursors": {
+              "c": 245,
+              "js": 245
+            },
+            "animFrames": {
+              "c": 29,
+              "js": 29
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      },
+      "localComparison": {
+        "caseId": "v80-gaze-resistant-action1",
+        "base": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "command": [
+          "node",
+          "scripts/run-bounded.mjs",
+          "focused",
+          "--",
+          "node",
+          "scripts/diff-fresh-worker.mjs",
+          "/tmp/teleport-loop-worker-prep-20261008/challenges/cases/v80/v80-gaze-resistant-action1.session.json",
+          "/tmp/teleport-score-FS5jln"
+        ],
+        "exitCode": 0,
+        "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/accepted-latest-js-v80-gaze-resistant-action1.log",
+        "logSha256": "6d8d3c70a59a05f83ac6ecdbe19f56e5b83178fccd09f7539b06673c4180508f",
+        "result": {
+          "passed": true,
+          "error": null,
+          "lengths": {
+            "rng": {
+              "c": 2714,
+              "js": 2714
+            },
+            "screens": {
+              "c": 245,
+              "js": 245
+            },
+            "cursors": {
+              "c": 245,
+              "js": 245
+            },
+            "animFrames": {
+              "c": 29,
+              "js": 29
+            }
+          },
+          "rngMismatch": null,
+          "screenMismatch": null,
+          "cursorMismatch": null,
+          "animMismatch": null,
+          "segmentMismatch": null
+        }
+      }
+    }
+  ],
+  "preservedAttemptInventory": [
+    {
+      "id": "v80-writing-book-setup1",
+      "recipe": "challenges/cases/v80/v80-writing-book-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-book-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-book-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-book-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-book-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "3d1ab1d833e97ef11c319a5573bf911cd8aa9c4f47b77f83b8d0ef972ec7edf8",
+      "recordingSha256": "132b46d432fa4a6615ff06e2382c372d22692c259b414be2a548f2f36c85a390",
+      "logSha256": "8468ba2558a75d776ea8277d3393222366c7ade357308694a47cfe6b0e1688ca",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-writing-scroll-setup1",
+      "recipe": "challenges/cases/v80/v80-writing-scroll-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-scroll-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-scroll-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-scroll-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-scroll-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "4dac93180fe87994f9bf76ed7c16322437177839301ca7d93529bf3d18e636c6",
+      "recordingSha256": "754d460bd42bcd31061543a61fbd1cf8668d97e001856423c791bc60c4ea723c",
+      "logSha256": "1b56f98206ae547cd5da4ed4b3cd93eefa527602187df62171c53651fae33087",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-writing-novel-setup1",
+      "recipe": "challenges/cases/v80/v80-writing-novel-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-novel-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-novel-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-novel-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-novel-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "be94c00948fc728e091b7859b9634e8c6611a8f71b7c795cfac7fde6d5521842",
+      "recordingSha256": "8364a87b8066e6491619cada60f4b2af76cbd4655e9b5ad9837adb37eb0053e8",
+      "logSha256": "c66fa80a2f3dd4c465543a2702f1480000bc2285b41dd6ef2cf8706585fbac0d",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-writing-unseen-setup1",
+      "recipe": "challenges/cases/v80/v80-writing-unseen-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-unseen-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-unseen-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-unseen-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-unseen-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "dd5759a6af8495a3e1030a84a7ddc0e25f713a7a3c188070c8644dd211bb2b0f",
+      "recordingSha256": "3d6b4cdabce03371ad74728484d3614e3dd7e6f24268a92c9fdf5b5f4e7d4f6a",
+      "logSha256": "b1b6b3362d7cddb836115f68ab2fecdc60dc3492fb662ebc97a6aadb45c278fa",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-writing-book-action1",
+      "recipe": "challenges/cases/v80/v80-writing-book-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-book-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-book-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-book-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-book-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "98514f49124ec00a17b2c27db4afe3e1521735eb87ff34c10b13282bc586b34f",
+      "recordingSha256": "c0e2a8c7a787eed01519b8d24044711fdebf17a2533ca8c7232145e30e6f0d0c",
+      "logSha256": "1abf58dff4f1c82aa56cb053f1d9eae2e0f27255e5b3c5278b9ebd08cb4facdd",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-book-action1",
+        "recipe": "challenges/cases/v80/v80-writing-book-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-book-action1.session.json",
+        "output": ".cache/prep80/v80-writing-book-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-book-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-book-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-book-action1.log",
+        "recipeSha256": "98514f49124ec00a17b2c27db4afe3e1521735eb87ff34c10b13282bc586b34f",
+        "recordingSha256": "c0e2a8c7a787eed01519b8d24044711fdebf17a2533ca8c7232145e30e6f0d0c",
+        "replaySha256": "c0e2a8c7a787eed01519b8d24044711fdebf17a2533ca8c7232145e30e6f0d0c",
+        "logSha256": "eb39610d1eb239f8a29bed35eb7823f66591cc8d2c260eac3111d2d502351f08"
+      }
+    },
+    {
+      "id": "v80-writing-scroll-action1",
+      "recipe": "challenges/cases/v80/v80-writing-scroll-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-scroll-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-scroll-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-scroll-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-scroll-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "96a0d13ff86c8340bc9a48b3fe9c0e7a113ced02cedee03e920be21b23fa3ab3",
+      "recordingSha256": "ec4da55eabff21eb4ba4dce04e4aac564c4af07667e94af7c07405cb579af8cd",
+      "logSha256": "e20f07009a48a179d8da22abfa7b0c090c84b4bf62cec350a84e1e1161e9f218",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-scroll-action1",
+        "recipe": "challenges/cases/v80/v80-writing-scroll-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-scroll-action1.session.json",
+        "output": ".cache/prep80/v80-writing-scroll-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-scroll-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-scroll-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-scroll-action1.log",
+        "recipeSha256": "96a0d13ff86c8340bc9a48b3fe9c0e7a113ced02cedee03e920be21b23fa3ab3",
+        "recordingSha256": "ec4da55eabff21eb4ba4dce04e4aac564c4af07667e94af7c07405cb579af8cd",
+        "replaySha256": "ec4da55eabff21eb4ba4dce04e4aac564c4af07667e94af7c07405cb579af8cd",
+        "logSha256": "e4f1c31f091e052a2d601952e3fef9499857c5550c07a39ec4f36690a6b7888f"
+      }
+    },
+    {
+      "id": "v80-writing-novel-action1",
+      "recipe": "challenges/cases/v80/v80-writing-novel-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-novel-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-novel-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-novel-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-novel-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "b75590270bead9312f7987f778a161f393616b4a732c1820d4d5358340bb19ad",
+      "recordingSha256": "cf2aa3be30d5a82179434b59190063c1b276e0ce7448d73ad384a5d8e50fbf0d",
+      "logSha256": "1862e9b6db39e52b302cbcf6e2eaa7b71d4695e33e146e146d460e57ec398c9d",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-novel-action1",
+        "recipe": "challenges/cases/v80/v80-writing-novel-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-novel-action1.session.json",
+        "output": ".cache/prep80/v80-writing-novel-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-novel-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-novel-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-novel-action1.log",
+        "recipeSha256": "b75590270bead9312f7987f778a161f393616b4a732c1820d4d5358340bb19ad",
+        "recordingSha256": "cf2aa3be30d5a82179434b59190063c1b276e0ce7448d73ad384a5d8e50fbf0d",
+        "replaySha256": "cf2aa3be30d5a82179434b59190063c1b276e0ce7448d73ad384a5d8e50fbf0d",
+        "logSha256": "36f48d71e409402a3fd30087644b82a3f86cd6b8df5773d5424211b80b148aa0"
+      }
+    },
+    {
+      "id": "v80-writing-unseen-action1",
+      "recipe": "challenges/cases/v80/v80-writing-unseen-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-unseen-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-unseen-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-unseen-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-unseen-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "05a4fd5426cc47d4d1cb37aaf7ca8626d8bef0d978b8ac07b349dc5f6e419b53",
+      "recordingSha256": "1cce0d62931ea4eea310cf275e83db600e9fba4b7230e8b97c92ae2332b416fd",
+      "logSha256": "58f1a73440299a363137e7f5425c46bb475b443069f61123d0eac0acfa7baafc",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-unseen-action1",
+        "recipe": "challenges/cases/v80/v80-writing-unseen-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-unseen-action1.session.json",
+        "output": ".cache/prep80/v80-writing-unseen-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-unseen-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-unseen-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-unseen-action1.log",
+        "recipeSha256": "05a4fd5426cc47d4d1cb37aaf7ca8626d8bef0d978b8ac07b349dc5f6e419b53",
+        "recordingSha256": "1cce0d62931ea4eea310cf275e83db600e9fba4b7230e8b97c92ae2332b416fd",
+        "replaySha256": "1cce0d62931ea4eea310cf275e83db600e9fba4b7230e8b97c92ae2332b416fd",
+        "logSha256": "a0e3848b9ea3e32b8f1fc414291e40ee30daa2015d8e680b84e55e715e0991c1"
+      }
+    },
+    {
+      "id": "v80-writing-braille-action1",
+      "recipe": "challenges/cases/v80/v80-writing-braille-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-braille-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-braille-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-braille-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-braille-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "c5845178eb8243568df89ec4e91217b69ced994f002645a6e4df1367d6b7e246",
+      "recordingSha256": "7957ba0caf7b9f0a1f66ef2e6a0890f19553f9b66dd0737c1ac1269225be9e87",
+      "logSha256": "d3b324d718a95a06f8784fa2eafb54ebb3e866ac3dd4fb598e4257203e3c1fbb",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-braille-action1",
+        "recipe": "challenges/cases/v80/v80-writing-braille-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-braille-action1.session.json",
+        "output": ".cache/prep80/v80-writing-braille-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-braille-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-braille-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-braille-action1.log",
+        "recipeSha256": "c5845178eb8243568df89ec4e91217b69ced994f002645a6e4df1367d6b7e246",
+        "recordingSha256": "7957ba0caf7b9f0a1f66ef2e6a0890f19553f9b66dd0737c1ac1269225be9e87",
+        "replaySha256": "7957ba0caf7b9f0a1f66ef2e6a0890f19553f9b66dd0737c1ac1269225be9e87",
+        "logSha256": "ed83250a03cba5b6b980b026081fd515c3c1e33bbcf96a4526165396cbbe9e99"
+      }
+    },
+    {
+      "id": "v80-writing-book-dead-action1",
+      "recipe": "challenges/cases/v80/v80-writing-book-dead-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-book-dead-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-book-dead-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-book-dead-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-book-dead-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "194c6229df4decdb318aecfdc359744745b0b9b2e1bbf0ef7823a1dff0a5ef91",
+      "recordingSha256": "eebb3cf8cdfa1be42216d352365838b6e834764b13ea306a5ad616f415079db7",
+      "logSha256": "0d114a173039fd45f6087df3ec8de5ad44a30733716bc575048a1a648355de4d",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-book-dead-action1",
+        "recipe": "challenges/cases/v80/v80-writing-book-dead-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-book-dead-action1.session.json",
+        "output": ".cache/prep80/v80-writing-book-dead-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-book-dead-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-book-dead-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-book-dead-action1.log",
+        "recipeSha256": "194c6229df4decdb318aecfdc359744745b0b9b2e1bbf0ef7823a1dff0a5ef91",
+        "recordingSha256": "eebb3cf8cdfa1be42216d352365838b6e834764b13ea306a5ad616f415079db7",
+        "replaySha256": "eebb3cf8cdfa1be42216d352365838b6e834764b13ea306a5ad616f415079db7",
+        "logSha256": "9b97d5cfedf77728d7094d1c687378f50ac24bde892cf85dba1f32f8cdf93b6f"
+      }
+    },
+    {
+      "id": "v80-writing-label-setup1",
+      "recipe": "challenges/cases/v80/v80-writing-label-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-label-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-label-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-label-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-label-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "587aef3e79be04d9559bafacdd8a73c068967a5d3adc061a213f97d1cf635987",
+      "recordingSha256": "a98da4e6e3dfbded2a3777eeb6852ed5c44049c772184bafa9ddedcb09fbd00c",
+      "logSha256": "f818c8567733e48e882f86750eb8099912fbc8451e7285e6e8f2b09a8debf3d9",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-writing-known-blind-setup1",
+      "recipe": "challenges/cases/v80/v80-writing-known-blind-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-known-blind-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-known-blind-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-known-blind-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-known-blind-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "f1a732fd3a716aca40fbdc4c294c3fe8961c3d3603def29f407e79633898f3c6",
+      "recordingSha256": "72412e87ab1c5b6dac8f53faabaf70309cef6de6902ba5a681cd6384e16647aa",
+      "logSha256": "76f70962f0de292243d4b64fa60cd31cebc525b5a0f4f5c003b691570c68270b",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-writing-nonblank-setup1",
+      "recipe": "challenges/cases/v80/v80-writing-nonblank-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-nonblank-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-nonblank-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-nonblank-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-nonblank-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "fbd09ce6541442f91209fd7a983a766fcacdb9369f2e06ba7d2c6759be071f84",
+      "recordingSha256": "42f8b67fcd888ef5d1710b305872454a82fcc5132affd9a68875a93cdf5fadd1",
+      "logSha256": "163f8602975bf8f3846f70900fcba22b7b0bdba446b1d86208832858a2d5e83d",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-web-levitation-action1",
+      "recipe": "challenges/cases/v80/v80-web-levitation-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-web-levitation-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-web-levitation-action1.recipe.session.json",
+        "challenges/cases/v80/v80-web-levitation-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-web-levitation-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "916984b39ddabd79adee44678fd62a2b7a844b8293b72ad78d89817bd5135eef",
+      "recordingSha256": "02262ade5a2c46cb27c007e535965514baa71fa4b5adb15f451dad9723fdfa79",
+      "logSha256": "b339d9213462a7fb5ddc8514fabdae77d7294b14134a691ceab3f2f8b5e25605",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-web-levitation-action1",
+        "recipe": "challenges/cases/v80/v80-web-levitation-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-web-levitation-action1.session.json",
+        "output": ".cache/prep80/v80-web-levitation-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-web-levitation-action1.recipe.session.json",
+          ".cache/prep80/v80-web-levitation-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-web-levitation-action1.log",
+        "recipeSha256": "916984b39ddabd79adee44678fd62a2b7a844b8293b72ad78d89817bd5135eef",
+        "recordingSha256": "02262ade5a2c46cb27c007e535965514baa71fa4b5adb15f451dad9723fdfa79",
+        "replaySha256": "02262ade5a2c46cb27c007e535965514baa71fa4b5adb15f451dad9723fdfa79",
+        "logSha256": "4e6594ccd9b443766f8b3bd039c5304d582d0e666bdc2376fd1bce2354b42017"
+      }
+    },
+    {
+      "id": "v80-gaze-sleeping-action1",
+      "recipe": "challenges/cases/v80/v80-gaze-sleeping-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-gaze-sleeping-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-gaze-sleeping-action1.recipe.session.json",
+        "challenges/cases/v80/v80-gaze-sleeping-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-gaze-sleeping-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "99ac673d3e002c651d9097dccc2444a09356df0907efe60404a0f16f2b36af1f",
+      "recordingSha256": "29ee3c017a44e5d3cbd78d35d92e376b9a1507dbf75690239fb757e010baca43",
+      "logSha256": "0f2b4254e786f34b7bb067de5281acb1fdea51f0a8556edf7c0159eda6e5a863",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-gaze-resistant-action1",
+      "recipe": "challenges/cases/v80/v80-gaze-resistant-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-gaze-resistant-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-gaze-resistant-action1.recipe.session.json",
+        "challenges/cases/v80/v80-gaze-resistant-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-gaze-resistant-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "ed90c3e35dfd70fedf6b9b2cad84162e49b0b33059d8d7c2301947731f64e2b0",
+      "recordingSha256": "39d347b77713b7392541d29d064a664d97899b8fdcddf46e94f733468048ce85",
+      "logSha256": "6ab10b149641dcd7e4a5d55e21423563c4184abeb792c6fc3de932856fcfcb4b",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-gaze-resistant-action1",
+        "recipe": "challenges/cases/v80/v80-gaze-resistant-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-gaze-resistant-action1.session.json",
+        "output": ".cache/prep80/v80-gaze-resistant-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-gaze-resistant-action1.recipe.session.json",
+          ".cache/prep80/v80-gaze-resistant-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-gaze-resistant-action1.log",
+        "recipeSha256": "ed90c3e35dfd70fedf6b9b2cad84162e49b0b33059d8d7c2301947731f64e2b0",
+        "recordingSha256": "39d347b77713b7392541d29d064a664d97899b8fdcddf46e94f733468048ce85",
+        "replaySha256": "39d347b77713b7392541d29d064a664d97899b8fdcddf46e94f733468048ce85",
+        "logSha256": "981e8558c1195250abfa4d53cfa1a5028963599d053d2c882fe9ee7dc420d1a0"
+      }
+    },
+    {
+      "id": "v80-writing-label-action1",
+      "recipe": "challenges/cases/v80/v80-writing-label-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-label-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-label-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-label-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-label-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "fb85d9efe2da85444273741b8a3beecde9f514f2372fe5cf0ee44410742f8ac0",
+      "recordingSha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb",
+      "logSha256": "76a6769845585e983e564172ac5b0a1b64ed4ce3fb763122dedd4b511ddac7f9",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-provisional-first-failure",
+      "independentReplay": {
+        "id": "v80-writing-label-action1",
+        "recipe": "challenges/cases/v80/v80-writing-label-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-label-action1.session.json",
+        "output": ".cache/prep80/v80-writing-label-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-label-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-label-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-label-action1.log",
+        "recipeSha256": "fb85d9efe2da85444273741b8a3beecde9f514f2372fe5cf0ee44410742f8ac0",
+        "recordingSha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb",
+        "replaySha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb",
+        "logSha256": "ffd0842d2afaf4226646439ce2c5741096bee692c5e773768d62c2aa817dec25"
+      }
+    },
+    {
+      "id": "v80-writing-known-blind-action1",
+      "recipe": "challenges/cases/v80/v80-writing-known-blind-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-known-blind-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-known-blind-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-known-blind-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-known-blind-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "2c5fd2a18aec0a2322184e4582f82039470cd4112425b7ae491b2cf4b5443d09",
+      "recordingSha256": "4ec43b3d7001b853a30edd86eb3baa85876700f0160fc20ae32ab9d60628871b",
+      "logSha256": "c966120f73b890d7cc7b2995ea106d073afa7d7dc10d79cff4a4d1f59dac2cae",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-known-blind-action1",
+        "recipe": "challenges/cases/v80/v80-writing-known-blind-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-known-blind-action1.session.json",
+        "output": ".cache/prep80/v80-writing-known-blind-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-known-blind-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-known-blind-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-known-blind-action1.log",
+        "recipeSha256": "2c5fd2a18aec0a2322184e4582f82039470cd4112425b7ae491b2cf4b5443d09",
+        "recordingSha256": "4ec43b3d7001b853a30edd86eb3baa85876700f0160fc20ae32ab9d60628871b",
+        "replaySha256": "4ec43b3d7001b853a30edd86eb3baa85876700f0160fc20ae32ab9d60628871b",
+        "logSha256": "9dd5acc19283136e3d35f6f7876b10cf47676a99935013f1c100b6486c3f20fb"
+      }
+    },
+    {
+      "id": "v80-writing-nonblank-action1",
+      "recipe": "challenges/cases/v80/v80-writing-nonblank-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-writing-nonblank-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-writing-nonblank-action1.recipe.session.json",
+        "challenges/cases/v80/v80-writing-nonblank-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-writing-nonblank-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "9992108ec54c0d43b4c60f99039d75e9c5869667678f35830fef8b35ed46ddc2",
+      "recordingSha256": "1c991131614839d1cbce346f71d535656928403238265e4d33242101faeb8c72",
+      "logSha256": "78dffe9439d652d4088de5daec000e87b3f1c34635313b1a37f2133192e81a09",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-writing-nonblank-action1",
+        "recipe": "challenges/cases/v80/v80-writing-nonblank-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-writing-nonblank-action1.session.json",
+        "output": ".cache/prep80/v80-writing-nonblank-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-writing-nonblank-action1.recipe.session.json",
+          ".cache/prep80/v80-writing-nonblank-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-writing-nonblank-action1.log",
+        "recipeSha256": "9992108ec54c0d43b4c60f99039d75e9c5869667678f35830fef8b35ed46ddc2",
+        "recordingSha256": "1c991131614839d1cbce346f71d535656928403238265e4d33242101faeb8c72",
+        "replaySha256": "1c991131614839d1cbce346f71d535656928403238265e4d33242101faeb8c72",
+        "logSha256": "035be770f9d31d637930a0ec3a1f50d5300844d8bcf5f7f6fa466d7df39367f4"
+      }
+    },
+    {
+      "id": "v80-gaze-sleeping-action2",
+      "recipe": "challenges/cases/v80/v80-gaze-sleeping-action2.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-gaze-sleeping-action2.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-gaze-sleeping-action2.recipe.session.json",
+        "challenges/cases/v80/v80-gaze-sleeping-action2.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-gaze-sleeping-action2.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "4f5601a6f8d6adeffe63fd9ea3fa656fb467adcffb3b4e6f4b4c7c5600f746f9",
+      "recordingSha256": "c4a727c700689bba7a69fd643292ca7498e2ade71d6eeee57828a6642dc85842",
+      "logSha256": "5e21e8c948cd91e24c14b38e3139e84c762fd1a81f3635e715104ad988366a4f",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-gaze-sleeping-action2",
+        "recipe": "challenges/cases/v80/v80-gaze-sleeping-action2.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-gaze-sleeping-action2.session.json",
+        "output": ".cache/prep80/v80-gaze-sleeping-action2.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-gaze-sleeping-action2.recipe.session.json",
+          ".cache/prep80/v80-gaze-sleeping-action2.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-gaze-sleeping-action2.log",
+        "recipeSha256": "4f5601a6f8d6adeffe63fd9ea3fa656fb467adcffb3b4e6f4b4c7c5600f746f9",
+        "recordingSha256": "c4a727c700689bba7a69fd643292ca7498e2ade71d6eeee57828a6642dc85842",
+        "replaySha256": "c4a727c700689bba7a69fd643292ca7498e2ade71d6eeee57828a6642dc85842",
+        "logSha256": "35abe24a7bb032b12bf8df47c267c1fb14427affdbff1e3c1a9fb2f89648e501"
+      }
+    },
+    {
+      "id": "v80-gaze-freeaction-action1",
+      "recipe": "challenges/cases/v80/v80-gaze-freeaction-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-gaze-freeaction-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-gaze-freeaction-action1.recipe.session.json",
+        "challenges/cases/v80/v80-gaze-freeaction-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-gaze-freeaction-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "043d9fb445f6762e32815f8ec803234cf942e1917ac4e52da676649e80decfa8",
+      "recordingSha256": "59fbf6075f9af80080523461ff8ce64d2141d97a2d1dccff1b4ecd0a21c92b6b",
+      "logSha256": "a01fad5d061d290afd6263c378fa829dd199a1fc686966c8f068b5efc070c5bb",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-gaze-freeaction-action1",
+        "recipe": "challenges/cases/v80/v80-gaze-freeaction-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-gaze-freeaction-action1.session.json",
+        "output": ".cache/prep80/v80-gaze-freeaction-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-gaze-freeaction-action1.recipe.session.json",
+          ".cache/prep80/v80-gaze-freeaction-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-gaze-freeaction-action1.log",
+        "recipeSha256": "043d9fb445f6762e32815f8ec803234cf942e1917ac4e52da676649e80decfa8",
+        "recordingSha256": "59fbf6075f9af80080523461ff8ce64d2141d97a2d1dccff1b4ecd0a21c92b6b",
+        "replaySha256": "59fbf6075f9af80080523461ff8ce64d2141d97a2d1dccff1b4ecd0a21c92b6b",
+        "logSha256": "843d41a46e7a3907500568066b9a0479540e9f1bf6024bee2cd3a50cea6f854b"
+      }
+    },
+    {
+      "id": "v80-web-boulder-setup1",
+      "recipe": "challenges/cases/v80/v80-web-boulder-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-web-boulder-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-web-boulder-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-web-boulder-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-web-boulder-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "277da70b933460cb7d8c8bbbd81c1cfe3420cf035aeb7694332bfc41591194a9",
+      "recordingSha256": "8430eebd1b973ddfda879ce5096c28e5b4ba7bcfe184f04a89e050eabaf07ebc",
+      "logSha256": "81af1a1b5e714cd1c5fda21fdd02ca3830f95f0db019adcf24d0691ee4fa4735",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-mounted-ranged-setup1",
+      "recipe": "challenges/cases/v80/v80-mounted-ranged-setup1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-mounted-ranged-setup1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-mounted-ranged-setup1.recipe.session.json",
+        "challenges/cases/v80/v80-mounted-ranged-setup1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-mounted-ranged-setup1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "25d7f082d6a7ec832d127d9c94ded42c97acad137b3472926792f2fbd1cc8e21",
+      "recordingSha256": "e84916f4402e80ed013997076fd98777ba122c5dd85d8164fc198441e23d81f3",
+      "logSha256": "2e39d0991cfd73bb7e6f6caec61865bbe704eb8a18315668d8095af22eeaa57f",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-web-boulder-action1",
+      "recipe": "challenges/cases/v80/v80-web-boulder-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-web-boulder-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-web-boulder-action1.recipe.session.json",
+        "challenges/cases/v80/v80-web-boulder-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-web-boulder-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "2de392ed9feb9a21ec1cd786af181cf8fee11f4ea2fad941461967eab758b36a",
+      "recordingSha256": "c298e2219d0563a6274bdb142c785edaa3f4aebbc7f8f1a7afb14543512e5dec",
+      "logSha256": "248facb46f5b3115921b55170d6bcd7bee4e81bcc64145baaab85b1f7cf8e339",
+      "validFirstPair": true,
+      "included": true,
+      "disposition": "included-matching-control",
+      "independentReplay": {
+        "id": "v80-web-boulder-action1",
+        "recipe": "challenges/cases/v80/v80-web-boulder-action1.recipe.session.json",
+        "recording": "challenges/cases/v80/v80-web-boulder-action1.session.json",
+        "output": ".cache/prep80/v80-web-boulder-action1.replay.session.json",
+        "command": [
+          "node",
+          "scripts/record-session.mjs",
+          "challenges/cases/v80/v80-web-boulder-action1.recipe.session.json",
+          ".cache/prep80/v80-web-boulder-action1.replay.session.json"
+        ],
+        "exitCode": 0,
+        "byteIdentical": true,
+        "log": ".cache/prep80/logs/replay-v80-web-boulder-action1.log",
+        "recipeSha256": "2de392ed9feb9a21ec1cd786af181cf8fee11f4ea2fad941461967eab758b36a",
+        "recordingSha256": "c298e2219d0563a6274bdb142c785edaa3f4aebbc7f8f1a7afb14543512e5dec",
+        "replaySha256": "c298e2219d0563a6274bdb142c785edaa3f4aebbc7f8f1a7afb14543512e5dec",
+        "logSha256": "810403eaaa25be5f07f60ebbe009d5e30d7a991d17a12f5ba9e2c12ebc23657b"
+      }
+    },
+    {
+      "id": "v80-mounted-ranged-setup2",
+      "recipe": "challenges/cases/v80/v80-mounted-ranged-setup2.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-mounted-ranged-setup2.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-mounted-ranged-setup2.recipe.session.json",
+        "challenges/cases/v80/v80-mounted-ranged-setup2.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-mounted-ranged-setup2.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "f42ff0a5ed9e38f426d6cc07a98732386c155a47174e6076a343c36098176d5c",
+      "recordingSha256": "48448a0400a38de4dff5ed5af556e0bde0e913c946d6fea8e028c0d51d8acf7e",
+      "logSha256": "7a6dd5f54140b8776105154ec2fdec91fd71a7ffeb73004f53b546def1df3074",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-mounted-ranged-action1",
+      "recipe": "challenges/cases/v80/v80-mounted-ranged-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-mounted-ranged-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-mounted-ranged-action1.recipe.session.json",
+        "challenges/cases/v80/v80-mounted-ranged-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-mounted-ranged-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "d2ede5ab793cdbef079a3a4fb929b443423fe335ce107c4ee5fc74048cd26e06",
+      "recordingSha256": "e912f301f166865fa2c174cf88ef9bf8698e54b135be37bf988a253028392a20",
+      "logSha256": "35ff1981206d398f78cdf97a7f8f07b5de5005eaa036db9e726c4406e88080ad",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-mounted-ranged-action2",
+      "recipe": "challenges/cases/v80/v80-mounted-ranged-action2.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-mounted-ranged-action2.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-mounted-ranged-action2.recipe.session.json",
+        "challenges/cases/v80/v80-mounted-ranged-action2.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-mounted-ranged-action2.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "d4dee688d80e3fa692e4e8b96c1f3b0c6c644e9e4e3f8a42be1206804b4c9d2d",
+      "recordingSha256": "9bb28398e8ba8e095e99b0035136d29be1989d438d427847a8020e5f0b4653f5",
+      "logSha256": "ae8b80548fca493b26d0e84fc174cce388591817a392c24b556a954645e5b243",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    },
+    {
+      "id": "v80-mounted-zombie-action1",
+      "recipe": "challenges/cases/v80/v80-mounted-zombie-action1.recipe.session.json",
+      "recording": "challenges/cases/v80/v80-mounted-zombie-action1.session.json",
+      "command": [
+        "node",
+        "scripts/record-session.mjs",
+        "challenges/cases/v80/v80-mounted-zombie-action1.recipe.session.json",
+        "challenges/cases/v80/v80-mounted-zombie-action1.session.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/vtjeng/development/vtjeng/teleport-contest/.cache/prep44-recovery/prep80/logs/cfirst-v80-mounted-zombie-action1.log",
+      "designBeforeJavaScriptComparison": true,
+      "recipeSha256": "b309ead23daf919cd353eb967445532a304d8ff8d9313fe77b64f78155ff7484",
+      "recordingSha256": "8e9adf48e954f12f32fa250ec99f3760cd100e0d4ce379b8c713c47c1f8139ef",
+      "logSha256": "be55fa8fa2c9f59edf1b175dca43ac592ed0b8a62d5e48da4ef5e4ac052a9bb9",
+      "validFirstPair": true,
+      "included": false,
+      "disposition": "preserved-setup-or-target-miss",
+      "independentReplay": null
+    }
+  ],
+  "preservedDataFiles": [
+    {
+      "path": "challenges/cases/v80/v80-gaze-freeaction-action1.recipe.session.json",
+      "sha256": "043d9fb445f6762e32815f8ec803234cf942e1917ac4e52da676649e80decfa8"
+    },
+    {
+      "path": "challenges/cases/v80/v80-gaze-freeaction-action1.session.json",
+      "sha256": "59fbf6075f9af80080523461ff8ce64d2141d97a2d1dccff1b4ecd0a21c92b6b"
+    },
+    {
+      "path": "challenges/cases/v80/v80-gaze-resistant-action1.recipe.session.json",
+      "sha256": "ed90c3e35dfd70fedf6b9b2cad84162e49b0b33059d8d7c2301947731f64e2b0"
+    },
+    {
+      "path": "challenges/cases/v80/v80-gaze-resistant-action1.session.json",
+      "sha256": "39d347b77713b7392541d29d064a664d97899b8fdcddf46e94f733468048ce85"
+    },
+    {
+      "path": "challenges/cases/v80/v80-gaze-sleeping-action1.recipe.session.json",
+      "sha256": "99ac673d3e002c651d9097dccc2444a09356df0907efe60404a0f16f2b36af1f"
+    },
+    {
+      "path": "challenges/cases/v80/v80-gaze-sleeping-action1.session.json",
+      "sha256": "29ee3c017a44e5d3cbd78d35d92e376b9a1507dbf75690239fb757e010baca43"
+    },
+    {
+      "path": "challenges/cases/v80/v80-gaze-sleeping-action2.recipe.session.json",
+      "sha256": "4f5601a6f8d6adeffe63fd9ea3fa656fb467adcffb3b4e6f4b4c7c5600f746f9"
+    },
+    {
+      "path": "challenges/cases/v80/v80-gaze-sleeping-action2.session.json",
+      "sha256": "c4a727c700689bba7a69fd643292ca7498e2ade71d6eeee57828a6642dc85842"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-action1.recipe.session.json",
+      "sha256": "d2ede5ab793cdbef079a3a4fb929b443423fe335ce107c4ee5fc74048cd26e06"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-action1.session.json",
+      "sha256": "e912f301f166865fa2c174cf88ef9bf8698e54b135be37bf988a253028392a20"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-action2.recipe.session.json",
+      "sha256": "d4dee688d80e3fa692e4e8b96c1f3b0c6c644e9e4e3f8a42be1206804b4c9d2d"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-action2.session.json",
+      "sha256": "9bb28398e8ba8e095e99b0035136d29be1989d438d427847a8020e5f0b4653f5"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-setup1.recipe.session.json",
+      "sha256": "25d7f082d6a7ec832d127d9c94ded42c97acad137b3472926792f2fbd1cc8e21"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-setup1.session.json",
+      "sha256": "e84916f4402e80ed013997076fd98777ba122c5dd85d8164fc198441e23d81f3"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-setup2.recipe.session.json",
+      "sha256": "f42ff0a5ed9e38f426d6cc07a98732386c155a47174e6076a343c36098176d5c"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-ranged-setup2.session.json",
+      "sha256": "48448a0400a38de4dff5ed5af556e0bde0e913c946d6fea8e028c0d51d8acf7e"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-zombie-action1.recipe.session.json",
+      "sha256": "b309ead23daf919cd353eb967445532a304d8ff8d9313fe77b64f78155ff7484"
+    },
+    {
+      "path": "challenges/cases/v80/v80-mounted-zombie-action1.session.json",
+      "sha256": "8e9adf48e954f12f32fa250ec99f3760cd100e0d4ce379b8c713c47c1f8139ef"
+    },
+    {
+      "path": "challenges/cases/v80/v80-web-boulder-action1.recipe.session.json",
+      "sha256": "2de392ed9feb9a21ec1cd786af181cf8fee11f4ea2fad941461967eab758b36a"
+    },
+    {
+      "path": "challenges/cases/v80/v80-web-boulder-action1.session.json",
+      "sha256": "c298e2219d0563a6274bdb142c785edaa3f4aebbc7f8f1a7afb14543512e5dec"
+    },
+    {
+      "path": "challenges/cases/v80/v80-web-boulder-setup1.recipe.session.json",
+      "sha256": "277da70b933460cb7d8c8bbbd81c1cfe3420cf035aeb7694332bfc41591194a9"
+    },
+    {
+      "path": "challenges/cases/v80/v80-web-boulder-setup1.session.json",
+      "sha256": "8430eebd1b973ddfda879ce5096c28e5b4ba7bcfe184f04a89e050eabaf07ebc"
+    },
+    {
+      "path": "challenges/cases/v80/v80-web-levitation-action1.recipe.session.json",
+      "sha256": "916984b39ddabd79adee44678fd62a2b7a844b8293b72ad78d89817bd5135eef"
+    },
+    {
+      "path": "challenges/cases/v80/v80-web-levitation-action1.session.json",
+      "sha256": "02262ade5a2c46cb27c007e535965514baa71fa4b5adb15f451dad9723fdfa79"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-book-action1.recipe.session.json",
+      "sha256": "98514f49124ec00a17b2c27db4afe3e1521735eb87ff34c10b13282bc586b34f"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-book-action1.session.json",
+      "sha256": "c0e2a8c7a787eed01519b8d24044711fdebf17a2533ca8c7232145e30e6f0d0c"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-book-dead-action1.recipe.session.json",
+      "sha256": "194c6229df4decdb318aecfdc359744745b0b9b2e1bbf0ef7823a1dff0a5ef91"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-book-dead-action1.session.json",
+      "sha256": "eebb3cf8cdfa1be42216d352365838b6e834764b13ea306a5ad616f415079db7"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-book-setup1.recipe.session.json",
+      "sha256": "3d1ab1d833e97ef11c319a5573bf911cd8aa9c4f47b77f83b8d0ef972ec7edf8"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-book-setup1.session.json",
+      "sha256": "132b46d432fa4a6615ff06e2382c372d22692c259b414be2a548f2f36c85a390"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-braille-action1.recipe.session.json",
+      "sha256": "c5845178eb8243568df89ec4e91217b69ced994f002645a6e4df1367d6b7e246"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-braille-action1.session.json",
+      "sha256": "7957ba0caf7b9f0a1f66ef2e6a0890f19553f9b66dd0737c1ac1269225be9e87"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-known-blind-action1.recipe.session.json",
+      "sha256": "2c5fd2a18aec0a2322184e4582f82039470cd4112425b7ae491b2cf4b5443d09"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-known-blind-action1.session.json",
+      "sha256": "4ec43b3d7001b853a30edd86eb3baa85876700f0160fc20ae32ab9d60628871b"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-known-blind-setup1.recipe.session.json",
+      "sha256": "f1a732fd3a716aca40fbdc4c294c3fe8961c3d3603def29f407e79633898f3c6"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-known-blind-setup1.session.json",
+      "sha256": "72412e87ab1c5b6dac8f53faabaf70309cef6de6902ba5a681cd6384e16647aa"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-label-action1.recipe.session.json",
+      "sha256": "fb85d9efe2da85444273741b8a3beecde9f514f2372fe5cf0ee44410742f8ac0"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-label-action1.session.json",
+      "sha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-label-setup1.recipe.session.json",
+      "sha256": "587aef3e79be04d9559bafacdd8a73c068967a5d3adc061a213f97d1cf635987"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-label-setup1.session.json",
+      "sha256": "a98da4e6e3dfbded2a3777eeb6852ed5c44049c772184bafa9ddedcb09fbd00c"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-nonblank-action1.recipe.session.json",
+      "sha256": "9992108ec54c0d43b4c60f99039d75e9c5869667678f35830fef8b35ed46ddc2"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-nonblank-action1.session.json",
+      "sha256": "1c991131614839d1cbce346f71d535656928403238265e4d33242101faeb8c72"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-nonblank-setup1.recipe.session.json",
+      "sha256": "fbd09ce6541442f91209fd7a983a766fcacdb9369f2e06ba7d2c6759be071f84"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-nonblank-setup1.session.json",
+      "sha256": "42f8b67fcd888ef5d1710b305872454a82fcc5132affd9a68875a93cdf5fadd1"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-novel-action1.recipe.session.json",
+      "sha256": "b75590270bead9312f7987f778a161f393616b4a732c1820d4d5358340bb19ad"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-novel-action1.session.json",
+      "sha256": "cf2aa3be30d5a82179434b59190063c1b276e0ce7448d73ad384a5d8e50fbf0d"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-novel-setup1.recipe.session.json",
+      "sha256": "be94c00948fc728e091b7859b9634e8c6611a8f71b7c795cfac7fde6d5521842"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-novel-setup1.session.json",
+      "sha256": "8364a87b8066e6491619cada60f4b2af76cbd4655e9b5ad9837adb37eb0053e8"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-scroll-action1.recipe.session.json",
+      "sha256": "96a0d13ff86c8340bc9a48b3fe9c0e7a113ced02cedee03e920be21b23fa3ab3"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-scroll-action1.session.json",
+      "sha256": "ec4da55eabff21eb4ba4dce04e4aac564c4af07667e94af7c07405cb579af8cd"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-scroll-setup1.recipe.session.json",
+      "sha256": "4dac93180fe87994f9bf76ed7c16322437177839301ca7d93529bf3d18e636c6"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-scroll-setup1.session.json",
+      "sha256": "754d460bd42bcd31061543a61fbd1cf8668d97e001856423c791bc60c4ea723c"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-unseen-action1.recipe.session.json",
+      "sha256": "05a4fd5426cc47d4d1cb37aaf7ca8626d8bef0d978b8ac07b349dc5f6e419b53"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-unseen-action1.session.json",
+      "sha256": "1cce0d62931ea4eea310cf275e83db600e9fba4b7230e8b97c92ae2332b416fd"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-unseen-setup1.recipe.session.json",
+      "sha256": "dd5759a6af8495a3e1030a84a7ddc0e25f713a7a3c188070c8644dd211bb2b0f"
+    },
+    {
+      "path": "challenges/cases/v80/v80-writing-unseen-setup1.session.json",
+      "sha256": "3d6b4cdabce03371ad74728484d3614e3dd7e6f24268a92c9fdf5b5f4e7d4f6a"
+    }
+  ],
+  "finalRouteAdjudication": {
+    "task": "Prep44",
+    "batch": "v80",
+    "counts": {
+      "planned": 22,
+      "priorCoveredBeforeC": 7,
+      "validFirstCPairs": 28,
+      "independentReplays": 14,
+      "provisionalFailures": 1,
+      "proposedControls": 13
+    },
+    "routes": [
+      {
+        "id": "blind-unseen-blank-paper",
+        "source": "write.c:dowrite106-110",
+        "state": "Hero becomes Blind before wishing blank scroll;paper never observed",
+        "actions": "Apply marker to unseen paper;require dontknowwhetherblank,notink/name prompt",
+        "cObservation": "Apply marker to unseen paper;require dontknowwhetherblank,notink/name prompt",
+        "query": "don.t know whether.{0,40}blank|unseen.{0,60}paper|dowrite.{0,60}Blind",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "finalAdjudication": {
+          "candidate": "blind-unseen-blank-paper",
+          "id": "v80-writing-unseen-action1",
+          "source": "write.c:dowrite106-110",
+          "segment": 0,
+          "steps": [
+            253,
+            253
+          ],
+          "cObservation": "Blind before paper acquisition leaves dknown false; unknown-blank early refusal.",
+          "coverageDifference": "No same reached guard in raw106/fixed44/frozenv1/recipes. v42 cursed-book blindness is a different reader caller.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-unseen-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "blind-known-blank-book",
+        "source": "write.c:dowrite111-116",
+        "state": "Blank spellbook observed beforeBlind",
+        "actions": "Apply marker toknownblankbook;cantcreatebraille,returnsbeforetypename/ink",
+        "cObservation": "Apply marker toknownblankbook;cantcreatebraille,returnsbeforetypename/ink",
+        "query": "braille|blind.{0,60}spellbook|dowrite.{0,60}Blind",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Fixed44 search lead is merely cure-blindness spellbook inventory; v42 cursed-book blindness is a different reader caller. Neither establishes dowrite braille guard.",
+        "finalAdjudication": {
+          "candidate": "blind-known-blank-book",
+          "id": "v80-writing-braille-action1",
+          "source": "write.c:dowrite111-116",
+          "segment": 0,
+          "steps": [
+            256,
+            256
+          ],
+          "cObservation": "Paper observed before Blind; known spellbook braille refusal.",
+          "coverageDifference": "Distinct from unseen paper first guard and v42 cursed_book blindness.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-braille-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "blind-known-scroll-writing",
+        "source": "write.c:dowrite340-352",
+        "state": "Knownidentifytype/observedblankscroll,Blind,amplemarkerink",
+        "actions": "Writeidentify;source Blindrnl(3) afteractualinkcost,recordbothsuccessorfailuretruthfully",
+        "cObservation": "Writeidentify;source Blindrnl(3) afteractualinkcost,recordbothsuccessorfailuretruthfully",
+        "query": "fail to write the scroll correctly|blind.{0,60}writ|writing.{0,60}blind",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Regression BlindPolyWriter is engraving with polymorph wand, not dowrite after known-type ink consumption.",
+        "finalAdjudication": {
+          "candidate": "blind-known-scroll-writing",
+          "id": "v80-writing-known-blind-action1",
+          "source": "write.c:dowrite340-352",
+          "segment": 0,
+          "steps": [
+            354,
+            354
+          ],
+          "cObservation": "Permanent type identification before Blind; ink used, then rnl3 failure consumes paper.",
+          "coverageDifference": "v27/v35 unknown-name failures stop at earlier rnl15 guard while sighted.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-known-blind-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "dry-marker-unfinished-book",
+        "source": "write.c:dowrite268-278",
+        "state": "Magicmarker35charges,blankbook,targetfingerofdeathbasecost70",
+        "actions": "Charge>=35threshold but actualcost35..69;requiremidwrite dryandbookleftunfinished,nottoo-dryguard",
+        "cObservation": "Charge>=35threshold but actualcost35..69;requiremidwrite dryandbookleftunfinished,nottoo-dryguard",
+        "query": "spellbook is left unfinished|marker dries out|unfinished.{0,60}book",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Raw previous hits did not establish mid-write spellbook dry-out; preserve actual charge/cost evidence.",
+        "finalAdjudication": {
+          "candidate": "dry-marker-unfinished-book",
+          "id": "v80-writing-book-action1",
+          "source": "write.c:dowrite268-278",
+          "segment": 0,
+          "steps": [
+            228,
+            229
+          ],
+          "cObservation": "Marker35 charges crosses basecost70 half-cost guard; actual cost dries it, book remains unfinished.",
+          "coverageDifference": "No reached mid-write book dry-out found; unknown-name diary failure is a later branch.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-book-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "encountered-scroll-label-writing",
+        "source": "write.c:dowrite167-170,313-318",
+        "state": "Observedunidentifiedscrolllabel andblankscroll",
+        "actions": "Use ownC-observed label aswrite target;by_descr&&oc_encountered bypassesunknown-nameLuckguard",
+        "cObservation": "Use ownC-observed label aswrite target;by_descr&&oc_encountered bypassesunknown-nameLuckguard",
+        "query": "by_descr|encountered.{0,60}scroll|write.{0,60}label",
+        "status": "provisional-first-failure",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "finalAdjudication": {
+          "candidate": "encountered-scroll-label-writing",
+          "id": "v80-writing-label-action1",
+          "source": "write.c:dowrite167-170,313-318",
+          "segment": 0,
+          "steps": [
+            283,
+            283
+          ],
+          "cObservation": "Successful by-description writing merges new scroll with observed HAPAX LEGOMENON enchant-armor stack. JS refuses missing encumberMessage at writeEnv.",
+          "coverageDifference": "Prior v27/v35/v36 attempts fail unknown writing before successful acquisition. v33 invoke_create_ammo and accepted v76 light_cocktail1b0d614d omit same helper hook from different source callers. Actual first omitted caller is write.c:dowrite -> hold_another_object, not a new helper implementation.",
+          "kind": "provisional-first-failure",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-label-action1.log",
+          "independentReplay": true,
+          "firstMismatch": 283
+        }
+      },
+      {
+        "id": "blank-book-to-novel",
+        "source": "write.c:dowrite214-237 SPE_NOVEL",
+        "state": "Blankspellbook andmarker;typenovel",
+        "actions": "Actual two rn2(3) fanfic/tearupbranch beforeink orliteracy;preserveoutcome",
+        "cObservation": "Actual two rn2(3) fanfic/tearupbranch beforeink orliteracy;preserveoutcome",
+        "query": "Great Yendorian Novel|fan-fiction|SPE_NOVEL",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "v61 applies a novel, v52 reads one, v76 cancels one; none types novel into dowrite blank-book target.",
+        "finalAdjudication": {
+          "candidate": "blank-book-to-novel",
+          "id": "v80-writing-novel-action1",
+          "source": "write.c:dowrite214-237 SPE_NOVEL",
+          "segment": 0,
+          "steps": [
+            218,
+            219
+          ],
+          "cObservation": "Novel target chooses inspiration failure then give-up, before ink/literacy.",
+          "coverageDifference": "v52 reads novel; v61 applies novel; v76 cancels novel. Different substantive command branches.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-novel-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "book-dead-writing-refusal",
+        "source": "write.c:dowrite238-240",
+        "state": "Blankspellbook andmarker;targetBookoftheDead",
+        "actions": "No mere dungeon adventurer couldwrite,withoutink/literacy changes",
+        "cObservation": "No mere dungeon adventurer couldwrite,withoutink/literacy changes",
+        "query": "No mere dungeon adventurer|write.{0,60}Book of the Dead",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Raw history had no matching target/refusal hit; source guard precedes literacy and ink.",
+        "finalAdjudication": {
+          "candidate": "book-dead-writing-refusal",
+          "id": "v80-writing-book-dead-action1",
+          "source": "write.c:dowrite238-240",
+          "segment": 0,
+          "steps": [
+            229,
+            229
+          ],
+          "cObservation": "Book of Dead as writing target refuses before literacy/ink.",
+          "coverageDifference": "Prior Book reading/invocation cases do not enter dowrite special target.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-book-dead-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "nonblank-novel-paper-guard",
+        "source": "write.c:dowrite103-104,118-122",
+        "state": "Actual nonblanknovelselectedaspaper",
+        "actions": "Thatbookisnotblank andWisdomexercise;special booknounforSPE_NOVEL,notordinaryspellbook",
+        "cObservation": "Thatbookisnotblank andWisdomexercise;special booknounforSPE_NOVEL,notordinaryspellbook",
+        "query": "That book is not blank|nonblank.{0,60}novel|SPE_NOVEL",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "finalAdjudication": {
+          "candidate": "nonblank-novel-paper-guard",
+          "id": "v80-writing-nonblank-action1",
+          "source": "write.c:dowrite103-104,118-122",
+          "segment": 0,
+          "steps": [
+            193,
+            193
+          ],
+          "cObservation": "Actual Witches Abroad paperback selected as writing paper: That book is not blank, exercises Wisdom.",
+          "coverageDifference": "Distinct from typing novel as target and prior read/apply/cancel novel callers.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-nonblank-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "glib-marker-slip",
+        "source": "write.c:dowrite90-96",
+        "state": "ActualGlibandheldmarker",
+        "actions": "Applymarker,dropsfromfingers beforepaperpicker",
+        "cObservation": "Applymarker,dropsfromfingers beforepaperpicker",
+        "query": "glib.{0,60}marker|marker.{0,60}slip",
+        "status": "excluded-before-C-prior-reached-coverage",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "exclusion": "Exact earlier v6 and recipes/write.c/glib-marker-slip-independent.session.json."
+      },
+      {
+        "id": "web-cover-pit-bury-objects",
+        "source": "polyself.c:dospinweb1555-1561 -> dig.c:bury_objs",
+        "state": "Untrappedgiantspider overlegallycreatedpit withfloorcarrot/sack",
+        "actions": "Monsterabilitycoverspit,deltrap,buriesfloorobjects;sourcecalleecallerwithoutdigging",
+        "cObservation": "Monsterabilitycoverspit,deltrap,buriesfloorobjects;sourcecalleecallerwithoutdigging",
+        "query": "covering up the pit|dospinweb.{0,60}bury|web.{0,60}burial",
+        "status": "excluded-before-C-prior-reached-coverage",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "exclusion": "Exact v24-spider-web-over-pit already drops scroll, covers pit and buries objects through same caller."
+      },
+      {
+        "id": "web-jam-boulder-trigger",
+        "source": "polyself.c:dospinweb1585-1590",
+        "state": "Untrappedgiantspider,actualrollingbouldertrapunderhero",
+        "actions": "Monsterabilityjams triggeranddeletestrap,notrollingboulderactivation",
+        "cObservation": "Monsterabilityjams triggeranddeletestrap,notrollingboulderactivation",
+        "query": "jamming the trigger|dospinweb.{0,60}BOULDER|web.{0,60}boulder",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "v12 triggers rolling boulder no-launch, not dospinweb jamming/deleting trigger. v61 discusses unproved Sokoban web routes only.",
+        "finalAdjudication": {
+          "candidate": "web-jam-boulder-trigger",
+          "id": "v80-web-boulder-action1",
+          "source": "polyself.c:dospinweb1585-1590",
+          "segment": 0,
+          "steps": [
+            224,
+            224
+          ],
+          "cObservation": "Untrapped giant spider over actual rolling-boulder trap jams/deletes trigger through ability.",
+          "coverageDifference": "v12 activates rolling boulder/no-launch; v61/62 failed Sokoban web approaches never jam this trigger.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-web-boulder-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "web-expels-animal-swallower",
+        "source": "polyself.c:dospinweb1515-1520",
+        "state": "Giantspider actuallyswallowed byanimalpurpleworm",
+        "actions": "Useabilityinside;releasewebfluid,expels,ECMD_OK/noaddedturn",
+        "cObservation": "Useabilityinside;releasewebfluid,expels,ECMD_OK/noaddedturn",
+        "query": "release web fluid|dospinweb.{0,60}expels|web.{0,60}swallow",
+        "status": "excluded-before-C-prior-reached-coverage",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "exclusion": "Exact matching v51-swallowed-web-expulsion-action-attempt2."
+      },
+      {
+        "id": "web-ignites-in-whirly",
+        "source": "polyself.c:dospinweb1521-1546",
+        "state": "Giantspider withlegalFireResistance ring,actuallyengulfedfirevortex",
+        "actions": "Useabilityinside;webignitesandsweptaway,notanimalexpulsion",
+        "cObservation": "Useabilityinside;webignitesandsweptaway,notanimalexpulsion",
+        "query": "web ignites|web.{0,60}swept away|dospinweb.{0,60}whirly",
+        "status": "excluded-before-C-prior-reached-coverage",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "exclusion": "Closely repeated v77-spider-energy-vortex-action1; changing elemental flavor does not justify extending same matching route."
+      },
+      {
+        "id": "web-triggers-magic-trap",
+        "source": "polyself.c:dospinweb1600-1609 -> trap.c:dotrap",
+        "state": "Untrappedgiantspider,actualMagicTrapunderhero",
+        "actions": "Useability triggersactualtrap withNO_TRAP_FLAGS,notstep/sitcaller",
+        "cObservation": "Useability triggersactualtrap withNO_TRAP_FLAGS,notstep/sitcaller",
+        "query": "dospinweb.{0,60}dotrap|web.{0,60}magic trap|have triggered a trap",
+        "status": "excluded-before-C-prior-caller-coverage",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "exclusion": "v61 actual falling-rock trap triggered by dospinweb already reaches this same dotrap caller; v77 rust design was excluded for that exact reason. No independent missing caller claim."
+      },
+      {
+        "id": "levitating-web-refusal",
+        "source": "polyself.c:dospinweb1506-1511",
+        "state": "Giantspider actuallyLevitation,notFlying",
+        "actions": "Monsterabilityrequiresontheground,returnsECMD_OKwithoutweb/Dexexercise",
+        "cObservation": "Monsterabilityrequiresontheground,returnsECMD_OKwithoutweb/Dexexercise",
+        "query": "ground to spin a web|levitat.{0,60}web|web.{0,60}Levitation",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Earlier v69 float_up and v61/62 Sokoban held-pit designs do not establish this untrapped Levitation-first refusal.",
+        "finalAdjudication": {
+          "candidate": "levitating-web-refusal",
+          "id": "v80-web-levitation-action1",
+          "source": "polyself.c:dospinweb1506-1511",
+          "segment": 0,
+          "steps": [
+            207,
+            207
+          ],
+          "cObservation": "Actual worn ring Levitation remains in giant-spider form; refuses before Dexterity exercise or web creation.",
+          "coverageDifference": "Prior float_up/web-vs-TT_WEB and held Sokoban pit attempts concern different conditions; successful floor web differs.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-web-levitation-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "gaze-sleeping-monster",
+        "source": "polyself.c:dogaze1709-1713",
+        "state": "Umberhulkhero,visible sleepingfloatingeye",
+        "actions": "Gaze setsangerbeforehelplessskip,decrementslooked,noeyeparalysis;requireactualsleepstate",
+        "cObservation": "Gaze setsangerbeforehelplessskip,decrementslooked,noeyeparalysis;requireactualsleepstate",
+        "query": "dogaze.{0,60}sleep|sleeping.{0,60}gaze|gaze at no place",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Closest v30-pyrolisk-eyeless-target has actual lichen !haseyes skip. New route must establish actual msleeping/helpless first operand; mere no-place gaze message is insufficient.",
+        "finalAdjudication": {
+          "candidate": "gaze-sleeping-monster",
+          "id": "v80-gaze-sleeping-action2",
+          "source": "polyself.c:dogaze1709-1713",
+          "segment": 0,
+          "steps": [
+            223,
+            296
+          ],
+          "cObservation": "Gaze skips sleeping eye; post-gaze stethoscope confirms Level3 HP16 AC9 asleep.",
+          "coverageDifference": "Closest v30 lichen skips !haseyes; new case exercises first helpless operand with eyed target and no retaliatory gaze.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-gaze-sleeping-action2.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "gaze-floating-eye-freeaction",
+        "source": "polyself.c:dogaze1742-1755",
+        "state": "UmberhulkherowithFree_action,awakefloatingeye",
+        "actions": "Confusiongaze thenstiffenmomentarily inretaliation,notphysicalhitpassive",
+        "cObservation": "Confusiongaze thenstiffenmomentarily inretaliation,notphysicalhitpassive",
+        "query": "stiffen momentarily|dogaze.{0,60}Free_action|gaze.{0,60}floating eye",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Closest v50 umber-hulk eye gazes freezes hero without Free_action; new branch must visibly stiffen momentarily.",
+        "finalAdjudication": {
+          "candidate": "gaze-floating-eye-freeaction",
+          "id": "v80-gaze-freeaction-action1",
+          "source": "polyself.c:dogaze1742-1755",
+          "segment": 0,
+          "steps": [
+            305,
+            306
+          ],
+          "cObservation": "Umber hulk gaze confuses eye, then Free_action causes stiffen momentarily retaliation guard.",
+          "coverageDifference": "v50 same eye gaze freezes hero without Free_action; physical passive and mirror-eye are other callers.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-gaze-freeaction-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "fiery-gaze-fire-resistance",
+        "source": "polyself.c:dogaze1725-1739",
+        "state": "Pyroliskhero vsactualredDragon",
+        "actions": "Fierygaze,d2,6 thenfiredoesntburn;level24itemheatguard reacheddespiteresist",
+        "cObservation": "Fierygaze,d2,6 thenfiredoesntburn;level24itemheatguard reacheddespiteresist",
+        "query": "fiery gaze|fire doesn.t burn|dogaze.{0,60}resists_fire",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "v24/v30 actual newt fire damage and v51 shopkeeper inventory/target misses do not show fire-resistant red-dragon dmg=0 branch.",
+        "finalAdjudication": {
+          "candidate": "fiery-gaze-fire-resistance",
+          "id": "v80-gaze-resistant-action1",
+          "source": "polyself.c:dogaze1725-1739",
+          "segment": 0,
+          "steps": [
+            220,
+            221
+          ],
+          "cObservation": "Pyrolisk gaze d2,6 meets actual red-dragon fire resistance: damage0; level24 item heat check still runs.",
+          "coverageDifference": "v24/v30 newt takes fire damage; v51 shopkeeper targets/attempts do not establish fire-resistant damage0 arm.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-gaze-resistant-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      },
+      {
+        "id": "mindblast-latent-telepathy",
+        "source": "polyself.c:domindblast1917-1934",
+        "state": "Mindflayerhero vsvisiblehostilemindflayer withmcansee",
+        "actions": "Ordinaryspecialability reaches50percentlatenttelepathy/rnd15,wakeup/damage;notmindlessskip",
+        "cObservation": "Ordinaryspecialability reaches50percentlatenttelepathy/rnd15,wakeup/damage;notmindlessskip",
+        "query": "latent telepathy|domindblast|psychic energy",
+        "status": "excluded-before-C-prior-reached-coverage",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "exclusion": "Exact v50-mindblast-telepathic-action-attempt1."
+      },
+      {
+        "id": "mindblast-blind-telepathy",
+        "source": "polyself.c:domindblast1917-1934",
+        "state": "Mindflayerhero vsNPCactuallyblindedbylegalpotion",
+        "actions": "Throwblindnesspotion totelepathicNPC thenability;u_sen bypasseschancerolls andlocksactualtelepathy",
+        "cObservation": "Throwblindnesspotion totelepathicNPC thenability;u_sen bypasseschancerolls andlocksactualtelepathy",
+        "query": "lock in on.{0,70}telepathy|domindblast|blind.{0,60}mind flayer",
+        "status": "excluded-before-C-prior-reached-coverage",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "exclusion": "Exact v77-blind-floating-eye-action3 actual blinded telepathic NPC."
+      },
+      {
+        "id": "mounted-dragon-forced-ability",
+        "source": "cmd.c:domonability940-942 -> dogmove.c:pet_ranged_attk forcedTRUE",
+        "state": "Normal human riding tame saddled red dragon with a nonadjacent ranged target",
+        "actions": "Actual forced best_target and ranged attack; no-target result is setup miss, excluded by recipes/cmd.c/monster-ability-steed-no-target-independent.session.json.",
+        "cObservation": "Actual forced best_target and ranged attack; no-target result is setup miss, excluded by recipes/cmd.c/monster-ability-steed-no-target-independent.session.json.",
+        "query": "pet_ranged_attk|mounted.{0,60}breath|steed.{0,60}monster ability",
+        "status": "deferred-target-no-ranged-proof",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "closest": "recipes/cmd.c/monster-ability-steed-no-target-independent.session.json (forced no-target only)",
+        "reason": "Giant action1 pager swallowed movement/ability, retained. Corrected giant pursued steed and remained adjacent, no target/attack proof. Materially different source speed6 ettin-zombie at observed distance3 still produced no score_targ/breath trace. No attack inferred, no qualifying control from repeated no-target outcome; defer without exhaustion claim."
+      },
+      {
+        "id": "dry-marker-scroll-disappears",
+        "source": "write.c:dowrite268-282",
+        "state": "Marker7charges,blankscroll,targetidentifybase14",
+        "actions": "Midwritedryaftercost>=7destroysblankscroll;distinctpaperclass effectfromunfinishedbook",
+        "cObservation": "Midwritedryaftercost>=7destroysblankscroll;distinctpaperclass effectfromunfinishedbook",
+        "query": "scroll is now useless and disappears|marker dries out|dry.{0,60}scroll",
+        "status": "matching-control",
+        "plannedBeforeJavaScriptGameplayComparison": true,
+        "staticReview": "Only raw v32 hits concern water blanking; actual mid-write consume-paper branch remains separate.",
+        "finalAdjudication": {
+          "candidate": "dry-marker-scroll-disappears",
+          "id": "v80-writing-scroll-action1",
+          "source": "write.c:dowrite268-282",
+          "segment": 0,
+          "steps": [
+            217,
+            217
+          ],
+          "cObservation": "Marker7 charges crosses identify basecost14 half-cost guard; actual cost dries marker and consumes scroll.",
+          "coverageDifference": "Distinct from unfinished-book paper class and earlier unknown-writing failure after ink subtraction.",
+          "kind": "matching-control",
+          "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+          "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-scroll-action1.log",
+          "independentReplay": true,
+          "firstMismatch": null
+        }
+      }
+    ],
+    "proposed": [
+      {
+        "candidate": "blind-unseen-blank-paper",
+        "id": "v80-writing-unseen-action1",
+        "source": "write.c:dowrite106-110",
+        "segment": 0,
+        "steps": [
+          253,
+          253
+        ],
+        "cObservation": "Blind before paper acquisition leaves dknown false; unknown-blank early refusal.",
+        "coverageDifference": "No same reached guard in raw106/fixed44/frozenv1/recipes. v42 cursed-book blindness is a different reader caller.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-unseen-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "blind-known-blank-book",
+        "id": "v80-writing-braille-action1",
+        "source": "write.c:dowrite111-116",
+        "segment": 0,
+        "steps": [
+          256,
+          256
+        ],
+        "cObservation": "Paper observed before Blind; known spellbook braille refusal.",
+        "coverageDifference": "Distinct from unseen paper first guard and v42 cursed_book blindness.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-braille-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "blind-known-scroll-writing",
+        "id": "v80-writing-known-blind-action1",
+        "source": "write.c:dowrite340-352",
+        "segment": 0,
+        "steps": [
+          354,
+          354
+        ],
+        "cObservation": "Permanent type identification before Blind; ink used, then rnl3 failure consumes paper.",
+        "coverageDifference": "v27/v35 unknown-name failures stop at earlier rnl15 guard while sighted.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-known-blind-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "dry-marker-unfinished-book",
+        "id": "v80-writing-book-action1",
+        "source": "write.c:dowrite268-278",
+        "segment": 0,
+        "steps": [
+          228,
+          229
+        ],
+        "cObservation": "Marker35 charges crosses basecost70 half-cost guard; actual cost dries it, book remains unfinished.",
+        "coverageDifference": "No reached mid-write book dry-out found; unknown-name diary failure is a later branch.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-book-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "dry-marker-scroll-disappears",
+        "id": "v80-writing-scroll-action1",
+        "source": "write.c:dowrite268-282",
+        "segment": 0,
+        "steps": [
+          217,
+          217
+        ],
+        "cObservation": "Marker7 charges crosses identify basecost14 half-cost guard; actual cost dries marker and consumes scroll.",
+        "coverageDifference": "Distinct from unfinished-book paper class and earlier unknown-writing failure after ink subtraction.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-scroll-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "encountered-scroll-label-writing",
+        "id": "v80-writing-label-action1",
+        "source": "write.c:dowrite167-170,313-318",
+        "segment": 0,
+        "steps": [
+          283,
+          283
+        ],
+        "cObservation": "Successful by-description writing merges new scroll with observed HAPAX LEGOMENON enchant-armor stack. JS refuses missing encumberMessage at writeEnv.",
+        "coverageDifference": "Prior v27/v35/v36 attempts fail unknown writing before successful acquisition. v33 invoke_create_ammo and accepted v76 light_cocktail1b0d614d omit same helper hook from different source callers. Actual first omitted caller is write.c:dowrite -> hold_another_object, not a new helper implementation.",
+        "kind": "provisional-first-failure",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-label-action1.log",
+        "independentReplay": true,
+        "firstMismatch": 283
+      },
+      {
+        "candidate": "blank-book-to-novel",
+        "id": "v80-writing-novel-action1",
+        "source": "write.c:dowrite214-237 SPE_NOVEL",
+        "segment": 0,
+        "steps": [
+          218,
+          219
+        ],
+        "cObservation": "Novel target chooses inspiration failure then give-up, before ink/literacy.",
+        "coverageDifference": "v52 reads novel; v61 applies novel; v76 cancels novel. Different substantive command branches.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-novel-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "book-dead-writing-refusal",
+        "id": "v80-writing-book-dead-action1",
+        "source": "write.c:dowrite238-240",
+        "segment": 0,
+        "steps": [
+          229,
+          229
+        ],
+        "cObservation": "Book of Dead as writing target refuses before literacy/ink.",
+        "coverageDifference": "Prior Book reading/invocation cases do not enter dowrite special target.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-book-dead-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "nonblank-novel-paper-guard",
+        "id": "v80-writing-nonblank-action1",
+        "source": "write.c:dowrite103-104,118-122",
+        "segment": 0,
+        "steps": [
+          193,
+          193
+        ],
+        "cObservation": "Actual Witches Abroad paperback selected as writing paper: That book is not blank, exercises Wisdom.",
+        "coverageDifference": "Distinct from typing novel as target and prior read/apply/cancel novel callers.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-writing-nonblank-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "web-jam-boulder-trigger",
+        "id": "v80-web-boulder-action1",
+        "source": "polyself.c:dospinweb1585-1590",
+        "segment": 0,
+        "steps": [
+          224,
+          224
+        ],
+        "cObservation": "Untrapped giant spider over actual rolling-boulder trap jams/deletes trigger through ability.",
+        "coverageDifference": "v12 activates rolling boulder/no-launch; v61/62 failed Sokoban web approaches never jam this trigger.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-web-boulder-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "levitating-web-refusal",
+        "id": "v80-web-levitation-action1",
+        "source": "polyself.c:dospinweb1506-1511",
+        "segment": 0,
+        "steps": [
+          207,
+          207
+        ],
+        "cObservation": "Actual worn ring Levitation remains in giant-spider form; refuses before Dexterity exercise or web creation.",
+        "coverageDifference": "Prior float_up/web-vs-TT_WEB and held Sokoban pit attempts concern different conditions; successful floor web differs.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-web-levitation-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "gaze-sleeping-monster",
+        "id": "v80-gaze-sleeping-action2",
+        "source": "polyself.c:dogaze1709-1713",
+        "segment": 0,
+        "steps": [
+          223,
+          296
+        ],
+        "cObservation": "Gaze skips sleeping eye; post-gaze stethoscope confirms Level3 HP16 AC9 asleep.",
+        "coverageDifference": "Closest v30 lichen skips !haseyes; new case exercises first helpless operand with eyed target and no retaliatory gaze.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-gaze-sleeping-action2.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "gaze-floating-eye-freeaction",
+        "id": "v80-gaze-freeaction-action1",
+        "source": "polyself.c:dogaze1742-1755",
+        "segment": 0,
+        "steps": [
+          305,
+          306
+        ],
+        "cObservation": "Umber hulk gaze confuses eye, then Free_action causes stiffen momentarily retaliation guard.",
+        "coverageDifference": "v50 same eye gaze freezes hero without Free_action; physical passive and mirror-eye are other callers.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-gaze-freeaction-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      },
+      {
+        "candidate": "fiery-gaze-fire-resistance",
+        "id": "v80-gaze-resistant-action1",
+        "source": "polyself.c:dogaze1725-1739",
+        "segment": 0,
+        "steps": [
+          220,
+          221
+        ],
+        "cObservation": "Pyrolisk gaze d2,6 meets actual red-dragon fire resistance: damage0; level24 item heat check still runs.",
+        "coverageDifference": "v24/v30 newt takes fire damage; v51 shopkeeper targets/attempts do not establish fire-resistant damage0 arm.",
+        "kind": "matching-control",
+        "comparisonBase": "652ab3f81a33ff73847b030c9a9790e371fd90e9",
+        "comparisonLog": ".cache/prep80/logs/accepted-latest-js-v80-gaze-resistant-action1.log",
+        "independentReplay": true,
+        "firstMismatch": null
+      }
+    ],
+    "firstCause": {
+      "source": "write.c:dowrite success tail -> invent.c:hold_another_object -> pickup.c:encumber_msg",
+      "firstStep": 283,
+      "prefix": "logs/accepted-boundary-prefix-v80-writing-label-action1.json",
+      "prefixScreens": 283,
+      "prefixRng": 2817,
+      "closest": [
+        "v33-invoke-ammunition artifact.c:invoke_create_ammo callback omission",
+        "v76-oil-snuff-merge-action2 apply.c:light_cocktail callback omission,accepted1b0d614d",
+        "v27-write-scroll unknown-name failure",
+        "v35 marker unknown identify failure",
+        "v36 earlier marker unknown-writing coverage"
+      ],
+      "evidence": [
+        "writing-first-cause-raw-crosswalk.json",
+        "initial-raw-crosswalk.json",
+        "initial-case-cards.json",
+        "initial-fixed-regression-crosswalk.json"
+      ],
+      "ownerCheck": "Root confirms write.c:dowrite/invent.c:hold_another_object/pickup.c:encumber_msg unreserved; preparation only, no implementation reservation."
+    },
+    "requestReason": "Repeated meaningfully different writing and form branches produce13 complete matches and one distinct omitted successful-writing caller. Seven old-covered routes excluded before C. Mounted target misses preserved and deferred, no exhaustion claim. Request reduced membership adjudication, not admission.",
+    "approval": {
+      "by": "Root",
+      "decision": "Approved proposed14:one successful-writing caller failure and13 controls.",
+      "reason": "Repeated distinct source routes produced13 matching controls and one distinct omitted production caller after22 designs and28 valid C pairs. Raw writing/caller history confirms prior successful acquisition omissions at v33 ammo/v76 oil are other callers; earlier writing attempts stop before acquisition. Each control names concrete guard/state/action difference. Preserve all28pairs and mounted target misses/deferred reason; no exhaustion or mounted attack claim.",
+      "instruction": "Finish immutable submission, then continue next unused batch at a clean accepted boundary under standing rules."
+    },
+    "status": "Root-approved-reduced-membership"
+  },
+  "decision": {
+    "by": "Root",
+    "decision": "Approved proposed14:one successful-writing caller failure and13 controls.",
+    "reason": "Repeated distinct source routes produced13 matching controls and one distinct omitted production caller after22 designs and28 valid C pairs. Raw writing/caller history confirms prior successful acquisition omissions at v33 ammo/v76 oil are other callers; earlier writing attempts stop before acquisition. Each control names concrete guard/state/action difference. Preserve all28pairs and mounted target misses/deferred reason; no exhaustion or mounted attack claim.",
+    "instruction": "Finish immutable submission, then continue next unused batch at a clean accepted boundary under standing rules."
+  }
+}
