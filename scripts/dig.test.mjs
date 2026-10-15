@@ -514,6 +514,47 @@ test('dighole returns the drawbridge refusal after source-ordered spot checks', 
     assert.deepEqual(effects, ['time-left', 'stop-timer', 'ice-effects']);
 });
 
+test('dighole removes a settled floor boulder through the object lifecycle', async () => {
+    const state = digCheckState();
+    const trap = { tx: X, ty: Y, ttyp: PIT };
+    const boulder = newObject({
+        otyp: BOULDER,
+        oclass: state.objects[BOULDER].oc_class,
+        where: OBJ_FLOOR,
+        ox: X,
+        oy: Y,
+        quan: 1,
+    });
+    state.level.traps = [trap];
+    state.level.objects[X][Y] = boulder;
+    state.level.objlist = boulder;
+
+    const draws = [];
+    const messages = [];
+    const result = await dighole(false, false, null, {
+        state,
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                return bound === 2 ? 1 : 50;
+            },
+        },
+        message: async text => messages.push(text),
+        redraw: () => {},
+    });
+
+    assert.equal(result, false);
+    assert.equal(trap.ttyp, PIT, 'the C boulder-settling arm crushes the spikes');
+    assert.equal(state.level.objects[X][Y], null,
+        'the settled boulder leaves the per-square floor pile');
+    assert.equal(state.level.objlist, null,
+        'the deletion also unlinks the level-wide object chain');
+    assert.equal(boulder.where, OBJ_DELETED);
+    assert.deepEqual(draws, [2, 100],
+        'pit settling precedes invent.c delobj() object resistance');
+    assert.deepEqual(messages, ['The boulder settles into the pit.']);
+});
+
 test('dighole runs magical-trap explosions before deleting and redrawing the trap', () => {
     const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
     const jsSource = readFileSync('js/dig.js', 'utf8');
