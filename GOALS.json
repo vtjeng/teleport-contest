@@ -317728,6 +317728,24 @@
       "delivered": null,
       "function": "m_consume_obj",
       "session": "synthetic/v83/v83-mm-digest-wraith-action1"
+    },
+    {
+      "id": "divergence-v83-monster-acid-resistant-attack-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement mhitm_ad_acid from uhitm.c",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v83/v83-mm-acid-resistant-action1"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v83-mm-acid-resistant-action1-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mhitm_ad_acid",
+      "session": "synthetic/v83/v83-mm-acid-resistant-action1"
     }
   ]
 }
