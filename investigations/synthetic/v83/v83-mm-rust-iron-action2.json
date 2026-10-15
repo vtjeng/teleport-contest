@@ -1,0 +1,125 @@
+{
+  "session": "synthetic/v83/v83-mm-rust-iron-action2",
+  "corpus": "synthetic",
+  "batch": "v83",
+  "caseId": "v83-mm-rust-iron-action2",
+  "manifestPath": "challenges/manifests/v83.json",
+  "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+  "recordingSha256": "23ce268870b27cc5d3d586799e60319095f197bfe3e9eff6b52df42ea47053fb",
+  "evaluationPath": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+  "evaluationCommit": "8ea329b39e1d58519ed59f949365104e0bf86c2d",
+  "remainingScreens": 1,
+  "recordedSteps": 1351,
+  "status": "complete",
+  "commit": "852a436d03804657156f3b67d874ecd473184b9e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v83",
+    "caseId": "v83-mm-rust-iron-action2",
+    "session": "synthetic/v83/v83-mm-rust-iron-action2",
+    "manifestPath": "challenges/manifests/v83.json",
+    "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+    "recording": "challenges/cases/v83/v83-mm-rust-iron-action2.session.json",
+    "recordingPath": "challenges/cases/v83/v83-mm-rust-iron-action2.session.json",
+    "recordingSha256": "23ce268870b27cc5d3d586799e60319095f197bfe3e9eff6b52df42ea47053fb",
+    "recipe": "challenges/cases/v83/v83-mm-rust-iron-action2.recipe.session.json",
+    "recipeSha256": "8ca435111185faf1df0ed5f80ae1419fc81543a6394ba0726e52686e23b80d3c",
+    "replayInputSha256": "55e46cc170706b0305dcf8ab1389e406372a3bfd083ecc68fb0cd0ac7c79555a",
+    "evaluationPath": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+    "evaluationCommit": "8ea329b39e1d58519ed59f949365104e0bf86c2d",
+    "evaluationArtifact": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+    "evaluationUtc": "2026-10-15T05:20:10.740Z",
+    "remainingScreens": 1,
+    "recordedSteps": 1351,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 1350,
+        "total": 1351
+      },
+      "rng": {
+        "matched": 3421,
+        "total": 3425
+      },
+      "cursors": {
+        "matched": 1351,
+        "total": 1351
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 859,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 859,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 6,
+        "cCell": {
+          "ch": "n",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "e",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2832,
+        "cEntry": "rn2(8)=6",
+        "cCaller": "dog_goal(dogmove.c:554)",
+        "jsEntry": "rn2(4)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 598,
+          "key": "."
+        },
+        "stepIndex": 598
+      },
+      "cursor": null
+    },
+    "step": 598,
+    "kind": "rng",
+    "sourceFile": "dogmove.c",
+    "function": "dog_goal",
+    "message": null,
+    "cFile": "dogmove.c",
+    "luaFile": null,
+    "line": 554
+  },
+  "summary": "The first mismatch is caused by a future planned iron-golem poison breath creating clouds through zap_over_floor without marking the borrowed transparency index for restoration. The planned map clone receives the clouds, but block_point rebuilds the module-wide transparency index from that clone; later pet visibility checks therefore observe future cloud state and skip dog_goal apport RNG. C and JavaScript agree through step 597; the first RNG mismatch is the pet’s rn2(8) apport check at step 598. Repair the ZT_POISON_GAS arm to admit the planned vision change before create_gas_cloud mutates cloud-region vision.",
+  "source": {
+    "file": "zap.c",
+    "branch": "In zap_over_floor(), the ZT_POISON_GAS arm runs when ZAP_POS(lev->typ) accepts the traversed floor square. During monster-action planning, poison breath may create a cloud on the cloned level; creating the region calls block_point(), which rebuilds vision.c’s module-wide transparency index. The planning pass must mark that borrowed index before the mutation so preflightSimpleMonsterActions() restores it from the live level in its finally block.",
+    "functions": [
+      "zap_over_floor"
+    ],
+    "callers": [
+      "mhitu.c:mattacku AT_BREA -> mthrowu.c:breamu -> mthrowu.c:breamm -> zap.c:dobuzz -> zap.c:zap_over_floor; JavaScript passes the planned action environment through breamu, breamm, dobuzz and zap_over_floor.",
+      "zap.c:dobuzz also calls zap_over_floor for ordinary ray traversal and deferred gas-cloud placement; the planned vision callback is supplied only by planning callers."
+    ],
+    "dependencies": [
+      "region.c:create_gas_cloud/make_gas_cloud/add_region",
+      "unported_monster_actions.js:admitPlannedVisionChange",
+      "unported_monster_actions.js:preflightSimpleMonsterActions"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The promoted v83 queue records 1351 steps, 1350 matching screens, all 1351 cursors matching, 3421/3425 RNG calls, and one remaining screen. At segment 0, step 598 (key .), C records rn2(8)=6 at dog_goal(dogmove.c:554), while JavaScript records rn2(4)=2; the first screen mismatch appears at step 859.",
+    "Prep’s same-input observer at .cache/prep47-recovery/prep83/logs/rust-goal-observer-v3.json confirms the replay matches all RNG, screens and cursors through step 597. At the pet located (17,15), hero (18,16), and coin (15,16), all eligibility guards agree while petCanSee changes from 1 on the first planning pass to 0 on later planning/live scans.",
+    "Prep’s temporary zap.js caller trace at .cache/prep47-recovery/prep83/logs/rust-cloud-caller-trace.log shows six poison-cloud calls with planning:true and state._plannedVisionChange:null; the C/JS mismatch remains at RNG 2832 / step 598. The trace only read state before each call and did not replace behavior.",
+    "C zap.c:zap_over_floor() lines 5141 onward handles ZT_POISON_GAS by calling create_gas_cloud(x,y,1,8) when ZAP_POS(lev->typ) succeeds, then breaks. C region.c:create_gas_cloud() creates a region and make_gas_cloud() adds it; the JavaScript add_region caller invokes blockPoint while adding gas clouds. JavaScript zap.js currently passes raw blockPoint and does not call the existing planned-vision admission callback first.",
+    "JavaScript unported_monster_actions.js:admitPlannedVisionChange() clones vision buffers and marks _plannedVisionChange; preflightSimpleMonsterActions() restores the shared transparency index from the live state in a finally block only when that marker exists. The existing createMonsterGasCloud() helper demonstrates the required planning admission pattern for other cloud callers.",
+    "The current first cause is not dogmove.c:dog_goal(): that source path is where C’s next rn2(8) is consumed after the poisoned planning state has already hidden the coin. Later intended monster death/rust behavior is outside the first mismatch."
+  ]
+}
