@@ -11,7 +11,7 @@
   "remainingScreens": 73,
   "recordedSteps": 507,
   "status": "complete",
-  "commit": "88718556869241efa4427ad22af43f4402c94ee0",
+  "commit": "de96b10127e91270a15abdc31d0f706471e59db7",
   "mismatch": {
     "session": "synthetic/v76/v76-shop-chest-force-action2",
     "remainingScreens": 73,
@@ -40,13 +40,13 @@
       "message": "an occupation reached picking a lock requires breakchestlock() shop billing (destroyit=true)"
     }
   },
-  "summary": "After the accepted Minetown nameshk correction, the v76 case matches the Izchak greeting and reaches the next boundary: JavaScript refuses the destroyit=true shop branch of breakchestlock() before chest destruction. C resolves the shopkeeper from the current shop and charges for the destroyed box and any shattered contents.",
+  "summary": "The source-traced breakchestlock() shop branch is now implemented: the exact v76 replay matches all recorded screens, RNG calls, and cursors with no error. The accepted baseline still records the pre-fix step-434 stop; this report preserves that queue diagnosis and the earlier nameshk investigation in history.",
   "source": {
     "file": "lock.c",
     "functions": [
       "breakchestlock"
     ],
-    "branch": "For destroyit=true, C finds a shopkeeper only when the hero is in an active costly spot. It prints the destruction message, extracts each child, charges destroyed contents through stolen_value, handles the box itself through stolen_value, prints the combined loss when nonzero, then delobj() removes the chest. The JS version stops at costly_spot() with an UnsupportedLockError before this branch runs. Existing JS costly_spot(), shop_keeper(), stolen_value(), currency(), and delobj() implementations provide the called behavior; this task owns the lock.c branch and its wiring already exists through forcelock().",
+    "branch": "For destroyit=true, C first checks for an active shop and costly spot, looks up the keeper, and derives costly from whether that lookup succeeded. It prints the destruction message, extracts each child, calls stolen_value for every shattered child before freeing or consuming it, processes survivors, bills the box, prints one combined debt line when loss is nonzero, and deletes the chest. JavaScript now follows that order using the existing costly_spot(), shop_keeper(), stolen_value(), currency(), and delobj() ports. The destroyit=false branch still bills only the box before changing its lock flags.",
     "callers": [
       "C lock.c:forcelock() calls breakchestlock() on successful blunt force, passing destroyit when !picktyp && !rn2(3); JS lock.js:forcelock() awaits the same function before reset_pick().",
       "C dokick.c:really_kick_object() also calls breakchestlock(..., FALSE); JS dokick.js retains this existing non-destroying path, which must remain unchanged."
@@ -63,8 +63,10 @@
   "evidence": [
     "The accepted v76 evaluation at source commit 88718556869241efa4427ad22af43f4402c94ee0 reports 434/507 screens, 3,947/4,015 RNG calls, and 434/507 cursors with error null. Its first current stop is step 434 at breakchestlock() shop billing (destroyit=true).",
     "The prior nameshk delivery f509c5e88 restored the +Izchak special Minetown greeting, improving the accepted baseline by one screen and cursor. Its separate report remains preserved under history.previousDiagnosis.",
-    "C lock.c:breakchestlock() lines 162-212 reaches shop lookup, destroyed-content accounting, final box billing, combined debt output, and delobj() in this order. JS lock.js:breakchestlock() currently throws at the costly_spot() gate before mutation; its existing caller forcelock() already awaits the function.",
-    "The source helpers used by the missing branch are present in JS: shk.js costly_spot(), shop_keeper(), and stolen_value(); invent.js currency(); and invent.js delobj(). stolen_value() returns the amount after billing and accepts the silent=true argument used by C here."
+    "The initial source comparison showed that JS lock.js:breakchestlock() stopped at the costly_spot() gate before shop accounting or mutation; the current implementation removes that refusal and follows the C branch order.",
+    "The source helpers used by the repaired branch are existing JS ports: shk.js costly_spot(), shop_keeper(), and stolen_value(); invent.js currency(); and invent.js delobj(). stolen_value() returns the billed amount and accepts the silent=true argument used by C.",
+    "At implementation commit (recorded in implementation metadata), js/lock.js:breakchestlock now matches lock.c:breakchestlock shop accounting order, including awaited silent stolen_value calls for destroyed contents and the box, combined currency output, and delobj. The existing js/lock.js:forcelock caller and #force dispatcher remain wired; the really_kick_object caller continues to pass false.",
+    "Implementation commit de96b1012b3fdfbf1458af3c0dbd76b92b6108a5 was verified with node --test scripts/force-lock.test.mjs (7 tests passed), npm run lint, the exact v76-shop-chest-force-action2 replay (507/507 screens, 4,015/4,015 RNG calls, 507/507 cursors, error null), and synthetic-range-evidence through segment 0 step 506."
   ],
   "history": {
     "previousDiagnosis": {
@@ -158,5 +160,39 @@
       ]
     },
     "acceptedPriorDelivery": "1e7d2ef1ecfb628736b572255f219201fd789855"
+  },
+  "implementation": {
+    "commit": "de96b10127e91270a15abdc31d0f706471e59db7",
+    "source": "js/lock.js:breakchestlock now uses the current shop room and costly spot to find the keeper, derives costly from the keeper result, bills shattered contents and the chest with stolen_value(..., TRUE), prints the combined debt when nonzero, and deletes the chest. The destroyit=false path is unchanged.",
+    "focusedTest": "scripts/force-lock.test.mjs",
+    "admittedSynthetic": {
+      "batch": "v76",
+      "caseId": "v76-shop-chest-force-action2",
+      "segment": 0,
+      "fromStep": 434,
+      "throughStep": 506,
+      "matchedScreens": 73,
+      "matchedRng": 68,
+      "matchedCursors": 73,
+      "source": "C lock.c:forcelock -> breakchestlock(destroyit=true); shop keeper lookup, destroyed-content and box billing, combined debt message, delobj."
+    },
+    "replay": {
+      "batch": "v76",
+      "caseId": "v76-shop-chest-force-action2",
+      "segment": 0,
+      "matchedScreens": 507,
+      "totalScreens": 507,
+      "matchedRng": 4015,
+      "totalRng": 4015,
+      "matchedCursors": 507,
+      "totalCursors": 507,
+      "error": null
+    },
+    "checks": [
+      "node --test scripts/force-lock.test.mjs: 7 passed",
+      "npm run lint: passed",
+      "exact v76 replay: 507 screens, 4015 RNG calls, 507 cursors, no error",
+      "synthetic-range-evidence: segment 0 through step 506 matched"
+    ]
   }
 }
