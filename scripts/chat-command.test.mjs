@@ -18,13 +18,15 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    CQ_CANNED,
     ECMD_OK,
+    ECMD_TIME,
     HALLUC,
     SHOPBASE,
     STRANGLED,
 } from '../js/const.js';
-import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import { vobj_at } from '../js/display.js';
+import { cmdq_add_key } from '../js/cmd.js';
 import { rndmonnam } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -384,7 +386,7 @@ test('shop_object skips gold and needs a willing shopkeeper', async () => {
     // port keeps it for the same reason.
 });
 
-test('a mounted hero chats past the steed arm unless she aims down',
+test('a mounted hero chats to herself or to the steed',
     async () => {
         // steed.c mount_steed()'s success path, replayed from the matrix that
         // records it against C. Its moves are a wait, #ride, the direction of
@@ -409,13 +411,28 @@ test('a mounted hero chats past the steed arm unless she aims down',
         assert.equal(toplines(game),
             'Talking to yourself is a bad habit for a dungeoneer.');
 
-        // Aiming down at the steed continues into domonnoise() at :1302,
-        // which this goal leaves unported.
+        // A live steed reaches domonnoise() at :1302; a helpless one instead
+        // gets the notice at :1299 and still spends the timed turn.
         await runSegment(mounted('>'),
             { onBoundary: (error) => { boundary = error; } });
-        assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
-        assert.match(boundary.message, /a chat aimed down at a steed/u);
+        assert.equal(boundary, null);
+        assert.equal(toplines(game), 'The saddled pony whickers.');
     });
+
+test('a helpless steed does not notice downward chat', async () => {
+    const [ride] = loadRideDismountRecipe().segments;
+    const toPony = ride.moves.split(RIDE_COMMAND)[1];
+    await runSegment({ ...ride, moves: `.${RIDE_COMMAND}${toPony[0]}` });
+    assert.ok(game.u.usteed, 'the hero did not mount');
+
+    // sounds.c:1298-1300 takes this branch when helpless() is true, even
+    // though the ordinary steed sound path at :1302 is skipped.
+    game.u.usteed.msleeping = true;
+    quiet(game);
+    cmdq_add_key(CQ_CANNED, '>'.charCodeAt(0), game);
+    assert.equal(await dotalk(game), ECMD_TIME);
+    assert.equal(toplines(game), 'The saddled pony seems not to notice you.');
+});
 
 test('chatting at a monster reaches domonnoise() MS_BARK', async () => {
     // The pet starts beside the hero, so this is the shortest input sequence
