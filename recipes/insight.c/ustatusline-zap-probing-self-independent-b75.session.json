@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent insight.c:ustatusline caller witness for zap.c:weffects(WAN_PROBING). The prior C inventory prompt showed that this Wizard’s wished probing wand is at n; this recording selects n and zaps the hero square. The new seed/date/role/name distinguish it from existing lateral and downward probing recordings.",
+  "segments": [
+    {
+      "seed": 75210616,
+      "datetime": "20981103131800",
+      "nethackrc": "OPTIONS=name:ProbeStatusB75,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\u0017wand of probing\nzn."
+    }
+  ]
+}

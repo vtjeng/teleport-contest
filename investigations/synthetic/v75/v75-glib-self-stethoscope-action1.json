@@ -17,27 +17,42 @@
     "regression": false,
     "passed": false,
     "metrics": {
-      "screens": { "matched": 177, "total": 227 },
-      "rng": { "matched": 3082, "total": 3082 },
-      "cursors": { "matched": 177, "total": 227 }
+      "screens": {
+        "matched": 177,
+        "total": 227
+      },
+      "rng": {
+        "matched": 3082,
+        "total": 3082
+      },
+      "cursors": {
+        "matched": 177,
+        "total": 227
+      }
     },
     "firstMismatch": {
       "kind": "stop",
       "step": 177,
       "key": ".",
-      "location": { "segmentIndex": 0, "stepIndex": 177 },
+      "location": {
+        "segmentIndex": 0,
+        "stepIndex": 177
+      },
       "c": "Status of wizard (fervently neutral):  Level 1  HP 13(13)  AC 10, slippery fingers.",
       "javascript": "throws UnsupportedEnlightenmentError before drawing the report"
     },
     "session": "synthetic/v75/v75-glib-self-stethoscope-action1"
   },
-  "summary": "The self-directed stethoscope reaches the GLIB branch in insight.c:ustatusline(), but JavaScript treats GLIB as an unsupported condition and throws before printing the status line. C reads only u.uprops[GLIB].intrinsic and appends ', slippery ' plus fingers_or_gloves(TRUE); unlike the earlier general-attributes caller, ustatusline() does not print a wizard timeout suffix. The full ustatusline() function is the claimed source scope, including its final visible-region clause; that clause is separately refused in JavaScript and follows the same source order and swallowed-region guard.",
+  "summary": "The self-directed stethoscope reaches the GLIB branch in insight.c:ustatusline(), but JavaScript treats GLIB as an unsupported condition and throws before printing the status line. C reads only u.uprops[GLIB].intrinsic and appends ', slippery ' plus fingers_or_gloves(TRUE); unlike the earlier general-attributes caller, ustatusline() does not print a wizard timeout suffix. The full ustatusline() function is the claimed source scope, including its final visible-region clause; that clause is separately refused in JavaScript and follows the same source order and swallowed-region guard. The selected insight.c:ustatusline() function and both production callers are now implemented; the independent visible-region and probing-wand recordings match C and JavaScript completely.",
   "source": {
     "file": "insight.c",
     "branch": "use_stethoscope() calls ustatusline() for a self-directed horizontal listen; with GLIB active, ustatusline() appends the slippery-hands phrase before trapped, movement, concealment, invisibility, holder, visible-region, and final status output. The later region phrase is omitted while swallowed and distinguishes poison gas from vapor using reg_damg().",
-    "functions": [ "ustatusline" ],
+    "functions": [
+      "ustatusline"
+    ],
     "callers": [
-      "apply.c:use_stethoscope() calls ustatusline() when confdir(FALSE) leaves u.dx and u.dy zero; js/apply.js:use_stethoscope() awaits ustatusline(state) on the corresponding production branch."
+      "apply.c:use_stethoscope() calls ustatusline() when confdir(FALSE) leaves u.dx and u.dy zero; js/apply.js:use_stethoscope() awaits ustatusline(state) on the corresponding production branch.",
+      "zap.c:dozap() routes self-directed wands to zapyourself(); zap.c:zapyourself() calls ustatusline() in WAN_PROBING after probe_objchain() and update_inventory(). js/zap.js awaits the matching call."
     ],
     "dependencies": [
       "do_wear.c:fingers_or_gloves(TRUE) is already implemented by js/do_wear.js:fingers_or_gloves().",
@@ -50,7 +65,65 @@
     "nethack-c/upstream/src/apply.c:318-382 calls ustatusline() after confdir(FALSE) when u.dx and u.dy are both zero. The recipe grants the wizard character Glib, then applies an uncursed stethoscope to self; the recording reaches that call at step 177 with no RNG divergence.",
     "nethack-c/upstream/src/insight.c:3402-3489 appends the GLIB clause at 3453-3454 using the intrinsic-only Glib macro from include/youprop.h:112, then calls fingers_or_gloves(TRUE). The timeout suffix appears in the separate general-attributes function at insight.c:1172, not in ustatusline(). ustatusline() later adds a visible-region phrase only when the hero is not swallowed and a visible, non-expired region contains the hero.",
     "js/insight.js:3052-3063 lists GLIB in UNPORTED_USTATUS_CONDITIONS and ustatusline() throws before report construction when that intrinsic/extrinsic superset is truthy. Its final visible-region branch also throws instead of appending the C phrase.",
-    "The planned implementation scope is the complete insight.c:ustatusline() function, with the production caller already wired through js/apply.js:2674. Existing helper implementations in js/do_wear.js and js/region.js supply the C counterparts; no caller edits are currently indicated."
+    "The planned implementation scope is the complete insight.c:ustatusline() function, with the production caller already wired through js/apply.js:2674. Existing helper implementations in js/do_wear.js and js/region.js supply the C counterparts; no caller edits are currently indicated.",
+    "Implementation evidence: js/insight.js:ustatusline() now follows the complete insight.c:ustatusline() source order, including intrinsic-only GLIB wording and the non-swallowed visible-region poison-gas/vapor clause; the obsolete refusals were removed and existing callers await it.",
+    "Independent visible-region witness: recipes/insight.c/ustatusline-region-self-stethoscope-independent-b75.session.json and recordings/insight.c/ustatusline-region-self-stethoscope-independent-b75.session.json reach apply.c:use_stethoscope() -> insight.c:ustatusline(). The hero reads a wished stinking-cloud scroll centered on self and then probes with a stethoscope; C displays the poison-gas status clause. The C replay is byte-identical, and JS matches all 2505 RNG calls, 69 screens, and 69 cursors.",
+    "Independent probing-wand witness: recipes/insight.c/ustatusline-zap-probing-self-independent-b75.session.json and recordings/insight.c/ustatusline-zap-probing-self-independent-b75.session.json reach zap.c:dozap() -> zapyourself() -> insight.c:ustatusline() in WAN_PROBING. The C replay is byte-identical, and JS matches all 2365 RNG calls, 21 screens, and 21 cursors.",
+    "Admitted v75 runtime range: synthetic/v75/v75-glib-self-stethoscope-action1, segment 0, steps 0–226 matches after the port, including the intrinsic GLIB status line. Focused tests pass 57/57; scoped ESLint passes."
   ],
-  "commit": "1d77f775a06167ceaeed550e5c61c4daa9600cfe"
+  "commit": "1d77f775a06167ceaeed550e5c61c4daa9600cfe",
+  "implementation": {
+    "commit": "b1877738fd6957e3b220f828f794a1c14dbdc176",
+    "correctionCommit": "4dbddc0caed4a578fab4033e2705cef7c7d7e296",
+    "files": [
+      "js/insight.js",
+      "js/cmd.js",
+      "js/allmain.js",
+      "scripts/apply-stethoscope.test.mjs"
+    ],
+    "runtimeEvidence": [
+      {
+        "sourceEntry": "apply.c:use_stethoscope() -> insight.c:ustatusline()",
+        "recording": "recordings/insight.c/ustatusline-region-self-stethoscope-independent-b75.session.json",
+        "rng": [
+          2505,
+          2505
+        ],
+        "screens": [
+          69,
+          69
+        ],
+        "cursors": [
+          69,
+          69
+        ],
+        "cReplayByteIdentical": true
+      },
+      {
+        "sourceEntry": "zap.c:dozap() -> zapyourself() [WAN_PROBING] -> insight.c:ustatusline()",
+        "recording": "recordings/insight.c/ustatusline-zap-probing-self-independent-b75.session.json",
+        "rng": [
+          2365,
+          2365
+        ],
+        "screens": [
+          21,
+          21
+        ],
+        "cursors": [
+          21,
+          21
+        ],
+        "cReplayByteIdentical": true
+      },
+      {
+        "sourceEntry": "apply.c:use_stethoscope() -> insight.c:ustatusline()",
+        "batch": "v75",
+        "caseId": "v75-glib-self-stethoscope-action1",
+        "segment": 0,
+        "fromStep": 0,
+        "throughStep": 226
+      }
+    ]
+  }
 }

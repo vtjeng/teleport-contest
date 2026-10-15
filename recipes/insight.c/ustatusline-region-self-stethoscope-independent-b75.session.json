@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent insight.c:ustatusline visible-region witness. C’s apply prompt showed the wished stethoscope at inventory letter p; this final recipe uses that observed selector after creating a cloud centered on the Wizard. It then applies the stethoscope to self while inside the visible poison-gas region. Inputs are independent of the admitted GLIB case and Prep40’s case.",
+  "segments": [
+    {
+      "seed": 75210615,
+      "datetime": "20981103131700",
+      "nethackrc": "OPTIONS=name:RegionStatusB75,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " \u0017blessed scroll of stinking cloud\nro    . \u0017uncursed stethoscope\nap."
+    }
+  ]
+}
