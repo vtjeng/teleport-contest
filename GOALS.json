@@ -316089,6 +316089,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "wire-in-container-figurine-timer-stop-v75",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement in_container from pickup.c",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v75/v75-contained-figurine-stash-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task C-investigation-v75-contained-figurine-stash-action2-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "in_container",
+      "session": "synthetic/v75/v75-contained-figurine-stash-action2"
+    },
+    {
+      "id": "fix-prisoner-release-speech-v75-20261014",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement prisoner_speaks, quest_talk from quest.c",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v75/v75-prisoner-release-action3"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v75-prisoner-release-action3-20261014",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "prisoner_speaks",
+      "session": "synthetic/v75/v75-prisoner-release-action3"
     }
   ]
 }
