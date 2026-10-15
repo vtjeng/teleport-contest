@@ -10,7 +10,7 @@
   "evaluationCommit": "abc60e89302029bc1f415e6eb8709cbea7454144",
   "remainingScreens": 83,
   "recordedSteps": 393,
-  "status": "partial",
+  "status": "complete",
   "commit": "d5cf859ef10f3b3ad2890b8f7921ea135bc1ed58",
   "mismatch": {
     "session": "synthetic/v75/v75-contained-figurine-stash-action2",
@@ -25,7 +25,7 @@
       "jsEntry": "pickup.js:in_container calls freeinv without the required stopFigurineTimer hook, so freeinv_core throws before the put-in message"
     }
   },
-  "summary": "The session stashes a cursed timed figurine into a bag. C pickup.c:in_container removes the object with freeinv; invent.c:freeinv_core detects a timed FIGURINE and calls stop_timer(FIG_TRANSFORM). JS invent.js:freeinv_core already ports this behavior through its stopFigurineTimer hook, but pickup.js:in_container invokes freeinv with only { state }. Supplying the hook at this source call site cancels the timer before the object is linked into the bag and allows the ordinary put-in message and continuation.",
+  "summary": "The session stashes a cursed timed figurine into a bag. C pickup.c:in_container removes it with freeinv; invent.c:freeinv_core stops FIG_TRANSFORM before it is added to the container. JS freeinv_core already implements that operation through stopFigurineTimer, but the in_container caller had supplied only { state }. The caller now provides the hook backed by timeout.js:stop_timer(FIG_TRANSFORM,...), so the timer is canceled before insertion. The full admitted replay matches every screen, RNG call, and cursor through the later #timeout check.",
   "source": {
     "file": "pickup.c",
     "functions": [
@@ -61,7 +61,23 @@
   "evidence": [
     "The published v75 admission evaluation at source base abc60e89302029bc1f415e6eb8709cbea7454144 records 310/393 screens, 2114/2117 RNG calls, and 310/393 cursors, with null error.",
     "The admitted recording segment 0 reaches stash item selection at step 309 and selects the cursed figurine at step 310. C outputs “You put a figurine of a newt into the bag.” after the timed figurine leaves inventory.",
-    "C pickup.c:in_container calls freeinv before adding the item; invent.c:freeinv_core stops FIG_TRANSFORM for a timed figurine. JS pickup.js:in_container calls freeinv(obj,{state}), while JS invent.js:freeinv_core requires a stopFigurineTimer hook and rejects the missing hook before completing the stash."
+    "C pickup.c:in_container calls freeinv before adding the item; invent.c:freeinv_core stops FIG_TRANSFORM for a timed figurine. JS pickup.js:in_container calls freeinv(obj,{state}), while JS invent.js:freeinv_core requires a stopFigurineTimer hook and rejects the missing hook before completing the stash.",
+    "After the caller correction, the admitted v75 recording segment 0 matches completely through step 392: 393/393 screens, 2117/2117 RNG calls, 393/393 cursors, null error, and no unported calls. The later timeout check also matches, confirming that the canceled FIG_TRANSFORM does not retry."
   ],
-  "goalKind": "divergence-fix"
+  "goalKind": "divergence-fix",
+  "verifiedMetrics": {
+    "screens": {
+      "matched": 393,
+      "total": 393
+    },
+    "rng": {
+      "matched": 2117,
+      "total": 2117
+    },
+    "cursors": {
+      "matched": 393,
+      "total": 393
+    },
+    "error": null
+  }
 }
