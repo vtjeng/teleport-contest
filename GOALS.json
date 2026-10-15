@@ -318179,6 +318179,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-dighole-floor-boulder-deletion-v84-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dighole from dig.c",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v84/v84-dig-boulder-pit-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task B-investigation-v84-dig-boulder-pit-action2-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dighole",
+      "session": "synthetic/v84/v84-dig-boulder-pit-action2"
+    },
+    {
+      "id": "fix-region-run-regions-blind-gas-dissipation-v83-20261015",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement run_regions from region.c",
+      "cFile": "region.c",
+      "sessions": [
+        "synthetic/v83/v83-mm-rust-iron-action2"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task A2-investigation-v83-mm-rust-iron-screen859-20261015",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "run_regions",
+      "session": "synthetic/v83/v83-mm-rust-iron-action2"
     }
   ]
 }
