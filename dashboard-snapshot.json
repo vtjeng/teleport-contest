@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T01:24:11.595Z",
+  "capturedAt": "2026-10-15T01:41:40.056Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130384,6 +130384,97 @@
         "type": "accepted",
         "at": "2026-10-15T01:22:44.049Z",
         "task": "B-investigation-v76-oil-snuff-merge-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v76-monster-earth-mold-action3-20261015-06d9def5f06529cdcf38bd195610dd913b608ef3",
+        "type": "published",
+        "at": "2026-10-15T01:24:26.077Z",
+        "task": "C-investigation-v76-monster-earth-mold-action3-20261015",
+        "commit": "06d9def5f06529cdcf38bd195610dd913b608ef3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-B-investigation-v76-oil-snuff-merge-action2-20261015-06d9def5f06529cdcf38bd195610dd913b608ef3",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T01:24:30.155Z",
+        "task": "B-investigation-v76-oil-snuff-merge-action2-20261015",
+        "commit": "06d9def5f06529cdcf38bd195610dd913b608ef3",
+        "knownBy": "2026-10-15T01:24:26.077Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep41-preintegration-review-40784ded",
+        "type": "activity",
+        "at": "2026-10-15T01:25:14.198Z",
+        "task": "Prep41",
+        "phase": "review",
+        "reason": "Verify the reduced v77 controls packet, saved independent C evidence, and coverage distinctions before integration."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-72f26af3188cd1bd0c3add8aee61516b0136f9541add176183dcd73f6a421e57-8666328d77c5222ad0c987421ac1460c192fa953-Prep41",
+        "type": "integrating",
+        "at": "2026-10-15T01:25:34.547Z",
+        "task": "Prep41",
+        "integration": "8666328d77c5222ad0c987421ac1460c192fa953",
+        "prepGroup": [
+          "Prep41"
+        ],
+        "validationGroup": [
+          "Prep41"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "turn-Prep42-v78-source-design-20261015",
+        "type": "turn",
+        "at": "2026-10-15T01:29:51.312Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Prep42:source planning and independent C setups across new behavior families;prior coverage is checked before comparisons."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep41-8666328d77c5222ad0c987421ac1460c192fa953",
+        "type": "validated",
+        "at": "2026-10-15T01:35:33.863Z",
+        "task": "Prep41",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep41-8666328d77c5222ad0c987421ac1460c192fa953",
+        "type": "accepted",
+        "at": "2026-10-15T01:35:33.863Z",
+        "task": "Prep41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep41-admission-preparing-8666328d",
+        "type": "activity",
+        "at": "2026-10-15T01:35:45.269Z",
+        "task": "Prep41",
+        "phase": "admission",
+        "reason": "Checkpoint passed; preparing the reviewed v77 controls manifest for hosted baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep41-2d2c7a8dc286a74a11e0d4d6b74e8edb830c4296",
+        "type": "activity",
+        "at": "2026-10-15T01:40:05.567Z",
+        "task": "Prep41",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep41-2d2c7a8dc286a74a11e0d4d6b74e8edb830c4296",
+        "type": "activity",
+        "at": "2026-10-15T01:40:06.449Z",
+        "task": "Prep41",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
@@ -130397,18 +130488,6 @@
         "status": "ready",
         "delivery": "1e7d2ef1ecfb628736b572255f219201fd789855",
         "since": "2026-10-15T01:14:49.144Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "Prep41",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "40784ded7d94fe49fe6bea76b94cdd5386e62753",
-        "batch": "v77",
-        "since": "2026-10-15T01:19:44.537Z",
         "blockedBy": [],
         "unblocks": 0
       },
@@ -131636,8 +131715,8 @@
     }
   },
   "development": {
-    "executionCommit": "eeccdee302be39a5e6563d7450d36bb8e36a80d4",
-    "measuredAt": "2026-10-15T01:18:17.086Z",
+    "executionCommit": "8666328d77c5222ad0c987421ac1460c192fa953",
+    "measuredAt": "2026-10-15T01:31:11.044Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
