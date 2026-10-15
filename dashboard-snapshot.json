@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T01:41:40.056Z",
+  "capturedAt": "2026-10-15T01:55:27.735Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -130475,34 +130475,73 @@
         "task": "Prep41",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-Prep41-32edbd51b13aa1ff17bb60d3fcb27fdd7aa7ec5a",
+        "type": "published",
+        "at": "2026-10-15T01:41:46.295Z",
+        "task": "Prep41",
+        "commit": "32edbd51b13aa1ff17bb60d3fcb27fdd7aa7ec5a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-88718556869241efa4427ad22af43f4402c94ee0-9c5d8debe21a7ba21eea5a842d68bf5c3a7bc2bbdc43e308d40721f39a57ced9-C-investigation-v76-shop-chest-force-action2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T01:42:56.303Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "integration": "88718556869241efa4427ad22af43f4402c94ee0",
+        "validationGroup": [
+          "C-investigation-v76-shop-chest-force-action2-20261015",
+          "A2-investigation-v76-search-actions2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "implementation-group-88718556869241efa4427ad22af43f4402c94ee0-9c5d8debe21a7ba21eea5a842d68bf5c3a7bc2bbdc43e308d40721f39a57ced9-A2-investigation-v76-search-actions2-20261015",
+        "type": "integrating",
+        "at": "2026-10-15T01:42:56.303Z",
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "integration": "88718556869241efa4427ad22af43f4402c94ee0",
+        "validationGroup": [
+          "C-investigation-v76-shop-chest-force-action2-20261015",
+          "A2-investigation-v76-search-actions2-20261015"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v76-shop-chest-force-action2-20261015-88718556869241efa4427ad22af43f4402c94ee0-validated",
+        "type": "validated",
+        "at": "2026-10-15T01:52:35.458Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v76-search-actions2-20261015-88718556869241efa4427ad22af43f4402c94ee0-validated",
+        "type": "validated",
+        "at": "2026-10-15T01:52:35.458Z",
+        "task": "A2-investigation-v76-search-actions2-20261015",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C-investigation-v76-shop-chest-force-action2-20261015-88718556869241efa4427ad22af43f4402c94ee0-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T01:53:07.048Z",
+        "task": "C-investigation-v76-shop-chest-force-action2-20261015"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A2-investigation-v76-search-actions2-20261015-88718556869241efa4427ad22af43f4402c94ee0-accepted",
+        "type": "accepted",
+        "at": "2026-10-15T01:53:07.048Z",
+        "task": "A2-investigation-v76-search-actions2-20261015"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "C-investigation-v76-shop-chest-force-action2-20261015",
-        "worker": "C",
-        "goal": "divergence-v76-minetown-lighting-shop-izchak-20261015",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "1e7d2ef1ecfb628736b572255f219201fd789855",
-        "since": "2026-10-15T01:14:49.144Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "A2-investigation-v76-search-actions2-20261015",
-        "worker": "A2",
-        "goal": "fix-detect-dosearch0-v76-statue-and-swallowed-search-20261015",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "b2fc01bbec80640697db638ef052399503479823",
-        "since": "2026-10-15T01:20:30.824Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -131663,60 +131702,13 @@
           "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
         ],
         "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
-      },
-      "A2-investigation-v76-search-actions2-20261015": {
-        "id": "A2-investigation-v76-search-actions2-20261015",
-        "worker": "A2",
-        "status": "ready",
-        "seed": "synthetic/v76/v76-statue-search-action2",
-        "reservations": [
-          "session:synthetic/v76/v76-statue-search-action2",
-          "session:synthetic/v76/v76-swallowed-explicit-search-action2",
-          "source:detect.c:dosearch0"
-        ]
-      },
-      "C-investigation-v76-shop-chest-force-action2-20261015": {
-        "id": "C-investigation-v76-shop-chest-force-action2-20261015",
-        "worker": "C",
-        "status": "ready",
-        "seed": "synthetic/v76/v76-shop-chest-force-action2",
-        "reservations": [
-          "session:synthetic/v76/v76-shop-chest-force-action2",
-          "source:shknam.c:nameshk"
-        ]
       }
     },
-    "reservations": {
-      "session:synthetic/v76/v76-statue-search-action2": {
-        "tasks": [
-          "A2-investigation-v76-search-actions2-20261015"
-        ]
-      },
-      "session:synthetic/v76/v76-swallowed-explicit-search-action2": {
-        "tasks": [
-          "A2-investigation-v76-search-actions2-20261015"
-        ]
-      },
-      "source:detect.c:dosearch0": {
-        "tasks": [
-          "A2-investigation-v76-search-actions2-20261015"
-        ]
-      },
-      "session:synthetic/v76/v76-shop-chest-force-action2": {
-        "tasks": [
-          "C-investigation-v76-shop-chest-force-action2-20261015"
-        ]
-      },
-      "source:shknam.c:nameshk": {
-        "tasks": [
-          "C-investigation-v76-shop-chest-force-action2-20261015"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "development": {
-    "executionCommit": "8666328d77c5222ad0c987421ac1460c192fa953",
-    "measuredAt": "2026-10-15T01:31:11.044Z",
+    "executionCommit": "88718556869241efa4427ad22af43f4402c94ee0",
+    "measuredAt": "2026-10-15T01:48:23.730Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

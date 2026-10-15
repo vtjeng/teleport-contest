@@ -316683,7 +316683,7 @@
     {
       "id": "divergence-v76-minetown-lighting-shop-izchak-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement nameshk from shknam.c",
       "cFile": "shknam.c",
       "sessions": [
@@ -316693,15 +316693,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "88718556869241efa4427ad22af43f4402c94ee0",
       "delivered": null,
       "function": "nameshk",
-      "session": "synthetic/v76/v76-shop-chest-force-action2"
+      "session": "synthetic/v76/v76-shop-chest-force-action2",
+      "closeStanding": {
+        "sha": "88718556869241efa4427ad22af43f4402c94ee0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "8666328d77c5222ad0c987421ac1460c192fa953",
+        "target": "synthetic/v76/v76-shop-chest-force-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/88718556869241efa4427ad22af43f4402c94ee0/run-hosted-GD9KEn/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "nameshk",
+            "implementation": "js/shknam.js",
+            "symbol": "nameshk",
+            "sourceReview": "Read shknam.c:nameshk() lines 487-544, including the special Minetown lighting-store branch and the full generic seeded-name, duplicate-name, hardware-store RNG, fallback, and prefix-gender branches. The selected branch requires the original name-list pointer to be shklight, the current dungeon number to equal mines_dnum, and Is_special(&u.uz) to return a special level with flags.town. It assigns +Izchak and female=false before the generic name calculation and consumes no RNG. The JavaScript uses the existing state-shaped Is_special() lookup and keeps all generic branches unchanged; the stale unreachable-branch comment was removed. No unported callee is introduced.",
+            "callers": [
+              {
+                "path": "js/shknam.js",
+                "symbol": "shkinit",
+                "source": "C shknam.c:stock_room -> shkinit -> nameshk(shk, shp->shknms); the special-level loader can create the Minetown lighting shop even though random shop selection gives it probability zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkroom-shop.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v76",
+                "caseId": "v76-shop-chest-force-action2",
+                "segment": 0,
+                "fromStep": 63,
+                "throughStep": 63,
+                "source": "C shknam.c:stock_room -> shkinit -> nameshk; Minetown lighting-shop greeting displays +Izchak."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is special-level shop construction: shknam.c:stock_room calls shkinit for the created shop, and shkinit calls nameshk with the shop type's original shknms pointer. In the recorder, the v76 Minetown setup reaches the town lighting shop when entering the level; generic randomized shop creation is a separate path that does not enter this special branch.",
+        "entryPoints": [
+          {
+            "name": "Minetown lighting shop creation during special-level setup",
+            "functions": [
+              "nameshk"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v76",
+                "caseId": "v76-shop-chest-force-action2",
+                "segment": 0,
+                "fromStep": 63,
+                "throughStep": 63,
+                "source": "C shknam.c:stock_room -> shkinit -> nameshk; Minetown lighting-shop greeting displays +Izchak."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-detect-dosearch0-v76-statue-and-swallowed-search-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dosearch0 from detect.c",
       "cFile": "detect.c",
       "sessions": [
@@ -316712,10 +316775,128 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "88718556869241efa4427ad22af43f4402c94ee0",
       "delivered": null,
       "function": "dosearch0",
-      "session": "synthetic/v76/v76-statue-search-action2"
+      "session": "synthetic/v76/v76-statue-search-action2",
+      "closeStanding": {
+        "sha": "88718556869241efa4427ad22af43f4402c94ee0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "8666328d77c5222ad0c987421ac1460c192fa953",
+        "target": "synthetic/v76/v76-statue-search-action2",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/88718556869241efa4427ad22af43f4402c94ee0/run-hosted-GD9KEn/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dosearch0",
+            "implementation": "js/detect.js",
+            "symbol": "dosearch0",
+            "sourceReview": "Read detect.c:dosearch0() lines 2016-2098 and the explicit wrapper dosearch() at 2100-2105. Verified source order: swallowed state bypasses the square loop and explicit mode emits Norep before returning 1; otherwise x-major/y-minor scanning skips the hero, explicit mode may feel the square, and secret doors/corridors use their source RNG gates. On ordinary squares explicit mode handles adjacent monsters and invisible-map reconciliation before an unseen trap draws rnl(8). A selected statue trap clears multi, calls activate_statue_trap(trap,x,y,FALSE), exercises wisdom only if it returns a monster, then returns 1. JS now supplies the full random environment and source-compatible message adapters to the existing trap.js implementation; no new random draw or duplicate trap state was added. No selected return-valued callee remains unported for these two branches. This is a divergence-fix handoff for the two admitted explicit-search defects, not certification of every dosearch0 branch.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "dosearch",
+                "source": "detect.c:dosearch performs command safety and invokes dosearch0(0); a true result becomes ECMD_TIME."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runSearchCommand",
+                "source": "cmd.c:rhack dispatches explicit s and the searching occupation through dosearch(), which reaches dosearch0(0)."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "automatic_search",
+                "source": "allmain.c:moveloop_core calls dosearch0(1) for intrinsic Searching; the JS adapter calls dosearch0(1)."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "advanceElapsedTurn",
+                "source": "allmain.c:342-344 invokes automatic search when Searching is active, noautosearch is false, and multi is nonnegative."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/automatic-statue-search-healer-independent.session.json",
+              "recordings/detect.c/automatic-statue-search-wizard-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v76",
+                "caseId": "v76-statue-search-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 750,
+                "source": "cmd.c:rhack explicit s -> detect.c:dosearch -> detect.c:dosearch0 selects an unseen adjacent STATUE_TRAP, calls trap.c:activate_statue_trap with shatter=false, then completes the turn."
+              },
+              {
+                "batch": "v76",
+                "caseId": "v76-swallowed-explicit-search-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1095,
+                "source": "cmd.c:rhack explicit s -> detect.c:dosearch -> detect.c:dosearch0 emits the swallowed exit-question Norep message, returns success, and permits the swallowing monster action."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Both assigned explicit-search branches match their admitted v76 ranges through segment 0 final steps. The separate allmain.c:342-344 intrinsic-search caller is covered by two independent C recordings, one Healer and one Wizard. Each recording creates an unseen adjacent statue trap, equips a ring of searching, and records automatic rnl(8) calls through dosearch0(1); the Healer recording also selects zero and removes the trap through activate_statue_trap. Other dosearch0 branches, including the hallucinatory trap-discovery path, are outside this two-case divergence claim.",
+        "entryPoints": [
+          {
+            "name": "Explicit search with an unseen adjacent statue trap",
+            "functions": [
+              "dosearch0"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v76",
+                "caseId": "v76-statue-search-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 750,
+                "source": "cmd.c:rhack -> detect.c:dosearch -> detect.c:dosearch0 -> trap.c:activate_statue_trap"
+              }
+            ]
+          },
+          {
+            "name": "Explicit search while swallowed",
+            "functions": [
+              "dosearch0"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v76",
+                "caseId": "v76-swallowed-explicit-search-action2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 1095,
+                "source": "cmd.c:rhack -> detect.c:dosearch -> detect.c:dosearch0 swallowed-state Norep branch"
+              }
+            ]
+          },
+          {
+            "name": "Intrinsic automatic search selecting an unseen adjacent statue trap",
+            "functions": [
+              "dosearch0"
+            ],
+            "recordings": [
+              "recordings/detect.c/automatic-statue-search-healer-independent.session.json",
+              "recordings/detect.c/automatic-statue-search-wizard-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
