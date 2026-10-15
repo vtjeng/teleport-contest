@@ -1,0 +1,62 @@
+{
+  "session": "synthetic/v79/v79-candle-lit-action2",
+  "corpus": "synthetic",
+  "batch": "v79",
+  "caseId": "v79-candle-lit-action2",
+  "remainingScreens": 285,
+  "recordedSteps": 285,
+  "manifestPath": "challenges/manifests/v79.json",
+  "manifestSha256": "93b5718026ed9a4642bed067a74c7893b9b5f90af8591d5b9cc92dfae3fd52bb",
+  "recordingSha256": "1cc58490ff41e98e6b1ed532a3ff43679c341be4d8536202d93aff53689ca1dd",
+  "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+  "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+  "status": "partial",
+  "commit": "b6e9673e7a56dd9070159e7c15cb727fab1998ce",
+  "mismatch": {
+    "session": "synthetic/v79/v79-candle-lit-action2",
+    "remainingScreens": 285
+  },
+  "summary": "When attaching seven candles from a lit stack, JavaScript stops in end_burn because the split child has no BURN_OBJECT timer. C mkobj.c:splitobj calls timeout.c:obj_split_timers for every timed source object before duplicating light sources. JavaScript splitobj currently records that void timer-copy callee as unported, so the candle child is lit but has no burn timer.",
+  "source": {
+    "file": "mkobj.c",
+    "functions": [
+      "splitobj"
+    ],
+    "branch": "After copying an object stack, splitobj resets child.timed and child.lamplit, updates parent/child ownership chains, then calls timeout.c:obj_split_timers when the source is timed. That helper copies every TIMER_OBJECT timer from source to child at the same remaining expiry before light.c:obj_split_light_source runs.",
+    "callers": [
+      "The direct C caller of timeout.c:obj_split_timers is mkobj.c:splitobj. Runtime reaches it through apply.c:use_candle while attaching seven candles to a candelabrum; existing splitobj production callers all use the common JavaScript function."
+    ],
+    "dependencies": [
+      "timeout.c:obj_split_timers calls start_timer and discards its return; start_timer is implemented in js/timeout.js.",
+      "mkobj.c:splitobj calls obj_split_timers and discards its void result. JavaScript retains an explicit splitObjectTimers hook and uses the source implementation in ordinary gameplay."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "selectionReason": "Selected the officially admitted v79 lit-candle case after the unchanged-input replay matched 235 screens, cursors, and 2564 RNG calls, then stopped at step 235 with end_burn: lit object has no burn timer. Prep source trace points to mkobj.c:splitobj omitting timeout.c:obj_split_timers in active JS gameplay.",
+  "evidence": [
+    "The v79 accepted-boundary prefix matches screens, cursors, and RNG through step 234, then step 235 triggers the exact end_burn missing timer error.",
+    "C splitobj calls obj_split_timers before obj_split_light_source whenever obj->timed is nonzero. timeout.c:obj_split_timers iterates the timer queue, saves next_timer before insertion, and starts a matching TIMER_OBJECT timer on dest with curr->timeout minus current moves.",
+    "JavaScript js/obj.js:splitobj currently calls an optional splitObjectTimers hook; with no hook it records note_unported(\"timeout.c obj_split_timers\"), so a lit candle split keeps the light but loses the timer."
+  ],
+  "goal": "fix-v79-split-candle-object-timer-20261015",
+  "task": "B-investigation-v79-candle-lit-action2-20261015",
+  "sourceBase": "b6e9673e7a56dd9070159e7c15cb727fab1998ce",
+  "selectionProvenance": {
+    "corpus": "synthetic",
+    "batch": "v79",
+    "caseId": "v79-candle-lit-action2",
+    "session": "synthetic/v79/v79-candle-lit-action2",
+    "manifestPath": "challenges/manifests/v79.json",
+    "manifestSha256": "93b5718026ed9a4642bed067a74c7893b9b5f90af8591d5b9cc92dfae3fd52bb",
+    "recording": "challenges/cases/v79/v79-candle-lit-action2.session.json",
+    "recordingPath": "challenges/cases/v79/v79-candle-lit-action2.session.json",
+    "recordingSha256": "1cc58490ff41e98e6b1ed532a3ff43679c341be4d8536202d93aff53689ca1dd",
+    "recipe": "challenges/cases/v79/v79-candle-lit-action2.recipe.session.json",
+    "recipeSha256": "90c8b7e1e62f8db1c5d41d369b35d1fad5b0d5fbac8eafca1afb82183d6744b7",
+    "replayInputSha256": "a67057566c1d01a81dd6935f564dde922be438bf29e5756f200ad3597bdeddb2",
+    "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
+    "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
+    "evaluationUtc": "2026-10-15T03:03:34.560Z",
+    "recordedSteps": 285
+  }
+}
