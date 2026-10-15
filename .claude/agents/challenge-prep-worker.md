@@ -80,9 +80,15 @@ files and hashes cannot change after handoff. For `worker-state.mjs submit`,
 write `.cache/task-context.json` with `kind: "challenge-preparation"` and the
 assigned `batch`. Write `.cache/task-evidence.json` with `missionPlan` and the
 prepared `manifest`. In `.cache/checks.json`, include one successful `fresh`
-check per case with its `caseId`, command, and absolute log path. Submit the
-task with its exact base and delivery commits, case paths and hashes, mission
-rationale, and independent replay results. Follow `.agents/loop.md`,
+check and one completed `comparison` check per case, each with its `caseId`,
+command and absolute log path. For the comparison, pass the accepted commit
+as the third argument to `diff-fresh-worker.mjs`; save its output without
+rerunning it at submission. The command verifies the scoring workspace and
+records the commit and recording hash. Submission rejects passing or missing
+comparisons. Only Main may authorize a user-requested control by listing its
+case ID in the task's `controlCases`. Existing submissions remain unchanged.
+Submit the task with its exact base and delivery commits, case paths and
+hashes, mission rationale, and independent replay results. Follow `.agents/loop.md`,
 "Notifications", then continue preparation. Keep Prep dedicated to batch
 preparation.
 At the clean task boundary, merge the commit returned by

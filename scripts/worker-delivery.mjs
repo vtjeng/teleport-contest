@@ -63,12 +63,14 @@ function readChecks(path, taskKind) {
     const checks = JSON.parse(readFileSync(path, 'utf8'));
     check(Array.isArray(checks), 'checks file must contain an array');
     const result = checks.map(item => {
-        check(['focused', 'lint', 'fresh'].includes(item.kind), 'check kind must be focused, lint or fresh');
+        check(['focused', 'lint', 'fresh', 'comparison'].includes(item.kind), 'check kind must be focused, lint, fresh or comparison');
+        check(item.kind !== 'comparison' || taskKind === 'challenge-preparation', 'comparison checks are for Prep submissions');
         check(Array.isArray(item.command) && item.command.length > 0
             && item.command.every(arg => typeof arg === 'string' && arg.length), 'check command must be an argument array');
         check(item.exitCode === 0, 'only successful completed checks qualify for submission');
-        if (item.caseId !== undefined) check(item.kind === 'fresh' && typeof item.caseId === 'string'
-            && /^[a-z0-9][a-z0-9-]*$/u.test(item.caseId), 'caseId requires a fresh C replay check');
+        if (item.caseId !== undefined) check(['fresh', 'comparison'].includes(item.kind) && typeof item.caseId === 'string'
+            && /^[a-z0-9][a-z0-9-]*$/u.test(item.caseId), 'caseId requires a fresh C replay or comparison check');
+        check(item.kind !== 'comparison' || item.caseId !== undefined, 'comparison check requires caseId');
         check(typeof item.log === 'string' && isAbsolute(item.log), 'check log must be an absolute path');
         const output = readFileSync(item.log, 'utf8');
         check(output.trim(), 'check log is empty');
@@ -196,6 +198,30 @@ function scopeEvidence(root, commit, task, packet) {
     return evidence;
 }
 
+function verifyPrepComparisons(state, task, packet) {
+    const accepted = new Set(Object.values(state.deliveries).filter(delivery => delivery.acceptedAt)
+        .flatMap(delivery => [delivery.integration, delivery.publishedCommit])
+        .concat(state.toolingPublications.map(publication => publication.commit)).filter(Boolean));
+    for (const entry of packet.manifest.cases) {
+        const checks = packet.checks.filter(check => check.kind === 'comparison' && check.caseId === entry.id);
+        check(checks.length === 1, `${entry.id} needs exactly one saved comparison check`);
+        const output = checks[0].output.split(/\r?\n/u);
+        const index = output.lastIndexOf('__FRESH_DIFF_RESULT__');
+        check(index >= 0, `${entry.id} comparison result marker is missing`);
+        // Bounded-run receipts may follow the worker's single-line JSON result.
+        const result = JSON.parse(output[index + 1]);
+        check(result && typeof result === 'object', `${entry.id} comparison result must be an object`);
+        check(accepted.has(result.provenance?.commit), `${entry.id} comparison commit must be an accepted Main commit`);
+        check(result.provenance.recordingSha256 === entry.recordingSha256,
+            `${entry.id} comparison recording hash differs`);
+        const mismatch = ['rngMismatch', 'screenMismatch', 'cursorMismatch', 'animMismatch', 'segmentMismatch']
+            .some(key => result[key] && typeof result[key] === 'object');
+        const control = task.controlCases?.includes(entry.id);
+        check((result.passed === false && mismatch) || (control && result.passed === true && !mismatch && !result.error),
+            `${entry.id} must have a saved mismatch; only Main can authorize a user-requested matching control`);
+    }
+}
+
 export function submitDelivery({ root, file, state, taskId, contextPath, evidencePath, checksPath,
     base, head = 'HEAD', dependencies }) {
     const task = state.tasks[taskId];
@@ -225,6 +251,8 @@ export function submitDelivery({ root, file, state, taskId, contextPath, evidenc
     if (source.paths.some(path => path.startsWith('recordings/')))
         check(packet.checks.some(item => item.kind === 'fresh'), 'new or changed recordings need fresh check results');
     scopeEvidence(root, source.head, task, packet);
+    // Do not apply the new gate retroactively to immutable earlier submissions.
+    if (task.kind === 'challenge-preparation' && !state.deliveries[source.head]) verifyPrepComparisons(state, task, packet);
     const contents = JSON.stringify(packet, null, 2) + '\n';
     const evidence = join(`${file}.deliveries`, `${digest(contents)}.json`);
     mkdirSync(dirname(evidence), { recursive: true });

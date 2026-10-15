@@ -10,6 +10,7 @@ import { corpusDigest, digest } from './challenge-results.mjs';
 import { preparedFromDelivery } from './admit-challenge-batch.mjs';
 import { executionTree } from './checkpoint-reuse.mjs';
 import { COLUMNS } from './score-log.mjs';
+import {recordEvent} from './worker-state.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
 
@@ -270,9 +271,26 @@ test('a partial single-function delivery needs an evidenced entry and fresh repl
     assert.equal(packet.incompleteFunctions[0].name, 'sample');
 });
 
-test('challenge preparation submits C cases while keeping its manifest in delivery evidence', t => {
+test('Prep submissions enforce saved comparisons, preserve old packets and require Main to approve controls', async t => {
     const f = fixture(t);
     const worker = f.workers.B;
+    // A previously accepted checkpoint is the comparison anchor. These are
+    // transport fixtures, not claims of a real source port or game validation.
+    let ledger = JSON.parse(readFileSync(f.file));
+    for (const event of [
+        {type: 'assign', task: 'baseline', worker: 'A', goal: 'baseline', seed: null, base: f.base,
+            reservations: ['source:sample.c:baseline'], allowedPaths: ['js/']},
+        {type: 'ready', task: 'baseline', delivery: f.base, base: f.base, commits: [f.base],
+            paths: ['js/sample.js'], evidence: join(f.root, '.cache/baseline.json'), dependencies: []},
+        {type: 'integrating', task: 'baseline', integration: f.base},
+        {type: 'validated', task: 'baseline', passed: true, checkpoint: join(f.root, '.cache/checkpoint.json')},
+        {type: 'accepted', task: 'baseline'},
+    ]) ledger = recordEvent(ledger, {id: `baseline-${event.type}`, ...event});
+    writeFileSync(f.file, JSON.stringify(ledger));
+    const unauthorized = f.run(['event', '--file', f.file, '--json', JSON.stringify({id: 'approve-own-control',
+        type: 'assign', task: 'prep-v2', worker: 'B', kind: 'challenge-preparation', seed: null, base: f.base,
+        reservations: ['challenge-batch:v2'], allowedPaths: ['challenges/cases/v2/'], controlCases: ['alpha']})], worker);
+    assert.match(unauthorized.stderr, /only coordinator may authorize/u);
     f.event({ type: 'assign', task: 'prep-v2', worker: 'B',
         kind: 'challenge-preparation', seed: null, base: f.base,
         reservations: ['challenge-batch:v2'], allowedPaths: ['challenges/cases/v2/'] }, worker);
@@ -309,6 +327,29 @@ test('challenge preparation submits C cases while keeping its manifest in delive
     const args = ['submit', '--task', 'prep-v2', '--file', f.file,
         '--context', '.cache/context.json', '--evidence', '.cache/evidence.json',
         '--checks', '.cache/checks.json'];
+    const comparisonLog = join(worker, '.cache/comparison.log');
+    const comparison = {passed: false, error: null, screenMismatch: {index: 0, kind: 'cell'},
+        provenance: {commit: f.base, recordingSha256: digest(recording)}};
+    const checks = JSON.parse(readFileSync(join(worker, '.cache/checks.json')));
+    checks.push({kind: 'comparison', caseId: 'alpha', command: ['fixture-js-comparison', recordingPath, f.base],
+        exitCode: 0, log: comparisonLog});
+    const saveComparison = result => writeFileSync(comparisonLog,
+        `__FRESH_DIFF_RESULT__\n${JSON.stringify(result)}\nbounded fixture: success\n`);
+    assert.match(f.run(args, worker).stderr, /needs exactly one saved comparison/u);
+    writeFileSync(join(worker, '.cache/checks.json'), JSON.stringify(checks));
+    for (const [label, result, message] of [
+        ['rejects an unrequested passing control', {...comparison, passed: true, screenMismatch: null}, /must have a saved mismatch/u],
+        ['rejects a comparison for another recording', {...comparison, provenance: {...comparison.provenance, recordingSha256: '0'.repeat(64)}}, /recording hash differs/u],
+        ['rejects a comparison against an unaccepted commit', {...comparison, provenance: {...comparison.provenance, commit: head}}, /must be an accepted Main/u],
+        ['rejects a runner error without an observed mismatch', {...comparison, error: 'runner failed', screenMismatch: null}, /must have a saved mismatch/u],
+    ]) {
+        await t.test(label, () => {
+            saveComparison(result);
+            assert.match(f.run(args, worker).stderr, message);
+            assert.equal(f.success(['status']).tasks['prep-v2'].status, 'working', 'rejection must not mark the task ready');
+        });
+    }
+    saveComparison(comparison);
     const bad = { ...manifest, cases: [{ ...manifest.cases[0], recordingSha256: '0'.repeat(64) }] };
     writeFileSync(evidencePath, JSON.stringify({ missionPlan: 'Exercise C inventory startup.',
         manifest: bad }));
@@ -318,6 +359,7 @@ test('challenge preparation submits C cases while keeping its manifest in delive
     const submitted = f.success(args, worker);
     assert.equal(submitted.deliveries[head].delivery, head);
     const packet = JSON.parse(readFileSync(submitted.deliveries[head].evidence, 'utf8'));
+    assert.equal(packet.checks.find(check => check.kind === 'comparison').output, readFileSync(comparisonLog, 'utf8'));
     assert.deepEqual(packet.manifest, manifest);
     assert.deepEqual(preparedFromDelivery(submitted.deliveries[head].evidence), manifest);
     assert.equal(f.git(worker, 'ls-tree', '-r', '--name-only', head, '--',
@@ -340,6 +382,11 @@ test('challenge preparation submits C cases while keeping its manifest in delive
     writeFileSync(join(worker, '.cache/context.json'),
         JSON.stringify({ kind: 'challenge-preparation', batch: 'v3' }));
     writeFileSync(evidencePath, JSON.stringify({ missionPlan: 'Exercise next batch submission.', manifest: nextManifest }));
+    // Main can advance while Prep works. The earlier accepted comparison
+    // remains admissible; the gate must not demand a new replay at latest Main.
+    const advanced = recordEvent(JSON.parse(readFileSync(f.file)), {id: 'advanced-accepted-main',
+        type: 'tooling-published', tested: head, commit: head, checkpoint: join(f.root, '.cache/later-checkpoint.json')});
+    writeFileSync(f.file, JSON.stringify(advanced));
     const next = f.success(args.map(arg => arg === 'prep-v2' ? 'prep-v3' : arg), worker);
     assert.equal(next.tasks['prep-v2'].status, 'ready');
     assert.deepEqual(next.deliveries[nextHead].commits, [nextHead]);
@@ -350,6 +397,36 @@ test('challenge preparation submits C cases while keeping its manifest in delive
     f.git(f.root, 'cherry-pick', head);
     const preflight = f.success(['preflight', '--task', 'prep-v2']);
     assert.equal(preflight.passed, true);
+    // Simulate an immutable packet submitted before the new gate. Preflight
+    // must not retrofit the requirement onto historical deliveries.
+    const oldPacket = JSON.parse(readFileSync(submitted.deliveries[head].evidence, 'utf8'));
+    oldPacket.checks = oldPacket.checks.filter(check => check.kind !== 'comparison');
+    const oldBytes = JSON.stringify(oldPacket, null, 2) + '\n', oldPath = join(`${f.file}.deliveries`, `${digest(oldBytes)}.json`);
+    writeFileSync(oldPath, oldBytes);
+    const historical = JSON.parse(readFileSync(f.file));
+    historical.events.find(event => event.type === 'ready' && event.task === 'prep-v2').evidence = oldPath;
+    writeFileSync(f.file, JSON.stringify(historical, null, 2) + '\n');
+    assert.equal(f.success(['preflight', '--task', 'prep-v2']).passed, true, 'grandfathered packets need no new comparison');
+    writeFileSync(join(worker, '.cache/context.json'), JSON.stringify(oldPacket.context));
+    writeFileSync(evidencePath, JSON.stringify({missionPlan: oldPacket.missionPlan, manifest}));
+    writeFileSync(join(worker, '.cache/checks.json'), JSON.stringify(checks.filter(check => check.kind !== 'comparison')));
+    const beforeRetry = readFileSync(f.file, 'utf8');
+    f.success([...args, '--head', head], worker);
+    assert.equal(readFileSync(f.file, 'utf8'), beforeRetry, 'an exact historical submission retry remains unchanged');
+    // A coordinator-issued exception is specific to a future task and case;
+    // putting approval text in worker evidence cannot grant it.
+    f.event({type: 'assign', task: 'prep-v4', worker: 'B', kind: 'challenge-preparation', seed: null, base: nextHead,
+        reservations: ['challenge-batch:v4'], allowedPaths: ['challenges/cases/v4/'], controlCases: ['alpha']});
+    const controlRecipe = recipePath.replace('/v2/', '/v4/'), controlRecording = recordingPath.replace('/v2/', '/v4/');
+    mkdirSync(join(worker, 'challenges/cases/v4'), {recursive: true});
+    writeFileSync(join(worker, controlRecipe), recipe); writeFileSync(join(worker, controlRecording), recording);
+    f.git(worker, 'add', controlRecipe, controlRecording); f.git(worker, 'commit', '-qm', 'Requested control');
+    writeFileSync(join(worker, '.cache/context.json'), JSON.stringify({kind: 'challenge-preparation', batch: 'v4'}));
+    writeFileSync(evidencePath, JSON.stringify({missionPlan: 'Explicitly requested transport control.', manifest: {
+        ...manifest, batch: 'v4', cases: [{...manifest.cases[0], recipe: controlRecipe, recording: controlRecording}]}}));
+    saveComparison({...comparison, passed: true, screenMismatch: null});
+    writeFileSync(join(worker, '.cache/checks.json'), JSON.stringify(checks));
+    assert.equal(f.success(args.map(arg => arg === 'prep-v2' ? 'prep-v4' : arg), worker).tasks['prep-v4'].status, 'ready');
 });
 
 test('integration permits changed context only when every delivered edit matches', async (t) => {

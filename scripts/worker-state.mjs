@@ -58,7 +58,8 @@ by this command, not the caller. Required fields by type:
   assign: task (unique id), worker, seed (string or null), base,
           reservations, allowedPaths; optional kind (implementation,
           investigation or challenge-preparation), goal (required for implementation), and
-          span (accepted for historical tasks)
+          span (accepted for historical tasks); coordinator-only controlCases
+          lists explicitly requested matching case IDs for Prep
   scope: task, reservations, allowedPaths (expand working scope; include old entries)
   implement: task, goal, reservations, allowedPaths (claim an investigation's source scope)
   received: task, delivery (exact SHA being acknowledged)
@@ -109,10 +110,11 @@ submit derives the ready event, commit list, parents and changed paths from Git.
 It copies task evidence, context and check output into a hash-verified
 immutable file in <ledger>.deliveries. That file remains valid input to
 goal-log record-evidence for implementation tasks. checks.json is an array of
-objects with kind (focused, lint or fresh), command (argument array),
+objects with kind (focused, lint, fresh or comparison), command (argument array),
 exitCode (0), and log (absolute path). Implementation tasks include focused
 and lint results, plus fresh results when recordings are needed. Challenge
-preparation tasks include one fresh C replay check with caseId per case.
+preparation tasks include one fresh C replay and one saved comparison check
+with caseId per case. See the Prep worker instructions for comparison provenance.
 Their task evidence contains missionPlan and the prepared manifest.
 Logs are preserved, not rerun; the coordinator still verifies the claims.
 Raw ready events are not accepted by the CLI. Retry submit with the same inputs
@@ -197,7 +199,7 @@ const FIELDS = {
     'publication-confirmed': ['task', 'commit', 'knownBy', 'evidenceTask'],
     park: ['task', 'reason'], resume: ['task'],
 };
-const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
+const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span', 'controlCases'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
     feedback: ['prepGroup', 'implementationGroup'], turn: ['summary'],
     'prep-probe': ['worktree', 'branch', 'handle', 'source', 'outcome'] };
 
@@ -444,6 +446,10 @@ function applyEvent(state, event, at) {
         if (event.seed !== null) string(event.seed, 'seed');
         list(event.reservations, 'reservations', sourceReservation);
         list(event.allowedPaths, 'allowedPaths', repoPath);
+        if (event.controlCases !== undefined) {
+            check(event.kind === 'challenge-preparation', 'controlCases is only for Prep tasks');
+            list(event.controlCases, 'controlCases', identifier);
+        }
         if (event.kind === 'investigation') {
             string(event.seed, 'investigation session');
             check(event.goal === undefined && event.span === undefined,
@@ -697,6 +703,7 @@ export function nextActions(state, admittedBatches = [], queue = null) {
 function authorizeWorker(state, root, event) {
     check(event && ['assign', 'scope', 'implement', 'ready', 'connect', 'turn', 'resume', 'park', 'prep-probe'].includes(event.type),
         'only coordinator may record this event');
+    check(event.controlCases === undefined, 'only coordinator may authorize user-requested controlCases');
     if (event.type === 'park') check(state.tasks[event.task]?.kind === 'investigation',
         'only coordinator may park implementation or preparation tasks');
     const parent = event.type === 'prep-probe' ? state.workers[state.tasks[event.task]?.worker] : null;
