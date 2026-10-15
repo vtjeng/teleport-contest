@@ -47,6 +47,9 @@ triage decisions or fix references.
 - Outcome: Work lead and Coordinator informed. The analyst corrected its earlier
   acceptance-only assessment after Challenge lead identified the submission
   guard. Runtime recovery remains separate from the standing-triage change.
+- Follow-up: the [initial published-baseline decision](decisions.md#2026-10-15--observe-a-verified-first-published-tooling-baseline)
+  records the separately approved recovery implementation and its initially
+  unmeasured operational follow-up. Original failed assumptions remain above.
 
 ### 2026-10-15 — exploration completion requirements are unconditional
 

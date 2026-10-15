@@ -29,3 +29,22 @@ or measured benefits from pending proposals.
 - Follow-up evidence: `unmeasured`. Compare repeated attempts, rejected-delivery
   corrections, and avoidable waits across subsequent comparable batches, including
   reflection overhead and unchanged or worse outcomes; link observed results here.
+
+## 2026-10-15 — observe a verified first published tooling baseline
+
+- Change: add `initial-baseline.mjs` to observe an already tested and published
+  first baseline, recording the existing `tooling-published` event with a
+  hash-frozen checkpoint and no task or delivery acceptance.
+- Why: the [fresh-ledger startup record](friction.md#2026-10-15--fresh-ledger-baseline-has-no-first-publication-route)
+  identified a deadlock: ordinary tooling publication required an earlier
+  accepted anchor, and the first Prep submission required an accepted comparison.
+  Work lead approved this separate scoped recovery change.
+- Implementation: [8c74fa337a6f226f301830d0936d38285776b1e5](https://github.com/vtjeng/teleport-contest/commit/8c74fa337a6f226f301830d0936d38285776b1e5).
+- Expected benefit/tradeoff: establish a truthful initial comparison baseline
+  without fabricating history or changing old readers. The route requires exact
+  archived execution evidence, published-main identity and tooling-only history;
+  a later tooling baseline needs an explicit queue refresh and JavaScript-only
+  comparison update for retained cases. Normal validation and acceptance gates stay.
+- Follow-up evidence: `unmeasured`. Observe the first real initialization and
+  first Prep submission at that baseline; record any rejected supported case,
+  provenance updates and retries. Preserve original C captures and packets.
