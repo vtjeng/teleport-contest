@@ -54,9 +54,9 @@ test('ordinary travel selects downstairs and follows the shortest path',
     }
 });
 
-test('menu-prefixed keyboard travel restores its filter after Escape',
+test('menu-prefixed #travel restores its filter after Escape',
     async () => {
-    // This independent wizard seed gives #wizmap visible targets so m_ opens
+    // This independent wizard seed gives #wizmap visible targets so m#travel opens
     // the interesting-location picker before Escape cancels it.
     const segment = {
         seed: 91273,
@@ -65,8 +65,8 @@ test('menu-prefixed keyboard travel restores its filter after Escape',
             'OPTIONS=name:TravelMenuTest,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics',
             '',
         ].join('\n'),
-        // #wizmap exposes locations; m_ requests menu travel; Escape cancels.
-        moves: '#wizmap\nm_\u001b',
+        // #wizmap exposes locations; m#travel requests menu travel; Escape cancels.
+        moves: ' #wizmap\nm#travel\n\u001b',
     };
     const replay = await runSegment(segment);
 
@@ -76,5 +76,5 @@ test('menu-prefixed keyboard travel restores its filter after Escape',
     assert.equal(game.iflags.getloc_filter, 0);
     assert.equal(game.iflags.getloc_travelmode, false);
     assert.equal(game.iflags.menu_requested, false);
-    assert.deepEqual(game.iflags.travelcc, { x: 0, y: 0 });
+    assert.equal(game.iflags.travelcc, undefined);
 });

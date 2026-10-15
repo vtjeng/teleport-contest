@@ -1,0 +1,47 @@
+{
+  "session": "synthetic/v87/v87-p07-menu-travel-attempt1",
+  "remainingScreens": 2,
+  "recordedSteps": 20,
+  "corpus": "synthetic",
+  "batch": "v87",
+  "caseId": "v87-p07-menu-travel-attempt1",
+  "manifestPath": "challenges/manifests/v87.json",
+  "manifestSha256": "352611920596cbae080df663a87c9f52ecd64076560c0999b21e89453728d5b8",
+  "recordingSha256": "febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39",
+  "evaluationPath": "challenges/evaluations/admission-81d969c6a21ca7a9c3f7759f27e2b474e39f2f3f-v87.json",
+  "evaluationCommit": "22b420ef901444824db269774c218757346a630b",
+  "status": "complete",
+  "commit": "386ecf0d1b08b094f8fa49037d5007b933960c8c",
+  "mismatch": {
+    "step": 18,
+    "segment": 0,
+    "key": "\n",
+    "owner": "cmd.c:doextcmd -> dotravel",
+    "source": "the JavaScript doextcmd ef_funct switch omits dotravel, so #travel never reaches the menu_requested branch",
+    "comparisonBase": "76ad9b154bdd6cf7a7a92c3b1ca5ad0d80820c96",
+    "screensMatched": 18,
+    "cursorsMatched": 18,
+    "rngMatched": 6390,
+    "recordedScreens": 20
+  },
+  "summary": "The first missing menu response is caused by dispatch: C doextcmd invokes the selected extcmd function pointer, but the JavaScript doextcmd switch had no dotravel arm, so menu-prefixed #travel never reached dotravel. After adding that dispatch, dotravel must implement its menu_requested branch: C sets getloc_filter to GFILTER_VIEW, calls getpos_menu(GLOC_INTERESTING), restores the filter, and clears travel mode on Escape while returning ECMD_OK. The repaired admitted case now matches all screens, cursors, and random calls.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "The user enters menu-prefixed #travel and cancels the visible interesting-location menu with Escape.",
+    "functions": ["doextcmd", "dotravel"],
+    "callers": [
+      "cmd.c:rhack dispatches the menu-prefixed extended-command key to doextcmd",
+      "cmd.c:doextcmd invokes extcmdlist[idx].ef_funct; JS now dispatches dotravel and preserves the accepted dotravel_target arm for #retravel",
+      "cmd.c:dotravel calls getpos_menu with GLOC_INTERESTING"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The checked v87 evaluation at commit 22b420ef901444824db269774c218757346a630b records 18 of 20 screens and cursors matched, all 6,390 RNG calls matched, and the first missing screen/cursor at segment 0 step 18.",
+    "The v87 C recording and independent replay are byte-identical (recording SHA-256 febbe5828166bf5f996655152eaeaba9f1a41d40402c255a1ac71667ff6e9a39). The C source at cmd.c:5299-5343 sets GFILTER_VIEW, calls getpos_menu(&cc, GLOC_INTERESTING), restores the filter, clears getloc_travelmode on cancellation, and returns ECMD_OK.",
+    "The JavaScript doextcmd ef_funct switch at js/cmd.js now dispatches dotravel for #travel and preserves B's accepted dotravel_target arm for #retravel. The dotravel implementation at js/cmd.js ports the C menu_requested path and restores the prior getloc_filter after both selection and cancellation; js/getpos.js supplies getpos_menu and returns false on Escape.",
+    "The checked accepted B handoff includes the independent #retravel dispatch correction. This v87 task adds #travel dispatch without changing that arm.",
+    "The bounded replay and synthetic-range verifier match the exact admitted v87 recording through segment 0 step 19: all 6,390 RNG entries, 20 screens, and 20 cursor positions match with no mismatch. See .cache/A2-v87-checks.json and .cache/A2-v87-task-evidence.json."
+  ]
+}
