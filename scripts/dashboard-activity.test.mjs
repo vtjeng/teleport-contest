@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 
-import { activityTimeline, activityUtilization, mainIntegrationDurations, agentStages, syntheticGainByCommit } from './dashboard-activity.mjs';
+import { activityTimeline, activityUtilization, mainIntegrationDurations, agentStages, syntheticGainByCommit, goalHistory } from './dashboard-activity.mjs';
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity, reservationSnapshot } from './dashboard-snapshot.mjs';
 import {createLedger, recordEvent} from './worker-state.mjs';
 
@@ -513,4 +513,39 @@ test('development snapshot is bound to checkpoint artifacts and names both fixed
   assert.throws(() => developmentFromCheckpoint(
     { ...summary, artifactHashes: { 'session-results.json': 'bad' } }, results, bytes,
   ), /do not belong/u);
+});
+
+
+test('goal history attributes shared measurements once and preserves pending work', () => {
+  // Two goals and a duplicate submission share one published commit. A third
+  // goal has no publication evidence and must not acquire that commit's gain.
+  const at = '2026-10-14T10:00:00Z', commit = 'a'.repeat(40);
+  const task = (goal, extra = {}) => ({goal, worker: 'B', assignedAt: at,
+    publishedAt: at, integration: commit, ...extra});
+  const records = new Map([['first', {summary: 'Fix <caller>', cFile: 'hack.c'}]]);
+  const gain = {gained: 346, lost: 2, batches: 3}; // Shared score with both directions of change.
+  const groups = goalHistory([task('first'), task('second'), task('first', {worker: 'C'}),
+    task('pending', {publishedAt: null})], records, new Map([[commit, gain]]));
+  assert.equal(groups.length, 2, 'published integration and pending goal stay separate');
+  assert.deepEqual(groups[0].synthetic, gain, 'score is not multiplied by task or goal count');
+  assert.deepEqual(groups[0].goals.map(goal => goal.id), ['first', 'second']);
+  assert.deepEqual(groups[0].goals[0].workers, ['B', 'C']);
+  assert.equal(groups[0].goals[0].summary, 'Fix <caller>');
+  assert.equal(groups[1].synthetic, null);
+  assert.equal(groups[1].commit, null);
+  assert.equal(groups[0].goals[0].synthetic, undefined, 'individual goals do not claim group credit');
+});
+
+test('integration medians retain outliers without letting one dominate the trend', () => {
+  // A five-minute attempt, a seven-hour wait, then a nine-minute attempt.
+  // The middle rolling sample uses the mean of the two middle values; the
+  // third has a nine-minute median while preserving the full long duration.
+  const points = mainIntegrationDurations({segments: [5, 420, 9].map((minutes, index) => ({
+    task: String(index), lane: 'Main', phase: 'integrating',
+    start: new Date(index * 86400000).toISOString(),
+    end: new Date(index * 86400000 + minutes * 60000).toISOString(),
+  }))}).implementation;
+  assert.deepEqual(points.map(point => point.rollingMedianMs / 60000), [5, 212.5, 9]);
+  assert.equal(points[1].durationMs / 60000, 420);
+  assert.equal(points[2].rollingMeanMs / 60000, 434 / 3);
 });

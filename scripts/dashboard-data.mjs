@@ -6,11 +6,10 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { sourceUnits } from './port-evidence.mjs';
 import { readRows, standing } from './score-log.mjs';
 import { challengeDashboard } from './challenge-results.mjs';
 import { challengeDashboardPayload } from './dashboard-payload.mjs';
-import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
+import { activityTimeline, syntheticGainByCommit, goalHistory } from './dashboard-activity.mjs';
 
 function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }).trim();
@@ -275,20 +274,6 @@ if (existsSync('GOALS.json')) {
   }
 }
 
-// Current work follows the register, independently of historical commit names.
-const workGoals = [...goalRecords.values()]
-  .map((record) => ({
-    id: record.id,
-    kind: record.kind ?? null,
-    status: record.status,
-    sourceFile: record.luaFile ?? record.cFile ?? null,
-    summary: record.summary,
-    parkedReason: record.parkedReason ?? null,
-    supersededBy: record.supersededBy ?? null,
-    supersededReason: record.supersededReason ?? null,
-    units: sourceUnits(record).map(entry => ({ name: entry.name, sourceFile: entry.sourceFile })),
-  }));
-
 // --- Saved screen measurements, including spans and divergence fixes ---
 
 const progress = scoreEvents
@@ -436,41 +421,12 @@ const syntheticByCommit = syntheticGainByCommit(scoreRows, path => {
   }
   return evaluationCache.get(path);
 });
-const activityGoals = new Map();
-for (const task of activity.tasks) {
-  if (!task.goal) continue;
-  const record = goalRecords.get(task.goal);
-  const row = activityGoals.get(task.goal) ?? {
-    id: task.goal, kind: record?.kind ?? null,
-    sourceFile: record?.luaFile ?? record?.cFile ?? null,
-    status: record?.status ?? task.status,
-    assignedAt: task.assignedAt, publishedAt: null, publicationKnownBy: null, workers: [],
-    developmentDelta: record?.delivered?.screens
-      ?? record?.progressBeforePark?.screens ?? null,
-    syntheticGained: 0, syntheticLost: 0, syntheticMeasured: false,
-  };
-  if (!row.workers.includes(task.worker)) row.workers.push(task.worker);
-  if (task.assignedAt < row.assignedAt) row.assignedAt = task.assignedAt;
-  if (task.publishedAt && (!row.publishedAt || task.publishedAt > row.publishedAt)) {
-    row.publishedAt = task.publishedAt;
-  }
-  if (task.publicationKnownBy && (!row.publicationKnownBy || task.publicationKnownBy > row.publicationKnownBy))
-    row.publicationKnownBy = task.publicationKnownBy;
-  const gain = syntheticByCommit.get(task.integration);
-  if (gain && (task.publishedAt || task.publicationKnownBy)) {
-    row.syntheticGained += gain.gained;
-    row.syntheticLost += gain.lost;
-    row.syntheticMeasured = true;
-  }
-  activityGoals.set(task.goal, row);
-}
-
 const output = {
-  progress, scoreHistory, workGoals, summary, scores,
+  progress, scoreHistory, summary, scores,
   challenges: challengeDashboardPayload(challenges),
   activity, pendingMainWork: snapshot?.pendingMainWork ?? null,
   workerReservations: snapshot?.workerReservations ?? null,
-  activityGoals: [...activityGoals.values()],
+  goalHistory: goalHistory(activity.tasks, goalRecords, syntheticByCommit),
   developmentSessions,
 };
 

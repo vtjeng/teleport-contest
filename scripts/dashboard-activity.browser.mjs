@@ -22,17 +22,22 @@ try {
   // Large dashboard snapshots can be evicted from Chromium's inspector cache.
   // The request API retains its body for the empty/open-only rendering checks.
   const originalHTML = await (await page.request.get(url)).text();
-  const sourceHistory = page.locator('#sourceWorkDisclosure');
-  await sourceHistory.locator('summary').first().click();
-  if (await page.locator('#sourceWorkTable').count()) {
-    const headings = await page.locator('#sourceWorkTable thead').innerText();
-    assert.match(headings, /Tasks/iu);
-    assert.doesNotMatch(headings, /Verified|Listed|Functions \/ programs/iu);
+  assert.equal(await page.locator('#sourceWorkDisclosure').count(), 0);
+  assert.equal(await page.locator('#integrationDisclosure').evaluate(element => element.open), false);
+  assert.equal(await page.locator('#goalHistoryDisclosure').evaluate(element => element.open), false);
+  assert.equal(await page.locator('#parkedTaskHistory').evaluate(element => element.open), false);
+  await page.locator('#goalHistoryDisclosure > summary').focus();
+  await page.locator('#goalHistoryDisclosure > summary').press('Enter');
+  const sharedGroups = await page.evaluate(() => (DATA.goalHistory || []).filter(group => group.goals.length > 1 && group.synthetic));
+  for (const group of sharedGroups.slice(-3)) {
+    const section = page.locator('#goalTable tbody').filter({hasText: group.commit.slice(0, 8)});
+    assert.equal(await section.locator('.integration-group').count(), 1);
+    assert.equal(await section.locator('tr:not(.integration-group)').count(), group.goals.length);
+    assert.ok((await section.locator('.integration-group').innerText()).includes('shared result'));
+    for (const value of await section.locator('tr:not(.integration-group) td:last-child').allTextContents()) assert.equal(value, '');
   }
-  await sourceHistory.locator('summary').first().focus();
-  await sourceHistory.locator('summary').first().press('Enter');
-  assert.equal(await sourceHistory.evaluate(element => element.open), false,
-    'source history remains keyboard-accessible without the removed coverage help');
+  await page.locator('#goalHistoryDisclosure > summary').press('Enter');
+  await page.locator('#integrationDisclosure > summary').click();
   assert.equal(await page.getByRole('heading', { name: /^Parked goals/u }).count(), 0,
     'older goal deferrals are hidden from the dashboard');
   const durationChart = page.locator('#integrationDurationChart');
@@ -41,7 +46,7 @@ try {
     .filter(row => row.kind === 'challenge-preparation').map(row => row.batch) ?? []);
   if (submittedBatches.length) {
     const summary = await pending.innerText();
-    assert.match(summary, /Submitted batches awaiting Main:/u);
+    assert.match(summary, /Ready to integrate|Checks running|Ready to accept|Waiting for dependencies|Needs worker correction/u);
     for (const batch of submittedBatches) assert.ok(summary.includes(batch), 'submitted batch is visible without opening Details: ' + batch);
   }
   const reservedRows = page.locator('#challengeTable tbody tr').filter({hasText: 'Not available for assignment.'});
@@ -70,7 +75,7 @@ try {
     console.log('Session ownership: desktop/mobile labels, stable columns and pointer/keyboard details passed.');
   }
   if (screenshot) await pending.locator('..').screenshot({ path: screenshot.replace(/\.png$/u, '-backlog.png') });
-  assert.equal(await page.getByRole('heading', { name: 'Worker timeline', exact: true }).count(), 1);
+  assert.ok((await page.locator('#timeline').boundingBox()).y < (await page.locator('#integrationDisclosure').boundingBox()).y);
   const durationCharts = [durationChart];
   for (const group of ['implementation', 'preparation']) {
     const chart = durationChart;
@@ -87,7 +92,7 @@ try {
     const durationFrame = await chart.boundingBox(), durationScroll = await page.evaluate(() => scrollY);
     await chart.press('End');
     const selectedDuration = await durationDetails.innerText();
-    assert.match(selectedDuration, /attempt \d+[\s\S]*Rolling mean/u);
+    assert.match(selectedDuration, /attempt \d+[\s\S]*Rolling median/u);
     await chart.hover({ position: { x: 80, y: 60 } });
     assert.equal(await durationDetails.innerText(), selectedDuration, 'hover must preserve a selected duration');
     await chart.press('ArrowLeft');
@@ -104,20 +109,12 @@ try {
       const point = points.filter(point => (DATA.activity.segments[point.sourceIndex].kind === 'challenge-preparation')
         === (group === 'preparation')).at(-1);
       const { width, height } = document.getElementById('integrationDurationChart').getBoundingClientRect();
-      const max = Math.max(1, ...points.flatMap(row => [row.durationMs, row.rollingMeanMs]).map(ms => ms / 60000));
-      const previous = Object.values(mainIntegrationDurations(DATA.activity)).flatMap(rows => {
-        const before = rows.filter(row => Date.parse(row.end) < start).at(-1);
-        return before ? [before.rollingMeanMs / 60000] : [];
-      });
-      const ceilingMax = Math.max(max, ...previous);
-      const magnitude = 10 ** Math.floor(Math.log10(ceilingMax / 5));
-      const step = [1, 2, 5, 10].map(n => n * magnitude).find(n => n >= ceilingMax / 5);
       // Match the plot padding; height comes from the actual CSS-sized frame.
       return { x: 44 + (Date.parse(point.end) - start) / (end - start) * (width - 56),
-        y: height - 28 - point.durationMs / 60000 / (Math.ceil(ceilingMax / step) * step) * (height - 40) };
+        y: height - 28 - Math.min(point.durationMs / 60000, 30) / 30 * (height - 40) };
     }, group);
     await chart.click({ position: clickPosition });
-    assert.match(await durationDetails.innerText(), /attempt \d+[\s\S]*Rolling mean/u);
+    assert.match(await durationDetails.innerText(), /attempt \d+[\s\S]*Rolling median/u);
     assert.match(await durationDetails.innerText(), group === 'preparation' ? /Preparation/u : /Implementation/u,
       'clicking either series must select its own task');
     assert.deepEqual(await chart.boundingBox(), durationFrame);
@@ -255,6 +252,43 @@ try {
   await page.emulateMedia({ colorScheme: 'light' });
   assert.deepEqual(errors, []);
   if (screenshot) await page.getByRole('heading', { name: 'Worker activity', exact: true }).locator('..').screenshot({ path: screenshot });
+  // The same range drives utilization, timing and the timeline. Arbitrary
+  // zoom, dragged boundaries and All must preserve a deliberately pinned task.
+  await page.locator('#activityWindow').selectOption('6');
+  await page.locator('#activityLatest').evaluate(element => element.click());
+  const rangeBeforeZoom = await page.locator('#activityWindowLabel').innerText();
+  const pinnedBeforeZoom = await page.locator('#timelineReadout').innerText();
+  await page.locator('#activityZoomIn').click();
+  assert.notEqual(await page.locator('#activityWindowLabel').innerText(), rangeBeforeZoom);
+  assert.equal(await page.locator('#activityWindow').inputValue(), 'custom');
+  assert.equal(await page.locator('#timelineReadout').innerText(), pinnedBeforeZoom);
+  await page.locator('#activityWindow').selectOption('all');
+  const allRange = await page.locator('#activityWindowLabel').innerText();
+  const navigator = page.locator('#activityMinimap');
+  await navigator.scrollIntoViewIfNeeded();
+  const mini = await navigator.boundingBox();
+  await page.mouse.move(mini.x + 8, mini.y + 30);
+  await page.mouse.down(); await page.mouse.move(mini.x + mini.width / 3, mini.y + 30, {steps: 10}); await page.mouse.up();
+  assert.notEqual(await page.locator('#activityWindowLabel').innerText(), allRange);
+  assert.equal(await page.locator('#activityWindow').inputValue(), 'custom');
+  const draggedRange = await page.locator('#activityWindowLabel').innerText();
+  await page.reload();
+  assert.equal(await page.locator('#activityWindowLabel').innerText(), draggedRange, 'custom range survives reload');
+  await navigator.focus(); await navigator.press('+');
+  assert.notEqual(await page.locator('#activityWindowLabel').innerText(), draggedRange);
+  await page.locator('#activityWindow').selectOption('168');
+  await page.locator('#activityLatest').evaluate(element => element.click());
+  await page.locator('#integrationDisclosure > summary').click();
+  const overflow = await page.locator('#integrationOverflow').innerText();
+  const scaleFrame = await durationChart.boundingBox();
+  if (/above 30 min/u.test(overflow)) {
+    await page.locator('#integrationFullRange').focus(); await page.locator('#integrationFullRange').press('Enter');
+    assert.equal(await page.locator('#integrationFullRange').getAttribute('aria-pressed'), 'true');
+    assert.deepEqual(await durationChart.boundingBox(), scaleFrame, 'changing the scale keeps a stable plot');
+    await page.locator('#integrationFullRange').click();
+    assert.equal(await page.locator('#integrationOverflow').innerText(), overflow);
+  }
+  console.log('Readability: grouped credit, collapsed history, arbitrary zoom, draggable range, persistence and full duration scale passed.');
   const originalData = await page.evaluate('DATA');
   async function loadData(data) {
     const begin = originalHTML.indexOf('const DATA = '), end = originalHTML.indexOf('\n', begin);
@@ -264,6 +298,38 @@ try {
     await page.route(url, route => route.fulfill({contentType: 'text/html', body: html}));
     await page.reload();
   }
+  // Populate the queue with independent actions without altering the saved
+  // snapshot: one ready task, one dependency wait and one accepted batch.
+  const knownGoal = originalData.goalHistory.flatMap(group => group.goals)[0];
+  const knownTitle = knownGoal.summary.replace(/^Implement (\w+) from \S+$/u, 'Implement $1');
+  const queueRow = {worker: 'B', since: originalData.activity.capturedAt, delivery: 'b'.repeat(40), blockedBy: []};
+  const queuedData = {...originalData, pendingMainWork: {
+    deliveries: [{...queueRow, task: 'queue-ready', goal: knownGoal.id, status: 'ready'},
+      {...queueRow, task: 'queue-wait', kind: 'challenge-preparation', batch: 'v999', status: 'ready', blockedBy: ['queue-ready']}],
+    preparedBatches: [{...queueRow, task: 'queue-admit', kind: 'challenge-preparation', batch: 'v998', status: 'awaiting-admission'}],
+    parkedTasks: originalData.pendingMainWork.parkedTasks,
+  }};
+  const queueBegin = originalHTML.indexOf('const DATA = '), queueEnd = originalHTML.indexOf('\n', queueBegin);
+  const queuedHTML = originalHTML.slice(0, queueBegin) + 'const DATA = ' + escapeJsonForScript(JSON.stringify(queuedData))
+    + ';\n' + originalHTML.slice(queueEnd + 1);
+  await page.route(url, route => route.fulfill({contentType: 'text/html', body: queuedHTML}));
+  await page.reload();
+  assert.match(await pending.innerText(), /Ready to integrate · 1/u);
+  assert.match(await pending.innerText(), /Batches to admit · 1/u);
+  assert.match(await pending.innerText(), /Waiting for dependencies · 1/u);
+  assert.ok((await pending.innerText()).includes(knownTitle));
+  const waiting = pending.locator('.main-work-item').filter({hasText: 'Challenge batch v999'});
+  await waiting.locator('summary').focus(); await waiting.locator('summary').press('Enter');
+  assert.ok((await waiting.innerText()).includes('Waiting on ' + knownTitle));
+  await waiting.locator('summary').press('Enter');
+  for (const width of [1440, 900, 600, 390, 320]) {
+    await page.setViewportSize({width, height: 1200});
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'action queue fits ' + width);
+  }
+  if (screenshot) await pending.locator('..').screenshot({path: screenshot.replace(/\.png$/u, '-queue-mobile.png')});
+  await page.unroute(url);
+  await page.setViewportSize({width: 1440, height: 1200});
+  console.log('Main queue: readable titles, separate actions, keyboard dependency details and narrow layouts passed.');
   // A shared attempt must remain one Main interval and one duration sample.
   // Four tasks exercise the uncapped group display without running games or CI.
   const groupEnd = originalData.activity.capturedAt;
@@ -279,6 +345,7 @@ try {
     events: [], tasks: validationGroup.map((task, index) => ({id: task, label: task, worker, kind,
       ...(preparation ? {batch: `v${58 + index}`} : {}), assignedAt: groupStart, status: 'accepted'}))}};
   await loadData(groupData);
+  await page.locator('#integrationDisclosure > summary').click();
   assert.match(await page.locator(preparation ? '#prepIntegrationDurationSummary' : '#integrationDurationSummary').innerText(), /1 attempt/u);
   const groupBar = page.locator('.activity-bar.phase-integrating').first();
   assert.match(await groupBar.getAttribute('aria-label'), preparation ? /Prep group · 4 tasks/u : /Implementation group · 4 tasks/u);
@@ -336,6 +403,7 @@ try {
   await page.setViewportSize({width: 1440, height: 1200});
   await page.unroute(url);
   await page.reload();
+  await page.locator('#integrationDisclosure > summary').click();
   const emptyFrames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
   // The chart must retain its frame when no duration is measurable, including
   // a real open stage whose snapshot endpoint is not a completion event.
@@ -346,6 +414,7 @@ try {
     const data = { ...originalData, activity: { capturedAt, segments, tasks: segments.length
       ? [{ id: 'open', label: 'Open C task', worker: 'C', assignedAt: open.start, status: 'integrating' }] : [] } };
     await loadData(data);
+    await page.locator('#integrationDisclosure > summary').click();
     for (const prefix of ['integrationDuration', 'prepIntegrationDuration']) {
       assert.match(await page.locator('#' + prefix + 'Summary').innerText(), /No completed attempts/u);
     }
