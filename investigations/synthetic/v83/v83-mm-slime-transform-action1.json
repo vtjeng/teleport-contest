@@ -1,0 +1,44 @@
+{
+  "session": "synthetic/v83/v83-mm-slime-transform-action1",
+  "corpus": "synthetic",
+  "batch": "v83",
+  "caseId": "v83-mm-slime-transform-action1",
+  "manifestPath": "challenges/manifests/v83.json",
+  "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+  "recordingSha256": "af585722aa181d6dd3d2fd5f1cef51569636fc75a5a2eeff327d7a92eb007872",
+  "evaluationPath": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+  "evaluationCommit": "8ea329b39e1d58519ed59f949365104e0bf86c2d",
+  "remainingScreens": 987,
+  "recordedSteps": 1649,
+  "status": "complete",
+  "commit": "28d8e4e887c5bcd43005983359fed76efaa00070",
+  "mismatch": {
+    "session": "synthetic/v83/v83-mm-slime-transform-action1",
+    "remainingScreens": 987,
+    "kind": "rng",
+    "step": 662,
+    "key": ".",
+    "rngIndex": 2951,
+    "cEntry": "rnd(20)=10",
+    "cCaller": "mondata.c:resist_conflict:1612",
+    "jsEntry": "rn2(2)=1"
+  },
+  "summary": "During the planned monster-turn simulation, a future monster death creates a green-slime glob and reaches obj_nexto_xy. The corpse helper already receives the planning random provider, but obj_nexto discards it; obj_nexto_xy then uses the live core RNG for its two ordering draws. Those speculative draws advance the real stream before the current monster's resist_conflict roll, producing the v83 step-662 mismatch. Pass the caller's random provider through the glob-search helper and its recursive calls.",
+  "source": {
+    "file": "mkobj.c",
+    "functions": ["obj_nexto", "obj_nexto_xy"],
+    "branch": "The recursive search runs when a corpse is a glob and no matching glob is already under the death square. Its two rn2(2) calls must use the random stream supplied by the active caller; during planned turns that stream is cloned, while live calls retain the core stream.",
+    "callers": [
+      "mon.c:make_corpse creates a glob and calls obj_nexto to merge nearby globs; the JavaScript caller already has the planned random provider in make_corpse's object environment.",
+      "do.c:flooreffects searches nearby globs through obj_nexto_xy; its JavaScript caller carries rawEnv.random when invoked in a planned action."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The accepted v83 comparison at step 662 has 3425 JavaScript versus 3424 C RNG calls. At RNG index 2951 C next records rnd(20)=10 at mondata.c:resist_conflict, while JavaScript records rn2(2)=1; screen and cursor also diverge at the same action boundary.",
+    "Prep's saved stack trace in .cache/prep47-recovery/prep83/logs/slime-nexto-trace.log shows obj_nexto_xy -> obj_nexto -> make_corpse -> mondied -> monkilled during the speculative monster attack, with state !== game. The paired provenance is in slime-nexto-provenance.json.",
+    "C mkobj.c:obj_nexto_xy (3661-3693) makes exactly two global rn2(2) draws only when recurs is true, and propagates the same random walk into recurs=false calls. mon.c:make_corpse (706-729) uses this search only while merging a newly created slime/pudding glob; do.c:flooreffects (308-315) is the other production caller.",
+    "JavaScript mon.js:make_corpse constructs objectEnv.random from the caller's injected provider, but calls obj_nexto(obj,state) without passing it. js/obj.js:obj_nexto_xy uses imported coreRn2 directly and discards any caller-specific stream. The planning simulator already runs monster actions with clonedRandom(planned), so threading that provider through these two helpers prevents speculative RNG from advancing the live stream."
+  ]
+}
