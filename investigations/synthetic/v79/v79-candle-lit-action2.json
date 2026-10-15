@@ -20,8 +20,7 @@
   "source": {
     "file": "mkobj.c",
     "functions": [
-      "splitobj",
-      "obj_split_timers"
+      "splitobj"
     ],
     "branch": "mkobj.c:splitobj copies a timed source stack, resets child.timed and child.lamplit, updates ownership, then calls timeout.c:obj_split_timers before obj_split_light_source. The helper saves each timer’s next link before insertion and duplicates every TIMER_OBJECT timer with the same remaining expiry and callback index. JavaScript now follows that order, while retaining the explicit test hook override.",
     "callers": [
@@ -29,7 +28,8 @@
     ],
     "dependencies": [
       "timeout.c:obj_split_timers calls start_timer and discards the return. The existing js/timeout.js:start_timer implementation inserts the timer and updates object timed counters.",
-      "mkobj.c:splitobj calls obj_split_timers before obj_split_light_source. JavaScript retains the optional splitObjectTimers test hook; ordinary production calls use the new source implementation."
+      "mkobj.c:splitobj calls obj_split_timers before obj_split_light_source. JavaScript retains the optional splitObjectTimers test hook; ordinary production calls use the new source implementation.",
+      "timeout.c:obj_split_timers is implemented in js/timeout.js and included as the required callee source unit in task evidence."
     ]
   },
   "goalKind": "divergence-fix",
