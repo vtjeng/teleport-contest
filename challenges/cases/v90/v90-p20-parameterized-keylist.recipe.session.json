@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-selected v90 p20 probe of cmd.c:keylist_putcmds. Independently chosen ordinary Healer seed 92020020 and datetime 20771219113000 before JavaScript comparison. BINDINGS=x:toggle(time) creates a current custom CMD_PARAM binding; time is enabled to verify that opening and paging through keyboard help consumes no turn. Attempt 1 showed x toggle ... \"time\" and T:1, but its initial space was an unknown command and 48 trailing spaces remained after the text window closed. Named C-observed correction: remove those irrelevant inputs; use ?j then exactly seven spaces, which the first C recording shows page through all list screens and return to the game at T:1.",
+  "segments": [
+    {
+      "seed": 92020020,
+      "datetime": "20771219113000",
+      "nethackrc": "OPTIONS=name:ParamKeyList,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\nBINDINGS=x:toggle(time)\n",
+      "moves": "?j       "
+    }
+  ]
+}
