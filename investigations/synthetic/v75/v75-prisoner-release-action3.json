@@ -1,0 +1,61 @@
+{
+  "session": "synthetic/v75/v75-prisoner-release-action3",
+  "corpus": "synthetic",
+  "batch": "v75",
+  "caseId": "v75-prisoner-release-action3",
+  "manifestPath": "challenges/manifests/v75.json",
+  "manifestSha256": "870c7ca83e7e5e4f26ee492a289d903858a34cf02a3d61969330a25886086800",
+  "recordingPath": "challenges/cases/v75/v75-prisoner-release-action3.session.json",
+  "recordingSha256": "01b35aba98fa8242611f3367f15625875fb2e1a99380d68e6cf058edc8fdc948",
+  "recipePath": "challenges/cases/v75/v75-prisoner-release-action3.recipe.session.json",
+  "recipeSha256": "f0c8bff0c700ba9ec3b27d142109a33fae173f5b94886ecb14800ade0e436c13",
+  "evaluationPath": "challenges/evaluations/admission-abc60e89302029bc1f415e6eb8709cbea7454144-v75.json",
+  "evaluationCommit": "abc60e89302029bc1f415e6eb8709cbea7454144",
+  "status": "complete",
+  "remainingScreens": 61,
+  "recordedSteps": 195,
+  "commit": "3e8fd58a45005953d496ed9c3bafbadcfc97f443",
+  "mismatch": {
+    "session": "synthetic/v75/v75-prisoner-release-action3",
+    "remainingScreens": 61,
+    "kind": "screen-and-rng",
+    "step": 130,
+    "message": "The visible prisoner does not speak or leave its waiting strategy when its first allocated action occurs."
+  },
+  "summary": "The admitted v75 recording reaches C quest.c:prisoner_speaks through quest_talk's MS_DJINNI arm when the nearby peaceful prisoner still has STRAT_WAITMASK. JavaScript quest_talk currently calls note_unported('quest.c prisoner_speaks'), omitting the speech, release transition, peaceful state, alignment adjustment, and angry_guards call. The saved trace matches through step 129; C speaks at step 130. A separate movement RNG divergence begins at step 133 and is not attributed to this missing speech branch.",
+  "source": {
+    "file": "quest.c",
+    "branch": "For an MS_DJINNI monster whose species is PM_PRISONER and whose mstrategy intersects STRAT_WAITMASK, prisoner_speaks emits the visible speech line when canseemon is true, verbalizes the release message, clears STRAT_WAITMASK, sets mpeaceful, adjusts alignment by 3, then calls angry_guards(FALSE).",
+    "functions": [
+      "prisoner_speaks",
+      "quest_talk"
+    ],
+    "callers": [
+      "monmove.c:dochug wait-mask branch, after the STRAT_CLOSE, awake, and monnear gates (720-722), calls quest_talk",
+      "monmove.c:dochug ordinary post-action quest speech branch calls quest_talk when !helpless(mtmp) && nearby (981)"
+    ],
+    "dependencies": [
+      "display.c:canseemon",
+      "do_name.c:Monnam",
+      "pline.c:verbalize",
+      "attrib.c:adjalign",
+      "mon.c:angry_guards"
+    ],
+    "findings": [
+      "quest.c:451-468 gates the behavior on both exact prisoner species identity and STRAT_WAITMASK; the branch then performs ordered speech, wait-mask clearing, peaceful-state mutation, alignment adjustment, and guard anger.",
+      "quest.c:495-511 dispatches MS_DJINNI to prisoner_speaks and discards its void result.",
+      "The normal-level recipe uses wizard genesis to create an ordinary peaceful prisoner; its M3_CLOSE behavior supplies STRAT_CLOSE/STRAT_WAITMASK without injected game state.",
+      "The admitted evaluation records 134/195 matching screens, 2353/2376 RNG calls, and 195/195 cursors. Its first screen mismatch is step 130, where C shows the prisoner speaking the finally-free line; the first later RNG mismatch is step 133 and is outside the missing speech dispatch itself.",
+      "js/quest.js:445-459 already implements the quest_talk dispatcher for leader and nemesis branches, but the MS_DJINNI branch records note_unported('quest.c prisoner_speaks') instead of reproducing the C side effects.",
+      "In this recorder build, include/sndprocs.h:276 defines SetVoice as an empty macro, so no JavaScript sound call is needed."
+    ]
+  },
+  "evidence": [
+    "Read upstream nethack-c/upstream/src/quest.c:451-468 and 495-511; prisoner_speaks is called only for MS_DJINNI from quest_talk and its void result is discarded.",
+    "Read upstream nethack-c/upstream/src/monmove.c:720-722 and 981; the recording reaches the waiting-prisoner caller after STRAT_CLOSE, awake, and proximity gates.",
+    "Read upstream nethack-c/upstream/include/sndprocs.h:276; SetVoice compiles to a no-op in this recorder configuration.",
+    "Read js/quest.js:445-459; the existing MS_DJINNI arm calls note_unported('quest.c prisoner_speaks').",
+    "The v75 recipe and recording establish the normal-level wizard-genesis prisoner setup and first speech at step 130. The official v75 evaluation reports 134/195 screens, 2353/2376 RNG calls, and 195/195 cursors; the saved matching prefix ends at step 129."
+  ],
+  "goalKind": "divergence-fix"
+}
