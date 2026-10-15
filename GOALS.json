@@ -318592,7 +318592,7 @@
     {
       "id": "divergence-v88-mhurtle-monster-to-hero-instapetrify-20261015",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mhurtle_step from dothrow.c",
       "cFile": "dothrow.c",
       "sessions": [
@@ -318602,10 +318602,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "99d204afefc2a6ac741f278d26b2211ce80abd94",
       "delivered": null,
       "function": "mhurtle_step",
-      "session": "synthetic/v88/v88-p13-mhurtle-cockatrice-healer"
+      "session": "synthetic/v88/v88-p13-mhurtle-cockatrice-healer",
+      "closeStanding": {
+        "sha": "99d204afefc2a6ac741f278d26b2211ce80abd94",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "62960010c9528b0dd6be7a91948d5005f477c124",
+        "target": "synthetic/v88/v88-p13-mhurtle-cockatrice-healer",
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/99d204afefc2a6ac741f278d26b2211ce80abd94/run-hosted-vhwQdU/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mhurtle_step",
+            "sourceFile": "dothrow.c",
+            "implementation": "js/dothrow.js",
+            "symbol": "mhurtle_step",
+            "sourceReview": "Read dothrow.c:mhurtle_step() in full (992-1077), including successful movement, monster-monster collision, hero collision and final FALSE return. C's monster-to-hero branch prints the bump, stops occupation, handles a polymorphed petrifying hero, then sets svk.killer.name and calls trap.c:instapetrify() when the monster petrifies and the hero lacks body armor, cloak and shirt; it redraws the hero square after that call. JS now calls its existing instapetrify() at the same point. The selected runtime route is wizcmds.c:wiz_telekinesis() -> dothrow.c:mhurtle() -> walk_path(..., mhurtle_step). Other mhurtle() callers remain outside the cited entry point.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_telekinesis",
+                "source": "wizcmds.c:wiz_telekinesis() calls mhurtle(mtmp, u.dx, u.dy, 6) after the user selects a visible monster and direction; js/wizcmds.js:wiz_telekinesis() calls js/dothrow.js:mhurtle() in the matching branch."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "mhurtle",
+                "source": "dothrow.c:mhurtle() passes mhurtle_step to walk_path(); js/dothrow.js:mhurtle() passes js/dothrow.js:mhurtle_step to walk_path()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v88",
+                "caseId": "v88-p13-mhurtle-cockatrice-healer",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 67,
+                "source": "wizcmds.c:wiz_telekinesis -> dothrow.c:mhurtle -> walk_path(..., mhurtle_step); the hurtling cockatrice collides with the bare-torso Healer, and mhurtle_step calls trap.c:instapetrify."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The cited active entry point is the wizard #wiztelekinesis command selecting and hurtling a cockatrice into the hero. wizcmds.c:wiz_telekinesis calls mhurtle(), whose walk_path callback is mhurtle_step(). The admitted v88 recording now matches through its final step, including the urgent stoning output and death screen. mhurtle() has other callers, including uhitm.c:mhitm_knockback() and zap.c; this task's runtime evidence does not claim those independent routes.",
+        "entryPoints": [
+          {
+            "name": "Wizard telekinesis hurtles a cockatrice into a bare-torso hero",
+            "functions": [
+              "mhurtle_step"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v88",
+                "caseId": "v88-p13-mhurtle-cockatrice-healer",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 67,
+                "source": "wizcmds.c:wiz_telekinesis -> dothrow.c:mhurtle -> walk_path(..., mhurtle_step)."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
