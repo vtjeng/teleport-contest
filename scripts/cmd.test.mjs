@@ -4746,7 +4746,7 @@ test('a fast hero spends surplus movement without allocating a new turn', async 
     assert.equal(game.context.seer_turn, 2 + cadenceValue + 15);
 });
 
-test('moveloop blocks an actionable monster before fast-hero state changes', async () => {
+test('moveloop resolves an actionable monster before fast-hero state changes', async () => {
     await runSegment({
         seed: 840015,
         datetime: COMMAND_DATETIME,
@@ -4760,13 +4760,11 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
         // permonst.h:48 gives every species NATTK slots and mhitu.c
         // mattacku() indexes all six, so the empty ones are spelled out.
         data: {
+            ...game.mons[PM_NEWT],
             mmove: 12,
             mattk: [
-                // AD_ACID, not AD_PHYS: this test needs the monster's turn to
-                // stop somewhere, and uhitm.c mhitm_adtyping() now carries
-                // AD_PHYS and AD_FIRE through to the hero's hit points.
-                // AD_ACID remains a named source boundary, and a clawing acid
-                // attack is an ordinary pairing.
+                // AD_ACID reaches the newly ported uhitm.c handler. Keep the
+                // ordinary claw pairing while exercising that supported path.
                 { aatyp: AT_CLAW, adtyp: AD_ACID, damn: 1, damd: 2 },
                 ...Array.from({ length: 5 }, () => ({
                     aatyp: AT_NONE, adtyp: 0, damn: 0, damd: 0,
@@ -4798,22 +4796,32 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     };
     game.nhDisplay.pushKey(commandKeyCode('~'));
 
-    // The replay path rejected with a generic message. The real boundary
-    // names the branch it could not take.
-    await assert.rejects(
-        moveloop_core(),
-        /uhitm\.c mhitm_ad_acid\(\)/u,
-    );
-    assert.equal(game.u.umovement, 24);
-    assert.equal(monster.movement, 12);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    // A successful monster attack consumes its movement before the hero's
+    // fast turn. This species record gives hitmsg() C's pmnames table.
+    await moveloop_core();
+    // Fast movement starts at 24; the completed turn consumes one normal
+    // 12-point allotment and leaves the next allotment available.
+    assert.equal(game.u.umovement, 12);
+    // dochug() removed this attacker's 12-point movement allotment.
+    assert.equal(monster.movement, 0);
+    // The one queued command is dispatched after the monster action completes.
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    // The stale sentinel has been replaced by the normal capacity calculation.
+    assert.notEqual(game.gw.wc, before.capacityCache);
     assert.deepEqual({
         dispatches: game._commandDispatchCount,
-        capacityCache: game.gw.wc,
         heroSeq: game.hero_seq,
         hunger: game.u.uhunger,
         moves: game.moves,
-    }, before);
+    }, {
+        // The pending command dispatches once after the monster's completed turn.
+        dispatches: before.dispatches + 1,
+        // One command advances the action sequence once.
+        heroSeq: before.heroSeq + 1,
+        // No additional game move or hunger unit is charged in this fast turn.
+        hunger: before.hunger,
+        moves: before.moves,
+    });
 });
 
 
