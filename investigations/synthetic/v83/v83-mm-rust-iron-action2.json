@@ -168,5 +168,57 @@
       "source": "allmain.c:moveloop -> region.c:run_regions -> pline.c:You_see"
     },
     "check": "node scripts/synthetic-range-evidence.mjs .cache/a2-v83-859-prefix.json matched v83/v83-mm-rust-iron-action2 segment 0 through step 859."
+  },
+  "validationCorrection": {
+    "reason": "The initial packet recorded successful commands run directly, but the project requires focused checks under run-bounded outside the sandbox.",
+    "sourceChanges": "None. The accepted source fix and runtime evidence are unchanged.",
+    "runs": [
+      {
+        "id": "run-WBnguV",
+        "profile": "focused",
+        "command": [
+          "node",
+          "--test",
+          "scripts/region.test.mjs",
+          "scripts/monmove.test.mjs"
+        ],
+        "exitCode": 0,
+        "receiptPath": "/tmp/teleport-validation-1000/run-WBnguV/receipt.json",
+        "stdoutPath": "/tmp/teleport-validation-1000/run-WBnguV/stdout.log",
+        "stderrPath": "/tmp/teleport-validation-1000/run-WBnguV/stderr.log",
+        "finishedAt": "2026-10-15T07:05:49.063Z",
+        "reapedAt": "2026-10-15T07:05:49.078Z"
+      },
+      {
+        "id": "run-wQ7t5E",
+        "profile": "focused",
+        "command": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "exitCode": 0,
+        "receiptPath": "/tmp/teleport-validation-1000/run-wQ7t5E/receipt.json",
+        "stdoutPath": "/tmp/teleport-validation-1000/run-wQ7t5E/stdout.log",
+        "stderrPath": "/tmp/teleport-validation-1000/run-wQ7t5E/stderr.log",
+        "finishedAt": "2026-10-15T07:06:15.488Z",
+        "reapedAt": "2026-10-15T07:06:15.503Z"
+      },
+      {
+        "id": "run-3QWTV9",
+        "profile": "focused",
+        "command": [
+          "node",
+          "scripts/synthetic-range-evidence.mjs",
+          ".cache/a2-v83-859-prefix.json"
+        ],
+        "exitCode": 0,
+        "receiptPath": "/tmp/teleport-validation-1000/run-3QWTV9/receipt.json",
+        "stdoutPath": "/tmp/teleport-validation-1000/run-3QWTV9/stdout.log",
+        "stderrPath": "/tmp/teleport-validation-1000/run-3QWTV9/stderr.log",
+        "finishedAt": "2026-10-15T07:06:27.108Z",
+        "reapedAt": "2026-10-15T07:06:27.121Z"
+      }
+    ]
   }
 }
