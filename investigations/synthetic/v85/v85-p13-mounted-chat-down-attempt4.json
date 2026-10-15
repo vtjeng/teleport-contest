@@ -117,6 +117,14 @@
       "result": "matched"
     },
     "focusedTest": "scripts/chat-command.test.mjs",
-    "helplessSteedTest": "a helpless steed does not notice downward chat"
+    "helplessSteedTest": "a helpless steed does not notice downward chat",
+    "documentationCorrection": {
+      "commit": "6529dc265",
+      "change": "Clarified that this task implements only the mounted downward-chat branch; shop quoting and normal-target domonnoise remain outside scope.",
+      "validationReceipts": [
+        "/tmp/teleport-validation-1000/run-DkCzug/receipt.json",
+        "/tmp/teleport-validation-1000/run-jXdkgh/receipt.json"
+      ]
+    }
   }
 }
