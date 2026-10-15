@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -49,6 +50,31 @@ import {
     spe_Unknown,
 } from '../js/spell.js';
 import { cost, new_book_description, write_ok } from '../js/write.js';
+
+const WRITE_SOURCE = readFileSync(
+    new URL('../js/write.js', import.meta.url),
+    'utf8',
+);
+const C_INVENT_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/invent.c', import.meta.url),
+    'utf8',
+);
+
+test('dowrite provides the C hold_another_object encumbrance callback', () => {
+    const cStart = C_INVENT_SOURCE.indexOf('hold_another_object(');
+    const cEnd = C_INVENT_SOURCE.indexOf('\nRESTORE_WARNING_FORMAT_NONLITERAL', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart, 'invent.c hold_another_object range');
+    const cBody = C_INVENT_SOURCE.slice(cStart, cEnd);
+    assert.match(cBody, /update_inventory\(\);\s*encumber_msg\(\);/u);
+
+    const jsStart = WRITE_SOURCE.indexOf('function writeEnv(state)');
+    const jsEnd = WRITE_SOURCE.indexOf('\n}', jsStart) + 2;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'js/write.js writeEnv range');
+    assert.match(WRITE_SOURCE.slice(jsStart, jsEnd),
+        /return \{ state, hooks: \{ encumberMessage: encumber_msg \} \};/u);
+    assert.match(WRITE_SOURCE,
+        /await hold_another_object\([\s\S]*?writeEnv\(state\),\s*\);/u);
+});
 
 // -- write_ok tests --------------------------------------------------------
 

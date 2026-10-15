@@ -526,7 +526,7 @@ export function new_book_description(booktype, state) {
 // or shop bill, so obfree needs no lifecycle hooks. useup's paper is ordinary
 // blank paper -- not worn, not timed, not an artifact, not a leash.
 function writeEnv(state) {
-    return { state, hooks: {} };
+    return { state, hooks: { encumberMessage: encumber_msg } };
 }
 
 // C ref: apply.js heroHallucinating(), duplicated here to match the youprop.h

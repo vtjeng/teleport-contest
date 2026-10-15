@@ -10,7 +10,7 @@
   "recordingSha256": "c7bf2bc103b992ea3573a20aa86c4821850d07e6c3a98f4ddc07761f19fe69eb",
   "evaluationPath": "challenges/evaluations/admission-20c21b73ea99b484f48b08da7f005733db35bdfd-v80.json",
   "evaluationCommit": "20c21b73ea99b484f48b08da7f005733db35bdfd",
-  "status": "source-traced",
+  "status": "fixed",
   "commit": "e046313ef5e8996f68335bd0588f9a2dfa11b7e4",
   "mismatch": {
     "screensMatched": 283,
@@ -48,5 +48,23 @@
     "The recorded input independently reaches the active production path: apply marker -> write.c:dowrite by-description scroll result -> invent.c:hold_another_object accepted inventory -> pickup.c:encumber_msg."
   ],
   "goalKind": "divergence-fix",
-  "evidenceRequired": "Wire the existing pickup.c encumber_msg implementation through writeEnv to the successful dowrite hold_another_object branch; test the write environment hook and require the admitted v80 recording to match through its final step."
+  "evidenceRequired": "Wire the existing pickup.c encumber_msg implementation through writeEnv to the successful dowrite hold_another_object branch; test the write environment hook and require the admitted v80 recording to match through its final step.",
+  "resolution": {
+    "commit": null,
+    "change": "js/write.js writeEnv now supplies encumberMessage: encumber_msg, so hold_another_object can perform the C encumber_msg side effect after accepting the written scroll into inventory.",
+    "tests": "scripts/write.test.mjs pins both the C update_inventory(); encumber_msg(); order and the JS callback wiring.",
+    "replay": {
+      "caseId": "v80-writing-label-action1",
+      "throughStep": 332,
+      "recordedSteps": 333,
+      "matched": true,
+      "unported": []
+    },
+    "checks": [
+      "focused write tests: 24/24 passed",
+      "lint passed",
+      "full admitted v80 replay matched 333/333 screens and cursors with no RNG divergence",
+      "synthetic range evidence matched through step 332"
+    ]
+  }
 }
