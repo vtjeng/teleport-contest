@@ -571,6 +571,25 @@ test('extended command dispatch reaches its existing handler functions',
     }
 });
 
+test('#retravel dispatches its handler when no destination is cached', async () => {
+    // This independent Ranger start invokes cmd.c:doextcmd() with an unset
+    // travelcc, exercising dotravel_target()'s ECMD_OK guard through rhack().
+    let boundary = null;
+    await runSegment({
+        seed: 86015422,
+        datetime: '20850607121700',
+        nethackrc: 'OPTIONS=name:RetravelDispatchTest,role:Ranger,'
+            + 'race:human,gender:female,align:neutral,playmode:debug,'
+            + 'pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,'
+            + '!debug_mongen,!acoustics\n',
+        moves: ` ${EXTCMD_KEY}retravel${NEWLINE_KEY}`,
+    }, { onBoundary: (error) => { boundary = error; } });
+
+    assert.equal(boundary, null, '#retravel reaches dotravel_target()');
+    assert.equal(topLine(), 'No travel destination set.');
+    assert.equal(game.context.move, 0, 'the unset-destination guard costs no turn');
+});
+
 test('quaff, remove, and swap extended names keep their handler results',
     async () => {
     for (const [name, caseId] of [

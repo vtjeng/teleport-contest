@@ -5063,6 +5063,10 @@ async function doextcmd(key, state, onSelectedEntry = null) {
             // C ref: teleport.c dotelecmd(), registered for both C('t') and
             // the `#teleport` extended-command row.
             return await dotelecmd(state);
+        case 'dotravel_target':
+            // C ref: cmd.c doextcmd() calls the selected extcmdlist function
+            // pointer; #retravel returns dotravel_target()'s ECMD result.
+            return await dotravel_target(state);
         case 'doprev_message':
             return doprev_message(state);
         case 'enter_explore_mode':
