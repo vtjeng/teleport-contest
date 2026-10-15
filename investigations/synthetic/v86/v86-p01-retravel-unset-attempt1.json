@@ -1,0 +1,74 @@
+{
+  "session": "synthetic/v86/v86-p01-retravel-unset-attempt1",
+  "corpus": "synthetic",
+  "batch": "v86",
+  "caseId": "v86-p01-retravel-unset-attempt1",
+  "manifestPath": "challenges/manifests/v86.json",
+  "manifestSha256": "8e73321b8157f181a0a50f6d3b523a0478d5ada99076c7e895ccff559326396f",
+  "recordingSha256": "c3e7091359fb05f84b17807a0bc81fb5af92cb6187aaa079429b0225f037d126",
+  "evaluationPath": "challenges/evaluations/admission-e43f99049301b4c9e4a2323c954f9072c3b65ad0-v86.json",
+  "evaluationCommit": "e43f99049301b4c9e4a2323c954f9072c3b65ad0",
+  "remainingScreens": 1,
+  "recordedSteps": 12,
+  "status": "complete",
+  "commit": "bd1d42d805051368c677cbfbd040006d486e36d3",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v86",
+    "caseId": "v86-p01-retravel-unset-attempt1",
+    "session": "synthetic/v86/v86-p01-retravel-unset-attempt1",
+    "manifestPath": "challenges/manifests/v86.json",
+    "manifestSha256": "8e73321b8157f181a0a50f6d3b523a0478d5ada99076c7e895ccff559326396f",
+    "recording": "challenges/cases/v86/v86-p01-retravel-unset-attempt1.session.json",
+    "recordingPath": "challenges/cases/v86/v86-p01-retravel-unset-attempt1.session.json",
+    "recordingSha256": "c3e7091359fb05f84b17807a0bc81fb5af92cb6187aaa079429b0225f037d126",
+    "recipe": "challenges/cases/v86/v86-p01-retravel-unset-attempt1.recipe.session.json",
+    "recipeSha256": "7c2f594e660c768275b589e6b296e27ed5a3180fa9bf68dd262aeec4f69c6fa7",
+    "replayInputSha256": "3b83e0f6dd9347a0407040bce0dff83ac11ad305baa9fefb5be455fc7b9af2c9",
+    "evaluationPath": "challenges/evaluations/admission-e43f99049301b4c9e4a2323c954f9072c3b65ad0-v86.json",
+    "evaluationCommit": "e43f99049301b4c9e4a2323c954f9072c3b65ad0",
+    "remainingScreens": 1,
+    "recordedSteps": 12,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 11, "total": 12 },
+      "rng": { "matched": 2819, "total": 2819 },
+      "cursors": { "matched": 11, "total": 12 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: dotravel_target() for the extended command 'retravel' is not ported",
+      "step": 11
+    },
+    "step": 11,
+    "kind": "stop",
+    "sourceFile": "cmd.c",
+    "function": "dotravel_target",
+    "message": "unsupported hero command: dotravel_target() for the extended command 'retravel' is not ported",
+    "cFile": "cmd.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The #retravel extended-command row reaches C cmd.c:doextcmd(), which calls its selected function pointer and returns that function's ECMD result. The row at cmd.c:1832 points to dotravel_target(); with travelcc unset, that helper prints 'No travel destination set.' and returns ECMD_OK. JavaScript already ports that helper and the row, but doextcmd()'s dispatch switch omits dotravel_target, so its default resets command variables and throws before the C guard runs.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "When doextcmd() selects the retravel row (cmd.c:1832) while travelcc is unset, C invokes dotravel_target(), which prints the no-destination message and returns ECMD_OK.",
+    "functions": ["doextcmd"],
+    "callers": [
+      "rhack() dispatches the '#' row to doextcmd() (cmd.c:3732-3751)",
+      "extcmdlist[] registers retravel with dotravel_target as ef_funct (cmd.c:1832); doextcmd() calls the selected function pointer and returns its ECMD result (cmd.c:493-519)"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C source: nethack-c/upstream/src/cmd.c:493-519 assigns extcmdlist[idx].ef_funct, sets ge.ext_tlist, invokes (*func)(), and returns its result; cmd.c:1832 maps the retravel row to dotravel_target().",
+    "C source: nethack-c/upstream/src/cmd.c:5348-5355 checks travelcc with isok(); an unset destination prints 'No travel destination set.' and returns ECMD_OK without entering movement or consuming RNG.",
+    "JavaScript source: js/cmd.js:2739-2745 already implements the unset-destination guard and message. js/cmd.js:5004-5422 dispatches selected extended-command functions, but has no dotravel_target case; the default at 5419-5422 resets command variables and raises UnsupportedHeroCommandBoundaryError.",
+    "Recorded evidence: immutable Prep50 delivery 6289b66eab4b8f23dfd1d8a0ed751bbc02997d5ffe16be9108e72846f27add37 reports an independent byte-identical patched-C replay and accepted-source comparison. The delegated prefix matches 11 screens/cursors and all 2819 RNG calls; the error occurs when step 11 dispatches retravel.",
+    "Implementation scope is the missing dotravel_target branch in the existing cmd.c:doextcmd() port plus focused command-dispatch coverage. The helper itself is already implemented; no C callee or shared state contract needs a new port."
+  ]
+}
