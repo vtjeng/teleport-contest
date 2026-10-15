@@ -10,8 +10,8 @@
   "evaluationCommit": "3064817236950de52046810d2f2ffae0456138bb",
   "remainingScreens": 33,
   "recordedSteps": 304,
-  "status": "verified",
-  "commit": "b343534bd546903de5784378fc8a15f4e2528e20",
+  "status": "resolved",
+  "commit": "1aa918785",
   "mismatch": {
     "session": "synthetic/v84/v84-dig-boulder-pit-action2",
     "remainingScreens": 33,
@@ -23,7 +23,9 @@
   "source": {
     "file": "dig.c",
     "branch": "When dighole finds a boulder over a pit, C either settles it into the pit and changes the trap to PIT, or deletes the floor trap, then calls delobj(boulder_here). delobj_core calls obj_extract_self; for OBJ_FLOOR that calls mkobj.c:remove_object, which removes the boulder from both the per-square and level-wide object chains and recalculates the blocked vision point.",
-    "functions": ["dighole"],
+    "functions": [
+      "dighole"
+    ],
     "callers": [
       "dig.c:dig",
       "zap.c:zap_dig"
@@ -38,6 +40,54 @@
     "The saved delegated prefix matches screens, cursors, and RNG through step 270: 271 screens/cursors and 2962 RNG calls. At step 271 the boundary observation reports UnsupportedHeroCommandBoundaryError: extractExternalObject is not available for otyp 475.",
     "The preserved patched-C independent replay is byte-identical to the admitted recording: recipe SHA-256 94ae24a23ca5344897a4b7c0cd7fa107eaf6a48bf7f16a57aca6df8e1cbb914f; replay and recording SHA-256 51c81cd47dc83b8ccef8dc5e61888dd42530e87c5d1c0cff93b2834d695abb25; proof at /home/vtjeng/development/vtjeng/teleport-contest/.cache/prep48-recovery/prep84/c-replay-proofs.json.",
     "Upstream dig.c:885-1022 calls delobj(boulder_here) after the pit/boulder outcome. invent.c:1430-1462 routes floor deletion through obj_extract_self; mkobj.c:2508-2589 defines remove_object and obj_extract_self. js/dig.js:dighole calls delobj(boulder,{...rawEnv,state}) without hooks.extractExternalObject; js/invent.js requires that hook for OBJ_FLOOR, and js/obj.js:remove_object requires recalcBlockPoint for BOULDER.",
-    "The separate v61 pet-eats-royal-jelly case reaches dog_eat -> bee_eat_jelly -> delobj and identifies a different caller; it does not provide dighole's floor adapter. The v84 floor-boulder action2 case exercises this same dighole caller and is not a separate source cause."
-  ]
+    "The separate v61 pet-eats-royal-jelly case reaches dog_eat -> bee_eat_jelly -> delobj and identifies a different caller; it does not provide dighole's floor adapter. The v84 floor-boulder action2 case exercises this same dighole caller and is not a separate source cause.",
+    "After the caller hook fix, the bounded full admitted replay is exact: 304/304 screens, 304/304 cursors, and 2968/2968 RNG calls; no error or mismatch. The case scan emitted 304 screens, exhausted all inputs, and reported no divergence."
+  ],
+  "resolution": {
+    "sourceFix": "js/dig.js dighole now supplies remove_object for extractExternalObject and the default recalc_block_point hook when deleting a floor boulder; caller-provided hooks remain authoritative.",
+    "focused": {
+      "runId": "run-42it0R",
+      "log": "/tmp/teleport-validation-1000/run-42it0R/stdout.log",
+      "result": "scripts/dig.test.mjs: 34/34 passed"
+    },
+    "lint": {
+      "runId": "run-qbtVsC",
+      "log": "/tmp/teleport-validation-1000/run-qbtVsC/stdout.log",
+      "result": "npm run lint passed"
+    },
+    "fullReplay": {
+      "runId": "run-CWymOq",
+      "log": "/tmp/teleport-validation-1000/run-CWymOq/stdout.log",
+      "passed": true,
+      "recordedSteps": 304,
+      "screens": {
+        "c": 304,
+        "js": 304
+      },
+      "cursors": {
+        "c": 304,
+        "js": 304
+      },
+      "rng": {
+        "c": 2968,
+        "js": 2968
+      },
+      "error": null
+    },
+    "scan": {
+      "runId": "run-lRDFV8",
+      "log": "/tmp/teleport-validation-1000/run-lRDFV8/stdout.log",
+      "screensEmitted": 304,
+      "recordedSteps": 304,
+      "divergence": null,
+      "boundary": null,
+      "commandRefusal": false,
+      "recordingMatched": true
+    },
+    "sourceRange": {
+      "runId": "run-v92wi8",
+      "log": "/tmp/teleport-validation-1000/run-v92wi8/stdout.log",
+      "matchedThroughStep": 271
+    }
+  }
 }
