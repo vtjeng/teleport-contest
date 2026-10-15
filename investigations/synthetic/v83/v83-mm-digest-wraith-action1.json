@@ -17,7 +17,7 @@
     "kind": "stop",
     "message": "simple monster action requires a non-wraith corpse"
   },
-  "summary": "A pet's wraith corpse reaches mon.c:m_consume_obj through dogmove.c:dog_eat. C's mlevelgain macro selects the corpse, deletes it, then calls grow_up with no victim; JavaScript currently stops before consumption. The existing grow_up port and every production m_consume_obj caller already have awaited call paths.",
+  "summary": "The v83 pet floor-eating path exposed a missing PM_WRAITH mlevelgain branch in mon.c:m_consume_obj. The JavaScript port now consumes the corpse and awaits the existing no-victim grow_up path under C's pet-level guard.",
   "source": {
     "file": "mon.c",
     "branch": "For a CORPSE whose corpsenm is PM_WRAITH, mlevelgain is true. After delobj, m_consume_obj calls grow_up(mtmp, NULL) when the eater is untamed or its level is below its current form's level plus 15. The return value is discarded. This path consumes the corpse and uses grow_up's rnd(8) no-victim advancement before the later corpse effects.",
