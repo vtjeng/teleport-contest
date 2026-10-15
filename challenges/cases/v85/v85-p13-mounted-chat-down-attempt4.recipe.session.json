@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mounted-chat attempt uses the corrected startup space and the programmatically verified pony coordinate (14,17) southeast of hero (13,16); `n` selects that pony. `y` answers the wizard force-mount prompt. Keep only if C confirms mounting and the following #chat > reaches the mounted-steed dochat caller.",
+  "segments": [
+    {
+      "seed": 91704137,
+      "datetime": "20840123123456",
+      "nethackrc": "OPTIONS=name:ChatDownAttempt4,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+      "moves": " #wizgenesis\ntame saddled pony\n#wizmap\n#ride\nny#chat\n>\n"
+    }
+  ]
+}
