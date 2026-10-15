@@ -1,0 +1,80 @@
+{
+  "session": "synthetic/v83/v83-mm-acid-resistant-action1",
+  "corpus": "synthetic",
+  "batch": "v83",
+  "caseId": "v83-mm-acid-resistant-action1",
+  "manifestPath": "challenges/manifests/v83.json",
+  "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+  "recordingSha256": "edc33a32ccbf0823b497427a6c23e8091ee5039399fcbe638c8583b0e38cd3c0",
+  "evaluationPath": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+  "evaluationCommit": "8ea329b39e1d58519ed59f949365104e0bf86c2d",
+  "remainingScreens": 389,
+  "recordedSteps": 1693,
+  "status": "complete",
+  "commit": "0ffad4ca255efc3dd498154fb1e4b0f5640effc5",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v83",
+    "caseId": "v83-mm-acid-resistant-action1",
+    "session": "synthetic/v83/v83-mm-acid-resistant-action1",
+    "manifestPath": "challenges/manifests/v83.json",
+    "manifestSha256": "b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329",
+    "recording": "challenges/cases/v83/v83-mm-acid-resistant-action1.session.json",
+    "recordingPath": "challenges/cases/v83/v83-mm-acid-resistant-action1.session.json",
+    "recordingSha256": "edc33a32ccbf0823b497427a6c23e8091ee5039399fcbe638c8583b0e38cd3c0",
+    "recipe": "challenges/cases/v83/v83-mm-acid-resistant-action1.recipe.session.json",
+    "recipeSha256": "8d2f381601cbdd0c516dd833d82af0f2b9b24d5724b9908ae881f330d2650398",
+    "replayInputSha256": "55e46cc170706b0305dcf8ab1389e406372a3bfd083ecc68fb0cd0ac7c79555a",
+    "evaluationPath": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+    "evaluationCommit": "8ea329b39e1d58519ed59f949365104e0bf86c2d",
+    "evaluationArtifact": "challenges/evaluations/admission-8ea329b39e1d58519ed59f949365104e0bf86c2d-v83.json",
+    "remainingScreens": 389,
+    "recordedSteps": 1693,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 1304, "total": 1693 },
+      "rng": { "matched": 3151, "total": 3326 },
+      "cursors": { "matched": 1304, "total": 1693 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_acid()",
+      "step": 1304
+    },
+    "step": 1304,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_acid",
+    "message": "simple monster action requires uhitm.c mhitm_ad_acid()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The admitted v83 stop is the unported uhitm.c:mhitm_ad_acid function. At segment 0 step 1304 the tame ochre jelly lands its AD_ACID engulf attack on a hostile gray ooze; C continues into the acid-resistant monster-versus-monster branch, prints that the acid seems harmless, zeroes direct damage, and still performs its armor-corrosion and weapon-acid checks. JavaScript stops at the AD_ACID arm in mhitm_adtyping before those source effects.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": ["mhitm_ad_acid"],
+    "branch": "The relevant branch has a non-hero attacker and a non-hero defender. C returns early with zero damage when the aggressor is cancelled. Otherwise, acid resistance or AD_ACID defense suppresses direct damage and, when visible, emits the harmless-acid message; a vulnerable visible defender gets the covered-in-acid and burning messages. Regardless of resistance, the branch then rolls rn2(30) for armor corrosion and rn2(6) for acid damage to the defender's weapon. The same function also handles hero-attacker and hero-defender cases, so its full implementation must preserve those branches and source order.",
+    "callers": [
+      "uhitm.c:mhitm_adtyping selects mhitm_ad_acid for AD_ACID; uhitm.c:damageum calls that dispatcher for a polymorphed hero's attack.",
+      "mhitu.c:hitmu calls uhitm.c:mhitm_adtyping for a monster attack on the hero.",
+      "mhitm.c:mdamagem calls uhitm.c:mhitm_adtyping for a monster-versus-monster attack; at the admitted boundary the ochre jelly's AD_ACID engulf attack targets the acid-resistant gray ooze."
+    ],
+    "dependencies": [
+      "mondata.c:Resists_Elem implements resists_acid; mondata.c:defended checks artifact defense.",
+      "uhitm.c:erode_armor applies the rn2(30) armor-corrosion outcome.",
+      "trap.c:acid_damage handles acid damage to the target's weapon after the rn2(6) check.",
+      "pline.c:pline and pline_mon produce the visible acid messages; mhitu.c:hitmsg covers the monster-attacks-hero branch."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The current official v83 evaluation identifies synthetic/v83/v83-mm-acid-resistant-action1, segment 0, first mismatch step 1304. The accepted recording SHA-256 is edc33a32ccbf0823b497427a6c23e8091ee5039399fcbe638c8583b0e38cd3c0; manifest SHA-256 is b7cbc7c9d30cbf9a85a343d23133465671ed29eebe3a83200de2fa7575c76329. Baseline results are 1304/1693 screens, 3151/3326 RNG calls, and 1304/1693 cursors before the non-null stop.",
+    "The unchanged C recording at step 1304 shows 'The ochre jelly engulfs the gray ooze.' The following C message at step 1305 is 'The gray ooze is covered in acid, but it seems harmless.' That sequence identifies the actor, defender, engulf AD_ACID branch, and acid resistance outcome without relying on the case name.",
+    "At step 1305 the C recording logs rn2(30)=11 at uhitm.c:2781 and rn2(6)=0 at uhitm.c:2783. These occur after the resistance branch sets damage to zero, proving the corrosion and weapon-acid checks still run for an acid-resistant defender.",
+    "Source inspection confirms the missing implementation is uhitm.c:mhitm_ad_acid and the production gap is the AD_ACID refusal in js/uhitm.js:mhitm_adtyping. The other damage-type arms in that dispatcher are already routed to source-named implementations. The implementation must remove this refusal and wire the ported function through the same dispatcher."
+  ]
+}
