@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source pray.c:offer_fake_amulet knownfake/Deaf branch;knownflag established bylegal#wizidentify,Deaf byobservedintrinsicmenuj. Neutralhero/altar,offeractualfakea,no highaltar. Require Oh no andsourceangerbranch ratherthanunknownfake hint.",
+  "segments": [
+    {
+      "seed": 79020332,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-fake-deaf-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017neutral altar\n                        \u0017fake amulet of yendor\n                        #wizidentify\n                        #wizintrinsic\n1000j\n                        #offer\na                        "
+    }
+  ]
+}

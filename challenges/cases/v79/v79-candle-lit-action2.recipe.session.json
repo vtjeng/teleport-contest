@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source apply.c:use_candle1428-1454:light >7 candle stack before attaching to unlit candelabrum,requiring split and end_burn then They go out. First C inventory scout;no attachment claim yet. Actual a=candelabrum,b=10candles. Firstapplyb andn refusesattach/lightscandles;secondapplyb y attaches7tounlitcandelabrum. Require split/existingburn timer and Theygoout with3litcandlesremaining.",
+  "segments": [
+    {
+      "seed": 79020313,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-candle-lit-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed Candelabrum of Invocation\n                        \u001710 uncursed wax candles\n                        i                        abn                        aby                        i                        "
+    }
+  ]
+}

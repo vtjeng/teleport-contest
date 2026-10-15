@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source pray.c:doturn2441-2451:nonchaotic Priest in actual vampire form ignores turn,aggravates and exercisesWisdom. This is not headless can_chant refusal,nor zapself unturn_you. Actual C legalform andmessage required.",
+  "segments": [
+    {
+      "seed": 79020321,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-turn-undead-action1,role:Priest,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nvampire\n                        #turn\n                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source planned actualvibration-square routes need legal Invocation_lev andgeneratedcoords,not wishedVIBRATING_SQUARE elsewhere. C-only levelmenu scout secondpage:independently chosen ownseed,do notreuseearlierbatchcoords. OwnCmenusecondpage Sanctum50,so sourceInvocation_lev is49. Cancelmenu,equiplegalarma thennumeric49teleport,read#wizwhere generatedactualinvocationposition. No oldbatchcoords. Independent endgame plannedroute usesownCmenuJ=Astral,force_dest grantsrequiredrealAmulet ifabsent;equiparmoralreadyinprefix. No copiedoldcoords orfakehighaltar. Source dat/astral.lua sanctumtemples existingaltar coordinateswillbe confirmedinownCmap before controlledteleport/offer. CfirstAstralsetup automaticallygrantsrealAmulet anditsbonuswishinterceptedmapcommand. Answerbonuswishnothing before#wizmap/inventory;preserveoriginalpromptmiss.",
+  "segments": [
+    {
+      "seed": 79020331,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-invocation-menu-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0016?\n>\u001b                        #levelchange\n24\n                        \u0017uncursed +50 gray dragon scale mail\n                        Wa                        \u0017uncursed Book of the Dead\n                        \u001649\n                        #wizwhere\n                        \u0016?\n>J                        nothing\n                        #wizmap\n                        i                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source monmove.c:dochug804-823 displaced-image demon blackmail. Actualworncloak,peacefulGeryon,12ordinarywaits;require whispersatthinair andanger,not ordinary live demand. No fabricatedperceivedcoords. Cfirstsetupordinarydemandmiss:source set_apparxy early u_at(oldmux,muy) preservesexactherolocation untilheromoves. Aftercreation moveonewest on ownCroomfloor,thenordinarywaits. This is source-backeddifferentstate,not seedsearch. Requirewhisperthinair.",
+  "segments": [
+    {
+      "seed": 79020333,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-demon-displacement-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed +50 cloak of displacement\n                        Wa                        \u00175000 gold pieces\n                        #wizgenesis\npeaceful Geryon\ny                        h                        m.m.m.m.m.m.m.m.m.m.m.m.                        "
+    }
+  ]
+}

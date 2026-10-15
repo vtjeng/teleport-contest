@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source minion.c:demon_talk305-315 female demon sibling greeting and rloc. Legal succubus form,peacefulGeryon unique creation andordinary16forcedwaits. Require Good hunting Sister actualbranch;no gold/refusal counting.",
+  "segments": [
+    {
+      "seed": 79020322,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-demon-sibling-action1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nsuccubus\n                        #wizgenesis\npeaceful Geryon\ny                        m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.                        "
+    }
+  ]
+}

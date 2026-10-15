@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-designed C menu scout for wiz_intrinsic actual DEAF selector before demon_talk Deaf guard;no target branch claimed yet.",
+  "segments": [
+    {
+      "seed": 79020311,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-deaf-menu-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #wizintrinsic\n"
+    }
+  ]
+}

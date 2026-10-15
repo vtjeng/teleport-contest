@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source wizard.c:amulet worn/wielded real Amulet rn2(15) and nearby MAGIC_PORTAL heat. Legal wizard wish creates portal to nowhere;do not enter it. First C geometry/inventory scout;require actual hot/warm before counting. OwnC inventorya=realAmulet,portallegallycreatedonfloor. Weara,stayput40forcedordinarywaits. Require actualhot/warm source message;do not enter portal or count chancefalse coverage.",
+  "segments": [
+    {
+      "seed": 79020314,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-amulet-portal-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        h\u0017magic portal\n                        \u0017Amulet of Yendor\n                        nothing\n                        i                        Pa                        m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.                        "
+    }
+  ]
+}

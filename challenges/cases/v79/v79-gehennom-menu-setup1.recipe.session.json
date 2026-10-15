@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-designed level menu scout. Choose legal Gehennom destination from actual C menu for innate doturn Inhell branch;no branch proof from menu alone.",
+  "segments": [
+    {
+      "seed": 79020312,
+      "datetime": "20990714160500",
+      "nethackrc": "OPTIONS=name:v79-gehennom-menu-setup1,role:Priest,race:human,gender:female,align:lawful,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0016?\n"
+    }
+  ]
+}
