@@ -12,7 +12,7 @@ import { newedog } from '../js/dog.js';
 import { mhitm_adtyping } from '../js/uhitm.js';
 import {
     AD_DGST, AT_ENGL, NON_PM, PM_GAS_SPORE, PM_LICH,
-    PM_LIZARD, PM_PURPLE_WORM, PM_DEATH,
+    PM_LIZARD, PM_PURPLE_WORM, PM_DEATH, PM_TITANOTHERE,
 } from '../js/monsters.js';
 
 const source = (file) => readFileSync(
@@ -130,6 +130,31 @@ test('monster digestion wakes nearby sleepers and gives pets half nutrition', as
     // nutrition by two, then digestion halves it; meating (3+3)/4 truncates.
     assert.equal(magr.meating, 1);
     assert.equal(magr.mextra.edog.hungrytime, 140);
+});
+
+test('monster digestion stops the virtual corpse timer before pet nutrition', async () => {
+    await start(); game.flags.verbose = false;
+    const magr = place(monster(PM_PURPLE_WORM, { mtame: 10 }));
+    newedog(magr); magr.mextra.edog.hungrytime = 100;
+    const mdef = monster(PM_TITANOTHERE);
+    mdef.mx = magr.mx; mdef.my = magr.my;
+    const mhm = { damage: 7, hitflags: 0, done: false };
+    const timerCount = () => {
+        let count = 0;
+        for (let timer = game.gt.timer_base; timer; timer = timer.next)
+            count++;
+        return count;
+    };
+    const timersBefore = timerCount();
+
+    await mhitm_adtyping(magr, attack, mdef, mhm, game, effect().env);
+
+    assert.equal(mhm.damage, 20, 'C copies the defender HP before corpse cleanup');
+    assert.equal(magr.mextra.edog.hungrytime,
+        100 + game.mons[PM_TITANOTHERE].cnutrit,
+        'giant purple worm doubles then halves corpse nutrition as C does');
+    assert.equal(timerCount(), timersBefore,
+        'the temporary species corpse timer is removed by dealloc_obj');
 });
 
 test('a monster digesting a Rider dies and finishes the attack', async () => {
