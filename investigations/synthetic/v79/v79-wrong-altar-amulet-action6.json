@@ -6,55 +6,46 @@
   "manifestPath": "challenges/manifests/v79.json",
   "manifestSha256": "6cfdb6010e7c229cd312703b6d1e8dff5a06ca916da70e270c2284824a5d5416",
   "recordingSha256": "a03899faaf465f9a274072edcb401dfbdd7d1cbceaf442212191f4c3b103055d",
-  "evaluationPath": "challenges/evaluations/admission-6ab105044702d5a14596f9895360bd363bf22773-v79.json",
-  "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
-  "remainingScreens": 2,
+  "evaluationPath": "challenges/evaluations/accepted-8155d9d2b099ff46dda8eea011fd5e9aeff05dee-v79.json",
+  "evaluationCommit": "8155d9d2b099ff46dda8eea011fd5e9aeff05dee",
+  "remainingScreens": 1,
   "recordedSteps": 575,
   "status": "complete",
-  "commit": "9e3c06d299c01210f70834dd5335b88c79242582",
+  "commit": "4f8b0adb473e634ee91e06b37d6afec598808ef9",
   "mismatch": {
     "screen": {
-      "index": 571,
+      "index": 574,
       "segment": 0,
       "key": " ",
-      "row": 0,
-      "column": 31,
-      "cCell": " ",
-      "jsCell": "?"
+      "row": 1,
+      "column": 0,
+      "cCell": "S",
+      "jsCell": " "
     },
-    "cursor": {
-      "index": 571,
-      "c": [
-        60,
-        0,
-        1
-      ],
-      "js": [
-        43,
-        0,
-        1
-      ]
-    },
+    "cursor": null,
     "rng": null,
     "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
-    "remainingScreens": 2
+    "remainingScreens": 1
   },
-  "summary": "Ported end.c:disclose’s nonzero-achievement query suffix by using the existing insight.c:count_achievements helper. The target segment now matches through step 573 with all RNG and cursor output matching; one later step-574 final score-list screen remains a separate topten/endgame display gap outside this source scope.",
+  "summary": "The accepted disclosure correction now matches through step 573. The remaining step-574 score-list message is emitted correctly by topten, then erased when the async JavaScript path returns from the C NORETURN offer_real_amulet branch and continues into dosacrifice’s unreachable nothing_happens tail. Return from dosacrifice after the terminal state is set.",
   "source": {
-    "file": "end.c",
+    "file": "pray.c",
     "functions": [
-      "disclose"
+      "dosacrifice",
+      "offer_real_amulet"
     ],
-    "branch": "When should_query_disclose_option('c') requests a prompt, end.c:disclose counts achievements and appends \" and achievements\" only for a nonzero result. JavaScript now calls the existing count_achievements helper in the same branch and passes the conditional query to yn_function. The admitted Astral ending has ACH_UWIN, so it exercises the suffix branch.",
+    "branch": "On a high altar, dosacrifice calls offer_real_amulet for a real Amulet. For the wrong-god route, offer_real_amulet calls done(ESCAPED), so C never reaches dosacrifice’s later fake-Amulet, corpse, or nothing_happens branches. The browser port models done by setting gameover and returning; dosacrifice must stop after the awaited helper when gameover is set.",
     "callers": [
-      "end.c:really_done calls disclose(how, taken) after final payment and inventory identification. js/end.js:really_done awaits the corresponding disclose function; this runtime path is exercised by the admitted endgame route."
+      "cmd.c:act_on_act dispatches dosacrifice; js/cmd.js dispatches the same queued handler.",
+      "pray.c:dosacrifice calls offer_real_amulet; js/pray.js:dosacrifice awaits it."
     ],
     "dependencies": [
-      "insight.c:count_achievements is already implemented by js/insight.js:count_achievements and tested for zero-terminated achievement lists in scripts/insight.test.mjs; disclose must use its return value to match C."
+      "end.c:done(ESCAPED) enters end.c:really_done, declared NORETURN; js/end.js:really_done sets program_state.gameover and returns to its async caller.",
+      "The already accepted end.c:disclose correction accounts for the previous step-571 mismatch and remains preserved below."
     ]
   },
   "goalKind": "divergence-fix",
-  "selectionReason": "Selected the independently owned v79 wrong-altar amulet case. The admitted source replay reaches a fully matching wrong-god offer, then first diverges at the endgame conduct disclosure prompt. Prep’s accepted exact prefix proves screens, cursors, and all RNG calls match through zero-based step 570.",
+  "selectionReason": "Selected the same v79 session after acceptance released its reservation. The corrected step-571 conduct prompt now matches; the promoted queue identifies one residual screen at step 574, and bounded runtime instrumentation traces it to a post-finalization continuation in pray.c:dosacrifice.",
   "evidence": [
     "Official v79 evaluation reports 573/575 screens, 574/575 cursors, and 20693/20693 RNG calls, with no exception. Its source pointer is end.c:disclose670-680 -> insight.c:count_achievements.",
     "Saved accepted-fixed-prefix-v79-wrong-altar-amulet-action6.json proves an unchanged-input prefix of 571 screens and cursors with all 20693 RNG calls matching; its captured prefix covers zero-based steps 0 through 570.",
@@ -64,11 +55,16 @@
     "After the change, a full comparison against the unchanged official C recording matches 574/575 screens, 575/575 cursors, and 20693/20693 RNG calls. The first remaining difference is at zero-based step 574, after disclose has completed: C prints “Since you were in wizard mode, the score list will not be checked.” while JS retains the prior map screen. The source lead is end.c:really_done -> topten.c:topten; this later output is outside the claimed end.c:disclose scope.",
     "Focused bounded run run-DMWa3x passed 92/92 tests across scripts/end-really-done.test.mjs and scripts/insight.test.mjs. The new test pins the C count-and-suffix branch to the JS query construction; existing insight tests pin count_achievements list semantics.",
     "npm run lint passed for js/ and scripts/.",
-    "scripts/synthetic-range-evidence.mjs verified the admitted v79 segment 0 from steps 0 through 573 against the corrected implementation."
+    "scripts/synthetic-range-evidence.mjs verified the admitted v79 segment 0 from steps 0 through 573 against the corrected implementation.",
+    "Current official queue entry challenges/evaluations/accepted-8155d9d2b099ff46dda8eea011fd5e9aeff05dee-v79.json at 8155d9d2b099ff46dda8eea011fd5e9aeff05dee reports 574/575 screens, 20693/20693 RNG calls, 575/575 cursors, and the first residual at step 574 (row 1, column 0).",
+    "C source pray.c:1874-1881 calls offer_real_amulet for a high-altar real Amulet and marks the following code NOTREACHED; pray.c:1562-1572 calls done(ESCAPED) for an opposing alignment and marks that branch NOTREACHED.",
+    "The accepted JS source js/end.js:really_done completes toptenDisplay before returning with gameover true. A bounded private JS replay instrumented js/topten.js and js/end.js: it reached the wizard topten branch with wizard=true and panicking=false, and serialized “Since you were in wizard mode, the score list will not be checked.” immediately after topten returned.",
+    "The same replay instrumented a private copy of js/game_display.js. The first write after the score-list output came from display.js:_buildScreenOutput -> tty_message.js:ttyPlineCore -> pray.js:dosacrifice, where the source’s nothing_happens tail rewrote the screen. The full input replay retained 20693 RNG calls, 575 screens, and 575 cursors.",
+    "The prior accepted diagnosis remains intact in previousDiagnosis and its earlier evidence entries remain unchanged; this follow-up isolates the later terminal-return control-flow mismatch."
   ],
-  "goal": "fix-v79-disclose-achievement-prompt-20261015",
-  "task": "B-investigation-v79-wrong-altar-amulet-action6-20261015",
-  "sourceBase": "d13f8193845494f87d975762882295b8ca7e81de",
+  "goal": "fix-v79-real-amulet-noreturn-caller-20261015",
+  "task": "B-investigation-v79-topten-step574-20261015",
+  "sourceBase": "4f8b0adb473e634ee91e06b37d6afec598808ef9",
   "selectionProvenance": {
     "corpus": "synthetic",
     "batch": "v79",
@@ -86,5 +82,61 @@
     "evaluationCommit": "6ab105044702d5a14596f9895360bd363bf22773",
     "evaluationUtc": "2026-10-15T03:03:34.560Z",
     "recordedSteps": 575
+  },
+  "previousDiagnosis": {
+    "commit": "9e3c06d299c01210f70834dd5335b88c79242582",
+    "source": {
+      "file": "end.c",
+      "functions": [
+        "disclose"
+      ],
+      "branch": "When should_query_disclose_option('c') requests a prompt, end.c:disclose counts achievements and appends \" and achievements\" only for a nonzero result. JavaScript now calls the existing count_achievements helper in the same branch and passes the conditional query to yn_function. The admitted Astral ending has ACH_UWIN, so it exercises the suffix branch.",
+      "callers": [
+        "end.c:really_done calls disclose(how, taken) after final payment and inventory identification. js/end.js:really_done awaits the corresponding disclose function; this runtime path is exercised by the admitted endgame route."
+      ],
+      "dependencies": [
+        "insight.c:count_achievements is already implemented by js/insight.js:count_achievements and tested for zero-terminated achievement lists in scripts/insight.test.mjs; disclose must use its return value to match C."
+      ]
+    },
+    "summary": "Ported end.c:disclose’s nonzero-achievement query suffix by using the existing insight.c:count_achievements helper. The target segment now matches through step 573 with all RNG and cursor output matching; one later step-574 final score-list screen remains a separate topten/endgame display gap outside this source scope.",
+    "mismatch": {
+      "screen": {
+        "index": 571,
+        "segment": 0,
+        "key": " ",
+        "row": 0,
+        "column": 31,
+        "cCell": " ",
+        "jsCell": "?"
+      },
+      "cursor": {
+        "index": 571,
+        "c": [
+          60,
+          0,
+          1
+        ],
+        "js": [
+          43,
+          0,
+          1
+        ]
+      },
+      "rng": null,
+      "session": "synthetic/v79/v79-wrong-altar-amulet-action6",
+      "remainingScreens": 2
+    },
+    "remainingScreens": 2,
+    "evidence": [
+      "Official v79 evaluation reports 573/575 screens, 574/575 cursors, and 20693/20693 RNG calls, with no exception. Its source pointer is end.c:disclose670-680 -> insight.c:count_achievements.",
+      "Saved accepted-fixed-prefix-v79-wrong-altar-amulet-action6.json proves an unchanged-input prefix of 571 screens and cursors with all 20693 RNG calls matching; its captured prefix covers zero-based steps 0 through 570.",
+      "Saved accepted-latest-js-v79-wrong-altar-amulet-action6.log records the first divergence at zero-based step 571, space key: C cursor [60,0,1] and JS cursor [43,0,1], with C blank at row0,column31 and JS question mark. The step is the conduct disclosure query after offering the real Amulet to high altar Mitra while the neutral hero has the Astral achievement.",
+      "C end.c:disclose calls count_achievements and appends \" and achievements\" when the count is nonzero. JavaScript js/end.js currently passes the fixed \"Do you want to see your conduct?\" literal; js/insight.js already exports count_achievements and scripts/insight.test.mjs pins its zero-terminated count behavior.",
+      "Prep’s accepted crosswalk excludes the prior v75 unopened-box disclosure issue: it was an ordinary quit with no achievement and did not enter the nonzero-count conditional.",
+      "After the change, a full comparison against the unchanged official C recording matches 574/575 screens, 575/575 cursors, and 20693/20693 RNG calls. The first remaining difference is at zero-based step 574, after disclose has completed: C prints “Since you were in wizard mode, the score list will not be checked.” while JS retains the prior map screen. The source lead is end.c:really_done -> topten.c:topten; this later output is outside the claimed end.c:disclose scope.",
+      "Focused bounded run run-DMWa3x passed 92/92 tests across scripts/end-really-done.test.mjs and scripts/insight.test.mjs. The new test pins the C count-and-suffix branch to the JS query construction; existing insight tests pin count_achievements list semantics.",
+      "npm run lint passed for js/ and scripts/.",
+      "scripts/synthetic-range-evidence.mjs verified the admitted v79 segment 0 from steps 0 through 573 against the corrected implementation."
+    ]
   }
 }
