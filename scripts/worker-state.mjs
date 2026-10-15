@@ -83,8 +83,10 @@ Workers pass --file with the shared ledger path. They may connect, record their
 own turn, claim/expand/resume their own tasks and submit. They may park their own
 investigation when its cause belongs to another worker. All other event types
 are coordinator-only, except prep-probe: the Prep lead starts probes; the lead
-or assigned probe worktree records later observations. Up to four persistent
-workers may hold live ownership, plus six nested Prep exploration lanes.
+or assigned probe worktree records later observations. The ledger supports up
+to four live registered workers and six probe role names. These are schema
+limits, not separate thread quotas; follow .agents/loop.md's shared agent pool
+and the host's total-agent limit before spawning any worker or probe.
 Each lane runs one command at a time, independently of the other lanes.
 Before launching C recording/replay or JavaScript comparison, record
 recording: true. Retain the actual process handle after interruption until

@@ -1,6 +1,6 @@
 # Continuous operation
 
-This guide is for the main orchestrator. Use it when the user asks for
+This guide is for the work lead (the dashboard's Main coordinator). Use it when the user asks for
 continuous implementation, within the limits they set. Worker procedures are
 in `.claude/agents/span-worker.md`.
 
@@ -15,21 +15,98 @@ next synthetic batch". Follow
 support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
 
-Run up to four persistent workers, each in its own Git worktree: A, B, and C
-implement source tasks; Prep prepares synthetic batches. Keep Prep dedicated
-to preparation. Finish an existing preparation assignment before transferring
-that role to Prep. Use fewer workers when work or resources cannot support
-four; ask before adding a fifth. Run workers on `gpt-6-luna`, as the project
-`.codex/config.toml` specifies for subagents. Workers test and submit commits;
+Allocate workers from the shared agent pool below, each editing role in its
+own Git worktree. A/B/C implement source tasks; an allocated Prep lead owns
+synthetic batches. Use the role configurations in `.codex/config.toml`;
+implementation and exploration workers default to `gpt-6-luna`, while the
+Prep lead uses its configured Sol role. Workers test and submit commits;
 you integrate them into local `main`, run combined checks, accept, and
 publish. A worker may start independent work after submitting a task without
-waiting for a merge or for another worker.
+waiting for a merge or for another worker, unless its slot is being reassigned.
+
+## Shared agent pool
+
+The verified cloud limit is seven total agents, including the conversation
+root and every nested agent. The root stays available for user conversation
+and delegates this loop to the work lead. A sibling process agent observes
+progress and prepares process proposals in its own worktree. It reports to
+the root; it does not change live assignments, central records, or main.
+The work lead alone owns integration and applies approved process changes
+between tasks or validation runs. Keep these coordination agents out of the
+implementation-worker ledger; the work lead is its sole coordinator.
+
+Reserve the root, work lead, and process agent, leaving four shared execution
+slots. Count a Prep lead, each explorer, implementation worker, reviewer, and
+survey helper against the same pool regardless of parent. Prep has historically
+been the bottleneck: default to a Prep lead and three explorers while the
+independent implementation backlog is insufficient. When useful fixes are
+available, use A/B plus Prep and one explorer, or A plus Prep and two explorers.
+A/B/C plus Prep with no explorer is also valid when implementation dominates.
+An allocated Prep lead can record probes itself when no explorer is available.
+Do not spawn explorers in addition to a full implementation allocation.
+If the process agent is explicitly released, its slot can join the pool;
+restore the reservation before restarting it. A lower reported host limit
+always takes precedence. Configuration does not override the host limit.
+The ledger still permits at most four live registered workers; any extra
+granted slot is for a probe or helper, not a fifth registered worker.
+
+The work lead grants slots before any spawn, including nested spawns. Prep
+requests a specific explorer allocation and never expands it independently.
+Record the current allocation and intended next roles in the work lead's
+handoff notes. Keep the ledger's existing A/B/C, Prep, and Prep-1..Prep-6
+role identities; they describe task ownership, not permanently reserved
+threads. The dashboard continues to show those roles; the conversation and
+process agents do not acquire worker rows merely to reserve slots.
+
+Rebalance at deliveries, completed probes, validation boundaries, or concrete
+blockers. Use the saved queue and batch backlog to favor implementation when
+independent admitted work is plentiful and Prep when the queue is drying up.
+Announce a pending reallocation before the worker selects another task.
+In particular, A/B can yield their slots to Prep explorers after submitting
+or deliberately parking their current tasks, then resume implementation when
+the batch backlog supplies useful independent work. Prep cannot reclaim a
+slot from an implementation worker itself; the work lead schedules the handoff.
+Workers continue independently within their current allocation, but yield
+at the next clean boundary when requested; do not interrupt a live command
+or a claimed task just to change the mix.
+
+Before releasing a slot, collect owned command results and save the delivery
+or an explicit parked handoff. Finish Prep probes before releasing their
+lead. Preserve worktrees, submitted commits, evidence, reservations, and
+correction ownership. For a registered worker, use supported `turn` and
+`observe` events to record no live processes and a null handle once release
+is confirmed. Do not rewrite ledger history or reuse its role worktree for
+another role. End/release the old agent through the available harness and
+confirm capacity before starting its replacement; an idle turn alone is not
+proof of a free slot. Alternatively, explicitly retask a finished agent within
+its existing slot: end the old assignment and give it a fresh role packet and
+the new role's worktree. Do not let two parents dispatch that slot; Main owns
+implementation assignments, and Prep owns probes only while its grant applies.
+Resume a retained role worktree through setup and the normal connection
+handshake. Give either a reused agent or replacement fresh role instructions,
+scope, base, evidence, and process ownership. Outstanding deliveries
+remain valid and correction requests must be routed to a resumed owner.
+When retasking a nested explorer as an implementation worker, name the work
+lead as its message recipient explicitly; native completion may still notify
+the original Prep parent. Prep forwards such a notification to Main and does
+not dispatch the reassigned thread.
+
+Dashboard rows follow roles, not physical threads. Keep A/B/C history when
+their slots move to Prep-1..Prep-6. Record an idle turn with a public reason
+such as "Slot reassigned to Prep exploration", then `observe` with a null
+handle and no processes; start the explorer with a new `prep-probe` event in
+its separate role worktree. Mark a probe done before returning its thread to
+an implementation role and reconnect that role through `observe` and the
+normal handshake. Do not rename old events, keep released workers apparently
+live, or publish private handles. Parked tasks and queued deliveries remain in
+task history, while released roles stop accumulating agent utilization. The
+host limit is enforced by the harness; the ledger is not a global slot allocator.
 
 ## Worker scheduling
 
 When starting or resuming, find existing workers and validation processes.
-Reuse live work and keep each worker's worktree across deliveries. Replace a
-worker only for recovery or an explicit handoff, after checking its processes.
+Reuse live work and keep each role's worktree across deliveries. Replace a
+worker for recovery or a shared-pool handoff only after checking its processes.
 Reuse unfinished code only when its purpose, scope, and remaining checks are
 clear. Otherwise preserve a recoverable copy, remove the abandoned task from
 the queue, and start from validated main.
@@ -105,8 +182,8 @@ recipes, C recordings, and prepared manifest in delivery evidence. Apply
 workers' proposed `QUALITY.json` changes yourself. Do not merge worker copies
 of central records.
 
-Keep Prep working continuously on one batch at a time under
-`.agents/selection.md`. It starts the next batch after submission without
+While Prep has an allocation, keep it working on one batch at a time under
+`.agents/selection.md`. Unless its slot is being reassigned, it starts the next batch after submission without
 waiting for acceptance or admission. Reserve each batch identity in the
 ledger and retain each prepared manifest in immutable delivery evidence.
 Handle corrections and parked preparation before starting a later batch.
@@ -354,7 +431,8 @@ rules below. Follow `.claude/agents/challenge-prep-worker.md`,
 
 Use read-only helpers when they can answer a specific question while an
 implementation worker continues. Use one for a cross-file survey, or up to
-two to test different explanations of a difficult mismatch. Give each a
+two to test different explanations of a difficult mismatch, only within
+granted shared-pool slots. No helper has an extra capacity allowance. Give each a
 narrow source or artifact scope and a stopping condition. Helpers do not
 edit, enumerate session corpora, record games, or run full validation or
 scoring. Forward useful findings promptly; the worker verifies them and

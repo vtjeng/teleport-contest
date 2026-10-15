@@ -45,6 +45,11 @@ discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 "Port whole source units and wire their callers", states.
 
 Select subsequent work under `.agents/selection.md`, "Seed continuation".
+Your thread is allocated from the shared pool in `.agents/loop.md`. If Main
+requests its return, finish the current task and owned commands, or explicitly
+park with a complete handoff, then yield without claiming the next task.
+Preserve the role's worktree, immutable deliveries, evidence, and correction
+context. A/B/C are implementation role names, not permanently reserved slots.
 Claim your next scope and submit deliveries through `worker-state.mjs` using
 the procedure below. Leave central goal-selection commands,
 integration, acceptance and publication to the orchestrator.
@@ -157,7 +162,8 @@ and blockers without certifying whole functions or requiring a second source
 review by the orchestrator.
 
 Receipt, acceptance, and wakeups follow `.agents/loop.md`, "Notifications".
-Submission frees you to start independent work, but its reservations remain
+Submission frees you to start independent work while your pool allocation
+remains, but its reservations remain
 until acceptance or parking.
 Acceptance of an earlier task leaves your current task's reservations intact.
 Acceptance requires a passing combined checkpoint, but does not mean the work
@@ -180,7 +186,8 @@ When no survey is delegated, trace production callers yourself as usual. Do not
 pause the task to obtain subagent access or ask the orchestrator to restart you.
 
 For other work, spawn a subagent only when a callable subagent mechanism is
-available and the search is broader: the name is uncertain or results need
+available, Main has granted a shared-pool slot, and the search is broader:
+the name is uncertain or results need
 classification against a rubric. Use the project's subagent model setting.
 
 A subagent's paraphrase of the C source can invisibly omit branches, so read

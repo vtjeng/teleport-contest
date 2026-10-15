@@ -1,9 +1,11 @@
 [agents]
+# The cloud host allows seven total agents, including the conversation root.
+max_concurrent_threads_per_session = 6
 default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "high"
 
 [agents.prep]
-description = "Dedicated preparation worker for independent C challenge batches."
+description = "Preparation lead for independent C challenge batches, allocated from the shared agent pool."
 config_file = "agents/prep.toml"
 
 [agents.prep-explorer]

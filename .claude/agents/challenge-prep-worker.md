@@ -5,7 +5,8 @@ description: Prepare one future synthetic NetHack challenge batch from reproduci
 
 # Challenge preparation task
 
-The Prep lead owns this batch task. Exploration lanes follow "Exploration
+The Prep lead owns this batch task while allocated a slot in the shared pool
+defined by `.agents/loop.md`. Exploration lanes follow "Exploration
 lanes" below and their assigned probe plan; they do not claim batch tasks.
 
 Read `AGENTS.md`, `.agents/loop.md`, `.agents/selection.md` ("Generating the
@@ -56,7 +57,8 @@ rules for submitting a nonempty group without waiting for 12 failures, and
 continue searching if none qualify. Report concrete search or recorder blockers.
 Do not inspect implementation-worker assignments or statuses. The orchestrator
 owns admission. After submitting a batch, claim the next unused version and
-continue without waiting for acceptance, admission, or a queue threshold.
+continue without waiting for acceptance, admission, or a queue threshold,
+unless Main has requested that the slot yield at this batch boundary.
 Handle requested corrections and parked preparation before starting a later
 batch. Record idle or blocked turns with a public `summary`
 naming the dependency and owner; keep private details in `reason`. Keep reached,
@@ -89,8 +91,10 @@ comparisons. Only Main may authorize a user-requested control by listing its
 case ID in the task's `controlCases`. Existing submissions remain unchanged.
 Submit the task with its exact base and delivery commits, case paths and
 hashes, mission rationale, and independent replay results. Follow `.agents/loop.md`,
-"Notifications", then continue preparation. Keep Prep dedicated to batch
-preparation.
+"Notifications", then continue preparation while the allocation remains.
+On a requested pool handoff, finish probes and owned commands, preserve the
+delivery and correction context, and return the slot without claiming another
+batch. Do not abandon a batch or change roles mid-task.
 At the clean task boundary, merge the commit returned by
 `worker-state.mjs accepted-main --file <shared-ledger>`, not an unaccepted Main HEAD.
 Claim the next batch at the resulting HEAD. Keep all submitted commits
@@ -99,12 +103,18 @@ on pending ancestor deliveries inferred by submission.
 
 ## Exploration lanes
 
-Use one Sol Prep lead and up to six persistent Luna-high exploration lanes,
-within the shared agent limit. Give each lane one C-behavior investigation
+Use one Sol Prep lead and only the Luna-high exploration slots granted by
+Main from the shared pool. Prep itself consumes one slot. The schema supports
+Prep-1..Prep-6, but those names are not a capacity allowance: with the root,
+work lead, and process agent reserved on this host, Prep can have at most
+three explorers when there are no implementation workers. The normal A/B
+allocation leaves one explorer. Never spawn a lane without a slot grant.
+Give each lane one C-behavior investigation
 at a time, with a stopping condition. Keep concurrent lanes on different
 source behaviors or caller paths. Reassign a finished lane without waiting
 for the others. Lanes do not spawn further agents or implement game fixes.
-These are additional Prep agents; A, B and C remain implementation workers.
+Explorers and implementation workers share capacity; one does not imply a
+separate permanent team for the other.
 Spawn `prep-explorer`, or explicitly select `gpt-6-luna` with `high` reasoning
 and this procedure when the new role is not loaded yet.
 Start with fresh child context containing its plan and instruction references;
@@ -119,8 +129,11 @@ for the next accepted base. Run one command at a time per lane; lanes run
 independently without a shared command cap. Before launch, record
 `recording: true` in the lane's `prep-probe` event. Retain the process handle
 until the command exits, then record `recording: false`.
-Keep C commands in the lanes rather than launching extra recordings from
-the lead worktree.
+When explorers are allocated, keep C commands in their private worktrees
+rather than launching extra recordings from the lead worktree. If no explorer
+slot is granted, the lead performs probes serially in its own private recorder
+installation and retains the same mission, comparison, replay, and evidence
+requirements; do not wait indefinitely for an explorer or exceed the pool.
 
 Each lane creates its recipe, records the reached C behavior, compares it
 with JavaScript, and returns the result. For a distinct failure, independently
@@ -134,6 +147,9 @@ source target and outcome; `worker-state.mjs --help` describes the fields.
 The lead starts a probe; its lane or the lead records subsequent observations.
 Report to the Prep lead, not Main. Keep commands and artifacts in the private
 worktree; return their paths and hashes. A lane never submits a Main delivery.
+When a slot is being reclaimed, finish the current command and probe (or save
+an explicit deferred handoff), return the evidence, and yield before starting
+another probe. The lead reports release to Main before a replacement is started.
 
 The lead deduplicates returned causes and assembles one immutable batch
 delivery. Recheck ambiguous evidence; do not repeat every investigation.

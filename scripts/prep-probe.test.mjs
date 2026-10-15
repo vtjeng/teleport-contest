@@ -20,8 +20,8 @@ function fixture() {
     ledger = recordEvent(ledger, {id: `event-${++sequence}`, ...event}, at(minute));
     return summarizeLedger(ledger);
   };
-  // The existing four workers remain registered: Prep lanes are additional,
-  // not replacement implementation workers or additional Main submissions.
+  // Preserve the ledger's historical role capacity independently of the host
+  // thread budget. This fixture launches no agents; probes are not Main deliveries.
   for (const worker of ['A', 'B', 'C', 'Prep']) send({type: 'register', worker,
     worktree: `${ROOT}/${worker}`, branch: `worker/${worker}`, base: BASE, handle: `private-${worker}`}, 0);
   send({type: 'assign', task: 'Prep47', worker: 'Prep', kind: 'challenge-preparation',
@@ -38,7 +38,7 @@ function fixture() {
 
 test('six Prep lanes coexist with A/B/C and produce only one Main delivery', () => {
   const f = fixture();
-  for (let n = 1; n <= 6; n++) f.send(f.probe(n)); // Approved lane cap, not a throughput claim.
+  for (let n = 1; n <= 6; n++) f.send(f.probe(n)); // Schema coverage, not a live allocation.
   assert.equal(Object.keys(f.state().workers).length, 4);
   assert.equal(Object.keys(f.state().probes).length, 6);
   assert.equal(Object.keys(f.state().tasks).length, 1);
@@ -54,7 +54,7 @@ test('six Prep lanes coexist with A/B/C and produce only one Main delivery', () 
 
 test('all six Prep lanes can run commands independently while preserving process ownership', () => {
   const f = fixture();
-  // Six is the configured exploration-lane count, not a shared command cap.
+  // Six is the schema's probe-role limit, not a granted live thread allocation.
   for (let n = 1; n <= 6; n++) f.send(f.probe(n, {recording: true, processes: [`session-${n}`]}));
   assert.equal(Object.values(f.state().probes).filter(row => row.recording).length, 6);
   assert.throws(() => f.send(f.probe(1, {processes: ['session-1']})), /retain its handle/u);
@@ -106,6 +106,43 @@ test('dashboard exposes separate Prep histories, blocks and outcomes without pri
   assert.equal(lanes.total, 8 * 60000); // Two distinct workers, each observed for four minutes.
   assert.equal(lanes.work, 6 * 60000); assert.equal(lanes.blocked, 2 * 60000);
   assert.equal(lanes.utilization, 0.75);
+});
+
+test('a shared thread moves from parked implementation to Prep and back without double-counting dashboard time', () => {
+  const f = fixture();
+  f.send({type: 'assign', task: 'A-fix', worker: 'A', kind: 'implementation', goal: 'fixture-port',
+    seed: 'independent-case', base: BASE, reservations: ['source:fixture.c:fix'],
+    allowedPaths: ['js/fixture.js']}, 0);
+  f.send({type: 'park', task: 'A-fix', reason: 'Handoff saved; prioritizing batch preparation.'}, 2);
+  f.send({type: 'turn', worker: 'A', state: 'idle', reason: null, processes: [],
+    summary: 'Slot reassigned to Prep exploration.'}, 2);
+  f.send({type: 'observe', worker: 'A', handle: null, processes: []}, 3);
+  // Preserve A's worktree and history; only the thread moves to a probe worktree.
+  f.send(f.probe(1, {handle: 'private-A'}), 3);
+  f.send(f.probe(1, {handle: 'private-A', state: 'done', outcome: 'failure',
+    summary: 'Evidence returned before resuming implementation.'}), 5);
+  f.send({type: 'observe', worker: 'A', handle: 'private-A', processes: []}, 5);
+  f.send({type: 'resume', task: 'A-fix'}, 5);
+  const state = f.state();
+  assert.equal(state.tasks['A-fix'].worker, 'A');
+  assert.equal(state.probes['v83-probe-1'].outcome, 'failure');
+  assert.equal(state.workers.A.worktree, `${ROOT}/A`);
+
+  const activity = activityFromLedger(f.ledger());
+  assert.doesNotMatch(JSON.stringify(activity), /private-|worktree|processes|branch/u);
+  const timeline = activityTimeline(activity, at(7));
+  assert.ok(timeline.segments.some(row => row.lane === 'A' && row.phase === 'parked'
+    && row.start === at(2) && row.end === at(3))); // Role occupancy ends at release.
+  assert.ok(activity.events.some(row => row.type === 'park' && row.task === 'A-fix' && row.at === at(2)));
+  assert.ok(activity.events.some(row => row.type === 'resume' && row.task === 'A-fix' && row.at === at(5)));
+  const aStages = timeline.stages.filter(row => row.lane === 'A');
+  assert.ok(aStages.some(row => row.phase === 'working' && row.start === at(5)));
+  assert.ok(aStages.every(row => row.end <= at(3) || row.start >= at(5)));
+  assert.ok(timeline.stages.some(row => row.lane === 'Prep-1'
+    && row.start === at(3) && row.end === at(5)));
+  const utilization = activityUtilization(timeline.stages, Date.parse(at(0)), Date.parse(at(7)));
+  assert.equal(utilization.find(row => row.role === 'A/B/C').total, 5 * 60000);
+  assert.equal(utilization.find(row => row.role === 'Prep lanes').total, 2 * 60000);
 });
 
 test('actual CLI allows the Prep lead and assigned lane but rejects sibling worktrees and fake ownership', t => {

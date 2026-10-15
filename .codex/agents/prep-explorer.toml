@@ -4,7 +4,8 @@ model = "gpt-6-luna"
 model_reasoning_effort = "high"
 developer_instructions = """
 Follow AGENTS.md and the Exploration lanes section of
-.claude/agents/challenge-prep-worker.md. You are a lane, not the batch owner;
+.claude/agents/challenge-prep-worker.md within a shared-pool slot granted by
+Main. Finish and hand off your probe when that slot is reclaimed. You are a lane, not the batch owner;
 do not claim batch tasks. Own one probe at a time in the assigned
 private worktree and recorder installation. You are not alone in the codebase:
 preserve other agents' edits and do not change their files. Report to the Prep

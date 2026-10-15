@@ -118,9 +118,11 @@ Whole-source completion and caller evidence remain required for every port.
 
 ## Generating the next synthetic batch
 
-The dedicated Prep worker prepares new batches while implementation workers
-repair current mismatches. Keep Prep working continuously on one batch at a
-time. After submission, claim the next unused version without waiting for
+An allocated Prep lead prepares new batches while implementation workers
+repair current mismatches. Prep and its explorers share the execution pool
+with implementation workers under `.agents/loop.md`, "Shared agent pool".
+While allocated, keep Prep working on one batch at a time. After submission,
+unless Main has requested a pool handoff, claim the next unused version without waiting for
 acceptance, admission, or a queue threshold. Handle requested corrections and
 resume a parked batch before starting a later version. Submitted batches may
 wait for Main; `worker-state next` keeps them visible. Acceptance does not
@@ -271,7 +273,8 @@ empty fixed queue must not hide pending synthetic investigations.
 
 ## Seed continuation
 
-After a delivery, the persistent worker selects its next source-traced goal
+After a delivery, while still allocated and with no requested pool handoff,
+the persistent worker selects its next source-traced goal
 under the standing permission in `.agents/loop.md`. Prefer continuing the same
 seed when a focused replay of its immutable worker base identifies the next
 goal. If that scope is blocked or overlaps another worker, select another

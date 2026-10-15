@@ -77,11 +77,18 @@ selection or closure. Existing spans and slices remain historical records. A
 **challenge preparation task** creates the next batch's C recipes and
 recordings without admitting or scoring it.
 
-The loop uses one main orchestrator and up to four persistent workers, each
-in its own Git worktree. A, B, and C implement source tasks; the dedicated
-Prep worker prepares future challenge batches.
-Prep may manage nested exploration lanes under its worker instructions;
-these do not own implementation tasks or submit directly to Main.
+The conversation coordinator delegates the implementation loop to one work
+lead, which occupies the dashboard's Main role. A sibling process agent
+investigates process changes and reports proposals to the conversation
+coordinator; only the work lead integrates approved changes at safe boundaries.
+The host allows seven total agents across all nesting levels. Reserve those
+three coordination roles and share the remaining four slots between
+implementation workers, a Prep lead, Prep explorers, and temporary helpers.
+These are allocations from one pool, not separate quotas. Each editing role
+uses its own Git worktree. A/B/C identify implementation roles; Prep owns a
+batch only while allocated, and its explorers do not submit directly to Main.
+Reallocate slots at task boundaries under `.agents/loop.md`, "Shared agent
+pool"; do not start a permanent team for every role.
 Workers notify the orchestrator when a task is ready to merge; only the
 orchestrator integrates, runs combined validation, admits batches, and
 publishes. Implementation workers own a selected session's investigation through
