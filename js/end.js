@@ -176,6 +176,7 @@ import {
     enlightenment,
     list_genocided,
     list_vanquished,
+    count_achievements,
     record_achievement,
     show_conduct,
 } from './insight.js';
@@ -975,13 +976,15 @@ async function disclose(how, taken, state) {
     }
     if (!disclosureStopprint(state)) {
         const { ask, defquery } = should_query_disclose_option('c', state);
-        const c = ask ? await yn_function(
-            'Do you want to see your conduct?',
-            'ynq',
-            defquery,
-            true,
-            state,
-        ) : defquery;
+        let c;
+        if (ask) {
+            const acnt = count_achievements(state);
+            const query = `Do you want to see your conduct${acnt > 0
+                ? ' and achievements' : ''}?`;
+            c = await yn_function(query, 'ynq', defquery, true, state);
+        } else {
+            c = defquery;
+        }
         if (c === KEY_Y) {
             await show_conduct(
                 how >= PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD,

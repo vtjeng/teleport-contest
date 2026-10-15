@@ -186,6 +186,22 @@ test('source finalizer keeps the stopprint tail after top-ten output', () => {
     );
 });
 
+test('disclose appends the achievement suffix from the source count', () => {
+    const cStart = END_C.indexOf('disclose(int how, boolean taken)');
+    const cEnd = END_C.indexOf('/* try to get the player back', cStart);
+    const cDisclose = END_C.slice(cStart, cEnd);
+    assert.match(cDisclose,
+        /if \(should_query_disclose_option\('c', &defquery\)\) \{\s*int acnt = count_achievements\(\);[\s\S]*?\(acnt > 0\) \? " and achievements" : ""/u);
+
+    const jsStart = END_JS.indexOf('async function disclose(');
+    const jsEnd = END_JS.indexOf('async function finishInUseInventory', jsStart);
+    const jsDisclose = END_JS.slice(jsStart, jsEnd);
+    assert.match(END_JS,
+        /count_achievements,\s*[\s\S]*?from '\.\/insight\.js';/u);
+    assert.match(jsDisclose,
+        /const acnt = count_achievements\(state\);\s*const query = `Do you want to see your conduct\$\{acnt > 0\s*\? ' and achievements' : ''\}\?`;\s*c = await yn_function\(query,/u);
+});
+
 test('disclose chooses alive versus dead enlightenment at the C panic boundary',() => {
     const source=END_C.slice(END_C.indexOf('disclose(int how, boolean taken)'),END_C.indexOf('/* called twice',END_C.indexOf('disclose(int how, boolean taken)')));
     assert.match(source,/how >= PANICKED\) \? ENL_GAMEOVERALIVE\s*: ENL_GAMEOVERDEAD/u);
