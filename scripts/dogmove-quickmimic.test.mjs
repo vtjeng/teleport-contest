@@ -54,6 +54,7 @@ import {
     PM_STALKER,
     PM_WRAITH,
     monst_globals_init,
+    reset_mvitals,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
@@ -663,29 +664,67 @@ test('m_consume_obj heals a non-pet by the consumed object weight',
         assert.equal(state.level.objects[5][5], null);
     });
 
-// m_consume_obj still rejects corpse effects that are not ported.  PM_WRAITH
-// triggers the mlevelgain branch and PM_NURSE triggers mhealup; the stalker
-// branch is covered below because mon_givit now handles it.
+// m_consume_obj rejects corpse effects that are not ported. PM_NURSE still
+// reaches mhealup; the wraith growth branch is covered immediately below.
 test('m_consume_obj rejects corpses with unported effect branches',
     async () => {
-        const cases = [
-            // Wraith corpse: mlevelgain branch (grow_up).
-            ['wraith corpse', PM_WRAITH, /non-wraith/u],
-            // Nurse corpse: mhealup branch (full heal).
-            ['nurse corpse', PM_NURSE, /non-nurse/u],
-        ];
-        for (const [name, corpsenm, reason] of cases) {
+        const { monster, state } = quickState(false);
+        const corpse = floorMimicCorpse(state, PM_NURSE);
+        await assert.rejects(
+            m_consume_obj(monster, corpse, {
+                ...eatingEnv(state),
+                quickMimic: async () => assert.fail('nurse corpse'),
+            }),
+            /non-nurse/u,
+        );
+        assert.equal(state.level.objects[5][5], corpse,
+            'unported nurse effect remains guarded before consumption');
+    });
+
+test('m_consume_obj grows wraith-corpse eaters after deleting the corpse',
+    async () => {
+        for (const { name, tame, atPetCap, expectedGain } of [
+            // A pet below the +15 form cap gets the source no-victim gain.
+            { name: 'pet below cap', tame: 10, atPetCap: false,
+                expectedGain: true },
+            // C skips growth at the pet cap but still consumes the corpse.
+            { name: 'pet at cap', tame: 10, atPetCap: true,
+                expectedGain: false },
+            // C allows an untamed eater to grow regardless of its level.
+            { name: 'untamed eater', tame: 0, atPetCap: true,
+                expectedGain: true },
+        ]) {
             const { monster, state } = quickState(false);
-            const corpse = floorMimicCorpse(state, corpsenm);
-            await assert.rejects(
-                m_consume_obj(monster, corpse, {
-                    ...eatingEnv(state),
-                    quickMimic: async () => assert.fail(name),
-                }),
-                reason,
-                name,
-            );
-            assert.equal(state.level.objects[5][5], corpse, name);
+            reset_mvitals(state);
+            monster.mtame = tame;
+            monster.m_lev = atPetCap
+                ? monster.data.mlevel + 15 : monster.data.mlevel;
+            monster.mhp = 8;
+            monster.mhpmax = 8;
+            const initialLevel = monster.m_lev;
+            const initialMaxHp = monster.mhpmax;
+            const initialHp = monster.mhp;
+            const corpse = floorMimicCorpse(state, PM_WRAITH);
+            const growthRolls = [];
+            const env = eatingEnv(state);
+            env.random.rnd = (bound) => {
+                growthRolls.push(bound);
+                assert.equal(corpse.where, OBJ_DELETED,
+                    `${name}: C deletes the corpse before grow_up`);
+                return 3; // Source rnd(8) grants three maximum and current HP.
+            };
+
+            await m_consume_obj(monster, corpse, env);
+
+            assert.equal(corpse.where, OBJ_DELETED, `${name}: corpse consumed`);
+            assert.deepEqual(growthRolls, expectedGain ? [8] : [],
+                `${name}: C mlevelgain and pet-level guard`);
+            assert.equal(monster.m_lev,
+                initialLevel + Number(expectedGain), `${name}: level`);
+            assert.equal(monster.mhpmax,
+                initialMaxHp + (expectedGain ? 3 : 0), `${name}: maximum HP`);
+            assert.equal(monster.mhp,
+                initialHp + (expectedGain ? 3 : 0), `${name}: current HP`);
         }
     });
 
