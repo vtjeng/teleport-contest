@@ -448,10 +448,10 @@ try {
   ];
   await loadData({...originalData, activity: activityTimeline({events: prepEvents}, at(6))});
   assert.match(await page.locator('#activityMetrics').innerText(), /A\/B\/C[\s\S]*Prep lead[\s\S]*Prep lanes[\s\S]*Main/u);
-  assert.match(await page.locator('#prepProbeSummary').innerText(), /1 blocked[\s\S]*1 failure[\s\S]*1 match kept outside manifests/u);
+  assert.equal(await page.locator('#prepProbeSummary').count(), 0);
   const laneLabels = await page.locator('.activity-label').allTextContents();
   assert.equal(laneLabels.length, 11, 'A/B/C, lead, six explorers and Main remain separate agents');
-  for (let n = 1; n <= 6; n++) assert.ok(laneLabels.includes('Prep-' + n));
+  for (let n = 1; n <= 6; n++) assert.ok(laneLabels.includes('P' + n));
   const probeBar = page.locator('.activity-bar[aria-label*="v83-probe-1"]').first();
   await probeBar.scrollIntoViewIfNeeded();
   const prepFrame = await plot.boundingBox(), prepScroll = await page.evaluate(() => scrollY);

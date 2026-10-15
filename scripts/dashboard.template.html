@@ -976,7 +976,6 @@ canvas {
     <div id="activityMetrics" aria-label="Recorded worker utilization in the visible time window"></div>
 
     <details class="activity-help"><summary>Stage key and definitions</summary><div class="legend" id="timelineLegend"></div><p>Bars show elapsed stages, including waits. Work means assigned time, not CPU use. Unknown time is unrecorded, not idle. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
-    <p class="activity-note" id="prepProbeSummary" hidden></p>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <canvas id="activityMinimap" tabindex="0" aria-label="Main activity across the full history. Drag the range or its edges; plus and minus zoom, arrow keys pan, Home and End jump to the earliest and latest dates."></canvas>
     <div class="activity-details">
@@ -1810,9 +1809,9 @@ document.getElementById('stats').innerHTML = [
   const a2Start = Math.min(...segments.filter(row => row.lane === 'A2').map(row => Date.parse(row.start)));
   const hasPrepLanes = segments.some(row => /^Prep-[1-6]$/u.test(row.lane));
   const displayLane = lane => lane === 'A2' && aEnd <= a2Start ? 'A'
-    : hasPrepLanes && lane === 'Prep' ? 'Prep lead' : lane;
-  const lanes = [...new Set(history.map(segment => displayLane(segment.lane))
-    .filter(lane => lane !== 'Main'))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+    : hasPrepLanes && lane === 'Prep' ? 'Prep lead' : lane.replace(/^Prep-([1-6])$/u, 'P$1');
+  const lanes = [...new Set(history.map(segment => segment.lane).filter(lane => lane !== 'Main')
+    .sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(displayLane))];
   lanes.push('Main');
   const minSpan = Math.min(20 * 60000, latest - first || hourMs);
   const domainEnd = Math.max(latest, first + minSpan);
@@ -2050,22 +2049,6 @@ document.getElementById('stats').innerHTML = [
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
       .sort((a, b) => duration(b.segment) - duration(a.segment));
     const blocks = waits.filter(({ segment }) => isBlock(segment));
-    const probes = (activity.tasks || []).filter(task => task.kind === 'challenge-probe'
-      && history.some(row => row.task === task.id && Date.parse(row.end) > start && Date.parse(row.start) < viewEnd));
-    const probeSummary = document.getElementById('prepProbeSummary');
-    probeSummary.hidden = probes.length === 0;
-    const counts = new Map();
-    for (const probe of probes) {
-      const last = history.filter(row => row.task === probe.id && Date.parse(row.start) < viewEnd).at(-1);
-      const state = Date.parse(probe.completedAt) <= viewEnd ? probe.outcome
-        : last?.phase === 'blocked' ? 'blocked' : last?.phase === 'idle' ? 'idle' : 'active';
-      counts.set(state, (counts.get(state) || 0) + 1);
-    }
-    const labels = {active: ['active', 'active'], blocked: ['blocked', 'blocked'], idle: ['idle', 'idle'],
-      failure: ['failure', 'failures'], match: ['match kept outside manifests', 'matches kept outside manifests'],
-      duplicate: ['duplicate', 'duplicates'], deferred: ['deferred', 'deferred']};
-    probeSummary.textContent = 'Prep probes in this window: ' + Object.entries(labels)
-      .filter(([key]) => counts.has(key)).map(([key, label]) => counts.get(key) + ' ' + label[counts.get(key) === 1 ? 0 : 1]).join(' · ') + '.';
     utilization(start, viewEnd);
     drawDurations(start, viewEnd);
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
