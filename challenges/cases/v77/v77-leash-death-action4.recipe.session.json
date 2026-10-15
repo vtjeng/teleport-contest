@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:check_leash cursed breathing-pet lethal branch935-960. Prior v74 actual dog choke atdistance4 had nonlethal rnd2 and tameness; new target distance>5 guarantees xkilled regardless petHP. First C scout real tame kitten and room coordinates; then source legal leash attach/sleep and walk away on actual floor. No forced pet coordinates/state, no death claim before actual C chokes to death. Exact ANSI-expanded C map coordinates: hero41,19, kitten40,18 NW (not north); original action2 wrong-direction attach failed and straight sleep ray bounced onto hero. Correct real NW direction y: aay/zby, then6west through actual room/corridor. Preserve original failed selector/geometric probe, no JS feedback or source-state edits. C action3 correct leash/sleep succeeded, but goblin blocked first3west keys (miss/hit/kill), so only3 actual west moves occurred and pet remained close. Goblin nowdead; append4 west moves through recordedroom/leftcorridor to reach distance>5. This is an ordinary actual-state continuation, no teleport or forced coordinates.",
+  "segments": [
+    {
+      "seed": 77107108,
+      "datetime": "20980417121800",
+      "nethackrc": "OPTIONS=name:v77-leash-death-map-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017cursed leash\n                        \u0017uncursed wand of sleep\n                        #wizgenesis\ntame kitten\n                        #wizmap\n                        aay                        zby                        h                        h                        h                        h                        h                        h                        i                        h                        h                        h                        h                        i                        "
+    }
+  ]
+}

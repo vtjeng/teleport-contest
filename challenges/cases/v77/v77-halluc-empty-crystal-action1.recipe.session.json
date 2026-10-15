@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C detect.c:use_crystal_ball Hallucination with spe0: charged false skips cursed/int check and nomul -rnd2, funky haze; ordinary crystal class query never requested. Actual hallucination/uncharged ball needed; if C did not accept +0 no target proof. Existing v27 cancelled-ball implode and ordinary/cursed ball cases differ; no prior halluc uncharged source card or regression found.",
+  "segments": [
+    {
+      "seed": 77107102,
+      "datetime": "20980417101600",
+      "nethackrc": "OPTIONS=name:v77-halluc-empty-crystal-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u0017uncursed +0 crystal ball\n                        \u0017uncursed potion of hallucination\n                        qb                        aa                        i                        "
+    }
+  ]
+}

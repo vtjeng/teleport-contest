@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C dokick.c:kick_nondoor1017-1034 looted throne destroy->ROOM/rnd200gold. Wizard terrain wish legal looted prefix sets T_LOOTED, first actual map scout for ordinary adjacent kick location. Prior regression throne-fall-through-independent proves different later1/4 fall branch; no destroyed-throne/ornamental message raw prior claim found. No destruction proof from throne creation alone.",
+  "segments": [
+    {
+      "seed": 77107112,
+      "datetime": "20980417131900",
+      "nethackrc": "OPTIONS=name:v77-looted-throne-map-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017looted throne\n                        #wizmap\n                        "
+    }
+  ]
+}

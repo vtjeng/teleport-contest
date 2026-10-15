@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C spell.c:cursed_book case6 Antimagic shieldeff no exploding-rune damage, different source arm from v42 nonAntimagic explosive rune and spell regression Barbarian. Actual Wizard wears magic-resistance cloak; level7 cursed book random case must be observed. If C selects another case, preserve it as target miss, never call explosion reached. No seed search or forced selector state.",
+  "segments": [
+    {
+      "seed": 77107110,
+      "datetime": "20980417121800",
+      "nethackrc": "OPTIONS=name:v77-cursed-book-antimagic-action1,role:Wizard,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed cloak of magic resistance\n                        Wa                        \u0017cursed spellbook of finger of death\n                        rby                        i                        "
+    }
+  ]
+}

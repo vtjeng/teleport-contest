@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C polyself.c:dospinweb future portal/rust-trap source caller missions. First scout actual room/hero coordinates after legal spider polymorph; leave starting stairs onto actual room floor before wishing a trap. No trap or branch reachability claimed from map scout. Exact v24 pit-cover and v61 squeaky-board branches excluded before C. Actual C map hero24,7, room floor east25,7; step east off stairs, wish legal magic portal under hero and #monster. Source dospinweb MAGIC_PORTAL only makes webbing vanish/no turn, no portal traversal. No fixture/destination edit.",
+  "segments": [
+    {
+      "seed": 77107104,
+      "datetime": "20980417101600",
+      "nethackrc": "OPTIONS=name:v77-spider-web-map-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\ngiant spider\n                        #wizmap\n                        l                        \u0017magic portal\n                        #monster\n                        "
+    }
+  ]
+}

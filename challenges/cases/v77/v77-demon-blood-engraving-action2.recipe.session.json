@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C engrave.c:doengrave_ctx_init573-574 demon form selects ENGR_BLOOD; ordinary fingers write short nonspecial text then look. Marilith is humanoid demon with hands; actual transformation and blood inscription required. Prior stone-to-flesh engraving/blood flavor is zap caller, not source demon writing. Source plan before C/JS, no injected engraving or Elbereth. C first attempt reached demon scrawl More but unacknowledged More consumed solstice; later keys remained getlin. Correct one required space immediately after E- before text; same initial source-designed inscription, not JS feedback. Original raw C pair retained as setup miss.",
+  "segments": [
+    {
+      "seed": 77107103,
+      "datetime": "20980417101600",
+      "nethackrc": "OPTIONS=name:v77-demon-blood-engraving-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\nmarilith\n                        E- solstice\n                        :                        "
+    }
+  ]
+}

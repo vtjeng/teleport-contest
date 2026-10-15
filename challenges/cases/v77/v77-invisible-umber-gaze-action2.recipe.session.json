@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C polyself.c:dogaze Invis && !perceives target first visible-monster branch. Actual invisibility ring worn before umber-hulk form; energy24-level source state, actual non-see-invisible kobold adjacent. Gaze should not be noticed, no confusion/damage; prior v50 eye/Medusa interactions and v30 eyeless gate differ. Source plan before C/JS; preserve actual C conditions. C first ring Pa opened Which ring-finger [rl]; padding cancelled it, so C297 actual normal gaze confused kobold. Correct only ring UI Par to select right finger before polymorph; original target miss retained, no JS feedback.",
+  "segments": [
+    {
+      "seed": 77107107,
+      "datetime": "20980417121800",
+      "nethackrc": "OPTIONS=name:v77-invisible-umber-gaze-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed ring of invisibility\n                        Par                        #polyself\number hulk\n                        #wizgenesis\nhostile kobold\n                        #monster\n                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C polyself.c:dospinweb future portal/rust-trap source caller missions. First scout actual room/hero coordinates after legal spider polymorph; leave starting stairs onto actual room floor before wishing a trap. No trap or branch reachability claimed from map scout. Exact v24 pit-cover and v61 squeaky-board branches excluded before C.",
+  "segments": [
+    {
+      "seed": 77107104,
+      "datetime": "20980417101600",
+      "nethackrc": "OPTIONS=name:v77-spider-web-map-setup1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #polyself\ngiant spider\n                        #wizmap\n                        "
+    }
+  ]
+}

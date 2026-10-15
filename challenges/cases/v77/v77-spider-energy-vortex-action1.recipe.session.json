@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C polyself.c:dospinweb whirly AD_ELEC swallowed arm: web fries and swept away, unlike v51 animal engulfer expulsion. Actual shock resistance ring worn before spider polymorph, highHP24 supplies safe hero state; two forcedwaits let speed20 energyvortex attemptengulf. Require actual swallowed C message and webfries; ground web is target miss. No source-state edit or fixture injection.",
+  "segments": [
+    {
+      "seed": 77107111,
+      "datetime": "20980417131900",
+      "nethackrc": "OPTIONS=name:v77-spider-energy-vortex-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed ring of shock resistance\n                        Par                        #polyself\ngiant spider\n                        #wizgenesis\nhostile energy vortex\n                        m.                        m.                        #monster\n                        "
+    }
+  ]
+}

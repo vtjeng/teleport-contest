@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:mloot_container -> removed_from_icebox second material setup. Peaceful non-tame original cannot carry by mon.c:can_carry guard. Use hostile water nymph and actual jumping boots to leave its combat line before pickup. This scout only establishes actual spawn/map and equipment; no loot/removal claim. Actual scout C393 boots worn,hero3,7,nymph3,6. Physical jump to6,7 distance9, off-line from nymph at3,6; then whistle awakens and 20 bounded forced waits. Require actual pickup plus contents removal; no claim from scout.",
+  "segments": [
+    {
+      "seed": 77107114,
+      "datetime": "20980417142000",
+      "nethackrc": "OPTIONS=name:v77-nymph-icebox-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed empty unlocked ice box\n                        \u0017uncursed newt corpse\n                        \u0017uncursed tin whistle\n                        i                        da                        #loot\nsb                        \u0017uncursed jumping boots\n                        Wd                        #wizgenesis\nhostile water nymph\n                                                #wizmap\n                        #jump\n                        lll.                        ac                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C apply.c:use_royal_jelly splitit branch, freeinv temporary chunk then cancelled getobj -> unsplitobj restores stack. Source plan and static prior review before C/JS. Prior v16/v28/v31/v39/v49/v50 jelly cases apply to eggs; C57 dorub plain egg consumes jelly, no cancellation. Require actual quantity2before/after, target chooser and no eaten/consumed item. No special fixture state.",
+  "segments": [
+    {
+      "seed": 77107101,
+      "datetime": "20980417101600",
+      "nethackrc": "OPTIONS=name:v77-jelly-stack-cancel-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        \u00172 uncursed lumps of royal jelly\n                        \u0017uncursed apple\n                        aa\u001b                        i                        "
+    }
+  ]
+}

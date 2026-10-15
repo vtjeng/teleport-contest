@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C spell.c:cursed_book case6 Antimagic shield variation. First Wizard/cloak setup selectedcase1 threatened, no explosion. Source-supported materially different Barbarian/bodyarmor setup uses actual gray dragon scale mail Antimagic instead of cloak, with same independently chosen seed; real equipment/role change affects source state and startup/order. Require actual case6 shield; if another random arm, preserve and defer after these two setups, no seed/selector scan.",
+  "segments": [
+    {
+      "seed": 77107110,
+      "datetime": "20980417131900",
+      "nethackrc": "OPTIONS=name:v77-cursed-book-antimagic-variation2,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed gray dragon scale mail\n                        Wa                        \u0017cursed spellbook of finger of death\n                        rby                        i                        "
+    }
+  ]
+}

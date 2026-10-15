@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:mloot_container MUSE_BAG -> removed_from_icebox. Strong ordinary Barbarian prepares real empty unlocked icebox, one newtcorpse, tinwhistle for waking peaceful non-tame nymph. First actual inventory/weight scout; then source normal drop/stash/actor pickup. A101 regression tame nymph dropped box after failed rn2bag; peaceful non-tame avoids dog_invent while keeping intelligent item acquisition. No invented contents/monster inventory and no removal proof from setup. C actual inventory a icebox,bnewtcorpse,cwhistle. Dropa, ordinary #loot stash oneb, create peaceful water nymph (not tame) then use c to awaken and map real positions. Require put-in message and NPC actual pickup/removal later; no mloot claim from actor/scout.",
+  "segments": [
+    {
+      "seed": 77107114,
+      "datetime": "20980417142000",
+      "nethackrc": "OPTIONS=name:v77-nymph-icebox-setup1,role:Barbarian,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed empty unlocked ice box\n                        \u0017uncursed newt corpse\n                        \u0017uncursed tin whistle\n                        i                        da                        #loot\nsb                        #wizgenesis\npeaceful water nymph\n                        ac                        #wizmap\n                        "
+    }
+  ]
+}

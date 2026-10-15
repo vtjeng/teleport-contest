@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C muse.c:MUSE_BULLWHIP NPC disarm, opposite hero apply.c:use_whip. C makemon502 guarantees Balrog bullwhip/broadsword; weapon.c:select_hwep723 chooses whip when hero uwep exists. Real wielded uncursed iron longsword, legal wizard +50GDSM (objnam5097 no restriction except SPE_LIM) plus level24 protects ordinary combat during bounded14 waits. Require actual Balrog whipwield, flick/wrap/disarm messages/state. Do not infer from spawned inventory alone or count later repeated same caller twice.",
+  "segments": [
+    {
+      "seed": 77107113,
+      "datetime": "20980417142000",
+      "nethackrc": "OPTIONS=name:v77-balrog-whip-action1,role:Healer,race:human,gender:female,align:neutral,pauper,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "     #optionsfull\n:debug_hunger\n:debug_mongen\n\n                        #levelchange\n24\n                        \u0017uncursed long sword\n                        wa                        \u0017uncursed +50 gray dragon scale mail\n                        Wb                        #wizgenesis\nhostile balrog\n                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        m.                        i                        "
+    }
+  ]
+}
