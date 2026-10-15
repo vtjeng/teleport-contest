@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c:dighole by_magic LANDMINE/BEAR_TRAP -> cnv_trap_obj;source-designed C scout on room floor. Actual trap creation and buried-object conversion required.",
+  "segments": [
+    {
+      "seed": 98411001,
+      "datetime": "21121217112300",
+      "nethackrc": "OPTIONS=name:Ground84,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                #wizwish\nroom\n            #wizwish\nuncursed wand of digging (0:8)\n            #wizwish\nbear trap\n            za>                                "
+    }
+  ]
+}

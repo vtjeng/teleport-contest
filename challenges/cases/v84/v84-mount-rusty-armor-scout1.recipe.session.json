@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steed.c:mount_steed eroded metallic armor. C-only setup scout equips armor before choosing direction from this independently generated C pony position. No mount coverage claimed by equipment alone.",
+  "segments": [
+    {
+      "seed": 98412001,
+      "datetime": "21130119222700",
+      "nethackrc": "OPTIONS=name:Ride84,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,pauper,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                #wizwish\nuncursed very rusty plate mail\n                Wa                                "
+    }
+  ]
+}

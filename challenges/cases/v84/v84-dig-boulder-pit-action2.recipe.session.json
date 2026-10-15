@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c:dighole boulder+pit crush-spikes or filling branch. Normal non-rockthrower cannot carry wished boulder,so actual floor boulder is required before creating pit;do not infer from intent. C-only setup correction: initial room wish cannot overwrite stairs,so move l onto independently observed C ordinary floor before wishing terrain. Trap prefix trapped is required to request armed bear trap,not object. Original action1 and logs preserved;no JS comparison used.",
+  "segments": [
+    {
+      "seed": 98411013,
+      "datetime": "21121217112300",
+      "nethackrc": "OPTIONS=name:Ground84,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                l            #wizwish\nroom\n            #wizwish\nuncursed wand of digging (0:8)\n            #wizwish\nboulder\n            #wizwish\nspiked pit\n            za>                                "
+    }
+  ]
+}

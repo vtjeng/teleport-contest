@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steed.c:mount_steed non-at-will Levitation reach guard. C-only setup scout drinks potion;actual nearby saddled pony and levitation required before ordinary mount attempt.",
+  "segments": [
+    {
+      "seed": 98412013,
+      "datetime": "21130119222700",
+      "nethackrc": "OPTIONS=name:Ride84,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,pauper,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                #wizwish\nuncursed potion of levitation\n                qa                                "
+    }
+  ]
+}

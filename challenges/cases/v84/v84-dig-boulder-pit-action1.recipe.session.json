@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c:dighole boulder+pit crush-spikes or filling branch. Normal non-rockthrower cannot carry wished boulder,so actual floor boulder is required before creating pit;do not infer from intent.",
+  "segments": [
+    {
+      "seed": 98411013,
+      "datetime": "21121217112300",
+      "nethackrc": "OPTIONS=name:Ground84,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                #wizwish\nroom\n            #wizwish\nuncursed wand of digging (0:8)\n            #wizwish\nboulder\n            #wizwish\nspiked pit\n            za>                                "
+    }
+  ]
+}

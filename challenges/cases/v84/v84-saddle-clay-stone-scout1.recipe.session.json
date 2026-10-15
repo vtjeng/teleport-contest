@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "steed.c:use_saddle petrifying touch -> clay poly_when_stoned polymon(PM_STONE_GOLEM). C-only actor/orientation scout. Actual live adjacent cockatrice and clay body required before applying saddle.",
+  "segments": [
+    {
+      "seed": 98412027,
+      "datetime": "21130119222700",
+      "nethackrc": "OPTIONS=name:Ride84,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                #wizwish\nuncursed saddle\n                #polyself\nclay golem\n                                #wizgenesis\npeaceful cockatrice\n                "
+    }
+  ]
+}

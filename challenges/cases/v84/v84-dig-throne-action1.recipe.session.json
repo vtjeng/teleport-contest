@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c:dighole IS_THRONE too-hard guard. Independently chosen east step must actually leave stairs;retain any blocked movement setup miss.",
+  "segments": [
+    {
+      "seed": 98412063,
+      "datetime": "21130119222700",
+      "nethackrc": "OPTIONS=name:Ride84,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                l                #wizwish\nuncursed wand of digging (0:8)\n                #wizwish\nthrone\n                za>                                "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c:dighole actual existing pool slosh/wake_nearby branch differs B103 dry floor flooded from neighboring moat. Water-walking boots should be actually worn before pool terrain wish.",
+  "segments": [
+    {
+      "seed": 98411039,
+      "datetime": "21121217112300",
+      "nethackrc": "OPTIONS=name:Ground84,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pauper,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup,!debug_mongen,!safe_wait\n",
+      "moves": "    #levelchange\n30\n                                                                                                #wizwish\nroom\n            #wizwish\nuncursed wand of digging (0:8)\n            #wizwish\nuncursed water walking boots\n            Wb                #wizwish\npool\n                za>                                "
+    }
+  ]
+}
