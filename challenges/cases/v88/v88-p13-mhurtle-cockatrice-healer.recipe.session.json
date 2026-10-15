@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 880613,
+      "datetime": "20531128113700",
+      "nethackrc": "OPTIONS=name:HurtleHealer88,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\n1 peaceful cockatrice\n #wizmap\n #wiztelekinesis\n  l.h ",
+      "recorderIsDst": true
+    }
+  ]
+}
