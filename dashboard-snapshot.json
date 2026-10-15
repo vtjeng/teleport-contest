@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T00:39:21.182Z",
+  "capturedAt": "2026-10-15T00:58:13.383Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -129941,23 +129941,93 @@
         "type": "accepted",
         "at": "2026-10-15T00:38:08.512Z",
         "task": "A2-investigation-v75-prisoner-release-action3-20261014"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C-investigation-v75-contained-figurine-stash-action2-20261014-75c75cd29dc021fe275c74aa5955a4e30204bb58",
+        "type": "published",
+        "at": "2026-10-15T00:39:35.234Z",
+        "task": "C-investigation-v75-contained-figurine-stash-action2-20261014",
+        "commit": "75c75cd29dc021fe275c74aa5955a4e30204bb58"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publication-confirmed-A2-investigation-v75-prisoner-release-action3-20261014-75c75cd29dc021fe275c74aa5955a4e30204bb58",
+        "type": "publication-confirmed",
+        "at": "2026-10-15T00:39:39.239Z",
+        "task": "A2-investigation-v75-prisoner-release-action3-20261014",
+        "commit": "75c75cd29dc021fe275c74aa5955a4e30204bb58",
+        "knownBy": "2026-10-15T00:39:35.234Z"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-group-d058e4afd422670b9eb938a39d3e1a580ed6b5c4945c73bc0bd8909bf096236c-69ad46099d1d8706d31bf67ed3cc2db02725741c-Prep40",
+        "type": "integrating",
+        "at": "2026-10-15T00:41:05.247Z",
+        "task": "Prep40",
+        "integration": "69ad46099d1d8706d31bf67ed3cc2db02725741c",
+        "prepGroup": [
+          "Prep40"
+        ],
+        "validationGroup": [
+          "Prep40"
+        ]
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep40-checkpoint-waiting-69ad4609",
+        "type": "activity",
+        "at": "2026-10-15T00:41:46.543Z",
+        "task": "Prep40",
+        "phase": "waiting",
+        "reason": "The verified v76 batch is integrated; obtaining its exact-commit hosted checkpoint before acceptance and admission."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-validated-Prep40-69ad46099d1d8706d31bf67ed3cc2db02725741c",
+        "type": "validated",
+        "at": "2026-10-15T00:50:51.942Z",
+        "task": "Prep40",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "prep-accepted-Prep40-69ad46099d1d8706d31bf67ed3cc2db02725741c",
+        "type": "accepted",
+        "at": "2026-10-15T00:50:51.942Z",
+        "task": "Prep40"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "Prep40-admission-preparing-69ad4609",
+        "type": "activity",
+        "at": "2026-10-15T00:51:02.092Z",
+        "task": "Prep40",
+        "phase": "admission",
+        "reason": "Checkpoint passed; preparing the reviewed v76 manifest for hosted baseline."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-baseline-Prep40-890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+        "type": "activity",
+        "at": "2026-10-15T00:55:28.196Z",
+        "task": "Prep40",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "admission-done-Prep40-890cd18c3d67a0d04d57e12c1f48cffc045c877f",
+        "type": "activity",
+        "at": "2026-10-15T00:55:29.109Z",
+        "task": "Prep40",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
-      {
-        "task": "Prep40",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "ready",
-        "delivery": "9c4079ef12f0502713622413682927dced98f825",
-        "batch": "v76",
-        "since": "2026-10-15T00:28:35.087Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
       {
         "task": "B-investigation-v75-glib-self-stethoscope-action1-20261015",
         "worker": "B",
@@ -131187,8 +131257,8 @@
     }
   },
   "development": {
-    "executionCommit": "2130ac12f949da1411394fc6ecd71658f4d071d6",
-    "measuredAt": "2026-10-15T00:33:36.284Z",
+    "executionCommit": "69ad46099d1d8706d31bf67ed3cc2db02725741c",
+    "measuredAt": "2026-10-15T00:46:55.036Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
