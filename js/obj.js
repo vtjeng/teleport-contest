@@ -180,6 +180,7 @@ import {
 import {
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
+    obj_split_timers,
     obj_stop_timers,
     start_timer,
     start_corpse_timeout,
@@ -960,8 +961,7 @@ export function splitobj(obj, quantity, env = {}) {
     if (obj.timed) {
         if (typeof normalized.hooks.splitObjectTimers === 'function')
             normalized.hooks.splitObjectTimers(obj, child, normalized);
-        else if (normalized.state === game)
-            note_unported('timeout.c obj_split_timers');
+        else obj_split_timers(obj, child, normalized.state);
     }
     if (obj_sheds_light(obj))
         obj_split_light_source(obj, child, normalized.state);

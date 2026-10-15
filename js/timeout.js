@@ -2012,6 +2012,27 @@ export function start_timer(
     return true;
 }
 
+// C ref: timeout.c obj_split_timers() (2359-2371). Duplicate every object
+// timer on src onto dest with the same remaining time. Save next before
+// start_timer() inserts a new node into the shared timer queue.
+export function obj_split_timers(src, dest, state = game) {
+    timerGlobals(state);
+    let timer = state.gt.timer_base;
+    while (timer) {
+        const next = timer.next;
+        if (timer.kind === TIMER_OBJECT && timer.arg === src) {
+            start_timer(
+                timer.timeout - currentMove(state),
+                TIMER_OBJECT,
+                timer.func_index,
+                dest,
+                state,
+            );
+        }
+        timer = next;
+    }
+}
+
 // C ref: timeout.c spot_stop_timers(). Positional timer arguments use the
 // packed absolute map coordinate `(x << 16) | y`.
 export function spot_stop_timers(x, y, funcIndex, state = game) {

@@ -13,6 +13,8 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_LUAFREE,
+    ROT_CORPSE,
+    TIMER_OBJECT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { inv_weight, near_capacity } from '../js/hack.js';
@@ -46,6 +48,7 @@ import {
     weight,
 } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
+import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { hornoplenty } from '../js/mkobj_hornoplenty.js';
 import {
     APPLE,
@@ -741,13 +744,14 @@ test('splitobj rejects an uninitialized shared id before mutating the stack', ()
     stillNoDraws.done();
 });
 
-test('splitobj records missing timers but owns lit candle sources', () => {
+test('splitobj copies timers before cloning lit candle sources', () => {
     const initializeLiveGame = () => {
         resetGame();
         game.context = { ident: 10 };
         game.flags = {};
         game.moves = 0;
         game.u = { ulevel: 1 };
+        timeout_globals_init(game);
         objects_globals_init(game);
         light_globals_init(game);
         init_objects(game, () => 0);
@@ -759,8 +763,9 @@ test('splitobj records missing timers but owns lit candle sources', () => {
     const timerStack = plainObject(DART, timerState, {
         o_id: 9,
         quan: 2,
-        timed: 1,
+        timed: 0,
     });
+    start_timer(5, TIMER_OBJECT, ROT_CORPSE, timerStack, timerState);
     const timerRandom = scriptedRandom([
         { name: 'rnd', args: [2], result: 1 },
     ]);
@@ -774,7 +779,16 @@ test('splitobj records missing timers but owns lit candle sources', () => {
     assert.equal(timerStack.quan, 1);
     assert.equal(timerChild.quan, 1);
     assert.equal(timerStack.nobj, timerChild);
-    assert.equal(timerState.unported.has('timeout.c obj_split_timers'), true);
+    assert.equal(timerStack.timed, 1);
+    assert.equal(timerChild.timed, 1);
+    const timerOwners = [];
+    for (let timer = timerState.gt.timer_base; timer; timer = timer.next) {
+        if (timer.kind === TIMER_OBJECT && timer.func_index === ROT_CORPSE)
+            timerOwners.push(timer.arg);
+    }
+    assert.deepEqual(timerOwners, [timerChild, timerStack],
+        'splitobj inserts the child timer before the equal-expiry source timer');
+    assert.equal(timerState.unported.has('timeout.c obj_split_timers'), false);
     timerRandom.done();
 
     const lightState = initializeLiveGame();
