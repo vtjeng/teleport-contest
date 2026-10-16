@@ -14,20 +14,77 @@
   "status": "complete",
   "commit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
   "mismatch": {
-    "kind": "synthetic",
     "corpus": "synthetic",
+    "batch": "v90",
+    "caseId": "v90-p17-compass-trap-list",
+    "session": "synthetic/v90/v90-p17-compass-trap-list",
+    "manifestPath": "challenges/manifests/v90.json",
+    "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
+    "recording": "challenges/cases/v90/v90-p17-compass-trap-list.session.json",
+    "recordingPath": "challenges/cases/v90/v90-p17-compass-trap-list.session.json",
+    "recordingSha256": "c74cd5687248a4fd61c47f14688b9e06eb78eb3355045a0ee8647832555b1acc",
+    "recipe": "challenges/cases/v90/v90-p17-compass-trap-list.recipe.session.json",
+    "recipeSha256": "96d4322e751be28a591e0effc796a07107231f8bedb16440cfd4d8a8dfad516e",
+    "replayInputSha256": "a3c5b6c96ccaa859ca4554302ef7b4b5d72b8a3cea5e47b8a8a06fd3ab11bc29",
+    "evaluationPath": "challenges/evaluations/accepted-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-v90.json",
+    "evaluationCommit": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+    "evaluationArtifact": "challenges/evaluations/accepted-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-v90.json",
+    "evaluationUtc": "2026-10-16T03:19:31.408Z",
+    "remainingScreens": 23,
+    "recordedSteps": 39,
+    "previousScreensMatched": 16,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 39
+      },
+      "rng": {
+        "matched": 3680,
+        "total": 3680
+      },
+      "cursors": {
+        "matched": 37,
+        "total": 39
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 13,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 13,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 5,
+        "cCell": {
+          "ch": "(",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "step": 13,
+    "kind": "screen",
     "sourceFile": null,
+    "function": null,
+    "message": null,
     "cFile": null,
     "luaFile": null,
-    "sessions": [
-      "synthetic/v90/v90-p17-compass-trap-list"
-    ],
-    "remainingScreens": 23,
-    "remainingScreensUpperBound": null,
-    "earliestStep": 13,
-    "caseId": "v90-p17-compass-trap-list",
-    "batch": "v90",
-    "recordingPath": "challenges/cases/v90/v90-p17-compass-trap-list.session.json"
+    "line": null
   },
   "summary": "The first difference is automatic farlook text on compass-configured cursor input: C appends coord_desc and JavaScript omitted it. After the scoped auto_describe fix at 0a9a22aff5d9c936fd5154b151fee8005fbb4049, the same unchanged case proceeds to its documented downstream trap-list refusal at step 37 key t: the JS look_traps path rejects nondefault coordinates while pinned C formats them. Both branches are required for the full session to match; the trap-list behavior remains part of this case, not a separate first-cause candidate.",
   "source": {
