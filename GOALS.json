@@ -319326,7 +319326,7 @@
     {
       "id": "v90-p20-parameterized-keylist-row",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement keylist_putcmds from cmd.c",
       "cFile": "cmd.c",
       "sessions": [
@@ -319336,10 +319336,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "911c98f23c9a2eecf3591a7ee147f30615f821f3",
       "delivered": null,
       "function": "keylist_putcmds",
-      "session": "synthetic/v90/v90-p20-parameterized-keylist"
+      "session": "synthetic/v90/v90-p20-parameterized-keylist",
+      "closeStanding": {
+        "sha": "911c98f23c9a2eecf3591a7ee147f30615f821f3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "cd1b652563705fcc4ccc857453ca78474e9b7ce0",
+        "target": "synthetic/v90/v90-p20-parameterized-keylist",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/911c98f23c9a2eecf3591a7ee147f30615f821f3/run-hosted-93XSVo/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "keylist_putcmds",
+            "implementation": "js/cmd.js",
+            "symbol": "keylist_putcmds",
+            "sourceReview": "Read cmd.c:keylist_putcmds() in full (2802-2857), its helper keylist_func_has_key(), the dokeylist() caller and bind_key() parameter construction. In the relevant CMD_PARAM branch, docount increments and returns without output; display mode formats the row from the bound key, extcmd name/description, and Cmd_bind.param enclosed in quotes, calls putstr(), then marks the key used. This delivery changes the displayed parameter branch; it does not certify every dokeylist configuration branch.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "dokeylist",
+                "source": "C cmd.c:dohelp help-menu j selector calls dokeylist(); this production handler builds keyBindingLines(), whose keylist_putcmds() display pass writes the parameterized row."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/help-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p20-parameterized-keylist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 2,
+                "source": "help menu ? then selector j reaches cmd.c:dokeylist(), which calls keylist_putcmds() to render the custom CMD_PARAM binding row"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active TTY entry point is the help menu full keyboard bindings selection. dohelp() dispatches dokeylist(); keylist_putcmds() is reached while emitting general command rows. The admitted v90 case configures x:toggle(time), opens ?j, and compares the full pager and return path. No source branch was excluded by recorder configuration.",
+        "entryPoints": [
+          {
+            "name": "TTY help menu full keyboard bindings",
+            "functions": [
+              "keylist_putcmds"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p20-parameterized-keylist",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 2,
+                "source": "help menu ? then selector j reaches cmd.c:dokeylist(), which calls keylist_putcmds() to render the custom CMD_PARAM binding row"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T03:56:20.817Z",
+  "capturedAt": "2026-10-16T04:08:59.502Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -143815,51 +143815,280 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:56:34.219Z",
+        "id": "queue:07180de2-3d6a-456e-851e-b575470610b5",
+        "type": "assign",
+        "task": "v91-attached-ball-kick-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693-9476cad51aeb9f9a3446dd78f62eca54f1297746",
+        "type": "published",
+        "at": "2026-10-16T03:57:35.296Z",
+        "task": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "commit": "9476cad51aeb9f9a3446dd78f62eca54f1297746"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:58:20.643Z",
+        "id": "queue:15257452-943f-4f2a-a938-dc9b4b7f36b4",
+        "type": "queue-complete",
+        "task": "v91-object-name-truncate-clear-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:58:20.643Z",
+        "id": "queue:15257452-943f-4f2a-a938-dc9b4b7f36b4:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:59:11.118Z",
+        "id": "queue:573d9aa6-6ef3-4997-92e0-49387d3a1933",
+        "type": "assign",
+        "task": "support-mounted-steed-saddle-steal-feasibility-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:59:16.129Z",
+        "id": "queue:6d30e760-c072-415f-93b2-65e669f3e01e",
+        "type": "queue-complete",
+        "task": "support-nested-corpse-depth-source-feasibility-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:59:16.129Z",
+        "id": "queue:6d30e760-c072-415f-93b2-65e669f3e01e:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-911c98f23c9a2eecf3591a7ee147f30615f821f3-9b2475572d826d717aff0db9284a89cfb2aabd3d28cbd490ded915b138fafad4-delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "type": "integrating",
+        "at": "2026-10-16T03:59:27.466Z",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "integration": "911c98f23c9a2eecf3591a7ee147f30615f821f3",
+        "validationGroup": [
+          "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:00:29.914Z",
+        "id": "queue:7c3848f2-4eb3-44ff-8313-a2e0eaf85c93",
+        "type": "assign",
+        "task": "support-monster-earth-scroll-acquisition-feasibility-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:02:30.503Z",
+        "id": "queue:b4616a54-e3b1-4cf9-8079-e51d492022f7",
+        "type": "queue-complete",
+        "task": "support-mounted-steed-saddle-steal-feasibility-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:02:30.503Z",
+        "id": "queue:b4616a54-e3b1-4cf9-8079-e51d492022f7:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:02:35.219Z",
+        "id": "queue:106c0a11-b06a-4cb6-a5bf-bc9c21c54337",
+        "type": "assign",
+        "task": "v91-level-annotation-cancel-clear-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:02:44.351Z",
+        "id": "queue:75c4bb51-93f4-4de1-ac6a-bc60a8c66ccf",
+        "type": "queue-complete",
+        "task": "support-monster-earth-scroll-acquisition-feasibility-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:02:44.351Z",
+        "id": "queue:75c4bb51-93f4-4de1-ac6a-bc60a8c66ccf:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:02:54.751Z",
+        "id": "queue:ce5c87b0-875a-41e3-9330-5093bafad611",
+        "type": "assign",
+        "task": "v91-pet-partly-eaten-food-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:04:24.880Z",
+        "id": "queue:a3bb1be0-c5cb-4189-82d2-b1ce6bd479fb",
+        "type": "queue-complete",
+        "task": "v91-attached-ball-kick-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:04:24.880Z",
+        "id": "queue:a3bb1be0-c5cb-4189-82d2-b1ce6bd479fb:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:05:14.232Z",
+        "id": "queue:72bc9879-eb51-411c-a53e-653059b238fc",
+        "type": "assign",
+        "task": "v91-monster-partial-stack-capacity-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:07:15.945Z",
+        "id": "queue:f362a1b3-d7c1-4726-b148-face1dd9feaa",
+        "type": "queue-block",
+        "task": "v91-monster-partial-stack-capacity-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:07:15.945Z",
+        "id": "queue:f362a1b3-d7c1-4726-b148-face1dd9feaa:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:07:17.634Z",
+        "id": "queue:31def055-5fa0-4c33-9b01-1d1a5900d1fc",
+        "type": "queue-complete",
+        "task": "v91-level-annotation-cancel-clear-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:07:17.634Z",
+        "id": "queue:31def055-5fa0-4c33-9b01-1d1a5900d1fc:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:07:24.415Z",
+        "id": "queue:f36e2294-4a95-4510-ab29-09fcbec0cb81",
+        "type": "assign",
+        "task": "v91-unicorn-gem-identity-gift-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:07:29.963Z",
+        "id": "queue:6d00ce20-668a-478a-816f-33afc0793a83",
+        "type": "assign",
+        "task": "v91-greased-container-water-protection-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693-911c98f23c9a2eecf3591a7ee147f30615f821f3-validated",
+        "type": "validated",
+        "at": "2026-10-16T04:07:36.457Z",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693-911c98f23c9a2eecf3591a7ee147f30615f821f3-accepted",
+        "type": "accepted",
+        "at": "2026-10-16T04:08:04.297Z",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
-        "worker": "Worker-1",
-        "goal": "v90-p20-parameterized-keylist-row",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "1a2760dc867cbab8284a1ca181f533e242781292",
-        "since": "2026-10-16T03:49:51.477Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": []
   },
   "workerReservations": {
-    "tasks": {
-      "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693": {
-        "id": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
-        "worker": "Worker-1",
-        "status": "ready",
-        "seed": "synthetic/v90/v90-p20-parameterized-keylist",
-        "reservations": [
-          "session:synthetic/v90/v90-p20-parameterized-keylist",
-          "source:cmd.c:keylist_putcmds"
-        ]
-      }
-    },
-    "reservations": {
-      "session:synthetic/v90/v90-p20-parameterized-keylist": {
-        "tasks": [
-          "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693"
-        ]
-      },
-      "source:cmd.c:keylist_putcmds": {
-        "tasks": [
-          "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693"
-        ]
-      }
-    }
+    "tasks": {},
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
@@ -143867,46 +144096,57 @@
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [
-      "v91-attached-ball-kick-refusal-cfirst-20261016"
+      "v91-interrupted-tin-tool-switch-cfirst-20261016",
+      "v91-cursed-taming-disposition-cfirst-20261016",
+      "v91-hallucinated-touchstone-identification-cfirst-20261016",
+      "v91-confused-charging-hero-energy-cfirst-20261016"
     ],
     "blocked": [
       {
         "task": "v91-lit-lamp-save-restore-cfirst-20261016",
         "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "v91-monster-partial-stack-capacity-cfirst-20261016",
+        "reason": "Waiting for producer or dependencies."
       }
     ],
     "claimed": [
       {
-        "task": "v91-object-name-truncate-clear-cfirst-20261016",
+        "task": "v91-pet-partly-eaten-food-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "task": "v91-unicorn-gem-identity-gift-cfirst-20261016",
         "worker": "Worker-2"
       },
       {
-        "task": "support-nested-corpse-depth-source-feasibility-20261016",
-        "worker": "Worker-1"
+        "task": "v91-greased-container-water-protection-cfirst-20261016",
+        "worker": "Worker-3"
       }
     ],
     "counts": {
-      "ready": 1,
-      "claimed": 2,
-      "blocked": 1,
-      "completed": 36,
+      "ready": 4,
+      "claimed": 3,
+      "blocked": 2,
+      "completed": 42,
       "superseded": 0
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "support-nested-corpse-depth-source-feasibility-20261016",
+        "assignment": "v91-pet-partly-eaten-food-cfirst-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": "v91-object-name-truncate-clear-cfirst-20261016",
+        "assignment": "v91-unicorn-gem-identity-gift-cfirst-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "v91-greased-container-water-protection-cfirst-20261016",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -144483,7 +144723,7 @@
         "id": "v91-object-name-truncate-clear-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -144492,13 +144732,13 @@
         "target": null,
         "readyAt": "2026-10-16T03:52:37.132Z",
         "claimedAt": "2026-10-16T03:52:58.524Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T03:58:20.643Z"
       },
       {
         "id": "support-nested-corpse-depth-source-feasibility-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -144507,10 +144747,130 @@
         "target": null,
         "readyAt": "2026-10-16T03:54:54.468Z",
         "claimedAt": "2026-10-16T03:55:23.444Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T03:59:16.129Z"
       },
       {
         "id": "v91-attached-ball-kick-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T03:56:17.406Z",
+        "claimedAt": "2026-10-16T03:56:34.219Z",
+        "completedAt": "2026-10-16T04:04:24.880Z"
+      },
+      {
+        "id": "support-mounted-steed-saddle-steal-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T03:58:25.644Z",
+        "claimedAt": "2026-10-16T03:59:11.118Z",
+        "completedAt": "2026-10-16T04:02:30.503Z"
+      },
+      {
+        "id": "support-monster-earth-scroll-acquisition-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T04:00:12.362Z",
+        "claimedAt": "2026-10-16T04:00:29.914Z",
+        "completedAt": "2026-10-16T04:02:44.351Z"
+      },
+      {
+        "id": "v91-level-annotation-cancel-clear-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T04:01:24.286Z",
+        "claimedAt": "2026-10-16T04:02:35.219Z",
+        "completedAt": "2026-10-16T04:07:17.634Z"
+      },
+      {
+        "id": "v91-pet-partly-eaten-food-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T04:01:24.426Z",
+        "claimedAt": "2026-10-16T04:02:54.751Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-monster-partial-stack-capacity-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "blocked",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T04:01:24.627Z",
+        "claimedAt": "2026-10-16T04:05:14.232Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-unicorn-gem-identity-gift-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T04:03:24.337Z",
+        "claimedAt": "2026-10-16T04:07:24.415Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-greased-container-water-protection-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T04:03:24.464Z",
+        "claimedAt": "2026-10-16T04:07:29.963Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-interrupted-tin-tool-switch-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
         "status": "ready",
@@ -144520,15 +144880,60 @@
         "batch": "v91",
         "worker": null,
         "target": null,
-        "readyAt": "2026-10-16T03:56:17.406Z",
+        "readyAt": "2026-10-16T04:03:24.592Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v91-cursed-taming-disposition-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T04:06:48.145Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v91-hallucinated-touchstone-identification-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T04:06:48.275Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v91-confused-charging-hero-energy-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T04:06:48.396Z",
         "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "cd1b652563705fcc4ccc857453ca78474e9b7ce0",
-    "measuredAt": "2026-10-16T03:51:37.589Z",
+    "executionCommit": "911c98f23c9a2eecf3591a7ee147f30615f821f3",
+    "measuredAt": "2026-10-16T04:05:53.005Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
