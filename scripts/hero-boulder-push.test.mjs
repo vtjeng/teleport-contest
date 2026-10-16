@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BLINDED,
     CORR,
+    D_CLOSED,
     DEAF,
     DETECT_MONSTERS,
     DOOR,
@@ -29,6 +30,7 @@ import { BOULDER, CORPSE } from '../js/objects.js';
 import {
     M1_TUNNEL,
     PM_DEATH,
+    PM_PONY,
     PM_SEWER_RAT,
     PM_WIZARD_OF_YENDOR,
 } from '../js/monsters.js';
@@ -377,6 +379,71 @@ test('a boulder with an obstructed destination fails without moving',
                      'the failed push adds no random-number calls');
         assert.equal(boulder.next_boulder, 0,
                      'moverock_done clears temporary boulder naming');
+    });
+
+// hack.c cannot_push_msg():247-261 and moverock_core():633-634. A mounted
+// push into an obstructed square reports the steed before returning failure.
+test('a mounted boulder push failure names the steed', async () => {
+    const segment = failedDestinationRecipeSegment();
+    await runSegment({ ...segment, moves: FAILED_DESTINATION_APPROACH });
+    const sx = game.u.ux;
+    const sy = game.u.uy - 1;
+    const boulder = sobj_at(BOULDER, sx, sy, game);
+    assert.ok(boulder, 'the boulder stands north of the hero');
+    const originalSteed = game.u.usteed;
+    const steed = newMonster({ data: game.mons[PM_PONY], mnum: PM_PONY });
+    const messages = [];
+    game.u.usteed = steed;
+    game.u.dx = 0;
+    game.u.dy = -1;
+
+    try {
+        assert.equal(
+            await test_move(game.u.ux, game.u.uy, 0, -1, DO_MOVE, game, {
+                message: async text => messages.push(text),
+            }),
+            false,
+        );
+        assert.deepEqual(messages, [
+            'The pony tries to move the boulder, but cannot.',
+        ]);
+        assert.strictEqual(sobj_at(BOULDER, sx, sy, game), boulder);
+    } finally {
+        game.u.usteed = originalSteed;
+    }
+});
+
+test('a mounted push into a closed destination door names the steed',
+    async () => {
+        const segment = failedDestinationRecipeSegment();
+        await runSegment({ ...segment, moves: FAILED_DESTINATION_APPROACH });
+        const sx = game.u.ux;
+        const sy = game.u.uy - 1;
+        const boulder = sobj_at(BOULDER, sx, sy, game);
+        assert.ok(boulder, 'the boulder stands north of the hero');
+        const destination = game.level.at(sx, sy - 1);
+        destination.typ = DOOR;
+        destination.flags = destination.doormask = D_CLOSED;
+        const originalSteed = game.u.usteed;
+        game.u.usteed = newMonster({ data: game.mons[PM_PONY], mnum: PM_PONY });
+        const messages = [];
+        game.u.dx = 0;
+        game.u.dy = -1;
+
+        try {
+            assert.equal(
+                await test_move(game.u.ux, game.u.uy, 0, -1, DO_MOVE, game, {
+                    message: async text => messages.push(text),
+                }),
+                false,
+            );
+            assert.deepEqual(messages, [
+                'The pony tries to move the boulder, but cannot.',
+            ]);
+            assert.strictEqual(sobj_at(BOULDER, sx, sy, game), boulder);
+        } finally {
+            game.u.usteed = originalSteed;
+        }
     });
 
 // hack.c:434, `!IS_DOOR(levl[rx][ry].typ) || !(u.dx && u.dy)

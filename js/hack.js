@@ -1897,17 +1897,19 @@ function boulderVisionEnv(state) {
     };
 }
 
-// C ref: hack.c cannot_push_msg() (247-256). This helper remains partial for
-// mounted output; moverock_core records that void callee gap when needed.
+// C ref: hack.c cannot_push_msg() (247-261). A failed mounted push names the
+// steed; an unmounted push names the hero. Blindness also reveals the boulder.
 async function cannot_push_msg(otmp, sx, sy, state, env) {
     const what = the(xnameFresh(otmp, state), state);
-    if (state.u.usteed) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'mounted boulder push failure',
-        );
-    }
     const message = requiredMessageOperation(env, 'failed boulder push');
-    await message(`You try to move ${what}, but in vain.`, state);
+    if (state.u.usteed) {
+        await message(
+            `${upstart(y_monnam(state.u.usteed, state))} tries to move ${what}, but cannot.`,
+            state,
+        );
+    } else {
+        await message(`You try to move ${what}, but in vain.`, state);
+    }
     if (heroIsBlind(state)) feel_location(sx, sy, state);
 }
 
@@ -2441,8 +2443,7 @@ async function moverock_core(sx, sy, state, env) {
             || (IS_DOOR(destination.typ) && u.dx && u.dy
                 && !doorless_door(destination, state))
             || sobj_at(BOULDER, rx, ry, state)) {
-            if (u.usteed) note_unported('hack.c cannot_push_msg');
-            else await cannot_push_msg(otmp, sx, sy, state, effectEnv);
+            await cannot_push_msg(otmp, sx, sy, state, effectEnv);
             return await cannot_push(otmp, sx, sy, state, effectEnv);
         }
 
@@ -2516,8 +2517,7 @@ async function moverock_core(sx, sy, state, env) {
         // monster check, including the orthogonal case omitted by the
         // destination-shape conjunction above.
         if (closed_door(rx, ry, state)) {
-            if (u.usteed) note_unported('hack.c cannot_push_msg');
-            else await cannot_push_msg(otmp, sx, sy, state, effectEnv);
+            await cannot_push_msg(otmp, sx, sy, state, effectEnv);
             return await cannot_push(otmp, sx, sy, state, effectEnv);
         }
 
