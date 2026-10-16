@@ -84,6 +84,9 @@ async function fixture(t, scenario = 'success') {
     await writeFile(binary, `#!/usr/bin/env node
 import {appendFileSync, existsSync, writeFileSync, rmSync} from 'node:fs';
 const mode=${JSON.stringify(scenario)};
+// Keep the deliberate exit observable if the recorder terminates on the
+// observer frame before this process reaches its synchronous exit(7).
+if(mode==='crash-after-observer') process.on('SIGTERM',()=>{});
 const runfile=${JSON.stringify(path.join(dir, 'runs'))};
 const replay=existsSync(runfile); appendFileSync(runfile,'run\\n');
 let n=0;
@@ -166,6 +169,16 @@ for (const mode of ['unknown', 'crash', 'timeout', 'crash-after-observer', 'repl
             assert.equal(receipt.replay.physicalRuns, 1);
         }
         else assert.equal(receipt.replay.status, 'not-required');
+        if (mode === 'crash-after-observer') {
+            assert.equal(receipt.status, 'process-failure');
+            assert.equal(receipt.command.exitCode, 7);
+            assert.equal(receipt.command.signal, null);
+            assert.equal(receipt.observerSuccess, false);
+            assert.equal(receipt.replay.physicalRuns, 1);
+            const events = (await readFile(`${f.receipt}.jsonl`, 'utf8')).trim().split('\n').map(JSON.parse);
+            assert.equal(events.filter(e => e.kind === 'frame').length, 5);
+            assert.equal(events.filter(e => e.kind === 'decision').at(-1).stop, 'success');
+        }
         assert.match(await readFile(`${f.receipt}.jsonl`, 'utf8'), /command-outcome/u);
         if (mode === 'replay-mismatch') {
             const events = (await readFile(`${f.receipt}.jsonl`, 'utf8')).trim().split('\n').map(JSON.parse);
