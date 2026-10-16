@@ -155,3 +155,26 @@ or measured benefits from pending proposals.
   retention across branch changes, and nonzero blocked receipts. Hosted
   validation and first producer use remain pending; transport-rework reduction
   and overhead are unmeasured.
+
+## 2026-10-16 — opt-in source-specific recorder prompt completion
+
+- Change: Vincent explicitly approved implementing and validating PA's bounded
+  same-process prompt-handler proposal (`c1585d8d6`, strategy review section
+  "20:40 proposal"). Implementation `01ff7e5f2`, corrected by `4ce70ef6d`, adds
+  an opt-in recorder mode; default static recording is preserved. A frozen
+  source-bound table permits exact-frame More acknowledgments, proven-neutral
+  optional scroll-call cancellation and one positively recognized inventory
+  observer. Unknown or ambiguous boundaries stop with partial evidence.
+- Why: fixed suffixes in closed chwepon and bag-tip feasibility tasks reached
+  messages but lost their observers to pagers/name entry. Prefix re-recording
+  physically repeats the action; it cannot serve as live prompt completion.
+- Tradeoff: exact whole-screen/cursor predicates are deliberately conservative
+  and require source review. Practical authorability remains unmeasured. Full
+  frame/key receipts and the actual emitted input-only recipe are retained;
+  target-plus-observer success requires one unchanged static C replay within
+  the same total deadline. Capture and replay count as separate physical runs.
+- Limits/follow-up: fake-boundary tests cover the handler and process failures;
+  hosted validation is required before publication. No C game or old scout was
+  rerun for this change. First authorized producer use and capture improvement
+  are initially unmeasured. Closed budgets, JavaScript comparison gates and
+  admission rules remain unchanged; Unicode endpoint loss is separate.
