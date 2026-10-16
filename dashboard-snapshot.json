@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T05:24:27.297Z",
+  "capturedAt": "2026-10-16T05:36:30.794Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -145450,6 +145450,189 @@
         "batch": "v91",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:25:16.068Z",
+        "id": "queue:5a186738-e07f-433b-ada0-ed327128e03c",
+        "type": "queue-block",
+        "task": "v91-floor-hider-same-history-prompt-correction-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:25:16.068Z",
+        "id": "queue:5a186738-e07f-433b-ada0-ed327128e03c:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:25:23.824Z",
+        "id": "queue:0e747910-02ee-4051-b782-d5bbeab173c3",
+        "type": "assign",
+        "task": "v91-breath-cancel-same-history-prompt-correction-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:27:42.068Z",
+        "id": "queue:7541eba1-3f78-4b2f-bf02-72c650cc6481",
+        "type": "queue-complete",
+        "task": "v91-breath-cancel-same-history-prompt-correction-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:27:42.068Z",
+        "id": "queue:7541eba1-3f78-4b2f-bf02-72c650cc6481:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:27:58.882Z",
+        "id": "queue:1e9c6c1a-1f6c-414e-a744-53fc1fbf2594",
+        "type": "queue-complete",
+        "task": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:27:58.882Z",
+        "id": "queue:1e9c6c1a-1f6c-414e-a744-53fc1fbf2594:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:29:21.114Z",
+        "id": "queue:68de524f-cbb3-4b27-9c47-3b00b46ff662",
+        "type": "assign",
+        "task": "v91-crysknife-release-reversion-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:29:28.615Z",
+        "id": "queue:c768638e-a5f1-42e9-9d40-3565589901a5",
+        "type": "assign",
+        "task": "v91-worm-tooth-stack-enchant-fusion-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:29:36.070Z",
+        "id": "queue:da6974a2-32a3-476a-9535-05bdf76fc2cd",
+        "type": "queue-complete",
+        "task": "v91-underwater-dig-same-history-prompt-correction-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:29:36.070Z",
+        "id": "queue:da6974a2-32a3-476a-9535-05bdf76fc2cd:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:30:53.588Z",
+        "id": "queue:1a0dba36-1557-42d5-adb4-689e794f6a69",
+        "type": "assign",
+        "task": "support-recorder-compressor-build-prerequisites-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:33:25.036Z",
+        "id": "queue:abc282a2-3daf-496b-ae1f-152c74c63e11",
+        "type": "queue-complete",
+        "task": "v91-crysknife-release-reversion-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:33:25.036Z",
+        "id": "queue:abc282a2-3daf-496b-ae1f-152c74c63e11:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:33:32.284Z",
+        "id": "queue:7a4fc3aa-9964-4879-96fe-48081cdad29c",
+        "type": "queue-complete",
+        "task": "support-recorder-compressor-build-prerequisites-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:33:32.284Z",
+        "id": "queue:7a4fc3aa-9964-4879-96fe-48081cdad29c:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:35:00.644Z",
+        "id": "queue:54046277-3a98-44f3-9f65-bbdf6e9a3ec9",
+        "type": "assign",
+        "task": "support-four-sack-revival-source-feasibility-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:35:05.124Z",
+        "id": "queue:7140cc24-850d-4fdc-9ced-fb844227dab0",
+        "type": "assign",
+        "task": "support-unicorn-finite-boundary-source-diagnosis-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -145468,7 +145651,8 @@
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [
-      "v91-breath-cancel-same-history-prompt-correction-20261016"
+      "v91-nongloved-petrifying-saddle-contact-cfirst-20261016",
+      "v91-metallivore-eats-gold-stack-cfirst-20261016"
     ],
     "blocked": [
       {
@@ -145478,39 +145662,39 @@
     ],
     "claimed": [
       {
-        "task": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
-        "worker": "Worker-1"
-      },
-      {
-        "task": "v91-floor-hider-same-history-prompt-correction-20261016",
+        "task": "v91-worm-tooth-stack-enchant-fusion-cfirst-20261016",
         "worker": "Worker-3"
       },
       {
-        "task": "v91-underwater-dig-same-history-prompt-correction-20261016",
+        "task": "support-four-sack-revival-source-feasibility-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "task": "support-unicorn-finite-boundary-source-diagnosis-20261016",
         "worker": "Worker-2"
       }
     ],
     "counts": {
-      "ready": 1,
+      "ready": 2,
       "claimed": 3,
       "blocked": 1,
-      "completed": 76,
-      "superseded": 11
+      "completed": 81,
+      "superseded": 12
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
+        "assignment": "support-four-sack-revival-source-feasibility-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": "v91-underwater-dig-same-history-prompt-correction-20261016",
+        "assignment": "support-unicorn-finite-boundary-source-diagnosis-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": "v91-floor-hider-same-history-prompt-correction-20261016",
+        "assignment": "v91-worm-tooth-stack-enchant-fusion-cfirst-20261016",
         "state": "active"
       }
     ],
@@ -146853,7 +147037,7 @@
         "id": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146862,13 +147046,13 @@
         "target": null,
         "readyAt": "2026-10-16T05:19:18.354Z",
         "claimedAt": "2026-10-16T05:20:17.813Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T05:27:58.882Z"
       },
       {
         "id": "v91-floor-hider-same-history-prompt-correction-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146883,7 +147067,7 @@
         "id": "v91-underwater-dig-same-history-prompt-correction-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146892,10 +147076,100 @@
         "target": null,
         "readyAt": "2026-10-16T05:22:59.668Z",
         "claimedAt": "2026-10-16T05:23:41.632Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T05:29:36.070Z"
       },
       {
         "id": "v91-breath-cancel-same-history-prompt-correction-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T05:22:59.859Z",
+        "claimedAt": "2026-10-16T05:25:23.824Z",
+        "completedAt": "2026-10-16T05:27:42.068Z"
+      },
+      {
+        "id": "v91-crysknife-release-reversion-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T05:29:05.415Z",
+        "claimedAt": "2026-10-16T05:29:21.114Z",
+        "completedAt": "2026-10-16T05:33:25.036Z"
+      },
+      {
+        "id": "v91-worm-tooth-stack-enchant-fusion-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T05:29:05.603Z",
+        "claimedAt": "2026-10-16T05:29:28.615Z",
+        "completedAt": null
+      },
+      {
+        "id": "support-recorder-compressor-build-prerequisites-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T05:30:46.261Z",
+        "claimedAt": "2026-10-16T05:30:53.588Z",
+        "completedAt": "2026-10-16T05:33:32.284Z"
+      },
+      {
+        "id": "support-four-sack-revival-source-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T05:34:50.705Z",
+        "claimedAt": "2026-10-16T05:35:00.644Z",
+        "completedAt": null
+      },
+      {
+        "id": "support-unicorn-finite-boundary-source-diagnosis-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T05:34:51.256Z",
+        "claimedAt": "2026-10-16T05:35:05.124Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-nongloved-petrifying-saddle-contact-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
         "status": "ready",
@@ -146905,15 +147179,30 @@
         "batch": "v91",
         "worker": null,
         "target": null,
-        "readyAt": "2026-10-16T05:22:59.859Z",
+        "readyAt": "2026-10-16T05:35:36.464Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v91-metallivore-eats-gold-stack-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T05:35:36.662Z",
         "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "0330b5d647fa550bbefa1b21ca36652f7a2759fe",
-    "measuredAt": "2026-10-16T05:17:30.234Z",
+    "executionCommit": "8d297f97be701decf6f1d1236a1135987570e36d",
+    "measuredAt": "2026-10-16T05:34:46.717Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
