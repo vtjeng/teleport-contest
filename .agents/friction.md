@@ -1210,3 +1210,30 @@ triage decisions or fix references.
   publication pending. The first subsequent publication will check automatic
   Lint and Dashboard, absence of Score/Coverage push runs and pending-cache
   completion. No Checkpoint coverage is reduced; throughput remains unmeasured.
+
+### 2026-10-16 — runnable handoffs and blocked evidence retention
+
+- Final v90 publication `896c8764` was followed by queue refresh 1.748 seconds
+  later; four pending independent plans were reassessed and live claims were
+  unchanged. The saved publication timing records this interval. Earlier
+  observed publication-related stale intervals were 10.045 and 40.806 seconds.
+  This is one measured readiness transition, not a throughput comparison.
+- Six handoffs after the ready buffer was replenished at 04:02 UTC took 5, 10,
+  49, 7, 14 and 30 seconds. Earlier 133- and 190-second gaps began with no
+  runnable assignment. A later unicorn block at 04:17:00.970 was followed by
+  the next claim at 04:19:07.838, a 126.868-second gap despite four runnable
+  tasks and no intervening base change. Separate time awaiting eligible work
+  from time between eligibility and claim; these intervals do not measure CPU
+  use. Existing continuation and wakeup instructions cover the latter case.
+- Dull-blade result `90521656` froze a 174-byte verifier PASS message instead
+  of its promised 52-file evidence envelope. Linked correction `6c3a614b`
+  retained the original result and froze the existing 1,590,811-byte JSON
+  envelope without gameplay reruns. Queue completion checks required check
+  kinds and exits but does not validate the promised envelope contents.
+- Lamp save/restore retained a recorder-environment failure, and unicorn
+  gifting retained an incomplete final-pager comparison with an actual
+  nonzero exit and no attributed gameplay defect. Their queue-block packets
+  froze recovery metadata and pointers rather than full scratch evidence.
+  Work lead separately preserved both original envelopes read-only by hash;
+  neither is an accepted case. The [pending envelope proposal](proposals.md#freeze-declared-evidence-at-result-and-block-boundaries)
+  addresses this retention step without turning failed checks into passes.

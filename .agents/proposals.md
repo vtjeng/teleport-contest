@@ -190,3 +190,33 @@ before changing the response shape.
 
 **What it leaves unfixed.** Ownership, reservations, validation, and recovery
 still require their existing events and immutable delivery evidence.
+
+## Freeze declared evidence at result and block boundaries
+
+**What it changes.** Add an opt-in, versioned evidence attachment for new
+assignments that promise a self-contained envelope. At result or block,
+snapshot the named existing envelope separately from verifier status. Validate
+its task/base or explicit linked target, required file references, decoded
+byte counts and SHA-256 values before freezing the original bytes. Preserve
+actual nonzero command receipts and the existing completion and acceptance
+gates; retaining evidence must not certify an invalid case. Do not retrofit
+new requirements onto immutable historical packets.
+
+**What prompted it.** The [v90/v91 handoff and retention observations](friction.md#2026-10-16--runnable-handoffs-and-blocked-evidence-retention)
+include a 174-byte PASS-only result corrected to a 52-file envelope, and two
+blocked investigations whose full evidence needed separate preservation.
+`work-queue.mjs` currently copies arbitrary check log text for completion and
+freezes only recovery metadata for blocking. Hashing the outer packet cannot
+establish that the promised inner evidence is present.
+
+**Scope and cost.** One shared envelope reader/freezer, opt-in producer schema
+and CLI integration, and focused tests for missing or corrupt bytes,
+PASS-only output, linked evidence-only corrections, branch changes, and
+failure without a ledger/claim transition. Use existing files and receipts;
+do not rerun C or JavaScript to repair transport. Validation adds parsing,
+hashing and retained bytes. Measure transport-only rework frequency and
+packet size after a trial; benefit is currently unmeasured.
+
+**What it leaves unfixed.** Internal byte consistency does not prove source
+attribution, runtime reachability, comparison validity or historical ownership.
+Those reviews and all batch admission and candidate acceptance gates remain.
