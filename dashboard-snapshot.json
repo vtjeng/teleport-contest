@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T04:52:43.793Z",
+  "capturedAt": "2026-10-16T05:24:27.297Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -144985,6 +144985,471 @@
         "batch": "v91",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:53:13.351Z",
+        "id": "queue:071683a2-5eb2-44b1-9e4e-fe25688f4d5a",
+        "type": "queue-block",
+        "task": "v91-lit-oil-quaff-fire-loving-form-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:53:13.351Z",
+        "id": "queue:071683a2-5eb2-44b1-9e4e-fe25688f4d5a:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:53:19.370Z",
+        "id": "queue:9306e353-d7fb-4422-a029-6c6f44f2113d",
+        "type": "assign",
+        "task": "v91-long-object-name-bounded-action-query-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:55:28.213Z",
+        "id": "queue:10af070e-5887-425b-8fb5-b5ca5ad480ce",
+        "type": "queue-complete",
+        "task": "v91-see-invisible-timed-blindness-cure-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:55:28.213Z",
+        "id": "queue:10af070e-5887-425b-8fb5-b5ca5ad480ce:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:55:37.141Z",
+        "id": "queue:f2383b6e-6747-4a33-9945-9a74b3a34f24",
+        "type": "assign",
+        "task": "v91-wish-glob-count-weight-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:56:30.955Z",
+        "id": "queue:98ebac54-b345-4d15-a59f-580e9b642783",
+        "type": "queue-complete",
+        "task": "v91-blind-object-type-call-dknown-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:56:30.955Z",
+        "id": "queue:98ebac54-b345-4d15-a59f-580e9b642783:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:56:41.224Z",
+        "id": "queue:a884b492-0d80-4131-bc29-74d42888d2d7",
+        "type": "assign",
+        "task": "v91-nurse-tin-consumption-healing-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:58:05.593Z",
+        "id": "queue:1af8a4d1-3bde-48c1-a8d8-605f5d2c40ca",
+        "type": "queue-complete",
+        "task": "v91-wish-glob-count-weight-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:58:05.593Z",
+        "id": "queue:1af8a4d1-3bde-48c1-a8d8-605f5d2c40ca:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T04:58:09.058Z",
+        "id": "queue:d809556f-d88f-4d27-a63b-c280a0ed58df",
+        "type": "assign",
+        "task": "v91-swallowed-figurine-no-room-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:03:17.334Z",
+        "id": "queue:f1c9a370-22a3-4beb-a718-eadf3135f003",
+        "type": "queue-complete",
+        "task": "v91-nurse-tin-consumption-healing-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:03:17.334Z",
+        "id": "queue:f1c9a370-22a3-4beb-a718-eadf3135f003:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:03:30.352Z",
+        "id": "queue:c4bd1512-1930-4b7a-a678-a5d28e122a57",
+        "type": "queue-complete",
+        "task": "v91-long-object-name-bounded-action-query-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:03:30.352Z",
+        "id": "queue:c4bd1512-1930-4b7a-a678-a5d28e122a57:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:03:37.854Z",
+        "id": "queue:9328ee0e-c618-4ff2-bbd4-90454170d694",
+        "type": "assign",
+        "task": "v91-blessed-food-detection-danger-warning-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:03:49.463Z",
+        "id": "queue:727e03a8-a986-4518-acd5-fba382de0bfa",
+        "type": "assign",
+        "task": "v91-gold-golem-detection-without-coins-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:06:13.778Z",
+        "id": "queue:3ac05b20-699e-4526-8a3b-3dec2e689712",
+        "type": "queue-complete",
+        "task": "v91-swallowed-figurine-no-room-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:06:13.778Z",
+        "id": "queue:3ac05b20-699e-4526-8a3b-3dec2e689712:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:06:28.733Z",
+        "id": "queue:332630d8-96d1-4814-aa9b-01933c1bd594",
+        "type": "assign",
+        "task": "v91-empty-grease-known-feedback-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:09:31.594Z",
+        "id": "queue:fef52a17-e966-448a-b953-81cac1e32800",
+        "type": "queue-complete",
+        "task": "v91-gold-golem-detection-without-coins-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:09:31.594Z",
+        "id": "queue:fef52a17-e966-448a-b953-81cac1e32800:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:09:46.016Z",
+        "id": "queue:e56b1f8f-2de3-4a65-b56a-5953882d7e48",
+        "type": "assign",
+        "task": "v91-swallowed-ordinary-bell-muffling-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:10:13.625Z",
+        "id": "queue:39118ac5-1335-4060-90b5-ed03e85ccee1",
+        "type": "queue-complete",
+        "task": "v91-empty-grease-known-feedback-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:10:13.625Z",
+        "id": "queue:39118ac5-1335-4060-90b5-ed03e85ccee1:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:10:37.918Z",
+        "id": "queue:9f0b54b2-88fe-4ac3-838e-cbb949e9233d",
+        "type": "assign",
+        "task": "v91-container-admission-snuffs-light-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:11:14.307Z",
+        "id": "queue:c786354b-0fb9-4734-a2ff-2319674e5b71",
+        "type": "queue-complete",
+        "task": "v91-blessed-food-detection-danger-warning-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:11:14.307Z",
+        "id": "queue:c786354b-0fb9-4734-a2ff-2319674e5b71:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:11:26.486Z",
+        "id": "queue:85cc4f19-82d7-4c4e-8d37-1e5d0137130a",
+        "type": "assign",
+        "task": "v91-filled-magic-bag-buc-weight-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:13:50.590Z",
+        "id": "queue:140569c2-392f-4576-b157-7974cb207844",
+        "type": "queue-complete",
+        "task": "v91-container-admission-snuffs-light-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:13:50.590Z",
+        "id": "queue:140569c2-392f-4576-b157-7974cb207844:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:13:58.197Z",
+        "id": "queue:ec75e10f-3360-4d5c-95d3-92d81a0eed4e",
+        "type": "assign",
+        "task": "v91-knight-jump-boots-override-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:17:20.843Z",
+        "id": "queue:e43c449e-f64e-4202-aeda-e393790c0ff8",
+        "type": "queue-block",
+        "task": "v91-swallowed-ordinary-bell-muffling-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:17:20.843Z",
+        "id": "queue:e43c449e-f64e-4202-aeda-e393790c0ff8:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:19:38.469Z",
+        "id": "queue:22bb9501-ac37-43b3-b4d6-38553ad962e2",
+        "type": "assign",
+        "task": "v91-top-amulet-cursed-gain-level-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:20:03.646Z",
+        "id": "queue:32a30d98-2ffd-42a5-96e7-d4cab31293e4",
+        "type": "queue-complete",
+        "task": "v91-knight-jump-boots-override-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:20:03.646Z",
+        "id": "queue:32a30d98-2ffd-42a5-96e7-d4cab31293e4:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:20:17.813Z",
+        "id": "queue:87914f17-9574-4627-9044-d309b3d0b159",
+        "type": "assign",
+        "task": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:21:01.314Z",
+        "id": "queue:b88b721e-0935-46d5-baab-3d4863410431",
+        "type": "queue-block",
+        "task": "v91-top-amulet-cursed-gain-level-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:21:01.314Z",
+        "id": "queue:b88b721e-0935-46d5-baab-3d4863410431:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:21:19.642Z",
+        "id": "queue:905908d0-4a0b-4311-a897-a3148b65c27f",
+        "type": "queue-complete",
+        "task": "v91-filled-magic-bag-buc-weight-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:21:19.642Z",
+        "id": "queue:905908d0-4a0b-4311-a897-a3148b65c27f:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:23:34.437Z",
+        "id": "queue:942f4a87-44b3-4237-ab0d-262fe0ea3b97",
+        "type": "assign",
+        "task": "v91-floor-hider-same-history-prompt-correction-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T05:23:41.632Z",
+        "id": "queue:b37834da-38ad-4d59-bb71-7c7926bc8d6d",
+        "type": "assign",
+        "task": "v91-underwater-dig-same-history-prompt-correction-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -145003,75 +145468,49 @@
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [
-      "v91-long-object-name-bounded-action-query-cfirst-20261016",
-      "v91-wish-glob-count-weight-cfirst-20261016",
-      "v91-nurse-tin-consumption-healing-cfirst-20261016"
+      "v91-breath-cancel-same-history-prompt-correction-20261016"
     ],
     "blocked": [
       {
         "task": "v91-lit-lamp-save-restore-cfirst-20261016",
         "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v91-monster-partial-stack-capacity-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v91-unicorn-gem-identity-gift-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v91-floor-hider-petrifying-pile-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v91-underwater-dig-turbulence-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v91-breath-direction-cancel-energy-cost-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v91-breathless-sleep-gas-guard-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
       }
     ],
     "claimed": [
       {
-        "task": "v91-blind-object-type-call-dknown-cfirst-20261016",
-        "worker": "Worker-3"
-      },
-      {
-        "task": "v91-see-invisible-timed-blindness-cure-cfirst-20261016",
+        "task": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
         "worker": "Worker-1"
       },
       {
-        "task": "v91-lit-oil-quaff-fire-loving-form-cfirst-20261016",
+        "task": "v91-floor-hider-same-history-prompt-correction-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "task": "v91-underwater-dig-same-history-prompt-correction-20261016",
         "worker": "Worker-2"
       }
     ],
     "counts": {
-      "ready": 3,
+      "ready": 1,
       "claimed": 3,
-      "blocked": 7,
-      "completed": 64,
-      "superseded": 2
+      "blocked": 1,
+      "completed": 76,
+      "superseded": 11
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "v91-see-invisible-timed-blindness-cure-cfirst-20261016",
+        "assignment": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": "v91-lit-oil-quaff-fire-loving-form-cfirst-20261016",
+        "assignment": "v91-underwater-dig-same-history-prompt-correction-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": "v91-blind-object-type-call-dknown-cfirst-20261016",
+        "assignment": "v91-floor-hider-same-history-prompt-correction-20261016",
         "state": "active"
       }
     ],
@@ -145754,7 +146193,7 @@
         "id": "v91-monster-partial-stack-capacity-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -145769,7 +146208,7 @@
         "id": "v91-unicorn-gem-identity-gift-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146039,7 +146478,7 @@
         "id": "v91-floor-hider-petrifying-pile-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146054,7 +146493,7 @@
         "id": "v91-underwater-dig-turbulence-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146069,7 +146508,7 @@
         "id": "v91-breath-direction-cancel-energy-cost-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146099,7 +146538,7 @@
         "id": "v91-breathless-sleep-gas-guard-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146189,7 +146628,7 @@
         "id": "v91-blind-object-type-call-dknown-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146198,13 +146637,13 @@
         "target": null,
         "readyAt": "2026-10-16T04:48:32.621Z",
         "claimedAt": "2026-10-16T04:50:35.174Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T04:56:30.955Z"
       },
       {
         "id": "v91-see-invisible-timed-blindness-cure-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146213,13 +146652,13 @@
         "target": null,
         "readyAt": "2026-10-16T04:49:51.632Z",
         "claimedAt": "2026-10-16T04:51:23.199Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T04:55:28.213Z"
       },
       {
         "id": "v91-lit-oil-quaff-fire-loving-form-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -146234,34 +146673,229 @@
         "id": "v91-long-object-name-bounded-action-query-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v91",
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T04:49:52.005Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T04:53:19.370Z",
+        "completedAt": "2026-10-16T05:03:30.352Z"
       },
       {
         "id": "v91-wish-glob-count-weight-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v91",
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-16T04:52:11.661Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T04:55:37.141Z",
+        "completedAt": "2026-10-16T04:58:05.593Z"
       },
       {
         "id": "v91-nurse-tin-consumption-healing-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T04:52:25.288Z",
+        "claimedAt": "2026-10-16T04:56:41.224Z",
+        "completedAt": "2026-10-16T05:03:17.334Z"
+      },
+      {
+        "id": "v91-swallowed-figurine-no-room-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T04:56:18.663Z",
+        "claimedAt": "2026-10-16T04:58:09.058Z",
+        "completedAt": "2026-10-16T05:06:13.778Z"
+      },
+      {
+        "id": "v91-blessed-food-detection-danger-warning-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T04:58:34.598Z",
+        "claimedAt": "2026-10-16T05:03:37.854Z",
+        "completedAt": "2026-10-16T05:11:14.307Z"
+      },
+      {
+        "id": "v91-gold-golem-detection-without-coins-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T04:59:33.758Z",
+        "claimedAt": "2026-10-16T05:03:49.463Z",
+        "completedAt": "2026-10-16T05:09:31.594Z"
+      },
+      {
+        "id": "v91-empty-grease-known-feedback-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T05:01:37.732Z",
+        "claimedAt": "2026-10-16T05:06:28.733Z",
+        "completedAt": "2026-10-16T05:10:13.625Z"
+      },
+      {
+        "id": "v91-swallowed-ordinary-bell-muffling-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T05:01:52.121Z",
+        "claimedAt": "2026-10-16T05:09:46.016Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-container-admission-snuffs-light-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T05:05:30.057Z",
+        "claimedAt": "2026-10-16T05:10:37.918Z",
+        "completedAt": "2026-10-16T05:13:50.590Z"
+      },
+      {
+        "id": "v91-filled-magic-bag-buc-weight-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T05:09:59.585Z",
+        "claimedAt": "2026-10-16T05:11:26.486Z",
+        "completedAt": "2026-10-16T05:21:19.642Z"
+      },
+      {
+        "id": "v91-knight-jump-boots-override-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T05:12:41.394Z",
+        "claimedAt": "2026-10-16T05:13:58.197Z",
+        "completedAt": "2026-10-16T05:20:03.646Z"
+      },
+      {
+        "id": "v91-top-amulet-cursed-gain-level-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T05:19:18.062Z",
+        "claimedAt": "2026-10-16T05:19:38.469Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T05:19:18.354Z",
+        "claimedAt": "2026-10-16T05:20:17.813Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-floor-hider-same-history-prompt-correction-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T05:22:59.478Z",
+        "claimedAt": "2026-10-16T05:23:34.437Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-underwater-dig-same-history-prompt-correction-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T05:22:59.668Z",
+        "claimedAt": "2026-10-16T05:23:41.632Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-breath-cancel-same-history-prompt-correction-20261016",
         "type": "exploration",
         "output": "exploration",
         "status": "ready",
@@ -146271,15 +146905,15 @@
         "batch": "v91",
         "worker": null,
         "target": null,
-        "readyAt": "2026-10-16T04:52:25.288Z",
+        "readyAt": "2026-10-16T05:22:59.859Z",
         "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "ea8acc2016057e0fda90cdf752bd1646be2e222b",
-    "measuredAt": "2026-10-16T04:51:13.602Z",
+    "executionCommit": "0330b5d647fa550bbefa1b21ca36652f7a2759fe",
+    "measuredAt": "2026-10-16T05:17:30.234Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
