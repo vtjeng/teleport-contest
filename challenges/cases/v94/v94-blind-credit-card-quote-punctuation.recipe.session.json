@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 931016,
+      "datetime": "20261016101000",
+      "nethackrc": "OPTIONS=name:BlindCardV93,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#conduct\n #wizwish\nblindfold\nPm#conduct\n rl#conduct\n ",
+      "comment": "Final same fixed material history, C-observed prompt corrected before any JS: Tourist carries the starter credit card at l; blindfold wished once and worn at m; one read of l while Blind; conduct immediately before and after. One history, one read; no output/number hunting."
+    }
+  ]
+}
