@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T10:36:28.510Z",
+  "capturedAt": "2026-10-16T12:21:55.544Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -149781,6 +149781,1352 @@
         "type": "accepted",
         "at": "2026-10-16T10:34:35.572Z",
         "task": "delivery:session:synthetic:v93:v93-swallowed-bullwhip-refusal-wording:3459f2916426"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-v93-bullwhip-fix-229bf7d385d25a0d250bcaff2b5db6d18166969a",
+        "type": "published",
+        "at": "2026-10-16T10:37:54.173Z",
+        "task": "delivery:session:synthetic:v93:v93-swallowed-bullwhip-refusal-wording:3459f2916426",
+        "commit": "229bf7d385d25a0d250bcaff2b5db6d18166969a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:38:22.725Z",
+        "id": "queue:58e817a0-e6e9-4d68-b9e9-3f5e4d7f29c5",
+        "type": "queue-block",
+        "task": "v95-free-action-floating-eye-self-mirror-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:38:22.725Z",
+        "id": "queue:58e817a0-e6e9-4d68-b9e9-3f5e4d7f29c5:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:38:36.759Z",
+        "id": "queue:0c53ca1a-40e6-4446-8214-34961d96e5e6",
+        "type": "assign",
+        "task": "v95-swallowed-candle-elbow-room-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:39:58.107Z",
+        "id": "queue:e937e9fe-2e44-4c8e-8e10-af5e4dc47fc9",
+        "type": "queue-complete",
+        "task": "v94-centaur-boots-hooves-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:39:58.107Z",
+        "id": "queue:e937e9fe-2e44-4c8e-8e10-af5e4dc47fc9:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:40:05.055Z",
+        "id": "queue:21978ca9-4f9f-4ad6-9edd-f7dd3bc5463e",
+        "type": "queue-complete",
+        "task": "v94-blind-marker-braille-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:40:05.055Z",
+        "id": "queue:21978ca9-4f9f-4ad6-9edd-f7dd3bc5463e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:40:07.086Z",
+        "id": "queue:2aacd6ab-879f-4b51-b351-76cf33a2ad73",
+        "type": "assign",
+        "task": "v94-blind-coin-engraving-reading-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v94",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:40:20.311Z",
+        "id": "queue:02055c91-35ca-4f3c-9b46-c0edbcd59eb2",
+        "type": "assign",
+        "task": "v95-deaf-ordinary-whistle-air-feedback-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:47:00.968Z",
+        "id": "queue:5decf927-263a-4fe8-99d0-1a51c0f6d56b",
+        "type": "queue-complete",
+        "task": "v95-deaf-ordinary-whistle-air-feedback-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:47:00.968Z",
+        "id": "queue:5decf927-263a-4fe8-99d0-1a51c0f6d56b:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:47:14.564Z",
+        "id": "queue:36ea6d5e-3000-45ba-a1a8-d027e40ed052",
+        "type": "assign",
+        "task": "v95-unknown-liquid-touchstone-wetstone-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:47:28.449Z",
+        "id": "queue:983053fd-1dc2-419d-af4f-3249568b8023",
+        "type": "queue-complete",
+        "task": "v95-swallowed-candle-elbow-room-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:47:28.449Z",
+        "id": "queue:983053fd-1dc2-419d-af4f-3249568b8023:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:47:42.965Z",
+        "id": "queue:042c2a83-a591-4e5e-8ec5-0e13b6e95f28",
+        "type": "assign",
+        "task": "v95-self-directed-leash-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:48:12.462Z",
+        "id": "queue:efeb7ed3-dcf3-485e-bb63-df4e49897250",
+        "type": "queue-complete",
+        "task": "v94-blind-coin-engraving-reading-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:48:12.462Z",
+        "id": "queue:efeb7ed3-dcf3-485e-bb63-df4e49897250:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:48:25.445Z",
+        "id": "queue:7404ab5b-0c93-4182-98ce-25832013c168",
+        "type": "assign",
+        "task": "v95-underwater-loaded-candelabrum-light-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:51:22.518Z",
+        "id": "queue:a441fc7a-bc68-45bc-b803-a708da952e30",
+        "type": "queue-complete",
+        "task": "v95-self-directed-leash-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:51:22.518Z",
+        "id": "queue:a441fc7a-bc68-45bc-b803-a708da952e30:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:51:34.251Z",
+        "id": "queue:37deec68-0249-485a-803c-a357e0beff6a",
+        "type": "assign",
+        "task": "v95-swallowed-unused-leash-inside-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:53:53.282Z",
+        "id": "queue:74d49a25-e458-4095-8b47-fb5cca191432",
+        "type": "queue-block",
+        "task": "v95-unknown-liquid-touchstone-wetstone-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:53:53.282Z",
+        "id": "queue:74d49a25-e458-4095-8b47-fb5cca191432:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:54:06.542Z",
+        "id": "queue:d9be691d-a2e1-4544-9aa8-3c9249646eea",
+        "type": "assign",
+        "task": "v95-single-stone-self-rub-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:56:52.934Z",
+        "id": "queue:d26196f8-7bba-484e-9aed-fb64d62e4041",
+        "type": "queue-complete",
+        "task": "v95-swallowed-unused-leash-inside-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:56:52.934Z",
+        "id": "queue:d26196f8-7bba-484e-9aed-fb64d62e4041:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T10:57:16.686Z",
+        "id": "queue:f38ed433-72cc-4625-8834-065d3cefa9cc",
+        "type": "assign",
+        "task": "v95-sick-self-mirror-peaked-feedback-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:02:24.232Z",
+        "id": "queue:08211ca2-5907-4f3c-bd38-668567aa2b44",
+        "type": "queue-complete",
+        "task": "v95-underwater-loaded-candelabrum-light-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:02:24.232Z",
+        "id": "queue:08211ca2-5907-4f3c-bd38-668567aa2b44:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:02:37.530Z",
+        "id": "queue:17058e6f-ee2f-4633-a9e8-e82d096462e8",
+        "type": "assign",
+        "task": "v95-levitating-physical-jump-traction-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:04:44.000Z",
+        "id": "queue:e46a7dcd-7aac-445a-81ca-00c6e189186e",
+        "type": "queue-complete",
+        "task": "v95-single-stone-self-rub-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:04:44.000Z",
+        "id": "queue:e46a7dcd-7aac-445a-81ca-00c6e189186e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:04:58.407Z",
+        "id": "queue:acef8f1a-2390-4898-8426-b1aee1a87aa6",
+        "type": "assign",
+        "task": "v95-covered-tshirt-reading-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:11:40.178Z",
+        "id": "queue:71d89acc-b5c8-4cfa-ac4b-6a9811f4826b",
+        "type": "queue-complete",
+        "task": "v95-levitating-physical-jump-traction-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:11:40.178Z",
+        "id": "queue:71d89acc-b5c8-4cfa-ac4b-6a9811f4826b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:11:49.320Z",
+        "id": "queue:0d1f2b43-131a-4cf3-a917-efabc589b8ed",
+        "type": "queue-complete",
+        "task": "v95-sick-self-mirror-peaked-feedback-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:11:49.320Z",
+        "id": "queue:0d1f2b43-131a-4cf3-a917-efabc589b8ed:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:11:55.291Z",
+        "id": "queue:9530184b-6c5e-4a96-a03b-ff90a63f5853",
+        "type": "assign",
+        "task": "v95-underwater-mirror-murky-feedback-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:11:58.058Z",
+        "id": "queue:0009d58c-dcbe-4b87-b965-4d15b59f93ec",
+        "type": "assign",
+        "task": "v95-burdened-physical-jump-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:13:05.326Z",
+        "id": "queue:13a6648d-f332-4cfe-bb45-6755fb23c453",
+        "type": "queue-complete",
+        "task": "v95-covered-tshirt-reading-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:13:05.326Z",
+        "id": "queue:13a6648d-f332-4cfe-bb45-6755fb23c453:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:13:15.769Z",
+        "id": "queue:33858ce1-48c8-4a8d-81f2-d1a3084c23a3",
+        "type": "assign",
+        "task": "v95-ordinary-candy-wrapper-reading-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:19:11.827Z",
+        "id": "queue:61662cc4-324e-479f-a9e0-e1a546f69d55",
+        "type": "queue-complete",
+        "task": "v95-ordinary-candy-wrapper-reading-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:19:11.827Z",
+        "id": "queue:61662cc4-324e-479f-a9e0-e1a546f69d55:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:19:24.353Z",
+        "id": "queue:43fbe842-7d72-426b-a485-76503a0a45a8",
+        "type": "assign",
+        "task": "v95-levitation-trap-setting-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:21:48.775Z",
+        "id": "queue:5a5d8cf1-906c-4d7c-b5a3-932a30272a7c",
+        "type": "queue-complete",
+        "task": "v95-underwater-mirror-murky-feedback-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:21:48.775Z",
+        "id": "queue:5a5d8cf1-906c-4d7c-b5a3-932a30272a7c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:22:01.573Z",
+        "id": "queue:fa6cd554-6539-42a8-8bb1-e2edb3bcbc48",
+        "type": "assign",
+        "task": "v95-cursed-mirror-fog-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:22:07.114Z",
+        "id": "queue:c9b7b61b-18f7-4d59-992b-3980da2f06b6",
+        "type": "queue-complete",
+        "task": "v95-burdened-physical-jump-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:22:07.114Z",
+        "id": "queue:c9b7b61b-18f7-4d59-992b-3980da2f06b6:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:22:18.900Z",
+        "id": "queue:0ec0b902-8088-44b4-b3f9-cad2ac4796b6",
+        "type": "assign",
+        "task": "v95-underwater-physical-jump-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:22:55.427Z",
+        "id": "queue:2947c313-a192-4fdd-9fca-f9804bbb460b",
+        "type": "queue-complete",
+        "task": "v95-levitation-trap-setting-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:22:55.427Z",
+        "id": "queue:2947c313-a192-4fdd-9fca-f9804bbb460b:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:23:07.742Z",
+        "id": "queue:aac01f04-9c7b-437e-b0be-c728466c966e",
+        "type": "assign",
+        "task": "v95-welded-bimanual-towel-freehand-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:26:44.544Z",
+        "id": "queue:12273590-d135-4024-abe4-7b155ce1b4ad",
+        "type": "queue-complete",
+        "task": "v95-cursed-mirror-fog-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:26:44.544Z",
+        "id": "queue:12273590-d135-4024-abe4-7b155ce1b4ad:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:26:54.804Z",
+        "id": "queue:93926ab4-6c4c-4095-b057-c9f9881dffaf",
+        "type": "assign",
+        "task": "v95-hallucinating-cream-pie-facial-feedback-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:27:30.319Z",
+        "id": "queue:d94b4694-0481-4f1c-8e6c-7d135435ba0e",
+        "type": "queue-complete",
+        "task": "v95-welded-bimanual-towel-freehand-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:27:30.319Z",
+        "id": "queue:d94b4694-0481-4f1c-8e6c-7d135435ba0e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:27:41.299Z",
+        "id": "queue:edc4c4ab-1b94-47cb-868b-1e19e9a17e8b",
+        "type": "assign",
+        "task": "v95-underwater-ordinary-bell-muffled-feedback-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:32:30.372Z",
+        "id": "queue:f73dfe59-4cd1-4363-9e41-555bada4741b",
+        "type": "queue-block",
+        "task": "v95-underwater-physical-jump-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:32:30.372Z",
+        "id": "queue:f73dfe59-4cd1-4363-9e41-555bada4741b:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:32:34.631Z",
+        "id": "queue:cac2f939-8562-4f12-a092-f0805a6c2246",
+        "type": "queue-complete",
+        "task": "v95-hallucinating-cream-pie-facial-feedback-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:32:34.631Z",
+        "id": "queue:cac2f939-8562-4f12-a092-f0805a6c2246:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:32:47.349Z",
+        "id": "queue:8260bb3c-3ba0-4bf9-a24e-c14dd481c58c",
+        "type": "assign",
+        "task": "v95-welded-bimanual-stethoscope-freehand-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:32:57.782Z",
+        "id": "queue:47d4ca56-4a1f-4af5-88f1-5306ca96a257",
+        "type": "assign",
+        "task": "v95-mounted-sit-already-sitting-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:36:43.885Z",
+        "id": "queue:7a83659d-388c-4f12-8c9f-c0e5eebd2429",
+        "type": "queue-block",
+        "task": "v95-underwater-ordinary-bell-muffled-feedback-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:36:43.885Z",
+        "id": "queue:7a83659d-388c-4f12-8c9f-c0e5eebd2429:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:36:53.604Z",
+        "id": "queue:301de76c-1dd9-407a-abc2-b3e80f27f7d2",
+        "type": "assign",
+        "task": "v95-welded-bimanual-shirt-wear-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:40:48.933Z",
+        "id": "queue:dca4103e-7542-447a-999a-86966ae73bb8",
+        "type": "queue-complete",
+        "task": "v95-mounted-sit-already-sitting-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:40:48.933Z",
+        "id": "queue:dca4103e-7542-447a-999a-86966ae73bb8:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:41:04.325Z",
+        "id": "queue:b2928bb0-b9e8-49ed-b09b-eacc838eb233",
+        "type": "assign",
+        "task": "v95-unarmored-takeoff-no-armor-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:43:38.750Z",
+        "id": "queue:30d5a700-3e64-42c9-80ff-65ca86078097",
+        "type": "queue-complete",
+        "task": "v95-welded-bimanual-stethoscope-freehand-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:43:38.750Z",
+        "id": "queue:30d5a700-3e64-42c9-80ff-65ca86078097:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:43:56.025Z",
+        "id": "queue:b4527f5d-da81-4e81-bdd2-8cd397b68817",
+        "type": "assign",
+        "task": "v95-strangled-quaff-early-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:45:05.868Z",
+        "id": "queue:6da73a95-d12c-4626-8d7c-87e07122017d",
+        "type": "queue-complete",
+        "task": "v95-welded-bimanual-shirt-wear-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:45:05.868Z",
+        "id": "queue:6da73a95-d12c-4626-8d7c-87e07122017d:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:45:20.372Z",
+        "id": "queue:2e7ff66a-2833-4c59-9339-29410d00846a",
+        "type": "assign",
+        "task": "v95-blind-orb-of-fate-signature-read-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:46:19.633Z",
+        "id": "queue:4ecc67c4-8a76-4588-892c-9097460b5453",
+        "type": "queue-complete",
+        "task": "v95-unarmored-takeoff-no-armor-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:46:19.633Z",
+        "id": "queue:4ecc67c4-8a76-4588-892c-9097460b5453:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:46:31.633Z",
+        "id": "queue:24fbcdda-4596-40c3-a177-2e118be9436a",
+        "type": "assign",
+        "task": "v95-merged-dragon-skin-takeoff-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:51:16.653Z",
+        "id": "queue:60ac4345-23fd-4467-93a2-c70576610afa",
+        "type": "queue-complete",
+        "task": "v95-strangled-quaff-early-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:51:16.653Z",
+        "id": "queue:60ac4345-23fd-4467-93a2-c70576610afa:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:51:26.264Z",
+        "id": "queue:ae1aa4f7-6bb7-45da-8007-83214430e97a",
+        "type": "assign",
+        "task": "v95-empty-owned-horn-of-plenty-early-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:53:40.073Z",
+        "id": "queue:fd144a44-1ddd-4bda-8c33-97a411f6389d",
+        "type": "queue-complete",
+        "task": "v95-blind-orb-of-fate-signature-read-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:53:40.073Z",
+        "id": "queue:fd144a44-1ddd-4bda-8c33-97a411f6389d:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:53:54.934Z",
+        "id": "queue:07982451-8f22-47e0-b05c-c547577982fa",
+        "type": "assign",
+        "task": "v95-owned-glob-floor-donation-credit-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:56:32.444Z",
+        "id": "queue:84a75cfc-37b2-4200-82f3-b2f1200f574a",
+        "type": "queue-complete",
+        "task": "v95-merged-dragon-skin-takeoff-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:56:32.444Z",
+        "id": "queue:84a75cfc-37b2-4200-82f3-b2f1200f574a:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:56:45.948Z",
+        "id": "queue:c142890d-1fd3-4e78-abb6-2eed098bb6a6",
+        "type": "assign",
+        "task": "v95-swallowed-force-lock-early-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:58:50.852Z",
+        "id": "queue:722004d5-c438-42ef-9c51-7d75a6b566ab",
+        "type": "queue-complete",
+        "task": "v95-empty-owned-horn-of-plenty-early-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:58:50.852Z",
+        "id": "queue:722004d5-c438-42ef-9c51-7d75a6b566ab:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T11:58:59.731Z",
+        "id": "queue:e9c0b02a-92c3-4144-a3c4-2eff9e8c279f",
+        "type": "assign",
+        "task": "v95-merged-dragon-skin-takeoff-current-main-validation-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:00:41.329Z",
+        "id": "queue:7e32218b-ab87-42f8-b3ce-3997fa9dac96",
+        "type": "queue-complete",
+        "task": "v95-merged-dragon-skin-takeoff-current-main-validation-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:00:41.329Z",
+        "id": "queue:7e32218b-ab87-42f8-b3ce-3997fa9dac96:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:00:44.126Z",
+        "id": "queue:afdc322b-5b11-4913-a907-fa56a8a21f66",
+        "type": "assign",
+        "task": "v95-fountain-engraving-floor-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:02:42.967Z",
+        "id": "queue:12f65d11-0791-46db-999d-b29654fef282",
+        "type": "queue-block",
+        "task": "v95-owned-glob-floor-donation-credit-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:02:42.967Z",
+        "id": "queue:12f65d11-0791-46db-999d-b29654fef282:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:02:56.476Z",
+        "id": "queue:53c16434-2429-4b14-88c0-7bb9bf5dd909",
+        "type": "assign",
+        "task": "v95-strangled-eating-early-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-3e169983bb081949032a6a354e4eb631142a17b9",
+        "type": "ready",
+        "at": "2026-10-16T12:03:39.714Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "delivery": "3e169983bb081949032a6a354e4eb631142a17b9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-prep-v95-3e169983bb08",
+        "type": "received",
+        "at": "2026-10-16T12:04:50.401Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "delivery": "3e169983bb081949032a6a354e4eb631142a17b9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-group-624716db09f456dc95686cb7b6fb8d1d3d9c3324756c62fc55daa9be735f53d5-7a0e3dd37f8b6589645b729bf7106be177e9a986-prep-v95-source-exploration-20261016",
+        "type": "integrating",
+        "at": "2026-10-16T12:05:19.695Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "integration": "7a0e3dd37f8b6589645b729bf7106be177e9a986",
+        "prepGroup": [
+          "prep-v95-source-exploration-20261016"
+        ],
+        "validationGroup": [
+          "prep-v95-source-exploration-20261016"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "activity-prep-v95-checkpoint-38898180293",
+        "type": "activity",
+        "at": "2026-10-16T12:06:42.309Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "phase": "review",
+        "reason": "Hosted checkpoint validation of the submitted case-only candidate."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "assign-prep-v96-20261016",
+        "type": "assign",
+        "at": "2026-10-16T12:07:22.869Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v96"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:08:20.592Z",
+        "id": "queue:a685ee18-6797-43b2-b228-bff061e9c2ed",
+        "type": "queue-complete",
+        "task": "v95-swallowed-force-lock-early-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:08:20.592Z",
+        "id": "queue:a685ee18-6797-43b2-b228-bff061e9c2ed:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:08:43.921Z",
+        "id": "queue:7c368ead-b891-4893-8095-8d216016633e",
+        "type": "assign",
+        "task": "v95-levitating-sit-tumble-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:10:26.727Z",
+        "id": "queue:88ea4356-3e1c-4082-849b-655d1bb1067b",
+        "type": "queue-complete",
+        "task": "v95-strangled-eating-early-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:10:26.727Z",
+        "id": "queue:88ea4356-3e1c-4082-849b-655d1bb1067b:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:10:35.869Z",
+        "id": "queue:92bdec73-83b1-4aae-979d-13a685bcb849",
+        "type": "queue-complete",
+        "task": "v95-fountain-engraving-floor-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:10:35.869Z",
+        "id": "queue:92bdec73-83b1-4aae-979d-13a685bcb849:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:10:38.771Z",
+        "id": "queue:67e11d98-1068-4f23-8f70-e8be40f64769",
+        "type": "assign",
+        "task": "v95-trapped-hider-hide-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v95",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:10:43.202Z",
+        "id": "queue:78689e2f-e736-4c8c-8476-d31eda61fab9",
+        "type": "assign",
+        "task": "support-v96-potion-property-branch-source-survey-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-validated-prep-v95-source-exploration-20261016-7a0e3dd37f8b6589645b729bf7106be177e9a986",
+        "type": "validated",
+        "at": "2026-10-16T12:12:41.372Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-accepted-prep-v95-source-exploration-20261016-7a0e3dd37f8b6589645b729bf7106be177e9a986",
+        "type": "accepted",
+        "at": "2026-10-16T12:12:41.372Z",
+        "task": "prep-v95-source-exploration-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "activity-prep-v95-admission",
+        "type": "activity",
+        "at": "2026-10-16T12:13:18.068Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "phase": "admission",
+        "reason": "Create the accepted new-case manifest for hosted admission baselining."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:14:25.511Z",
+        "id": "queue:35df7bf7-9d5e-481d-9815-5d21454dace1",
+        "type": "queue-complete",
+        "task": "v95-levitating-sit-tumble-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:14:25.511Z",
+        "id": "queue:35df7bf7-9d5e-481d-9815-5d21454dace1:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:14:34.692Z",
+        "id": "queue:531d9662-1283-410d-8f90-a0ba9c4abdc9",
+        "type": "assign",
+        "task": "support-v96-polyself-earlier-state-source-survey-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:15:54.945Z",
+        "id": "queue:82f1f154-0d5b-48d5-aad2-600003c313c5",
+        "type": "queue-complete",
+        "task": "support-v96-potion-property-branch-source-survey-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:15:54.945Z",
+        "id": "queue:82f1f154-0d5b-48d5-aad2-600003c313c5:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:16:02.548Z",
+        "id": "queue:82903729-ad7c-49be-9b2c-b1ad53e36102",
+        "type": "assign",
+        "task": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:16:54.806Z",
+        "id": "queue:e1efe464-5202-437d-b468-301db623dd4b",
+        "type": "queue-complete",
+        "task": "v95-trapped-hider-hide-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:16:54.806Z",
+        "id": "queue:e1efe464-5202-437d-b468-301db623dd4b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:18:25.982Z",
+        "id": "queue:21ed441a-9b22-4cb4-95b5-b0d6b279be5e",
+        "type": "assign",
+        "task": "support-v96-engraving-outer-guard-source-feasibility-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-baseline-prep-v95-source-exploration-20261016-19608296cf9fcc24c1111d9f33c01d97198b3608",
+        "type": "activity",
+        "at": "2026-10-16T12:18:54.482Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-done-prep-v95-source-exploration-20261016-19608296cf9fcc24c1111d9f33c01d97198b3608",
+        "type": "activity",
+        "at": "2026-10-16T12:18:54.605Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-v94-credit-card-implement-1",
+        "type": "implement",
+        "at": "2026-10-16T12:19:11.207Z",
+        "task": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "goal": "fix-read-credit-card-number-punctuation-v94-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:21:07.385Z",
+        "id": "queue:70a34f94-5331-49ec-998d-4ee7370dcc79",
+        "type": "queue-complete",
+        "task": "support-v96-polyself-earlier-state-source-survey-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:21:07.385Z",
+        "id": "queue:70a34f94-5331-49ec-998d-4ee7370dcc79:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:21:26.124Z",
+        "id": "queue:c00008e0-24b1-41d8-b653-7b388b6037b2",
+        "type": "queue-complete",
+        "task": "support-v96-engraving-outer-guard-source-feasibility-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:21:26.124Z",
+        "id": "queue:c00008e0-24b1-41d8-b653-7b388b6037b2:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -149790,83 +151136,75 @@
     "parkedTasks": []
   },
   "workerReservations": {
-    "tasks": {},
-    "reservations": {}
+    "tasks": {
+      "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d": {
+        "id": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "worker": "Worker-2",
+        "status": "working",
+        "seed": "synthetic/v94/v94-blind-credit-card-quote-punctuation",
+        "reservations": [
+          "session:synthetic/v94/v94-blind-credit-card-quote-punctuation",
+          "source:read.c:doread"
+        ]
+      }
+    },
+    "reservations": {
+      "session:synthetic/v94/v94-blind-credit-card-quote-punctuation": {
+        "tasks": [
+          "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d"
+        ]
+      },
+      "source:read.c:doread": {
+        "tasks": [
+          "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
-    "readySessions": 1,
+    "readySessions": 0,
     "threshold": 5,
     "preferred": "exploration",
-    "reason": "1 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [
-      "v95-swallowed-candle-elbow-room-refusal-cfirst-20261016",
-      "v95-deaf-ordinary-whistle-air-feedback-cfirst-20261016",
-      "v95-unknown-liquid-touchstone-wetstone-cfirst-20261016",
-      "v95-single-stone-self-rub-refusal-cfirst-20261016",
-      "v95-nohands-magic-marker-writing-refusal-cfirst-20261016",
-      "v95-self-directed-leash-refusal-cfirst-20261016",
-      "v95-swallowed-unused-leash-inside-refusal-cfirst-20261016",
-      "v95-underwater-loaded-candelabrum-light-refusal-cfirst-20261016",
-      "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d"
-    ],
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "ready": [],
     "blocked": [
       {
         "task": "v91-lit-lamp-save-restore-cfirst-20261016",
         "reason": "Waiting for producer or dependencies."
       },
       {
-        "task": "v94-blind-coin-engraving-reading-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v95-sick-self-mirror-peaked-feedback-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v95-underwater-mirror-murky-feedback-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v95-cursed-mirror-fog-refusal-cfirst-20261016",
+        "task": "session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
         "reason": "Waiting for producer or dependencies."
       }
     ],
     "claimed": [
       {
-        "task": "v94-centaur-boots-hooves-refusal-cfirst-20261016",
-        "worker": "Worker-1"
-      },
-      {
-        "task": "v94-blind-marker-braille-refusal-cfirst-20261016",
+        "task": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
         "worker": "Worker-2"
-      },
-      {
-        "task": "v95-free-action-floating-eye-self-mirror-cfirst-20261016",
-        "worker": "Worker-3"
       }
     ],
     "counts": {
-      "ready": 13,
-      "claimed": 3,
-      "blocked": 1,
-      "completed": 164,
-      "superseded": 45
+      "ready": 0,
+      "claimed": 1,
+      "blocked": 2,
+      "completed": 200,
+      "superseded": 51
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "v94-centaur-boots-hooves-refusal-cfirst-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "v94-blind-marker-braille-refusal-cfirst-20261016",
+        "assignment": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
         "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": "v95-free-action-floating-eye-self-mirror-cfirst-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -153014,7 +154352,7 @@
         "id": "v94-centaur-boots-hooves-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -153023,7 +154361,7 @@
         "target": null,
         "readyAt": "2026-10-16T10:19:02.030Z",
         "claimedAt": "2026-10-16T10:34:24.010Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T10:39:58.107Z"
       },
       {
         "id": "v94-grease-can-unlabeled-reading-cfirst-20261016",
@@ -153044,7 +154382,7 @@
         "id": "v94-blind-marker-braille-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -153053,22 +154391,22 @@
         "target": null,
         "readyAt": "2026-10-16T10:19:02.774Z",
         "claimedAt": "2026-10-16T10:32:38.619Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T10:40:05.055Z"
       },
       {
         "id": "v94-blind-coin-engraving-reading-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v94",
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-16T10:19:03.126Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:40:07.086Z",
+        "completedAt": "2026-10-16T10:48:12.462Z"
       },
       {
         "id": "v94-pauper-empty-inventory-quiver-cfirst-20261016",
@@ -153089,24 +154427,24 @@
         "id": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
         "type": "implementation",
         "output": "implementation",
-        "status": "ready",
+        "status": "claimed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v94/v94-blind-credit-card-quote-punctuation"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T10:24:18.207Z",
-        "claimedAt": null,
+        "claimedAt": "2026-10-16T12:16:02.548Z",
         "completedAt": null
       },
       {
         "id": "v95-free-action-floating-eye-self-mirror-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -153121,67 +154459,67 @@
         "id": "v95-swallowed-candle-elbow-room-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-16T10:29:50.273Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:38:36.759Z",
+        "completedAt": "2026-10-16T10:47:28.449Z"
       },
       {
         "id": "v95-deaf-ordinary-whistle-air-feedback-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T10:29:50.659Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:40:20.311Z",
+        "completedAt": "2026-10-16T10:47:00.968Z"
       },
       {
         "id": "v95-unknown-liquid-touchstone-wetstone-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T10:34:03.127Z",
-        "claimedAt": null,
+        "claimedAt": "2026-10-16T10:47:14.564Z",
         "completedAt": null
       },
       {
         "id": "v95-single-stone-self-rub-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T10:34:03.607Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:54:06.542Z",
+        "completedAt": "2026-10-16T11:04:44.000Z"
       },
       {
         "id": "v95-nohands-magic-marker-writing-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -153196,97 +154534,519 @@
         "id": "v95-self-directed-leash-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-16T10:34:04.705Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:47:42.965Z",
+        "completedAt": "2026-10-16T10:51:22.518Z"
       },
       {
         "id": "v95-swallowed-unused-leash-inside-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-16T10:34:05.177Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:51:34.251Z",
+        "completedAt": "2026-10-16T10:56:52.934Z"
       },
       {
         "id": "v95-underwater-loaded-candelabrum-light-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-16T10:34:05.764Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:48:25.445Z",
+        "completedAt": "2026-10-16T11:02:24.232Z"
       },
       {
         "id": "v95-sick-self-mirror-peaked-feedback-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-16T10:35:24.721Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T10:57:16.686Z",
+        "completedAt": "2026-10-16T11:11:49.320Z"
       },
       {
         "id": "v95-underwater-mirror-murky-feedback-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-16T10:35:25.145Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T11:11:55.291Z",
+        "completedAt": "2026-10-16T11:21:48.775Z"
       },
       {
         "id": "v95-cursed-mirror-fog-refusal-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
         "batch": "v95",
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-16T10:35:25.586Z",
+        "claimedAt": "2026-10-16T11:22:01.573Z",
+        "completedAt": "2026-10-16T11:26:44.544Z"
+      },
+      {
+        "id": "v95-levitating-physical-jump-traction-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T10:42:24.522Z",
+        "claimedAt": "2026-10-16T11:02:37.530Z",
+        "completedAt": "2026-10-16T11:11:40.178Z"
+      },
+      {
+        "id": "v95-burdened-physical-jump-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T10:42:24.965Z",
+        "claimedAt": "2026-10-16T11:11:58.058Z",
+        "completedAt": "2026-10-16T11:22:07.114Z"
+      },
+      {
+        "id": "v95-underwater-physical-jump-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T10:42:25.400Z",
+        "claimedAt": "2026-10-16T11:22:18.900Z",
+        "completedAt": null
+      },
+      {
+        "id": "v95-covered-tshirt-reading-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T10:42:25.824Z",
+        "claimedAt": "2026-10-16T11:04:58.407Z",
+        "completedAt": "2026-10-16T11:13:05.326Z"
+      },
+      {
+        "id": "v95-ordinary-candy-wrapper-reading-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T10:42:26.234Z",
+        "claimedAt": "2026-10-16T11:13:15.769Z",
+        "completedAt": "2026-10-16T11:19:11.827Z"
+      },
+      {
+        "id": "v95-levitation-trap-setting-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T10:42:26.656Z",
+        "claimedAt": "2026-10-16T11:19:24.353Z",
+        "completedAt": "2026-10-16T11:22:55.427Z"
+      },
+      {
+        "id": "v95-welded-bimanual-towel-freehand-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T10:57:08.863Z",
+        "claimedAt": "2026-10-16T11:23:07.742Z",
+        "completedAt": "2026-10-16T11:27:30.319Z"
+      },
+      {
+        "id": "v95-hallucinating-cream-pie-facial-feedback-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T10:57:09.510Z",
+        "claimedAt": "2026-10-16T11:26:54.804Z",
+        "completedAt": "2026-10-16T11:32:34.631Z"
+      },
+      {
+        "id": "v95-underwater-ordinary-bell-muffled-feedback-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T10:57:10.232Z",
+        "claimedAt": "2026-10-16T11:27:41.299Z",
+        "completedAt": null
+      },
+      {
+        "id": "v95-welded-bimanual-stethoscope-freehand-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T11:11:50.749Z",
+        "claimedAt": "2026-10-16T11:32:47.349Z",
+        "completedAt": "2026-10-16T11:43:38.750Z"
+      },
+      {
+        "id": "v95-mounted-sit-already-sitting-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T11:11:51.410Z",
+        "claimedAt": "2026-10-16T11:32:57.782Z",
+        "completedAt": "2026-10-16T11:40:48.933Z"
+      },
+      {
+        "id": "v95-welded-bimanual-shirt-wear-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T11:11:52.351Z",
+        "claimedAt": "2026-10-16T11:36:53.604Z",
+        "completedAt": "2026-10-16T11:45:05.868Z"
+      },
+      {
+        "id": "v95-unarmored-takeoff-no-armor-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T11:19:25.336Z",
+        "claimedAt": "2026-10-16T11:41:04.325Z",
+        "completedAt": "2026-10-16T11:46:19.633Z"
+      },
+      {
+        "id": "v95-merged-dragon-skin-takeoff-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T11:19:25.876Z",
+        "claimedAt": "2026-10-16T11:46:31.633Z",
+        "completedAt": "2026-10-16T11:56:32.444Z"
+      },
+      {
+        "id": "v95-strangled-quaff-early-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T11:32:39.411Z",
+        "claimedAt": "2026-10-16T11:43:56.025Z",
+        "completedAt": "2026-10-16T11:51:16.653Z"
+      },
+      {
+        "id": "v95-blind-orb-of-fate-signature-read-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T11:32:40.358Z",
+        "claimedAt": "2026-10-16T11:45:20.372Z",
+        "completedAt": "2026-10-16T11:53:40.073Z"
+      },
+      {
+        "id": "v95-empty-owned-horn-of-plenty-early-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T11:32:41.143Z",
+        "claimedAt": "2026-10-16T11:51:26.264Z",
+        "completedAt": "2026-10-16T11:58:50.852Z"
+      },
+      {
+        "id": "v95-owned-glob-floor-donation-credit-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T11:43:09.342Z",
+        "claimedAt": "2026-10-16T11:53:54.934Z",
+        "completedAt": null
+      },
+      {
+        "id": "v95-swallowed-force-lock-early-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T11:50:30.122Z",
+        "claimedAt": "2026-10-16T11:56:45.948Z",
+        "completedAt": "2026-10-16T12:08:20.592Z"
+      },
+      {
+        "id": "v95-fountain-engraving-floor-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T11:50:30.710Z",
+        "claimedAt": "2026-10-16T12:00:44.126Z",
+        "completedAt": "2026-10-16T12:10:35.869Z"
+      },
+      {
+        "id": "v95-strangled-eating-early-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T11:52:06.628Z",
+        "claimedAt": "2026-10-16T12:02:56.476Z",
+        "completedAt": "2026-10-16T12:10:26.727Z"
+      },
+      {
+        "id": "v95-merged-dragon-skin-takeoff-current-main-validation-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T11:57:26.661Z",
+        "claimedAt": "2026-10-16T11:58:59.731Z",
+        "completedAt": "2026-10-16T12:00:41.329Z"
+      },
+      {
+        "id": "v95-levitating-sit-tumble-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T12:00:36.772Z",
+        "claimedAt": "2026-10-16T12:08:43.921Z",
+        "completedAt": "2026-10-16T12:14:25.511Z"
+      },
+      {
+        "id": "v95-trapped-hider-hide-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v95",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T12:00:37.448Z",
+        "claimedAt": "2026-10-16T12:10:38.771Z",
+        "completedAt": "2026-10-16T12:16:54.806Z"
+      },
+      {
+        "id": "support-v96-potion-property-branch-source-survey-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T12:08:14.237Z",
+        "claimedAt": "2026-10-16T12:10:43.202Z",
+        "completedAt": "2026-10-16T12:15:54.945Z"
+      },
+      {
+        "id": "support-v96-polyself-earlier-state-source-survey-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T12:08:15.267Z",
+        "claimedAt": "2026-10-16T12:14:34.692Z",
+        "completedAt": "2026-10-16T12:21:07.385Z"
+      },
+      {
+        "id": "support-v96-engraving-outer-guard-source-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T12:18:02.903Z",
+        "claimedAt": "2026-10-16T12:18:25.982Z",
+        "completedAt": "2026-10-16T12:21:26.124Z"
+      },
+      {
+        "id": "session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T12:18:55.104Z",
         "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "142acce5e93faabc1dec521e4de9b46290719de5",
-    "measuredAt": "2026-10-16T10:32:16.293Z",
+    "executionCommit": "7a0e3dd37f8b6589645b729bf7106be177e9a986",
+    "measuredAt": "2026-10-16T12:11:04.820Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
