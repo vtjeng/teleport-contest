@@ -319322,6 +319322,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "v90-p20-parameterized-keylist-row",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement keylist_putcmds from cmd.c",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v90/v90-p20-parameterized-keylist"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "keylist_putcmds",
+      "session": "synthetic/v90/v90-p20-parameterized-keylist"
     }
   ]
 }
