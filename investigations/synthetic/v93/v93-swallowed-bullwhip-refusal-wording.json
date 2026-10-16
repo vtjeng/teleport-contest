@@ -1,0 +1,50 @@
+{
+  "session": "synthetic/v93/v93-swallowed-bullwhip-refusal-wording",
+  "remainingScreens": 1,
+  "recordedSteps": 45,
+  "corpus": "synthetic",
+  "batch": "v93",
+  "caseId": "v93-swallowed-bullwhip-refusal-wording",
+  "manifestPath": "challenges/manifests/v93.json",
+  "manifestSha256": "d73ab9b51babf24f7599ca48a6f5cb635f4860eaac6c69cc6ddd42316fbaa05c",
+  "recordingSha256": "580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc",
+  "evaluationPath": "challenges/evaluations/admission-3459f29164267326ed69eb5a54574adb3d6f0c9d-v93.json",
+  "evaluationCommit": "3459f29164267326ed69eb5a54574adb3d6f0c9d",
+  "status": "complete",
+  "commit": "126f632473e9e612d20dd77e09797a05b6c4fa14",
+  "mismatch": {
+    "segment": 0,
+    "step": 44,
+    "key": "h",
+    "kind": "screen",
+    "row": 0,
+    "column": 5,
+    "owner": "apply.c:use_whip swallowed refusal",
+    "sourceBehavior": "C formats the message as `There is not enough room to flick your bullwhip.`; JS contracts it as `There's not enough room to flick your bullwhip.`.",
+    "comparison": {
+      "passed": false,
+      "error": null,
+      "screens": { "matched": 44, "total": 45 },
+      "rng": { "matched": 2075, "total": 2075 },
+      "cursors": { "matched": 45, "total": 45 }
+    }
+  },
+  "summary": "At segment 0 step 44, an already-wielded bullwhip aimed while the hero is swallowed reaches apply.c:use_whip's refusal branch. C calls There(\"is not enough room to flick your bullwhip.\") and the established JS path emits a contracted sentence with an apostrophe at row 0 column 5. The previous 44 screens and all 2075 RNG calls match. Correct only this branch's wording; the ordinary attack, snatch, pit and floor-object paths are not reached or part of this mismatch.",
+  "source": {
+    "file": "apply.c",
+    "branch": "For a wielded object, getdir succeeds and u.uswallow is true; after the shared location and proficiency setup, C selects the first outcome branch and calls There with the full `There is ...` wording.",
+    "functions": ["use_whip"],
+    "callers": [
+      "apply.c:doapply dispatches BULLWHIP to use_whip; the JavaScript equivalent is js/apply.js:doapply -> use_whip through the #apply command.",
+      "The admitted v93 recording follows that production caller to the swallowed refusal at segment 0, step 44."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/apply.c:2955-3010 contains the complete use_whip source body. At line 3006, the swallowed branch calls There(\"is not enough room to flick your bullwhip.\"); this is a formatting macro whose source string begins with `is`, producing `There is ...`.",
+    "js/apply.js:826 is the corresponding branch and hardcodes `There's not enough room to flick your bullwhip.`. The apostrophe at row 0, column 5 is the first differing cell; the earlier RNG/screen/cursor prefix matches.",
+    "challenges/manifests/v93.json records the recipe SHA-256 c76286184aac72e480a1c4ca9afc2871d3f75f16035a453fc0267e8ebabd661e and recording SHA-256 580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc. Its saved admission evaluation reports 44/45 screens, 2075/2075 RNG and 45/45 cursors matched.",
+    "The manifest's source trace and overlap review distinguish this swallowed refusal from ordinary whip attacks, pit/floor branches, and the swallowed grappling-hook refusal."
+  ]
+}
