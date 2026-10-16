@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import test from 'node:test';
@@ -12,6 +12,7 @@ import {groupCases} from './synthetic-ci.mjs';
 import {createLedger, recordEvent, summarizeLedger} from './worker-state.mjs';
 import {COLUMNS, readRows} from './score-log.mjs';
 import {scorerIdentity} from './score-challenges.mjs';
+import {evidenceApi} from './test-fixtures/hosted-evidence.mjs';
 
 function fixture(t) {
     const root = mkdtempSync(join(tmpdir(), 'teleport-admission-only-'));
@@ -72,14 +73,15 @@ function fixture(t) {
     // A positive synthetic run ID identifies transport fixtures, not a real GitHub run.
     const run = {id: 42, run_attempt: 1, status: 'completed', conclusion: 'success', head_sha: commit,
         repository: {full_name: 'vtjeng/teleport-contest'}, head_repository: {full_name: 'vtjeng/teleport-contest'},
-        path: '.github/workflows/admission.yml'};
+        path: '.github/workflows/admission.yml', check_suite_id: 500};
     const calls = [];
+    const api = evidenceApi(run, () => Object.fromEntries(['.cache/admission-ci/summary.json', ...paths]
+        .map(path => [path, readFileSync(join(root, artifact, path))])), 'admission');
     const runGh = args => {
         calls.push(args);
         if (args[0] === 'repo') return 'vtjeng/teleport-contest';
-        if (args[0] === 'api') return JSON.stringify(run);
-        cpSync(join(root, artifact), args[args.indexOf('--dir') + 1], {recursive: true});
-        return '';
+        assert.equal(args[0], 'api', 'normal import never downloads artifacts');
+        return api(args[1]);
     };
     return {root, git, save, base, commit, plan, paths, artifact, run, calls, runGh};
 }
@@ -128,7 +130,7 @@ test('hosted import produces a separate receipt that authorizes manifests, not c
     const result = fetchAdmission('42', f);
     assert.equal(result.recorded, false, 'archive-only verification does not write scores');
     assert.equal(readAdmissionReceipt(f.root, result.receipt).commit, f.commit);
-    assert.equal(f.calls.filter(args => args[0] === 'run').length, 1, 'one artifact download; no replay command');
+    assert.equal(f.calls.filter(args => args[0] === 'run').length, 0, 'API import uses no artifact download or replay');
     verifyPublicationChanges(f.root, f.base, f.commit, result.receipt);
     assert.throws(() => readFileSync(join(f.root, `.git/checkpoint-results/${f.commit}/latest.json`)), /ENOENT/,
         'admission must not masquerade as a full checkpoint at the new commit');
@@ -146,6 +148,13 @@ test('admission import rejects incomplete artifacts and a failed or unaccepted b
     const path = `${f.artifact}/${f.paths[0]}`, bytes = readFileSync(join(f.root, path));
     const value = JSON.parse(bytes); value.sha = f.base;
     f.save(path, value);
+    assert.throws(() => fetchAdmission('42', f), /differs from the candidate inputs/);
+    f.save(path, bytes.toString());
+    const missingCase = JSON.parse(bytes);
+    missingCase.cases = [];
+    missingCase.manifestSha256 = corpusDigest([]);
+    missingCase.totals = totalsFor([]);
+    f.save(path, missingCase);
     assert.throws(() => fetchAdmission('42', f), /differs from the candidate inputs/);
     f.save(path, bytes.toString());
     f.save(`.git/checkpoint-results/${f.base}/latest.json`, {commit: f.base, allPassed: false});

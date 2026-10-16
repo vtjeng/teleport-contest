@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 // Trust the hosted verdict, verify its candidate identity, and archive its evidence.
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, cpSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
 import { checkpointResultsDirectory } from './checkpoint-results.mjs';
 import { BOOKKEEPING_FILES, digest } from './checkpoint-reuse.mjs';
+import {materializeEvidence, readHostedEvidence} from './hosted-evidence.mjs';
+import {readChallengeBatches} from './challenge-results.mjs';
+import {verifyAdmissionEvaluations} from './admission-proof.mjs';
 
 // Import certifies the committed candidate, not its later closure reports.
 // This guard checks paths and file types, not report contents.
@@ -40,6 +43,15 @@ export function archiveHostedCheckpoint(root, output, summary) {
         hashes[name] = digest(bytes);
     }
     cpSync(join(output, 'synthetic'), join(artifacts, 'synthetic'), { recursive: true });
+    const previousPath = join(commitDirectory, 'latest.json');
+    if (existsSync(previousPath)) {
+        const previous = JSON.parse(readFileSync(previousPath));
+        if (isDeepStrictEqual(previous.hostedRun, summary.hostedRun)
+            && (!isDeepStrictEqual(previous.artifactHashes, hashes)
+                || previous.hostedEvidence && summary.hostedEvidence
+                && !isDeepStrictEqual(previous.hostedEvidence, summary.hostedEvidence)))
+            throw new Error('hosted evidence conflicts with the archived result for this workflow attempt');
+    }
     const archived = { ...summary, artifacts, artifactHashes: hashes, exitCode: 0 };
     const contents = JSON.stringify(archived, null, 2) + '\n';
     writeFileSync(join(artifacts, 'summary.json'), contents);
@@ -74,7 +86,7 @@ function gh(args, cwd) {
     return execFileSync('gh', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 }
 
-export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh } = {}) {
+export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh, transport = 'checks' } = {}) {
     if (!/^[1-9]\d*$/u.test(id)) throw new Error('expected a GitHub workflow run ID');
     requireReportOnlyImportTree(root);
     const head = () => execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
@@ -86,19 +98,34 @@ export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh } = 
     const cache = join(root, '.cache', 'hosted-checkpoints');
     mkdirSync(cache, { recursive: true });
     const output = mkdtempSync(join(cache, `${id}-`));
-    github(['run', 'download', id, '--repo', repository, '--name', 'parallel-checkpoint', '--dir', output]);
+    let proof;
+    if (transport === 'checks') {
+        const evidence = readHostedEvidence({github: path => github(['api', path]),
+            run: metadata, repository, kind: 'checkpoint'});
+        const batches = readChallengeBatches(root);
+        const expected = ['summary.json', 'development-standing.json', 'session-results.json', 'scan-cache.json',
+            ...batches.map(batch => `synthetic/ci-${batch.batch}.json`)].sort();
+        if (!isDeepStrictEqual([...evidence.files.keys()].sort(), expected))
+            throw new Error('API checkpoint is missing required evidence files or contains unexpected files');
+        if (batches.length) verifyAdmissionEvaluations(root, {commit, batches}, batches.map(batch =>
+            JSON.parse(evidence.files.get(`synthetic/ci-${batch.batch}.json`))));
+        materializeEvidence(output, evidence.files);
+        mkdirSync(join(output, 'synthetic'), {recursive: true});
+        proof = evidence.proof;
+    } else if (transport === 'artifact') {
+        github(['run', 'download', id, '--repo', repository, '--name', 'parallel-checkpoint', '--dir', output]);
+        github(['run', 'download', id, '--repo', repository, '--name', 'synthetic-evaluations', '--dir', join(output, 'synthetic')]);
+    } else throw new Error('unknown hosted evidence transport');
     const summary = JSON.parse(readFileSync(join(output, 'summary.json'), 'utf8'));
     if (summary.commit !== commit || summary.allPassed !== true || !isDeepStrictEqual(summary.hostedRun, run))
         throw new Error('downloaded summary does not identify this successful candidate run');
-    const synthetic = join(output, 'synthetic');
-    github(['run', 'download', id, '--repo', repository, '--name', 'synthetic-evaluations', '--dir', synthetic]);
     // A concurrent rerun or checkout must not change what this import claims.
     const after = verifyHostedRun(JSON.parse(github(['api', `repos/${repository}/actions/runs/${id}`])), repository, commit);
     if (!isDeepStrictEqual(after, run)) throw new Error('workflow attempt changed while fetching evidence');
     requireReportOnlyImportTree(root);
     if (head() !== commit)
         throw new Error('HEAD changed while fetching evidence');
-    const result = archiveHostedCheckpoint(root, output, summary);
+    const result = archiveHostedCheckpoint(root, output, {...summary, ...(proof ? {hostedEvidence: proof} : {})});
     console.log(`Results: ${result}`);
     const savedSynthetic = join(resolve(result, '..'), 'synthetic');
     console.log(`Synthetic evaluations: ${savedSynthetic}`);
@@ -116,7 +143,9 @@ export function fetchHostedCheckpoint(id, { root = PROJECT_ROOT, runGh = gh } = 
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
     try {
-        if (process.argv.length !== 3) throw new Error('Usage: fetch-hosted-checkpoint.mjs <run-id>');
-        fetchHostedCheckpoint(process.argv[2]);
+        const [id, flag, ...extra] = process.argv.slice(2);
+        if (!id || extra.length || (flag && flag !== '--artifact'))
+            throw new Error('Usage: fetch-hosted-checkpoint.mjs <run-id> [--artifact]');
+        fetchHostedCheckpoint(id, {transport: flag ? 'artifact' : 'checks'});
     } catch (error) { console.error(`fetch-hosted-checkpoint: ${error.message}`); process.exitCode = 1; }
 }

@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { archiveHostedCheckpoint, fetchHostedCheckpoint, requireReportOnlyImportTree, verifyHostedRun } from './fetch-hosted-checkpoint.mjs';
 import { readCheckpointResult } from './checkpoint-results.mjs';
+import {evidenceApi} from './test-fixtures/hosted-evidence.mjs';
 
 test('hosted import tolerates closure reports but rejects uncommitted execution inputs', t => {
     const root = mkdtempSync(join(tmpdir(), 'hosted-import-tree-'));
@@ -81,6 +82,9 @@ test('hosted evidence reaches the existing closure archive without losing remote
     assert.equal(readFileSync(join(saved.artifacts, 'synthetic', 'ci-v1.json'), 'utf8'), '{}');
     assert.equal(readFileSync(join(root, '.cache', 'scan-cache.json'), 'utf8'),
         readFileSync(join(output, 'scan-cache.json'), 'utf8'));
+    writeFileSync(join(output, 'scan-cache.json'), '{"changed":true}');
+    assert.throws(() => archiveHostedCheckpoint(root, output, summary), /conflicts with the archived result/);
+    assert.equal(readCheckpointResult(root, commit).artifacts, saved.artifacts);
 });
 
 test('fetch imports the exact candidate with dirty closure reports and rechecks changes after download', t => {
@@ -99,27 +103,34 @@ test('fetch imports the exact candidate with dirty closure reports and rechecks 
     // A fixed successful run/attempt provides the downloaded evidence identity.
     const run = { status: 'completed', conclusion: 'success', head_sha: commit,
         repository: { full_name: repository }, head_repository: { full_name: repository },
-        path: '.github/workflows/checkpoint-trial.yml', id: 123, run_attempt: 1 };
+        path: '.github/workflows/checkpoint-trial.yml', id: 123, run_attempt: 1, check_suite_id: 500 };
     let changeDuringDownload = false;
+    const api = evidenceApi(run, () => Object.fromEntries([
+        ['summary.json', JSON.stringify({commit, executionCommit: commit, allPassed: true,
+            hostedRun: verifyHostedRun(run, repository, commit)})],
+        ...['development-standing.json', 'session-results.json', 'scan-cache.json'].map(name => [name, '{}']),
+    ]), 'checkpoint', path => {
+        if (changeDuringDownload && path.includes('/annotations')) writeFileSync(join(root, 'package.json'), '{}');
+    });
     const runGh = (args, cwd) => {
         assert.equal(cwd, root);
         if (args[0] === 'repo') return repository;
-        if (args[0] === 'api') return JSON.stringify(run);
-        assert.deepEqual(args.slice(0, 2), ['run', 'download']);
-        const output = args[args.indexOf('--dir') + 1];
-        mkdirSync(output, { recursive: true });
-        if (args.includes('parallel-checkpoint')) {
-            writeFileSync(join(output, 'summary.json'), JSON.stringify({ commit,
-                executionCommit: commit, allPassed: true,
-                hostedRun: verifyHostedRun(run, repository, commit) }));
-            for (const name of ['development-standing.json', 'session-results.json', 'scan-cache.json'])
-                writeFileSync(join(output, name), '{}');
-        } else if (changeDuringDownload) writeFileSync(join(root, 'package.json'), '{}');
-        return '';
+        assert.equal(args[0], 'api', 'normal import never downloads artifacts');
+        return api(args[1]);
     };
     const saved = fetchHostedCheckpoint('123', { root, runGh });
     assert.equal(JSON.parse(readFileSync(saved)).commit, commit);
     assert.equal(readFileSync(join(root, 'GOALS.json'), 'utf8'), '{}');
+    let reads = 0;
+    const rerun = args => {
+        if (args[0] === 'api' && args[1] === `repos/${repository}/actions/runs/123` && ++reads === 2)
+            return JSON.stringify({...run, run_attempt: 2});
+        return runGh(args, root);
+    };
+    assert.throws(() => fetchHostedCheckpoint('123', {root, runGh: rerun}), /attempt changed/);
+    const incomplete = evidenceApi(run, {'summary.json': '{}'});
+    assert.throws(() => fetchHostedCheckpoint('123', {root,
+        runGh: args => args[0] === 'repo' ? repository : incomplete(args[1])}), /missing required evidence files/);
     changeDuringDownload = true;
     assert.throws(() => fetchHostedCheckpoint('123', { root, runGh }), /outside regular reports/);
     assert.equal(readCheckpointResult(root, commit).artifacts, join(saved, '..'));

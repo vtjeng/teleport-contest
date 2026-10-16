@@ -45,6 +45,10 @@ jobs:
   combine:
     name: Save complete admission evidence
     needs: baseline
+    permissions:
+      contents: read
+      actions: read
+      checks: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -60,6 +64,9 @@ jobs:
           path: .cache/admission-ci
           merge-multiple: true
       - run: node scripts/admission-ci.mjs combine
+      - run: node scripts/hosted-evidence.mjs admission .cache/admission-ci
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v7
         with:
           name: admission-baselines

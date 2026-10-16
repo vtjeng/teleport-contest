@@ -152,8 +152,12 @@ jobs:
 
   combine:
     name: Combined checkpoint result
-    needs: stage
+    needs: [stage, synthetic-results]
     if: always()
+    permissions:
+      contents: read
+      actions: read
+      checks: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -167,6 +171,13 @@ jobs:
           path: .cache/checkpoint-stages
           merge-multiple: true
       - run: node scripts/checkpoint-stage.mjs combine .cache/checkpoint-stages
+      - uses: actions/download-artifact@v8
+        with:
+          name: synthetic-evaluations
+          path: .cache/checkpoint-stages/synthetic
+      - run: node scripts/hosted-evidence.mjs checkpoint .cache/checkpoint-stages
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:

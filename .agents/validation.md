@@ -70,7 +70,8 @@ and admission gates.
   `integration-checkpoint/*` branch. Wait for the Checkpoint workflow to finish,
   then run `node scripts/fetch-hosted-checkpoint.mjs <run-id>` outside the
   sandbox. It requires a successful run from this repository's checkpoint
-  workflow whose commit equals local HEAD, verifies the downloaded summary's
+  workflow whose commit equals local HEAD, reads the complete result files from
+  the exact combine job's GitHub Checks API output, verifies their hashes,
   commit and run identity, and installs its evidence in the shared checkpoint
   archive. Import permits uncommitted regular closure reports, not changed
   execution inputs. The imported verdict covers only the committed candidate.
@@ -82,6 +83,15 @@ and admission gates.
   Reuse the imported scan cache and evaluation artifacts for acceptance;
   the acceptance helper compares them with accepted evidence under `.agents/scoring.md`.
   Do not replay them merely because they were measured remotely.
+  Normal imports make only GitHub API requests. The combine job publishes the
+  unchanged summary, fixed per-session results, scan cache, and every admitted
+  synthetic evaluation as compressed numbered annotation chunks with a final
+  hash-bound manifest. Import verifies the exact workflow attempt and job,
+  GitHub Actions app, check suite, commit, complete chunk/file membership and
+  digests; existing per-case input/scorer/error and acceptance gates still apply.
+  Missing API evidence fails without an artifact download or scalar-only fallback.
+  For an explicitly requested historical import, `--artifact` retains the old
+  archive-download transport; it does not relax any acceptance requirement.
 - The agent that starts checkpoint owns the command through completion and
   retains its process handle. Do not interrupt that agent merely to take over
   validation. An explicit handoff identifies the tested commit, whether the
@@ -273,7 +283,9 @@ game, scorer, case-file, and existing-manifest changes.
 
 Watch the hosted run once, then import with
 `node scripts/fetch-admission.mjs <run-id> --ledger <shared-ledger>` at that
-candidate HEAD. The importer verifies the exact commit and workflow attempt,
+candidate HEAD. The importer reads the unchanged complete summary/evaluations
+from the exact combine job's Checks API output with the chunk/file integrity
+checks above, and verifies the exact commit and workflow attempt,
 records saved baselines, and marks them available in the ledger. It performs
 no replay and creates an admission receipt, not a new gameplay checkpoint.
 Without `--ledger`, the command archives evidence without recording scores.

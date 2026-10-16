@@ -14,8 +14,9 @@ import {recordEvaluations} from './score-challenges.mjs';
 import {readRows} from './score-log.mjs';
 import {recordEvent, summarizeLedger, updateLedger} from './worker-state.mjs';
 import {PROJECT_ROOT} from './scoring-workspace.mjs';
+import {materializeEvidence, readHostedEvidence} from './hosted-evidence.mjs';
 
-export function fetchAdmission(id, {root = PROJECT_ROOT, ledger, runGh = (args, cwd) =>
+export function fetchAdmission(id, {root = PROJECT_ROOT, ledger, transport = 'checks', runGh = (args, cwd) =>
     execFileSync('gh', args, {cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024})} = {}) {
     if (!/^[1-9]\d*$/u.test(id)) throw new Error('expected an admission workflow run ID');
     requireReportOnlyImportTree(root);
@@ -24,11 +25,26 @@ export function fetchAdmission(id, {root = PROJECT_ROOT, ledger, runGh = (args, 
     const github = args => runGh(args, root);
     const repository = github(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim();
     const metadata = () => JSON.parse(github(['api', `repos/${repository}/actions/runs/${id}`]));
-    const hostedRun = verifyAdmissionRun(metadata(), repository, commit);
+    const sourceRun = metadata();
+    const hostedRun = verifyAdmissionRun(sourceRun, repository, commit);
     const directory = join(checkpointResultsDirectory(root), '..', 'admission-results', commit);
     mkdirSync(directory, {recursive: true});
     const output = mkdtempSync(join(directory, 'run-hosted-'));
-    github(['run', 'download', id, '--repo', repository, '--name', 'admission-baselines', '--dir', output]);
+    let proof;
+    if (transport === 'checks') {
+        const evidence = readHostedEvidence({github: path => github(['api', path]),
+            run: sourceRun, repository, kind: 'admission'});
+        const summaryBytes = evidence.files.get('.cache/admission-ci/summary.json');
+        if (!summaryBytes) throw new Error('API admission is missing its summary');
+        const manifest = JSON.parse(summaryBytes);
+        const expected = ['.cache/admission-ci/summary.json', ...(manifest.evaluations ?? [])].sort();
+        if (!isDeepStrictEqual([...evidence.files.keys()].sort(), expected))
+            throw new Error('API admission is missing required evaluation files or contains unexpected files');
+        materializeEvidence(output, evidence.files);
+        proof = evidence.proof;
+    } else if (transport === 'artifact')
+        github(['run', 'download', id, '--repo', repository, '--name', 'admission-baselines', '--dir', output]);
+    else throw new Error('unknown hosted evidence transport');
     const summary = JSON.parse(readFileSync(join(output, '.cache/admission-ci/summary.json'), 'utf8'));
     if (summary.version !== 1 || summary.kind !== 'admission' || summary.commit !== commit)
         throw new Error('downloaded admission summary identifies a different candidate');
@@ -85,7 +101,7 @@ export function fetchAdmission(id, {root = PROJECT_ROOT, ledger, runGh = (args, 
             return current;
         });
     }
-    const receipt = {...summary, hostedRun, checkpoint: join(checkpoint.artifacts, 'summary.json'),
+    const receipt = {...summary, hostedRun, ...(proof ? {hostedEvidence: proof} : {}), checkpoint: join(checkpoint.artifacts, 'summary.json'),
         evaluations: expected.map(path => join(output, path))};
     const bytes = JSON.stringify(receipt, null, 2) + '\n';
     const receiptPath = join(output, `${digest(bytes)}.json`);
@@ -98,10 +114,14 @@ export function fetchAdmission(id, {root = PROJECT_ROOT, ledger, runGh = (args, 
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
     try {
-        const [id, flag, ledger, ...extra] = process.argv.slice(2);
-        if (id === '--help' && !flag) console.log('Usage: fetch-admission.mjs <run-id> [--ledger <shared-ledger>]');
-        else if (extra.length || (flag && (flag !== '--ledger' || !ledger)))
-            throw new Error('Usage: fetch-admission.mjs <run-id> [--ledger <shared-ledger>]');
-        else console.log(JSON.stringify(fetchAdmission(id, {ledger}), null, 2));
+        const [id, ...args] = process.argv.slice(2);
+        const options = {};
+        for (let i = 0; i < args.length; i++) {
+            if (args[i] === '--ledger' && args[i + 1]) options.ledger = args[++i];
+            else if (args[i] === '--artifact') options.transport = 'artifact';
+            else throw new Error('Usage: fetch-admission.mjs <run-id> [--ledger <shared-ledger>] [--artifact]');
+        }
+        if (id === '--help' && !args.length) console.log('Usage: fetch-admission.mjs <run-id> [--ledger <shared-ledger>] [--artifact]');
+        else console.log(JSON.stringify(fetchAdmission(id, options), null, 2));
     } catch (error) { console.error(`fetch-admission: ${error.message}`); process.exitCode = 1; }
 }
