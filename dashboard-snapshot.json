@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T19:50:29.561Z",
+  "capturedAt": "2026-10-16T20:01:26.247Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T19:50:29.561Z",
+    "asOf": "2026-10-16T20:01:26.247Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -159754,6 +159754,15 @@
         "worker": "Prep",
         "state": "active",
         "reason": "Reviewing saved source leads and prior/transport limits; gameplay remains unstarted."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-bounded-unrun-source-lead-review-finished-20261016",
+        "type": "turn",
+        "at": "2026-10-16T19:50:47.441Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Bounded source review finished; two unrun leads remain pending normal plan gates."
       }
     ]
   },
@@ -164999,8 +165008,8 @@
     ]
   },
   "development": {
-    "executionCommit": "73ae1797b195f634722649cda0756cf7e429a768",
-    "measuredAt": "2026-10-16T19:49:35.252Z",
+    "executionCommit": "95eb1693f7e148d4ff6ac02720ef5a862fdac928",
+    "measuredAt": "2026-10-16T20:00:38.845Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
