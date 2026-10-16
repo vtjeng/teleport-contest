@@ -319407,7 +319407,7 @@
     {
       "id": "v92-divergence-blessed-polymorph-min-rng-evaluation",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Reproduce C min macro argument evaluation in blessed polymorph duration cap.",
       "cFile": "potion.c",
       "sessions": [
@@ -319417,15 +319417,82 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f15e0d0b0aff14896fefb55a7548d301eb5aeafb",
       "delivered": null,
       "function": "peffect_polymorph",
-      "session": "synthetic/v92/v92-blessed-polymorph-duration-min-rng"
+      "session": "synthetic/v92/v92-blessed-polymorph-duration-min-rng",
+      "closeStanding": {
+        "sha": "f15e0d0b0aff14896fefb55a7548d301eb5aeafb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d5ccbfa5ab0edb92da234757a5ee4b8368deba65",
+        "target": "synthetic/v92/v92-blessed-polymorph-duration-min-rng",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/f15e0d0b0aff14896fefb55a7548d301eb5aeafb/run-hosted-t4HJK2/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "peffect_polymorph",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_polymorph",
+            "sourceReview": "Read nethack-c/upstream/src/potion.c:1318-1332 in full. In the blessed/base-form branch, polyself(POLY_CONTROLLED|POLY_LOW_CTRL) runs before the duration cap; when mtimedone is nonzero and umonnum differs from umonster, C evaluates min(u.mtimedone, rn2(15)+10). include/hack.h:1518 defines min(x,y) as ((x)<(y)?(x):(y)), so the random second operand is evaluated a second time when the first comparison is false. JS now mirrors that conditional evaluation explicitly. polyself's return is discarded by C; its state side effects are retained and polyself is already implemented.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "The POT_POLYMORPH switch arm dispatches to peffect_polymorph; C counterpart is potion.c:1417-1419."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "The potion effect dispatcher is reached from dodrink through dopotion, corresponding to potion.c:526-641."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "synthetic": [
+              {
+                "batch": "v92",
+                "caseId": "v92-blessed-polymorph-duration-min-rng",
+                "segment": 0,
+                "fromStep": 90,
+                "throughStep": 90,
+                "source": "#quaff -> dodrink -> dopotion -> peffects POT_POLYMORPH -> peffect_polymorph; the blessed potion transforms the hero and reaches the duration cap, exercising both C min operand evaluations."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected C entry is peffect_polymorph. The active production command path is cmd.c #quaff to potion.c:dodrink, dopotion, peffects POT_POLYMORPH, and peffect_polymorph. The JavaScript route is #quaff in cmd.js to potion.js dodrink/dopotion/peffects and then peffect_polymorph. The admitted v92 segment reaches the function through that production route at step 90. This evidence covers the selected divergence only; it does not certify unrelated potion.c functions.",
+        "entryPoints": [
+          {
+            "name": "#quaff blessed polymorph",
+            "functions": [
+              "peffect_polymorph"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v92",
+                "caseId": "v92-blessed-polymorph-duration-min-rng",
+                "segment": 0,
+                "fromStep": 90,
+                "throughStep": 90,
+                "source": "The admitted segment drives the normal #quaff path to the blessed polymorph duration cap."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "divergence-v91-juiblex-jubilex-name-refusal",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement alreadynamed from do_name.c",
       "cFile": "do_name.c",
       "sessions": [
@@ -319435,10 +319502,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f15e0d0b0aff14896fefb55a7548d301eb5aeafb",
       "delivered": null,
       "function": "alreadynamed",
-      "session": "synthetic/v91/v91-juiblex-jubilex-name-refusal"
+      "session": "synthetic/v91/v91-juiblex-jubilex-name-refusal",
+      "closeStanding": {
+        "sha": "f15e0d0b0aff14896fefb55a7548d301eb5aeafb",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d5ccbfa5ab0edb92da234757a5ee4b8368deba65",
+        "target": "synthetic/v91/v91-juiblex-jubilex-name-refusal",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/f15e0d0b0aff14896fefb55a7548d301eb5aeafb/run-hosted-t4HJK2/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "alreadynamed",
+            "implementation": "js/do_name.js",
+            "symbol": "alreadynamed",
+            "sourceReview": "Read the complete C definition do_name.c:158-195 and the complete caller do_mgivenname() at :199-282. C first handles name equality, then evaluates mtmp->data == &mons[PM_JUIBLEX], non-NULL strstri(monnambuf, \"Juiblex\"), and !strcmpi(usrbuf, \"Jubilex\") in that order. In C, strstri returns a pointer; a match at the first byte is non-NULL. The JavaScript helper strstri returns a numeric offset (js/hacklib.js:422-428), where zero is falsy. The old condition therefore missed the actual target name beginning at offset zero and allowed do_mgivenname() to print the generic fallback. The fix explicitly checks offset >= 0 and compares species identity with monsndx() (pmidx), the JS equivalent of C's species-table pointer identity. The caller evaluates alreadynamed before its generic unique-monster refusal; no RNG or state mutation is added.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c:do_mgivenname() calls alreadynamed() before its generic unique-monster refusal at :580-583. The JavaScript function does the same at js/do_name.js:587-590; docallcmd() routes the selected monster naming option to do_mgivenname()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v91",
+                "caseId": "v91-juiblex-jubilex-name-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 48,
+                "source": "The ordinary command/name-menu route selects an actually visible Juiblex, submits the exact misspelling Jubilex, and reaches the special alreadynamed refusal through docallcmd() -> do_mgivenname(). The corrected JS run matches the C screen at step 48."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active production entry point is the ordinary gameplay command loop selecting #name/#call, then docallcmd()'s monster option. C do_name.c:docallcmd() dispatches option 'm' to do_mgivenname(); JS docallcmd() dispatches the same option, and do_mgivenname() calls alreadynamed() before its generic unique refusal. The admitted v91 Juiblex recording reaches this route through step 48. This task changes only the helper's predicate; it does not claim whole-file do_name.c coverage.",
+        "entryPoints": [
+          {
+            "name": "docallcmd -> do_mgivenname -> alreadynamed",
+            "functions": [
+              "alreadynamed"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v91",
+                "caseId": "v91-juiblex-jubilex-name-refusal",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 48,
+                "source": "The admitted v91 recording exercises the production command dispatcher, monster naming selection, do_mgivenname caller, and Juiblex-specific refusal."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
