@@ -2177,7 +2177,8 @@ document.getElementById('stats').innerHTML = [
       [...(readout.querySelectorAll?.(':scope > section') ?? [])].map(section => section.scrollTop));
     describedTask = segment.task;
     const task = taskById.get(segment.task);
-    const hasTask=Boolean(task||segment.task||segment.goal||segment.batch);
+    // Availability gaps have synthetic IDs, not an assigned task.
+    const hasTask=Boolean(task||(segment.task&&!segment.task.startsWith('gap:')));
     const reasonLabel = segment.phase === 'parked' ? 'Reason for pause: '
       : segment.phase === 'blocked' ? 'Reported blocker: ' : segment.phase === 'waiting' ? 'Reported wait: '
         : segment.phase === 'idle' ? 'Worker report: ' : '';
