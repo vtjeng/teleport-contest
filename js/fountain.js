@@ -1009,7 +1009,7 @@ export async function dipfountain(obj, state = game, env = {}) {
     }
 
     // C ref: fountain.c:448-452. Wash hands or water-damage the item.
-    if (is_hands || obj === state.u.uarmg) {
+    if (is_hands || obj === state.uarmg) {
         er = await wash_hands(state, env);
     } else {
         er = await water_damage(obj, null, true, {

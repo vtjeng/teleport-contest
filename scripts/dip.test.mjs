@@ -20,10 +20,12 @@ import {
     ER_NOTHING,
     F_LOOTED,
     FOUNTAIN,
+    GLIB,
     MM_NOMSG,
     POOL,
     SINK,
     S_LRING,
+    W_ARMG,
 } from '../js/const.js';
 import { back_to_glyph, altar_to_glyph } from '../js/display.js';
 import { dipfountain } from '../js/fountain.js';
@@ -32,8 +34,8 @@ import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
 import { mksobj } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { DAGGER, POT_ACID, TOWEL } from '../js/objects.js';
-import { dodip, potion_dip } from '../js/potion.js';
+import { DAGGER, LEATHER_GLOVES, POT_ACID, TOWEL } from '../js/objects.js';
+import { dodip, make_glib, potion_dip } from '../js/potion.js';
 import { PM_WATER_NYMPH } from '../js/monsters.js';
 import { short_oname } from '../js/objnam.js';
 import { altarmask_at } from '../js/pray.js';
@@ -263,6 +265,54 @@ test('dipfountain follows fountain.c nothing arm (default)', async () => {
     }
 
     assert.ok(messages.some((m) => m.includes('Nothing seems to happen')));
+});
+
+test('dipfountain washes worn slippery gloves before fountain fate', async () => {
+    // C ref: fountain.c:447-454 and 558-577. The selected object is uarmg,
+    // so wash_hands clears Glib and returns ER_GREASED; rn2(2)=0 then stops
+    // before the ordinary rnd(30) fountain effect.
+    const cSource = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    const jsSource = await readFile(
+        new URL('../js/fountain.js', import.meta.url),
+        'utf8',
+    );
+    assert.match(cSource, /else if \(is_hands \|\| obj == uarmg\)\s*\{\s*er = wash_hands\(\);/u);
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+
+    const gloves = addinv(mksobj(LEATHER_GLOVES, false, false, { state: game }), game);
+    gloves.owornmask = W_ARMG;
+    game.uarmg = gloves;
+    make_glib(5, game);
+    const messages = [];
+    const randomCalls = [];
+    await dipfountain(gloves, game, {
+        message: (line) => messages.push(line),
+        random: {
+            rn2(bound) {
+                randomCalls.push(`rn2(${bound})`);
+                assert.equal(bound, 2, 'ER_GREASED gate follows glove washing');
+                return 0;
+            },
+            rnd(bound) {
+                randomCalls.push(`rnd(${bound})`);
+                assert.fail('washed slippery gloves return before ordinary fountain fate');
+            },
+        },
+    });
+
+    assert.ok(messages.some((line) => line.includes('wash your gloved hands')));
+    assert.ok(messages.some((line) => line.includes('no longer slippery')));
+    assert.equal(game.u.uprops[GLIB].intrinsic, 0);
+    assert.deepEqual(randomCalls, ['rn2(2)']);
+    assert.match(jsSource, /if \(is_hands \|\| obj === state\.uarmg\)/u);
 });
 
 test('dipfountain early return is exercised by the witness session',
