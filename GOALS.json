@@ -319033,7 +319033,7 @@
     {
       "id": "fix-do-dropx-fountain-dry-terrain-v90-20261016",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dropx from do.c",
       "cFile": "do.c",
       "sessions": [
@@ -319043,15 +319043,79 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f4aff1bdebdd07859f3f0c0955073077d3d0ef7d",
       "delivered": null,
       "function": "dropx",
-      "session": "synthetic/v90/v90-p15-fountain-ordinary-drop"
+      "session": "synthetic/v90/v90-p15-fountain-ordinary-drop",
+      "closeStanding": {
+        "sha": "f4aff1bdebdd07859f3f0c0955073077d3d0ef7d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "target": "synthetic/v90/v90-p15-fountain-ordinary-drop",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/f4aff1bdebdd07859f3f0c0955073077d3d0ef7d/run-hosted-MK548D/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dropx",
+            "implementation": "js/do.js",
+            "symbol": "dropx",
+            "sourceReview": "Read upstream do.c:dropx (786-799) and the ordinary drop() caller (714-780), then traced dropy() -> dropz() -> flooreffects(). dropx frees inventory, returns after swallowed or shop handling where applicable, applies doaltarobj only on an altar, and otherwise delegates to ordinary placement. In flooreffects, pool handling is gated by is_pool(); rm.h defines POOL=16 through DRAWBRIDGE_UP=19 and FOUNTAIN=28, so Fountain is not a pool and ordinary potion placement continues. The JavaScript admission wrapper had an extra dry-terrain allowlist that excluded FOUNTAIN; removing that rejection now permits the same placement path. This records the assigned fountain-terrain divergence only and does not certify every branch of do.c:dropx.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "The production drop command chooses an inventory object, sets how_lost, and calls dropx(obj, dropCommandEnv(state)); C do.c:drop() follows the same route at 778 after the cmd.c 'd' dispatch to dodrop()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/drop-command.test.mjs",
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p15-fountain-ordinary-drop",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 14,
+                "source": "cmd.c 'd' -> dodrop() -> do.c:drop() -> dropx() -> dropy()/dropz()/flooreffects(); step 14 selects the potion for an ordinary drop while standing at the fountain."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active entry point is the ordinary drop command: cmd.c maps 'd' to dodrop(); dodrop() obtains the selected object and calls drop(); drop() passes it to dropx() after the floor-reachability branch. JavaScript cmd.js dispatches to dodrop(), which calls drop() and then dropx(). The admitted v90 p15 range reaches the fountain drop selection at step 14. Other direct C callers of dropx are outside this assigned command divergence and are not claimed as covered here.",
+        "entryPoints": [
+          {
+            "name": "cmd.c 'd' -> do.c:dodrop -> do.c:drop -> do.c:dropx",
+            "functions": [
+              "dropx"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p15-fountain-ordinary-drop",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 14,
+                "source": "The recording uses 'd', selects the potion with 'f', and drops it on a fountain; C dropx/dropz/flooreffects proceeds to ordinary placement because FOUNTAIN is outside IS_POOL."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "v90-p17-auto-describe-compass-coordinate",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement auto_describe from getpos.c",
       "cFile": "getpos.c",
       "sessions": [
@@ -319061,10 +319125,122 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "f4aff1bdebdd07859f3f0c0955073077d3d0ef7d",
       "delivered": null,
       "function": "auto_describe",
-      "session": "synthetic/v90/v90-p17-compass-trap-list"
+      "session": "synthetic/v90/v90-p17-compass-trap-list",
+      "closeStanding": {
+        "sha": "f4aff1bdebdd07859f3f0c0955073077d3d0ef7d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "target": "synthetic/v90/v90-p17-compass-trap-list",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/f4aff1bdebdd07859f3f0c0955073077d3d0ef7d/run-hosted-MK548D/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "auto_describe",
+            "implementation": "js/getpos.js",
+            "symbol": "auto_describe",
+            "sourceReview": "Read pinned getpos.c:auto_describe lines 640-662 and its C caller at getpos.c:getpos lines 860-867. C calls do_screen_description, then coord_desc using iflags.getpos_coords, and emits firstmatch + optional coordinates + invalid-target/no-travel-path suffixes before restoring the selected cursor and flushing. The JavaScript path keeps the existing description, validity and travel checks and now inserts the existing coord_desc result with C's separating space. The mode NONE returns an empty suffix; compass, full compass, map and screen modes use existing coord_desc formatting. No RNG is used; output and cursor/display state make the function impure. Its existing do_screen_description, coord_desc, is_valid_travelpt and getpos validity callback remain the callees; none is skipped or replaced.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c:getpos runs auto_describe in its cursor loop when autodescribe is enabled and no prompt message was just given; js/getpos.js:getpos awaits auto_describe for the current cursor before reading the next cursor key."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/getpos.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p17-compass-trap-list",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 13,
+                "source": "cmd.c:dowhatis/getpos cursor input -> getpos.c:getpos autodescribe branch -> pager.c:do_screen_description -> getpos.c:coord_desc"
+              }
+            ]
+          },
+          {
+            "sourceFile": "pager.c",
+            "name": "look_traps",
+            "implementation": "js/pager.js",
+            "symbol": "look_traps",
+            "sourceReview": "Read the complete pinned pager.c:look_traps definition lines 2078-2143 and its pager.c:do_look menu caller lines 1811-1875. The source scans the selected nearby or full region in y-major/x-minor order, formats visible traps with trap_description, and formats a remembered seen trap only when its water/air or couldsee guard allows it. Its coordinate mode is the configured getpos_coords, falling back to MAP when NONE; SCREEN has no padding, MAP is width eight, and other modes are width twelve before the glyph separator. The JavaScript path previously rejected alternate modes and always used the MAP prefix; it now uses existing coord_desc and mirrors those widths and the glyph column. The adjacent look_engrs guard and behavior are unchanged. This output function is impure; source callees trap_description, trapname, encglyph/map glyph helpers and the text-window renderer are retained. The C path contains no direct RNG draws.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c:do_look dispatches the t/T menu choice to look_traps(TRUE/FALSE); js/pager.js:do_look dispatches the same choice to look_traps."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p17-compass-trap-list",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "cmd.c:dowhatis -> pager.c:do_look 't' selection -> pager.c:look_traps; JS dowhatis -> do_look -> look_traps"
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This divergence fix covers two selected impure branches within the admitted synthetic v90 p17 recording, not whole-file completion. C getpos cursor movement with whatis_coord:compass reaches getpos.c:auto_describe at segment 0 step 13; the C message includes the east coordinate and current JS now emits that same suffix. The same session enters the slash/whatis menu and selects the nearby trap list at step 37, reaching pager.c:look_traps; C formats compass coordinates while the prior JS refusal now uses the configured formatter. The full unchanged recording matches after both edits. Other getpos and pager entry points, including pager.c:look_engrs alternate-coordinate behavior, are not claimed.",
+        "entryPoints": [
+          {
+            "name": "Automatic farlook description with compass coordinates during getpos cursor input",
+            "functions": [
+              "auto_describe"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p17-compass-trap-list",
+                "segment": 0,
+                "fromStep": 13,
+                "throughStep": 13,
+                "source": "getpos.c:getpos -> getpos.c:auto_describe -> pager.c:do_screen_description and getpos.c:coord_desc"
+              }
+            ]
+          },
+          {
+            "name": "Nearby trap-list display with compass coordinates through the whatis menu",
+            "functions": [
+              {
+                "sourceFile": "pager.c",
+                "name": "look_traps"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p17-compass-trap-list",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "cmd.c:dowhatis -> pager.c:do_look -> pager.c:look_traps"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
