@@ -1,0 +1,31 @@
+{
+  "session": "synthetic/v90/v90-p16-counted-inventory",
+  "remainingScreens": 3,
+  "recordedSteps": 6,
+  "status": "complete",
+  "commit": "40d1cfdab47fa588e71bd9ef7348e3d7aa37563a",
+  "mismatch": {
+    "segment": 0,
+    "step": 3,
+    "key": "i",
+    "kind": "screen and command refusal",
+    "owner": "cmd.c:rhack",
+    "source": "A positive count remains when GENERALCMD inventory is dispatched; JavaScript rejects before ddoinv() instead of taking the C ECMD_OK reset path.",
+    "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+  },
+  "summary": "The counted inventory command is refused by the JavaScript rhack() count boundary before its implemented inventory handler runs. C parses 2i, dispatches ddoinv() once, and clears the remaining count through rhack()'s ECMD_OK reset; the inventory menu is shown without using a turn. The next wait advances the turn normally. The later RNG shortfall is downstream of this earlier command refusal.",
+  "source": {
+    "file": "nethack-c/upstream/src/cmd.c",
+    "branch": "parse() commits command_count=2 and gm.multi=1 (cmd.c:5093-5156). rhack() dispatches the bound inventory row to ddoinv() with the count still present (cmd.c:3726-3729; command table :1740-1742). ddoinv() returns ECMD_OK after displaying inventory (invent.c:3006-3020); rhack()'s ECMD_OK branch then calls reset_cmd_vars(), zeroing gm.multi without advancing a turn (cmd.c:3810-3822). The JavaScript rhack() rejects any positive-count nonmovement command outside its explicit exemptions at js/cmd.js:5645-5685, before the inventory dispatch at :6570-6578.",
+    "functions": ["rhack", "parse"],
+    "callers": ["nethack-c/upstream/src/allmain.c:moveloop_core() reads the next command through rhack(0) at :515-531; js/allmain.js:moveloop_core() uses js/cmd.js:rhack()."],
+    "dependencies": ["nethack-c/upstream/src/invent.c:ddoinv", "nethack-c/upstream/src/cmd.c:reset_cmd_vars"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted recipe uses seed 91673016, datetime 20771118123000, a Wizard with the time option enabled, and input ` 2i` followed by Escape and `.`. The immutable recording SHA-256 is 64e8161c05418537927cbdf97834f40a81fac2a45489b4457afee000ae7cfc96; its C screen shows the full inventory menu at step 3 with T:1, returns to the map at step 4 with T:1, and the wait advances to T:2 at step 5.",
+    "A fresh scan at the claimed replay commit 40d1cfdab47fa588e71bd9ef7348e3d7aa37563a reproduced a command refusal at `i`, step 3, with stop input ` 2i`; diagnostic `.cache/synthetic-scans/v90/v90-p16-counted-inventory.json` records `commandRefusal: true`, key `i`, command `inventory`, three emitted screens, and six recorded steps.",
+    "The saved admission evaluation identifies the first mismatch at segment 0, step 3, key `i`, source owner `cmd.c:rhack`. Its comparison at 93fa87a40ed6219b5d31e211f22b460af55bfe92 has the first screen/cursor divergence at recorded boundary 3. The RNG stream first differs later at step 5 (`rn2(12)=2`, `mcalcmove`), so that is a consequence of the earlier rejected inventory dispatch.",
+    "This cause is distinct from v16 counted pickup: hack.c pickup consumes the count before its own command reset. It is also distinct from v34 inventory-adjust-split, which is an ordinary inventory-key menu-selection behavior, not numeric-count dispatch. No additional source reservation conflict was found in the assigned claim; source scope must be atomically claimed before edits."
+  ]
+}
