@@ -449,6 +449,7 @@ canvas {
 .history-controls { display: flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
 .history-controls .chart-reset { border: 0; border-radius: 0; }
 .history-controls .chart-reset + .chart-reset { border-left: 1px solid var(--border); }
+.history-controls .chart-reset:focus-visible { outline-offset:-3px; }
 .history-controls [aria-pressed="true"] { background: var(--progress-area); color: var(--ink-primary); border-color: var(--ink-secondary); }
 #progressWindow { font: inherit; font-size: 12px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .batch-picker { position: relative; width: max-content; max-width: 100%; margin: 0; font-size: 12px; }
@@ -1446,11 +1447,17 @@ document.getElementById('stats').innerHTML = [
     if(!batchPicker.open)return;
     const width=document.documentElement.clientWidth||window.innerWidth;
     const height=window.visualViewport?.height||window.innerHeight,top=window.visualViewport?.offsetTop||0;
-    batchPanel.style.maxHeight=Math.max(0,height-32)+'px';
-    const box=batchPicker.getBoundingClientRect(),panel=batchPanel.getBoundingClientRect();
+    const box=batchPicker.getBoundingClientRect();
+    const group=batchPicker.closest('.section-toolbar-controls').getBoundingClientRect();
+    // A wrapped date control is still part of this toolbar. Keep the menu
+    // outside the entire group so it cannot intercept that control's clicks.
+    const below=top+height-16-group.bottom-6,above=group.top-top-16-6;
+    const down=below>=180||below>=above;
+    batchPanel.style.maxHeight=Math.max(0,down?below:above)+'px';
+    const panel=batchPanel.getBoundingClientRect();
     batchPanel.style.right='auto';
     batchPanel.style.left=(Math.max(16,Math.min(box.left,width-panel.width-16))-box.left)+'px';
-    batchPanel.style.top=(Math.max(top+16,Math.min(box.bottom+6,top+height-panel.height-16))-box.top)+'px';
+    batchPanel.style.top=((down?group.bottom+6:group.top-6-panel.height)-box.top)+'px';
   }
   const datePickers=['yield','activity','progress'].map(prefix=>document.getElementById(prefix+'RangePicker'));
   batchPicker.addEventListener('toggle',()=>{
