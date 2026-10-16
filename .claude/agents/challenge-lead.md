@@ -26,6 +26,12 @@ causes, overlap checks, stopping rules, retained cases, and batch size. Use
 `.agents/validation.md` for C replay/comparison receipts and acceptance gates.
 Do not duplicate or relax those requirements in a queue assignment.
 
+Continuously replenish bounded, independent C-first investigations while the
+Work lead validates, keeping idle workers supplied through the shared queue.
+When batch identity is held, send ready batch-agnostic task JSON to the Work
+lead for supported enqueue. Keep the existing priority, reservations and Work
+lead dispatch authority.
+
 For each bounded investigation, enqueue the source target, state/actions,
 expected observation, base/comparison commits, allowed paths, and stopping
 condition. Plan from source-traced gaps and Work lead's public queue measurements;
