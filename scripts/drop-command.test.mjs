@@ -1323,24 +1323,43 @@ test('throne drop recipes retain the command and elapsed-turn entry points', () 
     }
 });
 
-// A dry throne remains outside admission at a seen pit edge; the pit and
-// other furniture retain their separate source/admission boundaries.
-test('throne admission retains the trap and other-furniture frontiers', async () => {
-    for (const hazard of ['pit', 'fountain']) {
-        const state = await startedGame();
-        state.u.ux++; // Avoid the upstairs exception in terrain admission.
-        const { ux, uy } = state.u;
-        state.level.at(ux, uy).typ = hazard === 'pit' ? THRONE : FOUNTAIN;
-        if (hazard === 'pit') state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
-        const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
-        const rngBefore = getRngLog().length;
-        assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
-            error => error instanceof UnsupportedDropError
-                && /floor effects at a trap|non-ordinary terrain/u.test(error.message));
-        assert.equal(obj.where, OBJ_INVENT);
-        assert.ok(!pileAt(state, ux, uy).includes(obj));
-        assert.equal(getRngLog().length, rngBefore);
-    }
+// C do.c:flooreffects() has no FOUNTAIN branch; rm.h:IS_POOL begins at POOL,
+// immediately after FOUNTAIN. The ordinary object must reach placement there.
+test('ordinary drops are admitted on a dry fountain', async () => {
+    const c = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
+    const rm = readFileSync('nethack-c/upstream/include/rm.h', 'utf8');
+    assert.match(c, /else if \(is_pool\(x, y\)\)[\s\S]*?else if \(u_at\(x, y\)/u);
+    assert.match(rm, /POOL\s*=\s*16,[\s\S]*?FOUNTAIN\s*=\s*28/u);
+    assert.match(rm, /#define IS_POOL\(typ\) \(\(typ\) >= POOL && \(typ\) <= DRAWBRIDGE_UP\)/u);
+
+    const state = await startedGame();
+    state.u.ux++; // Avoid the upstairs exception in terrain admission.
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = FOUNTAIN;
+    const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
+    const before = getRngLog().length;
+    const env = dropCommandEnv(state);
+    assert.doesNotThrow(() => preflight_dropx(obj, env));
+    await dropx(obj, env);
+    assert.equal(obj.where, OBJ_FLOOR);
+    assert.ok(pileAt(state, ux, uy).includes(obj));
+    assert.equal(getRngLog().length, before);
+});
+
+test('a seen pit edge still refuses an ordinary drop before mutation', async () => {
+    const state = await startedGame();
+    state.u.ux++; // Avoid the upstairs exception in terrain admission.
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = THRONE;
+    state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
+    const obj = addinv(mksobj(RUBY, false, false, { state }), { state });
+    const before = getRngLog().length;
+    assert.throws(() => preflight_dropx(obj, dropCommandEnv(state)),
+        error => error instanceof UnsupportedDropError
+            && /floor effects at a trap/u.test(error.message));
+    assert.equal(obj.where, OBJ_INVENT);
+    assert.ok(!pileAt(state, ux, uy).includes(obj));
+    assert.equal(getRngLog().length, before);
 });
 
 // do.c:758 belongs to drop(); callers such as reverse_loot bypass it by

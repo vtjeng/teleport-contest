@@ -1994,7 +1994,8 @@ export function preflight_dropx(obj, env = {}) {
     // shipping leaves the object on this level.
     if (location.typ !== ROOM && location.typ !== CORR
         && location.typ !== DOOR && location.typ !== SINK
-        && location.typ !== THRONE && !IS_ALTAR(location.typ) && !stway
+        && location.typ !== THRONE && location.typ !== FOUNTAIN
+        && !IS_ALTAR(location.typ) && !stway
         && !ordinaryLiquid) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }

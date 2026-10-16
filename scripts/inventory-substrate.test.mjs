@@ -67,7 +67,6 @@ import {
     dropx,
     flooreffects,
     preflight_dropx,
-    UnsupportedDropError,
 } from '../js/do.js';
 import { calc_capacity, near_capacity, weight_cap } from '../js/hack.js';
 import {
@@ -3693,9 +3692,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['seen pit-edge effects', /trap/u, ({ state }) => {
                 state.level.traps.push({ tx: 10, ty: 5, ttyp: PIT, tseen: true });
             }],
-            ['other terrain', /non-ordinary/u, ({ state }) => {
-                state.level.at(10, 5).typ = FOUNTAIN;
-            }],
             ['nearby timed corpse impact', /buried corpse/u, ({ state }) => {
                 state.level.buriedobjlist = {
                     nobj: null,
@@ -3893,13 +3889,13 @@ test('dropz places an impact drop before the source redraw and encumbrance',
         ]);
     });
 
-test('a heavy hold reaches drop admission after addinv and its message',
+test('a heavy hold reaches fountain drop admission after addinv and its message',
     async () => {
         const { hooks, obj: ball, state } = ordinaryDropFixture();
         state.u.acurr.a[A_STR] = 3;
         state.u.acurr.a[A_CON] = 3;
-        // A fountain keeps this inventory callback-order test at a refused
-        // dry-floor branch without diverting through can_reach_floor.
+        // The ordinary fountain floor continues through dropx without
+        // diverting through can_reach_floor.
         state.level.at(10, 5).typ = FOUNTAIN;
         state.invent = null;
         ball.where = OBJ_FREE;
@@ -3911,19 +3907,17 @@ test('a heavy hold reaches drop admission after addinv and its message',
             await dropx(object, env);
         };
 
-        await assert.rejects(
-            () => hold_another_object(
+        assert.equal(await hold_another_object(
                 ball,
                 'Oops!  %s to the floor!',
                 'The heavy iron ball drops',
                 null,
                 { state, hooks },
-            ),
-            UnsupportedDropError,
-        );
-        assert.equal(ball.where, OBJ_INVENT);
-        assert.equal(state.invent, ball);
+            ), null);
+        assert.equal(ball.where, OBJ_FLOOR);
+        assert.equal(state.invent, null);
         assert.equal(ball.dknown, true);
+        assert.equal(state.level.objects[10][5], ball);
         assert.deepEqual(events, [
             ['message', 'Oops!  The heavy iron ball drops to the floor!'],
             ['dropx', OBJ_INVENT],
