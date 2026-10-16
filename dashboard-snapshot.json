@@ -135563,7 +135563,7 @@
         "worker": "Prep-1",
         "state": "active",
         "probe": "v87-p01-ride-cockatrice",
-        "reason": "Attempt 1 setup scout exited: bounded run-38zyLf (functions.exec session_id 90073). C generated a cockatrice and #wizmap displayed it adjacent; no ride action was included, so target branch is not yet claimed."
+        "reason": "Attempt 1 setup scout exited: bounded run-38zyLf. C generated a cockatrice and #wizmap displayed it adjacent; no ride action was included, so target branch is not yet claimed."
       },
       {
         "runId": "loop-20260925",
@@ -136000,7 +136000,7 @@
         "worker": "Prep-1",
         "state": "active",
         "probe": "v87-p07-menu-travel",
-        "reason": "C recording run-krTcQC (functions.exec session_id 25262) exited successfully; slot released. Inspecting saved C screens to confirm actual travel menu reach before any comparison."
+        "reason": "C recording run-krTcQC exited successfully; slot released. Inspecting saved C screens to confirm actual travel menu reach before any comparison."
       },
       {
         "runId": "loop-20260925",
@@ -136080,7 +136080,7 @@
         "worker": "Prep-1",
         "state": "active",
         "probe": "v87-p07-menu-travel",
-        "reason": "Bounded accepted-SHA JS comparison launched; raw output and process handle will be preserved."
+        "reason": "Bounded accepted-SHA JS comparison launched; raw output and command ownership will be preserved."
       },
       {
         "runId": "loop-20260925",
@@ -136113,7 +136113,7 @@
         "worker": "Prep-1",
         "state": "active",
         "probe": "v87-p07-menu-travel",
-        "reason": "JS comparison run-WykKG7 (functions.exec session_id 44479) exited successfully; slot released. It found the first missing C screen at menu step 18 (newline), RNG prefix equal."
+        "reason": "JS comparison run-WykKG7 exited successfully; slot released. It found the first missing C screen at menu step 18 (newline), RNG prefix equal."
       },
       {
         "runId": "loop-20260925",
