@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T19:27:39.726Z",
+  "capturedAt": "2026-10-16T19:50:29.561Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T19:27:39.726Z",
+    "asOf": "2026-10-16T19:50:29.561Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -159719,13 +159719,61 @@
         "worker": "Worker-3",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-v96-bounded-plan-disposition-turn-idle-20261016",
+        "type": "turn",
+        "at": "2026-10-16T19:44:53.012Z",
+        "worker": "Prep",
+        "state": "idle",
+        "reason": "Prep96 bounded review finished without a qualifying delivery; saved source leads remain unrun."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "wl-prep96-bounded-plan-done-20261016",
+        "type": "activity",
+        "at": "2026-10-16T19:45:13.578Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "phase": "done",
+        "reason": "Bounded planning and exploration ended without a qualifying deliverable; two unrun source risks remain planning leads."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "wl-prep96-bounded-plan-park-20261016",
+        "type": "park",
+        "at": "2026-10-16T19:45:14.471Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "reason": "Bounded planning/exploration exhausted without qualifying deliverable. Original twelve questions and extensions retain explicit outcomes; stopped pilot was feasibility only. Two unrun source risks remain leads, not a valid next plan or named live dependency. No empty delivery, budget reset or source release."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-bounded-unrun-source-lead-review-active-20261016",
+        "type": "turn",
+        "at": "2026-10-16T19:49:50.761Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Reviewing saved source leads and prior/transport limits; gameplay remains unstarted."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [],
     "preparedBatches": [],
-    "parkedTasks": []
+    "parkedTasks": [
+      {
+        "task": "prep-v96-source-exploration-20261016",
+        "worker": "Prep",
+        "goal": null,
+        "kind": "challenge-preparation",
+        "status": "parked",
+        "delivery": null,
+        "batch": "v96",
+        "since": "2026-10-16T19:45:14.471Z",
+        "blockedBy": [],
+        "reason": "Bounded planning/exploration exhausted without qualifying deliverable. Original twelve questions and extensions retain explicit outcomes; stopped pilot was feasibility only. Two unrun source risks remain leads, not a valid next plan or named live dependency. No empty delivery, budget reset or source release."
+      }
+    ]
   },
   "workerReservations": {
     "tasks": {},
@@ -164951,8 +164999,8 @@
     ]
   },
   "development": {
-    "executionCommit": "3b6335e80ada0ea777e4d09a5543b11bd10cf944",
-    "measuredAt": "2026-10-16T19:25:53.871Z",
+    "executionCommit": "73ae1797b195f634722649cda0756cf7e429a768",
+    "measuredAt": "2026-10-16T19:49:35.252Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
