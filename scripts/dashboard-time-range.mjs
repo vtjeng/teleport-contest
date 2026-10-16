@@ -75,55 +75,89 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
         sync,
     };
     if (elements) {
-        const changed = action => {action(); onChange();};
-        elements.Window.addEventListener('change', () => {
-            if (elements.Window.value === 'custom') {
-                draft = true;
-                const span = requested === 'all' ? bounds().end - bounds().start : requested;
-                elements.DurationCustom.value = String(requested === 'all'
-                    ? Math.round(span / 3600000 * 1000) / 1000 : span / 3600000);
-                elements.DurationUnit.value = '3600000';
-                elements.DurationCustom.hidden = false; elements.DurationUnit.hidden = false;
-            } else if (draft) {
-                elements.DurationCustom.hidden = true; elements.DurationUnit.hidden = true;
-            } else changed(() => api.setDuration(elements.Window.value === 'all' ? 'all'
-                : Number(elements.Window.value) * presetUnit));
+        const clearError = input => {input?.removeAttribute?.('aria-invalid');elements.RangeError.textContent='';};
+        const invalid = (input,message,report) => {
+            if(report){input?.setAttribute?.('aria-invalid','true');elements.RangeError.textContent=message;position();}
+            return false;
+        };
+        const apply = change => {
+            const before=[requested,kind,ending,fixedEnd].join(':');
+            change();draft=true;sync();
+            if(before!==[requested,kind,ending,fixedEnd].join(':'))onChange();
+            return true;
+        };
+        const durationValue = () => elements.Window.value==='all'?'all':elements.Window.value==='custom'
+            ?Number(elements.DurationCustom.value)*Number(elements.DurationUnit.value):Number(elements.Window.value)*presetUnit;
+        const applyDuration = (report=true) => {
+            const span=durationValue();
+            if(span!=='all'&&!validDuration(span))return invalid(elements.DurationCustom,'Enter a positive duration.',report);
+            clearError(elements.DurationCustom);
+            return apply(()=>{requested=span;kind=elements.Window.value==='all'?'all':presets.includes(elements.Window.value)?'preset':'custom';});
+        };
+        const applyEnd = (report=true) => {
+            const last=elements.Ending.value==='now'?'now':new Date(elements.EndingAt.value).getTime();
+            if(last!=='now'&&!Number.isFinite(last))return invalid(elements.EndingAt,'Enter a valid fixed date and time.',report);
+            clearError(elements.EndingAt);
+            return apply(()=>{ending=last==='now'?'now':'fixed';if(ending==='fixed')fixedEnd=last;});
+        };
+        const close = (focus=false) => {
+            elements.RangePicker.open=false;draft=false;sync();
+            if(focus)elements.RangeSummary.focus?.({preventScroll:true});
+        };
+        elements.Window.addEventListener('change',()=>{
+            clearError(elements.DurationCustom);draft=true;
+            const custom=elements.Window.value==='custom';
+            elements.DurationCustom.hidden=!custom;elements.DurationUnit.hidden=!custom;
+            if(custom){
+                const span=requested==='all'?bounds().end-bounds().start:requested;
+                elements.DurationCustom.value=String(requested==='all'?Math.round(span/3600000*1000)/1000:span/3600000);
+                elements.DurationUnit.value='3600000';elements.DurationCustom.focus?.();
+            } else applyDuration();
             position();
         });
-        elements.Ending.addEventListener('change', () => {
-            elements.RangeTimezone.hidden = elements.Ending.value !== 'fixed';
-            if (elements.Ending.value === 'now' && draft) elements.EndingAt.hidden = true;
-            else if (elements.Ending.value === 'now') changed(() => api.setEnd('now'));
-            else {draft = true; elements.EndingAt.hidden = false; elements.EndingAt.value = localTime(bounds().end);}
-            position();
+        elements.Ending.addEventListener('change',()=>{
+            const fixed=elements.Ending.value==='fixed';
+            elements.EndingAt.hidden=!fixed;elements.RangeTimezone.hidden=!fixed;
+            if(fixed)elements.EndingAt.value=localTime(bounds().end);
+            applyEnd();if(fixed)elements.EndingAt.focus?.();position();
         });
-        for (const input of [elements.DurationCustom,elements.DurationUnit,elements.EndingAt])
-            input.addEventListener('input', () => {draft = true;elements.RangeError.textContent = '';});
-        elements.RangeForm.addEventListener('submit', event => {
+        for(const input of [elements.DurationCustom,elements.DurationUnit,elements.EndingAt])
+            input.addEventListener('input',()=>{draft=true;clearError(input);});
+        elements.DurationCustom.addEventListener('change',()=>applyDuration());
+        elements.DurationUnit.addEventListener('change',()=>applyDuration());
+        elements.EndingAt.addEventListener('change',()=>applyEnd());
+        elements.RangeForm.addEventListener('submit',event=>{
             event.preventDefault();
-            try {
-                const choice = elements.Window.value;
-                const span = choice === 'all' ? 'all' : choice === 'custom'
-                    ? Number(elements.DurationCustom.value) * Number(elements.DurationUnit.value) : Number(choice) * presetUnit;
-                const last = elements.Ending.value === 'now' ? 'now' : new Date(elements.EndingAt.value).getTime();
-                if (span !== 'all' && !validDuration(span)) throw new Error('Enter a positive duration.');
-                if (last !== 'now' && !Number.isFinite(last)) throw new Error('Enter a valid fixed date and time.');
-                // Validate both drafts before changing either committed value.
-                update(() => {requested = span; kind = choice === 'all' ? 'all' : presets.includes(choice) ? 'preset' : 'custom';
-                    ending = last === 'now' ? 'now' : 'fixed'; if (ending === 'fixed') fixedEnd = last;});
-                onChange();
-                elements.RangePicker.open=false;
-                elements.RangeSummary.focus?.({preventScroll:true});
-            } catch (error) {elements.RangeError.textContent = error.message;position();}
+            // Native form submission is a keyboard fallback; validate both
+            // values before changing either applied field.
+            const span=durationValue(),last=elements.Ending.value==='now'?'now':new Date(elements.EndingAt.value).getTime();
+            if(span!=='all'&&!validDuration(span))return invalid(elements.DurationCustom,'Enter a positive duration.',true);
+            if(last!=='now'&&!Number.isFinite(last))return invalid(elements.EndingAt,'Enter a valid fixed date and time.',true);
+            clearError(elements.DurationCustom);clearError(elements.EndingAt);
+            apply(()=>{requested=span;kind=elements.Window.value==='all'?'all':presets.includes(elements.Window.value)?'preset':'custom';
+                ending=last==='now'?'now':'fixed';if(ending==='fixed')fixedEnd=last;});
+            close(true);
         });
-        const close = () => {elements.RangePicker.open=false;draft=false;sync();};
         elements.RangePicker.addEventListener('keydown',event=>{
-            if(event.key==='Escape'){event.preventDefault();close();elements.RangeSummary.focus?.({preventScroll:true});}
+            if(event.key==='Escape'){event.preventDefault();close(true);}
+            else if(event.key==='Enter'&&(event.target===elements.DurationCustom||event.target===elements.EndingAt)){
+                event.preventDefault();
+                if(event.target===elements.DurationCustom?applyDuration():applyEnd())close(true);
+            }
         });
         elements.RangePicker.addEventListener('toggle',position);
+        elements.RangePicker.addEventListener('focusout',event=>{
+            if(elements.RangePicker.open&&event.relatedTarget&&!elements.RangePicker.contains(event.relatedTarget))close();
+        });
         doc.defaultView?.addEventListener('resize',position);
         doc.addEventListener?.('pointerdown',event=>{
-            if(elements.RangePicker.open&&!elements.RangePicker.contains(event.target))close();
+            if(elements.RangePicker.open&&!elements.RangePicker.contains(event.target)){
+                // Pointerdown precedes blur/change. Commit a valid edited box
+                // first, while incomplete input leaves the applied range alone.
+                if(doc.activeElement===elements.DurationCustom)applyDuration(false);
+                else if(doc.activeElement===elements.EndingAt)applyEnd(false);
+                close();
+            }
         });
     }
     sync();

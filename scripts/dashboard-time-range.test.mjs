@@ -56,7 +56,7 @@ test('invalid values do not change the applied range', () => {
     assert.deepEqual(range.bounds(),before);
 });
 
-test('control drafts apply together, retain focus nodes, and invalid input keeps the previous range', () => {
+test('keyboard submission retains focus nodes and invalid custom input keeps the previous range', () => {
     const nodes=new Map();
     const doc={getElementById(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',hidden:false,listeners:{},
         addEventListener(type,handler){this.listeners[type]=handler;}});return nodes.get(id);}};
@@ -95,4 +95,64 @@ test('Custom preserves a clamped preset instead of exposing fractional coverage 
     assert.equal(el('RangeTimezone').hidden,false);
     el('Ending').value='now';el('Ending').listeners.change();
     assert.equal(el('RangeTimezone').hidden,true);
+});
+
+function interactiveRange() {
+    const nodes=new Map(),listeners={};let changes=0,focused;
+    const doc={activeElement:null,addEventListener(type,fn){listeners[type]=fn;},
+        getElementById(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',hidden:false,listeners:{},attrs:{},
+            addEventListener(type,fn){this.listeners[type]=fn;},
+            setAttribute(k,v){this.attrs[k]=v;},removeAttribute(k){delete this.attrs[k];},
+            focus(){focused=this;},contains(target){return [...nodes.values()].includes(target);}});return nodes.get(id);}};
+    const range=make({document:doc,prefix:'live',onChange:()=>changes++});
+    const el=name=>nodes.get('live'+name);
+    el('RangePicker').open=true;
+    return {range,el,doc,listeners,changes:()=>changes,focused:()=>focused,
+        change(name,value){el(name).value=value;el(name).listeners.change();},
+        type(name,value){el(name).value=value;el(name).listeners.input();},
+        key(key,target){el('RangePicker').listeners.keydown({key,target:el(target),preventDefault(){}});}};
+}
+
+test('presets apply immediately; partial custom input does not redraw or discard other drafts',()=>{
+    const h=interactiveRange();
+    h.change('Window','1');assert.equal(h.range.selection().duration,DAY);
+    assert.equal(h.changes(),1);assert.equal(h.el('RangePicker').open,true);
+    h.change('Window','custom');const before=h.range.bounds();
+    h.type('DurationCustom','');assert.deepEqual(h.range.bounds(),before);assert.equal(h.changes(),1);
+    h.el('DurationCustom').listeners.change();
+    assert.equal(h.el('DurationCustom').attrs['aria-invalid'],'true');
+    assert.deepEqual(h.range.bounds(),before);
+    h.type('DurationCustom','90');h.el('DurationUnit').value='60000';
+    h.el('DurationCustom').listeners.change();
+    assert.equal(h.range.selection().duration,90*60000);assert.equal(h.changes(),2);
+    assert.equal(h.el('RangePicker').open,true);assert.equal(h.el('DurationCustom').attrs['aria-invalid'],undefined);
+    h.change('Ending','fixed');h.type('EndingAt','');
+    h.change('Window','7');
+    assert.equal(h.range.selection().duration,7*DAY);
+    assert.equal(h.el('EndingAt').value,'','valid duration selection preserves incomplete date entry');
+});
+
+test('Enter commits a valid box and closes; Escape cancels unfinished text',()=>{
+    const h=interactiveRange();h.change('Window','custom');
+    h.type('DurationCustom','2');h.el('DurationUnit').value=String(HOUR);
+    h.key('Enter','DurationCustom');
+    assert.equal(h.range.selection().duration,2*HOUR);assert.equal(h.el('RangePicker').open,false);
+    assert.equal(h.focused(),h.el('RangeSummary'));
+    h.el('RangePicker').open=true;h.type('DurationCustom','');const before=h.range.bounds();
+    h.key('Enter','DurationCustom');assert.equal(h.el('RangePicker').open,true);
+    assert.match(h.el('RangeError').textContent,/positive/);assert.deepEqual(h.range.bounds(),before);
+    h.key('Escape','DurationCustom');assert.equal(h.el('RangePicker').open,false);
+    assert.deepEqual(h.range.bounds(),before);
+});
+
+test('Fixed date changes commit only when valid; outside blur commits valid custom input',()=>{
+    const h=interactiveRange();h.change('Ending','fixed');const before=h.range.bounds(),count=h.changes();
+    h.type('EndingAt','');h.el('EndingAt').listeners.change();
+    assert.deepEqual(h.range.bounds(),before);assert.equal(h.changes(),count);
+    assert.equal(h.el('EndingAt').attrs['aria-invalid'],'true');
+    h.type('EndingAt','1970-01-15T12:00:00');h.el('EndingAt').listeners.change();
+    assert.equal(h.range.bounds().end,new Date('1970-01-15T12:00:00').getTime());
+    h.change('Window','custom');h.type('DurationCustom','3');h.el('DurationUnit').value=String(HOUR);
+    h.doc.activeElement=h.el('DurationCustom');h.listeners.pointerdown({target:{}});
+    assert.equal(h.range.selection().duration,3*HOUR);assert.equal(h.el('RangePicker').open,false);
 });
