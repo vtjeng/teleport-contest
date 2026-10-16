@@ -318756,6 +318756,80 @@
           }
         ]
       }
+    },
+    {
+      "id": "v90-p01-mounted-boulder-cannot-push-msg",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement cannot_push_msg from hack.c",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v90/v90-p01-mounted-boulder-wall"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cannot_push_msg",
+          "line": 247,
+          "endLine": 261,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 247,
+        "to": 261
+      }
+    },
+    {
+      "id": "v90-fountain-wash-worn-gloves-divergence",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dipfountain from fountain.c",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v90/v90-p10-fountain-wash-worn-gloves"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dipfountain",
+      "session": "synthetic/v90/v90-p10-fountain-wash-worn-gloves"
+    },
+    {
+      "id": "v90-simple-options-help-port",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement doset_simple_menu from nethack-c/upstream/src/options.c",
+      "cFile": "options.c",
+      "sessions": [
+        "synthetic/v90/v90-p13-simple-options-help"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doset_simple_menu",
+          "line": 8536,
+          "endLine": 8706,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 8536,
+        "to": 8706
+      }
     }
   ]
 }
