@@ -90,6 +90,18 @@ regression repairs, and tasks needed to unblock work. Workers return results
 and may propose follow-ups; the responsible producer approves additions.
 Process analyst proposals become scoped work only after Work lead approves them.
 
+The producer that enqueues a task owns its sensibility and post-result
+disposition: check the bounded question, prerequisites, known overlap, and
+stopping condition before enqueueing. Challenge lead owns `Prep` exploration;
+Work lead owns `Main` implementation and support. After a result or block, the
+producer reviews the evidence and supplies an explicit disposition or scoped
+follow-up. A duplicate, infeasible scout, or reached bounded stop is closed
+with its evidence and reason preserved, rather than left indefinitely blocked;
+retain a live block only for a named unresolved dependency. Work lead reviews
+and executes the supported queue transitions and retains dispatch authority.
+These dispositions preserve immutable history and all validation, admission,
+and acceptance gates.
+
 Every task identifies its immutable ID, type, producer/result recipient,
 batch or target deliverable when applicable, question or desired result,
 stopping condition, base commit, dependencies, source/session reservations,
