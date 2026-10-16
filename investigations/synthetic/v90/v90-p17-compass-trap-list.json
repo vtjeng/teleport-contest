@@ -29,7 +29,7 @@
     "batch": "v90",
     "recordingPath": "challenges/cases/v90/v90-p17-compass-trap-list.session.json"
   },
-  "summary": "The first difference is automatic farlook text on compass-configured cursor input, before the later trap-list behavior: C appends the configured coordinate suffix to the matching screen description, while JavaScript omits it. Source ownership is getpos.c:auto_describe; the existing coord_desc implementation is already available and is called by C. The session has 23 remaining screens at 16/39 matched, with no RNG mismatch; later trap-list refusal is downstream and is not a separate first cause.",
+  "summary": "The first difference is automatic farlook text on compass-configured cursor input: C appends coord_desc and JavaScript omitted it. After the scoped auto_describe fix at 0a9a22aff5d9c936fd5154b151fee8005fbb4049, the same unchanged case proceeds to its documented downstream trap-list refusal at step 37 key t: the JS look_traps path rejects nondefault coordinates while pinned C formats them. Both branches are required for the full session to match; the trap-list behavior remains part of this case, not a separate first-cause candidate.",
   "source": {
     "file": "getpos.c",
     "branch": "When getpos.autodescribe is enabled and do_screen_description finds a matching square, C formats firstmatch plus optional coord_desc(cx,cy,iflags.getpos_coords), then invalid-target and no-travel-path suffixes; cursor movement runs this branch before the next getpos command.",
@@ -44,7 +44,8 @@
       "getpos.c:coord_desc",
       "pager.c:do_screen_description",
       "getpos.c:is_valid_travelpt",
-      "getpos_getvalid validity callback"
+      "getpos_getvalid validity callback",
+      "pager.c:look_traps"
     ]
   },
   "goalKind": "divergence-fix",
@@ -54,6 +55,7 @@
     "Original v90 admission evaluation at 719d4d944693d9b1d6e7725ec76bc2f773884802 first differs at segment 0 step 13 input l: C cell row0 col5 is \"(\" and JS cell is blank. C/JS RNG calls match (3,680), 16/39 screens matched, and 37/39 cursors matched; the queue records remainingScreens 23.",
     "The v90 recipe configures whatis_coord:compass. At the first mismatch C describes a wall east of the cursor with a compass coordinate suffix; JS prints the description without the suffix. Later /t trap-list refusal is downstream from this earlier screen difference.",
     "Focused overlap review: v90-p14-compass-monster-list covers coordinate formatting through getpos_menu, v32 covers full compass monster-list output, and v90-p13 covers options help; these are distinct call paths. Existing pager coordinate/monster description callers must remain untouched. Existing JS coord_desc handles mode semantics, so the minimal gap is its omission from auto_describe.",
-    "Evidence provenance: saved v90 revalidation packet 970695891bb5986e59aba510f18f4ffa0aa4214e58db4298ff00f8edab4e892c; preserved C-first worker packet 3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3. Historical 12-candidate planning remains explicitly unrecovered; no substitute or absent-history claim is made."
+    "Evidence provenance: saved v90 revalidation packet 970695891bb5986e59aba510f18f4ffa0aa4214e58db4298ff00f8edab4e892c; preserved C-first worker packet 3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3. Historical 12-candidate planning remains explicitly unrecovered; no substitute or absent-history claim is made.",
+    "After the isolated auto_describe correction (commit 0a9a22aff5d9c936fd5154b151fee8005fbb4049), a full unchanged-capture comparison advances past step 13 and first stops at segment 0 step 37 key t: C has screen/cursor 39 while JS has 37, RNG still matches 3,680/3,680. This exposes the downstream C pager.c:look_traps path already called out in the candidate: C selects configured compass coordinates and formats each trap at lines 2078-2143; js/pager.js:look_traps calls assertDefaultListCoordinates and refuses the compass mode. Its adjacent look_engrs branch is outside this task and should remain unchanged."
   ]
 }
