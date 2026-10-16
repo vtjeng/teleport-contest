@@ -29,6 +29,7 @@ import { game } from '../js/gstate.js';
 import { PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { runSegment } from '../js/jsmain.js';
+import { compareSessionOutputs } from './diff-fresh.mjs';
 import { discover_object } from '../js/o_init.js';
 import { addinv } from '../js/invent.js';
 import { dipfountain, dipsink } from '../js/fountain.js';
@@ -918,6 +919,25 @@ async function startedGame(seed, name, role = 'Healer') {
         moves: ' ',
     });
 }
+
+test('blessed polymorph repeats the C min macro duration draw', async () => {
+    const recording = JSON.parse(readFileSync(new URL(
+        '../challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const replay = await runSegment(recording.segments[0]);
+    const result = compareSessionOutputs(recording, {
+        rng: replay.getRngLog(),
+        screens: replay.getScreens(),
+        cursors: replay.getCursors(),
+        animFrames: replay.getAnimationFramesByStep(),
+    });
+
+    assert.equal(result.passed, true, JSON.stringify(result));
+    const draws = replay.getRngLog();
+    assert.equal(draws[2685], 'rn2(15)=13');
+    assert.equal(draws[2686], 'rn2(15)=12');
+});
 
 test('dip_hands_ok suggests slippery hands only when the floor is reachable',
     async () => {

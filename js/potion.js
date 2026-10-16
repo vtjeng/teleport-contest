@@ -1769,8 +1769,14 @@ async function peffect_polymorph(otmp, state = game) {
         await polyself(POLY_NOFLAGS, state);
     } else {
         await polyself(POLY_CONTROLLED | POLY_LOW_CTRL, state);
-        if (state.u.mtimedone && state.u.umonnum !== state.u.umonster)
-            state.u.mtimedone = Math.min(state.u.mtimedone, rn2(15) + 10);
+        if (state.u.mtimedone && state.u.umonnum !== state.u.umonster) {
+            // C's min macro evaluates its second argument once for the
+            // comparison and again when the first argument is not smaller.
+            const firstLimit = rn2(15) + 10;
+            state.u.mtimedone = state.u.mtimedone < firstLimit
+                ? state.u.mtimedone
+                : rn2(15) + 10;
+        }
     }
 }
 
