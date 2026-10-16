@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T09:08:23.267Z",
+  "capturedAt": "2026-10-16T09:58:32.527Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -148630,6 +148630,567 @@
         "type": "accepted",
         "at": "2026-10-16T09:06:29.953Z",
         "task": "delivery:session:synthetic:v91:v91-juiblex-jubilex-name-refusal:0566f43d2ea6"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:session:synthetic:v92:v92-blessed-polymorph-duration-min-rng:41b90e0ce39b-3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+        "type": "published",
+        "at": "2026-10-16T09:09:14.547Z",
+        "task": "delivery:session:synthetic:v92:v92-blessed-polymorph-duration-min-rng:41b90e0ce39b",
+        "commit": "3df9b0934d91dcdba271f5041fb4788e66b43a3e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publication-confirmed-delivery:session:synthetic:v91:v91-juiblex-jubilex-name-refusal:0566f43d2ea6-3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+        "type": "publication-confirmed",
+        "at": "2026-10-16T09:09:15.340Z",
+        "task": "delivery:session:synthetic:v91:v91-juiblex-jubilex-name-refusal:0566f43d2ea6",
+        "commit": "3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+        "knownBy": "2026-10-16T09:09:14.547Z"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:10:09.781Z",
+        "id": "queue:d9644533-0110-4404-b771-a12a2052209b",
+        "type": "queue-complete",
+        "task": "support-discover-mode-confused-create-prerequisite-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:10:09.781Z",
+        "id": "queue:d9644533-0110-4404-b771-a12a2052209b:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:10:27.304Z",
+        "id": "queue:6f880924-0a8a-449e-86a1-f13881a81bfa",
+        "type": "assign",
+        "task": "v93-fragile-wand-low-strength-threshold-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:10:31.257Z",
+        "id": "queue:78f5c350-cd8b-47f2-9362-51fc36fae7ea",
+        "type": "queue-block",
+        "task": "v93-unpaid-magic-marker-half-price-use-fee-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:10:31.257Z",
+        "id": "queue:78f5c350-cd8b-47f2-9362-51fc36fae7ea:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:13:31.967Z",
+        "id": "queue:c6a11e33-3f00-4566-85bc-428750ce5bac",
+        "type": "queue-complete",
+        "task": "v93-artifact-offhand-refuses-two-weapon-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:13:31.967Z",
+        "id": "queue:c6a11e33-3f00-4566-85bc-428750ce5bac:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:13:45.964Z",
+        "id": "queue:5825f1cf-3543-412f-8aaf-e5c5dad6779f",
+        "type": "assign",
+        "task": "v93-confused-create-explore-prerequisite-followup-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:14:57.615Z",
+        "id": "queue:b3e9ecc1-965f-4dd9-864d-fde6b660392f",
+        "type": "assign",
+        "task": "support-recorder-startup-installed-prerequisite-audit-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:17:30.172Z",
+        "id": "queue:ecda0e06-048b-4bb1-b288-968c5dbd1cbc",
+        "type": "queue-complete",
+        "task": "support-recorder-startup-installed-prerequisite-audit-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:17:30.172Z",
+        "id": "queue:ecda0e06-048b-4bb1-b288-968c5dbd1cbc:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:18:05.790Z",
+        "id": "queue:fecdc495-578f-45cf-b0f3-513930209d8d",
+        "type": "queue-block",
+        "task": "v93-fragile-wand-low-strength-threshold-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:18:05.790Z",
+        "id": "queue:fecdc495-578f-45cf-b0f3-513930209d8d:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:19:04.270Z",
+        "id": "queue:cb37aee7-0291-4a93-b127-ce04d77fa56b",
+        "type": "assign",
+        "task": "v93-swallowed-grappling-hook-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:19:12.208Z",
+        "id": "queue:ece22f56-851b-42b0-97a8-0e8c26f28821",
+        "type": "assign",
+        "task": "v93-digested-restful-sleep-amulet-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:20:07.246Z",
+        "id": "queue:a7950a27-fdaf-42bb-ba66-ed546dd11c24",
+        "type": "queue-block",
+        "task": "v93-confused-create-explore-prerequisite-followup-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:20:07.246Z",
+        "id": "queue:a7950a27-fdaf-42bb-ba66-ed546dd11c24:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:20:48.014Z",
+        "id": "queue:57b5355a-6ccb-4a43-999f-15d6290c7ebd",
+        "type": "assign",
+        "task": "v93-swallowed-bullwhip-directional-refusal-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:26:11.829Z",
+        "id": "queue:ee36642b-f7ec-4c33-8fef-90033898758c",
+        "type": "queue-complete",
+        "task": "v93-digested-restful-sleep-amulet-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:26:11.829Z",
+        "id": "queue:ee36642b-f7ec-4c33-8fef-90033898758c:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:26:24.119Z",
+        "id": "queue:b0eb3625-3fd5-4f17-836c-facd31d6998c",
+        "type": "assign",
+        "task": "v93-partial-gold-quiver-rejection-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:26:56.381Z",
+        "id": "queue:d2128414-018a-441a-a529-7b463831760b",
+        "type": "queue-complete",
+        "task": "v93-swallowed-grappling-hook-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:26:56.381Z",
+        "id": "queue:d2128414-018a-441a-a529-7b463831760b:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:29:04.152Z",
+        "id": "queue:50b14d4f-1b34-48cc-9a48-1cd1332c7564",
+        "type": "queue-complete",
+        "task": "v93-swallowed-bullwhip-directional-refusal-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:29:04.152Z",
+        "id": "queue:50b14d4f-1b34-48cc-9a48-1cd1332c7564:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:29:58.258Z",
+        "id": "queue:fe33ef91-c9ac-4a6a-b28d-f07349519c02",
+        "type": "assign",
+        "task": "v93-blind-aloft-rotten-food-unconscious-feedback-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:30:06.298Z",
+        "id": "queue:32cf18ae-5463-4f9e-ad8f-974264c13c20",
+        "type": "assign",
+        "task": "v93-blind-blank-scroll-reading-feasibility-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:32:26.416Z",
+        "id": "queue:0060c70c-aba9-4fe3-82d4-441681748f5e",
+        "type": "queue-complete",
+        "task": "v93-partial-gold-quiver-rejection-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:32:26.416Z",
+        "id": "queue:0060c70c-aba9-4fe3-82d4-441681748f5e:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:32:34.553Z",
+        "id": "queue:d3744568-9136-4646-b3c0-7ef17cf6ed00",
+        "type": "assign",
+        "task": "v93-swallowed-bullwhip-current-main-validation-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:35:38.695Z",
+        "id": "queue:dedec719-9e4b-41d8-a620-55a267aaea79",
+        "type": "queue-complete",
+        "task": "v93-swallowed-bullwhip-current-main-validation-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:35:38.695Z",
+        "id": "queue:dedec719-9e4b-41d8-a620-55a267aaea79:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:35:56.789Z",
+        "id": "queue:2c90b301-e935-4418-beed-8dbe2650c03d",
+        "type": "assign",
+        "task": "v93-blind-credit-card-embossed-read-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-7c419b32829b808dfb588bc59e788680878290c0",
+        "type": "ready",
+        "at": "2026-10-16T09:38:36.618Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "delivery": "7c419b32829b808dfb588bc59e788680878290c0"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:39:29.538Z",
+        "id": "queue:18dd1eb5-3e53-413c-a5d6-0e053882387b",
+        "type": "queue-complete",
+        "task": "v93-blind-blank-scroll-reading-feasibility-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:39:29.538Z",
+        "id": "queue:18dd1eb5-3e53-413c-a5d6-0e053882387b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-prep93-7c419b32829b808dfb588bc59e788680878290c0",
+        "type": "received",
+        "at": "2026-10-16T09:39:37.234Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "delivery": "7c419b32829b808dfb588bc59e788680878290c0"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-prep93-7c419b32829b808dfb588bc59e788680878290c0",
+        "type": "activity",
+        "at": "2026-10-16T09:39:37.487Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "phase": "review",
+        "reason": "Review unchanged one-case C evidence, current comparison and prior-source exclusions before integration."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-group-99830bac3b1ed4517b553a361394aaea49b88438b83c4c6ecd7e409dd372829a-658fcf773a8c752c626a6cc508d80c11b1a71d60-prep-v93-source-exploration-20261016",
+        "type": "integrating",
+        "at": "2026-10-16T09:39:53.160Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "integration": "658fcf773a8c752c626a6cc508d80c11b1a71d60",
+        "prepGroup": [
+          "prep-v93-source-exploration-20261016"
+        ],
+        "validationGroup": [
+          "prep-v93-source-exploration-20261016"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:39:59.307Z",
+        "id": "queue:a2c6a655-a7ed-4f1c-b243-2864e545cc06",
+        "type": "assign",
+        "task": "v93-mounted-unskilled-trap-reaching-prompt-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:40:31.621Z",
+        "id": "queue:aba509b7-05fb-4f21-a120-d9a6f86c58a8",
+        "type": "queue-block",
+        "task": "v93-blind-aloft-rotten-food-unconscious-feedback-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:40:31.621Z",
+        "id": "queue:aba509b7-05fb-4f21-a120-d9a6f86c58a8:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "assign-prep-v94-source-exploration-20261016",
+        "type": "assign",
+        "at": "2026-10-16T09:40:41.837Z",
+        "task": "prep-v94-source-exploration-20261016",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v94"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:40:58.884Z",
+        "id": "queue:fa5d955f-f171-44d1-9ede-dd35d4b496bf",
+        "type": "assign",
+        "task": "v93-swallowed-sit-no-seats-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v93",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:44:00.670Z",
+        "id": "queue:cb518688-a821-4645-ad55-64d06efedf2c",
+        "type": "queue-complete",
+        "task": "v93-blind-credit-card-embossed-read-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:44:00.670Z",
+        "id": "queue:cb518688-a821-4645-ad55-64d06efedf2c:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-validated-prep-v93-source-exploration-20261016-658fcf773a8c752c626a6cc508d80c11b1a71d60",
+        "type": "validated",
+        "at": "2026-10-16T09:48:22.268Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-accepted-prep-v93-source-exploration-20261016-658fcf773a8c752c626a6cc508d80c11b1a71d60",
+        "type": "accepted",
+        "at": "2026-10-16T09:48:22.268Z",
+        "task": "prep-v93-source-exploration-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-prep93-658fcf773a8c752c626a6cc508d80c11b1a71d60",
+        "type": "activity",
+        "at": "2026-10-16T09:49:52.781Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "phase": "admission",
+        "reason": "Verify accepted case evidence and write the new manifest for hosted admission baseline."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:50:19.574Z",
+        "id": "queue:f28502b1-a81b-4e53-a792-e1524519468e",
+        "type": "queue-complete",
+        "task": "v93-mounted-unskilled-trap-reaching-prompt-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:50:19.574Z",
+        "id": "queue:f28502b1-a81b-4e53-a792-e1524519468e:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:51:24.971Z",
+        "id": "queue:2608b205-24b4-41cc-8be0-ab7007713a60",
+        "type": "queue-complete",
+        "task": "v93-swallowed-sit-no-seats-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T09:51:24.971Z",
+        "id": "queue:2608b205-24b4-41cc-8be0-ab7007713a60:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-baseline-prep-v93-source-exploration-20261016-3459f29164267326ed69eb5a54574adb3d6f0c9d",
+        "type": "activity",
+        "at": "2026-10-16T09:54:50.326Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-done-prep-v93-source-exploration-20261016-3459f29164267326ed69eb5a54574adb3d6f0c9d",
+        "type": "activity",
+        "at": "2026-10-16T09:54:50.376Z",
+        "task": "prep-v93-source-exploration-20261016",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
@@ -148646,58 +149207,43 @@
     "readySessions": 0,
     "threshold": 5,
     "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [],
+    "reason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration",
+    "ready": [
+      "support-credit-card-current-main-validation-20261016"
+    ],
     "blocked": [
       {
         "task": "v91-lit-lamp-save-restore-cfirst-20261016",
         "reason": "Waiting for producer or dependencies."
       },
       {
-        "task": "v93-flying-webmaker-debug-setup-clarification-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "v93-blind-telepathic-target-guaranteed-lock-cfirst-20261016",
+        "task": "session:synthetic:v93:v93-swallowed-bullwhip-refusal-wording:3459f2916426",
         "reason": "Waiting for producer or dependencies."
       }
     ],
-    "claimed": [
-      {
-        "task": "v93-unpaid-magic-marker-half-price-use-fee-cfirst-20261016",
-        "worker": "Worker-2"
-      },
-      {
-        "task": "v93-artifact-offhand-refuses-two-weapon-cfirst-20261016",
-        "worker": "Worker-1"
-      },
-      {
-        "task": "support-discover-mode-confused-create-prerequisite-20261016",
-        "worker": "Worker-3"
-      }
-    ],
+    "claimed": [],
     "counts": {
-      "ready": 0,
-      "claimed": 3,
-      "blocked": 3,
-      "completed": 139,
-      "superseded": 39
+      "ready": 1,
+      "claimed": 0,
+      "blocked": 2,
+      "completed": 151,
+      "superseded": 45
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "v93-artifact-offhand-refuses-two-weapon-cfirst-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "v93-unpaid-magic-marker-half-price-use-fee-cfirst-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
-        "assignment": "support-discover-mode-confused-create-prerequisite-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -151408,7 +151954,7 @@
         "id": "v93-flying-webmaker-debug-setup-clarification-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -151423,7 +151969,7 @@
         "id": "v93-blind-telepathic-target-guaranteed-lock-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -151438,7 +151984,7 @@
         "id": "v93-unpaid-magic-marker-half-price-use-fee-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -151453,7 +151999,7 @@
         "id": "v93-artifact-offhand-refuses-two-weapon-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -151462,13 +152008,13 @@
         "target": null,
         "readyAt": "2026-10-16T09:01:07.025Z",
         "claimedAt": "2026-10-16T09:03:41.376Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T09:13:31.967Z"
       },
       {
         "id": "support-discover-mode-confused-create-prerequisite-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -151477,13 +152023,240 @@
         "target": null,
         "readyAt": "2026-10-16T09:03:24.800Z",
         "claimedAt": "2026-10-16T09:03:53.642Z",
+        "completedAt": "2026-10-16T09:10:09.781Z"
+      },
+      {
+        "id": "v93-fragile-wand-low-strength-threshold-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T09:09:41.502Z",
+        "claimedAt": "2026-10-16T09:10:27.304Z",
+        "completedAt": null
+      },
+      {
+        "id": "v93-confused-create-explore-prerequisite-followup-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T09:12:32.004Z",
+        "claimedAt": "2026-10-16T09:13:45.964Z",
+        "completedAt": null
+      },
+      {
+        "id": "support-recorder-startup-installed-prerequisite-audit-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T09:14:49.955Z",
+        "claimedAt": "2026-10-16T09:14:57.615Z",
+        "completedAt": "2026-10-16T09:17:30.172Z"
+      },
+      {
+        "id": "v93-swallowed-grappling-hook-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T09:18:37.258Z",
+        "claimedAt": "2026-10-16T09:19:04.270Z",
+        "completedAt": "2026-10-16T09:26:56.381Z"
+      },
+      {
+        "id": "v93-digested-restful-sleep-amulet-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T09:18:37.594Z",
+        "claimedAt": "2026-10-16T09:19:12.208Z",
+        "completedAt": "2026-10-16T09:26:11.829Z"
+      },
+      {
+        "id": "v93-swallowed-bullwhip-directional-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T09:20:30.084Z",
+        "claimedAt": "2026-10-16T09:20:48.014Z",
+        "completedAt": "2026-10-16T09:29:04.152Z"
+      },
+      {
+        "id": "v93-partial-gold-quiver-rejection-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T09:22:16.767Z",
+        "claimedAt": "2026-10-16T09:26:24.119Z",
+        "completedAt": "2026-10-16T09:32:26.416Z"
+      },
+      {
+        "id": "v93-blind-aloft-rotten-food-unconscious-feedback-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T09:29:41.066Z",
+        "claimedAt": "2026-10-16T09:29:58.258Z",
+        "completedAt": null
+      },
+      {
+        "id": "v93-blind-blank-scroll-reading-feasibility-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T09:29:41.412Z",
+        "claimedAt": "2026-10-16T09:30:06.298Z",
+        "completedAt": "2026-10-16T09:39:29.538Z"
+      },
+      {
+        "id": "v93-blind-credit-card-embossed-read-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T09:29:41.773Z",
+        "claimedAt": "2026-10-16T09:35:56.789Z",
+        "completedAt": "2026-10-16T09:44:00.670Z"
+      },
+      {
+        "id": "v93-swallowed-bullwhip-current-main-validation-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T09:30:44.174Z",
+        "claimedAt": "2026-10-16T09:32:34.553Z",
+        "completedAt": "2026-10-16T09:35:38.695Z"
+      },
+      {
+        "id": "v93-mounted-unskilled-trap-reaching-prompt-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T09:34:32.131Z",
+        "claimedAt": "2026-10-16T09:39:59.307Z",
+        "completedAt": "2026-10-16T09:50:19.574Z"
+      },
+      {
+        "id": "v93-swallowed-sit-no-seats-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v93",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T09:34:33.925Z",
+        "claimedAt": "2026-10-16T09:40:58.884Z",
+        "completedAt": "2026-10-16T09:51:24.971Z"
+      },
+      {
+        "id": "session:synthetic:v93:v93-swallowed-bullwhip-refusal-wording:3459f2916426",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v93/v93-swallowed-bullwhip-refusal-wording"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T09:54:50.477Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "support-credit-card-current-main-validation-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T09:57:43.823Z",
+        "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "f15e0d0b0aff14896fefb55a7548d301eb5aeafb",
-    "measuredAt": "2026-10-16T09:04:45.453Z",
+    "executionCommit": "658fcf773a8c752c626a6cc508d80c11b1a71d60",
+    "measuredAt": "2026-10-16T09:45:52.546Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
