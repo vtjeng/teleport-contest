@@ -319047,6 +319047,24 @@
       "delivered": null,
       "function": "dropx",
       "session": "synthetic/v90/v90-p15-fountain-ordinary-drop"
+    },
+    {
+      "id": "v90-p17-auto-describe-compass-coordinate",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement auto_describe from getpos.c",
+      "cFile": "getpos.c",
+      "sessions": [
+        "synthetic/v90/v90-p17-compass-trap-list"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "auto_describe",
+      "session": "synthetic/v90/v90-p17-compass-trap-list"
     }
   ]
 }
