@@ -1,0 +1,1961 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-10-16T16:06:36.377Z",
+  "coverage": {
+    "excludedV90": {
+      "recoveredSessions": 7,
+      "recipeCaptureFiles": 14,
+      "reason": "Recovery/revalidation of preexisting recordings; excluded from new discovery yield."
+    },
+    "classificationBasis": "Frozen packet summaries, command receipts and producer dispositions; no gameplay reruns or whole-source certification.",
+    "notes": [
+      "Audit covers the current recovered ledger and batches v91 onward; older physical-attempt denominators are unavailable.",
+      "Five admitted discoveries are sparse samples; operational markers are not randomized strategy experiments and do not establish causality.",
+      "Matched tasks can miss their requested target; parity is not proof of target reach or novelty.",
+      "Worker-ledger activity does not itself publish a dashboard snapshot; snapshot/publication cadence can lag new results."
+    ]
+  },
+  "packets": {
+    "e5b20f416ccf6179b5b67ab12e7fd9e585003056b53e7eabaee0d349497716b6": {
+      "taskId": "v91-deaf-bugle-soldier-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "db7eed35e0271f44c2fa30ed3f69dc6fca01d8637631f404b564e30aa6662772": {
+      "taskId": "v91-saddle-ineligible-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "1e8fa9a5ebdef95988e30cf0f2d4a8dc831f00354946bdc0a1b26a88f40a3560": {
+      "taskId": "v91-blind-marker-book-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d6abc6aad4d86720e5dcc36a42a50b1570ab22ba796e91b61bcfdc249fd30e6f": {
+      "taskId": "v91-confused-turn-undead-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "82e5bad3580c43edf8c873e5be69c9f7ed87278f546a2d40fcecf16ccaa7aadd": {
+      "taskId": "v91-cursed-food-rottenfood-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "4624ade7b85ddbff5541cd2d7d65d147c195587e4ac12be8152bf44936def4cb": {
+      "taskId": "v91-timed-blind-cream-cleanup-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a955043fdc3c7e6c2f926b7a7762041ffdc48d95ee5bd16532c4751b09f76fb4": {
+      "taskId": "v91-credit-card-cannot-lock-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "fc895ec8af249e7518c279e80ad903932828c343b3d649cbc2504b2fd0338fcc": {
+      "taskId": "v91-wet-towel-vapor-classification-20261016",
+      "kind": "linked-validation",
+      "usable": "unknown",
+      "classification": "match",
+      "usableBasis": "Packet not classified for C usability."
+    },
+    "fad6a0a0f771fb03a36bed5a3a87e6ed5f1c67963c497d8e4a6a5da6d5fbbe3d": {
+      "taskId": "v91-save-restore-study-resume-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "recorder-failure",
+      "usableBasis": "Recorder environment/startup failure; not evidence of gameplay divergence."
+    },
+    "f6af7747be16beedc3aea0864396fdc80913cbbcd6227ff005c1b959b6f94020": {
+      "taskId": "v91-punished-grapple-anchor-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "02bf0569a8f085c7e069abd0b2c338f11721337167aae1a3545b3c713294e444": {
+      "taskId": "v91-blind-cloud-final-removal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "52388f9d2e2953cc927da40e88379755782fb368d3a816b58bf8722129297d62": {
+      "taskId": "v91-lit-lamp-save-restore-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "recorder-failure",
+      "usableBasis": "Recorder environment/startup failure; not evidence of gameplay divergence."
+    },
+    "92c923fd62f6a78e870ea49f9654b66dfed740c5156c03c23a0d0927474ee104": {
+      "taskId": "v91-swallowed-directional-stethoscope-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "4dc9bb358ed2dc72bfd8720782f64dcee6bf3b79fa74dc7e1c60a6666379c620": {
+      "taskId": "v91-gloved-corpse-pit-fall-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c5066fd38224e1a3b7ae7bdb665396bf3a1ceabb9c2f089d6a5817828af664ec": {
+      "taskId": "v91-startup-name-suffix-override-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "9f5c039458819568108c4fc724f74a302c05f2af294a35b85ce689ccdf53ca59": {
+      "taskId": "v91-object-name-truncate-clear-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "725aeaf3511b830a29878bee66cd7533e3749146700223703a67b57e5c7bc929": {
+      "taskId": "v91-attached-ball-kick-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "59bcfd2ce1546afe4fc542a5f513632eacf4dc9b47210e193ce92c56c27badbd": {
+      "taskId": "v91-level-annotation-cancel-clear-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "66f729b28bb4ed3d3c3953d8698a53c30456e41714710ef3508985ec6ffd26d5": {
+      "taskId": "v91-pet-partly-eaten-food-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "876ee880f1736ea82399a7fe33f171e55c021f075d27c64af5cc4621c973f2fa": {
+      "taskId": "v91-monster-partial-stack-capacity-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "f9a8ed575fcbad7bae911728c1fba59be8d1715449ad63927609afd2f2e44ca2": {
+      "taskId": "v91-unicorn-gem-identity-gift-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "unknown",
+      "classification": "unattributed-failure",
+      "usableBasis": "Missing output, endpoint or first source cause unresolved; not a qualified mismatch."
+    },
+    "630070a17c2580ff1914d20eecf570ee36029e4983d29ea95ae0a6ffe85ca5db": {
+      "taskId": "v91-greased-container-water-protection-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e285af3e15290a77629deb68d36899b052f92f2817052f8ffb38418df67c135a": {
+      "taskId": "v91-interrupted-tin-tool-switch-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "procedural-excluded",
+      "usableBasis": "Frozen chronology discloses invalid capture or C continuation after comparison; excluded."
+    },
+    "ef1da0763bf2ba8c1e3eac9b2a9265611b640f3e43b0ebfbf6a36340f345e5fc": {
+      "taskId": "v91-cursed-taming-disposition-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "07df2d76ac75517ba266f69d9af1917e6ca81aaca025094ea617531e24f23196": {
+      "taskId": "v91-hallucinated-touchstone-identification-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3734013beeef39e67660769f3de193eeb0c83027eb376f131bb3786bee94a128": {
+      "taskId": "v91-confused-charging-hero-energy-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "fa91d7b3383b2ac3e36761cf189249a61fa4a4d8ad119fedf100d51bc9c7dd27": {
+      "taskId": "v91-lit-candle-tip-fuel-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "9b7f04f62dccd21f9d5cb406b81ca9038d3e7bb4639b9346a13005d531929b51": {
+      "taskId": "v91-magic-lamp-cancellation-exemption-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "233bdf7510a6b77ffa19643a20db2af7e197294270dab3c58b517574ecad86b0": {
+      "taskId": "v91-worn-ring-recharge-bonus-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c54352733f4cf6d3a99b446f139c3f779bde6a6eb44e99db2990c4a12e1734f8": {
+      "taskId": "v91-cursed-scare-reversal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f49137053c3020806606f621fe77c12281633510b309a57c8e5a7e1aa5e8b044": {
+      "taskId": "v91-wrapping-blocked-invisibility-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "fcc8460bf125b24ad31e9145c18ccbf52931508f3395cb4208ab58347b1d3eda": {
+      "taskId": "v91-mounted-steed-nymph-saddle-theft-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "cb3d36efee938071d563131c1d5b12344fea23fff81e8bcc6bb6f44ca46b57a4": {
+      "taskId": "v91-greased-container-fire-spill-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "eec0e2fa080fbd3735b3c8c4c9c38ca8f5bc5238b869b3dd769b070ad5d82103": {
+      "taskId": "v91-unchanging-quaff-polymorph-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "237fa25742e99494b4ab67d4a4f8b481b18725ada3d5220624d31dcafed919f9": {
+      "taskId": "v91-acid-quaff-stoning-cure-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "87317e8f8ce451a2c776fb4563f99d5b03868e57089bc5b167a292f59172fc19": {
+      "taskId": "v91-aquatic-egg-dry-ground-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "bb68cbf8de4f8cc05a7303907c4f136d70043a774c0db09ffc75c4238064781f": {
+      "taskId": "v91-free-action-quaff-sleeping-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "6409f2b21094ec66fef649b776403010e6dd9ef126c2ffa0b9efe1e923436a92": {
+      "taskId": "v91-levitating-webmaker-ground-guard-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "b8f48db8361536245d2b5202185e23c423f16be25acbf4cfcc342881623db38c": {
+      "taskId": "v91-floor-hider-petrifying-pile-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "a4bbeadbdc87b1d0b45638e169b719ae4ace50c3b0da8d31897305c00b0754d6": {
+      "taskId": "v91-underwater-dig-turbulence-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "a1fea597d7bf4b58d3c183a211de220454818af712af8a4bf25ff796f30c6615": {
+      "taskId": "v91-breath-direction-cancel-energy-cost-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "9e9391f0eaae1063c00452452bde6162d2dafd1bc4c90e48c58e09ed1b2c15e9": {
+      "taskId": "v91-iron-shoes-landmine-mitigation-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "8f9bf3c4ca8f29b76217b2c3be9771eb08756d6397356eeebc354e023079b7b2": {
+      "taskId": "v91-breathless-sleep-gas-guard-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "8d7c4e7993101d114120f6b4bdf5a28a424df284e6bd8512ef59827078a8f780": {
+      "taskId": "v91-leash-anatomy-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "6731ac2b16675a4d803ad6174359bb86296184e3d826ab67bddbdf6072655317": {
+      "taskId": "v91-empty-cancellation-wand-safe-magic-bag-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a0b3628dd931d0d9f7af40ec9a3d1860f880c589efbb9f9810bcada7cad103ba": {
+      "taskId": "v91-wish-pair-count-mergeability-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d0c4a6fd90b8b46fce527e3a0540e7da5074c986dbe97b49406081bb44ff32cc": {
+      "taskId": "v91-reserved-fruit-name-candied-prefix-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "9fb1d61ff1052bf47325a17ac2c5c0a8ff68d55d036847bfd87dbb54387dfdf6": {
+      "taskId": "v91-lit-lantern-splash-not-submersion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "102919599787a8c17e35897ea807f797c0cbe8e0f69ea1b82a894298e2fa9c69": {
+      "taskId": "v91-blind-object-type-call-dknown-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "b3a085ff2560dd0ff4438cb87db393ad2bd83136086b9bb6921edf82cf84c70c": {
+      "taskId": "v91-see-invisible-timed-blindness-cure-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "671d41701030bb79f3099c7b2b40f93458b4baaac823ad2db70a646dc3b1d356": {
+      "taskId": "v91-lit-oil-quaff-fire-loving-form-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "365cfdc6938b190073bb0a21e4652584175564c111ca073bb54497c37e13c5fa": {
+      "taskId": "v91-long-object-name-bounded-action-query-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "8bc1873332628077d180236207c08cd7636900b06a157016009bd26964be1aeb": {
+      "taskId": "v91-wish-glob-count-weight-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "cf2058634c8522c0ce44a34e3135dfb425c3f95bd064dcf9684d1e7da3ca3ba0": {
+      "taskId": "v91-nurse-tin-consumption-healing-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c3c4fd26d12afe31e192287bfe65a10a4819563cb98ef6df6389ecd12ff3b70b": {
+      "taskId": "v91-swallowed-figurine-no-room-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e2318a0109030879911662e4f26d2c82d981313f9cc266d4e28344c77b461f75": {
+      "taskId": "v91-blessed-food-detection-danger-warning-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "100f92f76319f7d9aee1127e87c69e44e678248d9d033ed6d66db19d776b6ed2": {
+      "taskId": "v91-gold-golem-detection-without-coins-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e4fcaf302c99c053e9f0ffe5683a5d85a3d550e7a628e3ea61791fdbc052b48a": {
+      "taskId": "v91-empty-grease-known-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "1c4268bba4225ecbde23144d98461090d964acf2ba4389200b5ff40273dfcee5": {
+      "taskId": "v91-swallowed-ordinary-bell-muffling-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "b16673d62147e8ff7ec922c7c4bd3eef21d0290124e10f9ea68b255790446ade": {
+      "taskId": "v91-container-admission-snuffs-light-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3b011edea170a8a303475f9478f31c176bd9e3c318db731adad3195a89a35a00": {
+      "taskId": "v91-filled-magic-bag-buc-weight-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "cf435c06954de2fd4adf4d9b7e7e6610e644f1b426ea3f17d38b2979303dceef": {
+      "taskId": "v91-knight-jump-boots-override-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "341811f4d90a30daa9165495ef34f6de589b7396a68eaa229d5925f5471281a4": {
+      "taskId": "v91-top-amulet-cursed-gain-level-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "2db7b8e1fc00bbfa83f101c9bf0cbd0e9f5c2ea83eca448f359f98fa26ab7d08": {
+      "taskId": "v91-rock-thrower-figurine-boulder-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "20051a7cfdc6fe6fc07859f7a08e031058102ac75b13aa862d03020e519ca915": {
+      "taskId": "v91-floor-hider-same-history-prompt-correction-20261016",
+      "kind": "follow-up",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "1e4d46c986ddef5b31fed632e3d1eded2938427781b6a347f655534011e876a3": {
+      "taskId": "v91-underwater-dig-same-history-prompt-correction-20261016",
+      "kind": "follow-up",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "562ef05dee61a40cb02d24660cc6f9b622d01ce2b36c29681d4fa85707d28636": {
+      "taskId": "v91-breath-cancel-same-history-prompt-correction-20261016",
+      "kind": "follow-up",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "410a3051e97906d571f22d89876f82c1357ed11f491925471535347a0f3a1d0f": {
+      "taskId": "v91-crysknife-release-reversion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "7aba5dd4bed152cdce9fe4cea25f674ccd2032cbd9f0a2660ff54e2e74a5737f": {
+      "taskId": "v91-worm-tooth-stack-enchant-fusion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "6abde144a995961f99374e74adc7fe21d56b7901a841ad0ec182e3a30d47ed12": {
+      "taskId": "v91-nongloved-petrifying-saddle-contact-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "28fbc3e92efa8b271674df188707765836b1111090dee90176bd9afad89ae24e": {
+      "taskId": "v91-metallivore-eats-gold-stack-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a0fe3237523b583ca3f35e444526c5b5028b282a3832bc8b34b9cf4d8aa38c2e": {
+      "taskId": "v91-invisible-hero-gaze-unnoticed-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "duplicate",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "55900b5eb7139ec8768111d19615414e8e78ac1719955d47de4944d3ce166fe1": {
+      "taskId": "v91-psychic-blast-target-filters-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f02344a00399108ce62052eed380fac5e839c01d59636ef22d639e38a161594d": {
+      "taskId": "v91-cursed-gain-energy-max-power-loss-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "6e05047d680f5eca9ede5b7a5b9e8dd021e10bd53ec9a28f72d36569c33ad26b": {
+      "taskId": "v91-sustain-ability-blocks-gain-ability-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "8cef7f53c44400119daf960878b715da269ca1e5fcada919d101785926607f7f": {
+      "taskId": "v91-mirror-umber-hulk-self-confusion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c50ba2076ff593c367ea80d956328cfe68d8046ea6810f15a8396f192367701d": {
+      "taskId": "v91-open-door-mimic-discovery-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "68f072b4c6f639c405696dd90664745e9de67832d61f20ecb8e87f484ce199f8": {
+      "taskId": "v91-inventory-adjust-occupied-letter-swap-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "afd5a64dcb6b61d6beae07936d13fb0fbb144f74324ec3dbc1d560220bd45329": {
+      "taskId": "v91-blessed-enlightenment-attribute-gain-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "30c1744c08d0033571168e5bb1a3c3075011aa81912a37ca9a5957eb4f1aaa0b": {
+      "taskId": "v91-slow-digestion-ring-regurgitation-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f8d7236a09762c91f1dad0344e3be9f2cd3ce272702ce0dcf91385120e65a1cc": {
+      "taskId": "v91-very-heavy-iron-ball-wish-weight-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "b944cdf5e4b801419914775f2c52776a92f5835206aa6854e425f0d99e2c7ea6": {
+      "taskId": "v91-cursed-monster-detection-wakes-helpless-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "8cc09b9f083e27783f0dd5f90b68d87804c09f516d91593e373ab5c6c4714a99": {
+      "taskId": "v91-deaf-stethoscope-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "b29139275a9654eda537c33f4bf5ada44d983ec661cd3383138c0cfb315ef282": {
+      "taskId": "v91-nonhuman-confuse-monster-self-confusion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "83b44f005fcf6452d02c9d44238356d9fd8be3fca83a347942220527191d3422": {
+      "taskId": "v91-rogue-level-earth-scroll-no-boulders-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "retention-incomplete",
+      "usableBasis": "Earlier invoked input/capture bytes overwritten; original loss qualified and excluded."
+    },
+    "772a5f0995b5726ee53ada3840cd0d2e20d62567ef678ee263aed0ce7b4b0c88": {
+      "taskId": "v91-acid-erases-scroll-not-spellbook-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "6b12cb2c412248ab26ab55ce7951cd18e19e7b9e6a6f9546113a3b6c91aebfe2": {
+      "taskId": "v91-juiblex-rejects-jubilex-name-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "qualified-mismatch",
+      "usableBasis": "Exact independently replayed recording and first source behavior retained in admitted manifest."
+    },
+    "2a4521fb19e2320a1b6076d7dd6a3c57cd6f8dc5bd541bfc83a69055ea079a4f": {
+      "taskId": "v91-eaten-eucalyptus-clears-vomiting-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "7da99a4e0b5dd7b7bb46bc0e98dbc2a73981fd8248ed396b234b6498fe818413": {
+      "taskId": "v91-garlic-meal-repels-nearby-monster-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "fcae5a71cfb64b0c471f90df21e03e6398937775420cbff7bf034725f105818e": {
+      "taskId": "v91-magical-locking-repairs-broken-box-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e19f017a0bc6ad681e405e9701d9c3eede5fd87d0a6293243e76589af44c3dac": {
+      "taskId": "v91-blind-altar-drop-knowledge-conduct-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e87f121f769698becb113cd63b6f4d187654433cb64c1beb5717f83d9f6a82f1": {
+      "taskId": "v91-barehand-shade-silver-ring-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "e22651d2098ffb1a894de927a995a57d36a4878ab72b9165a13d89a71b301bd5": {
+      "taskId": "v91-negative-enchant-crysknife-reversion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "b2c7085e1058e04b01d9fa050d609bc6b3c20fdd0d3e7736d35bbf498b776cbc": {
+      "taskId": "v91-juiblex-current-main-validation-20261016",
+      "kind": "linked-validation",
+      "usable": "unknown",
+      "classification": "unknown",
+      "usableBasis": "Packet not classified for C usability."
+    },
+    "ab257820f01c8ffdf04c5dcf58fcfb4cb6441e642eebb0de066cc311398ff163": {
+      "taskId": "v92-empty-tinning-kit-before-corpse-touch-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "2a7807782ae272d5e03b56dffc2218e3582a54c3220ea3d1514b811c5e9e6294": {
+      "taskId": "v92-magical-opening-releases-holding-trap-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "b84de810e6a174898944785aab0b5509b4b969a1c9da99fd0d17b61f3b3252d2": {
+      "taskId": "v92-nymph-ability-removes-punishment-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "383233c729b078192e16a407fc368f7a24728f5a3b966b3e2a2c7b7eb552fff4": {
+      "taskId": "v92-cancel-spit-before-venom-creation-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "888c12c54a07f03fc2deb466d0ae0c3c17e416fe3486844a64975bacdfe35122": {
+      "taskId": "v92-greased-wrap-slip-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "6f1ae006f088f00db397d2964fedf3e6a96f462df8c83b1c18880ef9f5c13d61": {
+      "taskId": "v92-magic-closes-holding-trap-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "81f550a133c4b82ae642568b7bfdc9ae72742f83860b4417c28bcf147ad27581": {
+      "taskId": "v92-throne-take-gold-keeps-contained-coins-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "edda4f88e29f2ff78f365c8a7beea09ce085d300bad9d12db44f9947af7c0d28": {
+      "taskId": "v92-magic-releases-monster-hold-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f958c283e6fc5a2daf6a6a013622152c76210d2159449a8608c171d6e3a7078f": {
+      "taskId": "v92-book-of-dead-lava-floor-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "5067b520f416a5ad692d5b1dfda55143f7bd9dc064f47036856c5aedd8f005e1": {
+      "taskId": "v92-identified-unpaid-gem-reprices-bill-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d95e0c1f3593df34c18f1b8a0c4b5145cf8c13cc7b091f4640f6f08dfbc7bdd1": {
+      "taskId": "v92-monster-disintegration-lifesaving-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "e8e80baa488a100eb0400e98751c29cfbb485243237a4d7c16c35486505d5240": {
+      "taskId": "v92-large-form-expulsion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "75e5c9cc14359e3a443db9827c2a64eca240a339116919d2f4c3fcd08dcb9328": {
+      "taskId": "v92-swallowed-polearm-refusal-before-wield-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "7d2bf85154ffb33f515aea9901289b7a74a9f29619d1dcef7b7105387489ad9a": {
+      "taskId": "v92-blind-crystal-ball-refusal-before-charge-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c7ccb19e8b17ad83b8ba292c98a3ff4db2830e2767ae96c171808d0b7138f518": {
+      "taskId": "v92-digested-free-action-sleep-resistance-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "9d1b245ebd609b4e45f25ef46d7f9a50ef27826c03db45830839fe24c796da3e": {
+      "taskId": "v92-spell-gesture-welded-quarterstaff-exception-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a32bf43fa273c11291b7e292a2c209a5708722efd47170c53c8df8cae8ad4410": {
+      "taskId": "v92-blind-tactile-engraving-floor-reach-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "fc4f44fbd7e92f7cb9def3658d58249eb69f7b342c2608a25bdba809656b4617": {
+      "taskId": "v92-mimic-lockpick-item-absorption-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "6e9d4b349493b4149b389da1d888f8c120e164a3d94ebfcc893f1d74567a90a8": {
+      "taskId": "v92-imitating-monster-chat-response-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "12f5fd89ff0922d083bf5770ab992b55a37bf6cfb57802bbe131947ca08b44e5": {
+      "taskId": "v92-glob-elapsed-shrink-weight-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "feff8d7038ae59c4081b458051133fdb65cb70293285ce197307359acd891160": {
+      "taskId": "v92-own-race-corpse-cannibal-warning-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "f4c2b0bb7ad6fc9ab6e30055dfb984420e4aeb47f6086ee2351a53f4c24ba243": {
+      "taskId": "v92-quantum-mechanic-corpse-speed-toggle-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "511aa0c85c46e4207ebcb65291a051a407b64994143f383c4bd1a2bb2c34d556": {
+      "taskId": "v92-visible-tourist-shirt-shop-surcharge-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "31827834c346eddb44507c70aaf44e4c4ca71845cce0a4606ed23e169fdddd3e": {
+      "taskId": "v92-shopkeeper-intercepts-thrown-pickaxe-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "14044dbe83ea21c2f3b59178146f5909f300721e801689236f0e2ae43f80a089": {
+      "taskId": "v92-unpaid-glob-merge-bill-reconciliation-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "unknown",
+      "classification": "unattributed-failure",
+      "usableBasis": "Missing output, endpoint or first source cause unresolved; not a qualified mismatch."
+    },
+    "4acb12484aa9f633eadb1aceb07d3a1a95e5ac2e256d0909bbd4059e8a3d6615": {
+      "taskId": "v92-poisonous-corpse-pet-food-rejection-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "ecfb9fd2643320588fd6e9ae7eabf501ff9c95b7b997500c4abe149edadfd9a9": {
+      "taskId": "v92-ring-normalizes-existing-shapechanger-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "9ef32130175c9c61b36640c2c5966e89a61b520d386133f76653e4c90753f4ff": {
+      "taskId": "v92-diluted-booze-skips-healing-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "7ea344cc98a2cbec91582540b73dce2664aad5c2f1bd9010593f5d92e63071ab": {
+      "taskId": "v92-polymorph-trap-release-restores-levitation-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "qualified-mismatch",
+      "usableBasis": "Exact independently replayed recording and first source behavior retained in admitted manifest."
+    },
+    "77a5b2295c014a5f6a7decb88d022a85044fc404353b43b5b4443eddab816f16": {
+      "taskId": "v92-last-sokoban-hole-clears-rules-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "2d92242305e12bf1814e68b54a6a14773a5d5df505ad2c721c650f194d327dac": {
+      "taskId": "v92-hunger-faint-selftouch-held-corpse-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "5db98ec9ee98451c2713a9c88fcb8806b0278bd48cb8ddc418f86b67af04f385": {
+      "taskId": "v92-underwater-water-walking-boots-identification-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "1518d3310915eaa5b0f96d0b26f21d3e009f00cabac53b0611e92ca25342ec7c": {
+      "taskId": "v92-psychic-blast-skips-peaceful-minded-target-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "4a1812813c97e76bf87fdc556bca7752d1f061248761566997a7db0b96e23799": {
+      "taskId": "v92-unlit-lantern-underwater-light-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "0e758d65976208a40b54cfc4a58cd244b6364c20aae2560e0439b89763278e04": {
+      "taskId": "v93-swallowed-trap-placement-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "1d5be1c6dc35ef98ce683795f079f78a67639babf66fd6d841854b62458ab0ed": {
+      "taskId": "v93-restore-ability-overrides-sustain-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "83585102a5809518b1fd024822c83c8692ce87889d53f3e76a4ac84542a947b4": {
+      "taskId": "v93-blind-trap-identification-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "3cd75f1fac7beb61d6625f8f36779c7d187e7b7942760b591da4b59977261dee": {
+      "taskId": "v93-egg-species-name-after-identify-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "50861a33702ead9600e0cb7c49dc93617ba0daf2f73750d38d6508efe9c0ac0d": {
+      "taskId": "v93-statue-shatter-contents-recovery-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "647c181282a15629e691fc0d1989bd2c7abe393c90e416d87512991841b68fbb": {
+      "taskId": "v93-book-of-dead-deaf-blind-page-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "89c7a203736cd5c2b22b290f9ea0d084a88f98f6d1d4d59832fbc1b00d0907de": {
+      "taskId": "v93-counted-cursed-loadstone-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "recorder-failure",
+      "usableBasis": "Recorder environment/startup failure; not evidence of gameplay divergence."
+    },
+    "18a9b1d82c6de7a28fd31bcdfaf0dcd29528e16c14a7d003529c74d24c051295": {
+      "taskId": "v93-gold-report-contained-known-gold-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "procedural-excluded",
+      "usableBasis": "Frozen chronology discloses invalid capture or C continuation after comparison; excluded."
+    },
+    "f09a87baac65e928fbe87febe5365e7787c46bc3ea2f105544ac2c2213f1edbe": {
+      "taskId": "v93-cursed-horn-already-deaf-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "ade417ee29ddd8daa47474e3fb9ec807376708c17d00ff4e1a262273190175cc": {
+      "taskId": "v93-costly-gold-contained-spend-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "f098fddf4efd24bf67776ea90152bc7468a7a5d3dd9bcc6dfcec8097885a4139": {
+      "taskId": "v93-confused-teleport-scroll-no-control-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "recorder-failure",
+      "usableBasis": "Recorder environment/startup failure; not evidence of gameplay divergence."
+    },
+    "3afd44170a316a18e61bb4fe8a58354d47a0edd16637a9ad7b662f73a5eadd9f": {
+      "taskId": "v93-confused-create-monster-acid-blob-selection-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "e2cd27c443de20bb5e25aea66c8210e4e26e4694962291e212115cbe1de74f89": {
+      "taskId": "v93-flying-webmaker-ground-web-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "c2d60b2dedfd2f05b8542da6d22afd92e7a9c9e14828cdef28aea06cf7cc7d8b": {
+      "taskId": "v93-flying-webmaker-debug-setup-clarification-cfirst-20261016",
+      "kind": "follow-up",
+      "usable": "no",
+      "classification": "recorder-failure",
+      "usableBasis": "Recorder environment/startup failure; not evidence of gameplay divergence."
+    },
+    "54c70e9996f965947dfe7ada7b04cc59379ca5b22eb14999c4a6c042da447de8": {
+      "taskId": "v93-blind-telepathic-target-guaranteed-lock-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "2ee3f2700ebd55dd1e3dfe8fd04d8b2a8e8f8c135b6d8ff360849ec68f6f599c": {
+      "taskId": "v93-unpaid-magic-marker-half-price-use-fee-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "04fe67d52a789c2e3db996b36b94525b59778a1339e95603cf0e086875a1b636": {
+      "taskId": "v93-artifact-offhand-refuses-two-weapon-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3f583af84d16a33af3d119b52f577a84f0ceb26197bbb947ab76b3be0dbbd2fe": {
+      "taskId": "v93-fragile-wand-low-strength-threshold-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "f769d243ebdb7d0856e9923bf61290b67a25a7e14538aa3b4f6b1d49f79590a9": {
+      "taskId": "v93-confused-create-explore-prerequisite-followup-cfirst-20261016",
+      "kind": "follow-up",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "e5fce0e804c949d09fc457f6182b60cba2e52e34a9dcade9e6e596f25f809f13": {
+      "taskId": "v93-swallowed-grappling-hook-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c27268bce397000cf4efebe4b35c24cd4461cc1061658344ae5e9c54a05cfd27": {
+      "taskId": "v93-digested-restful-sleep-amulet-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "33d285667f77177355e346a0ea8b078ad481c1cd2c89cbf39607cf1ce3d79614": {
+      "taskId": "v93-swallowed-bullwhip-directional-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "qualified-mismatch",
+      "usableBasis": "Exact independently replayed recording and first source behavior retained in admitted manifest."
+    },
+    "59072c1ec1657417b7757dac9ecc3ac229f212c0e8ff968517595410876cfc7e": {
+      "taskId": "v93-partial-gold-quiver-rejection-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a7263febd200685e189f5ffc3555f73248f0b034eb46e47cd12eab2bf9b928a6": {
+      "taskId": "v93-blind-aloft-rotten-food-unconscious-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "procedural-excluded",
+      "usableBasis": "Frozen chronology discloses invalid capture or C continuation after comparison; excluded."
+    },
+    "2f77390684f2600f9c2e2b5052ca2ffc6828963c93f8f9e1f86c2ce059be133d": {
+      "taskId": "v93-blind-blank-scroll-reading-feasibility-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3a396d2f9d97c72d4e8fe4c79cfed4adc6b1a016692ab1359421bc9985c3b51d": {
+      "taskId": "v93-blind-credit-card-embossed-read-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "qualified-mismatch",
+      "usableBasis": "Exact independently replayed recording and first source behavior retained in admitted manifest."
+    },
+    "19b68728e8e4628cd2d1581d7bf7bc0b03f07c1500e6122786b09e9089cab0dd": {
+      "taskId": "v93-swallowed-bullwhip-current-main-validation-20261016",
+      "kind": "linked-validation",
+      "usable": "unknown",
+      "classification": "unknown",
+      "usableBasis": "Packet not classified for C usability."
+    },
+    "e32b362b109ca98288397c7d594a8533e3fb8161e2a28719b2e62cbc96863502": {
+      "taskId": "v93-mounted-unskilled-trap-reaching-prompt-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "cd94bb56ba0014b97a504be4ed608676e3cfa2c6b9163f7f0917f63155a53d06": {
+      "taskId": "v93-swallowed-sit-no-seats-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "fcaa1f5ed7cc9146abba15153dc781e0184bac091f8ed0082ee9be815aff54ed": {
+      "taskId": "v94-strangled-chat-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a4e7e0ad0ffd91ca364bf64689e92ec02921f9ec22c5907d4b557ab03fb16fb3": {
+      "taskId": "v94-hallucinated-gaze-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "8994c2830371c9d624b6145213aa086159b79c8de10b98fc9b3af165a64b0fd7": {
+      "taskId": "v94-voiceless-form-whistle-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "07a05058048d595e91e7115360a18b09e0cf53b54d9e9dd67dc1ea7a15629109": {
+      "taskId": "v94-empty-quiver-explicit-none-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f4a3cf4a66ec630665ff7e1606efe39dd472bc71a8c5bf0acbc442e4f52c5d0c": {
+      "taskId": "v94-blind-fortune-cookie-literacy-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "9ac85aba8b1881812b6aef4e9320ffecda235c86e77aa619c9b6a01ae3f03053": {
+      "taskId": "v94-horned-rigid-helmet-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "1971072a1cc9d2b45b65a24d4223003c35e50bf1e78ed7115e8e9f43b11a857a": {
+      "taskId": "v94-slithy-boots-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "559de8e29e007688e095238a69399c9794541bcf0fb3530e8a313415a6380dc5": {
+      "taskId": "v94-centaur-boots-hooves-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3facbe7403f4c6e675bb77b66e37e6d5eaa251d6f3b4adf759a59ea1105e101c": {
+      "taskId": "v94-grease-can-unlabeled-reading-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "34c6351de83281c3d4b11eb3da30157efa9bac52251045d90a0642aff2bcf3fb": {
+      "taskId": "v94-blind-marker-braille-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "64cf0abbf09e74ecc636c69aef89dfd92f3b3b21721914ced483243c9ec9a31d": {
+      "taskId": "v94-blind-coin-engraving-reading-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "unknown",
+      "classification": "unattributed-failure",
+      "usableBasis": "Missing output, endpoint or first source cause unresolved; not a qualified mismatch."
+    },
+    "b070e0a8dddf6168807e1b5b748e7d54ed16490ef85022beaea69162e2a7f656": {
+      "taskId": "v94-pauper-empty-inventory-quiver-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "0f958f2238722a19ea08dfaf05b5fff3bbb37a358a0728d9b14939de9a42a0c1": {
+      "taskId": "v95-free-action-floating-eye-self-mirror-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "1352f91862cbc86f7b2b4b99f705a0e9c199d7ed847844fb64cd0f8d542b52f1": {
+      "taskId": "v95-swallowed-candle-elbow-room-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "5442dc89ac2edd725f19e05fb3808eefd92988d716b26b873ca144f6e9649f3b": {
+      "taskId": "v95-deaf-ordinary-whistle-air-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d0ebbdeb8ac802347b8a77a831562931c09fae33144e3a03007375b56df2b6d4": {
+      "taskId": "v95-unknown-liquid-touchstone-wetstone-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "60073f55b9fca1d10ccc6190c7c355710d038dfecd97bbde663e0f3ef5be7615": {
+      "taskId": "v95-single-stone-self-rub-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "34bf140f80a9888388e827e459b95ac9435d5d07df52477fee2467106b1b509f": {
+      "taskId": "v95-self-directed-leash-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3a49d94cad524035d13e0cbd498336472e3df45cefe0223ac380c2de02386d8c": {
+      "taskId": "v95-swallowed-unused-leash-inside-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "1a03dfa06e94979383c7c3cc66f2030f1b2470977ece39c3ba4b705c72b72a6b": {
+      "taskId": "v95-underwater-loaded-candelabrum-light-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "caa585af2ad62c7d52a9bab4c5cee92158bc06758d1390f6fb9862c3549dc139": {
+      "taskId": "v95-sick-self-mirror-peaked-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "382f1f27488b9be1d81247fbe6aad65a465fc465d4872fb0d10eddf755760313": {
+      "taskId": "v95-underwater-mirror-murky-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "dbfb25028177714c5f53f8251fe9e06f397d61b7a1166bcb62c26bb6b231762a": {
+      "taskId": "v95-cursed-mirror-fog-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "bounded-miss",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c1a4943153fc91e59ba70d074ccde46529a460d360f2b93f44294a26267e90d2": {
+      "taskId": "v95-levitating-physical-jump-traction-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a39091b52ab8d28af14a96513a87a2d8c89b5a938579a5d1522853e43414529d": {
+      "taskId": "v95-burdened-physical-jump-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "ee92602ee6b4710cc096b98d3da7e2aa3ee7ae886073657c7183299722a2465c": {
+      "taskId": "v95-underwater-physical-jump-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "789d1ffa07e7dcf1b02347214a37aca7c39a9399ee661283781d00e772d42cf5": {
+      "taskId": "v95-covered-tshirt-reading-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a04dba82ac0e0f7843448a83cfb95c5b9721b13a2898b061adbe7f6e40884854": {
+      "taskId": "v95-ordinary-candy-wrapper-reading-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "634339aef24a8798463eefa29a36a2f77ff3e9977c032304a0131edd2c899dd6": {
+      "taskId": "v95-levitation-trap-setting-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "7c692d9d1660fd129729ba970fbf3cf9adf64700f911ed32d9c5a8f7e4dfe2f9": {
+      "taskId": "v95-welded-bimanual-towel-freehand-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "c1786c643d40b02e9133c1789a7a77e5b406f5760f7d4060a7811f3eb62a849b": {
+      "taskId": "v95-hallucinating-cream-pie-facial-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "1b1ce7106688b147564b7483b993a3075e3eac281a22e6590e7d38ac62582988": {
+      "taskId": "v95-underwater-ordinary-bell-muffled-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "071271db5594c99ac3c0f43f5aceabc428195b86d50c5c12a554bdcd9527d094": {
+      "taskId": "v95-welded-bimanual-stethoscope-freehand-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "784eebee8cb8bf37b1aee32c4661b395fa986eb7ebb7be574602cdba4598b140": {
+      "taskId": "v95-mounted-sit-already-sitting-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "8a3450c33b25a08ce362eaa1f7ffb03332382cf676305463412c1808a83e03b6": {
+      "taskId": "v95-welded-bimanual-shirt-wear-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3bc1ac98acca14c7240fc59ea3a664d87512eba911ba38c344f4769a06e1097a": {
+      "taskId": "v95-unarmored-takeoff-no-armor-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "88126599068751a34005f17a0789a56400ea896d4ffbc9b2802295a8f616877f": {
+      "taskId": "v95-merged-dragon-skin-takeoff-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "qualified-mismatch",
+      "usableBasis": "Exact independently replayed recording and first source behavior retained in admitted manifest."
+    },
+    "47f771247be0bd607bbb6af8cc92a8377412e85e87000ddc9391cfb9cc6a8a71": {
+      "taskId": "v95-strangled-quaff-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f8d915ed7ba6464d66f7925eccf305f0acc2c5575c6a76ecfbb57ef93eec88e3": {
+      "taskId": "v95-blind-orb-of-fate-signature-read-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f6964d1b35c6401802fb6f59c1db33834ee4ae16745172fd81937bd3ce6b2d47": {
+      "taskId": "v95-empty-owned-horn-of-plenty-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "aaa8d83a22e635aaded89d0244dabbb0d0aec137ee252f78921cf3b3096d498f": {
+      "taskId": "v95-owned-glob-floor-donation-credit-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "7780f5fd51c0ec4b47dd9e781ded82991d7cde3b2a7ca415b8f346ec4d219691": {
+      "taskId": "v95-swallowed-force-lock-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "2d3477d1bac6d126d0927b2d3e46a2b8784386ce327e2ab61b7a3104ed4821d6": {
+      "taskId": "v95-fountain-engraving-floor-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "b87ddbd2f8cb81be2570724560950b9e6504bc690df8632c1a17fff55fabbe90": {
+      "taskId": "v95-strangled-eating-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "ee7a5c44b84329de2f7674293632d8ca642a79f6030f4a3521dc86d1cbb5e2e6": {
+      "taskId": "v95-merged-dragon-skin-takeoff-current-main-validation-20261016",
+      "kind": "linked-validation",
+      "usable": "unknown",
+      "classification": "unknown",
+      "usableBasis": "Packet not classified for C usability."
+    },
+    "b760b2dc56d03a7751cdf54d4e678fdfaf223c6579d3b6f448a7858e61c5321c": {
+      "taskId": "v95-levitating-sit-tumble-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "b559aaa692f7f80101fca44bd9e749649cc6d0371c49ffa936b3f264118dfd48": {
+      "taskId": "v95-trapped-hider-hide-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "533c7d0d448ea521d2c7956802e9fe92a3102bfa81191df213d24bebd062d85a": {
+      "taskId": "v96-weak-self-mirror-undernourished-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "590ecb5d9eaaa530eb4948c19b4bb8be62264cfbe8ccb2e6cd04af5df85716d1": {
+      "taskId": "v96-hallucinated-self-mirror-color-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "7477cb4a64481306c48080912c1a8c320eaca1f903070a8137c22cd18db32c2d": {
+      "taskId": "v96-polymorphed-self-mirror-image-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "cf52721514ddaba5bf0dc29a6621cec33498dd0b68f9d7603a3ace04c0100f0f": {
+      "taskId": "v96-self-close-hero-obstruction-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "bc14abfd2972f7c007a7af1db428b74e4492ab0f6cf8de64bed68a2b6bb49c06": {
+      "taskId": "v96-nohands-engraving-outer-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "4025b27df0c3b7cb69cdfa1f38b9ba5816cff2fb766da10667b3c0ccef3ac228": {
+      "taskId": "v96-large-object-engraving-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "5f25442e2adb27b85065b7eb3f4cf3d0193b9e2e2930e82fb181272ddbb59214": {
+      "taskId": "v96-already-blind-blindness-potion-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "6a4faa3d8f715cf1493e0100ea4bd14526bae33eb53eee6bcee9ca07ad973297": {
+      "taskId": "v96-unlit-cursed-oil-quaff-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d423d1c046c5af2a68aae674bad856f179b69ffae17dec35020a6121f87c9bf5": {
+      "taskId": "v96-two-touchstones-self-stack-identification-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a6c94291e22dc43e7ac73c4f217f695cc9defca68e9b56087307bfa0312f1992": {
+      "taskId": "v96-zero-charge-magic-lamp-lighting-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "3c8ee96ca0498fec05d10195b9da50873bd178d5bf2156fc625d43073aa44cef": {
+      "taskId": "v96-trapped-webmaker-web-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "596c5e8b7c275b6bb11aa349f90f01c2b55bb1a7ee8de8ac08cae17d7cdbf2d4": {
+      "taskId": "v96-blind-gaze-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "639792b23b4ae2eb4e517310b68488ebe76b5cd1a35c425cf574c5f6674ec747": {
+      "taskId": "v96-welded-fingers-engraving-freehand-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "da126d61c2ac755342043587babedee44074e3b9cbf18bede5a1c80f4bf58d72": {
+      "taskId": "v96-gold-only-inventory-organize-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "2c2d4ec5e04c782c55fe7d3aa700deb1284dafe0f42bbd86c766ce8c29265605": {
+      "taskId": "v96-owned-zero-ink-marker-too-dry-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "8cb4a0962eeeeb6cd24b575de14bc8e13dbb9b264ba00ae4fd56e4a0aaa5bb5a": {
+      "taskId": "v96-heavy-load-untrap-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "39411f5f5657d2607e2bf5ff71151563fb49913b1a1baef395a142529ba023fd": {
+      "taskId": "v96-free-action-sleeping-potion-yawn-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "833cf057ec957de8679366e355d29ccf6a31f653ddc80d2bdf21636913fdd210": {
+      "taskId": "v96-self-directed-gold-throw-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "unknown",
+      "classification": "unattributed-failure",
+      "usableBasis": "Missing output, endpoint or first source cause unresolved; not a qualified mismatch."
+    },
+    "fd50b277d80a5f1fff7476e31dffa6c8ba819864ac705a3cd8c6f6bdd026fcd2": {
+      "taskId": "v96-heavy-load-kick-balance-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d4f57759aba7e05fb3a8a4b87ddc7be86548dcdbf4a3ffb0788717c297739e16": {
+      "taskId": "v96-grave-fingers-engraving-smudge-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "source-prerequisite-stop",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "78b55e4e46216900aee14c964b7058298aa4e8e0a5020e246b0d774693311ea4": {
+      "taskId": "v96-unwielded-mjollnir-throw-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "cb61a85b4d538becd64c7e1c831c126081ed45defeeea1ae3d93decc6ca81a99": {
+      "taskId": "v96-welded-hands-untrap-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "5051cf528f3ba8117a1a3639a2a26b97ccb20cca0ed9faea71dc6894acfa79ff": {
+      "taskId": "v96-hawaiian-shirt-design-reading-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a57a9aea0f18a05dff6e2c3a258321abb3b51205b37e9decb54ee82e5e723e66": {
+      "taskId": "v96-single-potion-self-dip-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "ae847499682fc4a0d94bc041d4da643b4839c7e464b11917be55407f73028ecf": {
+      "taskId": "v96-icy-silly-object-engraving-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "946a4eedf0a42ac16b89043cf64a203b6a90472d7f49e0413e880d967ba79d52": {
+      "taskId": "v96-public-grave-wish-fingers-smudge-linked-cfirst-20261016",
+      "kind": "follow-up",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "ade32867fe699bdae3d57ee7627f225179ae87a19ae4da02163e0fc7c26012e7": {
+      "taskId": "v96-confused-altar-offer-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "f5c71d8078f94d8a180918726484d85034cc07d2bf8e1077793bf79a59c6348f": {
+      "taskId": "v96-rooted-immobile-down-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "9926f0374df2eab30577ef1e3cfba4b1a003cd414086334df2b3705e14988812": {
+      "taskId": "v96-digested-adornment-sustain-blocks-charisma-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "74a6181296f1e770e4790c510f95f2e5cd6f431c35ed799e6b532dfca1293a8b": {
+      "taskId": "v96-bare-hands-potion-dip-mouth-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "994c702cf724cf0e250f2ec9b020e31f5da7b7b2742e4f4fbe254084ec6df145": {
+      "taskId": "v96-worn-towel-apply-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "31074e8fc2e567701516f066e5f9bfed308071803122edc06fbc3b95498e8b00": {
+      "taskId": "v96-ordinary-vertical-camera-photo-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "606a2a57f6d93e69c70e7a40cabc8a293b7807e526916d60a07487a6a6c9c87e": {
+      "taskId": "v96-engulfed-down-held-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "2311b992e04dbf5a1ad80de56cae34eadefbbe89684507e24f5f42d8ba5ede34": {
+      "taskId": "v96-monk-intrinsic-speed-potion-refresh-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "bb0620c9c3dc5c8c2e99a3891f1f410825107bfb045bb89d128bbc5439808907": {
+      "taskId": "v96-monk-see-invisible-potion-chance-bound-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e8534496846619e2ad25cafad5a064ef56112ab06b0e7c223bb2413283b504a8": {
+      "taskId": "v96-welded-hands-container-open-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "47e25545a9e543612438424cecbb65f8af7fd1d411a6a43d449f3b8469858e69": {
+      "taskId": "v96-locked-box-tipping-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "4468cc9917c20e685716eecfb8ee2ab05ea0c45e5fa83f2714539592f212c291": {
+      "taskId": "v96-swallowed-chat-unheard-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "7172d8155ba5aed66796bdfdd8173f079ae9c3352bb916788c99dfc6cc17efaa": {
+      "taskId": "v96-deaf-stethoscope-hearing-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "duplicate",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "539a9877368e9995110ccda51f52f6f1fa73724dd4013fd103d9a051e64b8e70": {
+      "taskId": "v96-strangled-turn-undead-call-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "276990fcb923b60c5492c830192d6aaf9d0120c778f401d5d59b083795070966": {
+      "taskId": "v96-demon-prayer-repugnant-early-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "ddbd1094db3b1ee7965825da1e61e604864a4c1de01229e5b0a7684b3f9c8b01": {
+      "taskId": "v96-hallucinating-confusion-potion-trippy-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "unknown",
+      "classification": "unattributed-failure",
+      "usableBasis": "Missing output, endpoint or first source cause unresolved; not a qualified mismatch."
+    },
+    "63d27f41c120c1d631ac78977877b71d935d6ee029029e6f76cb8e00bf067ef6": {
+      "taskId": "v96-extra-healing-clears-hallucination-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d44d6d6c55105e0e0613c51d12da72c88d51757d0848a59da4961f703141dbe5": {
+      "taskId": "v96-sickness-potion-clears-hallucination-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "25b8a20945864d8a1b951aabc0f0288a688423eadd3cf6fa428fa5a7bbda7d40": {
+      "taskId": "v96-underwater-chat-unintelligible-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "no",
+      "classification": "setup-miss",
+      "usableBasis": "Frozen block has no qualified current-task C/replay/comparison result."
+    },
+    "f333b3a760f3a70c75628abf30eafcdc6a0497b91bd4666adf4ee4a8ab680eb9": {
+      "taskId": "v96-empty-inventory-adjust-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "133728c57e050be3c7b232d28b02bd68dc725caa85ba4ab75a33dd1afe03d417": {
+      "taskId": "v96-hallucinated-monster-naming-recognition-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "09f78b9d2739377180f3e63ccdef66265a064d3971dba55991f7c1522d49ebee": {
+      "taskId": "v96-stunned-casting-preselection-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "a37f2e36caec33b2804bcf6862bb9069d1ac5169ead5eb96898618f8e3384645": {
+      "taskId": "v96-strangled-casting-chant-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "acc84d921e04dd624f62f52c871977ba48c2a0b24577f2af0f2937c7c0ad0765": {
+      "taskId": "v96-welded-arms-casting-preselection-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e8a1cc6d6fb16a49db1fd0b76f2dc5bc21bad7140d312599b5c6a5e07c29c4f5": {
+      "taskId": "v96-attached-leash-drop-hand-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "be9082489354af753f7782fb0caf59173f239d1f03e44a3bb6227c068ba2ffaa": {
+      "taskId": "v96-wax-candle-touchstone-streak-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "d6068a9e1a264da3273befb9c9716497dd0c6de103e99a496809ffc41044e487": {
+      "taskId": "v96-stunned-trap-setting-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "4b6bf9b550695e0d88597bbc8282149eece977d48dd35e36e0f7dba519426cc2": {
+      "taskId": "v96-self-monster-naming-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e2cfad1ea093227c33269e8cc1c441d52ce8b85450c85b4274d9a6827264b8bf": {
+      "taskId": "v96-nonweapon-force-proper-weapon-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e85051d7c0d985da41d35e4efe89894aba07175ed950488b3faf87bcfb750ea3": {
+      "taskId": "v96-underwater-chat-observed-pager-linked-cfirst-20261016",
+      "kind": "follow-up",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "2978b318384f1507f0a79a2c3a397ab1a5bdcffb9368e9c1e0eef2f5e4c86a2b": {
+      "taskId": "v96-blind-shirt-reading-braille-refusal-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "56a936fd987963d9df90f7a4cc885b05d54a9680e233fe5da8a27c291c1e27cf": {
+      "taskId": "v96-levitating-paralysis-potion-suspended-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    },
+    "e4a98b713774fde8a6355b12aa26a247752359b30d13576af492f41b82ffbd49": {
+      "taskId": "v96-hallucinated-booze-taste-feedback-cfirst-20261016",
+      "kind": "discovery",
+      "usable": "yes",
+      "classification": "match",
+      "usableBasis": "Frozen packet reports successful unchanged C replay and comparison command receipts; not a source certificate."
+    }
+  },
+  "sessions": [
+    {
+      "id": "v91-juiblex-jubilex-name-refusal",
+      "batch": "v91",
+      "manifestSha256": "276351004de39011a41eabf34a2a775f023f8d43c04f3c491c4fe775f0997a44",
+      "recordingSha256": "c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263",
+      "admittedAt": "2026-10-16T06:42:26.676Z",
+      "sourceOwner": "do_name.c:alreadynamed",
+      "taskId": "v91-juiblex-rejects-jubilex-name-cfirst-20261016",
+      "bugFamilyId": "juiblex-special-name-predicate",
+      "discoveryBatch": "v91",
+      "discoveredAt": "2026-10-16T06:14:07.017Z"
+    },
+    {
+      "id": "v92-blessed-polymorph-duration-min-rng",
+      "batch": "v92",
+      "manifestSha256": "3bfd1b2837cb29ca84bc9f3760482329122d024da09ce8efc7e5e49388ab53bf",
+      "recordingSha256": "767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47",
+      "admittedAt": "2026-10-16T08:22:12.222Z",
+      "sourceOwner": "potion.c:peffect_polymorph",
+      "taskId": "v92-polymorph-trap-release-restores-levitation-cfirst-20261016",
+      "bugFamilyId": "c-min-random-argument-evaluation",
+      "discoveryBatch": "v92",
+      "discoveredAt": "2026-10-16T08:02:20.031Z"
+    },
+    {
+      "id": "v93-swallowed-bullwhip-refusal-wording",
+      "batch": "v93",
+      "manifestSha256": "d9b5366ed6785e830002eb7097e6028b3bb43bca59a8b877169970c1182a3408",
+      "recordingSha256": "580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc",
+      "admittedAt": "2026-10-16T09:54:50.477Z",
+      "sourceOwner": "apply.c:use_whip swallowed refusal",
+      "taskId": "v93-swallowed-bullwhip-directional-refusal-cfirst-20261016",
+      "bugFamilyId": "bullwhip-refusal-literal",
+      "discoveryBatch": "v93",
+      "discoveredAt": "2026-10-16T09:29:04.152Z"
+    },
+    {
+      "id": "v94-blind-credit-card-quote-punctuation",
+      "batch": "v94",
+      "manifestSha256": "2fbd9c0522acdb63e6b429fb3ed36b75d1701907931257ba028c798e0b54cf9b",
+      "recordingSha256": "a600ed0b514b93b643cf1baad20ebc6d149af7c50418aae0d0384683af38a1bf",
+      "admittedAt": "2026-10-16T10:24:18.207Z",
+      "sourceOwner": "read.c:doread CREDIT_CARD number line",
+      "taskId": "v93-blind-credit-card-embossed-read-cfirst-20261016",
+      "bugFamilyId": "credit-card-quote-period-order",
+      "discoveryBatch": "v93",
+      "discoveredAt": "2026-10-16T09:44:00.670Z"
+    },
+    {
+      "id": "v95-merged-dragon-skin-takeoff-refusal",
+      "batch": "v95",
+      "manifestSha256": "98d63076795dc097121247f25db1799022c11fdd288b99fbda9c097efa5ac99c",
+      "recordingSha256": "fbaefdaeef1c5e667f082b713d970783e619318c533e6237e4ce6db9b0ac1707",
+      "admittedAt": "2026-10-16T12:18:55.104Z",
+      "sourceOwner": "do_wear.c:dotakeoff merged uskin early branch",
+      "taskId": "v95-merged-dragon-skin-takeoff-refusal-cfirst-20261016",
+      "bugFamilyId": "merged-armor-state-location",
+      "discoveryBatch": "v95",
+      "discoveredAt": "2026-10-16T11:56:32.444Z"
+    }
+  ],
+  "markers": [
+    {
+      "at": "2026-10-16T03:10:52.398Z",
+      "label": "Continuous replenishment brief published",
+      "kind": "operational",
+      "scope": "Published workflow instruction/tooling; not an exploration strategy experiment.",
+      "evidence": {
+        "kind": "ledger",
+        "id": "tooling-published-challenge-replenishment-brief-20261016",
+        "commit": "40d1cfdab47fa588e71bd9ef7348e3d7aa37563a"
+      },
+      "causality": "unmeasured"
+    },
+    {
+      "at": "2026-10-16T04:54:31.259Z",
+      "label": "Typed evidence retention published",
+      "kind": "operational",
+      "scope": "Published workflow instruction/tooling; not an exploration strategy experiment.",
+      "evidence": {
+        "kind": "ledger",
+        "id": "tooling-published-typed-evidence-7b1cf72a-20261016",
+        "commit": "7b1cf72a358e9c38d90e0958d7a19e2dfb8d56c6"
+      },
+      "causality": "unmeasured"
+    },
+    {
+      "at": "2026-10-16T05:37:06.704Z",
+      "label": "Producer disposition ownership published",
+      "kind": "operational",
+      "scope": "Published workflow instruction/tooling; not an exploration strategy experiment.",
+      "evidence": {
+        "kind": "ledger",
+        "id": "tooling-producer-accountability-published-d48b81b0",
+        "commit": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa"
+      },
+      "causality": "unmeasured"
+    }
+  ]
+}
