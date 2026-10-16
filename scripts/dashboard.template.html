@@ -293,12 +293,13 @@ h1 {
 .section-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px 20px; margin-bottom:12px; min-width:0; }
 .section-toolbar > .section-title { margin:0; flex:0 0 auto; }
 .section-toolbar-controls { display:flex; flex:0 1 auto; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px 12px; margin-left:auto; max-width:100%; min-width:0; }
-.section-toolbar-controls .chart-range { max-width:min(36vw,340px); }
-.section-toolbar-controls .time-range-note { flex:0 1 auto; }
-.section-toolbar-controls .activity-navigation { flex:0 1 auto; }
 .section-toolbar-controls .challenge-filter { margin:0; }
-.section-toolbar-controls .history-view-controls { margin-left:0; }
-.section-subtoolbar .history-controls { margin-left:auto; }
+.section-toolbar-controls > * { flex:0 0 auto; max-width:100%; }
+.section-toolbar-controls > label { display:flex; align-items:center; gap:6px; min-height:36px; font-size:12px; color:var(--ink-secondary); }
+.section-toolbar-controls > label input { margin:0; }
+.section-toolbar-controls > .history-controls button,.section-toolbar-controls > .batch-picker > summary { min-height:36px; display:flex; align-items:center; }
+.section-context { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; margin:-4px 0 12px; min-width:0; }
+.section-context > * { min-width:0; overflow-wrap:anywhere; }
 .section-subtoolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 12px; margin:0 0 10px; min-width:0; }
 
 summary { cursor: pointer; }
@@ -449,7 +450,6 @@ canvas {
 .history-controls .chart-reset { border: 0; border-radius: 0; }
 .history-controls .chart-reset + .chart-reset { border-left: 1px solid var(--border); }
 .history-controls [aria-pressed="true"] { background: var(--progress-area); color: var(--ink-primary); border-color: var(--ink-secondary); }
-.history-view-controls { display: flex; flex-wrap:wrap; align-items: center; justify-content:flex-end; gap: 10px; margin-left: auto; max-width: 100%; min-width:0; }
 #progressWindow { font: inherit; font-size: 12px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .batch-picker { position: relative; width: max-content; max-width: 100%; margin: 0; font-size: 12px; }
 .batch-picker summary { cursor: pointer; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; white-space: nowrap; }
@@ -491,8 +491,6 @@ canvas {
   margin: 0 0 12px;
 }
 .activity-window-select { margin-left: auto; font: inherit; font-size: 12px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
-.activity-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
-.activity-navigation .chart-range { min-width: 165px; text-align: left; }
 .activity-utilization { width: 100%; max-width: 520px; table-layout: fixed; border-collapse: collapse; margin: 0 0 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .activity-utilization th, .activity-utilization td { padding: 2px; text-align: right; white-space: nowrap; }
 .activity-utilization th:first-child { width: min(112px, 32%); text-align: left; padding-left: 0; white-space: normal; }
@@ -943,7 +941,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 @media (max-width: 480px) {
   .section-toolbar { gap:8px; }
   .section-toolbar-controls { justify-content:flex-end; gap:8px; }
-  .section-toolbar-controls .chart-range { max-width:100%; flex:1 1 100%; }
+  .section-toolbar-controls > .history-controls button,.section-toolbar-controls > .batch-picker > summary { min-height:42px; }
   .time-range-selector { grid-template-columns:minmax(0,1fr); gap:18px; }
   .time-range-selector select,.time-range-selector input { font-size:16px; min-height:42px; }
   .time-range-picker > summary { min-height:42px; }
@@ -973,8 +971,6 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   <div class="section-toolbar">
     <h2 class="section-title" id="yieldTitle">Exploration yield</h2>
     <div class="section-toolbar-controls">
-      <span class="chart-range" id="yieldBucketLabel">Discovery timeline</span>
-      <span class="time-range-note" id="yieldRangeAsOf"></span>
       <details class="time-range-picker" id="yieldRangePicker"><summary id="yieldRangeSummary">24 hours · Now</summary>
         <form class="time-range-selector" id="yieldRangeForm" aria-label="Exploration time selection">
           <label class="time-range-part"><span>Duration</span><select id="yieldWindow" aria-label="Exploration duration"><option value="6">6 hours</option><option value="24" selected>24 hours</option><option value="168">7 days</option><option value="all">All</option><option value="custom">Custom</option></select><input id="yieldDurationCustom" type="number" min="0" step="any" hidden aria-label="Exploration custom duration"><select id="yieldDurationUnit" hidden aria-label="Exploration duration unit"><option value="60000">minutes</option><option value="3600000">hours</option><option value="86400000">days</option></select></label>
@@ -984,6 +980,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
       </details>
     </div>
   </div>
+  <div class="section-context"><span class="chart-range" id="yieldBucketLabel">Discovery timeline</span><span class="time-range-note" id="yieldRangeAsOf"></span></div>
   <p class="subtitle" id="yieldFreshness"></p>
   <div class="chart-wrap">
     <div class="yield-summary" id="yieldSummary"></div>
@@ -1013,9 +1010,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   <div class="section-toolbar">
     <h3 class="section-title" id="workerActivityTitle">Worker activity</h3>
     <div class="section-toolbar-controls">
-      <div class="activity-navigation"><span class="chart-range" id="activityWindowLabel"></span></div>
       <label><input id="activityHistorical" type="checkbox"> Show historical workers</label>
-      <span class="time-range-note" id="activityRangeAsOf"></span>
       <details class="time-range-picker" id="activityRangePicker"><summary id="activityRangeSummary">6 hours · Now</summary>
     <form class="time-range-selector" id="activityRangeForm" aria-label="Worker activity time selection">
     <label class="time-range-part"><span>Duration</span><select id="activityWindow" aria-label="Activity duration">
@@ -1028,6 +1023,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
       </form></details>
     </div>
   </div>
+  <div class="section-context"><span class="chart-range" id="activityWindowLabel"></span><span class="time-range-note" id="activityRangeAsOf"></span></div>
   <p class="subtitle" id="activitySnapshotTime"></p>
 
   <div class="chart-wrap">
@@ -1041,7 +1037,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
     </div>
     <details class="integration-duration dashboard-disclosure" id="integrationDisclosure" open>
       <summary>Work lead integration time</summary>
-      <div class="integration-scale section-subtoolbar"><span>Elapsed time, including CI waits</span><div class="history-controls" role="group" aria-label="Integration time scale"><button class="chart-reset" id="integrationTypicalRange" type="button" aria-pressed="true">0–30 min</button><button class="chart-reset" id="integrationFullRange" type="button" aria-pressed="false">All durations</button></div></div>
+      <div class="integration-scale section-subtoolbar"><span>Elapsed time, including CI waits</span><div class="section-toolbar-controls"><div class="history-controls" role="group" aria-label="Integration time scale"><button class="chart-reset" id="integrationTypicalRange" type="button" aria-pressed="true">0–30 min</button><button class="chart-reset" id="integrationFullRange" type="button" aria-pressed="false">All durations</button></div></div></div>
       <div class="integration-duration-summary">
         <p class="integration-duration-series"><span class="integration-duration-key" aria-hidden="true"></span><strong>Implementation</strong>: <span id="integrationDurationSummary"></span></p>
         <p class="integration-duration-series"><span class="integration-duration-key prep" aria-hidden="true"></span><strong>Challenge batches</strong>: <span id="prepIntegrationDurationSummary"></span></p>
@@ -1076,8 +1072,6 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   <div class="section-toolbar">
     <h2 class="section-title" id="scoreHistoryTitle">Screen matches over time</h2>
     <div class="section-toolbar-controls">
-      <span class="chart-range" id="progressRange"></span>
-      <div class="history-view-controls">
         <div class="history-controls" role="group" aria-label="Chart units">
           <button type="button" class="chart-reset" id="progressMode-screens" aria-pressed="true">Screens</button>
           <button type="button" class="chart-reset" id="progressMode-percent" aria-pressed="false">%</button>
@@ -1090,7 +1084,6 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
             <div class="batch-picker-options" id="historyBatchOptions" role="group" aria-label="Visible challenge batches"></div>
           </div>
         </details>
-        <span class="time-range-note" id="progressRangeAsOf"></span>
         <details class="time-range-picker" id="progressRangePicker"><summary id="progressRangeSummary">7 days · Now</summary>
         <form class="time-range-selector" id="progressRangeForm" aria-label="Progress time selection">
         <label class="time-range-part"><span>Duration</span><select id="progressWindow" aria-label="Progress duration">
@@ -1100,9 +1093,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
         <span class="time-range-error" id="progressRangeError" role="alert"></span><p class="time-range-help">Valid custom values update on Enter or when you leave the field.</p>
         </form>
         </details>
-      </div>
     </div>
   </div>
+  <div class="section-context"><span class="chart-range" id="progressRange"></span><span class="time-range-note" id="progressRangeAsOf"></span></div>
   <div class="chart-wrap">
     <div class="legend" id="progressLegend"></div>
 

@@ -168,7 +168,7 @@ test('opening a mobile picker uses stable layout width and visual viewport heigh
             addEventListener(type,fn){this.listeners[type]=fn;}});return nodes.get(id);}};
     make({document:doc,prefix:'mobile'});
     const picker=nodes.get('mobileRangePicker'),form=nodes.get('mobileRangeForm');
-    picker.getBoundingClientRect=()=>({left:163,top:700,bottom:742});
+    picker.getBoundingClientRect=()=>({left:163,right:374,top:700,bottom:742});
     form.getBoundingClientRect=()=>({width:358,height:300});
     picker.open=true;picker.listeners.toggle();
     assert.equal(form.style.left,'-147px','panel starts at 16, within the actual 390px viewport');
@@ -177,4 +177,11 @@ test('opening a mobile picker uses stable layout width and visual viewport heigh
     view.visualViewport.height=500;view.visualViewport.offsetTop=100;picker.listeners.toggle();
     assert.equal(form.style.top,'-416px','panel follows the reduced and scrolled visual viewport');
     assert.equal(form.style.maxHeight,'468px');
+    // On a wide display the section ends well before the viewport edge.
+    // Keep the panel attached to its summary, not the far side of the screen.
+    doc.documentElement.clientWidth=1920;
+    picker.getBoundingClientRect=()=>({left:1410,right:1510,top:50,bottom:86});
+    form.getBoundingClientRect=()=>({width:440,height:300});
+    picker.listeners.toggle();
+    assert.equal(form.style.left,'-340px','popover shares the summary/section right edge');
 });

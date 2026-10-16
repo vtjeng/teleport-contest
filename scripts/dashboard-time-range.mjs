@@ -32,7 +32,9 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
         const top=win.visualViewport?.offsetTop||0;
         elements.RangeForm.style.maxHeight=Math.max(0,height-32)+'px';
         const panel=elements.RangeForm.getBoundingClientRect();
-        elements.RangeForm.style.left=(clamp(box.left,16,Math.max(16,width-panel.width-16))-box.left)+'px';
+        // Anchor to the same right edge as the toolbar's last control, then
+        // clamp only when the viewport (including a mobile keyboard) needs it.
+        elements.RangeForm.style.left=(clamp(box.right-panel.width,16,Math.max(16,width-panel.width-16))-box.left)+'px';
         elements.RangeForm.style.top=(clamp(box.bottom+6,top+16,Math.max(top+16,top+height-panel.height-16))-box.top)+'px';
     }
     function sync() {
