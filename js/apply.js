@@ -823,7 +823,7 @@ export async function use_whip(obj, state = game, env = {}) {
     proficient = Math.max(0, Math.min(3, proficient));
 
     if (u.uswallow) {
-        await ttyPline("There's not enough room to flick your bullwhip.", state);
+        await ttyPline('There is not enough room to flick your bullwhip.', state);
     } else if (u.uinwater) {
         await ttyPline("There's too much resistance to flick your bullwhip.", state);
     } else if (u.dz < 0) {
