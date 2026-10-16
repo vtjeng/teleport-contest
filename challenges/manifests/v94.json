@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "batch": "v94",
+  "comparisonBase": "658fcf773a8c752c626a6cc508d80c11b1a71d60",
+  "preparationComparisonBase": "658fcf773a8c752c626a6cc508d80c11b1a71d60",
+  "preparationBase": "3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v94-blind-credit-card-quote-punctuation",
+      "title": "Blind credit-card reading places punctuation after the closing quote",
+      "mission": "Read one naturally carried credit card while Blind; retain the actual number-line punctuation first difference and literacy observations.",
+      "recipe": "challenges/cases/v94/v94-blind-credit-card-quote-punctuation.recipe.session.json",
+      "recipeSha256": "df2b51ebf134c4b83f469fe072293305a69ba2fe6f000c4764c136012bb0ec4a",
+      "recording": "challenges/cases/v94/v94-blind-credit-card-quote-punctuation.session.json",
+      "recordingSha256": "a600ed0b514b93b643cf1baad20ebc6d149af7c50418aae0d0384683af38a1bf",
+      "reproducibility": "One independent unchanged input-only C replay was byte-identical. Original saved replay command/exit/logs and deep-equality SHA evidence are retained, separately from the original worker fresh capture check.",
+      "sourcePointers": [
+        "read.c:doread CREDIT_CARD (481-488)",
+        "js/read.js:doread credit-card number output (1313-1315)"
+      ],
+      "sourceTrace": "C prints a closing quote around the card number, then appends the optional period outside it. The reached Blind branch makes the period mandatory. JS appends a period to the number before wrapping it in quotes. The first differing cell is therefore C closing quote versus JS period; preceding numbers/RNG align. This is not a missing quote or object-ID generation failure.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 43,
+        "key": "l",
+        "kind": "screen",
+        "row": 0,
+        "column": 51,
+        "owner": "read.c:doread CREDIT_CARD number line",
+        "sourceBehavior": "Closing quote precedes optional period",
+        "c": "\"",
+        "js": "."
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2599,
+            "js": 2599
+          },
+          "screens": {
+            "c": 54,
+            "js": 54
+          },
+          "cursors": {
+            "c": 54,
+            "js": 54
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 43,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 43,
+            "key": "l"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 51,
+          "cCell": {
+            "ch": "\"",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": ".",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "658fcf773a8c752c626a6cc508d80c11b1a71d60",
+          "recordingSha256": "a600ed0b514b93b643cf1baad20ebc6d149af7c50418aae0d0384683af38a1bf"
+        }
+      },
+      "workerResult": "3a396d2f9d97c72d4e8fe4c79cfed4adc6b1a016692ab1359421bc9985c3b51d",
+      "currentValidationResult": "676111f25acb16edd957f25bdbe0619351fd205d1e485ab8b56e281e4204c80e",
+      "carryForward": {
+        "originalBatch": "v93",
+        "originalQuestion": "v93-blind-credit-card-embossed-read-cfirst-20261016",
+        "originalPlanSnapshot": "2e7d022761adf4cae0ec7a8da965b8282826b48813d4c3da0f5ca6dd1bac2143",
+        "disposition": "Separate pending93investigation carried into94 after93delivery froze; not a new94discovery or counted toward its12newquestions."
+      },
+      "independentReplay": {
+        "recipeSha256": "df2b51ebf134c4b83f469fe072293305a69ba2fe6f000c4764c136012bb0ec4a",
+        "recordingSha256": "a600ed0b514b93b643cf1baad20ebc6d149af7c50418aae0d0384683af38a1bf",
+        "replaySha256": "a600ed0b514b93b643cf1baad20ebc6d149af7c50418aae0d0384683af38a1bf",
+        "byteIdentical": true,
+        "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4"
+      },
+      "overlap": {
+        "review": "Original source/raw cross-corpus audit of challenges/recordings/recipes/sessions found no blind embossed-number read. Related v15/v73 credit-card cases use lockpicking, not read. Producer confirms current source literal ordering, exact prefix and distinct cause from v93bullwhip refusal and fixed91/92/known90 causes. No old held book/scroll, merchant or artifact caller scope is used; unknown historical claims remain unknown.",
+        "comparables": [
+          {
+            "reference": "v15/v73 credit-card lock cases",
+            "difference": "Different command and lock source; no card-number reading."
+          },
+          {
+            "reference": "v93 swallowed bullwhip refusal",
+            "difference": "Unrelated apply.c literal contraction; this is read.c quote/period order."
+          }
+        ]
+      }
+    }
+  ]
+}
