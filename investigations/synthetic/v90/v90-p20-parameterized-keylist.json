@@ -24,7 +24,8 @@
       "key": "j",
       "kind": "screen",
       "owner": "cmd.c:keylist_putcmds"
-    }
+    },
+    "session": "synthetic/v90/v90-p20-parameterized-keylist"
   },
   "summary": "The key-list help path omits its output when a current BINDINGS parameter targets the CMD_PARAM #toggle row; the C formatter prints the bound key, command description, and quoted parameter. The JavaScript display formatter instead throws UnsupportedHelpError as soon as it reaches that row, so the ?j help selector stops before producing the C text page.",
   "source": {
