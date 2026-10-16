@@ -531,8 +531,10 @@ async function auto_describe(cx, cy, state) {
             const invalidTarget = state.iflags?.autodescribe
                 && state.getpos_getvalid
                 && !await state.getpos_getvalid(cx, cy, state);
+            const coordinate = coord_desc(cx, cy, state);
             await ttyPline(
                 description.firstmatch
+                + (coordinate ? ` ${coordinate}` : '')
                 + (invalidTarget ? ' (invalid target)' : '')
                 + (noTravelPath ? ' (no travel path)' : ''),
                 state,

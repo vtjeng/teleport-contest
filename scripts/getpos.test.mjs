@@ -320,6 +320,38 @@ test('getpos uses the active autodescribe and help keys with verbose wording', a
         'Automatic description of features under cursor is on.');
 });
 
+test('getpos automatic descriptions include configured compass coordinates', async () => {
+    await enterStableGame();
+    const oldCoordinateMode = game.iflags.getpos_coords;
+    const oldAutodescribe = game.iflags.autodescribe;
+    const target = { x: game.u.ux + 1, y: game.u.uy };
+    const oldDisplayGlyph = game.level.at(target.x, target.y).disp_glyph;
+    game.iflags.getpos_coords = 'c';
+    game.iflags.autodescribe = true;
+    game.level.at(target.x, target.y).disp_glyph = {
+        glyph: cmap_to_glyph(S_room, game),
+    };
+    const descriptions = [];
+    game._preNhgetchHook = async () => {
+        if (game.gg.getposx === target.x && game.gg.getposy === target.y)
+            descriptions.push(game._ttyToplines);
+    };
+    queueKeys('l'.charCodeAt(0), 0x1B);
+    try {
+        assert.equal(
+            await getpos({ x: game.u.ux, y: game.u.uy }, true, 'desired location', game),
+            -1,
+        );
+    } finally {
+        delete game._preNhgetchHook;
+        game.iflags.getpos_coords = oldCoordinateMode;
+        game.iflags.autodescribe = oldAutodescribe;
+        game.level.at(target.x, target.y).disp_glyph = oldDisplayGlyph;
+    }
+    assert.ok(descriptions.some(message => /\(east\)/u.test(message)),
+        `expected compass suffix in automatic description, got: ${descriptions.join(' | ')}`);
+});
+
 test('getpos same-glyph fast movement follows the configured run prefix', async () => {
     await enterStableGame();
     game.iflags.getloc_moveskip = true;
