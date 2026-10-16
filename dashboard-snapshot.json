@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T18:16:01.671Z",
+  "capturedAt": "2026-10-16T18:41:23.779Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T18:16:01.671Z",
+    "asOf": "2026-10-16T18:41:23.779Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5711,7 +5711,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 57,
+      "mainSupportAssignments": 60,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -159569,6 +159569,79 @@
         "worker": "Worker-3",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:29:05.750Z",
+        "id": "queue:8319cc56-dd80-4aea-bcc1-1ab7fea01137",
+        "type": "assign",
+        "task": "support-dashboard-batch-controls-wait-detail-ui-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:33:37.379Z",
+        "id": "queue:260937a4-1078-4b9f-a0d1-eac9f9b3c5f8",
+        "type": "assign",
+        "task": "support-v96-known-xp-highlight-hostile-guard-proof-scope-screen-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:34:03.743Z",
+        "id": "queue:dfaf03fe-0fd3-40f5-b04c-fc8a32798e7b",
+        "type": "queue-complete",
+        "task": "support-dashboard-batch-controls-wait-detail-ui-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:34:03.743Z",
+        "id": "queue:dfaf03fe-0fd3-40f5-b04c-fc8a32798e7b:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:36:20.761Z",
+        "id": "queue:2b48c4ea-03e7-4b9f-9a9c-1aa6b8e2cb1e",
+        "type": "assign",
+        "task": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:37:10.889Z",
+        "id": "queue:7fbc60be-45b5-49ad-89c2-827863a0d5c7",
+        "type": "queue-complete",
+        "task": "support-v96-known-xp-highlight-hostile-guard-proof-scope-screen-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:37:10.889Z",
+        "id": "queue:7fbc60be-45b5-49ad-89c2-827863a0d5c7:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -159588,12 +159661,17 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
+        "worker": "Worker-2"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 275,
+      "completed": 277,
       "superseded": 64
     },
     "workers": [
@@ -159604,8 +159682,8 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -164722,12 +164800,57 @@
         "readyAt": "2026-10-16T18:06:58.710Z",
         "claimedAt": "2026-10-16T18:07:09.692Z",
         "completedAt": "2026-10-16T18:09:23.168Z"
+      },
+      {
+        "id": "support-dashboard-batch-controls-wait-detail-ui-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T18:28:35.707Z",
+        "claimedAt": "2026-10-16T18:29:05.750Z",
+        "completedAt": "2026-10-16T18:34:03.743Z"
+      },
+      {
+        "id": "support-v96-known-xp-highlight-hostile-guard-proof-scope-screen-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T18:33:24.747Z",
+        "claimedAt": "2026-10-16T18:33:37.379Z",
+        "completedAt": "2026-10-16T18:37:10.889Z"
+      },
+      {
+        "id": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T18:36:04.157Z",
+        "claimedAt": "2026-10-16T18:36:20.761Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "b8229b7ef173c18d6bdd4a32a2b4a440c3b2a0d8",
-    "measuredAt": "2026-10-16T18:15:09.518Z",
+    "executionCommit": "3072e2dbdfe9139aa376b153954d043df4e0a10e",
+    "measuredAt": "2026-10-16T18:40:36.996Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
