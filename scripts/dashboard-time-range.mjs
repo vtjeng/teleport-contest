@@ -60,6 +60,8 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
             elements.DurationCustom.value = String(requested / unit);
         }
         elements.RangeError.textContent = '';
+        elements.DurationCustom.removeAttribute?.('aria-invalid');
+        elements.EndingAt.removeAttribute?.('aria-invalid');
         position();
     }
     function update(change) {change(); draft = false; sync();}

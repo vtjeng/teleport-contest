@@ -143,6 +143,9 @@ test('Enter commits a valid box and closes; Escape cancels unfinished text',()=>
     assert.match(h.el('RangeError').textContent,/positive/);assert.deepEqual(h.range.bounds(),before);
     h.key('Escape','DurationCustom');assert.equal(h.el('RangePicker').open,false);
     assert.deepEqual(h.range.bounds(),before);
+    assert.equal(h.el('DurationCustom').value,'2');
+    assert.equal(h.el('DurationCustom').attrs['aria-invalid'],undefined,
+        'canceling an invalid draft restores a valid field without a stale error flag');
 });
 
 test('Fixed date changes commit only when valid; outside blur commits valid custom input',()=>{
