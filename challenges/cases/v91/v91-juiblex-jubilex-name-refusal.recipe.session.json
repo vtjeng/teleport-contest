@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9161017,
+      "datetime": "20331016103100",
+      "nethackrc": "OPTIONS=name:JuiblexNameV91,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "comment": "One C-first naming attempt at the actual C-visible Juiblex. C scout with same seed/date/state established the hostile Juiblex was visible at the northwest tile adjacent to hero; this final same-history recipe uses getpos key y to select that observed monster and enters the exact misspelling Jubilex once. No attacks or retries.",
+      "moves": "#wizgenesis\nhostile Juiblex\ny#name\nm  y.Jubilex\n"
+    }
+  ]
+}
