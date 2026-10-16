@@ -1,0 +1,59 @@
+{
+  "session": "synthetic/v90/v90-p01-mounted-boulder-wall",
+  "remainingScreens": 1,
+  "recordedSteps": 44,
+  "corpus": "synthetic",
+  "batch": "v90",
+  "caseId": "v90-p01-mounted-boulder-wall",
+  "manifestPath": "challenges/manifests/v90.json",
+  "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
+  "recordingSha256": "205645bd6d492767b89d2afd060c7420a3ed64a673f3570824d544fc24147ee6",
+  "evaluationPath": "challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json",
+  "evaluationCommit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
+  "status": "complete",
+  "commit": "79a81f748863d6c0e694c4c22729021f2a2d6e7a",
+  "mismatch": {
+    "id": "v90-p01-mounted-boulder-wall",
+    "remainingScreens": 1,
+    "recordedSteps": 44,
+    "firstMismatch": {
+      "segment": 0,
+      "step": 43,
+      "key": "h",
+      "owner": "hack.c:cannot_push_msg",
+      "source": "Mounted boulder failure message omitted by moverock_core obstructed-destination caller; all RNG and cursors match.",
+      "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+    },
+    "recording": "challenges/cases/v90/v90-p01-mounted-boulder-wall.session.json",
+    "recipe": "challenges/cases/v90/v90-p01-mounted-boulder-wall.recipe.session.json"
+  },
+  "summary": "The accepted v90 case diverges only when a mounted lawful Knight tries to push a boulder into an obstructed destination: C prints the steed's sentence-initial name and the push refusal, while JavaScript omits the message after taking a named unported-callee path. The source owner is hack.c:cannot_push_msg, with required production caller wiring in hack.c:moverock_core.",
+  "source": {
+    "file": "hack.c",
+    "branch": "In moverock_core, when the destination is out of bounds, obstructed (including a wall), iron bars, a blocked diagonal door, or another boulder, C calls cannot_push_msg(otmp,sx,sy) before returning cannot_push(); cannot_push_msg chooses the mounted YMonnam(steed) message when u.usteed is set, then calls feel_location when Blind. The same helper is called by the closed_door destination branch. The production route is cmd.c:rhack -> hack.c:domove_core -> test_move(DO_MOVE) -> moverock -> moverock_core.",
+    "functions": [
+      "cannot_push_msg",
+      "moverock_core"
+    ],
+    "callers": [
+      "hack.c:moverock_core closed_door destination branch (486-487)",
+      "hack.c:moverock_core obstructed-destination branch (633-634)",
+      "hack.c:moverock -> moverock_core (336-345)",
+      "hack.c:test_move(DO_MOVE) -> moverock (1222-1230)",
+      "cmd.c:rhack -> hack.c:domove_core -> test_move(DO_MOVE)"
+    ],
+    "dependencies": [
+      "do_name.c:YMonnam -> y_monnam (1133-1139): existing JavaScript do_name.js YMonnam/y_monnam implementation provides the mounted steed name",
+      "pline.c:pline (message output): existing JavaScript ttyPline message path",
+      "display.c:feel_location: existing JavaScript feel_location path for blind heroes"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Accepted-base provenance: v90 manifest names this mission as hack.c:cannot_push_msg mounted branch through moverock_core obstructed-destination caller. Its listed first mismatch is segment 0, step 43, key h, comparison base 93fa87a40ed6219b5d31e211f22b460af55bfe92. The admitted evaluation reports 43/44 screens, 2717/2717 RNG values, and 44/44 cursors; the divergent C cell is Y (color 8) and JavaScript cell is space (color 8).",
+    "Pinned C source at nethack-c/upstream revision 16ff59115315917b93185d026aeefea06db9b0f4: src/hack.c:247-261 cannot_push_msg calls pline(\"%s tries to move %s, but cannot.\", YMonnam(u.usteed), what) when mounted, otherwise You(...); Blind additionally calls feel_location. src/hack.c:348-638 moverock_core calls this void helper for closed_door at 486 and the failed destination conjunction at 633 before returning cannot_push. Its normal production route comes from test_move(DO_MOVE) at 1222-1230 and moverock at 336-345.",
+    "At accepted JavaScript source, js/hack.js:1900-1911 cannot_push_msg explicitly throws UnsupportedHeroMoveBoundaryError for state.u.usteed instead of producing the mounted C message. js/hack.js:2444-2445 and 2519-2520 also skip this helper for mounted heroes and record note_unported('hack.c cannot_push_msg') in the matching closed-door and obstructed-destination branches. The v90 mismatch specifically takes the latter branch; this is a source gap, not an RNG, cursor, or renderer discrepancy.",
+    "Implementation scope is the whole hack.c:cannot_push_msg source unit plus required caller wiring in hack.c:moverock_core, keeping its existing cannot_push return behavior. JavaScript already imports y_monnam from do_name.js; it can form the C sentence-initial name with upstart(y_monnam(steed,state)). Existing ttyPline and feel_location utilities cover the other source effects. No new naming or message dependency is needed.",
+    "Manifest identity caveat: the saved admission evaluation records manifestSha256 9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d, while the raw manifest bytes at the admission commit and accepted base hash to cb785f6887f617437b4e4fb54a641b0db93a1bc9ee5091b50aff66675dc2a93a. Case recipe and recording hashes match the manifest entries. Both manifest digest values were reported to Work lead for adjudication; the source attribution and recorded first mismatch remain internally concordant."
+  ]
+}
