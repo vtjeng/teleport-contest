@@ -9,6 +9,7 @@ import {authorizeQueueEvent, queueBase, queueWork} from './assignment-queue.mjs'
 import {admittedBatchIds} from './challenge-results.mjs';
 import {investigationReservations, savedQueueIssues} from './worker-backlog.mjs';
 import {readRows} from './score-log.mjs';
+import {readQueueEvidence} from './queue-evidence.mjs';
 
 export const USAGE = `Usage (from the Work lead, Challenge lead or a registered worker checkout root):
   node scripts/work-queue.mjs enable --prep <challenge-lead-worktree> --file <absolute-ledger>
@@ -20,6 +21,7 @@ export const USAGE = `Usage (from the Work lead, Challenge lead or a registered 
   node scripts/work-queue.mjs processes --worker Worker-1 --json <handles.json> --file <ledger>
   node scripts/work-queue.mjs complete --worker Worker-1 --json <exploration-result.json> --file <ledger>
   node scripts/work-queue.mjs block --worker Worker-1 --reason <reason> --file <ledger>
+  complete/block accept --evidence <existing-typed-envelope.json>; required by evidenceContract
   node scripts/work-queue.mjs unblock|supersede|reassess --task <id> --reason <reason> --file <ledger>
 
 Register the Challenge lead as Prep and up to three Worker-1..Worker-3 worktrees with worker-state first.
@@ -165,11 +167,12 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 clean(root);
                 const commit = git(root, 'rev-parse', 'HEAD');
                 ensure(git(root, 'merge-base', '--is-ancestor', task.base, commit) === '', 'result must descend from assignment base');
+                const evidence = readQueueEvidence(options.evidence && resolve(root, options.evidence), task, command, state);
                 if (command === 'block') {
                     event.reason = options.reason;
                     event.base = commit;
                     event.packet = freeze(file, {task: task.id, worker: event.worker, branch: task.branch,
-                        base: task.base, commit, reason: options.reason}).path;
+                        base: task.base, commit, reason: options.reason, ...(evidence ? {evidence} : {})}).path;
                 } else {
                     ensure(task.output === 'exploration', 'use worker-state submit for implementation evidence');
                     const changed = git(root, 'diff', '--name-only', task.base, commit).split('\n').filter(Boolean);
@@ -194,7 +197,8 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                     });
                     ensure(task.checks.every(kind => checks.some(check => check.kind === kind)), 'missing required result checks');
                     const packet = freeze(file, {task: task.id, worker: event.worker, base: task.base, commit,
-                        branch: task.branch, summary: input.summary, outcome: input.outcome, paths, checks});
+                        branch: task.branch, summary: input.summary, outcome: input.outcome, paths, checks,
+                        ...(evidence ? {evidence} : {})});
                     Object.assign(event, {type: 'queue-result', commit, digest: packet.digest,
                         packet: packet.path, outcome: input.outcome});
                 }
@@ -222,7 +226,7 @@ export function main(args = process.argv.slice(2)) {
     const [command, ...rest] = args, options = {};
     for (let i = 0; i < rest.length; i += 2) {
         const key = rest[i]?.slice(2);
-        ensure(['file', 'prep', 'queue', 'json', 'worker', 'task', 'reason', 'branch', 'base'].includes(key)
+        ensure(['file', 'prep', 'queue', 'json', 'worker', 'task', 'reason', 'branch', 'base', 'evidence'].includes(key)
             && !Object.hasOwn(options, key) && rest[i + 1], USAGE);
         options[key] = rest[i + 1];
     }

@@ -2,6 +2,7 @@
 // Legacy state.tasks/deliveries are transport/acceptance records, not dispatch.
 import assert from 'node:assert/strict';
 import {isAbsolute} from 'node:path';
+import {validateEvidenceContract} from './queue-evidence.mjs';
 
 const ensure = (condition, message) => assert.ok(condition, message);
 const text = value => typeof value === 'string' && value.trim().length > 0;
@@ -125,6 +126,10 @@ function validateTask(state, event) {
     if (task.urgent !== undefined) ensure(typeof task.urgent === 'boolean', 'urgent must be boolean');
     if (task.sourceReservations !== undefined) ensure(strings(task.sourceReservations)
         && task.sourceReservations.every(key => key.startsWith('source:')), 'invalid source reservations');
+    if (task.evidenceContract !== undefined) {
+        ensure(task.output === 'exploration', 'typed attachments are exploration evidence');
+        validateEvidenceContract(task.evidenceContract, state);
+    }
     return task;
 }
 
@@ -274,6 +279,7 @@ export function applyQueueEvent(state, event, at, legacy) {
         if (state.tasks[task.transport]?.status === 'working')
             legacy(state, {id: `${event.id}:park`, type: 'park', task: task.transport, reason: event.reason}, at);
         Object.assign(task, {status: 'blocked', reason: event.reason, resumeFrom: event.base, recovery: event.packet});
+        task.recoveryPackets = [...new Set([...(task.recoveryPackets ?? []), event.packet])];
         delete state.workers[event.worker].assignment;
         state.workers[event.worker].turn = 'idle';
     } else if (event.type === 'queue-unblock') {

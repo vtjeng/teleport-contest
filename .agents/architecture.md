@@ -317,6 +317,44 @@ log contents in `<ledger>.results`, and completes the execution assignment.
 Use `block --worker Worker-1 --reason <dependency>` only after preserving a
 clean recovery commit and collecting commands. Work lead uses `unblock` or
 `supersede` with `--task` and `--reason`; silence never reassigns a worker.
+
+For new scratch-only exploration tasks that promise self-contained evidence,
+the producer can require a typed attachment:
+
+```json
+"evidenceContract": {
+  "version": 1,
+  "complete": ["input", "capture", "replay", "comparison"],
+  "block": ["provenance"]
+}
+```
+
+Then both `complete` and `block` require `--evidence <existing-envelope.json>`.
+This attachment is separate from command check logs: a verifier's PASS line
+cannot substitute for it. The envelope is UTF-8 JSON with `version: 1`, exact
+`task` and `base`, `files` entries (`name`, `bytes`, `sha256`, canonical
+`base64`), and `references`, an object mapping role names to nonempty arrays
+of embedded file names. All references must resolve; each phase's declared
+roles must exist. Choose block roles that can honestly be supplied when
+execution stops before capture/replay. Preserve original command receipts,
+including failures, in the embedded files; do not invent successful checks.
+The reader validates identity, decoded lengths/hashes and references, and
+freezes the exact original envelope bytes and outer hash in the result or
+recovery packet. Limits are 128 MiB of JSON, 64 MiB decoded and 4096 files.
+
+An evidence-only correction may declare `targetTask` and `targetDigest` in
+the contract and envelope, binding an existing result/recovery packet. Embed
+the existing original envelope bytes as a file; retaining them needs no new
+gameplay. This creates a supplemental result without changing the target.
+Known recovery packet identities remain linkable after supersession,
+resumption or later results; they do not depend on the target's current status.
+Internal byte consistency does not establish source correctness, comparison
+success, or case admissibility. Completion still requires the existing
+successful checks, and a blocked attachment does not create a successful
+result. Legacy assignments and immutable packets retain their original
+contracts. Optional `--evidence` on an untyped assignment uses the same
+versioned schema with task/base binding and no declared required roles.
+
 An unblocked attempt starts from its preserved recovery commit and keeps the
 original comparison base. If accepted base changed, reassessment requires that
 recovery commit to include it; retain stale recovery work rather than discard it.

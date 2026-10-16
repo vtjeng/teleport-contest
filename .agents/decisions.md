@@ -86,3 +86,23 @@ or measured benefits from pending proposals.
 - Follow-up evidence: first-publication workflow selection and pending-cache
   completion will be checked. Comparative publication timing and throughput
   remain unmeasured.
+
+## 2026-10-16 — typed queue evidence attachments
+
+- Change: Work lead adopted opt-in versioned attachments for newly enqueued
+  exploration tasks that require self-contained evidence. Completion and
+  blocking retain exact JSON bytes separately from verifier log status.
+  Validate task/base, explicit linked packet identity, embedded byte counts,
+  SHA-256 values and required file references before a ledger transition.
+- Why: repeated successful verifier logs were frozen instead of the promised
+  original envelopes. Four excluded matches needed supplemental preservation;
+  their original deficient packets remain unchanged and explicitly qualified.
+- Expected benefit/tradeoff: reject missing/corrupt attachments before results
+  are recorded, at the cost of JSON parsing, hashing and stored bytes. Internal
+  consistency does not prove source correctness or make a failed case admissible.
+  Existing successful-check and batch acceptance gates remain required.
+- Follow-up evidence: focused guard tests cover PASS-only/missing evidence,
+  binding and corruption failures, unchanged claims after rejection, exact-byte
+  retention across branch changes, and nonzero blocked receipts. Hosted
+  validation and first producer use remain pending; transport-rework reduction
+  and overhead are unmeasured.

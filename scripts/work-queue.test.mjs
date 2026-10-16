@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {execFileSync, spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -47,11 +48,11 @@ function fixture(t) {
         queue: save(root, 'queue.json', {mode: 'work', sessions: sessions.map(session => ({session})),
             blockers: [], synthetic: {batches: []}})}, root);
     refresh();
-    const enqueue = name => queueCommand('enqueue', {file,
+    const enqueue = (name, overrides = {}) => queueCommand('enqueue', {file,
         json: save(paths.Prep, `${name}.json`, {id: name, type: 'exploration', output: 'exploration',
             producer: 'Prep', recipient: 'Prep', batch: 'v2', question: 'Inspect the source fixture.',
             stop: 'Return a source observation.', base, dependencies: [], sessions: [],
-            reservations: [`source:fixture.c:${name}`], allowedPaths: ['challenges/cases/v2/'], checks: [], artifacts: [ARTIFACT]})}, paths.Prep);
+            reservations: [`source:fixture.c:${name}`], allowedPaths: ['challenges/cases/v2/'], checks: [], artifacts: [ARTIFACT], ...overrides})}, paths.Prep);
     return {root, paths, file, base, git, save, refresh, enqueue,
         state: () => summarizeLedger(JSON.parse(readFileSync(file, 'utf8')))};
 }
@@ -185,4 +186,83 @@ test('concurrent worker claims share one lock and cannot execute the same queue 
     assert.equal(assigned.length, 2);
     assert.equal(new Set(assigned.map(task => task.worker)).size, 2);
     assert.equal(new Set(assigned.map(task => task.id)).size, 2);
+});
+
+test('required typed retention rejects PASS/missing evidence without changing ledger or claim', t => {
+    const f = fixture(t), worker = 'Worker-1', cwd = f.paths[worker];
+    f.enqueue('typed', {evidenceContract: {version: 1, complete: ['capture'], block: ['capture']}});
+    queueCommand('claim', {file: f.file, worker}, cwd);
+    const result = f.save(cwd, 'result.json', {summary: 'Observed.', outcome: 'match', paths: [ARTIFACT], checks: []});
+    const before = readFileSync(f.file, 'utf8'), branch = f.git(cwd, 'branch', '--show-current');
+    const pass = f.save(cwd, 'verifier.json', 'PASS');
+    for (const evidence of [undefined, pass]) {
+        assert.throws(() => queueCommand('complete', {file: f.file, worker, json: result, evidence}, cwd), /queue evidence:/u);
+        assert.throws(() => queueCommand('block', {file: f.file, worker, reason: 'Observed failure', evidence}, cwd), /queue evidence:/u);
+        assert.equal(readFileSync(f.file, 'utf8'), before);
+        assert.equal(f.git(cwd, 'branch', '--show-current'), branch);
+        assert.equal(f.state().workers[worker].assignment, 'typed');
+    }
+});
+
+test('blocked nonzero evidence and linked transport-only correction survive scratch/branch changes', t => {
+    const f = fixture(t), worker = 'Worker-1', cwd = f.paths[worker];
+    const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+    const capture = Buffer.from('Original recorder failure\n');
+    const envelope = task => ({version: 1, task, base: f.base,
+        files: [{name: 'stderr.log', bytes: capture.length, sha256: hash(capture), base64: capture.toString('base64')}],
+        references: {stderr: ['stderr.log']}, receipts: [{command: ['recorder'], exitCode: 1}]});
+    f.enqueue('blocked-typed', {evidenceContract: {version: 1, complete: ['stderr'], block: ['stderr']}});
+    queueCommand('claim', {file: f.file, worker}, cwd);
+    const evidence = f.save(cwd, 'envelope.json', envelope('blocked-typed'));
+    const original = readFileSync(evidence, 'utf8');
+    queueCommand('block', {file: f.file, worker, reason: 'Recorder failed; no valid case.', evidence}, cwd);
+    const recovery = f.state().queue.tasks['blocked-typed'].recovery;
+    const recoveryBytes = readFileSync(recovery);
+    const saved = JSON.parse(recoveryBytes);
+    assert.equal(saved.evidence.output, original);
+    assert.equal(JSON.parse(saved.evidence.output).receipts[0].exitCode, 1);
+    assert.equal(f.state().queue.tasks['blocked-typed'].result, undefined);
+    const targetDigest = hash(recoveryBytes);
+    queueCommand('supersede', {file: f.file, task: 'blocked-typed', reason: 'Bounded investigation closed.'}, f.root);
+    assert.deepEqual(f.state().queue.tasks['blocked-typed'].recoveryPackets, [recovery]);
+    f.enqueue('transport-correction', {evidenceContract: {version: 1, complete: ['original'], block: ['original'],
+        targetTask: 'blocked-typed', targetDigest}});
+    queueCommand('claim', {file: f.file, worker}, cwd);
+    const linked = {version: 1, task: 'transport-correction', base: f.base, targetTask: 'blocked-typed', targetDigest,
+        files: [{name: 'original.json', bytes: Buffer.byteLength(original), sha256: hash(Buffer.from(original)),
+            base64: Buffer.from(original).toString('base64')}], references: {original: ['original.json']}};
+    const linkedFile = f.save(cwd, 'linked.json', linked);
+    const result = f.save(cwd, 'result.json', {summary: 'Retained existing bytes only.', outcome: 'deferred', paths: [ARTIFACT], checks: []});
+    queueCommand('complete', {file: f.file, worker, json: result, evidence: linkedFile}, cwd);
+    const packet = f.state().queue.tasks['transport-correction'].result.packet;
+    const packetBytes = readFileSync(packet, 'utf8');
+    writeFileSync(evidence, 'scratch changed'); writeFileSync(linkedFile, 'scratch changed');
+    f.enqueue('next'); queueCommand('claim', {file: f.file, worker}, cwd);
+    assert.equal(readFileSync(packet, 'utf8'), packetBytes);
+    assert.equal(readFileSync(recovery).toString(), recoveryBytes.toString());
+    const attachment = JSON.parse(JSON.parse(packetBytes).evidence.output);
+    assert.equal(Buffer.from(attachment.files[0].base64, 'base64').toString(), original);
+});
+
+test('valid typed bytes cannot bypass the existing successful check requirement', t => {
+    const f = fixture(t), worker = 'Worker-1', cwd = f.paths[worker];
+    f.enqueue('typed-checks', {checks: ['comparison'],
+        evidenceContract: {version: 1, complete: ['comparison'], block: ['comparison']}});
+    queueCommand('claim', {file: f.file, worker}, cwd);
+    const bytes = Buffer.from('Input exhausted: observed original failure.');
+    mkdirSync(join(cwd, '.cache'), {recursive: true});
+    const log = join(cwd, '.cache/comparison.log'); writeFileSync(log, bytes);
+    const evidence = f.save(cwd, 'evidence.json', {version: 1, task: 'typed-checks', base: f.base,
+        files: [{name: 'comparison.log', bytes: bytes.length,
+            sha256: createHash('sha256').update(bytes).digest('hex'), base64: bytes.toString('base64')}],
+        references: {comparison: ['comparison.log']}});
+    const result = f.save(cwd, 'result.json', {summary: 'Not an admissible success.', outcome: 'failure', paths: [ARTIFACT],
+        checks: [{kind: 'comparison', command: ['compare'], exitCode: 1, log}]});
+    const before = readFileSync(f.file, 'utf8');
+    assert.throws(() => queueCommand('complete', {file: f.file, worker, json: result, evidence}, cwd), /successful command/u);
+    assert.equal(readFileSync(f.file, 'utf8'), before);
+    assert.equal(f.state().workers[worker].assignment, 'typed-checks');
+    queueCommand('block', {file: f.file, worker, reason: 'Preserved failed comparison, not a valid case.', evidence}, cwd);
+    assert.equal(f.state().queue.tasks['typed-checks'].status, 'blocked');
+    assert.equal(f.state().queue.tasks['typed-checks'].result, undefined);
 });
