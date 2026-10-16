@@ -1,0 +1,50 @@
+{
+  "session": "synthetic/v90/v90-p20-parameterized-keylist",
+  "corpus": "synthetic",
+  "batch": "v90",
+  "caseId": "v90-p20-parameterized-keylist",
+  "manifestPath": "challenges/manifests/v90.json",
+  "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
+  "recordingSha256": "c00fe4e0e3109e8e8cde75c71604be1a802017c73caee3b147ab5ba285c277c5",
+  "evaluationPath": "challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json",
+  "evaluationCommit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
+  "remainingScreens": 8,
+  "recordedSteps": 10,
+  "status": "complete",
+  "commit": "f4aff1bdebdd07859f3f0c0955073077d3d0ef7d",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v90",
+    "caseId": "v90-p20-parameterized-keylist",
+    "remainingScreens": 8,
+    "recordedSteps": 10,
+    "firstMismatch": {
+      "segment": 0,
+      "step": 2,
+      "key": "j",
+      "kind": "screen",
+      "owner": "cmd.c:keylist_putcmds"
+    }
+  },
+  "summary": "The key-list help path omits its output when a current BINDINGS parameter targets the CMD_PARAM #toggle row; the C formatter prints the bound key, command description, and quoted parameter. The JavaScript display formatter instead throws UnsupportedHelpError as soon as it reaches that row, so the ?j help selector stops before producing the C text page.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "In keylist_putcmds display mode, when cmdbind_get(key) points to a CMD_PARAM extcmd, format the same bound row with bind->param enclosed in quotes; count mode only counts the row.",
+    "functions": [
+      "keylist_putcmds"
+    ],
+    "callers": [
+      "dokeylist() in cmd.c:2987-3007 calls keylist_putcmds() first in count mode then display mode for GENERALCMD rows; js/cmd.js:dokeylist() builds keyBindingLines() and displays the text window through the help-menu selector."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "nethack-c/upstream/src/cmd.c:2802-2857: keylist_putcmds() traverses all unused key bytes, filters by command flags, counts rows without state changes in docount mode, and in display mode emits CMD_PARAM rows as \"<key> <ef_txt> <ef_desc> \\\"<bind->param>\\\"\" before marking the byte used.",
+    "nethack-c/upstream/src/cmd.c:2867-3013: dokeylist() creates the dynamic full current key list and invokes keylist_putcmds() in count/display pairs for general and game commands.",
+    "nethack-c/upstream/src/cmd.c:1908 declares #toggle as GENERALCMD | CMD_PARAM; bind_key() in cmd.c:2689-2737 stores the parsed parenthesized parameter on the Cmd_bind for that key.",
+    "challenges/cases/v90/v90-p20-parameterized-keylist.recipe.session.json at task base uses BINDINGS=x:toggle(time) and inputs ?j followed by seven spaces; its unchanged C recording has 10 boundary entries and the screen first diverges at segment 0, step 2, key j.",
+    "js/cmd.js:1196-1246 currently maps each key to an extcmd row, then throws UnsupportedHelpError for any CMD_PARAM display row. js/command_bindings.js already stores each binding parameter and bindingAt() can retrieve it; remove only this unsupported branch by rendering the C-form quoted parameter.",
+    "scripts/help-command.test.mjs:270-315 covers default key-list rows and page counts; add a focused parameterized-binding source test or a fresh replay assertion for the admitted v90 case."
+  ]
+}
