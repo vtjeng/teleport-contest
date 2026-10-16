@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T02:58:12.296Z",
+  "capturedAt": "2026-10-16T03:32:24.712Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -142650,17 +142650,737 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-prep-v90-fresh-revalidation-20261016-79a81f748863d6c0e694c4c22729021f2a2d6e7a",
+        "type": "published",
+        "at": "2026-10-16T02:58:45.534Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "commit": "79a81f748863d6c0e694c4c22729021f2a2d6e7a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:00:34.814Z",
+        "id": "queue:19df42bd-39f2-40eb-9330-8e2cacfd8774",
+        "type": "assign",
+        "task": "session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "7 ready implementation sessions; threshold 5; prefer implementation"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:00:38.009Z",
+        "id": "queue:80afbc0e-c58b-4627-a0a5-9f383041d3be",
+        "type": "assign",
+        "task": "session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "6 ready implementation sessions; threshold 5; prefer implementation"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:00:45.927Z",
+        "id": "queue:29cd5faa-190c-4441-874c-08165871fc59",
+        "type": "assign",
+        "task": "session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "5 ready implementation sessions; threshold 5; prefer implementation"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implement-v90-simple-options-help-w3-20261016",
+        "type": "implement",
+        "at": "2026-10-16T03:02:35.622Z",
+        "task": "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "goal": "v90-simple-options-help-port"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "assign-prep-v91-source-exploration-20261016",
+        "type": "assign",
+        "at": "2026-10-16T03:03:27.330Z",
+        "task": "prep-v91-source-exploration-20261016",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v91"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implement-v90-p01-mounted-boulder-wall-w1-20261016",
+        "type": "implement",
+        "at": "2026-10-16T03:03:43.929Z",
+        "task": "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "goal": "v90-p01-mounted-boulder-cannot-push-msg"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implement-v90-fountain-wash-worn-gloves-w2-20261016",
+        "type": "implement",
+        "at": "2026-10-16T03:04:03.526Z",
+        "task": "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "goal": "v90-fountain-wash-worn-gloves-divergence"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:08:21.615Z",
+        "id": "ready-8e573b44b4c1ecd92018e0352748779de831ad7e:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "v90-fountain-wash-worn-gloves-divergence"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-8e573b44b4c1ecd92018e0352748779de831ad7e",
+        "type": "ready",
+        "at": "2026-10-16T03:08:21.615Z",
+        "task": "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "delivery": "8e573b44b4c1ecd92018e0352748779de831ad7e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:08:21.615Z",
+        "id": "ready-8e573b44b4c1ecd92018e0352748779de831ad7e:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:08:21.615Z",
+        "id": "ready-8e573b44b4c1ecd92018e0352748779de831ad7e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:08:53.303Z",
+        "id": "queue:6bcde5c7-87cb-4e35-b7d5-d2b8d581cf0b",
+        "type": "assign",
+        "task": "v91-deaf-bugle-soldier-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:09:31.081Z",
+        "id": "ready-3d184396fcf81cae5c74244dd99fff8b0d2dbfcf:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "v90-p01-mounted-boulder-cannot-push-msg"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-3d184396fcf81cae5c74244dd99fff8b0d2dbfcf",
+        "type": "ready",
+        "at": "2026-10-16T03:09:31.081Z",
+        "task": "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "delivery": "3d184396fcf81cae5c74244dd99fff8b0d2dbfcf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:09:31.081Z",
+        "id": "ready-3d184396fcf81cae5c74244dd99fff8b0d2dbfcf:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:09:31.081Z",
+        "id": "ready-3d184396fcf81cae5c74244dd99fff8b0d2dbfcf:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:09:55.506Z",
+        "id": "queue:85e234e2-cb34-47d5-84d6-045a72c73810",
+        "type": "assign",
+        "task": "v91-saddle-ineligible-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:11:37.714Z",
+        "id": "ready-35252f9a872e4f1cbe727969f26d8db262211277:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "v90-simple-options-help-port"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-35252f9a872e4f1cbe727969f26d8db262211277",
+        "type": "ready",
+        "at": "2026-10-16T03:11:37.714Z",
+        "task": "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "delivery": "35252f9a872e4f1cbe727969f26d8db262211277"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:11:37.714Z",
+        "id": "ready-35252f9a872e4f1cbe727969f26d8db262211277:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:11:37.714Z",
+        "id": "ready-35252f9a872e4f1cbe727969f26d8db262211277:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:13:35.535Z",
+        "id": "queue:98c95adf-9e01-4e38-ba6e-29e53e086f14",
+        "type": "assign",
+        "task": "v91-blind-marker-book-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:14:49.199Z",
+        "id": "queue:acc86634-2c93-4007-a67e-2c3098a80837",
+        "type": "queue-complete",
+        "task": "v91-saddle-ineligible-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:14:49.199Z",
+        "id": "queue:acc86634-2c93-4007-a67e-2c3098a80837:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:15:02.215Z",
+        "id": "queue:22e2e7e1-9817-43db-b77f-39888bb1412a",
+        "type": "assign",
+        "task": "v91-confused-turn-undead-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:15:13.549Z",
+        "id": "queue:2cde22a6-dc4d-4a6b-b11d-26aa4bb0077a",
+        "type": "queue-complete",
+        "task": "v91-deaf-bugle-soldier-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:15:13.549Z",
+        "id": "queue:2cde22a6-dc4d-4a6b-b11d-26aa4bb0077a:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:15:43.036Z",
+        "id": "queue:9397c8fc-80fa-42c1-ac3d-9f051093d184",
+        "type": "assign",
+        "task": "v91-cursed-food-rottenfood-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-v90-fix-3d184396fcf81cae5c74244dd99fff8b0d2dbfcf",
+        "type": "received",
+        "at": "2026-10-16T03:16:23.664Z",
+        "task": "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "delivery": "3d184396fcf81cae5c74244dd99fff8b0d2dbfcf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-v90-fix-8e573b44b4c1ecd92018e0352748779de831ad7e",
+        "type": "received",
+        "at": "2026-10-16T03:16:25.559Z",
+        "task": "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "delivery": "8e573b44b4c1ecd92018e0352748779de831ad7e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-v90-fix-35252f9a872e4f1cbe727969f26d8db262211277",
+        "type": "received",
+        "at": "2026-10-16T03:16:26.371Z",
+        "task": "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "delivery": "35252f9a872e4f1cbe727969f26d8db262211277"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-7cf4a46a904b477174345a4ad7699e94071d1c25199bc87f413aadfd1ee60a13-delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "type": "integrating",
+        "at": "2026-10-16T03:17:23.262Z",
+        "task": "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "integration": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "validationGroup": [
+          "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+          "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+          "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-7cf4a46a904b477174345a4ad7699e94071d1c25199bc87f413aadfd1ee60a13-delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "type": "integrating",
+        "at": "2026-10-16T03:17:23.262Z",
+        "task": "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "integration": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "validationGroup": [
+          "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+          "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+          "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-7cf4a46a904b477174345a4ad7699e94071d1c25199bc87f413aadfd1ee60a13-delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "type": "integrating",
+        "at": "2026-10-16T03:17:23.262Z",
+        "task": "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "integration": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "validationGroup": [
+          "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+          "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+          "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:17:55.115Z",
+        "id": "queue:de995808-fd92-4845-a432-c9ae56c18d98",
+        "type": "queue-complete",
+        "task": "v91-confused-turn-undead-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:17:55.115Z",
+        "id": "queue:de995808-fd92-4845-a432-c9ae56c18d98:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:18:05.998Z",
+        "id": "queue:54daa05f-5211-49c0-9a09-2782eca5579b",
+        "type": "assign",
+        "task": "v91-timed-blind-cream-cleanup-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:19:58.331Z",
+        "id": "queue:cb587692-196b-4828-89e0-941cd093b1ec",
+        "type": "queue-complete",
+        "task": "v91-blind-marker-book-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:19:58.331Z",
+        "id": "queue:cb587692-196b-4828-89e0-941cd093b1ec:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:20:18.718Z",
+        "id": "queue:cfdb274d-db47-4934-b95e-906af2aa3e90",
+        "type": "assign",
+        "task": "v91-credit-card-cannot-lock-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:21:28.343Z",
+        "id": "queue:f26fb8e2-8958-4d3e-9582-6e8379b8b9b4",
+        "type": "queue-complete",
+        "task": "v91-cursed-food-rottenfood-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:21:28.343Z",
+        "id": "queue:f26fb8e2-8958-4d3e-9582-6e8379b8b9b4:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:21:38.616Z",
+        "id": "queue:71268a7c-a9b8-492a-8431-09a54a8c97e0",
+        "type": "assign",
+        "task": "v91-wet-towel-vapor-classification-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:22:52.563Z",
+        "id": "queue:3c6c9c93-ec77-4c25-8f9b-4f1eede36774",
+        "type": "queue-complete",
+        "task": "v91-wet-towel-vapor-classification-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:22:52.563Z",
+        "id": "queue:3c6c9c93-ec77-4c25-8f9b-4f1eede36774:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:23:03.351Z",
+        "id": "queue:c31085db-f8b6-4ca7-a967-1a5cace76639",
+        "type": "assign",
+        "task": "session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "4 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:23:19.216Z",
+        "id": "queue:467a1a2f-1b31-4420-b6ca-876c34d686ab",
+        "type": "queue-complete",
+        "task": "v91-timed-blind-cream-cleanup-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:23:19.216Z",
+        "id": "queue:467a1a2f-1b31-4420-b6ca-876c34d686ab:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:23:23.986Z",
+        "id": "queue:f3384aa5-8834-4b81-9dd5-badda1db3ac0",
+        "type": "queue-complete",
+        "task": "v91-credit-card-cannot-lock-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:23:23.986Z",
+        "id": "queue:f3384aa5-8834-4b81-9dd5-badda1db3ac0:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:23:34.763Z",
+        "id": "queue:6f2d4407-4209-4aea-9383-5b035becb57f",
+        "type": "assign",
+        "task": "session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "3 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:23:35.822Z",
+        "id": "queue:7ae6f660-cce2-4757-a6bd-8daeee073d44",
+        "type": "assign",
+        "task": "session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "2 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implement-v90-p15-fountain-ordinary-drop-w2",
+        "type": "implement",
+        "at": "2026-10-16T03:26:40.434Z",
+        "task": "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "goal": "fix-do-dropx-fountain-dry-terrain-v90-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "32d88473-0c35-4983-942f-2f75204de7b6",
+        "type": "implement",
+        "at": "2026-10-16T03:26:47.391Z",
+        "task": "delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "goal": "v90-p17-auto-describe-compass-coordinate"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker3-v90-p16-implement-scope",
+        "type": "implement",
+        "at": "2026-10-16T03:27:15.283Z",
+        "task": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "goal": "v90-counted-inventory-dispatch-divergence"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-validated",
+        "type": "validated",
+        "at": "2026-10-16T03:27:34.655Z",
+        "task": "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-validated",
+        "type": "validated",
+        "at": "2026-10-16T03:27:34.655Z",
+        "task": "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-validated",
+        "type": "validated",
+        "at": "2026-10-16T03:27:34.655Z",
+        "task": "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-accepted",
+        "type": "accepted",
+        "at": "2026-10-16T03:27:58.444Z",
+        "task": "delivery:session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-accepted",
+        "type": "accepted",
+        "at": "2026-10-16T03:27:58.444Z",
+        "task": "delivery:session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693-e3c32e6c8bb06fbd3022b67261ea82cf28cd3856-accepted",
+        "type": "accepted",
+        "at": "2026-10-16T03:27:58.444Z",
+        "task": "delivery:session:synthetic:v90:v90-p13-simple-options-help:719d4d944693"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:31:13.501Z",
+        "id": "ready-b180aa0887bb45c3381dada2d721a2b43aed4474:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-do-dropx-fountain-dry-terrain-v90-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-b180aa0887bb45c3381dada2d721a2b43aed4474",
+        "type": "ready",
+        "at": "2026-10-16T03:31:13.501Z",
+        "task": "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "delivery": "b180aa0887bb45c3381dada2d721a2b43aed4474"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:31:13.501Z",
+        "id": "ready-b180aa0887bb45c3381dada2d721a2b43aed4474:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:31:13.501Z",
+        "id": "ready-b180aa0887bb45c3381dada2d721a2b43aed4474:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "worker": "Worker-2",
+        "goal": "fix-do-dropx-fountain-dry-terrain-v90-20261016",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "b180aa0887bb45c3381dada2d721a2b43aed4474",
+        "since": "2026-10-16T03:31:13.501Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": []
   },
   "workerReservations": {
-    "tasks": {},
-    "reservations": {}
+    "tasks": {
+      "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693": {
+        "id": "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "worker": "Worker-2",
+        "status": "ready",
+        "seed": "synthetic/v90/v90-p15-fountain-ordinary-drop",
+        "reservations": [
+          "session:synthetic/v90/v90-p15-fountain-ordinary-drop",
+          "source:do.c:dropx"
+        ]
+      },
+      "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693": {
+        "id": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "worker": "Worker-3",
+        "status": "working",
+        "seed": "synthetic/v90/v90-p16-counted-inventory",
+        "reservations": [
+          "session:synthetic/v90/v90-p16-counted-inventory",
+          "source:cmd.c:rhack"
+        ]
+      },
+      "delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693": {
+        "id": "delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "worker": "Worker-1",
+        "status": "working",
+        "seed": "synthetic/v90/v90-p17-compass-trap-list",
+        "reservations": [
+          "session:synthetic/v90/v90-p17-compass-trap-list",
+          "source:getpos.c:auto_describe",
+          "source:pager.c:look_traps"
+        ]
+      }
+    },
+    "reservations": {
+      "session:synthetic/v90/v90-p15-fountain-ordinary-drop": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693"
+        ]
+      },
+      "source:do.c:dropx": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693"
+        ]
+      },
+      "session:synthetic/v90/v90-p16-counted-inventory": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693"
+        ]
+      },
+      "source:cmd.c:rhack": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693"
+        ]
+      },
+      "session:synthetic/v90/v90-p17-compass-trap-list": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693"
+        ]
+      },
+      "source:getpos.c:auto_describe": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693"
+        ]
+      },
+      "source:pager.c:look_traps": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
     "readySessions": null,
@@ -142670,47 +143390,36 @@
     "ready": [],
     "blocked": [
       {
-        "task": "session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
-        "task": "session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
-        "reason": "Waiting for producer or dependencies."
-      },
-      {
         "task": "session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "v91-save-restore-study-resume-cfirst-20261016",
         "reason": "Waiting for producer or dependencies."
       }
     ],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "worker": "Worker-3"
+      },
+      {
+        "task": "session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "worker": "Worker-1"
+      }
+    ],
     "counts": {
-      "ready": 0,
-      "claimed": 0,
-      "blocked": 7,
-      "completed": 15,
+      "ready": 2,
+      "claimed": 2,
+      "blocked": 0,
+      "completed": 27,
       "superseded": 0
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -142719,8 +143428,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -142938,102 +143647,102 @@
         "id": "session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v90/v90-p01-mounted-boulder-wall"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-16T02:55:22.420Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T03:00:34.814Z",
+        "completedAt": "2026-10-16T03:09:31.081Z"
       },
       {
         "id": "session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v90/v90-p10-fountain-wash-worn-gloves"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T02:55:22.420Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T03:00:38.009Z",
+        "completedAt": "2026-10-16T03:08:21.615Z"
       },
       {
         "id": "session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v90/v90-p13-simple-options-help"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-16T02:55:22.420Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T03:00:45.927Z",
+        "completedAt": "2026-10-16T03:11:37.714Z"
       },
       {
         "id": "session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v90/v90-p15-fountain-ordinary-drop"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T02:55:22.420Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-16T03:23:03.351Z",
+        "completedAt": "2026-10-16T03:31:13.501Z"
       },
       {
         "id": "session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "claimed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v90/v90-p16-counted-inventory"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-16T02:55:22.420Z",
-        "claimedAt": null,
+        "claimedAt": "2026-10-16T03:23:34.763Z",
         "completedAt": null
       },
       {
         "id": "session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "claimed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v90/v90-p17-compass-trap-list"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-16T02:55:22.420Z",
-        "claimedAt": null,
+        "claimedAt": "2026-10-16T03:23:35.822Z",
         "completedAt": null
       },
       {
@@ -143067,12 +143776,147 @@
         "readyAt": "2026-10-16T02:55:30.888Z",
         "claimedAt": "2026-10-16T02:56:00.355Z",
         "completedAt": "2026-10-16T02:56:52.562Z"
+      },
+      {
+        "id": "v91-deaf-bugle-soldier-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T03:04:40.994Z",
+        "claimedAt": "2026-10-16T03:08:53.303Z",
+        "completedAt": "2026-10-16T03:15:13.549Z"
+      },
+      {
+        "id": "v91-saddle-ineligible-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T03:04:41.815Z",
+        "claimedAt": "2026-10-16T03:09:55.506Z",
+        "completedAt": "2026-10-16T03:14:49.199Z"
+      },
+      {
+        "id": "v91-blind-marker-book-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T03:04:42.049Z",
+        "claimedAt": "2026-10-16T03:13:35.535Z",
+        "completedAt": "2026-10-16T03:19:58.331Z"
+      },
+      {
+        "id": "v91-confused-turn-undead-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T03:04:42.201Z",
+        "claimedAt": "2026-10-16T03:15:02.215Z",
+        "completedAt": "2026-10-16T03:17:55.115Z"
+      },
+      {
+        "id": "v91-cursed-food-rottenfood-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T03:04:42.390Z",
+        "claimedAt": "2026-10-16T03:15:43.036Z",
+        "completedAt": "2026-10-16T03:21:28.343Z"
+      },
+      {
+        "id": "v91-timed-blind-cream-cleanup-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T03:13:50.874Z",
+        "claimedAt": "2026-10-16T03:18:05.998Z",
+        "completedAt": "2026-10-16T03:23:19.216Z"
+      },
+      {
+        "id": "v91-credit-card-cannot-lock-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T03:17:19.624Z",
+        "claimedAt": "2026-10-16T03:20:18.718Z",
+        "completedAt": "2026-10-16T03:23:23.986Z"
+      },
+      {
+        "id": "v91-wet-towel-vapor-classification-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T03:17:19.829Z",
+        "claimedAt": "2026-10-16T03:21:38.616Z",
+        "completedAt": "2026-10-16T03:22:52.563Z"
+      },
+      {
+        "id": "v91-save-restore-study-resume-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "blocked",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T03:25:43.486Z",
+        "claimedAt": null,
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "bc799d03dcf48a0f1c56d9a317cd2cfe180b8527",
-    "measuredAt": "2026-10-16T02:44:44.357Z",
+    "executionCommit": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+    "measuredAt": "2026-10-16T03:23:30.868Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -318760,7 +318760,7 @@
     {
       "id": "v90-p01-mounted-boulder-cannot-push-msg",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement cannot_push_msg from hack.c",
       "cFile": "hack.c",
       "sessions": [
@@ -318770,7 +318770,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
       "delivered": null,
       "functions": [
         {
@@ -318783,12 +318783,80 @@
       "range": {
         "from": 247,
         "to": 261
+      },
+      "closeStanding": {
+        "sha": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "40d1cfdab47fa588e71bd9ef7348e3d7aa37563a",
+        "target": "synthetic/v90/v90-p01-mounted-boulder-wall",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/e3c32e6c8bb06fbd3022b67261ea82cf28cd3856/run-hosted-6j2Ylo/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "cannot_push_msg",
+            "implementation": "js/hack.js",
+            "symbol": "cannot_push_msg",
+            "sourceReview": "Read the complete pinned C definition at hack.c:247-261. C first computes the definite object name; when u.usteed is set, it prints YMonnam(steed) + ' tries to move ' + object + ', but cannot.'; otherwise You() prints 'You try to move ... , but in vain.'; Blind then feels the source square. JavaScript now preserves the separate mounted/unmounted messages and the blind observation. The mounted name uses existing y_monnam/upstart behavior; xnameFresh/the, the message operation, and feel_location remain in source order. The helper makes no random draws. Both active moverock_core callers now invoke it unconditionally: closed_door at C 486 and invalid/obstructed destination at C 633; the existing mounted-only note_unported skip is removed from both. Other moverock_core branches and its cannot_push return value are unchanged.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "moverock_core",
+                "source": "hack.c:moverock_core calls cannot_push_msg before cannot_push for a closed destination door at 486-487 and an obstructed/invalid destination at 633-634; v90 reaches the obstructed-destination caller."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c:test_move(DO_MOVE) calls moverock at 1222-1230; moverock calls moverock_core at 336-345. cmd.c:rhack -> hack.c:domove_core is the recorded production movement route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-boulder-push.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p01-mounted-boulder-wall",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "cmd.c:rhack -> hack.c:domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:moverock -> hack.c:moverock_core invalid/obstructed-destination branch -> hack.c:cannot_push_msg. The matched prefix includes the formerly blank mounted-refusal screen at step 43."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "cannot_push_msg is a static helper with two active caller branches in hack.c:moverock_core: the closed_door branch and the invalid/obstructed destination conjunction. Both JavaScript callers now invoke the helper for mounted and unmounted heroes. The ordinary command entry is cmd.c:rhack -> hack.c:domove_core -> test_move(DO_MOVE) -> moverock -> moverock_core. The admitted v90-p01 case exercises the obstructed-destination mounted call and matches through its final step after the change; focused hero-boulder-push tests exercise the mounted refusal through both the obstructed-destination and closed-door branches. No claim is made here that unrelated moverock_core branches have new recording coverage.",
+        "entryPoints": [
+          {
+            "name": "mounted boulder refusal through obstructed destination",
+            "functions": [
+              "cannot_push_msg"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p01-mounted-boulder-wall",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "cmd.c:rhack -> hack.c:domove_core -> hack.c:test_move(DO_MOVE) -> hack.c:moverock -> hack.c:moverock_core invalid/obstructed-destination branch -> hack.c:cannot_push_msg. The matched prefix includes the formerly blank mounted-refusal screen at step 43."
+              }
+            ]
+          }
+        ]
       }
     },
     {
       "id": "v90-fountain-wash-worn-gloves-divergence",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dipfountain from fountain.c",
       "cFile": "fountain.c",
       "sessions": [
@@ -318798,15 +318866,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
       "delivered": null,
       "function": "dipfountain",
-      "session": "synthetic/v90/v90-p10-fountain-wash-worn-gloves"
+      "session": "synthetic/v90/v90-p10-fountain-wash-worn-gloves",
+      "closeStanding": {
+        "sha": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "40d1cfdab47fa588e71bd9ef7348e3d7aa37563a",
+        "target": "synthetic/v90/v90-p10-fountain-wash-worn-gloves",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/e3c32e6c8bb06fbd3022b67261ea82cf28cd3856/run-hosted-6j2Ylo/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dipfountain",
+            "implementation": "js/fountain.js",
+            "symbol": "dipfountain",
+            "sourceReview": "Read the complete upstream fountain.c:dipfountain definition (394-557), plus wash_hands (558-577), and traced the production potion.c:dodip caller. Verified branch ordering after levitation and Excalibur handling, the exact obj == uarmg condition, the wash_hands result, and ER_DESTROYED / ER_NOTHING / rn2(2) return before rnd(30). The defect was the JS predicate reading state.u.uarmg while its established canonical equipment reference is state.uarmg; corrected only that comparison. This is source evidence for the assigned divergence only, not a claim that the full fountain file is newly certified.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:dodip calls dipfountain(obj) after the fountain confirmation; js/potion.js:dodip passes the selected object to dipfountain(obj, state, env)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p10-fountain-wash-worn-gloves",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 98,
+                "source": "potion.c:dodip selects the worn leather gloves and calls dipfountain after fountain confirmation; fountain.c:dipfountain compares obj with uarmg, calls wash_hands, and uses its ER_GREASED result at the rn2(2) gate."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active route is the #dip command through cmd.c dispatch to potion.c:dodip; after getobj selects worn gloves and the fountain confirmation succeeds, dodip calls fountain.c:dipfountain. JavaScript js/potion.js:dodip is the production caller and passes the chosen object, state, and environment. The admitted v90 recording uses #dip, selects the worn leather gloves, confirms dipping, and reaches the mismatching fountain branch. No alternate entry point is added to this divergence scope.",
+        "entryPoints": [
+          {
+            "name": "cmd.c #dip -> potion.c:dodip -> fountain.c:dipfountain",
+            "functions": [
+              "dipfountain"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p10-fountain-wash-worn-gloves",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 98,
+                "source": "potion.c:dodip selects the worn leather gloves and calls dipfountain after fountain confirmation; fountain.c:dipfountain compares obj with uarmg, calls wash_hands, and uses its ER_GREASED result at the rn2(2) gate."
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "v90-simple-options-help-port",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement doset_simple_menu from nethack-c/upstream/src/options.c",
       "cFile": "options.c",
       "sessions": [
@@ -318816,7 +318947,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
       "delivered": null,
       "functions": [
         {
@@ -318829,6 +318960,74 @@
       "range": {
         "from": 8536,
         "to": 8706
+      },
+      "closeStanding": {
+        "sha": "e3c32e6c8bb06fbd3022b67261ea82cf28cd3856",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "40d1cfdab47fa588e71bd9ef7348e3d7aa37563a",
+        "target": "synthetic/v90/v90-p13-simple-options-help",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/e3c32e6c8bb06fbd3022b67261ea82cf28cd3856/run-hosted-6j2Ylo/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "doset_simple_menu",
+            "implementation": "js/options.js",
+            "symbol": "doset_simple_menu",
+            "sourceReview": "Read the complete pinned C definition at options.c:8537-8702. Verified format selection (menu_tab_sep versus longest option width), menu state branches, option-section and supported-window filters, null boolean and tiled-color exclusions, Rogue symset substitution, option value call order, autopickup suffix, description and instruction insertion, help item identifier, visual-reset flags before selection, help-toggle state transition, all option-pick arms, preference update guard, window destruction and goto redo_opt_help rebuild. The implementation mirrors the help state in state.gs.simple_options_help, uses generated allopt[].descr, and rebuilds in the same invocation until the user cancels or picks an option. This function performs output and state mutation and is not pure; it has no RNG calls. No new C callee is introduced. Existing JS option-value helpers and applyOptionMenuPick remain their existing production callees.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "doset_simple",
+                "source": "options.c:8718-8737 calls doset_simple_menu inside the options-loop until no option is picked."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runOptionsCommand",
+                "source": "cmd.c:1780-1782 dispatches O to doset_simple; js/cmd.js:3704-3741 invokes doset_simple through the command registry and supplies the production select_menu seam."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/options-simple-menu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p13-simple-options-help",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 14,
+                "source": "cmd.c O command -> doset_simple() -> doset_simple_menu(); step 12 toggles help on, step 13 toggles it off, and step 14 leaves the rebuilt menu."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active recorder-build entry point in this selected C function is the O simple-options command: cmd.c:1780-1781 routes it to doset_simple, which calls doset_simple_menu; JS cmd.js runOptionsCommand supplies the registered command path and select_menu. The admitted v90 p13 recording exercises the command and both help-state transitions. No caller branch is excluded by the recorder build. The full options command (#optionsfull) is a separate dispatcher and is only referenced by the help text.",
+        "entryPoints": [
+          {
+            "name": "O simple-options command",
+            "functions": [
+              "doset_simple_menu"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p13-simple-options-help",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 14,
+                "source": "cmd.c O command -> doset_simple() -> doset_simple_menu(); the recorded input shows and hides help and then exits the menu."
+              }
+            ]
+          }
+        ]
       }
     }
   ]
