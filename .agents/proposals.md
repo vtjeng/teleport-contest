@@ -205,6 +205,9 @@ new requirements onto immutable historical packets.
 **What prompted it.** The [v90/v91 handoff and retention observations](friction.md#2026-10-16--runnable-handoffs-and-blocked-evidence-retention)
 include a 174-byte PASS-only result corrected to a 52-file envelope, and two
 blocked investigations whose full evidence needed separate preservation.
+The [dashboard publication follow-up](friction.md#2026-10-16--dashboard-publication-handoff-follow-up)
+found four more completed results containing only verifier summaries or PASS
+text while their full envelopes remained separately in worker scratch.
 `work-queue.mjs` currently copies arbitrary check log text for completion and
 freezes only recovery metadata for blocking. Hashing the outer packet cannot
 establish that the promised inner evidence is present.

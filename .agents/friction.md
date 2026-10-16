@@ -1237,3 +1237,32 @@ triage decisions or fix references.
   Work lead separately preserved both original envelopes read-only by hash;
   neither is an accepted case. The [pending envelope proposal](proposals.md#freeze-declared-evidence-at-result-and-block-boundaries)
   addresses this retention step without turning failed checks into passes.
+
+### 2026-10-16 — dashboard publication handoff follow-up
+
+- Ten completed/block-to-next-claim handoffs after the 126.868-second outlier,
+  through 04:32:35 UTC, took 5.491–13.594 seconds (median 9.581). Each began
+  with fresh evidence and runnable work. The later wrapping-duplicate block
+  reached its next claim in 8.864 seconds. This is a small observational
+  sample, not a controlled throughput comparison or CPU-use measurement.
+- Dashboard publication `fe81ebc2` was followed by queue refresh after 585 ms,
+  compared with the earlier 1.748-second interval. Three pending plans were
+  reassessed by 2.087 seconds after publication; live claims were unchanged.
+  Evidence freshness and task eligibility are separate timings. Lint
+  `38850873458` and Dashboard `38850873501` both succeeded. At 04:33:02 UTC,
+  three workers held claims and only one assignment remained runnable;
+  continuous replenishment remains useful under the existing instructions.
+- Four new matching-result packets again retained verifier summaries rather
+  than their full evidence: cursed taming `ef1da076` (325 bytes), confused
+  charging `3734013b` (325), magic-lamp cancellation `9b7f04f6` (285), and
+  cursed scare `c5435273` (201). Taming, charging and scare summaries name
+  envelopes of 697,124, 491,096 and 2,643,512 bytes respectively; the lamp log lists
+  PASS assertions only. Work lead was notified to preserve existing originals
+  before scratch replacement, using shared immutable storage or evidence-only
+  correction, without gameplay reruns. This recurrence supports the pending
+  envelope proposal; the matching probes remain excluded from new manifests.
+- The wrapping investigation found the exact admitted v52 source/history
+  overlap before C or JavaScript execution. Work lead superseded it after
+  producer confirmation. The tin result `e285af3e` explicitly excludes its
+  post-comparison continuation from validated claims. Preserve these stopping
+  decisions and their original evidence; neither warrants duplicate replay.
