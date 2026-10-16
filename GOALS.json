@@ -319648,6 +319648,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-read-credit-card-number-punctuation-v94-20261016",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement doread from read.c",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v94/v94-blind-credit-card-quote-punctuation"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doread",
+      "session": "synthetic/v94/v94-blind-credit-card-quote-punctuation"
+    },
+    {
+      "id": "fix-dotakeoff-merged-uskin-state-v95-20261016",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dotakeoff from do_wear.c",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dotakeoff",
+      "session": "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal"
     }
   ]
 }
