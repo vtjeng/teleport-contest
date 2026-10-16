@@ -1364,6 +1364,44 @@ test('trap lists keep visible and obscured traps in map order', async () => {
     ]);
 });
 
+test('trap lists format configured compass coordinates', async () => {
+    const segment = loadWhatisTrapEngravingListRecipe().segments[1];
+    await runSegment({ ...segment, moves: ' ' });
+    const oldCoordinateMode = game.iflags.getpos_coords;
+    game.iflags.getpos_coords = GPCOORDS_COMPASS;
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    const trap = { tx: x, ty: y, ttyp: ARROW_TRAP, tseen: true };
+    game.level.traps = [trap];
+    const glyph = trap_to_glyph(trap, game);
+    const presentation = map_glyphinfo(glyph, game);
+    const location = game.level.at(x, y);
+    location.disp_glyph = { ...presentation, glyph };
+    location.disp_ch = presentation.ch;
+    location.disp_decgfx = presentation.dec;
+    location.disp_browser_ch = presentation.displayCh;
+
+    let rows;
+    let glyphCharacter;
+    game._preNhgetchHook = () => {
+        rows = game.nhDisplay.grid.map(
+            (row) => row.map(({ ch }) => ch).join('').trimEnd(),
+        );
+        glyphCharacter = game.nhDisplay.grid[2][14].ch;
+    };
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    try {
+        await look_traps(true, game);
+    } finally {
+        delete game._preNhgetchHook;
+        game.iflags.getpos_coords = oldCoordinateMode;
+    }
+
+    assert.equal(rows[2], `${'(east)'.padStart(12)}  ^  arrow trap`);
+    assert.equal(glyphCharacter, '^');
+});
+
 test('engraving lists use remembered grave terrain for obscured headstones',
     async () => {
         const segment = loadWhatisTrapEngravingListRecipe().segments[1];

@@ -976,8 +976,10 @@ function displayedGlyphCharacter(glyph, x, y, state) {
 
 // C ref: pager.c look_traps(). The scan is y-major, then x-minor.
 export async function look_traps(nearby, state = game) {
-    assertDefaultListCoordinates(state);
     const { loX, loY, hiX, hiY } = look_region_nearby(nearby, state);
+    const configured = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    const mode = configured !== GPCOORDS_NONE
+        ? configured : GPCOORDS_MAP;
     const lines = [];
     for (let y = loY; y <= hiY; ++y) {
         for (let x = loX; x <= hiX; ++x) {
@@ -1012,9 +1014,13 @@ export async function look_traps(nearby, state = game) {
                 lines.push({ text: '    ' });
             }
             const symbol = encodedGlyphCharacter(glyph, state);
-            const prefix = trapOrEngravingMapCoordinate(x, y);
-            const text = `${prefix}  ${symbol}  ${description}`;
-            const glyphCells = [{ column: 10, ch: symbol }];
+            let coordinate = coord_desc(x, y, state, mode);
+            if (mode !== GPCOORDS_SCREEN)
+                coordinate = coordinate.padStart(
+                    mode === GPCOORDS_MAP ? 8 : 12,
+                );
+            const text = `${coordinate}  ${symbol}  ${description}`;
+            const glyphCells = [{ column: coordinate.length + 2, ch: symbol }];
             if (obscuring) {
                 glyphCells.push({
                     column: text.length - obscuring.length,
