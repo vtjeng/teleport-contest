@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T21:53:54.378Z",
+  "capturedAt": "2026-10-16T22:59:57.073Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T21:53:54.378Z",
+    "asOf": "2026-10-16T22:59:57.073Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -165188,8 +165188,8 @@
     ]
   },
   "development": {
-    "executionCommit": "6c9596a5713380bcd225a58cd56a41cfae44ad21",
-    "measuredAt": "2026-10-16T21:51:56.964Z",
+    "executionCommit": "ded41a8697f8c38b3f6c02c01b009a48d68667b0",
+    "measuredAt": "2026-10-16T22:58:46.063Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
