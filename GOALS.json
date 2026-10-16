@@ -319569,6 +319569,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "v93-swallowed-bullwhip-refusal-wording",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement use_whip from apply.c",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v93/v93-swallowed-bullwhip-refusal-wording"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v93:v93-swallowed-bullwhip-refusal-wording:3459f2916426",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "use_whip",
+      "session": "synthetic/v93/v93-swallowed-bullwhip-refusal-wording"
     }
   ]
 }
