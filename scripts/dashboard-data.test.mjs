@@ -230,7 +230,7 @@ test('exploration chart embeds its real aggregator and separates snapshot freshn
         markers:[{at:'2026-10-16T12:30:00Z',label:'Operational change',causality:'unmeasured'}]};
     const rendered=renderDashboard(data);
     assert.match(rendered.get('yieldSummary').textContent,/1 new qualified mismatching sessions/);
-    assert.match(rendered.get('yieldSummary').textContent,/1 supported distinct bug families/);
+    assert.match(rendered.get('yieldSummary').textContent,/1 distinct supported first causes/);
     assert.match(rendered.get('yieldMarkerNote').textContent,/no measured strategy shift/);
     assert.match(rendered.get('updated').textContent,/Activity snapshot/);
     assert.match(rendered.get('updated').title,/2026-10-16T14:00:00Z/);

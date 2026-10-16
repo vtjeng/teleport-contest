@@ -14,7 +14,7 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
         {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', timeZoneName:'short'});
     const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;')
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const rate = n => n == null ? '—' : n.toFixed(1);
+    const rate = n => n == null ? '—' : n.toFixed(2);
     const range = createRange({start:first,end:last,asOf,minimum:Math.min(HOUR,last-first),duration:24*HOUR,
         presetUnit:HOUR,presets:['6','24','168'],prefix:'yield',document,onChange:() => {selected=null;render();}});
     let selected = null, buckets = [], geometry;
@@ -22,7 +22,7 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
     function inspect(index) {
         const b = buckets[index];
         if (!b) return;
-        const families = b.distinctFamilies ? ' · ' + b.distinctFamilies + ' supported bug families' : '';
+        const families = b.distinctFamilies ? ' · ' + b.distinctFamilies + ' distinct supported first causes' : '';
         el('Readout').textContent = stamp(b.start) + ' – ' + stamp(b.end) + ': '
             + b.claimedTasks + ' claimed, ' + b.closedTasks + ' closed discovery tasks · '
             + b.usableYes + ' with usable C evidence, ' + b.usableNo + ' without, '
@@ -36,7 +36,7 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
         buckets = result.buckets;
         const t = result.totals;
         el('Summary').innerHTML = '<strong>' + t.qualifyingSessions + '</strong> new qualified mismatching sessions'
-            + ' · <strong>' + t.distinctFamilies + '</strong> supported distinct bug families'
+            + ' · <strong>' + t.distinctFamilies + '</strong> distinct supported first causes'
             + '<span class="yield-secondary">' + t.closedTasks + ' closed discovery tasks → '
             + t.usableYes + ' tasks with usable C evidence → ' + t.qualifyingSessions + ' qualified sessions</span>'
             + '<span class="yield-secondary">' + t.claimedTasks + ' new task claims in this window · '
@@ -108,12 +108,13 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
         });
         markers.forEach((m,i)=>{
             ctx.strokeStyle=muted;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(x(m.at),top);ctx.lineTo(x(m.at),volumeBottom);ctx.stroke();ctx.setLineDash([]);
-            ctx.fillStyle=muted;ctx.fillText(String(i+1),x(m.at)+4,31);
         });ctx.restore();
         ctx.fillStyle=muted;
-        for(let i=0;i<=4;i++){
-            const time=bounds.start+(bounds.end-bounds.start)*i/4;
-            const label=bucketMs===HOUR?new Date(time).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})
+        markers.forEach((m,i)=>ctx.fillText(String(i+1),x(m.at)+4,31));
+        const tickCount=width<600?2:4;
+        for(let i=0;i<=tickCount;i++){
+            const time=bounds.start+(bounds.end-bounds.start)*i/tickCount;
+            const label=bucketMs===HOUR?new Date(time).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',hour12:false})
                 :new Date(time).toLocaleDateString(undefined,{month:'short',day:'numeric'});
             const w=ctx.measureText(label).width;ctx.fillText(label,Math.max(left,Math.min(right-w,x(time)-w/2)),316);
         }

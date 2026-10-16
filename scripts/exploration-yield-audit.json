@@ -12,7 +12,8 @@
       "Audit covers the current recovered ledger and batches v91 onward; older physical-attempt denominators are unavailable.",
       "Five admitted discoveries are sparse samples; operational markers are not randomized strategy experiments and do not establish causality.",
       "Matched tasks can miss their requested target; parity is not proof of target reach or novelty.",
-      "Worker-ledger activity does not itself publish a dashboard snapshot; snapshot/publication cadence can lag new results."
+      "Worker-ledger activity does not itself publish a dashboard snapshot; snapshot/publication cadence can lag new results.",
+      "Bug-family IDs here identify distinct supported source-traced first causes, not unrelated subsystems. At this audit, the five first causes span three broader mechanisms: message/formatting, repeated macro evaluation of RNG, and merged-state representation."
     ]
   },
   "packets": {

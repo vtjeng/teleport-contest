@@ -3,13 +3,13 @@ import test from 'node:test';
 import {renderExplorationYield} from './dashboard-exploration.mjs';
 import {createChartTimeRange} from './dashboard-time-range.mjs';
 
-function harness(payload) {
+function harness(payload,width=800) {
     const elements=new Map(),drawn=[];
     const element=id=>{
         if(!elements.has(id))elements.set(id,{id,textContent:'',innerHTML:'',style:{},hidden:false,
             listeners:{},addEventListener(type,fn){this.listeners[type]=fn;},
-            getBoundingClientRect:()=>({width:800,left:0}),
-            parentElement:{getBoundingClientRect:()=>({width:800})},
+            getBoundingClientRect:()=>({width,left:0}),
+            parentElement:{getBoundingClientRect:()=>({width})},
             getContext:()=>new Proxy({measureText:s=>({width:s.length*6})},{
                 get:(o,k)=>o[k]??((...args)=>drawn.push([k,...args])),set:(o,k,v)=>(o[k]=v,true),
             })});
@@ -76,4 +76,12 @@ test('long history uses daily samples and labels both charts consistently',()=>{
     assert.ok(h.calls.some(c=>c.bucketMs===86400000));
     assert.match(h.element('yieldBucketLabel').textContent,/Daily/);
     assert.ok(h.drawn.some(op=>op[0]==='fillText'&&op[1]==='New qualified discoveries · daily counts'));
+});
+
+test('mobile time labels are sparse and do not overlap at the plot edges',()=>{
+    const h=harness(payload,342);
+    const ticks=h.drawn.filter(op=>op[0]==='fillText'&&op[3]===316).sort((a,b)=>a[2]-b[2]);
+    assert.equal(ticks.length,3);
+    for(let i=1;i<ticks.length;i++)assert.ok(ticks[i][2]>=ticks[i-1][2]+ticks[i-1][1].length*6);
+    assert.match(h.element('yieldSummary').innerHTML,/distinct supported first causes/);
 });

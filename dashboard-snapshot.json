@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T16:23:53.807Z",
+  "capturedAt": "2026-10-16T16:32:34.994Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T16:23:53.807Z",
+    "asOf": "2026-10-16T16:32:34.994Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5701,6 +5701,7 @@
         "Five admitted discoveries are sparse samples; operational markers are not randomized strategy experiments and do not establish causality.",
         "Matched tasks can miss their requested target; parity is not proof of target reach or novelty.",
         "Worker-ledger activity does not itself publish a dashboard snapshot; snapshot/publication cadence can lag new results.",
+        "Bug-family IDs here identify distinct supported source-traced first causes, not unrelated subsystems. At this audit, the five first causes span three broader mechanisms: message/formatting, repeated macro evaluation of RNG, and merged-state representation.",
         "Denominator: closed independently assigned Prep discovery tasks; Main support, linked follow-ups and unclaimed retirements are excluded.",
         "Usability counts tasks reporting usable C/replay/comparison evidence, not physical sessions or recorder invocations.",
         "Qualified sessions are attributed retrospectively to original discovery closure; admission may occur later or in another batch.",
@@ -159234,6 +159235,40 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:27:42.161Z",
+        "id": "queue:0063dfa5-a30f-4aa1-9bb2-72afced9ed95",
+        "type": "queue-complete",
+        "task": "support-dashboard-exploration-yield-ui-validation-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:27:42.161Z",
+        "id": "queue:0063dfa5-a30f-4aa1-9bb2-72afced9ed95:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:29:11.937Z",
+        "id": "queue:903aca8b-7414-4f18-9c5d-46de65e25795",
+        "type": "queue-complete",
+        "task": "support-v96-invisible-mimic-see-invisible-blocking-source-prior-survey-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:29:11.937Z",
+        "id": "queue:903aca8b-7414-4f18-9c5d-46de65e25795:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -159258,21 +159293,12 @@
         "reason": "Waiting for producer or dependencies."
       }
     ],
-    "claimed": [
-      {
-        "task": "support-v96-invisible-mimic-see-invisible-blocking-source-prior-survey-20261016",
-        "worker": "Worker-2"
-      },
-      {
-        "task": "support-dashboard-exploration-yield-ui-validation-20261016",
-        "worker": "Worker-3"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 2,
+      "claimed": 0,
       "blocked": 1,
-      "completed": 263,
+      "completed": 265,
       "superseded": 62
     },
     "workers": [
@@ -159283,13 +159309,13 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": "support-v96-invisible-mimic-see-invisible-blocking-source-prior-survey-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
-        "assignment": "support-dashboard-exploration-yield-ui-validation-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -164211,7 +164237,7 @@
         "id": "support-v96-invisible-mimic-see-invisible-blocking-source-prior-survey-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -164220,13 +164246,13 @@
         "target": null,
         "readyAt": "2026-10-16T16:17:05.140Z",
         "claimedAt": "2026-10-16T16:17:13.780Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T16:29:11.937Z"
       },
       {
         "id": "support-dashboard-exploration-yield-ui-validation-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -164235,7 +164261,7 @@
         "target": null,
         "readyAt": "2026-10-16T16:23:02.558Z",
         "claimedAt": "2026-10-16T16:23:24.827Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T16:27:42.161Z"
       }
     ]
   },
