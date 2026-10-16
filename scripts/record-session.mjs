@@ -486,6 +486,7 @@ export async function recordSegment({
     onReceipt = async () => {},
     deadline = null,
     preserveFailure = false,
+    onSpawn = () => {},
 }) {
     // Write nethackrc into homeDir
     await fs.mkdir(homeDir, { recursive: true });
@@ -579,6 +580,13 @@ export async function recordSegment({
     const child = spawn(binary, args, {
         env,
         stdio: ['pipe', 'pipe', 'inherit'],
+    });
+    let launched = false;
+    child.once('spawn', () => {
+        launched = true;
+        onSpawn();
+        if (controller || preserveFailure) chain = chain.then(() => onReceipt({
+            kind: 'child-start', argv: [binary, ...args], launched: true})).catch(fail);
     });
     child.stdin.on('error', error => { if (controller || preserveFailure) fail(error); });
 
@@ -765,7 +773,7 @@ export async function recordSegment({
                 const status = pendingFailure ? 'recorder-failure'
                     : !processOk ? 'process-failure' : completionStop
                         || (!controller && steps.length === expectedSteps ? 'static-complete' : 'premature-exit');
-                const command = {argv: [binary, ...args], launched: true, exitCode: code, signal,
+                const command = {argv: [binary, ...args], launched, exitCode: code, signal,
                     intentionalTermination: terminationWasRequested, error: pendingFailure?.message || null};
                 await onReceipt({kind: 'command-outcome', status, ...command});
                 resolveDone({steps, terminalExit: null, moves: emittedMoves,
@@ -954,27 +962,33 @@ async function main() {
                 // fields. It cannot silently invoke the adaptive policy.
                 const emitted = {...session, segments: [{...seg, moves: result.moves}]};
                 await fs.writeFile(emittedPath, JSON.stringify(emitted), {flag: 'wx'});
-                let replay = {status: 'not-required', physicalRuns: 1};
+                const captureRuns = result.promptResult.command.launched ? 1 : 0;
+                let replay = {status: 'not-required', physicalRuns: captureRuns};
                 if (result.promptResult.observerSuccess) {
+                    let replayLaunched = false;
                     try {
                         const check = await replayWithinDeadline(deadline, async () => {
                             await onReceipt({kind: 'static-replay-start', recipeSha256: digest(JSON.stringify(emitted))});
                             return recordSegment({seg: emitted.segments[0], isFirstSegment: true,
                                 binary, installDir, rngLogPath, homeDir, tz, deadline, preserveFailure: true,
+                                onSpawn: () => { replayLaunched = true; },
                                 onReceipt: event => onReceipt({run: 'replay', ...event})});
                         });
                         if (!check || !check.promptResult.command.launched) {
-                            replay = {status: 'deadline-exhausted', physicalRuns: 1};
+                            replay = {status: check?.promptResult.status || 'deadline-exhausted',
+                                physicalRuns: captureRuns,
+                                ...(check ? {command: check.promptResult.command} : {})};
                         } else {
                             const replayDoc = {...session, segments: [{...out, steps: check.steps}]};
                             await fs.writeFile(replayPath, JSON.stringify(replayDoc), {flag: 'wx'});
                             replay = {status: check.promptResult.status !== 'static-complete' ? 'failed'
                                 : JSON.stringify(check.steps) === JSON.stringify(result.steps)
-                                    ? 'matched' : 'mismatched', physicalRuns: 2,
+                                    ? 'matched' : 'mismatched', physicalRuns: captureRuns + 1,
                                 command: check.promptResult.command};
                         }
                     } catch (error) {
-                        replay = {status: 'failed', physicalRuns: 2, error: error.message};
+                        replay = {status: 'failed', physicalRuns: captureRuns + Number(replayLaunched),
+                            error: error.message};
                     }
                     await onReceipt({kind: 'static-replay-outcome', ...replay});
                 }

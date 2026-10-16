@@ -82,7 +82,7 @@ async function fixture(t, scenario = 'success') {
     await mkdir(path.join(dir, 'install'));
     const binary = path.join(dir, 'fake.mjs');
     await writeFile(binary, `#!/usr/bin/env node
-import {appendFileSync, existsSync, writeFileSync} from 'node:fs';
+import {appendFileSync, existsSync, writeFileSync, rmSync} from 'node:fs';
 const mode=${JSON.stringify(scenario)};
 const runfile=${JSON.stringify(path.join(dir, 'runs'))};
 const replay=existsSync(runfile); appendFileSync(runfile,'run\\n');
@@ -103,6 +103,9 @@ process.stdin.on('data', data => {
   if(mode==='unknown') screen='unrecognized prompt';
   if(mode==='replay-mismatch' && replay && n===4) screen='different inventory';
   emit(screen);
+  if(mode==='replay-setup-failure' && n===5 && !replay) {
+   rmSync(process.env.HOME,{recursive:true,force:true}); writeFileSync(process.env.HOME,'not a directory');
+  }
   if(mode==='crash-after-observer' && n===5) process.exit(7);
  }
 });
@@ -147,7 +150,7 @@ test('CLI same-process capture emits wire-canonical static recipe and performs O
     assert.equal(await readFile(path.join(f.dir, 'runs'), 'utf8'), 'run\nrun\n');
 });
 
-for (const mode of ['unknown', 'crash', 'timeout', 'crash-after-observer', 'replay-mismatch']) {
+for (const mode of ['unknown', 'crash', 'timeout', 'crash-after-observer', 'replay-mismatch', 'replay-setup-failure']) {
     test(`CLI ${mode} retains partial evidence, reports incomplete and never retries`, async t => {
         const f = await fixture(t, mode), result = f.run();
         assert.equal(result.status, 2, result.stderr);
@@ -158,6 +161,10 @@ for (const mode of ['unknown', 'crash', 'timeout', 'crash-after-observer', 'repl
         const runs = (await readFile(path.join(f.dir, 'runs'), 'utf8')).trim().split('\n');
         assert.equal(runs.length, mode === 'replay-mismatch' ? 2 : 1);
         if (mode === 'replay-mismatch') assert.equal(receipt.replay.status, 'mismatched');
+        else if (mode === 'replay-setup-failure') {
+            assert.equal(receipt.replay.status, 'failed');
+            assert.equal(receipt.replay.physicalRuns, 1);
+        }
         else assert.equal(receipt.replay.status, 'not-required');
         assert.match(await readFile(`${f.receipt}.jsonl`, 'utf8'), /command-outcome/u);
         if (mode === 'replay-mismatch') {
