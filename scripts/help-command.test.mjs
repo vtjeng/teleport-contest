@@ -308,6 +308,28 @@ test('the default key list preserves source sections and fixed-width rows',
         assert(lines.includes('i       inventory     show your inventory'));
     });
 
+test('the full key list prints a CMD_PARAM binding parameter', async () => {
+    await runSegment({
+        seed: 20261016,
+        datetime: '20771016113000',
+        nethackrc: [
+            'OPTIONS=name:ParamKeyListTest,role:Healer,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time',
+            'BINDINGS=x:toggle(time)',
+            '',
+        ].join('\n'),
+        moves: '',
+    });
+
+    const row = keyBindingLines(game).find(({ text }) => (
+        text.startsWith(`x${' '.repeat(7)}toggle`)
+    ));
+    assert.equal(
+        row?.text,
+        `x${' '.repeat(7)}toggle${' '.repeat(8)}toggle boolean option "time"`,
+    );
+});
+
 test('standalone menu controls preserve the source columns and descriptions',
     () => {
         const lines = [];

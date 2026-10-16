@@ -1216,16 +1216,16 @@ function keylist_putcmds(lines, docount, inclFlags, exclFlags, keysUsed,
             ++count;
             continue;
         }
-        // No compiled-in binding carries CMD_PARAM. Its quoted parameter is
-        // stored on C's Cmd_bind node, which the bounded default model does
-        // not need; reject that excluded custom-binding variant explicitly.
-        if (entry.flags & CMD_PARAM) {
-            throw new UnsupportedHelpError(
-                'a parameterized custom binding in the key list',
-            );
-        }
+        // C's keylist_putcmds() reads the parameter from the Cmd_bind node
+        // for a custom CMD_PARAM binding and prints it in quotes after the
+        // command description. command_bindings.js owns the same per-key
+        // parameter alongside the command name.
+        const binding = bindingAt(model.bindings, key);
+        const parameter = entry.flags & CMD_PARAM
+            ? ` "${binding?.param ?? ''}"`
+            : '';
         lines.push({ text:
-            `${key2txt(key).padEnd(7)} ${entry.ef_txt.padEnd(13)} ${entry.ef_desc}` });
+            `${key2txt(key).padEnd(7)} ${entry.ef_txt.padEnd(13)} ${entry.ef_desc}${parameter}` });
         keysUsed[key] = 1;
     }
 
