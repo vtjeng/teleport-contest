@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 95101698,
+      "datetime": "21001016140000",
+      "nethackrc": "OPTIONS=name:SkinT,role:Monk,race:human,gender:male,align:lawful,playmode:debug,nudist,armorstatus\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#wizwish\ngray dragon scales\nWh#polyself\ngray dragon\n T"
+    }
+  ]
+}
