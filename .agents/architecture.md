@@ -30,7 +30,9 @@ publication. The dashboard uses the same role names irrespective of agent parent
 
 The Challenge lead plans exploration, adds bounded investigation tasks,
 evaluates returned evidence, deduplicates causes, and assembles batches for
-the Work lead. It does not spawn explorers or independently assign workers.
+the Work lead. It may also execute its own investigations under "Direct
+Challenge lead exploration" below. It does not spawn explorers or independently
+assign workers.
 The Process analyst continuously reviews queue and delivery friction, including
 rejected deliveries, repeated failures, and recurring coordination mistakes.
 This is the user's standing request for ongoing triage; no new request is needed
@@ -128,6 +130,35 @@ a timeout alone does not release a claim: Work lead checks the agent and process
 and preserves a recovery packet before reassignment. Do not duplicate live
 work. Deduplicate related causes and retire tasks made obsolete by accepted
 changes. Reassess stale evidence before dispatch, retaining earlier results.
+
+## Direct Challenge lead exploration
+
+Challenge lead may personally execute a fresh, bounded discovery investigation
+end to end in its registered Prep worktree: plan from C source, record with its
+private C recorder, replay, compare when eligible, classify, and prepare evidence
+for a batch. This is lead-owned investigation work, not a general-worker queue
+claim. Work lead retains worker dispatch and resolves competing source scopes;
+do not privately assign workers, duplicate live work, or change their claims,
+branches, or bases.
+
+Before execution, save the declared source target, state/action history, base
+and any comparison pin, source ownership/reservations, observation, stopping
+condition and limits. Make ownership and progress visible to Work lead through
+the saved plan and supported lead status. Preserve each physical command,
+input, capture, exit, replay and comparison receipt actually produced; use a
+private recorder installation and retain immutable evidence at handoff. Do not
+masquerade as a worker claim or revive legacy `prep-probe` events in unified
+queue mode.
+
+This permission changes the executor, not selection or validation eligibility.
+Apply [selection.md](selection.md) and [validation.md](validation.md) at their
+existing stages; C-only feasibility does not itself authorize a JavaScript
+comparison.
+Work lead independently reviews source attribution and duplicate/known-cause
+overlap before Challenge lead's own mismatch counts as qualifying. Retain
+negative and incomplete outcomes truthfully; do not reopen old tasks or reset
+their budgets. Work lead still owns acceptance, admission, scoring and
+publication. Direct exploration does not authorize game fixes or self-acceptance.
 
 ## Priority at claim time
 

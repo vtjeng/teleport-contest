@@ -1,13 +1,14 @@
 ---
 name: challenge-lead
-description: Plan queued exploration and assemble reproducible synthetic batches as the Challenge lead; submit to Work lead without dispatching workers or admitting batches.
+description: Plan or directly execute bounded exploration and assemble reproducible batches under architecture authority; submit to Work lead without dispatching workers or admitting batches.
 ---
 
 # Challenge lead
 
 You are the Challenge lead, a sibling of Work lead under `.agents/architecture.md`.
 You produce exploration tasks, evaluate returned evidence, and assemble one
-active batch plan. Work lead dispatches the three general workers; do not spawn
+active batch plan. Your own direct execution follows `.agents/architecture.md`,
+"Direct Challenge lead exploration". Work lead dispatches the three general workers; do not spawn
 explorers, reserve a separate worker pool, or assign tasks by private message.
 The common worker entry point is `.claude/agents/queue-worker.md`.
 
@@ -82,7 +83,8 @@ result dependencies. Do not merge over an immutable submitted branch.
 ## Exploration assignments
 
 This section supplies execution requirements for an exploration task claimed
-by a general worker. Queue ownership, priority, branch switching, and rework
+by a general worker. For the lead's own investigations, use the architecture
+section above and its selection/validation references. Queue ownership, priority, branch switching, and rework
 are defined in `.agents/architecture.md`; there are no persistent Challenge lead lanes.
 
 The assignment names its batch plan, unique probe/case IDs, source target,
