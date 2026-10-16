@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Routine orchestrator handoff using saved evidence; no replay or agent messages.
+import {withMainWork} from './main-work.mjs';
 import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -60,7 +61,10 @@ function context(options, root) {
 
 export { reviewTask } from './task-verdict.mjs';
 
-export function publishTask(options, root = process.cwd(), { checkCI = (args, cwd) => checkPublishedCI(args, {
+export function publishTask(options,root=process.cwd(),dependencies) {
+    return withMainWork(root,()=>publishTaskOwned(options,root,dependencies));
+}
+function publishTaskOwned(options, root = process.cwd(), { checkCI = (args, cwd) => checkPublishedCI(args, {
     gh: values => execFileSync('gh', values, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }),
 }) } = {}) {
     const ctx = context(options, root);

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {withMainWork} from './main-work.mjs';
 // Integrate and accept a frozen Prep group using one saved checkpoint. No replay or worker messages.
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
@@ -121,6 +122,9 @@ function checkGroupFiles(ctx, plan, commit, complete) {
 }
 
 export function integratePrepGroup(options, root = process.cwd()) {
+    return withMainWork(root, () => integratePrepGroupOwned(options,root));
+}
+function integratePrepGroupOwned(options, root = process.cwd()) {
     let ctx = context(options, root);
     if (git(ctx.root, 'status', '--porcelain')) throw new Error('integrate Prep from a clean worktree');
     if (existsSync(git(ctx.root, 'rev-parse', '--git-path', 'CHERRY_PICK_HEAD')))
@@ -172,6 +176,9 @@ export function integratePrepGroup(options, root = process.cwd()) {
 }
 
 export function acceptPrepGroup(options, root = process.cwd()) {
+    return withMainWork(root, () => acceptPrepGroupOwned(options,root));
+}
+function acceptPrepGroupOwned(options, root = process.cwd()) {
     const ctx = context(options, root), plan = frozenGroup(ctx);
     const commit = git(ctx.root, 'rev-parse', 'HEAD'), tasks = plan.tasks.map(member => member.task);
     if (git(ctx.root, 'status', '--porcelain')) throw new Error('accept Prep before adding admission or closure reports');
@@ -205,6 +212,9 @@ export function acceptPrepGroup(options, root = process.cwd()) {
 }
 
 export function publishPrepGroup(options, root = process.cwd(), dependencies) {
+    return withMainWork(root, () => publishPrepGroupOwned(options,root,dependencies));
+}
+function publishPrepGroupOwned(options, root = process.cwd(), dependencies) {
     const ctx = context(options, root), plan = frozenGroup(ctx), tasks = plan.tasks.map(member => member.task);
     for (const task of tasks) if (ctx.state.tasks[task].status !== 'accepted') throw new Error('accept the entire Prep group before publishing');
     const result = publishTask({...options, task: tasks[0]}, ctx.root, dependencies);

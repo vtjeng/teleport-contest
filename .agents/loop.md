@@ -201,6 +201,60 @@ or amend submitted delivery commits.
 
 ## Integration and publication
 
+### Local exploration snapshot refresh
+
+Vincent approved the checked WL-local 15-minute coalescer on 2026-10-16.
+`node scripts/dashboard-refresh.mjs --ledger <absolute-ledger> --watch`
+checks once a minute while this environment and its owned process remain running.
+Only changes to closed independent discovery records (including retrospective
+classification/qualification) create a pending watermark. Claims, Main support,
+linked follow-ups, the publisher's own events and capture time do not. Changes
+coalesce for 15 minutes from first observation; active integration, ready
+implementation/deliveries, review/admission, dirty or off-Main work, and pending
+or failed publication CI defer publication. This is a snapshot, not a live feed
+or hosted cron job; the displayed capture timestamp is authoritative.
+
+**One Main owner.** Before any manual WL review/integration, standalone tooling
+checkpoint, admission or publication boundary, run
+`node scripts/main-work.mjs hold --reason <reason>` and retain its private token.
+Set `TELEPORT_MAIN_WORK_TOKEN` to that token for supported child commands.
+Keep the lease across validation and CI observation; the push remains the
+ordinary exact standalone Git push. Release with `main-work.mjs release --token
+<token>` only after owned commands have finished and accepted Main/publication
+CI have been reconciled. Supported integrate/accept/admit/publish helpers also
+take the same whole-operation lock and allow token-bound nested commands.
+Never start manual Git work during a refresh lease. A competing owner defers;
+neither an age limit nor an apparently dead PID steals a lock. After a crash,
+confirm its actual owner stopped before explicitly removing its lock. The
+observer's separate `.owner` file also prevents duplicate watchers.
+
+The separate `snapshot-published` observation requires latest accepted anchor A,
+its original imported passing execution checkpoint P, P ancestor A ancestor R,
+and identical execution trees P/A/R. Every commit A→R may change only the
+regular non-executable `dashboard-snapshot.json`; other bookkeeping is rejected.
+The verifier binds read-only captured ledger-prefix bytes to actual history,
+then regenerates the complete public projection at its stated capture time.
+Privacy/schema, original 44-session development evidence and exact local/remote
+Main identities remain checked. It never calls the old measurements a new score.
+The existing `tooling-published` gate is unchanged.
+
+Checked reports advance the observed accepted Main, while the execution queue
+base stays unchanged. Only verified snapshot-only report chains are equivalent
+assignment bases. A supported `work-queue next` read verifies eligibility; pending
+plans and live claims are not rebased or reassessed for a report-only change.
+Execution/tooling changes still require normal refresh and reassessment.
+
+The private shared Git-dir journal retains the exact proposed commit, immutable
+captured prefix/snapshot and a receipt. A crash after push resumes that same
+proposal, event, CI registration and queue observation; never regenerate it or
+acknowledge arrivals beyond its captured prefix. Publication uses compare-and-set
+local Main and an ordinary non-forced push after rechecking remote identity.
+Only normal Lint and Dashboard run per report. Observe them with the existing
+CI checker; do not rerun Checkpoint, Score, Coverage or gameplay for a report.
+Errors preserve the journal for owner inspection. `--observe` cannot push or
+recover a pending proposal; it reports pending recovery honestly.
+
+
 Build implementation groups on candidate branches; keep local `main` at its
 accepted commit until the group passes. Handle one candidate at a time and
 push only accepted work to `main`. Workers own source review. Work lead integrates, runs exact-commit hosted

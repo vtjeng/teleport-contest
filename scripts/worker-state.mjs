@@ -186,6 +186,7 @@ No command discards a legacy ledger, parked task, or unfinished work.`;
 
 const FIELDS = {
     'tooling-published': ['tested', 'commit', 'checkpoint'],
+    'snapshot-published': ['anchor', 'tested', 'commit', 'checkpoint', 'snapshotSha256', 'watermark', 'through', 'ledgerSha256', 'prefix'],
     register: ['worker', 'worktree', 'branch', 'base', 'handle'],
     observe: ['worker', 'handle', 'processes'],
     connect: ['worker', 'handle'], connected: ['worker', 'handle'],
@@ -321,6 +322,19 @@ function applyLegacyEvent(state, event, at) {
     for (const key of Object.keys(event)) check(allowed.includes(key), `unexpected event field: ${key}`);
     for (const key of ['id', 'type', ...FIELDS[type]]) check(Object.hasOwn(event, key), `missing event field: ${key}`);
     identifier(event.id, 'event id');
+    if (type === 'snapshot-published') {
+        sha(event.anchor, 'anchor'); sha(event.tested, 'tested'); sha(event.commit, 'commit');
+        absolute(event.checkpoint, 'checkpoint');
+        absolute(event.prefix, 'prefix');
+        for (const key of ['snapshotSha256','watermark','ledgerSha256'])
+            check(/^[a-f0-9]{64}$/u.test(event[key]), `invalid ${key}`);
+        identifier(event.through, 'captured ledger event');
+        check(acceptedMain(state)?.commit === event.anchor, 'snapshot anchor must be latest accepted Main');
+        check(!Object.values(state.tasks).some(task => ['integrating','validated'].includes(task.status)),
+            'finish active integration before snapshot publication');
+        state.snapshotPublications.push({...event, acceptedAt:at});
+        return;
+    }
     if (type === 'tooling-published') {
         sha(event.tested, 'tested'); sha(event.commit, 'commit'); absolute(event.checkpoint, 'checkpoint');
         check(!Object.values(state.tasks).some(task => ['integrating', 'validated'].includes(task.status)),
@@ -660,7 +674,10 @@ export function summarizeLedger(ledger) {
     validateLedger(ledger);
     const state = { runId: ledger.runId, coordinatorRoot: ledger.coordinatorRoot,
         coordinator: { handle: null, processes: [] }, workers: {}, tasks: {}, deliveries: {}, reservations: {}, probes: {},
-        toolingPublications: [] };
+        toolingPublications: [], snapshotPublications: [] };
+    // Verifiers need the actual immutable prefix, never a caller's asserted
+    // digest. Keep raw private ledger bytes out of normal state JSON output.
+    Object.defineProperty(state, 'ledger', {value:ledger});
     const seen = new Set();
     for (const { at, ...event } of ledger.events) {
         check(!seen.has(event.id), 'duplicate event id in ledger'); seen.add(event.id);

@@ -14,6 +14,7 @@ import { normalizeSession } from '../frozen/session_loader.mjs';
 import { readAdmissionReceipt } from './admission-proof.mjs';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import { acceptedMain } from './worker-backlog.mjs';
+import {requireNoSnapshotRefresh, verifySnapshotPublication} from './snapshot-publication.mjs';
 
 const INVESTIGATION_PATH = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u;
 
@@ -201,7 +202,7 @@ function scopeEvidence(root, commit, task, packet) {
 function verifyPrepComparisons(state, task, packet) {
     const accepted = new Set(Object.values(state.deliveries).filter(delivery => delivery.acceptedAt)
         .flatMap(delivery => [delivery.integration, delivery.publishedCommit])
-        .concat(state.toolingPublications.map(publication => publication.commit)).filter(Boolean));
+        .concat([...state.toolingPublications, ...(state.snapshotPublications ?? [])].map(publication => publication.commit)).filter(Boolean));
     for (const entry of packet.manifest.cases) {
         const checks = packet.checks.filter(check => check.kind === 'comparison' && check.caseId === entry.id);
         check(checks.length === 1, `${entry.id} needs exactly one saved comparison check`);
@@ -388,7 +389,7 @@ function checkCandidate(root, state, task, commit, visited = new Set(), patchIds
 
 export function resolveEventCommits(root, input) {
     const event = structuredClone(input);
-    for (const field of ['base', 'delivery', 'integration', 'commit', 'tested']) {
+    for (const field of ['base', 'delivery', 'integration', 'commit', 'tested', 'anchor']) {
         if (event[field] !== undefined) event[field] = resolveCommit(root, event[field]);
     }
     return event;
@@ -491,7 +492,7 @@ export function verifyToolingPublication(root, state, proof, options) {
     const anchor = options?.localTooling ? proof.anchor : acceptedMain(state)?.commit;
     const accepted = Object.values(state.deliveries).some(delivery => delivery.acceptedAt
         && [delivery.integration, delivery.publishedCommit].includes(anchor))
-        || state.toolingPublications.some(publication => publication.commit === anchor);
+        || [...state.toolingPublications, ...(state.snapshotPublications ?? [])].some(publication => publication.commit === anchor);
     const summary = JSON.parse(readFileSync(proof.checkpoint, 'utf8'));
     check(summary.allPassed === true && summary.commit === proof.tested && summary.executionCommit === proof.tested,
         'tooling publication requires a passing exact-commit checkpoint');
@@ -508,6 +509,9 @@ export function verifyEvent(root, state, input) {
     const event = resolveEventCommits(root, input);
     const task = state.tasks[event.task];
     const delivery = task && state.deliveries[task.deliveries.at(-1)];
+    if (['integrating','prep-integrating','implementation-integrating','tooling-published'].includes(event.type)
+        || (event.type === 'activity' && ['review','admission','baseline'].includes(event.phase))) requireNoSnapshotRefresh(root);
+    if (event.type === 'snapshot-published') verifySnapshotPublication(root, state, event, {published:true});
     if (event.type === 'tooling-published') verifyToolingPublication(root, state, event);
     if (event.type === 'prep-probe' && !state.probes[event.probe]) {
         check(git(event.worktree, 'rev-parse', '--path-format=absolute', '--git-common-dir')

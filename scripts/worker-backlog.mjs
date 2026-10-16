@@ -4,7 +4,7 @@ export function acceptedMain(state) {
         .map(delivery => ({task: delivery.task, commit: delivery.publishedCommit ?? delivery.integration,
             checkpoint: delivery.supplementalCheckpoint ?? delivery.checkpoint, acceptedAt: delivery.acceptedAt,
             at: delivery.publishedAt ?? delivery.acceptedAt}));
-    for (const publication of state.toolingPublications ?? []) candidates.push({task: null,
+    for (const publication of [...(state.toolingPublications ?? []), ...(state.snapshotPublications ?? [])]) candidates.push({task: null,
         commit: publication.commit, checkpoint: publication.checkpoint, acceptedAt: publication.acceptedAt,
         at: publication.acceptedAt});
     const latest = candidates.sort((a, b) => a.at.localeCompare(b.at)).at(-1);

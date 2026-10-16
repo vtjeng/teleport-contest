@@ -13,6 +13,30 @@ and link their evidence here. Preserve older entries; a later reversal links to
 the earlier decision and states its reason. Do not backfill assumed adoption
 or measured benefits from pending proposals.
 
+## 2026-10-16 — Checked exploration snapshot coalescing
+
+- Change: Vincent directly approved a WL-local 15-minute coalescer during active
+  exploration. Completed independent discovery evidence and retrospective
+  classifications create a watermark; unchanged data and publisher events do not.
+  A minute-level local observer defers for owned Main work, integration/review,
+  ready implementation/deliveries and publication CI. It is not hosted cron.
+- Implementation: `scripts/dashboard-refresh.mjs`, `snapshot-publication.mjs`
+  and `main-work.mjs` in this publication. The separate snapshot-only verifier
+  binds actual captured history and regenerates public fields, requires unchanged
+  execution and strict snapshot-only history, and preserves the original imported
+  checkpoint. The existing tooling publication gate remains intact. Whole-operation
+  shared leases, exact proposal recovery and report-equivalent execution queue
+  bases protect normal integration and live claims.
+- Benefit/tradeoff: bound otherwise indefinite exploration-only snapshot lag,
+  while adding local process/lease ownership and recovery obligations. The
+  observer cannot survive an environment shutdown and busy/failed boundaries can
+  delay publication. No-change intervals do not fabricate a fresh timestamp.
+- Follow-up: **unmeasured** operational lag benefit. Focused disposable-repository
+  tests cover repeated proof reuse, foreign/mutated prefix rejection, privacy,
+  ownership, strict scope, preserved pending/live tasks and crash recovery. Observe
+  the first natural completed-discovery change and exact Lint/Pages result; no
+  artificial gameplay or discovery event is created to exercise publication.
+
 ## 2026-10-16 — Exploration discovery history
 
 - Change: Vincent requested a primary hourly view of unique qualified mismatching

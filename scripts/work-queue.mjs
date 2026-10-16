@@ -5,7 +5,7 @@ import {existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileS
 import {dirname, join, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {recordEvent, summarizeLedger, updateLedger} from './worker-state.mjs';
-import {authorizeQueueEvent, queueBase, queueWork} from './assignment-queue.mjs';
+import {authorizeQueueEvent, queueBase, queueBaseEquivalent, queueWork} from './assignment-queue.mjs';
 import {admittedBatchIds} from './challenge-results.mjs';
 import {investigationReservations, savedQueueIssues} from './worker-backlog.mjs';
 import {readRows} from './score-log.mjs';
@@ -103,7 +103,7 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 `current complete mismatch evidence required: ${issues.join('; ')}`);
             event.type = 'queue-refresh';
             event.base = queueBase(state);
-            ensure(git(root, 'rev-parse', 'HEAD') === event.base, 'refresh at the accepted base at HEAD');
+            ensure(queueBaseEquivalent(state,git(root,'rev-parse','HEAD')), 'refresh at the accepted execution base or checked report descendant at HEAD');
             event.digest = hash(bytes);
             event.sessions = [...new Set(queue.sessions.map(row => row.session))];
             event.populate = true;

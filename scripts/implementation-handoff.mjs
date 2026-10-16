@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {withMainWork} from './main-work.mjs';
 // One frozen implementation candidate, checkpoint and publication. No replay or worker messages.
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
@@ -119,6 +120,9 @@ function planTasks(ctx, base, baseline) {
 }
 
 export function bootstrapImplementationGroup(options, root = process.cwd()) {
+    return withMainWork(root, () => bootstrapImplementationGroupOwned(options,root));
+}
+function bootstrapImplementationGroupOwned(options, root = process.cwd()) {
     const ctx = context(options, root);
     if (git(ctx.root, 'branch', '--show-current') !== 'main' || git(ctx.root, 'status', '--porcelain')
         || Object.values(ctx.state.tasks).some(task => ['integrating', 'validated'].includes(task.status)))
@@ -226,6 +230,9 @@ function checkCandidateBranch(ctx, plan) {
 }
 
 export function integrateImplementationGroup(options, root = process.cwd()) {
+    return withMainWork(root, () => integrateImplementationGroupOwned(options,root));
+}
+function integrateImplementationGroupOwned(options, root = process.cwd()) {
     let ctx = context(options, root), plan = existsSync(path(ctx)) ? readPlan(ctx) : null;
     if (git(ctx.root, 'status', '--porcelain')) throw new Error('integrate implementations from a clean worktree');
     if (existsSync(git(ctx.root, 'rev-parse', '--git-path', 'CHERRY_PICK_HEAD')))
@@ -272,6 +279,9 @@ export function integrateImplementationGroup(options, root = process.cwd()) {
 }
 
 export function acceptImplementationGroup(options, root = process.cwd()) {
+    return withMainWork(root, () => acceptImplementationGroupOwned(options,root));
+}
+function acceptImplementationGroupOwned(options, root = process.cwd()) {
     const ctx = context(options, root), plan = readPlan(ctx); checkSubmissions(ctx, plan);
     checkCandidateBranch(ctx, plan);
     return {tasks: acceptTasks({...options, baseline: plan.baseline, baselinePublication: plan.baselinePublication},
@@ -279,6 +289,9 @@ export function acceptImplementationGroup(options, root = process.cwd()) {
 }
 
 export function splitImplementationGroup(options, root = process.cwd()) {
+    return withMainWork(root, () => splitImplementationGroupOwned(options,root));
+}
+function splitImplementationGroupOwned(options, root = process.cwd()) {
     let ctx = context(options, root), plan = readPlan(ctx); checkCandidateBranch(ctx, plan); checkSubmissions(ctx, plan);
     if (git(ctx.root, 'status', '--porcelain')) throw new Error('preserve or commit candidate edits before splitting');
     if (existsSync(git(ctx.root, 'rev-parse', '--git-path', 'CHERRY_PICK_HEAD')))
@@ -303,6 +316,9 @@ export function splitImplementationGroup(options, root = process.cwd()) {
 }
 
 export function publishImplementationGroup(options, root = process.cwd(), dependencies) {
+    return withMainWork(root, () => publishImplementationGroupOwned(options,root,dependencies));
+}
+function publishImplementationGroupOwned(options, root = process.cwd(), dependencies) {
     const ctx = context(options, root), plan = readPlan(ctx); checkSubmissions(ctx, plan);
     const tasks = plan.tasks.map(member => member.task);
     if (tasks.some(id => ctx.state.tasks[id].status !== 'accepted')) throw new Error('accept the entire group before publishing');

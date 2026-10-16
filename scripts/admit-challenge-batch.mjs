@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {withMainWork} from './main-work.mjs';
 // Admit a complete prepared C batch. JS outcomes never filter its membership.
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -60,6 +61,9 @@ export function committedBatchIds(root, head = 'HEAD') {
 }
 
 export function admitChallengeBatches(root, prepared) {
+    return withMainWork(root, () => admitChallengeBatchesOwned(root,prepared));
+}
+function admitChallengeBatchesOwned(root, prepared) {
     if (!prepared.length) return [];
     const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
     const committed = committedBatchIds(root, head);

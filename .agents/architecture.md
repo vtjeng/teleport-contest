@@ -236,6 +236,15 @@ process handles, credentials, or private reasoning in dashboard summaries.
 
 ## Tooling transition and commands
 
+Snapshot-only reports use a separate verified `snapshot-published` observation;
+they are not implementation acceptance or standalone tooling validation. The
+latest observed Main can advance through these reports while the execution
+queue base and live assignment bases stay unchanged. Only the verified
+snapshot-only chain supplies equivalent assignment bases. See
+[local exploration snapshot refresh](loop.md#local-exploration-snapshot-refresh)
+for the WL-local coalescer, shared Main lease, proof and recovery rules. Other
+tooling/game changes retain ordinary queue refresh and reassessment requirements.
+
 `worker-state.mjs` remains the one atomic event ledger. Its `queue-*` events
 own dispatch and execution under `state.queue.tasks`; `state.tasks` and
 `state.deliveries` retain the existing submission/acceptance transport. These

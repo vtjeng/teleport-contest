@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {withMainWork} from './main-work.mjs';
 // Orchestrator only. Targeted fixes are accepted from saved CI results.
 // Consume saved validation; never merge, replay a corpus, publish, or dispatch workers.
 import { execFileSync } from 'node:child_process';
@@ -44,6 +45,9 @@ export function acceptTask(options, root = process.cwd()) {
 }
 
 export function acceptTasks(options, taskIds, root = process.cwd()) {
+    return withMainWork(root, () => acceptTasksOwned(options,taskIds,root));
+}
+function acceptTasksOwned(options, taskIds, root = process.cwd()) {
     root = resolve(root);
     const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trimEnd();
     const commit = git('rev-parse', 'HEAD');

@@ -187,16 +187,23 @@ export function developmentFromCheckpoint(summary, results, resultBytes) {
 
 export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output }, root = process.cwd()) {
   const ledger = JSON.parse(readFileSync(resolve(root, ledgerPath), 'utf8'));
-  const state = summarizeLedger(ledger);
   const summary = JSON.parse(readFileSync(resolve(root, checkpoint), 'utf8'));
   const resultBytes = readFileSync(join(summary.artifacts, 'session-results.json'));
-  const results = JSON.parse(resultBytes);
   const outputPath = resolve(root, output);
   const previous = existsSync(outputPath)
     ? JSON.parse(readFileSync(outputPath, 'utf8')) : null;
   const capturedAt = new Date().toISOString();
   const auditPath = join(root, 'scripts/exploration-yield-audit.json');
   const auditIndex = existsSync(auditPath) ? JSON.parse(readFileSync(auditPath, 'utf8')) : undefined;
+  const published = buildDashboardSnapshot({ledger,summary,resultBytes,previous,capturedAt,auditIndex},root);
+  writeFileSync(outputPath, JSON.stringify(published, null, 2) + '\n');
+  return published;
+}
+
+// Deterministic public projection: the refresh verifier independently rebuilds
+// these fields from the exact captured prefix and accepted snapshot.
+export function buildDashboardSnapshot({ledger,summary,resultBytes,previous,capturedAt,auditIndex},root) {
+  const state = summarizeLedger(ledger), results = JSON.parse(resultBytes);
   const snapshot = {
     version: 1,
     capturedAt,
@@ -207,9 +214,7 @@ export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output 
     ...(state.queue ? {assignmentQueue: publicQueue(state)} : {}),
     development: developmentFromCheckpoint(summary, results, resultBytes),
   };
-  const published = publicTextFields(snapshot);
-  writeFileSync(outputPath, JSON.stringify(published, null, 2) + '\n');
-  return published;
+  return publicTextFields(snapshot);
 }
 
 function main(args) {

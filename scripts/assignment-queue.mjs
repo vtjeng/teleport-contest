@@ -41,12 +41,22 @@ export function queueBase(state) {
         .sort((a, b) => a.acceptedAt.localeCompare(b.acceptedAt)).at(-1)?.commit ?? state.queue?.initialBase;
 }
 
+// A checked snapshot-only report observes Main without changing execution or
+// source-plan bases. This equivalence is limited to verified report chains;
+// tooling/game changes still need the normal explicit reassessment.
+export function queueBaseEquivalent(state, base) {
+    const equivalent = new Set([queueBase(state)]);
+    for (const publication of state.snapshotPublications ?? [])
+        if (equivalent.has(publication.anchor)) equivalent.add(publication.commit);
+    return equivalent.has(base);
+}
+
 export function queueWork(state) {
     if (!state.queue) return null;
     const tasks = Object.values(state.queue.tasks);
     const currentBase = queueBase(state);
     const ready = tasks.filter(task => task.status === 'ready' && dependenciesReady(state, task)
-        && !reserved(state, task) && (task.type === 'rework' || task.base === currentBase));
+        && !reserved(state, task) && (task.type === 'rework' || queueBaseEquivalent(state,task.base)));
     const fresh = state.queue.evidence?.base === currentBase;
     const sessions = new Set(ready.filter(task => task.output === 'implementation'
         && task.type !== 'rework').flatMap(task => task.sessions));
@@ -65,8 +75,8 @@ export function queueWork(state) {
         ready: ordered.map(task => task.id),
         blocked: tasks.filter(task => task.status === 'blocked'
             || (task.status === 'ready' && (!dependenciesReady(state, task) || reserved(state, task)
-                || (task.type !== 'rework' && task.base !== currentBase))))
-            .map(task => ({task: task.id, reason: task.reason ?? (task.base !== currentBase
+                || (task.type !== 'rework' && !queueBaseEquivalent(state,task.base)))))
+            .map(task => ({task: task.id, reason: task.reason ?? (!queueBaseEquivalent(state,task.base)
                 ? 'Reassess assignment at the accepted base.' : 'Waiting for dependencies or reservations.')})),
         claimed: tasks.filter(task => task.status === 'claimed').map(task => ({task: task.id, worker: task.worker})),
         counts: Object.fromEntries(['ready', 'claimed', 'blocked', 'completed', 'superseded']
