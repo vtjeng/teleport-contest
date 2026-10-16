@@ -319403,6 +319403,42 @@
           }
         ]
       }
+    },
+    {
+      "id": "v92-divergence-blessed-polymorph-min-rng-evaluation",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Reproduce C min macro argument evaluation in blessed polymorph duration cap.",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v92/v92-blessed-polymorph-duration-min-rng"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v92:v92-blessed-polymorph-duration-min-rng:41b90e0ce39b",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "peffect_polymorph",
+      "session": "synthetic/v92/v92-blessed-polymorph-duration-min-rng"
+    },
+    {
+      "id": "divergence-v91-juiblex-jubilex-name-refusal",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement alreadynamed from do_name.c",
+      "cFile": "do_name.c",
+      "sessions": [
+        "synthetic/v91/v91-juiblex-jubilex-name-refusal"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v91:v91-juiblex-jubilex-name-refusal:0566f43d2ea6",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "alreadynamed",
+      "session": "synthetic/v91/v91-juiblex-jubilex-name-refusal"
     }
   ]
 }
