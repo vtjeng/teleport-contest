@@ -319245,7 +319245,7 @@
     {
       "id": "v90-counted-inventory-dispatch-divergence",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement rhack from nethack-c/upstream/src/cmd.c",
       "cFile": "cmd.c",
       "sessions": [
@@ -319255,10 +319255,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "cd1b652563705fcc4ccc857453ca78474e9b7ce0",
       "delivered": null,
       "function": "rhack",
-      "session": "synthetic/v90/v90-p16-counted-inventory"
+      "session": "synthetic/v90/v90-p16-counted-inventory",
+      "closeStanding": {
+        "sha": "cd1b652563705fcc4ccc857453ca78474e9b7ce0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f4aff1bdebdd07859f3f0c0955073077d3d0ef7d",
+        "target": "synthetic/v90/v90-p16-counted-inventory",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/cd1b652563705fcc4ccc857453ca78474e9b7ce0/run-hosted-Osmacn/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "rhack",
+            "implementation": "js/cmd.js",
+            "symbol": "rhack",
+            "sourceReview": "Read the complete pinned cmd.c:rhack() definition (3626-3843), including the counted dispatch, movement and prefix branches, command handler call, ECMD result handling, and reset order. Traced parse()'s committed count decrement at cmd.c:5142-5144, the `i` inventory row at :1740-1742, and invent.c:dispinv_with_action()/ddoinv() (:2988-3008), which returns ECMD_OK for the display-only invocation. The ordinary ECMD_OK arm in rhack() then calls reset_cmd_vars() and clears gm.multi without a turn. The JS count boundary had omitted the already-implemented inventory handler from its no-time exceptions; the fix admits only that source-supported dispatch while retaining the general refusal for other unported repeated commands. This evidence documents the assigned divergence path and does not certify all command handlers behind rhack().",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:moveloop_core() reads a new command through rhack(0) at :515-531; js/allmain.js:moveloop_core() reaches js/cmd.js:rhack(). The admitted recording exercises the bound `i` command through this production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p16-counted-inventory",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 5,
+                "source": "cmd.c:parse() commits count 2; the `i` row calls ddoinv() through rhack(); invent.c returns ECMD_OK, rhack() clears the count, Escape closes the display, and the following wait advances one turn."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The active route is the ordinary gameplay command loop: allmain.c:moveloop_core() invokes rhack(0), cmd.c:parse() returns the counted `i`, and cmd.c's command table maps it to ddoinv(). The menu and Escape are handled by invent.c before rhack() observes ddoinv()'s ECMD_OK and clears the leftover count. js/allmain.js:moveloop_core() calls js/cmd.js:rhack(), which dispatches the existing runInventoryCommand() path. The admitted v90 p16 recording exercises the full six-boundary route. No other entry point is added to this divergence scope.",
+        "entryPoints": [
+          {
+            "name": "allmain.c:moveloop_core -> cmd.c:rhack -> invent.c:ddoinv",
+            "functions": [
+              "rhack"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v90",
+                "caseId": "v90-p16-counted-inventory",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 5,
+                "source": "Counted command parsing, bound inventory dispatch, no-time ECMD_OK reset, menu dismissal, and next-turn wait."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

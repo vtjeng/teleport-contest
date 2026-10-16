@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T03:44:12.053Z",
+  "capturedAt": "2026-10-16T03:56:20.817Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -143615,19 +143615,219 @@
         "output": "implementation",
         "target": null,
         "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693-9373952f98c6500ae448931badf4748aa33537b9",
+        "type": "published",
+        "at": "2026-10-16T03:44:59.350Z",
+        "task": "delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "commit": "9373952f98c6500ae448931badf4748aa33537b9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publication-confirmed-delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693-9373952f98c6500ae448931badf4748aa33537b9",
+        "type": "publication-confirmed",
+        "at": "2026-10-16T03:44:59.573Z",
+        "task": "delivery:session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "commit": "9373952f98c6500ae448931badf4748aa33537b9",
+        "knownBy": "2026-10-16T03:44:59.350Z"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:45:46.033Z",
+        "id": "queue:f3f452e7-ce30-4f59-be33-e355a78e7888",
+        "type": "assign",
+        "task": "v91-gloved-corpse-pit-fall-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-p20-keylist-implement-scope",
+        "type": "implement",
+        "at": "2026-10-16T03:45:57.615Z",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "goal": "v90-p20-parameterized-keylist-row"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-cd1b652563705fcc4ccc857453ca78474e9b7ce0-d9079a4aeb32c84411a740bfc77923bcadb04661a3f306256f49b37e03483b86-delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "type": "integrating",
+        "at": "2026-10-16T03:46:04.661Z",
+        "task": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "integration": "cd1b652563705fcc4ccc857453ca78474e9b7ce0",
+        "validationGroup": [
+          "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:49:51.477Z",
+        "id": "ready-1a2760dc867cbab8284a1ca181f533e242781292:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "v90-p20-parameterized-keylist-row"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-1a2760dc867cbab8284a1ca181f533e242781292",
+        "type": "ready",
+        "at": "2026-10-16T03:49:51.477Z",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "delivery": "1a2760dc867cbab8284a1ca181f533e242781292"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:49:51.477Z",
+        "id": "ready-1a2760dc867cbab8284a1ca181f533e242781292:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:49:51.477Z",
+        "id": "ready-1a2760dc867cbab8284a1ca181f533e242781292:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:50:14.846Z",
+        "id": "queue:9d519cd9-a7c6-4b1c-b540-42c16f6a5bed",
+        "type": "assign",
+        "task": "v91-startup-name-suffix-override-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-p20-1a2760dc-20261016",
+        "type": "received",
+        "at": "2026-10-16T03:50:17.302Z",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "delivery": "1a2760dc867cbab8284a1ca181f533e242781292"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:50:45.935Z",
+        "id": "queue:6e2ccde5-006b-40a1-9ff1-53673dd8711a",
+        "type": "queue-complete",
+        "task": "v91-gloved-corpse-pit-fall-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:50:45.935Z",
+        "id": "queue:6e2ccde5-006b-40a1-9ff1-53673dd8711a:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:52:58.524Z",
+        "id": "queue:406a324d-2414-4916-b3d0-e5465f620ba4",
+        "type": "assign",
+        "task": "v91-object-name-truncate-clear-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v91",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:53:23.868Z",
+        "id": "queue:31f55fa0-61e6-45a5-af52-4ddad9811d71",
+        "type": "queue-complete",
+        "task": "v91-swallowed-directional-stethoscope-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:53:23.868Z",
+        "id": "queue:31f55fa0-61e6-45a5-af52-4ddad9811d71:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693-cd1b652563705fcc4ccc857453ca78474e9b7ce0-validated",
+        "type": "validated",
+        "at": "2026-10-16T03:53:28.481Z",
+        "task": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693-cd1b652563705fcc4ccc857453ca78474e9b7ce0-accepted",
+        "type": "accepted",
+        "at": "2026-10-16T03:54:05.137Z",
+        "task": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:54:59.172Z",
+        "id": "queue:da43f5c5-16c3-42c6-bbef-e338fd8fef25",
+        "type": "queue-complete",
+        "task": "v91-startup-name-suffix-override-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:54:59.172Z",
+        "id": "queue:da43f5c5-16c3-42c6-bbef-e338fd8fef25:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T03:55:23.444Z",
+        "id": "queue:c4bdb834-eb67-457f-8587-19b96ee4b01c",
+        "type": "assign",
+        "task": "support-nested-corpse-depth-source-feasibility-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
-        "worker": "Worker-3",
-        "goal": "v90-counted-inventory-dispatch-divergence",
+        "task": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "worker": "Worker-1",
+        "goal": "v90-p20-parameterized-keylist-row",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "cacde445dcb32ed4f2b36467b0b43cd1b1a754c5",
-        "since": "2026-10-16T03:34:33.580Z",
+        "delivery": "1a2760dc867cbab8284a1ca181f533e242781292",
+        "since": "2026-10-16T03:49:51.477Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -143637,38 +143837,24 @@
   },
   "workerReservations": {
     "tasks": {
-      "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693": {
-        "id": "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
-        "worker": "Worker-3",
-        "status": "ready",
-        "seed": "synthetic/v90/v90-p16-counted-inventory",
-        "reservations": [
-          "session:synthetic/v90/v90-p16-counted-inventory",
-          "source:cmd.c:rhack"
-        ]
-      },
       "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693": {
         "id": "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
         "worker": "Worker-1",
-        "status": "working",
+        "status": "ready",
         "seed": "synthetic/v90/v90-p20-parameterized-keylist",
         "reservations": [
-          "session:synthetic/v90/v90-p20-parameterized-keylist"
+          "session:synthetic/v90/v90-p20-parameterized-keylist",
+          "source:cmd.c:keylist_putcmds"
         ]
       }
     },
     "reservations": {
-      "session:synthetic/v90/v90-p16-counted-inventory": {
-        "tasks": [
-          "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693"
-        ]
-      },
-      "source:cmd.c:rhack": {
-        "tasks": [
-          "delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693"
-        ]
-      },
       "session:synthetic/v90/v90-p20-parameterized-keylist": {
+        "tasks": [
+          "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693"
+        ]
+      },
+      "source:cmd.c:keylist_putcmds": {
         "tasks": [
           "delivery:session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693"
         ]
@@ -143680,7 +143866,9 @@
     "threshold": 5,
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [],
+    "ready": [
+      "v91-attached-ball-kick-refusal-cfirst-20261016"
+    ],
     "blocked": [
       {
         "task": "v91-lit-lamp-save-restore-cfirst-20261016",
@@ -143689,36 +143877,36 @@
     ],
     "claimed": [
       {
-        "task": "session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
-        "worker": "Worker-1"
+        "task": "v91-object-name-truncate-clear-cfirst-20261016",
+        "worker": "Worker-2"
       },
       {
-        "task": "v91-swallowed-directional-stethoscope-cfirst-20261016",
-        "worker": "Worker-3"
+        "task": "support-nested-corpse-depth-source-feasibility-20261016",
+        "worker": "Worker-1"
       }
     ],
     "counts": {
-      "ready": 0,
+      "ready": 1,
       "claimed": 2,
       "blocked": 1,
-      "completed": 32,
+      "completed": 36,
       "superseded": 0
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "assignment": "support-nested-corpse-depth-source-feasibility-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "v91-object-name-truncate-clear-cfirst-20261016",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": "v91-swallowed-directional-stethoscope-cfirst-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -144038,7 +144226,7 @@
         "id": "session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
@@ -144049,7 +144237,7 @@
         "target": null,
         "readyAt": "2026-10-16T02:55:22.420Z",
         "claimedAt": "2026-10-16T03:43:58.783Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T03:49:51.477Z"
       },
       {
         "id": "support-dull-blade-evidence-transport-correction-20261016",
@@ -144250,7 +144438,7 @@
         "id": "v91-swallowed-directional-stethoscope-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -144259,13 +144447,88 @@
         "target": null,
         "readyAt": "2026-10-16T03:40:22.633Z",
         "claimedAt": "2026-10-16T03:43:57.664Z",
+        "completedAt": "2026-10-16T03:53:23.868Z"
+      },
+      {
+        "id": "v91-gloved-corpse-pit-fall-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T03:44:38.256Z",
+        "claimedAt": "2026-10-16T03:45:46.033Z",
+        "completedAt": "2026-10-16T03:50:45.935Z"
+      },
+      {
+        "id": "v91-startup-name-suffix-override-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T03:48:26.339Z",
+        "claimedAt": "2026-10-16T03:50:14.846Z",
+        "completedAt": "2026-10-16T03:54:59.172Z"
+      },
+      {
+        "id": "v91-object-name-truncate-clear-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T03:52:37.132Z",
+        "claimedAt": "2026-10-16T03:52:58.524Z",
+        "completedAt": null
+      },
+      {
+        "id": "support-nested-corpse-depth-source-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T03:54:54.468Z",
+        "claimedAt": "2026-10-16T03:55:23.444Z",
+        "completedAt": null
+      },
+      {
+        "id": "v91-attached-ball-kick-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v91",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T03:56:17.406Z",
+        "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "f4aff1bdebdd07859f3f0c0955073077d3d0ef7d",
-    "measuredAt": "2026-10-16T03:40:28.488Z",
+    "executionCommit": "cd1b652563705fcc4ccc857453ca78474e9b7ce0",
+    "measuredAt": "2026-10-16T03:51:37.589Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
