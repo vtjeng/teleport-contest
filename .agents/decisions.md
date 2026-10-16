@@ -178,3 +178,14 @@ or measured benefits from pending proposals.
   rerun for this change. First authorized producer use and capture improvement
   are initially unmeasured. Closed budgets, JavaScript comparison gates and
   admission rules remain unchanged; Unicode endpoint loss is separate.
+
+## 2026-10-16 — Challenge lead direct discovery execution
+
+Vincent authorized Challenge lead to execute discovery personally. Commit
+`ebb317b62` records the single normative permission in architecture's "Direct
+Challenge lead exploration" section; the role brief points there. This removes
+the producer-only constraint without changing worker dispatch, independent
+source/duplicate review, comparison eligibility or acceptance. Expected benefit
+is less producer-to-worker handoff; discovery-yield and coordination effects
+remain unmeasured. Existing lead-owned C-only authorization does not wait for
+this documentation publication or establish a verified runtime model variant.
