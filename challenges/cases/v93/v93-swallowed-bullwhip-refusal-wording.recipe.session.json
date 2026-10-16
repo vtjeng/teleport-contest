@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Finalized C-first target capture for v93 swallowed bullwhip. Fixed seed/date, Archeologist starts with bullwhip and C explicitly reports already wielding it; #wizgenesis creates one hostile dust vortex. Exactly two forced-rest turns, observed engulfs pager, one page-dismiss key, then exactly one apply of the already-wielded bullwhip toward h. No movement/chase, no second target action, no state injection.",
+  "segments": [
+    {
+      "seed": 93211016,
+      "datetime": "20940418123700",
+      "nethackrc": "OPTIONS=name:v93swallowbullwhip,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,pettype:none,time,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup\n",
+      "moves": " wa #wizgenesis\nhostile dust vortex\nm.m. aah"
+    }
+  ]
+}
