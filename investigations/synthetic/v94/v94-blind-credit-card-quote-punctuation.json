@@ -1,0 +1,47 @@
+{
+  "session": "synthetic/v94/v94-blind-credit-card-quote-punctuation",
+  "remainingScreens": 1,
+  "recordedSteps": 54,
+  "corpus": "synthetic",
+  "batch": "v94",
+  "caseId": "v94-blind-credit-card-quote-punctuation",
+  "manifestPath": "challenges/manifests/v94.json",
+  "manifestSha256": "2fbd9c0522acdb63e6b429fb3ed36b75d1701907931257ba028c798e0b54cf9b",
+  "recordingSha256": "a600ed0b514b93b643cf1baad20ebc6d149af7c50418aae0d0384683af38a1bf",
+  "recipePath": "challenges/cases/v94/v94-blind-credit-card-quote-punctuation.recipe.session.json",
+  "recipeSha256": "df2b51ebf134c4b83f469fe072293305a69ba2fe6f000c4764c136012bb0ec4a",
+  "evaluationPath": "challenges/evaluations/admission-c3007d072a7d00a3683ce93e2a3099babd169be0-v94.json",
+  "evaluationCommit": "c3007d072a7d00a3683ce93e2a3099babd169be0",
+  "status": "complete",
+  "mismatch": {
+    "segment": 0,
+    "step": 43,
+    "key": "l",
+    "kind": "screen",
+    "row": 0,
+    "column": 51,
+    "owner": "read.c:doread CREDIT_CARD number line",
+    "sourceBehavior": "Closing quote precedes optional period",
+    "c": "\"",
+    "js": "."
+  },
+  "summary": "At segment 0, step 43, key l, a Tourist who is Blind reads the naturally carried credit card. C prints the number with a closing double quote and then the optional period outside it: `\"9602 14291461 0020\".`. JS currently appends the required blind-branch period to the number string before enclosing it in quotes, so the first differing cell is C `\"` versus JS `.` at row 0, column 51. The earlier RNG, screen and cursor prefix matches; the number formula and literacy increment are not the cause.",
+  "source": {
+    "file": "read.c",
+    "branch": "doread() CREDIT_CARD at 449-490; Blind selects “You feel the embossed numbers” at 467-469. The number line at 477-485 formats the number between quotes (`\"%d0%d %ld%d1 0%d%d0\"`) and adds `%s` after that closing quote when `flags.verbose || Blind`. `cmd.c:1816-1817` binds `r` to doread; JS `cmd.js:3419-3421,5218-5219` calls the same doread owner.",
+    "functions": [
+      "doread"
+    ],
+    "callers": [
+      "cmd.c:1816-1817 read command -> doread()",
+      "js/cmd.js:3419-3421 runReadCommand() -> doread(); cmd dispatch at 5218-5219"
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "nethack-c/upstream/src/read.c:449-490: complete credit-card branch; line 478 closes the quote before line 485 appends period for flags.verbose || Blind.",
+    "js/read.js:1280-1315: corresponding CREDIT_CARD branch; line 1312 currently adds punctuation to number before line 1313 adds surrounding quotes.",
+    "The admitted v94 manifest and recording preserve the actual card, Blind state, first-difference step and its C/JS cell values; C recipe replay is byte-identical to the committed recording at source gitlink 16ff59115315917b93185d026aeefea06db9b0f4.",
+    "Saved accepted v94 evaluation at accepted base reports 53/54 screens, 2599/2599 RNG and 54/54 cursors matched. No RNG call, identifier selection, quote omission, protected-file setup or test-harness issue explains the difference."
+  ]
+}
