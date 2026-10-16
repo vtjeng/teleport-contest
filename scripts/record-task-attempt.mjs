@@ -3,7 +3,7 @@
 import {spawn, spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {chmodSync, closeSync, existsSync, fsyncSync, lstatSync, mkdirSync, openSync,
-    readFileSync, realpathSync, writeFileSync} from 'node:fs';
+    readFileSync, readdirSync, realpathSync, writeFileSync} from 'node:fs';
 import {isAbsolute, join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {summarizeLedger} from './worker-state.mjs';
@@ -19,10 +19,14 @@ read-only snapshot, never the mutable source recipe. Reusing an attempt refuses
 before the recorder starts. Preserve every directory in the evidence envelope,
 including failed/invalid attempts, empty logs and started-only interruptions.
 History labels do not authorize more setups, retries or post-comparison changes.
-The ordinary record-session.mjs interface is unchanged.
+Linux only: the recorder runs in an owned process group. Cancellation stops
+that group before logs are frozen. Escaped/daemonized descendants are outside
+this containment; the ordinary record-session.mjs interface is unchanged.
 Output is a JSON receipt path and actual child outcome. Exit 0 requires child
 exit 0 and a regular capture; failed recording remains failed. SIGKILL may leave
-only the started receipt/partial files: preserve them, never infer success.`;
+only the started receipt/partial files: preserve them, never infer success.
+If collection cannot be verified, no final receipt is written. Retain the
+reported process-group ownership until its termination is confirmed.`;
 
 const ensure = (condition, message) => {if (!condition) throw new Error(message);};
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -66,20 +70,70 @@ function context(cwd, ledger) {
     ensure(git(root, 'status', '--porcelain', '--untracked-files=all') === '', 'preserve tracked changes before recording');
     return {root, task: task.id, worker: worker.worker, base: task.base, branch, commit};
 }
+function groupHasWriters(group) {
+    if (!group) return false;
+    // A dead orphan may remain a zombie until its new parent reaps it. Zombies
+    // cannot write; kill(group, 0) alone would keep collection waiting forever.
+    for (const name of readdirSync('/proc').filter(name => /^\d+$/u.test(name))) {
+        let stat;
+        try {stat = readFileSync(`/proc/${name}/stat`, 'utf8');}
+        catch (error) {if (error.code === 'ENOENT' || error.code === 'ESRCH') continue; throw error;}
+        const fields = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
+        if (Number(fields[2]) === group && !['Z', 'X'].includes(fields[0])) return true;
+    }
+    return false;
+}
 function launch(command, {cwd, stdout, stderr, env}) {
     return new Promise((resolveChild, reject) => {
         let child;
-        try {child = spawn(command[0], command.slice(1), {cwd, env, stdio: ['ignore', stdout, stderr]});}
+        try {child = spawn(command[0], command.slice(1), {cwd, env, detached: true,
+            stdio: ['ignore', stdout, stderr]});}
         catch (error) {reject(error); return;}
-        let spawnError;
-        const forward = signal => {if (child.exitCode === null && child.signalCode === null) child.kill(signal);};
-        const interrupt = () => forward('SIGINT'), terminate = () => forward('SIGTERM');
+        let spawnError, cancelledBy, cleanupError, stoppedAt, timer, closed = false, outcome, settled = false;
+        const signalGroup = signal => {
+            if (!child.pid) return;
+            try {process.kill(-child.pid, signal);}
+            catch (error) {if (error.code !== 'ESRCH') cleanupError = error.message;}
+        };
+        const finish = collected => {
+            if (settled) return;
+            settled = true; clearTimeout(timer);
+            process.off('SIGINT', interrupt); process.off('SIGTERM', terminate);
+            resolveChild({...outcome, ...(spawnError ? {error: spawnError} : {}),
+                ...(cancelledBy ? {cancelledBy} : {}), ...(cleanupError ? {error: cleanupError} : {}),
+                ...(!collected ? {collected: false, processGroup: child.pid ?? null} : {})});
+        };
+        const collect = () => {
+            if (settled) return;
+            let writers;
+            try {writers = groupHasWriters(child.pid);}
+            catch (error) {
+                cleanupError = `cannot verify recorder group collection: ${error.message}`;
+                signalGroup('SIGKILL'); finish(false); return;
+            }
+            if (closed && !writers) {finish(true); return;}
+            if (closed && writers && !stoppedAt) {
+                cleanupError = 'recorder exited with live descendants';
+                stoppedAt = Date.now(); signalGroup('SIGTERM');
+            }
+            if (stoppedAt && Date.now() - stoppedAt >= 1000) signalGroup('SIGKILL');
+            if (stoppedAt && Date.now() - stoppedAt >= 3000) {
+                cleanupError = 'recorder group collection did not finish; retain started-only evidence';
+                finish(false); return;
+            }
+            timer = setTimeout(collect, 25);
+        };
+        const cancel = signal => {
+            if (cancelledBy || settled) return;
+            cancelledBy = signal; stoppedAt = Date.now(); signalGroup('SIGTERM');
+        };
+        const interrupt = () => cancel('SIGINT'), terminate = () => cancel('SIGTERM');
         process.on('SIGINT', interrupt); process.on('SIGTERM', terminate);
         child.once('error', error => {spawnError = error.message;});
         child.once('close', (exitCode, signal) => {
-            process.off('SIGINT', interrupt); process.off('SIGTERM', terminate);
-            resolveChild({exitCode, signal, ...(spawnError ? {error: spawnError} : {})});
+            closed = true; outcome = {exitCode, signal};
         });
+        collect();
     });
 }
 function fileFact(path) {
@@ -92,6 +146,7 @@ function fileFact(path) {
 }
 
 export async function recordTaskAttempt(options, dependencies = {}) {
+    ensure(process.platform === 'linux', 'attempt process-group collection currently requires Linux');
     ensure(options.ledger && options.input, 'ledger and input are required');
     ensure(label(options.history) && label(options.attempt), 'history and attempt must be short filename labels');
     const observed = context(options.cwd ?? process.cwd(), options.ledger), {root} = observed;
@@ -127,9 +182,15 @@ export async function recordTaskAttempt(options, dependencies = {}) {
     finally {
         try {fsyncSync(stdout); fsyncSync(stderr);} finally {closeSync(stdout); closeSync(stderr);}
     }
+    if (outcome.collected === false) {
+        // A surviving writer could still change an inherited log FD. Do not
+        // hash/chmod those files or create a final receipt claiming collection.
+        return {receipt: null, started: join(attemptDirectory, 'started.json'), task: observed.task,
+            history: options.history, attempt: options.attempt, child: outcome, exitCode: 1};
+    }
     const files = Object.fromEntries(Object.entries(paths).map(([name, path]) => [name, fileFact(path)]));
     const intact = files['input.snapshot.json'].sha256 === started.inputSHA256;
-    const succeeded = outcome.exitCode === 0 && !outcome.signal && !outcome.error && intact
+    const succeeded = outcome.exitCode === 0 && !outcome.signal && !outcome.cancelledBy && !outcome.error && intact
         && files['capture.session.json'].present && !files['capture.session.json'].error;
     const receipt = {...started, status: succeeded ? 'completed' : 'failed', completedAt: new Date().toISOString(),
         child: outcome, inputSnapshotIntact: intact, files};

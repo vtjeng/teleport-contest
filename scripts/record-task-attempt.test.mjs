@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
-import {execFileSync} from 'node:child_process';
+import {execFileSync, spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {once} from 'node:events';
 import {chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync,
     readdirSync, rmSync, statSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {setTimeout as delay} from 'node:timers/promises';
 import test from 'node:test';
 import {recordTaskAttempt} from './record-task-attempt.mjs';
 import {createLedger, recordEvent, summarizeLedger} from './worker-state.mjs';
@@ -144,4 +147,81 @@ test('input-only and current authoritative claim checks refuse before recorder l
     f.git(f.cwd, 'switch', '-qc', 'unassigned-branch');
     await assert.rejects(recordTaskAttempt(f.options, dependencies), /authoritative claim/);
     assert.equal(launched, false);
+});
+
+async function waitForFile(path) {
+    for (let i = 0; i < 200; i++) {
+        if (existsSync(path)) return;
+        await delay(25);
+    }
+    throw new Error(`fixture did not become ready: ${path}`);
+}
+
+for (const cancelled of [true, false]) {
+    test(`${cancelled ? 'wrapper cancellation' : 'leader exit'} collects a grandchild holding the log FD`,
+        {timeout: 15_000}, async t => {
+            const f = fixture(t), ready = join(f.root, '.cache/grandchild.ready');
+            const leader = join(f.root, '.cache/leader.pid');
+            const grandchild = `import {writeFileSync,writeSync} from 'node:fs';
+                process.on('SIGTERM',()=>{});
+                writeFileSync(${JSON.stringify(ready)},String(process.pid));
+                setInterval(()=>writeSync(2,'descendant tick\\n'),20);`;
+            const recorderScript = f.fake(`import {spawn} from 'node:child_process';
+                import {copyFileSync,writeFileSync,existsSync} from 'node:fs';
+                copyFileSync(process.argv[2],process.argv[3]);
+                writeFileSync(${JSON.stringify(leader)},String(process.pid));
+                spawn(process.execPath,['--input-type=module','-e',${JSON.stringify(grandchild)}],
+                    {stdio:['ignore','ignore',2]});
+                process.on('SIGTERM',()=>process.exit(0));
+                ${cancelled ? '' : `const timer=setInterval(()=>{
+                    if(existsSync(${JSON.stringify(ready)})){clearInterval(timer);process.exit(0);}
+                },10);`}`);
+            const helper = join(f.root, '.cache/wrapper-helper.mjs');
+            writeFileSync(helper, `import {recordTaskAttempt} from ${JSON.stringify(new URL('./record-task-attempt.mjs', import.meta.url).href)};
+                const result=await recordTaskAttempt(${JSON.stringify(f.options)},
+                    {recorderScript:${JSON.stringify(recorderScript)}});
+                console.log(JSON.stringify(result));`);
+            const child = spawn(process.execPath, [helper], {stdio: ['ignore', 'pipe', 'pipe']});
+            const closed = once(child, 'close');
+            let output = '', errors = '';
+            child.stdout.on('data', bytes => {output += bytes;});
+            child.stderr.on('data', bytes => {errors += bytes;});
+            t.after(() => {
+                child.kill('SIGKILL');
+                if (existsSync(leader)) {
+                    try {process.kill(-Number(readFileSync(leader, 'utf8')), 'SIGKILL');}
+                    catch (error) {if (error.code !== 'ESRCH') throw error;}
+                }
+            });
+            await waitForFile(ready);
+            if (cancelled) child.kill('SIGTERM');
+            const [exitCode] = await closed;
+            assert.equal(exitCode, 0, errors);
+            const result = JSON.parse(output), receipt = JSON.parse(readFileSync(result.receipt));
+            assert.notEqual(result.exitCode, 0);
+            assert.equal(receipt.status, 'failed');
+            assert.equal(receipt.child.exitCode, 0); // Leader cooperates; grandchild ignores TERM.
+            if (cancelled) assert.equal(receipt.child.cancelledBy, 'SIGTERM');
+            else assert.match(receipt.child.error, /live descendants/);
+            const log = join(result.receipt, '../stderr.log'), bytes = readFileSync(log);
+            assert.match(bytes.toString(), /descendant tick/);
+            assert.equal(createHash('sha256').update(bytes).digest('hex'), receipt.files['stderr.log'].sha256);
+            await delay(100);
+            assert.deepEqual(readFileSync(log), bytes, 'no inherited descriptor writes after receipt freeze');
+            const pid = readFileSync(ready, 'utf8');
+            try {
+                const stat = readFileSync(`/proc/${pid}/stat`, 'utf8');
+                assert.match(stat.slice(stat.lastIndexOf(')') + 2), /^[ZX] /u);
+            } catch (error) {if (error.code !== 'ENOENT') throw error;}
+        });
+}
+
+test('unverified collection leaves started-only evidence without freezing mutable logs', async t => {
+    const f = fixture(t);
+    const result = await recordTaskAttempt(f.options, {launch: async () => ({exitCode: null,
+        signal: null, collected: false, error: 'fixture cannot verify collection'})});
+    assert.equal(result.exitCode, 1); assert.equal(result.receipt, null);
+    assert.equal(JSON.parse(readFileSync(result.started)).status, 'started');
+    assert.equal(existsSync(join(result.started, '../receipt.json')), false);
+    assert.notEqual(statSync(join(result.started, '../stderr.log')).mode & 0o200, 0);
 });
