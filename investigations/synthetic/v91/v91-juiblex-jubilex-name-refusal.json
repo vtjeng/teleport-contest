@@ -24,10 +24,10 @@
     "js": "n",
     "detail": "C displays the Juiblex-specific refusal beginning ‘Juiblex doesn't like being called Jubilex.’; JS displays the generic unique-monster refusal beginning ‘Juiblex doesn't like being called names!’"
   },
-  "summary": "The complete C function at do_name.c:158-194 has a Juiblex special case in alreadynamed(), called from do_mgivenname() at do_name.c:199-282 before the generic unique-monster refusal. Its species identity check is C pointer identity against &mons[PM_JUIBLEX]. JS currently checks object identity against state.mons[PM_JUIBLEX], although the port represents species identity by pmidx through monsndx(). The comparison establishes the differing final message but does not expose hidden JS object state; the identity mismatch is a source-supported diagnosis to validate with a focused cloned-species test and fresh differential, not a directly observed runtime fact.",
+  "summary": "The complete C function at do_name.c:158-195 has a Juiblex special case in alreadynamed(), called from do_mgivenname() at do_name.c:199-282 before the generic unique-monster refusal. C treats strstri()'s non-NULL pointer as true when ‘Juiblex’ starts at offset zero. JS strstri() returns numeric index 0, and the current condition treats that as false. The comparator establishes the differing final message; source semantics and JS helper behavior identify the predicate mismatch without inferring hidden runtime state. Species identity should also use monsndx(), the documented JS equivalent of C's &mons[PM_JUIBLEX] identity, instead of object identity.",
   "source": {
     "file": "do_name.c",
-    "branch": "alreadynamed() checks C species identity, a Juiblex-containing displayed name and case-insensitive exact input Jubilex, then emits the special message. do_mgivenname() calls it before its fallback message for unique monsters.",
+    "branch": "alreadynamed() checks C species identity, a non-NULL case-insensitive strstri result for ‘Juiblex’ in the displayed name, and case-insensitive exact input Jubilex, then emits the special message. do_mgivenname() calls it before its fallback message for unique monsters.",
     "functions": ["alreadynamed"],
     "callers": [
       "do_mgivenname() calls alreadynamed() for unique non-priest monsters before printing the generic refusal (do_name.c:199-282).",
@@ -41,8 +41,8 @@
   "goalKind": "divergence-fix",
   "evidence": [
     "C source: nethack-c/upstream/src/do_name.c:158-194 implements the special Jubilex check; lines 199-282 invoke alreadynamed before the generic unique-monster refusal.",
-    "JavaScript source: js/do_name.js:478-524 contains the corresponding branch but uses strict species-object identity. js/mondata.js:1558-1559 documents monsndx() as the JavaScript equivalent of C monsndx(), with pmidx as stable species identity.",
+      "JavaScript source: js/do_name.js:478-524 contains the corresponding branch; js/hacklib.js:422-428 documents strstri() as returning a numeric offset, so an offset-zero match is falsy in the current boolean test. js/mondata.js:1558-1559 documents monsndx() as the JavaScript equivalent of C monsndx(), with pmidx as stable species identity.",
     "Existing admitted synthetic recording: v91-juiblex-jubilex-name-refusal, 49 screens; the first and only observed mismatch is the final refusal at step 48. Recorded and independently replayed C bytes are identical (SHA256 c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263).",
-    "Validation required: add a focused test where monster.data is a cloned species record with the same pmidx as state.mons[PM_JUIBLEX], and run the unchanged recipe through a fresh C/JavaScript differential after the fix."
+    "Validation required: add focused tests for both a same-object Juiblex and a cloned species record with the same pmidx, then run the unchanged recipe through a fresh C/JavaScript differential after the fix."
   ]
 }
