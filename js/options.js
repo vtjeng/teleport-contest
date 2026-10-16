@@ -8660,12 +8660,19 @@ function dosetSimpleEntryFormat(state) {
 // the menu specification the window port renders.
 export function dosetSimpleMenuItems(state, helpers) {
     const format = dosetSimpleEntryFormat(state);
+    const showHelp = Boolean(state.gs?.simple_options_help);
     const items = [];
-    // gs.simple_options_help starts FALSE and the k == -2 pick is its only
-    // writer, so the "Use command '#optionsfull'" line above this entry, the
-    // "hide help" label on it, the descr line under each row and the
-    // `goto redo_opt_help` re-render all wait on the refused pick handling.
-    items.push({ text: 'show help', value: SIMPLE_HELP_A_INT, selector: '?' });
+    // options.c:8565-8579 adds this plain line only while help is shown and
+    // changes the explicit '?' choice's label with the same global flag.
+    if (showHelp)
+        items.push({
+            text: "Use command '#optionsfull' to get the complete options list.",
+        });
+    items.push({
+        text: showHelp ? 'hide help' : 'show help',
+        value: SIMPLE_HELP_A_INT,
+        selector: '?',
+    });
 
     for (let section = OptS_General; section < OptS_Advanced; ++section) {
         items.push({ text: '' });
@@ -8720,6 +8727,12 @@ export function dosetSimpleMenuItems(state, helpers) {
             if (AUTOPICKUP_SUFFIX_OPTIONS.has(option.name))
                 buf += '  (for autopickup)';
             items.push({ text: buf, value: a_int });
+            // options.c:8635-8639 emits an unselectable description and a
+            // blank line after each option that has help text.
+            if (showHelp && option.descr) {
+                items.push({ text: `    ${option.descr}` });
+                items.push({ text: '' });
+            }
         }
     }
     return items;
@@ -8728,41 +8741,42 @@ export function dosetSimpleMenuItems(state, helpers) {
 // C ref: options.c doset_simple_menu(), the guts of doset_simple().  It answers
 // with select_menu()'s count, which doset_simple() loops on.
 export async function doset_simple_menu(state, helpers) {
-    const items = dosetSimpleMenuItems(state, helpers);
-    // options.c:8642-8649: end_menu(), then the five flags
-    // reset_needed_visuals() consumes, cleared before select_menu() can run a
-    // handler that raises any of them.
-    state.go ??= {};
-    state.go.opt_need_redraw = false;
-    state.go.opt_need_glyph_reset = false;
-    state.go.opt_reset_customcolors = false;
-    state.go.opt_reset_customsymbols = false;
-    state.go.opt_update_basic_palette = false;
+    while (true) {
+        const items = dosetSimpleMenuItems(state, helpers);
+        // options.c:8642-8649: end_menu(), then the five flags
+        // reset_needed_visuals() consumes, cleared before select_menu() can run
+        // a handler that raises any of them.  The C help branch jumps back to
+        // redo_opt_help after destroying its menu, so each rebuilt menu clears
+        // the same flags before it is displayed.
+        state.go ??= {};
+        state.go.opt_need_redraw = false;
+        state.go.opt_need_glyph_reset = false;
+        state.go.opt_reset_customcolors = false;
+        state.go.opt_reset_customsymbols = false;
+        state.go.opt_update_basic_palette = false;
 
-    const pick = await helpers.menu(items, 'Options', PICK_ONE);
-    // C returns select_menu()'s count, which is -1 for a cancelled menu and 0
-    // for a commit that picked nothing; both fail doset_simple()'s
-    // `pickedone > 0` test, so this port answers 0 for either.  C's own note
-    // covers the other side: "without the complication of a preselected entry,
-    // a PICK_ONE menu returning pick_cnt > 0 implies exactly 1".
-    if (pick === null) return 0;
+        const pick = await helpers.menu(items, 'Options', PICK_ONE);
+        // C returns select_menu()'s count, which is -1 for a cancelled menu
+        // and 0 for a commit that picked nothing; both fail doset_simple()'s
+        // `pickedone > 0` test.  A PICK_ONE menu's positive result implies one
+        // picked item.
+        if (pick === null) return 0;
 
-    const k = pick - 1;
-    if (k === SIMPLE_HELP_K) {
-        // gs.simple_options_help = !gs.simple_options_help, then
-        // `goto redo_opt_help` to rebuild the menu with a description under
-        // every row.  dosetSimpleMenuItems() does not build that shape, so
-        // this stops with the menu already dismissed and nothing applied.
-        throw new UnsupportedOptionMenuError(
-            "doset_simple_menu()'s 'show help' toggle",
-        );
+        const k = pick - 1;
+        if (k === SIMPLE_HELP_K) {
+            // options.c:8656-8698 toggles gs.simple_options_help and rebuilds
+            // the window without returning to doset_simple().
+            state.gs ??= {};
+            state.gs.simple_options_help = !state.gs.simple_options_help;
+            continue;
+        }
+        await applyOptionMenuPick(state, allopt[k], helpers);
+        // destroy_nhwindow(tmpwin) at options.c:8694: as in doset(), the
+        // window port dismisses the menu as select_menu() answers.  C's
+        // comment there: "tear down this instance of the menu; if pick_cnt is
+        // 1, caller will immediately call us back to put up another instance".
+        return 1;
     }
-    await applyOptionMenuPick(state, allopt[k], helpers);
-    // destroy_nhwindow(tmpwin) at options.c:8694: as in doset(), the window
-    // port dismissed the menu as select_menu() answered.  C's comment there:
-    // "tear down this instance of the menu; if pick_cnt is 1, caller will
-    // immediately call us back to put up another instance".
-    return 1;
 }
 
 // C ref: options.c doset_simple(), the 'O' command.

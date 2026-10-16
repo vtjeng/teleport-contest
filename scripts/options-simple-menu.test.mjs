@@ -200,6 +200,45 @@ test('the stock simple menu lists the four OptSection groups in order',
         );
     });
 
+// C ref: options.c:8565-8698. Selecting '?' toggles the persistent gs flag
+// and rebuilds this same menu. Help adds the #optionsfull instruction and
+// each non-null allopt[].descr as an unselectable line followed by a blank.
+test('help toggles the description rows and rebuilds until the menu is left',
+    async () => {
+        const state = await startSimpleGame(STOCK);
+        const passes = [];
+        const picks = [];
+        const result = await doset_simple_menu(state, menuHelpers({
+            menu: (items, prompt, how) => {
+                assert.equal(prompt, 'Options');
+                assert.equal(how, PICK_ONE);
+                passes.push(items.map((item) => ({ ...item })));
+                const help = items.find((item) => item.selector === '?');
+                picks.push(help.text);
+                return passes.length < 3 ? help.value : null;
+            },
+        }));
+
+        assert.equal(result, 0);
+        assert.deepEqual(picks, ['show help', 'hide help', 'show help']);
+        assert.equal(state.gs.simple_options_help, false);
+        assert.equal(passes[0].some((item) => item.text.startsWith('    ')),
+            false);
+        assert.equal(passes[1][0].text,
+            "Use command '#optionsfull' to get the complete options list.");
+        const autodig = allopt.find((option) => option.name === 'autodig');
+        const autodigIndex = passes[1].findIndex(
+            (item) => item.text.startsWith('autodig '),
+        );
+        assert.equal(passes[1][autodigIndex + 1].text,
+            `    ${autodig.descr}`);
+        assert.equal(passes[1][autodigIndex + 2].text, '');
+        assert.deepEqual(
+            passes[2].map((item) => item.text),
+            dosetSimpleMenuItems(state, menuHelpers()).map((item) => item.text),
+        );
+    });
+
 // C ref: options.c doset_simple_menu()'s fmtstr_doset_simple, which pads with
 // longest_option_name(set_gameview, set_in_game) rather than doset()'s pass
 // range. The two happen to agree outside debug mode, and this is the width
