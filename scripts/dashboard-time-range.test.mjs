@@ -157,9 +157,10 @@ test('Fixed date changes commit only when valid; outside blur commits valid cust
     assert.equal(h.range.selection().duration,3*HOUR);assert.equal(h.el('RangePicker').open,false);
 });
 
-test('opening a mobile picker clamps to layout viewport despite overflow-expanded innerWidth',()=>{
-    const nodes=new Map(),view={innerWidth:521,innerHeight:1100,addEventListener(){}};
-    const doc={defaultView:view,documentElement:{clientWidth:390,clientHeight:844},addEventListener(){},
+test('opening a mobile picker uses stable layout width and visual viewport height',()=>{
+    const nodes=new Map(),view={innerWidth:521,innerHeight:1100,addEventListener(){},
+        visualViewport:{height:844,offsetTop:0,addEventListener(){}}};
+    const doc={defaultView:view,documentElement:{clientWidth:390,clientHeight:4409},addEventListener(){},
         getElementById(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',hidden:false,open:false,style:{},listeners:{},
             addEventListener(type,fn){this.listeners[type]=fn;}});return nodes.get(id);}};
     make({document:doc,prefix:'mobile'});
@@ -168,5 +169,9 @@ test('opening a mobile picker clamps to layout viewport despite overflow-expande
     form.getBoundingClientRect=()=>({width:358,height:300});
     picker.open=true;picker.listeners.toggle();
     assert.equal(form.style.left,'-147px','panel starts at 16, within the actual 390px viewport');
-    assert.equal(form.style.top,'-172px','panel bottom remains inside the layout viewport');
+    assert.equal(form.style.top,'-172px','panel bottom remains inside the visual viewport');
+    assert.equal(form.style.maxHeight,'812px');
+    view.visualViewport.height=500;view.visualViewport.offsetTop=100;picker.listeners.toggle();
+    assert.equal(form.style.top,'-416px','panel follows the reduced and scrolled visual viewport');
+    assert.equal(form.style.maxHeight,'468px');
 });

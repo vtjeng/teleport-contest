@@ -22,13 +22,18 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
     function position() {
         const win=doc?.defaultView;
         if(!win||!elements.RangePicker.open)return;
-        const box=elements.RangePicker.getBoundingClientRect(),panel=elements.RangeForm.getBoundingClientRect();
+        const box=elements.RangePicker.getBoundingClientRect();
         // Mobile innerWidth can expand to include an overflowing panel. Clamp
         // against the layout viewport so opening the panel cannot widen it.
         const width=doc.documentElement?.clientWidth||win.innerWidth;
-        const height=doc.documentElement?.clientHeight||win.innerHeight;
+        // In quirks mode clientHeight is the entire document. The visual
+        // viewport also accounts for the mobile keyboard reducing usable space.
+        const height=win.visualViewport?.height||win.innerHeight;
+        const top=win.visualViewport?.offsetTop||0;
+        elements.RangeForm.style.maxHeight=Math.max(0,height-32)+'px';
+        const panel=elements.RangeForm.getBoundingClientRect();
         elements.RangeForm.style.left=(clamp(box.left,16,Math.max(16,width-panel.width-16))-box.left)+'px';
-        elements.RangeForm.style.top=(clamp(box.bottom+6,16,Math.max(16,height-panel.height-16))-box.top)+'px';
+        elements.RangeForm.style.top=(clamp(box.bottom+6,top+16,Math.max(top+16,top+height-panel.height-16))-box.top)+'px';
     }
     function sync() {
         if (!elements) return;
@@ -154,6 +159,8 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
             if(elements.RangePicker.open&&event.relatedTarget&&!elements.RangePicker.contains(event.relatedTarget))close();
         });
         doc.defaultView?.addEventListener('resize',position);
+        doc.defaultView?.visualViewport?.addEventListener('resize',position);
+        doc.defaultView?.visualViewport?.addEventListener('scroll',position);
         doc.addEventListener?.('pointerdown',event=>{
             if(elements.RangePicker.open&&!elements.RangePicker.contains(event.target)){
                 // Pointerdown precedes blur/change. Commit a valid edited box
