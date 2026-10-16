@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T18:41:23.779Z",
+  "capturedAt": "2026-10-16T19:27:39.726Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T18:41:23.779Z",
+    "asOf": "2026-10-16T19:27:39.726Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5711,7 +5711,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 60,
+      "mainSupportAssignments": 62,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -159642,6 +159642,83 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:43:00.661Z",
+        "id": "queue:78ae9d42-34dd-44dc-b1c4-ebe6c57ce8d2",
+        "type": "queue-complete",
+        "task": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T18:43:00.661Z",
+        "id": "queue:78ae9d42-34dd-44dc-b1c4-ebe6c57ce8d2:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T19:06:35.784Z",
+        "id": "queue:d7487c50-0ebd-4352-8ce0-58ef43222c39",
+        "type": "assign",
+        "task": "support-dashboard-section-toolbar-alignment-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T19:14:28.114Z",
+        "id": "queue:8353460b-0e05-4899-9f07-aa32cfee996f",
+        "type": "queue-complete",
+        "task": "support-dashboard-section-toolbar-alignment-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T19:14:28.114Z",
+        "id": "queue:8353460b-0e05-4899-9f07-aa32cfee996f:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T19:23:02.876Z",
+        "id": "queue:0864a3b7-cf94-47a5-9b45-8c95891fe816",
+        "type": "assign",
+        "task": "support-dashboard-refresh-toolbar-final-ui-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T19:25:21.402Z",
+        "id": "queue:8ee61012-f82c-455e-804f-c9aeb25db7d5",
+        "type": "queue-complete",
+        "task": "support-dashboard-refresh-toolbar-final-ui-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T19:25:21.402Z",
+        "id": "queue:8ee61012-f82c-455e-804f-c9aeb25db7d5:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -159661,17 +159738,12 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
-        "worker": "Worker-2"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 277,
+      "completed": 280,
       "superseded": 64
     },
     "workers": [
@@ -159682,8 +159754,8 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
@@ -164835,7 +164907,7 @@
         "id": "support-v96-current-method-eucalyptus-sick-proof-feasibility-control-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -164844,13 +164916,43 @@
         "target": null,
         "readyAt": "2026-10-16T18:36:04.157Z",
         "claimedAt": "2026-10-16T18:36:20.761Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T18:43:00.661Z"
+      },
+      {
+        "id": "support-dashboard-section-toolbar-alignment-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T19:06:25.315Z",
+        "claimedAt": "2026-10-16T19:06:35.784Z",
+        "completedAt": "2026-10-16T19:14:28.114Z"
+      },
+      {
+        "id": "support-dashboard-refresh-toolbar-final-ui-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T19:22:49.702Z",
+        "claimedAt": "2026-10-16T19:23:02.876Z",
+        "completedAt": "2026-10-16T19:25:21.402Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "3072e2dbdfe9139aa376b153954d043df4e0a10e",
-    "measuredAt": "2026-10-16T18:40:36.996Z",
+    "executionCommit": "3b6335e80ada0ea777e4d09a5543b11bd10cf944",
+    "measuredAt": "2026-10-16T19:25:53.871Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
