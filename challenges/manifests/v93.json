@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "batch": "v93",
+  "preparationBase": "37468bae8fa9898b7d9387b8fd3482a54e6a6c26",
+  "comparisonBase": "3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+  "preparationComparisonBase": "3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v93-swallowed-bullwhip-refusal-wording",
+      "title": "Swallowed bullwhip refusal preserves the full wording",
+      "mission": "Apply one already-wielded bullwhip with a direction while actually engulfed; preserve the swallowed refusal wording.",
+      "recipe": "challenges/cases/v93/v93-swallowed-bullwhip-refusal-wording.recipe.session.json",
+      "recipeSha256": "c76286184aac72e480a1c4ca9afc2871d3f75f16035a453fc0267e8ebabd661e",
+      "recording": "challenges/cases/v93/v93-swallowed-bullwhip-refusal-wording.session.json",
+      "recordingSha256": "580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc",
+      "reproducibility": "One independent unchanged input-only C replay was byte-identical to original capture; exact command/logs retained.",
+      "sourcePointers": [
+        "apply.c:use_whip (2955-3010)",
+        "apply.c:doapply BULLWHIP",
+        "js/apply.js:use_whip (826)"
+      ],
+      "sourceTrace": "For an already-wielded bullwhip, getdir precedes the u.uswallow guard. C emits There(\"is not enough room to flick your bullwhip.\"); JS uses a hardcoded contracted sentence. No ordinary attack, snatch, pit or floor-object branch is reached.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 44,
+        "key": "h",
+        "kind": "screen",
+        "row": 0,
+        "column": 5,
+        "owner": "apply.c:use_whip swallowed refusal",
+        "sourceBehavior": "Full There is wording instead of contracted There's",
+        "c": " ",
+        "js": "'"
+      },
+      "historicalComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2075,
+            "js": 2075
+          },
+          "screens": {
+            "c": 45,
+            "js": 45
+          },
+          "cursors": {
+            "c": 45,
+            "js": 45
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 44,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 44,
+            "key": "h"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 5,
+          "cCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": "'",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "recordingSha256": "580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc",
+        "firstMismatch": {
+          "index": 44,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 44,
+            "key": "h"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 5,
+          "C": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "JS": {
+            "ch": "'",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "sourceAttribution": {
+          "C": "nethack-c/upstream/src/apply.c:3006 emits There(\"is not enough room to flick your bullwhip.\") in the u.uswallow branch after getdir.",
+          "JS": "d48 workspace js/apply.js:826 emits \"There's not enough room to flick your bullwhip.\" in its corresponding branch.",
+          "classification": "The first reported divergence is the apostrophe/contraction at the refusal screen, row0 column5. The call reaches the same swallowed-hero no-room behavior; the C/JS wording differs. All earlier RNG, screens and cursors match. The comparator reports the first mismatch only; no later mismatch enumeration is available, and no further comparison was run."
+        }
+      },
+      "overlap": {
+        "review": "Worker full raw action/state audit scanned648 candidate files and91 manifests; no exact swallowed bullwhip refusal found. Producer verified original bytes and focused guard/literal source. Known v90 causes and fixed v91 Juiblex/v92 duration-min causes are distinct; unknown historical claims are not released.",
+        "comparables": [
+          {
+            "reference": "v10 bullwhip-lashes-unarmed-soldier",
+            "difference": "Ordinary force_attack/do_attack is excluded; this case stops at the swallowed guard."
+          },
+          {
+            "reference": "v68-whip-pit-anchor-action3",
+            "difference": "Pit-anchor branch excluded."
+          },
+          {
+            "reference": "v93 swallowed grappling hook matching result",
+            "difference": "use_grapple emits different canonical refusal; its exact matched text does not exercise use_whip literal."
+          }
+        ]
+      },
+      "workerResult": "33d285667f77177355e346a0ea8b078ad481c1cd2c89cbf39607cf1ce3d79614",
+      "independentReplay": {
+        "recipeSha256": "c76286184aac72e480a1c4ca9afc2871d3f75f16035a453fc0267e8ebabd661e",
+        "recordingSha256": "580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc",
+        "replaySha256": "580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc",
+        "byteIdentical": true,
+        "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4"
+      },
+      "currentValidation": {
+        "resultPacketSha256": "19b68728e8e4628cd2d1581d7bf7bc0b03f07c1500e6122786b09e9089cab0dd",
+        "comparisonCommit": "3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+        "sameOriginalCase": true,
+        "noNewCReplayOrInputs": true
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2075,
+            "js": 2075
+          },
+          "screens": {
+            "c": 45,
+            "js": 45
+          },
+          "cursors": {
+            "c": 45,
+            "js": 45
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 44,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 44,
+            "key": "h"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 5,
+          "cCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": "'",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "3df9b0934d91dcdba271f5041fb4788e66b43a3e",
+          "recordingSha256": "580eba9df73595e0ca8a1677182a706226d34fbe5d285e02e152ec36f386b5bc"
+        }
+      }
+    }
+  ]
+}
