@@ -1,0 +1,795 @@
+{
+  "version": 1,
+  "batch": "v90",
+  "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+  "caseCount": 7,
+  "qualifyingDistinctMismatchCount": 7,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v90-p01-mounted-boulder-wall",
+      "title": "Mounted pony cannot push a boulder into a solid wall",
+      "mission": "hack.c:cannot_push_msg mounted branch through moverock_core obstructed-destination caller",
+      "recipe": "challenges/cases/v90/v90-p01-mounted-boulder-wall.recipe.session.json",
+      "recipeSha256": "75f4ca46d4943e0624d93f434ee3cb1c42c7255069b071b6ae9d5649aa2c3dbb",
+      "recording": "challenges/cases/v90/v90-p01-mounted-boulder-wall.session.json",
+      "recordingSha256": "205645bd6d492767b89d2afd060c7420a3ed64a673f3570824d544fc24147ee6",
+      "sourcePointers": [
+        "nethack-c/upstream/src/hack.c:247-261 cannot_push_msg",
+        "nethack-c/upstream/src/hack.c:432-436 and 633 moverock_core obstructed-destination branch",
+        "js/hack.js:2444 omitted mounted caller",
+        "js/hack.js:1902 partial cannot_push_msg helper"
+      ],
+      "sourceTrace": "A mounted lawful Knight moves a boulder into the west room wall. C moverock_core takes the obstructed-destination else and invokes cannot_push_msg, which names the pony. JS records the void-callee gap instead; the helper itself also lacks mounted behavior. Worker summary line 2519 denotes the parallel closed-door caller, corrected here to actual obstructed-destination caller line 2444.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 43,
+        "key": "h",
+        "owner": "hack.c:cannot_push_msg",
+        "source": "Mounted boulder failure message omitted by moverock_core obstructed-destination caller; all RNG and cursors match.",
+        "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+      },
+      "overlap": {
+        "currentEvidence": "Current saved queue e89f9c7a65f69178c1e73057c491d5d47c7f7fcf14c656c9d79ffff675d2fae8 has89 complete admitted batches, zero actionable sessions, four unrelated existing build/recorder provenance exclusions. f107..accepted7a1fa changes no js/frozen/existing manifest inputs. Preserved seven first causes remain distinct; unknown old claims are quarantined, not declared absent.",
+        "comparableCases": [
+          "v41/v41-boulder-fills-pit-from-hero-action",
+          "v84/v84-dig-boulder-pit-action2"
+        ],
+        "distinction": "Wall-blocked mounted naming/caller is distinct from boulder pit filling and downward digging. v89 mounted-cannot-push was an unexecuted source plan, not a counted case."
+      },
+      "reproducibility": "Fresh independent replay from unchanged original input-only recipe is byte-identical to preserved original recording SHA256 205645bd6d492767b89d2afd060c7420a3ed64a673f3570824d544fc24147ee6. Genuine recorder/check logs are preserved in immutable worker packet 5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5.",
+      "independentReplay": {
+        "workerPacketSha256": "5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5",
+        "recordingSha256": "205645bd6d492767b89d2afd060c7420a3ed64a673f3570824d544fc24147ee6",
+        "result": "byte-identical unchanged input-only recipe replay",
+        "comparisonCommit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "firstMismatchLocation": {
+          "segmentIndex": 0,
+          "stepIndex": 43,
+          "key": "h"
+        }
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2717,
+            "js": 2717
+          },
+          "screens": {
+            "c": 44,
+            "js": 44
+          },
+          "cursors": {
+            "c": 44,
+            "js": 44
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 43,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 43,
+            "key": "h"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 0,
+          "cCell": {
+            "ch": "Y",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+          "recordingSha256": "205645bd6d492767b89d2afd060c7420a3ed64a673f3570824d544fc24147ee6"
+        }
+      },
+      "comparisonRefreshResult": {
+        "workerPacketSha256": "5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5",
+        "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "recordingSha256": "205645bd6d492767b89d2afd060c7420a3ed64a673f3570824d544fc24147ee6"
+      }
+    },
+    {
+      "id": "v90-p10-fountain-wash-worn-gloves",
+      "title": "Dipping worn slippery gloves in a fountain washes hands",
+      "mission": "fountain.c:dipfountain worn-glove branch -> wash_hands",
+      "recipe": "challenges/cases/v90/v90-p10-fountain-wash-worn-gloves.recipe.session.json",
+      "recipeSha256": "041f3a113cd71e95e38ff7ee7b0c9307825dfd30da0aac76b9dac76409bb7215",
+      "recording": "challenges/cases/v90/v90-p10-fountain-wash-worn-gloves.session.json",
+      "recordingSha256": "7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c:447-454 dipfountain worn-glove branch and ER_GREASED test",
+        "nethack-c/upstream/src/fountain.c:558-577 wash_hands",
+        "js/fountain.js:1012 incorrect state.u.uarmg comparison",
+        "js/fountain.js:1145-1156 canonical state.uarmg"
+      ],
+      "sourceTrace": "C compares the selected object with canonical uarmg and washes gloved hands, clearing Glib before water_damage and the ER_GREASED rn2(2) gate. JS compares against state.u.uarmg while its worn-glove owner is state.uarmg, skips wash_hands, and goes to ordinary fountain fate. This pointer comparison is the first mismatching behavior.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 87,
+        "key": "y",
+        "owner": "fountain.c:dipfountain",
+        "source": "Wrong worn-glove state owner suppresses wash_hands; next RNG mismatch at step88 is consequent ER_GREASED gate omission.",
+        "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+      },
+      "overlap": {
+        "currentEvidence": "Current saved queue e89f9c7a65f69178c1e73057c491d5d47c7f7fcf14c656c9d79ffff675d2fae8 has89 complete admitted batches, zero actionable sessions, four unrelated existing build/recorder provenance exclusions. f107..accepted7a1fa changes no js/frozen/existing manifest inputs. Preserved seven first causes remain distinct; unknown old claims are quarantined, not declared absent.",
+        "comparableCases": [
+          "v26 fountain hand-dip cases",
+          "recipes/fountain.c/sink-wash-hands-glib-c52-clean.session.json",
+          "v90-p01-mounted-boulder-wall"
+        ],
+        "distinction": "Worn-glove fountain dispatch plus Glib clearing differs from bare-hand fountain or sink caller and from mounted boulder naming. No other selected v90 case has this first cause."
+      },
+      "reproducibility": "Fresh independent replay from unchanged original input-only recipe is byte-identical to preserved original recording SHA256 7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6. Genuine recorder/check logs are preserved in immutable worker packet 5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5.",
+      "independentReplay": {
+        "workerPacketSha256": "5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5",
+        "recordingSha256": "7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6",
+        "result": "byte-identical unchanged input-only recipe replay",
+        "comparisonCommit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "firstMismatchLocation": {
+          "segmentIndex": 0,
+          "stepIndex": 87,
+          "key": "y"
+        }
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2925,
+            "js": 2924
+          },
+          "screens": {
+            "c": 99,
+            "js": 99
+          },
+          "cursors": {
+            "c": 99,
+            "js": 99
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 2900,
+          "cEntry": "rn2(2)=1",
+          "cCaller": "dipfountain(fountain.c:454)",
+          "jsEntry": "rnd(30)=8",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 88,
+            "key": " "
+          }
+        },
+        "screenMismatch": {
+          "index": 87,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 87,
+            "key": "y"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 0,
+          "cCell": {
+            "ch": "Y",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": "N",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": {
+          "index": 87,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 87,
+            "key": "y"
+          },
+          "cCursor": [
+            48,
+            0,
+            1
+          ],
+          "jsCursor": [
+            32,
+            0,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+          "recordingSha256": "7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6"
+        }
+      },
+      "comparisonRefreshResult": {
+        "workerPacketSha256": "5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5",
+        "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "recordingSha256": "7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6"
+      }
+    },
+    {
+      "id": "v90-p13-simple-options-help",
+      "title": "Simple options menu shows and hides descriptive help",
+      "mission": "options.c:doset_simple_menu help toggle and redo_opt_help menu rebuild",
+      "recipe": "challenges/cases/v90/v90-p13-simple-options-help.recipe.session.json",
+      "recipeSha256": "469f0ff8ff81137be6aa987af70f18020c56343a738ab7c58bd831907befd1e7",
+      "recording": "challenges/cases/v90/v90-p13-simple-options-help.session.json",
+      "recordingSha256": "2aac21afd4c85f100d13513d10b0e96bd7272d0a98c1fdd56610cd54f7236eb9",
+      "sourcePointers": [
+        "nethack-c/upstream/src/options.c:8536-8701 doset_simple_menu",
+        "js/options.js:8751-8757 SIMPLE_HELP_K refusal"
+      ],
+      "sourceTrace": "C simple options menu help selection toggles gs.simple_options_help and rebuilds the menu, showing full-options instruction and per-option descriptions; a second selection returns to compact rows. JS explicitly throws on the help choice. Both C timeout inspections remain at turn 1.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 12,
+        "key": "?",
+        "owner": "options.c:doset_simple_menu",
+        "source": "Missing simple-menu help toggle/rebuild branch; all RNG matches.",
+        "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+      },
+      "overlap": {
+        "currentEvidence": "Current saved queue e89f9c7a65f69178c1e73057c491d5d47c7f7fcf14c656c9d79ffff675d2fae8 has89 complete admitted batches, zero actionable sessions, four unrelated existing build/recorder provenance exclusions. f107..accepted7a1fa changes no js/frozen/existing manifest inputs. Preserved seven first causes remain distinct; unknown old claims are quarantined, not declared absent.",
+        "comparableCases": [
+          "v32 full-options menu cases",
+          "v87/v87-p07-menu-travel-attempt1",
+          "v90-p01-mounted-boulder-wall",
+          "v90-p10-fountain-wash-worn-gloves"
+        ],
+        "distinction": "Simple-options help changes menu shape and retained help state; full-options handlers, travel selection and container-help windows are separate owners. Other retained v90 causes are mounted failure naming and worn-glove dispatch."
+      },
+      "reproducibility": "Fresh independent replay from unchanged original input-only recipe is byte-identical to preserved original recording SHA256 2aac21afd4c85f100d13513d10b0e96bd7272d0a98c1fdd56610cd54f7236eb9. Genuine recorder/check logs are preserved in immutable worker packet 5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5.",
+      "independentReplay": {
+        "workerPacketSha256": "5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5",
+        "recordingSha256": "2aac21afd4c85f100d13513d10b0e96bd7272d0a98c1fdd56610cd54f7236eb9",
+        "result": "byte-identical unchanged input-only recipe replay",
+        "comparisonCommit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "firstMismatchLocation": {
+          "segmentIndex": 0,
+          "stepIndex": 12,
+          "key": "?"
+        }
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2951,
+            "js": 2951
+          },
+          "screens": {
+            "c": 25,
+            "js": 12
+          },
+          "cursors": {
+            "c": 25,
+            "js": 12
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 12,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 12,
+            "key": "?"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 12,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 12,
+            "key": "?"
+          },
+          "cCursor": [
+            9,
+            23,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+          "recordingSha256": "2aac21afd4c85f100d13513d10b0e96bd7272d0a98c1fdd56610cd54f7236eb9"
+        }
+      },
+      "comparisonRefreshResult": {
+        "workerPacketSha256": "5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5",
+        "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "recordingSha256": "2aac21afd4c85f100d13513d10b0e96bd7272d0a98c1fdd56610cd54f7236eb9"
+      }
+    },
+    {
+      "id": "v90-p15-fountain-ordinary-drop",
+      "title": "An ordinary item can be dropped and recovered on a fountain",
+      "mission": "do.c:drop -> dropx -> dropy/dropz -> flooreffects ordinary FOUNTAIN placement",
+      "recipe": "challenges/cases/v90/v90-p15-fountain-ordinary-drop.recipe.session.json",
+      "recipeSha256": "40d2f95e3958681d57d8cc735c534d4acfec0ac9b13f18a6998d6af1042927d0",
+      "recording": "challenges/cases/v90/v90-p15-fountain-ordinary-drop.session.json",
+      "recordingSha256": "dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do.c:714-841 drop/dropx/dropz ordinary placement",
+        "nethack-c/upstream/include/rm.h FOUNTAIN distinct from POOL",
+        "js/do.js:1912 preflight_dropx",
+        "js/do.js:1995-1999 terrain allowlist excludes FOUNTAIN"
+      ],
+      "sourceTrace": "C drops a carried ordinary potion onto a wished fountain, retains the object and allows it to be picked back up. FOUNTAIN is dry ordinary placement for flooreffects. JS dropx preflight rejects the terrain before execution because FOUNTAIN is missing from its ordinary allowlist; later distfleeck RNG is absent because the drop turn never runs.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 14,
+        "key": "f",
+        "owner": "do.c:dropx",
+        "source": "FOUNTAIN terrain excluded by JS preflight_dropx; runner stops before C drop placement and following turn.",
+        "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+      },
+      "overlap": {
+        "currentEvidence": "Current saved queue e89f9c7a65f69178c1e73057c491d5d47c7f7fcf14c656c9d79ffff675d2fae8 has89 complete admitted batches, zero actionable sessions, four unrelated existing build/recorder provenance exclusions. f107..accepted7a1fa changes no js/frozen/existing manifest inputs. Preserved seven first causes remain distinct; unknown old claims are quarantined, not declared absent.",
+        "comparableCases": [
+          "v90-p10-fountain-wash-worn-gloves",
+          "v90-p01-mounted-boulder-wall",
+          "v90-p13-simple-options-help"
+        ],
+        "distinction": "Ordinary drop admission is a different action and do.c owner than fountain.c worn-glove washing; mounted naming and option help have independent first causes."
+      },
+      "reproducibility": "Fresh independent replay from unchanged original input-only recipe is byte-identical to preserved original recording SHA256 dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43. Genuine recorder/check logs are preserved in immutable worker packet 3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3.",
+      "independentReplay": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "recordingSha256": "dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43",
+        "result": "byte-identical unchanged input-only recipe replay",
+        "comparisonCommit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "firstMismatchLocation": {
+          "segmentIndex": 0,
+          "stepIndex": 14,
+          "key": "f"
+        }
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2825,
+            "js": 2809
+          },
+          "screens": {
+            "c": 17,
+            "js": 14
+          },
+          "cursors": {
+            "c": 17,
+            "js": 14
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 2809,
+          "cEntry": "rn2(5)=4",
+          "cCaller": "distfleeck(monmove.c:538)",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 14,
+            "key": "f"
+          }
+        },
+        "screenMismatch": {
+          "index": 14,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 14,
+            "key": "f"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 14,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 14,
+            "key": "f"
+          },
+          "cCursor": [
+            5,
+            11,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+          "recordingSha256": "dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43"
+        }
+      },
+      "comparisonRefreshResult": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "recordingSha256": "dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43"
+      }
+    },
+    {
+      "title": "A counted inventory command still displays inventory without using a turn",
+      "mission": "cmd.c:rhack counted GENERALCMD dispatch -> invent.c:ddoinv -> ECMD_OK reset",
+      "sourcePointers": [
+        "nethack-c/upstream/src/cmd.c:3726-3729 counted dispatch",
+        "nethack-c/upstream/src/cmd.c:3798-3822 ECMD_OK reset",
+        "nethack-c/upstream/src/invent.c:3006 ddoinv",
+        "js/cmd.js:5645-5680 counted-command refusal"
+      ],
+      "sourceTrace": "C accepts 2i and dispatches inventory; the menu and its dismissal remain at T:1, then wait advances to T:2. JS refuses state.multi>0 before inventory because it is absent from the no-time exemptions. Subsequent absent RNG at wait follows the earlier stopped command boundary.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 3,
+        "key": "i",
+        "owner": "cmd.c:rhack",
+        "source": "Counted GENERALCMD inventory rejected before no-time handler dispatch.",
+        "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+      },
+      "overlap": {
+        "currentEvidence": "Current saved queue e89f9c7a65f69178c1e73057c491d5d47c7f7fcf14c656c9d79ffff675d2fae8 has89 complete admitted batches, zero actionable sessions, four unrelated existing build/recorder provenance exclusions. f107..accepted7a1fa changes no js/frozen/existing manifest inputs. Preserved seven first causes remain distinct; unknown old claims are quarantined, not declared absent.",
+        "comparableCases": [
+          "v16 counted pickup",
+          "v34 inventory-adjust-split",
+          "v90-p13-simple-options-help"
+        ],
+        "distinction": "Numeric command prefix on direct no-time inventory differs from object quantity selection, counted time actions and help menu state."
+      },
+      "id": "v90-p16-counted-inventory",
+      "recipe": "challenges/cases/v90/v90-p16-counted-inventory.recipe.session.json",
+      "recipeSha256": "138ac803d2fceedc28c39735720c102841ebdb5c86e663ea707def485d304129",
+      "recording": "challenges/cases/v90/v90-p16-counted-inventory.session.json",
+      "recordingSha256": "64e8161c05418537927cbdf97834f40a81fac2a45489b4457afee000ae7cfc96",
+      "reproducibility": "Fresh independent replay from unchanged original input-only recipe is byte-identical to preserved original recording SHA256 64e8161c05418537927cbdf97834f40a81fac2a45489b4457afee000ae7cfc96. Genuine recorder/check logs are preserved in immutable worker packet 3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3.",
+      "independentReplay": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "recordingSha256": "64e8161c05418537927cbdf97834f40a81fac2a45489b4457afee000ae7cfc96",
+        "result": "byte-identical unchanged input-only recipe replay",
+        "comparisonCommit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "firstMismatchLocation": {
+          "segmentIndex": 0,
+          "stepIndex": 3,
+          "key": "i"
+        }
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2137,
+            "js": 2132
+          },
+          "screens": {
+            "c": 6,
+            "js": 3
+          },
+          "cursors": {
+            "c": 6,
+            "js": 3
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 2132,
+          "cEntry": "rn2(12)=2",
+          "cCaller": "mcalcmove(mon.c:1164)",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 5,
+            "key": "."
+          }
+        },
+        "screenMismatch": {
+          "index": 3,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 3,
+            "key": "i"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 3,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 3,
+            "key": "i"
+          },
+          "cCursor": [
+            27,
+            21,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+          "recordingSha256": "64e8161c05418537927cbdf97834f40a81fac2a45489b4457afee000ae7cfc96"
+        }
+      },
+      "comparisonRefreshResult": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "recordingSha256": "64e8161c05418537927cbdf97834f40a81fac2a45489b4457afee000ae7cfc96"
+      }
+    },
+    {
+      "title": "Automatic farlook descriptions include configured compass coordinates",
+      "mission": "getpos.c:auto_describe -> coord_desc with whatis_coord:compass; later trap-list path retained",
+      "sourcePointers": [
+        "nethack-c/upstream/src/getpos.c:640-662 auto_describe",
+        "js/getpos.js:520-545 auto_describe omits coord_desc",
+        "nethack-c/upstream/src/pager.c:2078-2135 later look_traps"
+      ],
+      "sourceTrace": "Before the intended compass trap list, C cursor movement in farlook prints wall (east); JS prints wall without the configured coordinates because its auto_describe implements only the default coordinate mode and omits coord_desc. This step13 output difference is the first cause. The later compass look_traps refusal is retained as downstream evidence and contributes no separate case.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 13,
+        "key": "l",
+        "owner": "getpos.c:auto_describe",
+        "source": "Missing coord_desc output in nondefault automatic farlook descriptions.",
+        "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+      },
+      "overlap": {
+        "currentEvidence": "Current saved queue e89f9c7a65f69178c1e73057c491d5d47c7f7fcf14c656c9d79ffff675d2fae8 has89 complete admitted batches, zero actionable sessions, four unrelated existing build/recorder provenance exclusions. f107..accepted7a1fa changes no js/frozen/existing manifest inputs. Preserved seven first causes remain distinct; unknown old claims are quarantined, not declared absent.",
+        "comparableCases": [
+          "v90-p14-compass-monster-list",
+          "v32 full-compass monster list",
+          "v90-p13-simple-options-help"
+        ],
+        "distinction": "Automatic cursor-description coordinate suffix is a separate getpos.c caller from matching pager monster-list formatting and menu help; later trap-list refusal is not separately counted."
+      },
+      "id": "v90-p17-compass-trap-list",
+      "recipe": "challenges/cases/v90/v90-p17-compass-trap-list.recipe.session.json",
+      "recipeSha256": "96d4322e751be28a591e0effc796a07107231f8bedb16440cfd4d8a8dfad516e",
+      "recording": "challenges/cases/v90/v90-p17-compass-trap-list.session.json",
+      "recordingSha256": "c74cd5687248a4fd61c47f14688b9e06eb78eb3355045a0ee8647832555b1acc",
+      "reproducibility": "Fresh independent replay from unchanged original input-only recipe is byte-identical to preserved original recording SHA256 c74cd5687248a4fd61c47f14688b9e06eb78eb3355045a0ee8647832555b1acc. Genuine recorder/check logs are preserved in immutable worker packet 3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3.",
+      "independentReplay": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "recordingSha256": "c74cd5687248a4fd61c47f14688b9e06eb78eb3355045a0ee8647832555b1acc",
+        "result": "byte-identical unchanged input-only recipe replay",
+        "comparisonCommit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "firstMismatchLocation": {
+          "segmentIndex": 0,
+          "stepIndex": 13,
+          "key": "l"
+        }
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 3680,
+            "js": 3680
+          },
+          "screens": {
+            "c": 39,
+            "js": 37
+          },
+          "cursors": {
+            "c": 39,
+            "js": 37
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 13,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 13,
+            "key": "l"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 5,
+          "cCell": {
+            "ch": "(",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": {
+          "index": 37,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 37,
+            "key": "t"
+          },
+          "cCursor": [
+            8,
+            23,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+          "recordingSha256": "c74cd5687248a4fd61c47f14688b9e06eb78eb3355045a0ee8647832555b1acc"
+        }
+      },
+      "comparisonRefreshResult": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "recordingSha256": "c74cd5687248a4fd61c47f14688b9e06eb78eb3355045a0ee8647832555b1acc"
+      }
+    },
+    {
+      "title": "Current key bindings display parameters on custom toggle commands",
+      "mission": "cmd.c:keylist_putcmds CMD_PARAM row formatting through dokeylist",
+      "sourcePointers": [
+        "nethack-c/upstream/src/cmd.c:2802-2840 keylist_putcmds",
+        "nethack-c/upstream/src/cmd.c:1908 toggle CMD_PARAM row",
+        "js/cmd.js:1219-1227 parameterized-key-list refusal"
+      ],
+      "sourceTrace": "C key-list help formats a custom x:toggle(time) binding with quoted time parameter and returns at T:1. JS stores the parameter but explicitly refuses a CMD_PARAM row while constructing key-list output, so the full help screen is missing. This is a formatting/refusal gap, not missing binding parameter storage.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 2,
+        "key": "j",
+        "owner": "cmd.c:keylist_putcmds",
+        "source": "Parameterized custom command binding refused by key-list formatter.",
+        "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+      },
+      "overlap": {
+        "currentEvidence": "Current saved queue e89f9c7a65f69178c1e73057c491d5d47c7f7fcf14c656c9d79ffff675d2fae8 has89 complete admitted batches, zero actionable sessions, four unrelated existing build/recorder provenance exclusions. f107..accepted7a1fa changes no js/frozen/existing manifest inputs. Preserved seven first causes remain distinct; unknown old claims are quarantined, not declared absent.",
+        "comparableCases": [
+          "v33-key-bindings-help",
+          "v90-p16-counted-inventory",
+          "v90-p13-simple-options-help"
+        ],
+        "distinction": "Default key-list help has no CMD_PARAM binding. Counted inventory concerns command dispatch; options help concerns a separate options.c menu rebuild. The displayed parameterized binding is a distinct first cause."
+      },
+      "id": "v90-p20-parameterized-keylist",
+      "recipe": "challenges/cases/v90/v90-p20-parameterized-keylist.recipe.session.json",
+      "recipeSha256": "07f468d262917ee91fc95eaa0d83ec3cfb2f9d721446480f1ef436b4aa24be2c",
+      "recording": "challenges/cases/v90/v90-p20-parameterized-keylist.session.json",
+      "recordingSha256": "c00fe4e0e3109e8e8cde75c71604be1a802017c73caee3b147ab5ba285c277c5",
+      "reproducibility": "Fresh independent replay from unchanged original input-only recipe is byte-identical to preserved original recording SHA256 c00fe4e0e3109e8e8cde75c71604be1a802017c73caee3b147ab5ba285c277c5. Genuine recorder/check logs are preserved in immutable worker packet 3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3.",
+      "independentReplay": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "recordingSha256": "c00fe4e0e3109e8e8cde75c71604be1a802017c73caee3b147ab5ba285c277c5",
+        "result": "byte-identical unchanged input-only recipe replay",
+        "comparisonCommit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "firstMismatchLocation": {
+          "segmentIndex": 0,
+          "stepIndex": 2,
+          "key": "j"
+        }
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2614,
+            "js": 2614
+          },
+          "screens": {
+            "c": 10,
+            "js": 2
+          },
+          "cursors": {
+            "c": 10,
+            "js": 2
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 2,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 2,
+            "key": "j"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 2,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 2,
+            "key": "j"
+          },
+          "cCursor": [
+            8,
+            23,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+          "recordingSha256": "c00fe4e0e3109e8e8cde75c71604be1a802017c73caee3b147ab5ba285c277c5"
+        }
+      },
+      "comparisonRefreshResult": {
+        "workerPacketSha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+        "recordingSha256": "c00fe4e0e3109e8e8cde75c71604be1a802017c73caee3b147ab5ba285c277c5"
+      }
+    }
+  ],
+  "preparationComparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+  "revalidation": {
+    "freshBase": "7a1fa0c2c9c6dfa08a00cba33cdf36cea0ac9f98",
+    "historicalCandidate": "d80dc085d197556d14356f5369ff1ff15df2308f",
+    "historicalManifestSha256": "7812b6d95734f3effed63b001a5c28847ba84761eeb50dfbe826a2b1d0183b94",
+    "historical12CandidatePlan": "unrecovered; preserved earlier submission per explicit Coordinator disposition; no substitute plan or old acceptance claims",
+    "workerPackets": [
+      {
+        "group": "a",
+        "sha256": "5710d167037c2ebd4d8bf90a76e886766d8a6af3be0e32f8e84f755ab71363a5",
+        "fileCount": 53
+      },
+      {
+        "group": "b",
+        "sha256": "3ccec1749326878bd104ec6e2995ec5fea5a5cbdc3a1b61bb4228f31e9cff8f3",
+        "fileCount": 92
+      }
+    ]
+  }
+}
