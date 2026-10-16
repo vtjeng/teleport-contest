@@ -13,6 +13,8 @@
   "status": "complete",
   "commit": "79a81f748863d6c0e694c4c22729021f2a2d6e7a",
   "mismatch": {
+    "session": "synthetic/v90/v90-p10-fountain-wash-worn-gloves",
+    "remainingScreens": 12,
     "segment": 0,
     "step": 87,
     "key": "y",
