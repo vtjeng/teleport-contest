@@ -13,6 +13,8 @@
   "status": "complete",
   "commit": "126f632473e9e612d20dd77e09797a05b6c4fa14",
   "mismatch": {
+    "session": "synthetic/v93/v93-swallowed-bullwhip-refusal-wording",
+    "remainingScreens": 1,
     "segment": 0,
     "step": 44,
     "key": "h",
