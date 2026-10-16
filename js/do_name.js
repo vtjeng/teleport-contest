@@ -110,6 +110,7 @@ import {
     mhe,
     mhis,
     mindless,
+    monsndx,
     pronoun_gender,
     type_is_pname,
 } from './mondata.js';
@@ -510,8 +511,8 @@ export async function alreadynamed(monster, monnambuf, usrbuf, state = game) {
         return true;
     }
 
-    if (monster.data === state.mons?.[PM_JUIBLEX]
-        && strstri(monnambuf, 'Juiblex')
+    if (monsndx(monster.data) === PM_JUIBLEX
+        && strstri(monnambuf, 'Juiblex') >= 0
         && usrbuf.toLowerCase() === 'jubilex') {
         await ttyPline(
             `${upstart(monnambuf)} doesn't like being called ${usrbuf}.`,

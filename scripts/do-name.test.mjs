@@ -104,6 +104,7 @@ import {
     PM_GHOST,
     PM_GNOME_RULER,
     PM_HIGH_CLERIC,
+    PM_JUIBLEX,
     PM_LONG_WORM,
     PM_NEWT,
     PM_SHOPKEEPER,
@@ -919,6 +920,38 @@ test('alreadynamed leaves an unrelated name available', async () => {
     const state = { u: { uprops: [] }, mons: [] };
     const rider = { data: { pmidx: PM_DEATH }, mextra: {} };
     assert.equal(await alreadynamed(rider, 'Death', 'Mortal', state), false);
+});
+
+test('alreadynamed accepts a Juiblex substring beginning at offset zero', async () => {
+    const state = { u: { uprops: [] } };
+    monst_globals_init(state);
+    const juiblexTemplate = state.mons[PM_JUIBLEX];
+    assert.equal(await alreadynamed(
+        { data: juiblexTemplate, mextra: {} },
+        'Juiblex',
+        'Jubilex',
+        state,
+    ), true);
+});
+
+test('alreadynamed recognizes Juiblex by species index, not object identity', async () => {
+    const state = { u: { uprops: [] } };
+    monst_globals_init(state);
+    const juiblexTemplate = state.mons[PM_JUIBLEX];
+    const juiblexInstanceData = {
+        ...juiblexTemplate,
+        pmnames: [...juiblexTemplate.pmnames],
+        mattk: juiblexTemplate.mattk.map((attack) => ({ ...attack })),
+    };
+
+    assert.notEqual(juiblexInstanceData, juiblexTemplate);
+    assert.equal(juiblexInstanceData.pmidx, juiblexTemplate.pmidx);
+    assert.equal(await alreadynamed(
+        { data: juiblexInstanceData, mextra: {} },
+        'Juiblex',
+        'Jubilex',
+        state,
+    ), true);
 });
 
 // do_name.c oname() and new_oname(). objnam.c readobjnam() is the only live
