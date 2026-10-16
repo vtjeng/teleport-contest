@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T16:32:34.994Z",
+  "capturedAt": "2026-10-16T16:43:56.747Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T16:32:34.994Z",
+    "asOf": "2026-10-16T16:43:56.747Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -159269,6 +159269,36 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:34:07.724Z",
+        "id": "queue:69f0bd2b-6adf-4624-9193-3cf95332403a",
+        "type": "assign",
+        "task": "support-dashboard-exploration-yield-ui-correction-validation-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "exploration",
+        "target": "64b16d6135223ccbe0581db11c3288804905314b",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:36:07.968Z",
+        "id": "queue:4d6f5df3-b82a-4cd1-ad87-4ae40891a8db",
+        "type": "queue-complete",
+        "task": "support-dashboard-exploration-yield-ui-correction-validation-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:36:07.968Z",
+        "id": "queue:4d6f5df3-b82a-4cd1-ad87-4ae40891a8db:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -159298,7 +159328,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 1,
-      "completed": 265,
+      "completed": 266,
       "superseded": 62
     },
     "workers": [
@@ -164262,12 +164292,27 @@
         "readyAt": "2026-10-16T16:23:02.558Z",
         "claimedAt": "2026-10-16T16:23:24.827Z",
         "completedAt": "2026-10-16T16:27:42.161Z"
+      },
+      {
+        "id": "support-dashboard-exploration-yield-ui-correction-validation-20261016",
+        "type": "rework",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": "64b16d6135223ccbe0581db11c3288804905314b",
+        "readyAt": "2026-10-16T16:33:56.909Z",
+        "claimedAt": "2026-10-16T16:34:07.724Z",
+        "completedAt": "2026-10-16T16:36:07.968Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "14da2227227350a98863d9107f9c8565543a8656",
-    "measuredAt": "2026-10-16T12:37:06.843Z",
+    "executionCommit": "cddc5af102902c492939b15cfdb87e1b13acae21",
+    "measuredAt": "2026-10-16T16:40:31.498Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
