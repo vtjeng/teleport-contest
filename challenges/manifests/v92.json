@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "batch": "v92",
+  "comparisonBase": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa",
+  "preparationComparisonBase": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa",
+  "preparationBase": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v92-blessed-polymorph-duration-min-rng",
+      "title": "Blessed polymorph duration cap repeats the random argument",
+      "mission": "Reach a controlled blessed-potion polymorph from human while releasing a web restraint and restoring blocked levitation; preserve the actual duration-cap RNG first difference.",
+      "recipe": "challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.recipe.session.json",
+      "recipeSha256": "436089be65b299434171b7207b23435aae87b326f8be0d5bc3285239a71111d8",
+      "recording": "challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.session.json",
+      "recordingSha256": "767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47",
+      "reproducibility": "One independent unchanged input-only C replay was byte-identical to the original capture, SHA256 767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47; genuine command and logs retained in immutable preparation evidence.",
+      "sourcePointers": [
+        "potion.c:peffect_polymorph (1318-1328)",
+        "include/hack.h:min (1518)",
+        "js/potion.js:peffect_polymorph (1773)"
+      ],
+      "sourceTrace": "C min(u.mtimedone, rn2(15)+10) uses ((x)<(y)?(x):(y)). The reached branch consumes rn2(15)=13 for comparison and rn2(15)=12 for the selected value. JS Math.min evaluates the random expression once. The actual web release and float-up screens match; they are not the failure cause.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 90,
+        "key": " ",
+        "kind": "rng",
+        "index": 2686,
+        "owner": "potion.c:peffect_polymorph",
+        "sourceBehavior": "Repeated random argument evaluation in blessed polymorph duration cap",
+        "c": "rn2(15)=12",
+        "js": "rn2(19)=13"
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2690,
+            "js": 2689
+          },
+          "screens": {
+            "c": 91,
+            "js": 91
+          },
+          "cursors": {
+            "c": 91,
+            "js": 91
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": {
+          "index": 2686,
+          "cEntry": "rn2(15)=12",
+          "cCaller": "peffect_polymorph(potion.c:1327)",
+          "jsEntry": "rn2(19)=13",
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 90,
+            "key": " "
+          }
+        },
+        "screenMismatch": null,
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa",
+          "recordingSha256": "767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47"
+        }
+      },
+      "overlap": {
+        "review": "Full worker source/corpus gate plus producer focused raw prior review found no prior recorded same duration-cap RNG first cause. Broad polymorph setup does not establish the same reached branch. Exact peffect_polymorph ownership cleared against live and observed historical scopes; unknown historical claims remain quarantined. Known v90 causes and v91 Juiblex naming are distinct.",
+        "comparables": [
+          {
+            "reference": "v23-blessed-polymorph-potion",
+            "difference": "Controlled newt transformation is related, but raw recorded trace contains no peffect_polymorph duration-cap draws; preserved accepted pass remains unchanged."
+          },
+          {
+            "reference": "recordings/potion.c/polymorph-blessed-controlled-independent.session.json",
+            "difference": "Comment claims duration cap, but all 73 raw steps contain no peffect_polymorph/potion.c:1327 RNG entries. Prose does not establish the reached repeated-evaluation branch."
+          }
+        ]
+      },
+      "workerResult": "7ea344cc98a2cbec91582540b73dce2664aad5c2f1bd9010593f5d92e63071ab",
+      "independentReplay": {
+        "recipeSha256": "436089be65b299434171b7207b23435aae87b326f8be0d5bc3285239a71111d8",
+        "recordingSha256": "767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47",
+        "replaySha256": "767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47",
+        "byteIdentical": true,
+        "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "resultPacketSha256": "7ea344cc98a2cbec91582540b73dce2664aad5c2f1bd9010593f5d92e63071ab"
+      }
+    }
+  ]
+}
