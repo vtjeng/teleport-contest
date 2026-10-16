@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "batch": "v91",
+  "comparisonBase": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa",
+  "preparationComparisonBase": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa",
+  "preparationBase": "79a81f748863d6c0e694c4c22729021f2a2d6e7a",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v91-juiblex-jubilex-name-refusal",
+      "title": "Juiblex rejects the Jubilex misspelling",
+      "mission": "Create and select actual visible Juiblex, submit Jubilex once, observe the specific unique-monster refusal.",
+      "recipe": "challenges/cases/v91/v91-juiblex-jubilex-name-refusal.recipe.session.json",
+      "recipeSha256": "b0ae7fb7e91ab7878e2d6633d72119cb5f0bb26ed88a4d7b6922931b08c2773b",
+      "recording": "challenges/cases/v91/v91-juiblex-jubilex-name-refusal.session.json",
+      "recordingSha256": "c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263",
+      "reproducibility": "Original input-only recipe independently replayed in C without changes; capture and replay are byte-identical SHA256 c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263. Original replay command and exact logs are retained in immutable preparation evidence.",
+      "sourcePointers": [
+        "do_name.c:alreadynamed (158-194)",
+        "do_name.c:do_mgivenname (199-282)"
+      ],
+      "sourceTrace": "C alreadynamed recognizes actual Juiblex and case-insensitive exact Jubilex and emits the specific rejection. Current accepted JS instead emits the generic unique-monster refusal. The C message-selection behavior is established; the hidden JS predicate explanation is inference, not an observed fact.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 48,
+        "key": "\n",
+        "owner": "do_name.c:alreadynamed",
+        "sourceBehavior": "Juiblex-specific Jubilex naming refusal",
+        "kind": "screen",
+        "row": 0,
+        "column": 34,
+        "c": "J",
+        "js": "n",
+        "detail": "C says called Jubilex.; JS uses called names!. No earlier RNG, screen or cursor mismatch."
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2455,
+            "js": 2455
+          },
+          "screens": {
+            "c": 49,
+            "js": 49
+          },
+          "cursors": {
+            "c": 49,
+            "js": 49
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 48,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 48,
+            "key": "\n"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 34,
+          "cCell": {
+            "ch": "J",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": "n",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "d48b81b0a40fec8cf80aa27bbf89f3e2f75f60aa",
+          "recordingSha256": "c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263"
+        }
+      },
+      "overlap": {
+        "comparables": [
+          {
+            "reference": "recordings/do_name.c/name-monster-rename.session.json",
+            "difference": "Ordinary nonunique monster renaming reaches christen_monst, not Juiblex-specific rejection."
+          },
+          {
+            "reference": "recordings/do_name.c/name-monster-cancel.session.json",
+            "difference": "Cancels targeting; no unique-monster name rejection."
+          },
+          {
+            "reference": "v48-getpos-monster-menu-attempt3",
+            "difference": "Monster-target menu behavior, not the final Juiblex spelling predicate."
+          },
+          {
+            "reference": "challenges/cases/v48/v48-name-visible-newt-attempt6.session.json",
+            "difference": "Retained ordinary-newt naming probe; not presented as an admitted distinct-failure case."
+          },
+          {
+            "reference": "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json",
+            "difference": "Common actual Juiblex creation, then disease/swallow; no Jubilex name action."
+          }
+        ],
+        "review": "Source and saved C evidence reviewed before preparation. Current validation reproduces the same single candidate, not a second case. No located exact Jubilex action or shared unresolved first cause; known v90 first mismatches are different. Shared startup/targeting does not establish overlap. Unknown historical claims remain quarantined, not certified absent."
+      },
+      "workerResult": "6b12cb2c412248ab26ab55ce7951cd18e19e7b9e6a6f9546113a3b6c91aebfe2",
+      "independentReplay": {
+        "recipeSha256": "b0ae7fb7e91ab7878e2d6633d72119cb5f0bb26ed88a4d7b6922931b08c2773b",
+        "recordingSha256": "c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263",
+        "replaySha256": "c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263",
+        "byteIdentical": true,
+        "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4",
+        "resultPacketSha256": "6b12cb2c412248ab26ab55ce7951cd18e19e7b9e6a6f9546113a3b6c91aebfe2"
+      },
+      "comparisonRefreshResult": "b2c7085e1058e04b01d9fa050d609bc6b3c20fdd0d3e7736d35bbf498b776cbc"
+    }
+  ]
+}
