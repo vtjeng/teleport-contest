@@ -1308,9 +1308,11 @@ export async function doread(state = game) {
         const id = Math.trunc(scroll.o_id ?? 0);
         const number = String(id % 89 + 10) + '0' + String(id % 4) + ' '
             + String((id * 499) % 899999 + 100000) + String(id % 10) + '1 '
-            + '0' + String(Number(id % 3 === 0)) + String(id * 7 % 10) + '0'
-            + (state.flags?.verbose || blind ? '.' : '');
-        await ttyPline('"' + number + '"', state);
+            + '0' + String(Number(id % 3 === 0)) + String(id * 7 % 10) + '0';
+        await ttyPline(
+            '"' + number + '"' + (state.flags?.verbose || blind ? '.' : ''),
+            state,
+        );
         recordLiteracy(state, 'became literate by reading a credit card');
         return ECMD_TIME;
     }

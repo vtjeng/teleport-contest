@@ -775,6 +775,18 @@ test('accepting a known healing refresh continues through the difficulty roll', 
     });
 });
 
+test('blind credit-card number places its period after the closing quote', async () => {
+    const recipe = JSON.parse(readFileSync(
+        'challenges/cases/v94/v94-blind-credit-card-quote-punctuation.recipe.session.json',
+        'utf8',
+    ));
+    const replay = await runSegment(recipe.segments[0]);
+    const numberLine = replay.getScreens()[43].split('\n')[0];
+
+    assert.match(numberLine, /"9602 14291461 0020"\.$/u);
+    assert.doesNotMatch(numberLine, /"9602 14291461 0020\."$/u);
+});
+
 test('the command wrapper accepts a known healing refresh', async () => {
     const segment = loadReadKnownHealingRecipe().segments[0];
     await runSegment({ ...segment, moves: HEALING_READ_WAIT });
