@@ -1,0 +1,69 @@
+{
+  "session": "synthetic/v90/v90-p15-fountain-ordinary-drop",
+  "corpus": "synthetic",
+  "batch": "v90",
+  "caseId": "v90-p15-fountain-ordinary-drop",
+  "manifestPath": "challenges/manifests/v90.json",
+  "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
+  "recordingSha256": "dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43",
+  "evaluationPath": "challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json",
+  "evaluationCommit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
+  "remainingScreens": 3,
+  "recordedSteps": 17,
+  "status": "complete",
+  "commit": "93fa87a40ed6219b5d31e211f22b460af55bfe92",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v90",
+    "caseId": "v90-p15-fountain-ordinary-drop",
+    "session": "synthetic/v90/v90-p15-fountain-ordinary-drop",
+    "manifestPath": "challenges/manifests/v90.json",
+    "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
+    "recording": "challenges/cases/v90/v90-p15-fountain-ordinary-drop.session.json",
+    "recordingPath": "challenges/cases/v90/v90-p15-fountain-ordinary-drop.session.json",
+    "recordingSha256": "dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43",
+    "recipe": "challenges/cases/v90/v90-p15-fountain-ordinary-drop.recipe.session.json",
+    "recipeSha256": "40d2f95e3958681d57d8cc735c534d4acfec0ac9b13f18a6998d6af1042927d0",
+    "evaluationPath": "challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json",
+    "evaluationCommit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
+    "remainingScreens": 3,
+    "recordedSteps": 17,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 14, "total": 17 },
+      "rng": { "matched": 2809, "total": 2825 },
+      "cursors": { "matched": 14, "total": 17 }
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 14,
+      "key": "f",
+      "owner": "do.c:dropx",
+      "source": "FOUNTAIN is excluded by the JavaScript ordinary-drop preflight, so C's ordinary placement path never runs.",
+      "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+    }
+  },
+  "summary": "At the fountain square, the recorded drop command reaches do.c:dropx -> dropy -> dropz -> flooreffects. In C, FOUNTAIN is not a pool, lava, trap, or another special flooreffects arm; the ordinary object remains and is placed. JavaScript's preflight_dropx rejects this dry terrain at its explicit ordinary-terrain allowlist before any drop state transition. The saved accepted comparison uses 93fa87a40ed6219b5d31e211f22b460af55bfe92; the claimed task base has identical js/, frozen/, and package.json inputs, so the cause remains current.",
+  "source": {
+    "file": "do.c",
+    "branch": "An ordinary, non-boulder item is dropped onto a FOUNTAIN. C's dropx extracts it, does not ship it at this location, then dropz calls flooreffects; FOUNTAIN is distinct from POOL/LAVA and does not satisfy a special destructive/effect branch, so placement continues. The JS preflight rejects the terrain before that path.",
+    "functions": ["dropx"],
+    "callers": [
+      "cmd.c:rhack dispatches the drop command to doddrop(); do.c:doddrop calls drop()/menu_drop(), which passes the chosen object to drop().",
+      "do.c:drop calls dropx() for a floor-reachable ordinary drop; do.c:dropx frees inventory, attempts shipping/altar handling and then calls dropy().",
+      "do.c:dropy calls dropz(); do.c:dropz calls flooreffects(), then places and stacks the object when no special effect consumes it."
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C source nethack-c/upstream/src/do.c:162-362: flooreffects() has boulder-pool, boulder-pit/hole, lava, pool, hero pit-edge/shaft, glob, monster-altar, and hot ROOM/CORR potion branches; there is no fountain branch. A non-special dry landing returns false and permits placement.",
+    "C source nethack-c/upstream/src/do.c:786-796 and 800-843: dropx -> dropy -> dropz orders inventory removal, shipping/altar handling, floor effects and ordinary placement.",
+    "C source nethack-c/upstream/include/rm.h:84, 127-132: FOUNTAIN=28 and IS_POOL is the POOL..DRAWBRIDGE_UP range; POOL follows FOUNTAIN in the enum, so a fountain is excluded from is_pool().",
+    "JavaScript source js/do.js:1983-1999: preflight_dropx's dry-terrain admission allowlist accepts ROOM, CORR, DOOR, SINK, THRONE, ALTAR and stairway locations, but omits FOUNTAIN and throws UnsupportedDropError before the already-ported drop tail executes.",
+    "Saved admitted case evaluation challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json: the original recording dd104bd8fdbec2e93007800aafb63a751dd52edf65974004ec1c694dea919e43 has its first mismatch at segment 0, step 14, key f; 14/17 screens and cursors and 2809/2825 RNG calls match at comparison base 93fa87a40ed6219b5d31e211f22b460af55bfe92.",
+    "Current-base guard: the claimed base 40d1cfdab47fa588e71bd9ef7348e3d7aa37563a has no diff from comparison 93fa87a40ed6219b5d31e211f22b460af55bfe92 in js/, frozen/ or package.json, so the saved diagnosis remains applicable.",
+    "Focused comparison with the neighboring fountain wash case v90-p10 confirms the shared terrain is incidental: this task exercises ordinary item drop admission in do.c:dropx, not fountain.c:dipfountain or the worn-glove wash action."
+  ]
+}
