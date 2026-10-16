@@ -3089,11 +3089,11 @@ test('dotakeoff reports the source uskin scale name', async () => {
         [GRAY_DRAGON_SCALES, 'The dragon scales are merged with your skin!'],
         [GRAY_DRAGON_SCALE_MAIL, 'The dragon scale mail is merged with your skin!'],
     ]) {
-        game.u.uskin = armor(otyp);
+        game.uskin = armor(otyp);
         await dotakeoff(game);
         assert.equal(takePendingTopLine(), expected, `otyp ${otyp}`);
     }
-    game.u.uskin = null;
+    game.uskin = null;
 });
 
 test('the obj.h armor macros answer for exactly one category each',

@@ -3962,10 +3962,10 @@ export async function dotakeoff(state = game) {
     let otmp = counts.which;
 
     if (!counts.Narmorpieces && !counts.Naccessories) {
-        if (state.u?.uskin) {
-            // do_wear.c:1838-1843 distinguishes scales from scale mail by
-            // the source object-type boundary before printing the skin line.
-            const description = state.u.uskin.otyp >= GRAY_DRAGON_SCALES
+        if (state.uskin) {
+            // do_wear.c:1838-1843 checks the global uskin object and
+            // distinguishes scales from scale mail at GRAY_DRAGON_SCALES.
+            const description = state.uskin.otyp >= GRAY_DRAGON_SCALES
                 ? 'dragon scales are'
                 : 'dragon scale mail is';
             await ttyPline(
