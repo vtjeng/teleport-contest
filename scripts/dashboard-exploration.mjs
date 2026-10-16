@@ -11,7 +11,7 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
     const dates=payload.records.flatMap(r=>[r.claimedAt,r.closedAt]).map(Date.parse).filter(Number.isFinite);
     const first=Math.min(asOf-HOUR,...dates), last=Math.max(asOf,first+HOUR);
     const stamp=t=>new Date(t).toLocaleString(undefined,
-        {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
+        {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'UTC',timeZoneName:'short'});
     const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     const rate=n=>n==null?'unavailable':n.toFixed(2);
     const plural=(n,word)=>word+(n===1?'':'s');
@@ -131,7 +131,8 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
         selectedEvent=eventPoints.reduce((best,e)=>!best||Math.hypot(e.x-px,e.y-py)<Math.hypot(best.x-px,best.y-py)?e:best,null);
         if(selectedEvent&&Math.hypot(selectedEvent.x-px,selectedEvent.y-py)>22)selectedEvent=null;
         const time=selectedEvent?.at??(geometry.start+(px-geometry.left)/(geometry.right-geometry.left)*(geometry.end-geometry.start));
-        selected=buckets.findIndex(b=>time>=b.start&&time<=b.end);
+        selected=buckets.findIndex((b,i)=>time>=b.start
+            &&(time<b.end||(i===buckets.length-1&&time===b.end)));
         if(selected<0)selected=time<geometry.start?0:buckets.length-1;
         render();
     });

@@ -112,3 +112,15 @@ test('empty discovery windows and no-closure intervals do not assert a zero rate
     h.element('yieldChart').listeners.keydown({key:'Home',preventDefault(){}});
     assert.match(h.element('yieldReadout').textContent,/No closed tasks; discovery rate unavailable/);
 });
+
+test('an event exactly on an hour belongs to the following interval',()=>{
+    const start=Date.parse('2026-10-16T12:00:00Z');
+    const b=(offset,closed,qualified)=>({start:start+offset*3600000,end:start+(offset+1)*3600000,
+        closedTasks:closed,claimedTasks:closed,usableYes:closed,usableNo:0,usableUnknown:0,
+        qualifyingSessions:qualified,distinctFamilies:qualified,taskYield:qualified/closed*100});
+    const h=harness({...payload,records:[{...payload.records[0],closedAt:'2026-10-16T13:00:00Z'}]},800,
+        {buckets:[b(0,4,0),b(1,8,1)]});
+    const dot=h.drawn.find(op=>op[0]==='arc');
+    h.element('yieldChart').listeners.click({clientX:dot[1],clientY:dot[2]});
+    assert.match(h.element('yieldReadout').textContent,/1 qualified discovery among 8 closed tasks/);
+});
