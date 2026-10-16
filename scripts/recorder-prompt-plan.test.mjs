@@ -5,6 +5,7 @@ import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import test from 'node:test';
 import {createPromptController, digest} from './recorder-prompt-plan.mjs';
+import {recordSegment, replayWithinDeadline} from './record-session.mjs';
 
 const predicate = screen => ({screen, cursor: [0, 0, 1]});
 const source = 'nethack-c/upstream/src/read.c';
@@ -133,8 +134,11 @@ test('CLI same-process capture emits wire-canonical static recipe and performs O
     assert.equal(await readFile(path.join(f.dir, 'runs'), 'utf8'), 'run\nrun\n');
     assert.equal(await readFile(path.join(f.dir, 'keys'), 'utf8'), '\n \x1bi\n \x1bi');
     const events = (await readFile(`${f.receipt}.jsonl`, 'utf8')).trim().split('\n').map(JSON.parse);
-    assert.equal(events.filter(e => e.kind === 'frame').length, 5);
-    assert.deepEqual(events.filter(e => e.kind === 'key-intent').map(e => e.bytes), ['0a', '20', '1b', '69']);
+    for (const run of ['capture', 'replay']) {
+        assert.equal(events.filter(e => e.run === run && e.kind === 'frame').length, 5);
+        assert.deepEqual(events.filter(e => e.run === run && e.kind === 'key-intent').map(e => e.bytes),
+            ['0a', '20', '1b', '69']);
+    }
     assert.equal(events[0].kind, 'frozen-plan');
     assert.equal(events.at(-1).kind, 'static-replay-outcome');
     const rerun = f.run();
@@ -156,6 +160,10 @@ for (const mode of ['unknown', 'crash', 'timeout', 'crash-after-observer', 'repl
         if (mode === 'replay-mismatch') assert.equal(receipt.replay.status, 'mismatched');
         else assert.equal(receipt.replay.status, 'not-required');
         assert.match(await readFile(`${f.receipt}.jsonl`, 'utf8'), /command-outcome/u);
+        if (mode === 'replay-mismatch') {
+            const events = (await readFile(`${f.receipt}.jsonl`, 'utf8')).trim().split('\n').map(JSON.parse);
+            assert.equal(events.filter(e => e.run === 'replay' && e.kind === 'key-intent').length, 4);
+        }
     });
 }
 
@@ -186,4 +194,28 @@ test('early process failure never puts unsent prefix keys in the emitted recipe'
     await writeFile(f.input, JSON.stringify({version: 5, segments: [{moves: 'abc'}]}));
     assert.equal(f.run().status, 2);
     assert.equal(JSON.parse(await readFile(f.recipe)).segments[0].moves, 'a');
+});
+
+test('capture finalization exhausting deadline cannot launch an independent replay', async t => {
+    const f = await fixture(t), p = await plan();
+    let now = 0;
+    const result = await recordSegment({seg: {moves: 't'}, isFirstSegment: true,
+        binary: f.binary, installDir: path.join(f.dir, 'install'), rngLogPath: path.join(f.dir, 'rng'),
+        homeDir: path.join(f.dir, 'home'), tz: 'America/New_York', prompt: p,
+        onReceipt: async event => { if (event.kind === 'command-outcome') now = 100; }});
+    assert.equal(result.promptResult.observerSuccess, true);
+    const replay = await replayWithinDeadline(100, () => { throw new Error('must not launch'); }, () => now);
+    assert.equal(replay, null);
+    assert.equal(await readFile(path.join(f.dir, 'runs'), 'utf8'), 'run\n');
+});
+
+test('deadline check immediately before spawn also catches setup or replay-start I/O expiry', async t => {
+    const f = await fixture(t);
+    const result = await recordSegment({seg: {moves: 't'}, isFirstSegment: true,
+        binary: f.binary, installDir: path.join(f.dir, 'install'), rngLogPath: path.join(f.dir, 'rng'),
+        homeDir: path.join(f.dir, 'home'), tz: 'America/New_York', deadline: Date.now() - 1,
+        preserveFailure: true});
+    assert.equal(result.promptResult.status, 'deadline-exhausted');
+    assert.equal(result.promptResult.command.launched, false);
+    await assert.rejects(readFile(path.join(f.dir, 'runs')), /ENOENT/u);
 });

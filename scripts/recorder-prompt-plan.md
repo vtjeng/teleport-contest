@@ -60,7 +60,8 @@ Do not add a broad fallback rule to make a mismatching predicate pass.
 binary hashes, command invocation, every input/animation frame, matching rule
 decision, key intent (exact wire bytes), accepted stdin write and process
 outcome. A write receipt means submitted to the pipe, not proof that C acted on
-the key. Preserve the journal even when a host/process/disk failure prevents
+the key. Capture and static replay events carry distinct `run` labels. Preserve
+the journal even when a host/process/disk failure prevents
 the final summary. Capture steps retain RNG/screens/cursors as usual.
 
 The emitted input-only recipe contains the actual complete keys. CR is
@@ -71,6 +72,9 @@ saves `capture.json.replay.json` and compares exact steps, including RNG,
 screens and cursors. No retry follows a mismatch, failure or exhausted deadline.
 Capture and replay are separate physical executions; they are not two chances
 to choose an outcome. The replay is skipped on incomplete capture.
+If artifact finalization exhausts the shared deadline, replay is explicitly
+skipped as `deadline-exhausted`; a second deadline check after recorder setup
+also prevents spawning a child after the remaining budget has elapsed.
 
 `receipt.json` distinguishes `observerSuccess` from `captureComplete`: the
 latter requires a matching static replay. A nonzero exit, partial capture or

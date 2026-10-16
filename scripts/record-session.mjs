@@ -74,6 +74,13 @@ export function successfulTerminalExit({
             || stepCount === expectedSteps - 1);
 }
 
+// The caller may spend its remaining budget freezing capture artifacts. Never
+// launch a replay merely to discover an already-expired deadline via a timer.
+export async function replayWithinDeadline(deadline, run, now = Date.now) {
+    if (now() >= deadline) return null;
+    return run();
+}
+
 const RECORDER_TIME_ZONE = 'America/New_York';
 export const USAGE = 'Usage: node scripts/record-session.mjs <input.session.json> [output.session.json] [--prompt-plan plan.json --prompt-receipt receipt.json --emitted-recipe recipe.json]';
 const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
@@ -563,6 +570,12 @@ export async function recordSegment({
         }, ms);
     };
 
+    if (deadline && Date.now() >= deadline) {
+        const command = {argv: [binary, ...args], launched: false, exitCode: null, signal: null, error: null};
+        await onReceipt({kind: 'command-outcome', status: 'deadline-exhausted', ...command});
+        return {steps: [], terminalExit: null, moves: '', promptResult: {
+            status: 'deadline-exhausted', observerSuccess: false, command, decisions: []}};
+    }
     const child = spawn(binary, args, {
         env,
         stdio: ['pipe', 'pipe', 'inherit'],
@@ -631,7 +644,7 @@ export async function recordSegment({
                 cursor: [m.cx, m.cy, 1],
             };
             pendingAnimFrames.push(frame);
-            if (controller) await onReceipt({kind: 'animation-frame', frameIndex: steps.length, ...frame});
+            if (controller || preserveFailure) await onReceipt({kind: 'animation-frame', frameIndex: steps.length, ...frame});
             return;
         }
         if (m.kind !== 'input') return;
@@ -644,7 +657,8 @@ export async function recordSegment({
             const screen = encodeScreenAnsiRle(payloadToLines(m.payload));
             const rng = await readRngDelta();
             const stepIdx = m.seq - 1;
-            if (controller && stepIdx !== steps.length) throw new Error('nonsequential input marker');
+            if ((controller || preserveFailure) && stepIdx !== steps.length)
+                throw new Error('nonsequential input marker');
             const key = stepIdx === 0 ? null : moves[stepIdx - 1] ?? null;
             const step = { key, rng, screen, cursor: [m.cx, m.cy, 1] };
             if (pendingAnimFrames.length) {
@@ -653,9 +667,11 @@ export async function recordSegment({
             }
             steps.push(step);
 
-            if (controller) {
-                await onReceipt({kind: 'frame', frameIndex: steps.length - 1, ...step});
+            if (controller || preserveFailure) {
+                await onReceipt({kind: 'frame', frameIndex: steps.length - 1, markerSeq: m.seq, ...step});
                 if (pendingFailure) return;
+            }
+            if (controller) {
                 if (nextKeyIdx >= prefixLength) {
                     const decision = controller.decide({...step, frameIndex: steps.length - 1});
                     await onReceipt({kind: 'decision', ...controller.decisions.at(-1)});
@@ -700,7 +716,13 @@ export async function recordSegment({
                 // way out.  (DEL / 0x7f is fine to send verbatim because the
                 // patched gettty seeds erase_char with '\177'.)
                 if (k === '\r') k = '\n';
+                if (preserveFailure) {
+                    await onReceipt({kind: 'key-intent', index: nextKeyIdx - 1,
+                        frameIndex: steps.length - 1, key: k, bytes: Buffer.from(k, 'utf8').toString('hex')});
+                    if (pendingFailure) return;
+                }
                 child.stdin.write(Buffer.from(k, 'utf8'));
+                if (preserveFailure) await onReceipt({kind: 'key-written', index: nextKeyIdx - 1});
                 armTimeout(20000, `after key ${nextKeyIdx}/${moves.length}`);
             } else if (!child.stdin.writableEnded) {
                 try { child.stdin.end(); } catch {}
@@ -743,7 +765,7 @@ export async function recordSegment({
                 const status = pendingFailure ? 'recorder-failure'
                     : !processOk ? 'process-failure' : completionStop
                         || (!controller && steps.length === expectedSteps ? 'static-complete' : 'premature-exit');
-                const command = {argv: [binary, ...args], exitCode: code, signal,
+                const command = {argv: [binary, ...args], launched: true, exitCode: code, signal,
                     intentionalTermination: terminationWasRequested, error: pendingFailure?.message || null};
                 await onReceipt({kind: 'command-outcome', status, ...command});
                 resolveDone({steps, terminalExit: null, moves: emittedMoves,
@@ -909,7 +931,7 @@ async function main() {
                 homeDir,
                 tz,
                 prompt,
-                onReceipt,
+                onReceipt: prompt ? event => onReceipt({run: 'capture', ...event}) : undefined,
                 deadline,
             });
             const out = {
@@ -934,16 +956,23 @@ async function main() {
                 await fs.writeFile(emittedPath, JSON.stringify(emitted), {flag: 'wx'});
                 let replay = {status: 'not-required', physicalRuns: 1};
                 if (result.promptResult.observerSuccess) {
-                    await onReceipt({kind: 'static-replay-start', recipeSha256: digest(JSON.stringify(emitted))});
                     try {
-                        const check = await recordSegment({seg: emitted.segments[0], isFirstSegment: true,
-                            binary, installDir, rngLogPath, homeDir, tz, deadline, preserveFailure: true});
-                        const replayDoc = {...session, segments: [{...out, steps: check.steps}]};
-                        await fs.writeFile(replayPath, JSON.stringify(replayDoc), {flag: 'wx'});
-                        replay = {status: check.promptResult.status !== 'static-complete' ? 'failed'
-                            : JSON.stringify(check.steps) === JSON.stringify(result.steps)
-                                ? 'matched' : 'mismatched', physicalRuns: 2,
-                            command: check.promptResult.command};
+                        const check = await replayWithinDeadline(deadline, async () => {
+                            await onReceipt({kind: 'static-replay-start', recipeSha256: digest(JSON.stringify(emitted))});
+                            return recordSegment({seg: emitted.segments[0], isFirstSegment: true,
+                                binary, installDir, rngLogPath, homeDir, tz, deadline, preserveFailure: true,
+                                onReceipt: event => onReceipt({run: 'replay', ...event})});
+                        });
+                        if (!check || !check.promptResult.command.launched) {
+                            replay = {status: 'deadline-exhausted', physicalRuns: 1};
+                        } else {
+                            const replayDoc = {...session, segments: [{...out, steps: check.steps}]};
+                            await fs.writeFile(replayPath, JSON.stringify(replayDoc), {flag: 'wx'});
+                            replay = {status: check.promptResult.status !== 'static-complete' ? 'failed'
+                                : JSON.stringify(check.steps) === JSON.stringify(result.steps)
+                                    ? 'matched' : 'mismatched', physicalRuns: 2,
+                                command: check.promptResult.command};
+                        }
                     } catch (error) {
                         replay = {status: 'failed', physicalRuns: 2, error: error.message};
                     }
