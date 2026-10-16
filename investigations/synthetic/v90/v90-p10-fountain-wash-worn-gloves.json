@@ -1,0 +1,49 @@
+{
+  "session": "synthetic/v90/v90-p10-fountain-wash-worn-gloves",
+  "remainingScreens": 12,
+  "recordedSteps": 99,
+  "corpus": "synthetic",
+  "batch": "v90",
+  "caseId": "v90-p10-fountain-wash-worn-gloves",
+  "manifestPath": "challenges/manifests/v90.json",
+  "manifestSha256": "cb785f6887f617437b4e4fb54a641b0db93a1bc9ee5091b50aff66675dc2a93a",
+  "recordingSha256": "7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6",
+  "evaluationPath": "challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json",
+  "evaluationCommit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
+  "status": "complete",
+  "commit": "79a81f748863d6c0e694c4c22729021f2a2d6e7a",
+  "mismatch": {
+    "segment": 0,
+    "step": 87,
+    "key": "y",
+    "owner": "fountain.c:dipfountain",
+    "source": "Wrong worn-glove state owner suppresses wash_hands; next RNG mismatch at step88 is consequent ER_GREASED gate omission.",
+    "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+  },
+  "summary": "The selected object is the hero’s worn slippery gloves. Upstream fountain.c:dipfountain compares it with the canonical uarmg pointer and calls wash_hands(), which clears Glib and returns ER_GREASED when the wash itself does not damage the gloves. js/fountain.js tests obj === state.u.uarmg, but this port stores the canonical equipment pointer at state.uarmg. It therefore skips wash_hands and runs the ordinary fountain effect. A fresh replay of the unchanged admitted C recording at the examined accepted commit 79a81f748863d6c0e694c4c22729021f2a2d6e7a independently reproduces the first screen/cursor mismatch at segment 0, step 87, key y; the next RNG mismatch at step 88 is C rn2(2)=1 versus JS rnd(30)=8.",
+  "source": {
+    "file": "fountain.c",
+    "branch": "After levitation and Excalibur checks, if the selected object is hands_obj or exactly the hero’s worn-gloves object uarmg, dipfountain calls wash_hands. wash_hands records prior Glib, clears it, water-damages canonical uarmg if present, and returns ER_GREASED if Glib was cleared without glove damage. dipfountain then applies the ER_DESTROYED / ER_NOTHING / rn2(2) early-return condition before the ordinary rnd(30) fate.",
+    "functions": [
+      "dipfountain"
+    ],
+    "callers": [
+      "potion.c:dodip (2267-2415): after getobj selection and fountain confirmation, calls dipfountain(obj) and returns ECMD_TIME.",
+      "js/potion.js:dodip (3293-3330): passes the selected object to dipfountain(obj, state, env) after fountain confirmation."
+    ],
+    "dependencies": [
+      "fountain.c:wash_hands",
+      "trap.c:water_damage"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Pinned upstream source nethack-c/upstream/src/fountain.c at gitlink 16ff59115315917b93185d026aeefea06db9b0f4: dipfountain lines 394-554 contains `else if (is_hands || obj == uarmg) er = wash_hands();`; the subsequent early return checks ER_DESTROYED or (er != ER_NOTHING && !rn2(2)) before switch (rnd(30)).",
+    "Pinned upstream fountain.c lines 558-577: wash_hands captures `was_glib`, calls make_glib(0), calls water_damage(uarmg, ...) when worn gloves exist, and converts ER_NOTHING to ER_GREASED when prior Glib was set.",
+    "Production entry is wired in fountain.c caller potion.c:dodip (2267-2415); the JavaScript production counterpart is js/potion.js:dodip and passes the selected equipment object to dipfountain.",
+    "In accepted source js/fountain.js at examined commit 79a81f748863d6c0e694c4c22729021f2a2d6e7a, dipfountain’s selector compares `obj === state.u.uarmg`; the already-used wash_hands implementation reads and mutates `state.uarmg` (lines 1137-1165), establishing the wrong pointer owner in the dispatch predicate.",
+    "Verified comparison workspace for accepted commit 79a81f748863d6c0e694c4c22729021f2a2d6e7a; `node scripts/diff-fresh-worker.mjs challenges/cases/v90/v90-p10-fountain-wash-worn-gloves.session.json .cache/v90-fountain-implementation/score-workspace 79a81f748863d6c0e694c4c22729021f2a2d6e7a` output preserved at .cache/v90-fountain-implementation/base-differential.log. Provenance records recording SHA256 7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6; exact first screen/cursor mismatch step 87, and RNG mismatch index 2900 at step 88 (C rn2(2)=1 from dipfountain:454; JS rnd(30)=8).",
+    "Admitted v90 evaluation challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json (source commit 719d4d944693d9b1d6e7725ec76bc2f773884802) reports screens 87/99, RNG 2915/2925, cursors 88/99; the unchanged original recording hash is 7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6.",
+    "Manifest overlap rationale: Worn-glove fountain dispatch plus Glib clearing differs from bare-hand fountain or sink caller and from mounted boulder naming. No other selected v90 case has this first cause. The v26 fountain hand-dip cases and sink wash-hands witness are related background but do not exercise the worn-glove fountain dispatch condition."
+  ]
+}
