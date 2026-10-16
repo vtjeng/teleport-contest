@@ -5645,6 +5645,10 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         } else if (state.multi > 0 && command !== null && command !== 'pay'
             && command !== 'pickup' && command !== '#'
             && command !== 'wizgenesis'
+            // invent.c ddoinv() always ends through ECMD_OK, which makes
+            // rhack() reset gm.multi after one display instead of asking
+            // moveloop_core() to repeat this no-time command.
+            && command !== 'inventory'
             && !Object.hasOwn(MOVEMENT_INTENTS, command)
             // These commands clear a count with their no-time result.
             && command !== 'wizsmell' && command !== 'wizkill'
