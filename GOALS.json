@@ -319029,6 +319029,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-do-dropx-fountain-dry-terrain-v90-20261016",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement dropx from do.c",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v90/v90-p15-fountain-ordinary-drop"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dropx",
+      "session": "synthetic/v90/v90-p15-fountain-ordinary-drop"
     }
   ]
 }
