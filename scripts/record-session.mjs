@@ -21,6 +21,7 @@ import { promises as fs, constants as fsConstants } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
+import {createPromptController, digest, validatePromptPlan} from './recorder-prompt-plan.mjs';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(SCRIPT_DIR, '..');
@@ -74,7 +75,7 @@ export function successfulTerminalExit({
 }
 
 const RECORDER_TIME_ZONE = 'America/New_York';
-export const USAGE = 'Usage: node scripts/record-session.mjs <input.session.json> [output.session.json]';
+export const USAGE = 'Usage: node scripts/record-session.mjs <input.session.json> [output.session.json] [--prompt-plan plan.json --prompt-receipt receipt.json --emitted-recipe recipe.json]';
 const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
     'en-CA-u-ca-gregory-nu-latn',
     {
@@ -466,7 +467,7 @@ async function clearStaleState(installDir) {
     await ensureScorefiles(installDir);
 }
 
-async function recordSegment({
+export async function recordSegment({
     seg,
     isFirstSegment,
     binary,
@@ -474,6 +475,10 @@ async function recordSegment({
     rngLogPath,
     homeDir,
     tz,
+    prompt = null,
+    onReceipt = async () => {},
+    deadline = null,
+    preserveFailure = false,
 }) {
     // Write nethackrc into homeDir
     await fs.mkdir(homeDir, { recursive: true });
@@ -516,6 +521,9 @@ async function recordSegment({
         }
         moves = reconstructed.join('');
     }
+    if (prompt) moves = moves.replace(/\r/gu, '\n');
+    const prefixLength = moves.length;
+    const controller = prompt ? createPromptController(prompt) : null;
     // A clean v5 recording is also the replay recipe, so its existing step
     // count is the completion contract.  This matters for games which end
     // before consuming every planned key: they legitimately have fewer than
@@ -534,10 +542,13 @@ async function recordSegment({
     const steps = [];
     let lastRngBytes = 0;
     let nextKeyIdx = 0;
+    let emittedMoves = '';
     let timeoutHandle = null;
     let forceKillHandle = null;
     let terminationRequested = false;
     let pendingFailure = null;
+    let completionStop = null;
+    let totalTimeout = null;
     let resolveDone, rejectDone;
     let settled = false;
     const done = new Promise((res, rej) => {
@@ -556,7 +567,7 @@ async function recordSegment({
         env,
         stdio: ['pipe', 'pipe', 'inherit'],
     });
-    child.stdin.on('error', () => {});
+    child.stdin.on('error', error => { if (controller || preserveFailure) fail(error); });
 
     armTimeout(20000, 'first marker');
 
@@ -602,6 +613,10 @@ async function recordSegment({
         if (timeoutHandle) clearTimeout(timeoutHandle);
         terminateChild(true);
     };
+    if (controller || deadline) totalTimeout = setTimeout(() => {
+        completionStop = 'time-cap';
+        fail(new Error('prompt completion total time cap'));
+    }, deadline ? Math.max(1, deadline - Date.now()) : controller.plan.maxMs);
 
     // Buffer of 'anim' markers received between consecutive 'input'
     // markers.  When the next input marker closes a step, the buffered
@@ -609,15 +624,18 @@ async function recordSegment({
     // preserving order and step-attribution without any in-stream events.
     let pendingAnimFrames = [];
     const onMarker = async (m) => {
+        if (pendingFailure || terminationRequested) return;
         if (m.kind === 'anim') {
-            pendingAnimFrames.push({
+            const frame = {
                 screen: encodeScreenAnsiRle(payloadToLines(m.payload)),
                 cursor: [m.cx, m.cy, 1],
-            });
+            };
+            pendingAnimFrames.push(frame);
+            if (controller) await onReceipt({kind: 'animation-frame', frameIndex: steps.length, ...frame});
             return;
         }
         if (m.kind !== 'input') return;
-        if (steps.length >= expectedSteps) {
+        if (!controller && steps.length >= expectedSteps) {
             // We have everything we need; tear down.
             finish();
             return;
@@ -626,6 +644,7 @@ async function recordSegment({
             const screen = encodeScreenAnsiRle(payloadToLines(m.payload));
             const rng = await readRngDelta();
             const stepIdx = m.seq - 1;
+            if (controller && stepIdx !== steps.length) throw new Error('nonsequential input marker');
             const key = stepIdx === 0 ? null : moves[stepIdx - 1] ?? null;
             const step = { key, rng, screen, cursor: [m.cx, m.cy, 1] };
             if (pendingAnimFrames.length) {
@@ -633,6 +652,32 @@ async function recordSegment({
                 pendingAnimFrames = [];
             }
             steps.push(step);
+
+            if (controller) {
+                await onReceipt({kind: 'frame', frameIndex: steps.length - 1, ...step});
+                if (pendingFailure) return;
+                if (nextKeyIdx >= prefixLength) {
+                    const decision = controller.decide({...step, frameIndex: steps.length - 1});
+                    await onReceipt({kind: 'decision', ...controller.decisions.at(-1)});
+                    if (pendingFailure) return;
+                    if (decision.stop) {
+                        completionStop = decision.stop;
+                        finish();
+                        return;
+                    }
+                    moves += decision.key;
+                }
+                const k = moves[nextKeyIdx++];
+                await onReceipt({kind: 'key-intent', index: nextKeyIdx - 1,
+                    frameIndex: steps.length - 1, key: k, bytes: Buffer.from(k, 'utf8').toString('hex')});
+                if (pendingFailure) return;
+                child.stdin.write(Buffer.from(k, 'utf8'));
+                emittedMoves += k;
+                if (controller.decisions.at(-1)) controller.decisions.at(-1).sent = true;
+                await onReceipt({kind: 'key-written', index: nextKeyIdx - 1});
+                armTimeout(20000, `after key ${nextKeyIdx}`);
+                return;
+            }
 
             if (steps.length >= expectedSteps) {
                 if (terminalKey !== null && nextKeyIdx === moves.length) {
@@ -681,6 +726,7 @@ async function recordSegment({
     child.stdout.on('error', (err) => fail(err));
     child.on('error', (err) => fail(err));
     child.on('close', (code, signal) => {
+        if (totalTimeout) clearTimeout(totalTimeout);
         if (timeoutHandle) clearTimeout(timeoutHandle);
         if (forceKillHandle) clearTimeout(forceKillHandle);
         // Capture shutdown intent at the instant the process closes. Marker
@@ -689,8 +735,22 @@ async function recordSegment({
         const terminationWasRequested = terminationRequested;
         // `close` can race async marker handling.  Wait for the queue before
         // deciding whether the process produced the complete recording.
-        chain.then(() => {
+        chain.then(async () => {
             parser.stop();
+            if (controller || preserveFailure) {
+                const expectedSignal = terminationWasRequested && ['SIGTERM', 'SIGKILL'].includes(signal);
+                const processOk = (code === 0 && signal === null) || expectedSignal;
+                const status = pendingFailure ? 'recorder-failure'
+                    : !processOk ? 'process-failure' : completionStop
+                        || (!controller && steps.length === expectedSteps ? 'static-complete' : 'premature-exit');
+                const command = {argv: [binary, ...args], exitCode: code, signal,
+                    intentionalTermination: terminationWasRequested, error: pendingFailure?.message || null};
+                await onReceipt({kind: 'command-outcome', status, ...command});
+                resolveDone({steps, terminalExit: null, moves: emittedMoves,
+                    promptResult: {status, observerSuccess: status === 'success', command,
+                        decisions: controller?.decisions || []}});
+                return;
+            }
             if (pendingFailure) throw pendingFailure;
             const exitDescription = signal ? `signal ${signal}` : `exit code ${code ?? 'unknown'}`;
             if (code !== null && code !== 0) {
@@ -719,6 +779,7 @@ async function recordSegment({
             }
             resolveDone({
                 steps: steps.slice(0, expectedSteps),
+                command: {argv: [binary, ...args], exitCode: code, signal},
                 terminalExit: terminalExit ? {
                     key: terminalKey,
                     exitCode: code,
@@ -751,11 +812,23 @@ async function main() {
         process.exitCode = 2;
         return;
     }
-    if (argv.length > 2 || argv.includes('-h') || argv.includes('--help')) {
+    const positional = [], options = {};
+    const flags = ['--prompt-plan', '--prompt-receipt', '--emitted-recipe'];
+    for (let i = 0; i < argv.length; ++i) {
+        const arg = argv[i];
+        if (flags.includes(arg)) {
+            if (options[arg] || !argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error(USAGE);
+            options[arg] = path.resolve(argv[++i]);
+        } else if (arg.startsWith('-')) throw new Error(USAGE);
+        else positional.push(arg);
+    }
+    const adaptive = flags.some(flag => options[flag]);
+    if (positional.length > 2 || positional.length < 1
+        || (adaptive && (positional.length !== 2 || flags.some(flag => !options[flag])))) {
         throw new Error(USAGE);
     }
-    const inputPath = path.resolve(argv[0]);
-    const outputPath = argv[1] ? path.resolve(argv[1]) : inputPath;
+    const inputPath = path.resolve(positional[0]);
+    const outputPath = positional[1] ? path.resolve(positional[1]) : inputPath;
 
     const binary = process.env.NETHACK_BINARY || DEFAULT_BINARY;
     let installDir = process.env.NETHACK_INSTALL || DEFAULT_INSTALL;
@@ -777,6 +850,40 @@ async function main() {
     }
 
     const session = await loadSession(inputPath);
+    let prompt = null, onReceipt;
+    const receiptPath = options['--prompt-receipt'];
+    const emittedPath = options['--emitted-recipe'];
+    const journalPath = receiptPath && `${receiptPath}.jsonl`;
+    const replayPath = adaptive && `${outputPath}.replay.json`;
+    if (adaptive) {
+        if (!process.env.NETHACK_BINARY || !process.env.NETHACK_INSTALL
+            || path.resolve(binary) === DEFAULT_BINARY || path.resolve(installDir) === DEFAULT_INSTALL)
+            throw new Error('prompt mode requires explicit private NETHACK_BINARY and NETHACK_INSTALL');
+        const paths = [inputPath, outputPath, options['--prompt-plan'], receiptPath,
+            emittedPath, journalPath, replayPath];
+        if (new Set(paths).size !== paths.length) throw new Error('prompt artifacts must have distinct paths');
+        for (const file of [outputPath, receiptPath, emittedPath, journalPath, replayPath]) {
+            if (await exists(file)) throw new Error(`prompt artifact already exists: ${file}`);
+        }
+        if (session.segments.length !== 1 || Object.hasOwn(session.segments[0], 'steps')
+            || Object.hasOwn(session.segments[0], 'terminalInputKey')
+            || typeof session.segments[0].moves !== 'string'
+            || !session.segments[0].moves || session.segments[0].moves.length > 10000)
+            throw new Error('prompt mode requires one input-only nonterminal segment with 1..10000 prefix keys');
+        const bytes = await fs.readFile(options['--prompt-plan']);
+        prompt = validatePromptPlan(JSON.parse(bytes));
+        for (const source of prompt.sources) {
+            if (digest(await fs.readFile(path.join(TEMPLATE_ROOT, source.path))) !== source.sha256)
+                throw new Error(`prompt source binding changed: ${source.path}`);
+        }
+        onReceipt = event => fs.appendFile(journalPath, `${JSON.stringify(event)}\n`, {flush: true});
+        await fs.writeFile(journalPath, `${JSON.stringify({kind: 'frozen-plan', plan: prompt,
+            planSha256: digest(bytes), inputSha256: digest(await fs.readFile(inputPath)),
+            command: {argv: [process.execPath, ...process.argv.slice(1)], binary,
+                binarySha256: digest(await fs.readFile(binary)), timezone: tz,
+                node: process.version},
+            segment: session.segments[0], startedAt: new Date().toISOString()})}\n`, {flag: 'wx', flush: true});
+    }
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'nh-rec-'));
     const rngLogPath = path.join(tmpDir, 'rng.log');
     const homeDir = path.join(tmpDir, 'home');
@@ -789,6 +896,7 @@ async function main() {
             installDir = staged;
         }
         const newSegments = [];
+        const deadline = prompt ? Date.now() + prompt.maxMs : null;
         for (let i = 0; i < session.segments.length; i++) {
             const seg = session.segments[i];
             console.error(`[seg ${i + 1}/${session.segments.length}] seed=${seg.seed} moves=${(seg.moves || '').length}`);
@@ -800,12 +908,15 @@ async function main() {
                 rngLogPath,
                 homeDir,
                 tz,
+                prompt,
+                onReceipt,
+                deadline,
             });
             const out = {
                 seed: seg.seed,
                 datetime: seg.datetime,
                 nethackrc: seg.nethackrc,
-                moves: seg.moves,
+                moves: result.moves ?? seg.moves,
                 recorderIsDst,
                 steps: result.steps,
             };
@@ -816,6 +927,34 @@ async function main() {
                 if (!(k in out)) out[k] = seg[k];
             }
             newSegments.push(out);
+            if (prompt) {
+                // This recipe contains only actual keys and original input
+                // fields. It cannot silently invoke the adaptive policy.
+                const emitted = {...session, segments: [{...seg, moves: result.moves}]};
+                await fs.writeFile(emittedPath, JSON.stringify(emitted), {flag: 'wx'});
+                let replay = {status: 'not-required', physicalRuns: 1};
+                if (result.promptResult.observerSuccess) {
+                    await onReceipt({kind: 'static-replay-start', recipeSha256: digest(JSON.stringify(emitted))});
+                    try {
+                        const check = await recordSegment({seg: emitted.segments[0], isFirstSegment: true,
+                            binary, installDir, rngLogPath, homeDir, tz, deadline, preserveFailure: true});
+                        const replayDoc = {...session, segments: [{...out, steps: check.steps}]};
+                        await fs.writeFile(replayPath, JSON.stringify(replayDoc), {flag: 'wx'});
+                        replay = {status: check.promptResult.status !== 'static-complete' ? 'failed'
+                            : JSON.stringify(check.steps) === JSON.stringify(result.steps)
+                                ? 'matched' : 'mismatched', physicalRuns: 2,
+                            command: check.promptResult.command};
+                    } catch (error) {
+                        replay = {status: 'failed', physicalRuns: 2, error: error.message};
+                    }
+                    await onReceipt({kind: 'static-replay-outcome', ...replay});
+                }
+                const receipt = {schemaVersion: 1, ...result.promptResult, replay,
+                    inputOnlyRecipeSha256: digest(JSON.stringify(emitted)),
+                    captureComplete: result.promptResult.observerSuccess && replay.status === 'matched'};
+                await fs.writeFile(receiptPath, JSON.stringify(receipt, null, 2), {flag: 'wx'});
+                if (!receipt.captureComplete) process.exitCode = 2;
+            }
         }
 
         const outDoc = {
