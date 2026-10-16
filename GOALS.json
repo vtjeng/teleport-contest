@@ -319573,7 +319573,7 @@
     {
       "id": "v93-swallowed-bullwhip-refusal-wording",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement use_whip from apply.c",
       "cFile": "apply.c",
       "sessions": [
@@ -319583,10 +319583,71 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "142acce5e93faabc1dec521e4de9b46290719de5",
       "delivered": null,
       "function": "use_whip",
-      "session": "synthetic/v93/v93-swallowed-bullwhip-refusal-wording"
+      "session": "synthetic/v93/v93-swallowed-bullwhip-refusal-wording",
+      "closeStanding": {
+        "sha": "142acce5e93faabc1dec521e4de9b46290719de5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "f01a98be70225ad27dc776fadde4651d895c165c",
+        "target": "synthetic/v93/v93-swallowed-bullwhip-refusal-wording",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/142acce5e93faabc1dec521e4de9b46290719de5/run-hosted-eXoMIi/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "use_whip",
+            "implementation": "js/apply.js",
+            "symbol": "use_whip",
+            "sourceReview": "Read the complete C function apply.c:2955-3271 and the complete JavaScript use_whip body. This divergence fix changes only the swallowed-hero refusal literal: C selects `There(\"is not enough room to flick your bullwhip.\")` after the wielded-whip check, successful getdir, and shared setup; JavaScript now sends the equivalent full `There is ...` sentence. The remaining branches and their callers are retained unchanged and are not newly certified by this delivery.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "The command's apply dispatcher routes a BULLWHIP object to use_whip; the admitted v93 recording reaches this branch through normal #apply dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v93",
+                "caseId": "v93-swallowed-bullwhip-refusal-wording",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "#apply -> doapply BULLWHIP -> use_whip; successful direction input while swallowed reaches the no-room refusal at step 44. The saved post-fix JS replay matches all screens, cursors and RNG calls through the segment."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "This divergence fix verifies the existing active #apply wielded-bullwhip route only where the hero is swallowed and a direction succeeds. The admitted v93 range reaches apply.c:use_whip's refusal branch at segment 0 step 44 through js/apply.js:doapply, and its saved post-fix replay matches through the segment. This is not whole-source certification of use_whip or its other weapon, pit, monster, and floor-object branches.",
+        "entryPoints": [
+          {
+            "name": "#apply a wielded bullwhip while swallowed",
+            "functions": [
+              "use_whip"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v93",
+                "caseId": "v93-swallowed-bullwhip-refusal-wording",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "The admitted segment reaches use_whip through production doapply dispatch and exercises the corrected swallowed refusal."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
