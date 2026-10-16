@@ -21,6 +21,14 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   const response = await page.goto(url);
   assert.equal(response.status(), 200);
+  const openTime = async prefix => {
+    const picker=page.locator('#'+prefix+'RangePicker');
+    if(!(await picker.evaluate(element=>element.open)))await page.locator('#'+prefix+'RangeSummary').click();
+  };
+  const selectTime = async (id,value) => {
+    await openTime(id.startsWith('activity')?'activity':'progress');
+    await page.locator('#'+id).selectOption(value);
+  };
   const defaultActivityRange = await page.locator('#activityWindowLabel').innerText();
   assert.equal(await page.locator('#activityWindow').inputValue(), '6');
   assert.equal(await page.locator('#activityHistorical').isChecked(), false);
@@ -37,6 +45,73 @@ try {
   // Large dashboard snapshots can be evicted from Chromium's inspector cache.
   // The request API retains its body for the empty/open-only rendering checks.
   const originalHTML = await (await page.request.get(url)).text();
+  // Each chart keeps Duration independent from its ending time. Exercise the
+  // real native controls in a non-UTC browser, including keyboard submission.
+  for (const [prefix,other,initial,next] of [['activity','progress','6','24'],['progress','activity','7','1']]) {
+    const rangeLabel = '#' + prefix + (prefix === 'activity' ? 'WindowLabel' : 'Range');
+    const otherLabel = '#' + other + (other === 'activity' ? 'WindowLabel' : 'Range');
+    const untouched = await page.locator(otherLabel).innerText();
+    const latest = await page.evaluate(prefix => prefix === 'activity'
+      ? Math.max(...DATA.activity.segments.map(row => Date.parse(row.end)))
+      : Math.max(...DATA.scoreHistory.flatMap(row => row.points.map(point => Date.parse(point.utc)))),prefix);
+    const local = await page.evaluate(time => {
+      const d=new Date(time),p=n=>String(n).padStart(2,'0');
+      return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+    },latest-2*86400000);
+    await selectTime(prefix+'Ending','fixed');
+    await page.locator('#'+prefix+'EndingAt').fill(local);
+    await page.locator('#'+prefix+'EndingAt').press('Enter');
+    assert.equal(await page.locator('#'+prefix+'Window').inputValue(),initial);
+    const fixed = await page.locator('#'+prefix+'EndingAt').inputValue();
+    await selectTime(prefix+'Window',next);
+    assert.equal(await page.locator('#'+prefix+'EndingAt').inputValue(),fixed,'duration change keeps fixed endpoint');
+    assert.equal(await page.locator('#'+prefix+'Ending').inputValue(),'fixed');
+    assert.equal(await page.locator(otherLabel).innerText(),untouched,'other chart state is independent');
+    const before=await page.locator(rangeLabel).innerText();
+    await selectTime(prefix+'Window','custom');
+    await page.locator('#'+prefix+'DurationCustom').fill('0');
+    await page.locator('#'+prefix+'DurationCustom').press('Enter');
+    assert.match(await page.locator('#'+prefix+'RangeError').innerText(),/positive/);
+    assert.equal(await page.locator(rangeLabel).innerText(),before,'invalid draft keeps applied bounds');
+    await page.locator('#'+prefix+'DurationCustom').fill('90');
+    await selectTime(prefix+'DurationUnit','60000');
+    await page.locator('#'+prefix+'DurationCustom').press('Enter');
+    assert.equal(await page.locator('#'+prefix+'RangeError').innerText(),'');
+    assert.equal(await page.locator('#'+prefix+'Window').inputValue(),'custom');
+    await selectTime(prefix+'Ending','now');
+    assert.equal(await page.locator('#'+prefix+'Ending').inputValue(),'now');
+    assert.match(await page.locator('#'+prefix+'RangeAsOf').innerText(),/Latest available/);
+    assert.match(await page.locator('#'+prefix+'RangeTimezone').innerText(),/America\/Los_Angeles/);
+    await selectTime(prefix+'Window',initial);
+  }
+  for (const prefix of ['activity','progress']) {
+    await selectTime(prefix+'Window','custom');
+    await page.locator('#'+prefix+'DurationCustom').fill('90');
+    await selectTime(prefix+'DurationUnit','60000');
+    await selectTime(prefix+'Ending','fixed');
+    await page.locator('#'+prefix+'RangeForm button').click();
+    assert.equal(await page.locator('#'+prefix+'Window').inputValue(),'custom');
+    assert.equal(await page.locator('#'+prefix+'Ending').inputValue(),'fixed');
+  }
+  for (const width of [390,320]) {
+    await page.setViewportSize({width,height:1200});
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),
+      'expanded Fixed+Custom selectors wrap at '+width);
+    for (const prefix of ['activity','progress']) {
+      await openTime(prefix);
+      const input=page.locator('#'+prefix+'DurationCustom');
+      await input.focus();await input.press('Enter');
+      assert.equal(await page.locator('#'+prefix+'RangeSummary').evaluate(element=>document.activeElement===element),true,'Apply returns focus to visible selector');
+    }
+  }
+  await openTime('progress');
+  if(screenshot)await page.locator('#progressRangeForm').screenshot({path:screenshot.replace(/\.png$/u,'-selector-mobile.png')});
+  await page.locator('#progressDurationCustom').focus();await page.locator('#progressDurationCustom').press('Escape');
+  assert.equal(await page.locator('#progressRangePicker').evaluate(element=>element.open),false);
+  assert.equal(await page.locator('#progressRangeSummary').evaluate(element=>document.activeElement===element),true);
+  await page.setViewportSize({width:1440,height:1200});
+  await page.reload();
+  await page.locator('#activityHistorical').check();
   assert.equal(await page.locator('#sourceWorkDisclosure').count(), 0);
   assert.equal(await page.locator('#integrationDisclosure').evaluate(element => element.open), true);
   assert.equal(await page.locator('#goalHistoryDisclosure').evaluate(element => element.open), false);
@@ -69,7 +144,7 @@ try {
     ['activityMinimap', 'activityWindow', 'activityWindowLabel', 8, 8],
   ]) {
     const overview = page.locator('#' + id);
-    await page.locator('#' + preset).selectOption('all');
+    await selectTime(preset,'all');
     await overview.scrollIntoViewIfNeeded();
     const box = await overview.boundingBox(), y = box.y + (box.height - 20) / 2;
     const left = box.x + leftPad, right = box.x + box.width - rightPad;
@@ -89,7 +164,7 @@ try {
     await page.mouse.move(left + span * 0.6, y, {steps: 10}); await page.mouse.up();
     assert.equal(await cursor(), 'grab');
     assert.notEqual(await page.locator('#' + label).innerText(), resized);
-    await page.locator('#' + preset).selectOption(id === 'progressMinimap' ? '7' : '6');
+    await selectTime(preset,id === 'progressMinimap' ? '7' : '6');
     await overview.focus(); await overview.press('End');
   }
   await page.locator('#goalHistoryDisclosure > summary').focus();
@@ -252,7 +327,7 @@ try {
   await first.press('Enter');
   assert.deepEqual(await plot.boundingBox(), frame);
   const range = await page.locator('#activityWindowLabel').innerText();
-  await page.locator('#activityWindow').selectOption('24');
+  await selectTime('activityWindow','24');
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), range);
   assert.equal(await readout.innerText(), pinned, 'range changes must preserve a deliberate selection');
   const prep = await widestBar('.activity-bar.phase-working[aria-label*="Prep"][aria-label*=" · v"]');
@@ -292,7 +367,7 @@ try {
     assert.ok(size.scroll <= size.client, JSON.stringify({ width, ...size }));
     const frames = await Promise.all(durationCharts.map(chart => chart.boundingBox()));
     for (const hours of ['6', '24', '168']) {
-      await page.locator('#activityWindow').selectOption(hours);
+      await selectTime('activityWindow',hours);
       for (let index = 0; index < durationCharts.length; index++) {
         assert.deepEqual(await durationCharts[index].boundingBox(), frames[index],
           'changing the time window must preserve the duration plot frame');
@@ -306,7 +381,7 @@ try {
     }
   }
   await page.setViewportSize({ width: 1440, height: 1200 });
-  await page.locator('#activityWindow').selectOption('6');
+  await selectTime('activityWindow','6');
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.waitForFunction(() => {
     const style = getComputedStyle(document.documentElement);
@@ -339,7 +414,7 @@ try {
   if (screenshot) await page.getByRole('heading', { name: 'Worker activity', exact: true }).locator('..').screenshot({ path: screenshot });
   // The same range drives utilization, timing and the timeline. Arbitrary
   // zoom, dragged boundaries and All must preserve a deliberately pinned task.
-  await page.locator('#activityWindow').selectOption('6');
+  await selectTime('activityWindow','6');
   await page.locator('#timeline').focus(); await page.locator('#timeline').press('End');
   const rangeBeforeZoom = await page.locator('#activityWindowLabel').innerText();
   const pinnedBeforeZoom = await page.locator('#timelineReadout').innerText();
@@ -347,7 +422,7 @@ try {
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), rangeBeforeZoom);
   assert.equal(await page.locator('#activityWindow').inputValue(), 'custom');
   assert.equal(await page.locator('#timelineReadout').innerText(), pinnedBeforeZoom);
-  await page.locator('#activityWindow').selectOption('all');
+  await selectTime('activityWindow','all');
   const allRange = await page.locator('#activityWindowLabel').innerText();
   const navigator = page.locator('#activityMinimap');
   await navigator.scrollIntoViewIfNeeded();
@@ -364,7 +439,7 @@ try {
   assert.equal(await page.evaluate(() => sessionStorage.getItem('activityWindow')), null, 'pan and range changes do not persist a worker window');
   await navigator.focus(); await navigator.press('+');
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), draggedRange);
-  await page.locator('#activityWindow').selectOption('168');
+  await selectTime('activityWindow','168');
   await page.locator('#timeline').focus(); await page.locator('#timeline').press('End');
   const overflow = await page.locator('#integrationOverflow').innerText();
   await page.locator('#integrationFullRange').focus();
@@ -478,6 +553,7 @@ try {
   for (let n = 1; n <= 6; n++) assert.ok(laneLabels.includes('P' + n));
   const probeBar = page.locator('.activity-bar[aria-label*="v83-probe-1"]').first();
   await probeBar.scrollIntoViewIfNeeded();
+  await plot.scrollIntoViewIfNeeded(); // Keep every later hover target inside the viewport.
   const prepFrame = await plot.boundingBox(), prepScroll = await page.evaluate(() => scrollY);
   await probeBar.click();
   const probeDetails = await readout.innerText();
@@ -495,9 +571,9 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       'Prep labels and utilization must not overflow at ' + width);
     const before = await plot.boundingBox();
-    await page.locator('#activityWindow').selectOption('24');
+    await selectTime('activityWindow','24');
     assert.deepEqual(await plot.boundingBox(), before, 'changing range preserves all Prep row positions');
-    await page.locator('#activityWindow').selectOption('6');
+    await selectTime('activityWindow','6');
   }
   console.log('Prep lanes: distinct workers, batch/target/outcome details, pooled utilization, pinned selection and responsive layout passed.');
   await page.setViewportSize({width: 1440, height: 1200});

@@ -1263,9 +1263,9 @@ test('progress points carry what the chart readout shows', t => {
     assert.equal(data.progress[0].note, 'alpha closes. Second sentence.');
 
     const rendered = renderDashboard(data);
-    // Twenty minutes of goals is less than the week the chart opens on, so it
-    // shows all measurements and the range control shows All.
-    assert.equal(rendered.get('progressWindow').value, 'all');
+    // The requested week is clamped to twenty minutes of available data;
+    // keep the requested duration distinct from the actual plotted bounds.
+    assert.equal(rendered.get('progressWindow').value, '7');
     assert.equal(
         rendered.get('progressRange').textContent,
         ['2026-01-01T00:10:00Z', '2026-01-01T00:30:00Z'].map(iso => {
