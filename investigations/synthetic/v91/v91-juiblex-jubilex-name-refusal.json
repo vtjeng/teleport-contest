@@ -4,7 +4,7 @@
   "batch": "v91",
   "caseId": "v91-juiblex-jubilex-name-refusal",
   "manifestPath": "challenges/manifests/v91.json",
-  "manifestSha256": "276351004de39011a41eabf34a2a775f023f8d43c04f3c491c4fe775f0997a44",
+  "manifestSha256": "ccaa0d1ea77de5f8004ca0547902178a75ccfae07366cfc363ddd6df081da439",
   "recordingSha256": "c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263",
   "recipeSha256": "b0ae7fb7e91ab7878e2d6633d72119cb5f0bb26ed88a4d7b6922931b08c2773b",
   "evaluationPath": "challenges/evaluations/admission-0566f43d2ea64d6da8047bda16a422456bf9f8a1-v91.json",
@@ -12,7 +12,7 @@
   "remainingScreens": 1,
   "recordedSteps": 49,
   "status": "complete",
-  "commit": "39d3cdb28fd3bc4b3b1f1007842b77df83d8e700",
+  "commit": "a0ddebbcb7d3e3134cafe335d40cce93b0035ea",
   "mismatch": {
     "step": 48,
     "key": "\n",
@@ -22,13 +22,17 @@
     "column": 34,
     "c": "J",
     "js": "n",
-    "detail": "C displays the Juiblex-specific refusal beginning ‘Juiblex doesn't like being called Jubilex.’; JS displays the generic unique-monster refusal beginning ‘Juiblex doesn't like being called names!’"
+    "detail": "C displays the Juiblex-specific refusal beginning ‘Juiblex doesn't like being called Jubilex.’; JS displays the generic unique-monster refusal beginning ‘Juiblex doesn't like being called names!’",
+    "session": "synthetic/v91/v91-juiblex-jubilex-name-refusal",
+    "remainingScreens": 1
   },
   "summary": "The complete C function at do_name.c:158-195 has a Juiblex special case in alreadynamed(), called from do_mgivenname() at do_name.c:199-282 before the generic unique-monster refusal. C treats strstri()'s non-NULL pointer as true when ‘Juiblex’ starts at offset zero. JS strstri() returns numeric index 0, and the current condition treats that as false. The comparator establishes the differing final message; source semantics and JS helper behavior identify the predicate mismatch without inferring hidden runtime state. Species identity should also use monsndx(), the documented JS equivalent of C's &mons[PM_JUIBLEX] identity, instead of object identity.",
   "source": {
     "file": "do_name.c",
     "branch": "alreadynamed() checks C species identity, a non-NULL case-insensitive strstri result for ‘Juiblex’ in the displayed name, and case-insensitive exact input Jubilex, then emits the special message. do_mgivenname() calls it before its fallback message for unique monsters.",
-    "functions": ["alreadynamed"],
+    "functions": [
+      "alreadynamed"
+    ],
     "callers": [
       "do_mgivenname() calls alreadynamed() for unique non-priest monsters before printing the generic refusal (do_name.c:199-282).",
       "The #name command reaches do_mgivenname() through the command dispatcher; the saved C recording reaches the same naming entry point and the special message."
@@ -41,7 +45,7 @@
   "goalKind": "divergence-fix",
   "evidence": [
     "C source: nethack-c/upstream/src/do_name.c:158-194 implements the special Jubilex check; lines 199-282 invoke alreadynamed before the generic unique-monster refusal.",
-      "JavaScript source: js/do_name.js:478-524 contains the corresponding branch; js/hacklib.js:422-428 documents strstri() as returning a numeric offset, so an offset-zero match is falsy in the current boolean test. js/mondata.js:1558-1559 documents monsndx() as the JavaScript equivalent of C monsndx(), with pmidx as stable species identity.",
+    "JavaScript source: js/do_name.js:478-524 contains the corresponding branch; js/hacklib.js:422-428 documents strstri() as returning a numeric offset, so an offset-zero match is falsy in the current boolean test. js/mondata.js:1558-1559 documents monsndx() as the JavaScript equivalent of C monsndx(), with pmidx as stable species identity.",
     "Existing admitted synthetic recording: v91-juiblex-jubilex-name-refusal, 49 screens; the first and only observed mismatch is the final refusal at step 48. Recorded and independently replayed C bytes are identical (SHA256 c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263).",
     "The regression is reproduced by a focused same-object Juiblex test before the fix: strstri returns offset zero and the branch is skipped. After changing the condition to strstri(...) >= 0 and using monsndx() for species identity, focused tests pass for both same-object and cloned-species data. The unchanged recipe passes a fresh C/JavaScript differential: 49/49 screens and cursors, all 2455 RNG values, and zero animation frames match. synthetic-range-evidence confirms the admitted v91 case through step 48."
   ]
