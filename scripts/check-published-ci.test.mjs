@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { checkPublishedCI, publicationStatus, PUBLICATION_WORKFLOWS } from './check-published-ci.mjs';
 
 // Two different commits and monotonically increasing IDs model publications and
-// retries, with one run for each of the four current publication workflows.
+// retries, with one run for each automatic publication workflow.
 const commit = 'a'.repeat(40), other = 'b'.repeat(40), repository = 'owner/project';
 const passing = sha => PUBLICATION_WORKFLOWS.map((path, index) => ({ id: index + 1,
     path, head_sha: sha, event: 'push', head_branch: 'main', status: 'completed', conclusion: 'success',
@@ -19,7 +19,7 @@ function fixture(t) {
 const client = runs => args => args[0] === 'repo' ? repository
     : JSON.stringify({ workflow_runs: runs });
 
-test('missing runs remain pending; only all four successful workflows complete a commit', () => {
+test('missing runs remain pending; all automatic workflows must succeed', () => {
     assert.equal(publicationStatus(commit, [], repository).passed, false);
     assert.equal(publicationStatus(commit, passing(commit).slice(1), repository).passed, false);
     assert.equal(publicationStatus(commit, passing(commit), repository).passed, true);
@@ -28,6 +28,24 @@ test('missing runs remain pending; only all four successful workflows complete a
         runs[0].conclusion = conclusion;
         assert.equal(publicationStatus(commit, runs, repository).failed, true);
     }
+});
+
+test('only Lint and Dashboard run automatically; manual reports do not gate publication', () => {
+    assert.deepEqual(PUBLICATION_WORKFLOWS, ['lint.yml', 'dashboard.yml']
+        .map(name => `.github/workflows/${name}`));
+    for (const name of ['score.yml', 'coverage.yml']) {
+        const workflow = readFileSync(new URL(`../.github/workflows/${name}`, import.meta.url), 'utf8');
+        const triggers = workflow.split(/^on:\s*$/m)[1]?.split(/^jobs:\s*$/m)[0];
+        assert.ok(triggers, `${name} has an explicit trigger section`);
+        assert.match(triggers, /^  workflow_dispatch:\s*$/m);
+        assert.doesNotMatch(triggers, /^  (?:push|pull_request|schedule):/m);
+    }
+    const manualReports = ['score.yml', 'coverage.yml'].map((name, index) => ({
+        ...passing(commit)[0], id: 50 + index, path: `.github/workflows/${name}`,
+        event: 'workflow_dispatch', conclusion: 'failure'
+    }));
+    assert.equal(publicationStatus(commit, [...passing(commit), ...manualReports], repository).passed, true);
+    assert.equal(publicationStatus(commit, manualReports, repository).passed, false);
 });
 
 test('newest run wins per workflow, while manual and checkpoint-branch runs do not count', () => {

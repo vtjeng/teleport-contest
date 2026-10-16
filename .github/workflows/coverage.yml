@@ -1,10 +1,8 @@
 name: Coverage
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
-# Reporting only. This job publishes the js/ lines that neither the test suite
+# Optional manual report. This job publishes the js/ lines that neither the test suite
 # nor the development score executes, as a selector for where a new assertion
 # would have nothing to compete with. It sets no threshold, and the only way it
 # fails is if a population could not be measured at all -- never because some

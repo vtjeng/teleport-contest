@@ -1201,3 +1201,12 @@ triage decisions or fix references.
   deployed it successfully. Snapshot generation now sanitizes new and inherited
   public text so regeneration cannot restore those references. The focused
   regression preserves historical records and public GitHub result IDs.
+- Each main publication also launched Score and Coverage, repeating tests and
+  fixed-workload scoring and potentially occupying two runner slots. Vincent
+  asked whether to disable these runs; Coordinator adopted manual-only reports
+  after reviewing the evidence, following the sanitizer checkpoint boundary.
+  Their push triggers and mandatory publication-checker
+  expectations change together so absent manual reports cannot leave a
+  publication pending. The first subsequent publication will check automatic
+  Lint and Dashboard, absence of Score/Coverage push runs and pending-cache
+  completion. No Checkpoint coverage is reduced; throughput remains unmeasured.

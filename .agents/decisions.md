@@ -69,3 +69,20 @@ or measured benefits from pending proposals.
   with 496,613 compressed bytes and no artifact download. Existing full-checkpoint
   and per-case validators passed. This establishes transport availability for one
   checkpoint; comparative timing and hosted admission publication remain unmeasured.
+
+## 2026-10-16 — manual Score and Coverage reports
+
+- Change: Vincent asked whether to disable automatic Score and Coverage runs;
+  Coordinator adopted manual-only reports after reviewing the evidence. Remove
+  their main-push triggers while retaining manual dispatch, scripts and artifacts.
+  Publication tracking requires automatic Lint and Dashboard only.
+- Why: Checkpoint already tests and scores both populations before publication.
+  Score's separate summary has no repository acceptance consumer. Coverage's
+  unique unexecuted-line listing is reporting only and sets no threshold.
+- Expected benefit/tradeoff: avoid two repeated post-publication jobs while
+  giving up their automatic per-push reports. The full prepublication Checkpoint
+  gate remains unchanged. The latest six completed jobs averaged 13m11s for
+  Coverage and 8m39s for Score; all 18 sampled completed runs per workflow passed.
+- Follow-up evidence: first-publication workflow selection and pending-cache
+  completion will be checked. Comparative publication timing and throughput
+  remain unmeasured.
