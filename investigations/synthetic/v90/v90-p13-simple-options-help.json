@@ -1,0 +1,47 @@
+{
+  "session": "synthetic/v90/v90-p13-simple-options-help",
+  "corpus": "synthetic",
+  "batch": "v90",
+  "caseId": "v90-p13-simple-options-help",
+  "manifestPath": "challenges/manifests/v90.json",
+  "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
+  "recordingSha256": "2aac21afd4c85f100d13513d10b0e96bd7272d0a98c1fdd56610cd54f7236eb9",
+  "evaluationPath": "challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json",
+  "evaluationCommit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
+  "remainingScreens": 13,
+  "recordedSteps": 25,
+  "status": "complete",
+  "commit": "79a81f748863d6c0e694c4c22729021f2a2d6e7a",
+  "mismatch": {
+    "session": "synthetic/v90/v90-p13-simple-options-help",
+    "remainingScreens": 13,
+    "segment": 0,
+    "step": 12,
+    "key": "?",
+    "owner": "options.c:doset_simple_menu",
+    "source": "C toggles gs.simple_options_help and rebuilds the menu with the full-options instruction and all option descriptions. JS rejects the help choice before producing the rebuilt menu; C/JS RNG streams agree through the 25-step recording.",
+    "comparisonBase": "93fa87a40ed6219b5d31e211f22b460af55bfe92"
+  },
+  "summary": "The `?` selection in the simple options menu must toggle `gs.simple_options_help`, destroy and rebuild the menu, render the `#optionsfull` instruction and each non-null option description when enabled, and restore the compact menu when toggled off. The current JS refusal at the help selection is the complete cause; the O-command dispatch and ordinary option rows are already implemented.",
+  "source": {
+    "file": "nethack-c/upstream/src/options.c",
+    "branch": "Within doset_simple_menu(), the user selects the explicit '?' help item (a_int - 1 == -2); C flips gs.simple_options_help, destroys the current window, and rebuilds it. When true, C adds the full-options instruction and each non-null allopt[i].descr under its row.",
+    "functions": ["doset_simple_menu"],
+    "callers": [
+      "nethack-c/upstream/src/options.c:doset_simple calls doset_simple_menu in its repeat-until-no-pick loop.",
+      "nethack-c/upstream/src/cmd.c:1780-1781 dispatches the O command to doset_simple; js/cmd.js:runOptionsCommand dispatches through doset_simple with select_menu."
+    ],
+    "dependencies": [
+      "gs.simple_options_help defaults FALSE in nethack-c/upstream/src/decl.c:708; JS stores the matching value in state.gs.",
+      "allopt[i].descr is generated into js/optlist_data.js from the pinned option table; no new option descriptions are needed."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/options.c:8537-8702, complete doset_simple_menu(): help state gates the intro and descriptions, the '?' item uses a_int -2+1, pick handling toggles the state, then destroy_nhwindow and goto redo_opt_help rebuild the display.",
+    "js/options.js:8631-8759 contains dosetSimpleMenuItems() and doset_simple_menu(); line 8751 currently throws UnsupportedOptionMenuError for the exact C help toggle. This assignment implements the missing branch and display shape in that existing source unit.",
+    "nethack-c/upstream/src/cmd.c:1780-1782 routes O and #optionsfull; js/cmd.js:3704-3741 wires O through runOptionsCommand to doset_simple and select_menu.",
+    "The admitted input-only recipe is challenges/cases/v90/v90-p13-simple-options-help.recipe.session.json (SHA-256 469f0ff8ff81137be6aa987af70f18020c56343a738ab7c58bd831907befd1e7); C recording SHA-256 is 2aac21afd4c85f100d13513d10b0e96bd7272d0a98c1fdd56610cd54f7236eb9.",
+    "The saved admission evaluation reports 12/25 screens and cursors matched, 2951/2951 RNG matched, with first missing JS screen at segment 0 step 12 on '?'. This rules out an RNG cause and confirms the missing toggle/rebuild path."
+  ]
+}
