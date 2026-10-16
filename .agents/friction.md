@@ -1194,3 +1194,10 @@ triage decisions or fix references.
 - Worker 1's next claim overlapped the Work lead's atomic publication update
   and returned a ledger-lock error. The owner was identified, the supported
   update finished, and an unchanged retry found no ready task; no lock was removed.
+- Snapshot structural-field filtering did not remove process references from
+  three inherited public summaries. Report-only correction 647f046e removed
+  those references and one generic process-reference phrase without deleting
+  events or changing IDs, timestamps or outcomes; Dashboard run 38838343989
+  deployed it successfully. Snapshot generation now sanitizes new and inherited
+  public text so regeneration cannot restore those references. The focused
+  regression preserves historical records and public GitHub result IDs.

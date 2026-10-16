@@ -6,6 +6,25 @@ import { activityTimeline, activityUtilization, integrationDurations, agentStage
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity, reservationSnapshot } from './dashboard-snapshot.mjs';
 import {createLedger, recordEvent} from './worker-state.mjs';
 
+test('regeneration removes inherited and new process references while preserving event history and public results', () => {
+  const previous = {runId: 'loop-20261015', events: [{id: 'old', at: '2026-10-15T01:00:00Z',
+    type: 'prep-probe', task: 'Prep51', outcome: 'match',
+    reason: 'C recording exited (functions.exec session_id 12345); 44 screens matched.'}]};
+  const ledger = {runId: 'loop-20261016-fresh-support', events: [{id: 'new', at: '2026-10-16T01:00:00Z',
+    type: 'turn', worker: 'Worker-1', state: 'idle', summary: 'Collected exec-session:67890; process handle preserved; GitHub run 38835906013 passed.'}]};
+  const original = JSON.stringify({previous, ledger});
+  const merged = mergeActivity(previous, activityFromLedger(ledger));
+  assert.equal(merged.events.length, 2);
+  assert.deepEqual(merged.events.map(({id, at, outcome}) => ({id, at, outcome})), [
+    {id: 'old', at: '2026-10-15T01:00:00Z', outcome: 'match'},
+    {id: 'new', at: '2026-10-16T01:00:00Z', outcome: undefined},
+  ]);
+  assert.equal(merged.events[0].reason, 'C recording exited; 44 screens matched.');
+  assert.match(merged.events[1].reason, /GitHub run 38835906013 passed/);
+  assert.doesNotMatch(JSON.stringify(merged), /session_id|exec-session|process handle|12345|67890/u);
+  assert.equal(JSON.stringify({previous, ledger}), original, 'private and historical source records are unchanged');
+});
+
 test('distinct fresh run IDs preserve history and redact private ownership fields', () => {
   const make = runId => recordEvent(createLedger(runId, '/private/lead'), {
     id: 'same-observation', type: 'register', worker: 'Worker-1',

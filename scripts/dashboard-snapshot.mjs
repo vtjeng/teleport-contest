@@ -18,6 +18,21 @@ const EVENT_TYPES = new Set([
   'prep-probe',
 ]);
 
+// Free-text summaries can contain old command references even when all raw
+// ownership fields were excluded. Sanitize both new and inherited public text;
+// leave immutable event IDs, timestamps, outcomes and the private ledger intact.
+function publicTextFields(value, key = '') {
+  if (typeof value === 'string' && ['reason', 'summary', 'selectionReason'].includes(key)) {
+    return value.replace(/\s*\((?:functions\.exec\s+)?(?:session_id|exec-session)[\s:="'#-]*\d+\)/giu, '')
+      .replace(/\b(?:session_id|exec-session)[\s:="'#-]*\d+\b/giu, '[internal command reference]')
+      .replace(/\bprocess handles?\b/giu, 'command ownership');
+  }
+  if (Array.isArray(value)) return value.map(item => publicTextFields(item));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value)
+    .map(([name, item]) => [name, publicTextFields(item, name)]));
+  return value;
+}
+
 function legacyActivityFromLedger(ledger) {
   const run = /^loop-(20\d{6})(?:-[A-Za-z0-9][A-Za-z0-9_.:-]{0,79})?$/u.exec(ledger?.runId ?? '');
   if (!run || run[1] < '20260925' || !Array.isArray(ledger.events)) {
@@ -66,7 +81,7 @@ function legacyActivityFromLedger(ledger) {
 }
 
 export function activityFromLedger(ledger) {
-  const activity = legacyActivityFromLedger(ledger);
+  const activity = publicTextFields(legacyActivityFromLedger(ledger));
   if (!ledger.events.some(event => event.type === 'queue-enable')) return activity;
   const state = summarizeLedger(ledger);
   if (!state.queue) return activity;
@@ -109,7 +124,7 @@ export function activityFromLedger(ledger) {
 export function mergeActivity(previous, current) {
   const events = new Map();
   for (const event of [...(previous?.events ?? []), ...current.events]) {
-    const normalized = { ...event, runId: event.runId ?? previous?.runId };
+    const normalized = publicTextFields({ ...event, runId: event.runId ?? previous?.runId });
     events.set(normalized.runId + '/' + normalized.id, normalized);
   }
   return { runId: current.runId,
@@ -187,8 +202,9 @@ export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output 
     ...(state.queue ? {assignmentQueue: publicQueue(state)} : {}),
     development: developmentFromCheckpoint(summary, results, resultBytes),
   };
-  writeFileSync(outputPath, JSON.stringify(snapshot, null, 2) + '\n');
-  return snapshot;
+  const published = publicTextFields(snapshot);
+  writeFileSync(outputPath, JSON.stringify(published, null, 2) + '\n');
+  return published;
 }
 
 function main(args) {
