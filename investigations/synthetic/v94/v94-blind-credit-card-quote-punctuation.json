@@ -6,7 +6,7 @@
   "batch": "v94",
   "caseId": "v94-blind-credit-card-quote-punctuation",
   "manifestPath": "challenges/manifests/v94.json",
-  "manifestSha256": "2fbd9c0522acdb63e6b429fb3ed36b75d1701907931257ba028c798e0b54cf9b",
+  "manifestSha256": "9f32409aee87755cc84ccc61902d560b436db92951c4d1184ca2bd5a77d99df4",
   "recordingSha256": "a600ed0b514b93b643cf1baad20ebc6d149af7c50418aae0d0384683af38a1bf",
   "recipePath": "challenges/cases/v94/v94-blind-credit-card-quote-punctuation.recipe.session.json",
   "recipeSha256": "df2b51ebf134c4b83f469fe072293305a69ba2fe6f000c4764c136012bb0ec4a",
