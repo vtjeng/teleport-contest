@@ -10,6 +10,7 @@ import { summarizeLedger } from './worker-state.mjs';
 import { pendingMainWork } from './worker-backlog.mjs';
 import { admittedBatchIds } from './challenge-results.mjs';
 import {publicQueue} from './assignment-queue.mjs';
+import {buildExplorationYieldPayload} from './exploration-yield.mjs';
 
 const EVENT_TYPES = new Set([
   'assign', 'implement', 'ready', 'received', 'feedback', 'resume', 'park',
@@ -193,9 +194,13 @@ export function writeDashboardSnapshot({ ledger: ledgerPath, checkpoint, output 
   const outputPath = resolve(root, output);
   const previous = existsSync(outputPath)
     ? JSON.parse(readFileSync(outputPath, 'utf8')) : null;
+  const capturedAt = new Date().toISOString();
+  const auditPath = join(root, 'scripts/exploration-yield-audit.json');
+  const auditIndex = existsSync(auditPath) ? JSON.parse(readFileSync(auditPath, 'utf8')) : undefined;
   const snapshot = {
     version: 1,
-    capturedAt: new Date().toISOString(),
+    capturedAt,
+    explorationYield: buildExplorationYieldPayload(ledger, {asOf:capturedAt,auditIndex}),
     activity: mergeActivity(previous?.activity, activityFromLedger(ledger)),
     pendingMainWork: pendingMainWork(state, admittedBatchIds(root)),
     workerReservations: reservationSnapshot(state),

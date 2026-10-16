@@ -425,6 +425,7 @@ const output = {
   progress, scoreHistory, summary, scores,
   challenges: challengeDashboardPayload(challenges),
   activity, pendingMainWork: snapshot?.pendingMainWork ?? null,
+  explorationYield: snapshot?.explorationYield ?? null,
   assignmentQueue: snapshot?.assignmentQueue ?? null,
   workerReservations: snapshot?.workerReservations ?? null,
   goalHistory: goalHistory(activity.tasks, goalRecords, syntheticByCommit),

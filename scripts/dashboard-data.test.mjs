@@ -221,6 +221,25 @@ test('missing integration history is unavailable, not a zero-time average', () =
     assert.match(rendered.get('integrationDurationReadout').textContent, /unavailable/u);
 });
 
+test('exploration chart embeds its real aggregator and separates snapshot freshness from build time', () => {
+    const data=sourceDashboardData();
+    data.activity={capturedAt:'2026-10-16T14:00:00Z',tasks:[],segments:[]};
+    data.explorationYield={schemaVersion:1,asOf:'2026-10-16T14:00:00Z',coverage:{notes:['Historical attempts unavailable.']},
+        records:[{id:'original',kind:'discovery',claimedAt:'2026-10-16T12:00:00Z',closedAt:'2026-10-16T13:00:00Z',
+            usable:'yes',classification:'qualified-mismatch',qualifyingSessionIds:['new-case'],bugFamilyIds:['cause']}],
+        markers:[{at:'2026-10-16T12:30:00Z',label:'Operational change',causality:'unmeasured'}]};
+    const rendered=renderDashboard(data);
+    assert.match(rendered.get('yieldSummary').textContent,/1 new qualified mismatching sessions/);
+    assert.match(rendered.get('yieldSummary').textContent,/1 supported distinct bug families/);
+    assert.match(rendered.get('yieldMarkerNote').textContent,/no measured strategy shift/);
+    assert.match(rendered.get('updated').textContent,/Activity snapshot/);
+    assert.match(rendered.get('updated').title,/2026-10-16T14:00:00Z/);
+    assert.match(rendered.get('updated').title,/Page built 2026-01-01/);
+    assert.ok(rendered.get('yieldChart').ops.some(op=>op[0]==='arc'));
+    rendered.get('yieldChart').listeners.keydown[0]({key:'End',preventDefault(){}});
+    assert.match(rendered.get('yieldReadout').textContent,/qualified mismatching sessions/);
+});
+
 test('integration series share a chart but keep independent medians and pin the original task', () => {
     const data = sourceDashboardData();
     const at = minute => new Date(Date.UTC(2026, 9, 12, 10) + minute * 60000).toISOString();

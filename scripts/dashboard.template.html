@@ -915,6 +915,14 @@ canvas {
 .time-range-picker { position:relative; max-width:100%; }
 .time-range-picker > summary { cursor:pointer; font-size:12px; padding:6px 10px; border:1px solid var(--border); border-radius:4px; background:var(--surface-card); }
 .time-range-picker > form { position:absolute; z-index:20; top:calc(100% + 6px); left:0; width:480px; max-width:min(480px,calc(100vw - 48px)); max-height:calc(100vh - 32px); overflow:auto; padding:14px; border:1px solid var(--border); border-radius:6px; background:var(--surface-card); box-shadow:0 5px 18px #0002; }
+.yield-summary { font-size:14px; line-height:1.8; margin:12px 0; }
+.yield-secondary { display:block; color:var(--ink-secondary); font-size:12px; }
+.yield-legend { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--ink-secondary); font-size:12px; }
+.yield-key { display:inline-block; width:12px; height:9px; margin-right:5px; background:var(--progress-fill); }
+.yield-key.claimed { background:var(--ink-muted); }
+#yieldChart { display:block; width:100%; height:330px; touch-action:pan-y; }
+#yieldReadout { min-height:3em; margin-top:8px; font-size:12px; line-height:1.6; }
+.yield-markers { font-size:12px; color:var(--ink-secondary); padding-left:20px; line-height:1.6; }
 </style>
 
 <div class="header">
@@ -925,6 +933,32 @@ canvas {
 <a class="process-changes" href="https://github.com/vtjeng/teleport-contest/blob/main/.agents/decisions.md">Process changes</a>
 
 <div class="stats" id="stats"></div>
+
+<section class="section" aria-labelledby="yieldTitle">
+  <h2 class="section-title" id="yieldTitle">Exploration yield</h2>
+  <p class="subtitle" id="yieldFreshness"></p>
+  <div class="chart-wrap">
+    <div class="chart-toolbar">
+      <span class="chart-range" id="yieldBucketLabel">Hourly discovery outcomes</span>
+      <details class="time-range-picker" id="yieldRangePicker"><summary id="yieldRangeSummary">24 hours · Now</summary>
+        <form class="time-range-selector" id="yieldRangeForm" aria-label="Exploration time selection">
+          <label class="time-range-part"><span>Duration</span><select id="yieldWindow" aria-label="Exploration duration"><option value="6">6 hours</option><option value="24" selected>24 hours</option><option value="168">7 days</option><option value="all">All</option><option value="custom">Custom</option></select><input id="yieldDurationCustom" type="number" min="0" step="any" hidden aria-label="Exploration custom duration"><select id="yieldDurationUnit" hidden aria-label="Exploration duration unit"><option value="60000">minutes</option><option value="3600000">hours</option><option value="86400000">days</option></select></label>
+          <label class="time-range-part"><span>Ending at</span><select id="yieldEnding" aria-label="Exploration ending at"><option value="now">Now</option><option value="fixed">Fixed datetime</option></select><input id="yieldEndingAt" type="datetime-local" step="1" hidden aria-label="Exploration fixed ending datetime"><small id="yieldRangeTimezone"></small></label>
+          <button type="submit">Apply</button><span class="time-range-error" id="yieldRangeError" role="alert"></span>
+        </form>
+      </details><span class="time-range-note" id="yieldRangeAsOf"></span>
+    </div>
+    <div class="yield-legend"><span><i class="yield-key"></i>Qualified mismatching sessions</span><span>Dashed: supported bug families</span><span><i class="yield-key claimed"></i>Claimed tasks</span><span><i class="yield-key"></i>Closed tasks</span></div>
+    <canvas id="yieldChart" tabindex="0" aria-label="Exploration discoveries and sample volume over time, hourly or daily for long windows. Select a sample for counts; arrow keys move between samples, Home and End jump, Escape clears the selection."></canvas>
+    <div id="yieldReadout" aria-live="polite"></div>
+    <div class="yield-summary" id="yieldSummary"></div>
+    <p class="table-note" id="yieldContext"></p>
+    <ol class="yield-markers" id="yieldMarkers"></ol>
+    <p class="table-note" id="yieldMarkerNote"></p>
+    <details class="activity-help"><summary>Closed-task outcomes in this window</summary><ul class="yield-markers" id="yieldDispositions"></ul><p>Comparison parity does not by itself establish that the intended target was reached. Unknowns remain unclassified until their saved evidence is reviewed.</p></details>
+    <details class="activity-help"><summary>Definitions and historical coverage</summary><p id="yieldCoverage"></p><p>Claimed and closed discovery tasks are counted once each. One task can include several C scouts; physical probe attempts are not recorded consistently. Usable means a task has audited valid C, unchanged replay and comparison evidence. Qualified mismatches exclude duplicates, setup failures and unattributed runner differences. Later admission is attributed back to the original discovery time; recent samples may still be awaiting qualification. Source surveys and linked validation or correction tasks are excluded from the discovery-task denominator. Unknown evidence classifications remain visible. Exploration-only ledger events do not trigger deployment; this activity snapshot refreshes on publication.</p></details>
+  </div>
+</section>
 
 <section class="section" id="assignmentQueueSection" hidden aria-labelledby="assignmentQueueTitle">
   <h3 class="section-title" id="assignmentQueueTitle">Shared work queue</h3>
@@ -1058,6 +1092,8 @@ const DATA = /*DATA_PLACEHOLDER*/null;
 const activityUtilization = /*UTILIZATION_PLACEHOLDER*/null;
 const integrationDurations = /*INTEGRATION_DURATION_PLACEHOLDER*/null;
 const createChartTimeRange = /*TIME_RANGE_PLACEHOLDER*/null;
+const aggregateExplorationYield = /*EXPLORATION_AGGREGATE_PLACEHOLDER*/null;
+const renderExplorationYield = /*EXPLORATION_RENDER_PLACEHOLDER*/null;
 // Main and Prep are stored ledger keys; role names change only at presentation.
 const agentName = value => value === 'Main' ? 'Work lead' : value === 'Prep' ? 'Challenge lead'
   : /^Worker-[1-3]$/.test(value) ? value.replace('-', ' ') : value;
@@ -1098,7 +1134,13 @@ function relativeTime(iso) {
 }
 
 // --- Last updated ---
-document.getElementById('updated').textContent = 'Snapshot ' + relativeTime(DATA.summary.generatedAt);
+const activityAsOf = DATA.activity?.capturedAt;
+document.getElementById('updated').textContent = activityAsOf
+  ? 'Activity snapshot ' + relativeTime(activityAsOf) : 'Activity snapshot unavailable';
+document.getElementById('updated').title = (activityAsOf ? 'Activity as of ' + activityAsOf + '. ' : '')
+  + 'Page built ' + DATA.summary.generatedAt + '. Activity updates on publication.';
+renderExplorationYield({payload:DATA.explorationYield,aggregate:aggregateExplorationYield,
+  createRange:createChartTimeRange,document,window,getStyle:getComputedStyle});
 
 // Shared range geometry for the score and activity overview charts.
 function drawRangeSelector(ctx, left, right, height, ink) {

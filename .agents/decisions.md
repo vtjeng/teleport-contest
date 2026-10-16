@@ -13,6 +13,31 @@ and link their evidence here. Preserve older entries; a later reversal links to
 the earlier decision and states its reason. Do not backfill assumed adoption
 or measured benefits from pending proposals.
 
+## 2026-10-16 — Exploration discovery history
+
+- Change: Vincent requested a primary hourly view of unique qualified mismatching
+  sessions and supported first-cause families. Claimed/closed discovery tasks,
+  reported C-evidence usability, unknowns and dispositions provide context;
+  qualified sessions per 100 closed tasks is a secondary task-level rate.
+- Implementation: metrics and audited index in
+  [b78a09a39](https://github.com/vtjeng/teleport-contest/commit/b78a09a39677de73a0cff497f4f078e9de18c9f3),
+  originally Process analyst f13840c08, with the dashboard renderer and snapshot wiring in
+  the same publication. Immutable packet digests bind retrospective classifications;
+  current ledger events keep new unknowns visible. Main support, linked follow-ups
+  and v90's seven recovered cases are outside the discovery denominator. Carried
+  sessions retain their original discovery time. Physical C-attempt and session
+  denominators remain unavailable.
+- Why: the earlier dashboard lag came from publication-only snapshot creation;
+  exploration ledger events did not trigger deployment. Show activity snapshot
+  freshness separately from page build time. This adds no automatic refresh cadence.
+  Three dated operational markers are not strategy experiments or causal evidence.
+- Benefit/tradeoff: reviewable discovery history, with sparse samples, retrospective
+  classifications and snapshot lag stated explicitly. Existing claim, evidence,
+  admission, validation and publication gates remain unchanged.
+- Follow-up: **unmeasured**. Review UI usefulness after publication and discovery
+  yield after a separately predeclared strategy experiment; task throughput is not
+  a success criterion.
+
 ## 2026-10-15 — ongoing friction triage and an adopted-change log
 
 - Change: make friction triage a standing Process analyst responsibility, with

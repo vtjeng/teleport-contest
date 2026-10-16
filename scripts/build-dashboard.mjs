@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url';
 import { activityUtilization, integrationDurations } from './dashboard-activity.mjs';
 import { workerWork } from './worker-backlog.mjs';
 import { createChartTimeRange } from './dashboard-time-range.mjs';
+import { aggregateExplorationYield } from './exploration-yield.mjs';
+import { renderExplorationYield } from './dashboard-exploration.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The history and per-case challenge data can exceed execSync's 1 MiB default.
@@ -38,6 +40,8 @@ export function injectDashboardData(template, data, queueData, commit) {
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
     .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString())
     .replace('/*TIME_RANGE_PLACEHOLDER*/null', () => createChartTimeRange.toString())
+    .replace('/*EXPLORATION_AGGREGATE_PLACEHOLDER*/null', () => aggregateExplorationYield.toString())
+    .replace('/*EXPLORATION_RENDER_PLACEHOLDER*/null', () => renderExplorationYield.toString())
     .replace('/*INTEGRATION_DURATION_PLACEHOLDER*/null', () => integrationDurations.toString());
   if (commit === undefined) return html;
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Expected a full dashboard commit SHA');
