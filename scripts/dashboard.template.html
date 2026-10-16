@@ -442,8 +442,13 @@ canvas {
 .batch-picker { position: relative; width: max-content; max-width: 100%; margin: 0; font-size: 12px; }
 .batch-picker summary { cursor: pointer; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; white-space: nowrap; }
 .batch-picker[open] summary { border-color: var(--progress-fill); }
-.batch-picker-options { position: absolute; z-index: 6; top: 100%; right: 0; min-width: 220px; max-height: min(55vh, 360px); overflow-y: auto; padding: 6px; background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); }
-.batch-picker-options label { display: flex; align-items: center; gap: 8px; padding: 5px 6px; cursor: pointer; white-space: nowrap; }
+.batch-picker-panel { position:absolute; z-index:20; top:calc(100% + 8px); right:0; width:300px; max-width:calc(100vw - 32px); display:flex; flex-direction:column; gap:8px; padding:12px; background:var(--surface-card); border:1px solid var(--border); border-radius:10px; box-shadow:0 10px 32px #0002; }
+.batch-picker-tools { display:flex; gap:8px; }
+.batch-picker-tools input { min-width:0; width:100%; font:inherit; font-size:16px; padding:7px 9px; color:var(--ink-primary); background:var(--surface-card); border:1px solid var(--border); border-radius:6px; }
+.batch-picker-tools button { font:inherit; padding:7px 9px; color:var(--ink-primary); background:var(--surface-chart); border:1px solid var(--border); border-radius:6px; }
+.batch-picker-count { margin:0; color:var(--ink-muted); }
+.batch-picker-options { min-height:0; max-height:min(55vh,360px); overflow-y:auto; }
+.batch-picker-options label { display: flex; align-items: center; gap: 8px; min-height:40px; padding: 5px 6px; cursor: pointer; white-space: nowrap; }
 .batch-picker-options label:hover { background: var(--progress-area); }
 .batch-picker-options input { margin: 0; }
 .batch-picker-options small { margin-left: auto; color: var(--ink-muted); }
@@ -551,7 +556,7 @@ canvas {
 .phase-admission { --bar: var(--stage-admission); }
 .phase-baseline { --bar: var(--stage-baseline); }
 .phase-pending, .phase-queued { --bar: var(--stage-pending); }
-.phase-blocked { --bar: var(--stage-waiting); }
+.phase-blocked, .phase-waiting { --bar: var(--stage-waiting); }
 .phase-idle { --bar: #8c949c; }
 .phase-parked { --bar: #a87930; }
 .activity-inspection { min-width: 0; }
@@ -1053,7 +1058,11 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
         </div>
         <details class="batch-picker" id="historyBatchPicker">
           <summary id="historyBatchSummary">Batches</summary>
-          <div class="batch-picker-options" id="historyBatchOptions" role="group" aria-label="Visible challenge batches"></div>
+          <div class="batch-picker-panel" id="historyBatchPanel">
+            <div class="batch-picker-tools"><input type="search" id="historyBatchSearch" aria-label="Find a challenge batch" placeholder="Search batches, e.g. v95"><button type="button" id="historyBatchLatest" title="Find the newest batch">Latest</button></div>
+            <p class="batch-picker-count" id="historyBatchCount" role="status"></p>
+            <div class="batch-picker-options" id="historyBatchOptions" role="group" aria-label="Visible challenge batches"></div>
+          </div>
         </details>
         <details class="time-range-picker" id="progressRangePicker"><summary id="progressRangeSummary">7 days · Now</summary>
         <form class="time-range-selector" id="progressRangeForm" aria-label="Progress time selection">
@@ -1399,10 +1408,47 @@ document.getElementById('stats').innerHTML = [
     return cases.some(item => challengeExclusion(item)) ? 'No pending work' : 'Resolved';
   };
   const selectedBatches = new Set(series.slice(1).filter(entry => batchWorkStatus(entry) === 'Unresolved').map(entry => entry.id));
-  batchOptions.innerHTML = series.slice(1).map(entry => '<label><input type="checkbox" data-series="'
-    + escScoreText(entry.id) + '"' + (selectedBatches.has(entry.id) ? ' checked' : '') + '><span>'
-    + escScoreText(batchId(entry)) + '</span><small>' + batchWorkStatus(entry)
-    + '</small></label>').join('');
+  const batchPicker=document.getElementById('historyBatchPicker'),batchPanel=document.getElementById('historyBatchPanel');
+  const batchSearch=document.getElementById('historyBatchSearch');
+  const batchEntries=series.slice(1).sort((a,b)=>batchId(b).localeCompare(batchId(a),'en',{numeric:true}));
+  function filterBatches() {
+    const query=String(batchSearch.value||'').trim().toLowerCase();
+    const shown=batchEntries.filter(entry=>batchId(entry).toLowerCase().includes(query));
+    batchOptions.innerHTML=shown.map(entry=>'<label><input type="checkbox" data-series="'
+      +escScoreText(entry.id)+'"'+(selectedBatches.has(entry.id)?' checked':'')+'><span>'
+      +escScoreText(batchId(entry))+'</span><small>'+batchWorkStatus(entry)+'</small></label>').join('');
+    document.getElementById('historyBatchCount').textContent=shown.length+' of '+batchEntries.length+' batches · newest first';
+  }
+  function positionBatches() {
+    if(!batchPicker.open)return;
+    const width=document.documentElement.clientWidth||window.innerWidth;
+    const height=window.visualViewport?.height||window.innerHeight,top=window.visualViewport?.offsetTop||0;
+    batchPanel.style.maxHeight=Math.max(0,height-32)+'px';
+    const box=batchPicker.getBoundingClientRect(),panel=batchPanel.getBoundingClientRect();
+    batchPanel.style.right='auto';
+    batchPanel.style.left=(Math.max(16,Math.min(box.left,width-panel.width-16))-box.left)+'px';
+    batchPanel.style.top=(Math.max(top+16,Math.min(box.bottom+6,top+height-panel.height-16))-box.top)+'px';
+  }
+  const datePickers=['yield','activity','progress'].map(prefix=>document.getElementById(prefix+'RangePicker'));
+  batchPicker.addEventListener('toggle',()=>{
+    if(batchPicker.open){for(const picker of datePickers)picker.open=false;positionBatches();}
+  });
+  for(const picker of datePickers)picker.addEventListener('toggle',()=>{if(picker.open)batchPicker.open=false;});
+  batchPicker.addEventListener('keydown',event=>{
+    if(event.key==='Escape'){event.preventDefault();batchPicker.open=false;batchSummary.focus?.();}
+  });
+  batchPicker.addEventListener('focusout',event=>{
+    if(event.relatedTarget&&!batchPicker.contains(event.relatedTarget))batchPicker.open=false;
+  });
+  document.addEventListener?.('pointerdown',event=>{if(!batchPicker.contains(event.target))batchPicker.open=false;});
+  batchSearch.addEventListener('input',()=>{filterBatches();positionBatches();});
+  document.getElementById('historyBatchLatest').addEventListener('click',()=>{
+    batchSearch.value=batchEntries[0]?batchId(batchEntries[0]):'';filterBatches();positionBatches();batchSearch.focus?.();
+  });
+  window.addEventListener('resize',positionBatches);
+  window.visualViewport?.addEventListener('resize',positionBatches);
+  window.visualViewport?.addEventListener('scroll',positionBatches);
+  filterBatches();
   const visibleSeries = () => series.filter((entry, index) => index === 0 || selectedBatches.has(entry.id));
   const minimap = document.getElementById('progressMinimap');
   const rangeLabel = document.getElementById('progressRange');
@@ -1903,11 +1949,12 @@ document.getElementById('stats').innerHTML = [
     integrating: 'Integration and checks', acceptance: 'Acceptance',
     publication: 'Publication', review: 'Pre-merge inspection', rework: 'Rework', parked: 'Parked (task paused)',
     admission: 'Batch admission', baseline: 'Batch baseline',
-    blocked: 'Blocked', idle: 'Idle (worker report)', unrecorded: 'Unrecorded time' };
+    waiting: 'Waiting (reported)', blocked: 'Blocked', idle: 'Idle (worker report)', unrecorded: 'Unrecorded time' };
+  const phaseName=phase=>phaseNames[phase]||(phase?'Recorded stage: '+phase:'Unrecorded stage');
   const legendGroups = [
     ['Workers', ['working', 'rework', 'parked']],
     ['Work lead', ['review', 'integrating', 'acceptance', 'publication', 'admission', 'baseline']],
-    ['Availability', ['blocked', 'idle', 'unrecorded']],
+    ['Availability', ['waiting', 'blocked', 'idle', 'unrecorded']],
   ];
   document.getElementById('timelineLegend').innerHTML = legendGroups.map(([label, phases]) =>
     '<div class="activity-legend-group"><strong>' + label + '</strong><div class="activity-legend-items">' + phases.map(phase =>
@@ -1977,7 +2024,8 @@ document.getElementById('stats').innerHTML = [
     { hour: '2-digit', minute: '2-digit', hour12: false });
   const duration = segment => (Date.parse(segment.end) - Date.parse(segment.start)) / 60000;
   const name = segment => taskById.get(segment.task)?.label
-    || (segment.label ? displayLane(segment.label) : segment.task);
+    || (segment.label ? displayLane(segment.label) : segment.task||segment.goal
+      ||(segment.batch?'Challenge batch '+segment.batch:'Unrecorded task'));
   function describeDuration(point) {
     if (!point) {
       durationReadout.textContent = 'Select an attempt for its exact duration and task details.';
@@ -2110,7 +2158,7 @@ document.getElementById('stats').innerHTML = [
       : event.key === 'ArrowLeft' ? Math.max(0, index - 1) : Math.min(plottedDurations.length - 1, index + 1);
     selectDuration(plottedDurations[next]?.point);
   });
-  const isBlock = segment => ['blocked', 'parked'].includes(segment.phase);
+  const isBlock = segment => ['blocked', 'parked', 'waiting'].includes(segment.phase);
   const isWait = segment => isBlock(segment) || ['idle', 'unrecorded'].includes(segment.phase);
   const batch = segment => taskById.get(segment.task)?.batch || segment.batch;
   const barName = segment => segment.phase === 'integrating' && (segment.validationGroup || segment.prepGroup)
@@ -2129,8 +2177,10 @@ document.getElementById('stats').innerHTML = [
       [...(readout.querySelectorAll?.(':scope > section') ?? [])].map(section => section.scrollTop));
     describedTask = segment.task;
     const task = taskById.get(segment.task);
+    const hasTask=Boolean(task||segment.task||segment.goal||segment.batch);
     const reasonLabel = segment.phase === 'parked' ? 'Reason for pause: '
-      : segment.phase === 'blocked' ? 'Reported blocker: ' : segment.phase === 'idle' ? 'Worker report: ' : '';
+      : segment.phase === 'blocked' ? 'Reported blocker: ' : segment.phase === 'waiting' ? 'Reported wait: '
+        : segment.phase === 'idle' ? 'Worker report: ' : '';
     const selectedSource = source === history ? index : segment.sourceIndex;
     const lifespan = task ? history.map((row, sourceIndex) => ({ row, sourceIndex }))
       .filter(({ row }) => row.task === segment.task)
@@ -2138,9 +2188,9 @@ document.getElementById('stats').innerHTML = [
     const worker = displayLane(task?.worker || segment.worker || segment.lane);
     const actor = displayLane(segment.lane);
     readout.innerHTML = '<section><h4>Task details</h4><dl class="activity-task-fields">'
-      + '<dt>Task</dt><dd>' + (task ? '<strong>' + esc(name(segment)) + '</strong>' : 'None') + '</dd>'
+      + '<dt>Task</dt><dd>' + (hasTask ? '<strong>' + esc(name(segment)) + '</strong>' : 'None') + '</dd>'
       + '<dt>Worker</dt><dd>' + esc(worker) + '</dd>'
-      + '<dt>Stage</dt><dd>' + (actor === worker ? '' : esc(actor) + ' · ') + esc(phaseNames[segment.phase]) + '</dd>'
+      + '<dt>Stage</dt><dd>' + (actor === worker ? '' : esc(actor) + ' · ') + esc(phaseName(segment.phase)) + '</dd>'
       + (task ? '<dt>Status</dt><dd>' + esc(task.status) + '</dd>' : '')
       + (task?.goal ? '<dt>Goal</dt><dd>' + esc(task.goal) + '</dd>' : '')
       + (task?.parentTask ? '<dt>Batch task</dt><dd>' + esc(taskById.get(task.parentTask)?.label || task.parentTask) + '</dd>' : '')
@@ -2159,7 +2209,7 @@ document.getElementById('stats').innerHTML = [
         return '<li' + (selected ? ' class="selected"' : '') + '><button'
             + (sourceIndex === undefined ? ' disabled' : ' data-history="' + sourceIndex + '"')
             + (selected ? ' aria-current="step"' : '') + '>'
-            + esc(displayLane(row.lane)) + ' · ' + phaseNames[row.phase] + ' · ' + (row.durationUnknown ? 'duration unknown' : fmt(duration(row)))
+            + esc(displayLane(row.lane)) + ' · ' + esc(phaseName(row.phase)) + ' · ' + (row.durationUnknown ? 'duration unknown' : fmt(duration(row)))
             + (selected ? ' · selected' : '') + '<br>' + (row.durationUnknown ? 'Published by <time>' + stamp(row.end) + '</time>'
               : '<time>' + stamp(row.start) + '</time> → <time>' + stamp(row.end) + '</time>')
             + (row.superseded ? ' · end event missing' : row.ongoing ? ' · open at snapshot' : '') + '</button></li>';
@@ -2215,7 +2265,7 @@ document.getElementById('stats').innerHTML = [
           + (Date.parse(bar.segment.end) > viewEnd ? ' continues-right' : '')
           + (bar.index === selectedIndex ? ' selected' : '') + '" data-segment="'
           + bar.index + '" tabindex="0" role="button" aria-label="'
-          + esc(phaseNames[bar.segment.phase] + ' for ' + barName(bar.segment)
+          + esc(phaseName(bar.segment.phase) + ' for ' + barName(bar.segment)
           + ', ' + fmt(duration(bar.segment))) + '" style="left:'
           + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
           + '%;top:13px;height:22px">' + (((bar.b - bar.a) / span)

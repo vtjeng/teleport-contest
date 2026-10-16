@@ -156,7 +156,10 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
                 if(event.target===elements.DurationCustom?applyDuration():applyEnd())close(true);
             }
         });
-        elements.RangePicker.addEventListener('toggle',position);
+        elements.RangePicker.addEventListener('toggle',()=>{
+            if(elements.RangePicker.open)position();
+            else {draft=false;sync();}
+        });
         elements.RangePicker.addEventListener('focusout',event=>{
             if(elements.RangePicker.open&&event.relatedTarget&&!elements.RangePicker.contains(event.relatedTarget))close();
         });

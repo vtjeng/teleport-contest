@@ -1494,3 +1494,38 @@ test('activity navigator draws only Main stages using their stage colors', () =>
     assert.equal(ops.filter(([call, , y, , height]) => call === 'fillRect' && y === 12 && height === 18).length, 1);
     assert.ok(ops.some(([call, key, value]) => call === 'set' && key === 'fillStyle' && value === '--stage-integrating'));
 });
+
+test('batch browsing is newest first, searchable, and preserves visibility choices',()=>{
+    const data=sourceDashboardData();
+    data.scoreHistory=[data.scoreHistory[0],...[1,9,95].map(n=>({id:'syntheticHoldout-v'+n,title:'Batch v'+n,points:[]}))];
+    const rendered=renderDashboard(data),options=rendered.get('historyBatchOptions'),search=rendered.get('historyBatchSearch');
+    const order=options.innerHTML;
+    assert.ok(order.indexOf('v95</span>')<order.indexOf('v9</span>'));
+    assert.ok(order.indexOf('v9</span>')<order.indexOf('v1</span>'));
+    search.value='v9';search.listeners.input[0]();
+    assert.match(options.innerHTML,/v95<\/span>/);assert.match(options.innerHTML,/v9<\/span>/);
+    assert.doesNotMatch(options.innerHTML,/v1<\/span>/);
+    options.listeners.change[0]({target:{dataset:{series:'syntheticHoldout-v95'},checked:false}});
+    search.value='';search.listeners.input[0]();
+    assert.match(options.innerHTML,/data-series="syntheticHoldout-v95"><span>v95/);
+    rendered.get('historyBatchLatest').listeners.click[0]();
+    assert.equal(search.value,'v95');assert.match(rendered.get('historyBatchCount').textContent,/1 of 3/);
+    const picker=rendered.get('historyBatchPicker');picker.open=true;
+    picker.listeners.keydown[0]({key:'Escape',preventDefault(){}});assert.equal(picker.open,false);
+    picker.open=true;const date=rendered.get('progressRangePicker');date.open=true;
+    for(const fn of date.listeners.toggle)fn();assert.equal(picker.open,false);
+});
+
+test('recorded preparation waits have explicit stage and lifespan labels',()=>{
+    const data=sourceDashboardData();
+    data.activity=activityTimeline({events:[
+        {type:'assign',task:'prep-v96-source',worker:'Prep',kind:'challenge-preparation',batch:'v96',at:'2026-10-16T12:00:00Z'},
+        {type:'activity',task:'prep-v96-source',phase:'waiting',reason:'Await source findings.',at:'2026-10-16T13:00:00Z'},
+    ]},'2026-10-16T14:00:00Z');
+    const rendered=renderDashboard(data),index=data.activity.stages.findIndex(r=>r.phase==='waiting');
+    rendered.get('timeline').listeners.click[0]({target:{classList:{contains:v=>v==='activity-bar'},dataset:{segment:String(index)}}});
+    const html=rendered.get('timelineReadout').innerHTML;
+    assert.match(html,/<dt>Stage<\/dt><dd>Work lead · Waiting \(reported\)<\/dd>/);
+    assert.match(html,/Reported wait: /);assert.match(html,/prep-v96-source/);
+    assert.doesNotMatch(html,/undefined|<dt>Stage<\/dt><dd><\/dd>/);
+});
