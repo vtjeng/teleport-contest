@@ -43,6 +43,6 @@
     "C source: nethack-c/upstream/src/do_name.c:158-194 implements the special Jubilex check; lines 199-282 invoke alreadynamed before the generic unique-monster refusal.",
       "JavaScript source: js/do_name.js:478-524 contains the corresponding branch; js/hacklib.js:422-428 documents strstri() as returning a numeric offset, so an offset-zero match is falsy in the current boolean test. js/mondata.js:1558-1559 documents monsndx() as the JavaScript equivalent of C monsndx(), with pmidx as stable species identity.",
     "Existing admitted synthetic recording: v91-juiblex-jubilex-name-refusal, 49 screens; the first and only observed mismatch is the final refusal at step 48. Recorded and independently replayed C bytes are identical (SHA256 c4cbe7b51b5a847e0ec5a88bb646ebe6c3a30f0dd8606fd115b9ff5ed2600263).",
-    "Validation required: add focused tests for both a same-object Juiblex and a cloned species record with the same pmidx, then run the unchanged recipe through a fresh C/JavaScript differential after the fix."
+    "The regression is reproduced by a focused same-object Juiblex test before the fix: strstri returns offset zero and the branch is skipped. After changing the condition to strstri(...) >= 0 and using monsndx() for species identity, focused tests pass for both same-object and cloned-species data. The unchanged recipe passes a fresh C/JavaScript differential: 49/49 screens and cursors, all 2455 RNG values, and zero animation frames match. synthetic-range-evidence confirms the admitted v91 case through step 48."
   ]
 }
