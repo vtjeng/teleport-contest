@@ -449,7 +449,7 @@ canvas {
 .history-controls .chart-reset { border: 0; border-radius: 0; }
 .history-controls .chart-reset + .chart-reset { border-left: 1px solid var(--border); }
 .history-controls [aria-pressed="true"] { background: var(--progress-area); color: var(--ink-primary); border-color: var(--ink-secondary); }
-.history-view-controls { display: flex; flex-wrap:wrap; align-items: center; gap: 10px; margin-left: auto; max-width: 100%; min-width:0; }
+.history-view-controls { display: flex; flex-wrap:wrap; align-items: center; justify-content:flex-end; gap: 10px; margin-left: auto; max-width: 100%; min-width:0; }
 #progressWindow { font: inherit; font-size: 12px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .batch-picker { position: relative; width: max-content; max-width: 100%; margin: 0; font-size: 12px; }
 .batch-picker summary { cursor: pointer; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; white-space: nowrap; }
@@ -933,7 +933,7 @@ canvas {
 .time-range-picker { position:relative; max-width:100%; }
 .time-range-picker > summary { cursor:pointer; font-size:13px; padding:7px 11px; min-height:36px; border:1px solid var(--border); border-radius:6px; background:var(--surface-chart); }
 .time-range-picker > summary:hover { border-color:var(--ink-muted); }
-.time-range-picker > form { position:absolute; z-index:20; top:calc(100% + 8px); left:0; width:440px; max-width:min(440px,calc(100vw - 32px)); max-height:calc(100vh - 32px); overflow:auto; padding:18px; border:1px solid var(--border); border-radius:10px; background:var(--surface-card); box-shadow:0 10px 32px #0002; }
+.time-range-picker > form { position:absolute; z-index:20; top:calc(100% + 8px); right:0; width:440px; max-width:min(440px,calc(100vw - 32px)); max-height:calc(100vh - 32px); overflow:auto; padding:18px; border:1px solid var(--border); border-radius:10px; background:var(--surface-card); box-shadow:0 10px 32px #0002; }
 button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visible { outline:2px solid var(--integration-blue); outline-offset:3px; }
 #yieldRangeAsOf { display:none; } /* The visible snapshot line supplies the same freshness. */
 @media (max-width: 720px) {
