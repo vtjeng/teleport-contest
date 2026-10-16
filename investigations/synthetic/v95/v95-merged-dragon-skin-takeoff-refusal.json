@@ -1,0 +1,51 @@
+{
+  "session": "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal",
+  "remainingScreens": 1,
+  "recordedSteps": 55,
+  "corpus": "synthetic",
+  "batch": "v95",
+  "caseId": "v95-merged-dragon-skin-takeoff-refusal",
+  "manifestPath": "challenges/manifests/v95.json",
+  "manifestSha256": "5a96212046a856d9019b871d79c55335b3e1a0f73e6511510b43ee0784d7224c",
+  "recordingSha256": "fbaefdaeef1c5e667f082b713d970783e619318c533e6237e4ce6db9b0ac1707",
+  "evaluationPath": "challenges/evaluations/admission-19608296cf9fcc24c1111d9f33c01d97198b3608-v95.json",
+  "evaluationCommit": "19608296cf9fcc24c1111d9f33c01d97198b3608",
+  "recipePath": "challenges/cases/v95/v95-merged-dragon-skin-takeoff-refusal.recipe.session.json",
+  "recipeSha256": "1986620a76d3280299903f41b21ee7a6a43f7f16779cc17cf35c0f75c05d0a47",
+  "status": "complete",
+  "goalKind": "divergence-fix",
+  "commit": "531610d03099f0757adda49f2861a53a1824c4ee",
+  "mismatch": {
+    "session": "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal",
+    "remainingScreens": 1,
+    "segment": 0,
+    "step": 54,
+    "key": "T",
+    "kind": "screen",
+    "row": 0,
+    "column": 0,
+    "owner": "do_wear.c:dotakeoff merged-uskin branch",
+    "sourceBehavior": "When no ordinary armor or accessories remain, C reports the armor embedded in the player's skin.",
+    "c": "T",
+    "js": "N"
+  },
+  "summary": "The v95 C recording performs a legal controlled polymorph into a gray dragon while wearing only ordinary gray dragon scales; C converts those scales into global uskin and removes them from uarm. On the final ordinary T command, C prints the merged-skin message. The JavaScript replay prints the generic no-armor message instead. A fresh current-base session replay at 531610d03099f0757adda49f2861a53a1824c4ee still has exactly one unmatched screen: 54 of 55 match; RNG is 2857/2857 and cursors 55/55. In JS, the controlled merge stores the object at state.uskin, but do_wear.js:dotakeoff reads state.u.uskin. No JS source reference otherwise stores or reads a nested u.uskin value, so this guard tests a different state location than the writer and C global uskin branch.",
+  "source": {
+    "file": "do_wear.c",
+    "branch": "dotakeoff() lines 1833-1853: after count_worn_stuff, the no-armor/no-accessory branch checks global uskin and prints either dragon scales or dragon scale mail merged with skin; the ordinary T command is registered in cmd.c:1887.",
+    "functions": ["dotakeoff"],
+    "callers": [
+      "cmd.c:1887 T command -> dotakeoff()",
+      "js/cmd.js:3459-3464 read command wrapper and cmd dispatcher case at 5259 -> dotakeoff(state)"
+    ],
+    "dependencies": []
+  },
+  "evidence": [
+    "nethack-c/upstream/src/do_wear.c:1833-1853 checks the C global uskin in the early branch before printing the merged-skin message.",
+    "nethack-c/upstream/src/polyself.c:620-662 sets uskin=uarm, clears uarm, and marks the object I_SPECIAL for the controlled matching-dragon merge.",
+    "js/polyself.js:1919-1920 stores the merged object in state.uskin and clears state.uarm; js/polyself.js:661-669 restores from state.uskin.",
+    "js/do_wear.js:3960-3977 reads state.u.uskin in the corresponding dotakeoff early branch. Recursive source search finds no other JS assignment to state.u.uskin; other uskin consumers use state.uskin.",
+    "The admitted v95 recording and historical comparison first differ at segment 0 step 54 on key T, screen row 0 column 0: C T versus JS N, with 2857 RNG calls and 55 cursors aligned. The accepted evaluation records 54/55 screens matched.",
+    "A fresh JavaScript replay from the claimed base 531610d03099f0757adda49f2861a53a1824c4ee independently remains 54/55 screens, 2857/2857 RNG calls, and 55/55 cursors; no C runtime was needed for this verification."
+  ]
+}
