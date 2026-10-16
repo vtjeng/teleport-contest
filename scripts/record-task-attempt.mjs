@@ -83,6 +83,11 @@ function groupHasWriters(group) {
     }
     return false;
 }
+function groupExists(group) {
+    if (!group) return false;
+    try {process.kill(-group, 0); return true;}
+    catch (error) {if (error.code === 'ESRCH') return false; throw error;}
+}
 function launch(command, {cwd, stdout, stderr, env}) {
     return new Promise((resolveChild, reject) => {
         let child;
@@ -105,18 +110,26 @@ function launch(command, {cwd, stdout, stderr, env}) {
         };
         const collect = () => {
             if (settled) return;
-            let writers;
-            try {writers = groupHasWriters(child.pid);}
+            let exists, writers = true;
+            try {
+                exists = groupExists(child.pid);
+                // While TERM is pending a descendant could fork during /proc
+                // enumeration. Only use the zombie-aware probe after KILL;
+                // absence of the whole group is safe at any earlier point.
+                if (stoppedAt && Date.now() - stoppedAt >= 1000) {
+                    signalGroup('SIGKILL');
+                    writers = groupHasWriters(child.pid);
+                }
+            }
             catch (error) {
                 cleanupError = `cannot verify recorder group collection: ${error.message}`;
                 signalGroup('SIGKILL'); finish(false); return;
             }
-            if (closed && !writers) {finish(true); return;}
-            if (closed && writers && !stoppedAt) {
+            if (closed && (!exists || !writers)) {finish(true); return;}
+            if (closed && exists && !stoppedAt) {
                 cleanupError = 'recorder exited with live descendants';
                 stoppedAt = Date.now(); signalGroup('SIGTERM');
             }
-            if (stoppedAt && Date.now() - stoppedAt >= 1000) signalGroup('SIGKILL');
             if (stoppedAt && Date.now() - stoppedAt >= 3000) {
                 cleanupError = 'recorder group collection did not finish; retain started-only evidence';
                 finish(false); return;
