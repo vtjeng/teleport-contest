@@ -142,13 +142,13 @@ Use current complete saved evaluations to decide admission priority. Missing
 or stale evidence is not a zero count: refresh it before deciding. Record queue
 starvation in the friction log.
 
-Plan at least 12 new, independently designed C behavior candidates per batch
-before comparing their JavaScript results. For each candidate, name the source
+Independently design each C behavior candidate before comparing its JavaScript
+result. There is no minimum number of designs for search, comparison or
+submission; one eligible case may proceed. For each candidate, name the source
 behavior, the state and action history needed to reach it, and the C
-observation that will show it was reached. Earlier admitted cases do not count
-toward this target. A candidate overlapping an unresolved admitted case, an
-earlier submitted unadmitted case, or another case in the new batch does not
-count either. Draw candidates from current source-traced blockers and parked
+observation that will show it was reached. Earlier admitted cases and candidates
+overlapping an unresolved admitted case, an earlier submitted unadmitted case,
+or another case in the new batch do not establish a distinct new behavior. Draw candidates from current source-traced blockers and parked
 work, the roadmap's under-exercised functions,
 and earlier missions that missed their intended behavior. Prefer targets with
 a plausible C route and different source owners; reserve some missions for less
@@ -181,8 +181,8 @@ Preserve already-submitted batches and their saved control rationales.
 After two materially different C setups fail to reach a difficult target,
 defer it with the observed reason and try another; a cheap source-proven route
 can justify another attempt. Replace deferred targets with different reachable
-behaviors. The 12-candidate planning minimum is not a delivery minimum: submit
-a nonempty, validated group of distinct failures without waiting to find 12.
+behaviors. Submit a nonempty, validated group of distinct failures as soon as
+it is ready; a single qualifying failure is sufficient.
 If no failures qualify, report the searched behaviors and blockers, then
 continue with other targets. Park only for a concrete blocker.
 Choose further candidate behaviors from the C source and coverage gaps; do not

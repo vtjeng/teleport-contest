@@ -189,3 +189,13 @@ source/duplicate review, comparison eligibility or acceptance. Expected benefit
 is less producer-to-worker handoff; discovery-yield and coordination effects
 remain unmeasured. Existing lead-owned C-only authorization does not wait for
 this documentation publication or establish a verified runtime model variant.
+
+## 2026-10-16 — Remove minimum discovery-design count
+
+Vincent explicitly removed the minimum number of candidate designs for search,
+JavaScript comparison and submission. The active rule in selection now permits
+one eligible case; earlier dated twelve-design planning records are historical
+and superseded on that point. Independent design, valid C evidence, unchanged
+replay, fixed accepted comparison, distinct source attribution and normal
+acceptance/admission remain required. Expected benefit is earlier feedback from
+a useful case; discovery yield and coordination effects remain unmeasured.
