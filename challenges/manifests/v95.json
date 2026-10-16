@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "batch": "v95",
+  "comparisonBase": "229bf7d385d25a0d250bcaff2b5db6d18166969a",
+  "preparationComparisonBase": "229bf7d385d25a0d250bcaff2b5db6d18166969a",
+  "preparationBase": "f01a98be70225ad27dc776fadde4651d895c165c",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v95-merged-dragon-skin-takeoff-refusal",
+      "title": "Merged dragon scales prevent an ordinary takeoff attempt",
+      "mission": "Merge ordinary gray dragon scales into the matching controlled dragon form, then issue one ordinary T while no other armor/accessories are worn.",
+      "recipe": "challenges/cases/v95/v95-merged-dragon-skin-takeoff-refusal.recipe.session.json",
+      "recipeSha256": "1986620a76d3280299903f41b21ee7a6a43f7f16779cc17cf35c0f75c05d0a47",
+      "recording": "challenges/cases/v95/v95-merged-dragon-skin-takeoff-refusal.session.json",
+      "recordingSha256": "fbaefdaeef1c5e667f082b713d970783e619318c533e6237e4ce6db9b0ac1707",
+      "reproducibility": "One independent unchanged input-only C replay exited0 and was byte-identical to the frozen recording. Original command/stdout/stderr/exit and exact hashes are retained; current qualification is JS-only and did not rerun C.",
+      "sourcePointers": [
+        "do_wear.c:dotakeoff1838–1850",
+        "polyself.c:controlled dragon armor merge620–662",
+        "js/do_wear.js:dotakeoff3964–3977",
+        "js/polyself.js:polyself1919–1920"
+      ],
+      "sourceTrace": "C preserves the merged armor in global uskin and dotakeoff checks it when no ordinary armor/accessories remain. JS controlled merge writes state.uskin while dotakeoff reads state.u.uskin, choosing the generic no-armor line. The observed first differing character is C T versus JS N at the single final T. This source representation disagreement does not assert hidden runtime introspection; both comparisons independently reproduce the guard output.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 54,
+        "key": "T",
+        "kind": "screen",
+        "row": 0,
+        "column": 0,
+        "owner": "do_wear.c:dotakeoff merged uskin early branch",
+        "sourceBehavior": "Merged armor must use global uskin state for the no-armor early refusal",
+        "c": "T",
+        "js": "N"
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2857,
+            "js": 2857
+          },
+          "screens": {
+            "c": 55,
+            "js": 55
+          },
+          "cursors": {
+            "c": 55,
+            "js": 55
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 54,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 54,
+            "key": "T"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 0,
+          "cCell": {
+            "ch": "T",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": "N",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": null,
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "229bf7d385d25a0d250bcaff2b5db6d18166969a",
+          "recordingSha256": "fbaefdaeef1c5e667f082b713d970783e619318c533e6237e4ce6db9b0ac1707"
+        }
+      },
+      "workerResult": "88126599068751a34005f17a0789a56400ea896d4ffbc9b2802295a8f616877f",
+      "currentValidationResult": "ee7a5c44b84329de2f7674293632d8ca642a79f6030f4a3521dc86d1cbb5e2e6",
+      "independentReplay": {
+        "recipeSha256": "1986620a76d3280299903f41b21ee7a6a43f7f16779cc17cf35c0f75c05d0a47",
+        "recordingSha256": "fbaefdaeef1c5e667f082b713d970783e619318c533e6237e4ce6db9b0ac1707",
+        "replaySha256": "fbaefdaeef1c5e667f082b713d970783e619318c533e6237e4ce6db9b0ac1707",
+        "byteIdentical": true,
+        "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4"
+      },
+      "overlap": {
+        "review": "Full actual raw prior audit15423sessions found zero merged-skin refusal; three parse errors retained and raw-text scan limits explicit. Related95no-uskinT and v22R exercise different state/command arms. Existing dragon-polymorph setups/skinback light gaps do not establish a directT merged-state witness or the same first mismatch. FixedJuiblex/polymorph-min/bullwhip and admitted card punctuation plus known90 source causes are different. Unknown historical claims remain unknown; no closed helper certifies this caller.",
+        "comparables": [
+          {
+            "reference": "v95-unarmored-takeoff-no-armor-refusal;3bc1ac98…",
+            "difference": "Matched same outer count branch with uskin null; selected actual merged armor has uskin nonnull."
+          },
+          {
+            "reference": "v22-wizard-nymph-leash-theft-empty-inventory",
+            "difference": "R/doremring reverse-worded no-armor line after cloak removal; not mergedT."
+          },
+          {
+            "reference": "retained polyself break_armor/skinback artifact-light evidence",
+            "difference": "Matching nonartifact scales merge with no other worn pieces avoids those downstream gaps; finalT is before off handlers."
+          },
+          {
+            "reference": "v94 blind credit-card punctuation and fixedv93 bullwhip",
+            "difference": "read.c quote order and apply.c literal contraction; no do_wear merged state."
+          }
+        ]
+      }
+    }
+  ]
+}
