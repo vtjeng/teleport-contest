@@ -319241,6 +319241,24 @@
           }
         ]
       }
+    },
+    {
+      "id": "v90-counted-inventory-dispatch-divergence",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement rhack from nethack-c/upstream/src/cmd.c",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v90/v90-p16-counted-inventory"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "rhack",
+      "session": "synthetic/v90/v90-p16-counted-inventory"
     }
   ]
 }
