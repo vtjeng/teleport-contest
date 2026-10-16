@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T16:43:56.747Z",
+  "capturedAt": "2026-10-16T17:20:28.938Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T16:43:56.747Z",
+    "asOf": "2026-10-16T17:20:28.938Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5711,7 +5711,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 47,
+      "mainSupportAssignments": 52,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -159299,6 +159299,156 @@
         "worker": "Worker-3",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:49:24.761Z",
+        "id": "queue:867d8429-84a5-4e36-89d5-ac2f1036306d",
+        "type": "assign",
+        "task": "support-v96-js-reachable-exception-stub-source-inventory-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:49:28.376Z",
+        "id": "queue:195da9d1-df3a-469e-b71e-6d0a9db7a1b9",
+        "type": "assign",
+        "task": "support-v96-lua-program-binding-support-source-inventory-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:53:19.659Z",
+        "id": "queue:84dfd325-07e8-47aa-bf79-8cb47ba0dad0",
+        "type": "queue-complete",
+        "task": "support-v96-lua-program-binding-support-source-inventory-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:53:19.659Z",
+        "id": "queue:84dfd325-07e8-47aa-bf79-8cb47ba0dad0:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:53:38.710Z",
+        "id": "queue:4e3680ff-8007-434c-a491-c7b2e0a8c3fd",
+        "type": "queue-complete",
+        "task": "support-v96-js-reachable-exception-stub-source-inventory-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:53:38.710Z",
+        "id": "queue:4e3680ff-8007-434c-a491-c7b2e0a8c3fd:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T16:56:47.309Z",
+        "id": "queue:3ed32853-7623-4f65-990c-5010ab04f28c",
+        "type": "assign",
+        "task": "support-v96-mklev-creation-null-descriptor-discriminating-screen-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:00:40.478Z",
+        "id": "queue:c5635d63-16c2-4448-908e-b4b195232761",
+        "type": "assign",
+        "task": "support-v96-stale-js-lua-todo-reference-verification-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:00:48.127Z",
+        "id": "queue:e40e1ab4-d84b-4910-9794-bfd7dde399da",
+        "type": "assign",
+        "task": "support-v96-exception-expecting-tests-semantic-gap-review-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:01:12.845Z",
+        "id": "queue:48094a1a-766b-46c0-9f8c-aa683e7bf07f",
+        "type": "queue-complete",
+        "task": "support-v96-mklev-creation-null-descriptor-discriminating-screen-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:01:12.845Z",
+        "id": "queue:48094a1a-766b-46c0-9f8c-aa683e7bf07f:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:03:03.903Z",
+        "id": "queue:ffea667a-cd30-49a8-aa0b-1825d04946ae",
+        "type": "queue-complete",
+        "task": "support-v96-stale-js-lua-todo-reference-verification-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:03:03.903Z",
+        "id": "queue:ffea667a-cd30-49a8-aa0b-1825d04946ae:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:03:29.317Z",
+        "id": "queue:2d8642aa-a56a-490b-a2bc-eb8a32b11d33",
+        "type": "queue-complete",
+        "task": "support-v96-exception-expecting-tests-semantic-gap-review-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T17:03:29.317Z",
+        "id": "queue:2d8642aa-a56a-490b-a2bc-eb8a32b11d33:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -159317,19 +159467,14 @@
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
-    "blocked": [
-      {
-        "task": "v91-lit-lamp-save-restore-cfirst-20261016",
-        "reason": "Waiting for producer or dependencies."
-      }
-    ],
+    "blocked": [],
     "claimed": [],
     "counts": {
       "ready": 0,
       "claimed": 0,
-      "blocked": 1,
-      "completed": 266,
-      "superseded": 62
+      "blocked": 0,
+      "completed": 271,
+      "superseded": 63
     },
     "workers": [
       {
@@ -159862,7 +160007,7 @@
         "id": "v91-lit-lamp-save-restore-cfirst-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "superseded",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -164307,6 +164452,81 @@
         "readyAt": "2026-10-16T16:33:56.909Z",
         "claimedAt": "2026-10-16T16:34:07.724Z",
         "completedAt": "2026-10-16T16:36:07.968Z"
+      },
+      {
+        "id": "support-v96-js-reachable-exception-stub-source-inventory-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T16:49:02.440Z",
+        "claimedAt": "2026-10-16T16:49:24.761Z",
+        "completedAt": "2026-10-16T16:53:38.710Z"
+      },
+      {
+        "id": "support-v96-lua-program-binding-support-source-inventory-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T16:49:03.288Z",
+        "claimedAt": "2026-10-16T16:49:28.376Z",
+        "completedAt": "2026-10-16T16:53:19.659Z"
+      },
+      {
+        "id": "support-v96-mklev-creation-null-descriptor-discriminating-screen-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T16:56:38.731Z",
+        "claimedAt": "2026-10-16T16:56:47.309Z",
+        "completedAt": "2026-10-16T17:01:12.845Z"
+      },
+      {
+        "id": "support-v96-stale-js-lua-todo-reference-verification-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T17:00:25.971Z",
+        "claimedAt": "2026-10-16T17:00:40.478Z",
+        "completedAt": "2026-10-16T17:03:03.903Z"
+      },
+      {
+        "id": "support-v96-exception-expecting-tests-semantic-gap-review-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T17:00:26.637Z",
+        "claimedAt": "2026-10-16T17:00:48.127Z",
+        "completedAt": "2026-10-16T17:03:29.317Z"
       }
     ]
   },
