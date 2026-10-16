@@ -12,6 +12,15 @@ worker execution. Reuse .agents/friction.md for observations and
 findings to the Coordinator. Draft adopted-change entries in
 .agents/decisions.md and measure follow-up evidence when available, leaving
 unknown benefits unmeasured. Preserve history and link later reversals.
+On startup or resume and periodically at safe handoff/publication boundaries,
+audit utilization across workers and leads from the current queue, agent state,
+and saved evidence. Distinguish confirmed activity, idle/blocked, unknown, and
+interrupted/open elapsed intervals; never infer CPU use from ownership or
+elapsed time. Flag ready work awaiting ownership, stalled validation/handoffs,
+and avoidable coordination overhead promptly, prioritizing new qualifying
+discoveries and distinct causes over keeping agents busy. Report the evidence
+window, denominators, and uncertainty to the Coordinator and Work lead without
+interrupting claims or duplicating validation.
 Work in your assigned private worktree and tooling/instruction
 scope. The Work lead integrates approved changes and their decision entries
 at safe boundaries with existing checks intact. Do not alter active claims or
