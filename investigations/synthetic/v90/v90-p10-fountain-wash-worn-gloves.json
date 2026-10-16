@@ -6,7 +6,7 @@
   "batch": "v90",
   "caseId": "v90-p10-fountain-wash-worn-gloves",
   "manifestPath": "challenges/manifests/v90.json",
-  "manifestSha256": "cb785f6887f617437b4e4fb54a641b0db93a1bc9ee5091b50aff66675dc2a93a",
+  "manifestSha256": "9ac16f693445b5f757427adee430b199d6ce01156910dd959e95bce1c972769d",
   "recordingSha256": "7df969052f395e7ef5633f3e133d08cbb50e98671250b976d2c376ed73fe8ad6",
   "evaluationPath": "challenges/evaluations/admission-719d4d944693d9b1d6e7725ec76bc2f773884802-v90.json",
   "evaluationCommit": "719d4d944693d9b1d6e7725ec76bc2f773884802",
