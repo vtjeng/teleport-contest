@@ -478,7 +478,7 @@ canvas {
 .activity-navigation .chart-range { min-width: 165px; text-align: left; }
 .activity-utilization { width: 100%; max-width: 520px; table-layout: fixed; border-collapse: collapse; margin: 0 0 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .activity-utilization th, .activity-utilization td { padding: 2px; text-align: right; white-space: nowrap; }
-.activity-utilization th:first-child { width: 112px; text-align: left; padding-left: 0; }
+.activity-utilization th:first-child { width: min(112px, 32%); text-align: left; padding-left: 0; white-space: normal; }
 .activity-utilization thead th { font-weight: 400; color: var(--ink-muted); }
 .activity-utilization tbody th { font-weight: 500; }
 .activity-utilization .utilization-work { font-weight: 600; }
@@ -565,6 +565,9 @@ canvas {
 .activity-legend-group { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; align-items: baseline; }
 .activity-legend-group > strong { font-size: 12px; font-weight: 600; }
 .activity-legend-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.assignment-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.assignment-table th, .assignment-table td { padding: 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.assignment-table th:nth-child(2) { width: 48%; }
 .activity-backlog { font-size: 12px; line-height: 1.6; }
 .activity-backlog p { margin: 4px 0; }
 .activity-backlog summary { cursor: pointer; }
@@ -927,6 +930,7 @@ canvas {
     <div class="activity-navigation">
       <span class="chart-range" id="activityWindowLabel"></span>
     </div>
+    <label><input id="activityHistorical" type="checkbox"> Show historical workers</label>
     <select class="activity-window-select" id="activityWindow" aria-label="Activity time range">
       <option value="6" selected>6 hours</option>
       <option value="24">24 hours</option>
@@ -935,7 +939,7 @@ canvas {
   </div>
 
   <div class="chart-wrap">
-    <div id="activityMetrics" aria-label="Recorded worker utilization in the visible time window"></div>
+    <div id="activityMetrics" aria-label="Recorded worker utilization for visible lanes in the selected time window"></div>
 
     <details class="activity-help"><summary>Stage key and definitions</summary><div class="legend" id="timelineLegend"></div><p>Bars show elapsed stages, including waits. Work means assigned time, not CPU use. Unknown time is unrecorded, not idle. Arrows mark stages continuing outside the selected range. Select a stage to pin its details.</p></details>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Work lead activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
@@ -1713,19 +1717,30 @@ document.getElementById('stats').innerHTML = [
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const label = task => task.type === 'rework' ? 'Rework' : task.output === 'exploration' ? 'Exploration' : 'Implementation';
   const pending = queue.tasks.filter(task => !['completed', 'superseded'].includes(task.status));
-  container.innerHTML = '<p><strong>' + (queue.readySessions === null ? 'Unknown' : esc(queue.readySessions))
-    + ' ready implementation sessions</strong> · threshold ' + esc(queue.threshold)
-    + '</p><p>' + esc(queue.reason) + '</p><p>'
-    + queue.workers.map(worker => esc(worker.worker.replace('-', ' ')) + ': ' + esc(worker.state)
-      + (worker.assignment ? ' (' + esc(worker.assignment) + ')' : '')).join(' · ') + '</p>'
-    + (pending.length ? pending.map(task => '<details><summary>' + esc(label(task)) + ' · '
-      + esc(task.id) + ' · ' + esc(task.status) + '</summary><p>Producer ' + esc(agentName(task.producer))
-      + ' · result to ' + esc(agentName(task.recipient)) + (task.batch ? ' · batch ' + esc(task.batch) : '')
-      + (task.target ? ' · corrects ' + esc(task.target.slice(0, 12)) : '')
-      + '</p>' + (task.sessions.length ? '<p>' + task.sessions.map(esc).join(', ') + '</p>' : '')
-      + (task.status === 'blocked' ? '<p>' + esc(queue.blocked.find(row => row.task === task.id)?.reason
-        || 'Waiting for producer or dependencies.') + '</p>' : '')
-      + '</details>').join('') : '<p>No pending assignments.</p>');
+  const owners = new Map((queue.claimed || []).map(row => [row.task, row.worker]));
+  for (const worker of queue.workers || []) if (worker.assignment) owners.set(worker.assignment, worker.worker);
+  const runnable = new Map((queue.ready || []).map((id, index) => [id, index]));
+  const status = task => owners.has(task.id) ? 'claimed' : task.status === 'blocked' ? 'blocked'
+    : queue.readySessions !== null && runnable.has(task.id) ? 'ready' : 'blocked';
+  const rank = task => status(task) === 'claimed' ? 0 : status(task) === 'ready' ? 1 : 2;
+  pending.sort((a, b) => rank(a) - rank(b) || (rank(a) === 0
+    ? owners.get(a.id).localeCompare(owners.get(b.id), 'en', {numeric: true})
+    : rank(a) === 1 ? runnable.get(a.id) - runnable.get(b.id) : a.id.localeCompare(b.id)));
+  const shortName = task => (task.sessions?.[0]?.split('/').at(-1) || task.id)
+    .replace(/^(?:v[0-9]+|support)-/, '').replace(/-cfirst-[0-9]+$/, '').replace(/-[0-9]{8}$/, '').replaceAll('-', ' ');
+  const idle = (queue.workers || []).filter(worker => worker.state === 'idle' && !worker.assignment)
+    .map(worker => worker.worker.replace('-', ' '));
+  container.innerHTML = '<p>Idle workers: ' + (idle.length ? idle.map(esc).join(', ') : 'None') + '</p>'
+    + (queue.readySessions === null ? '<p>Queue evidence needs refresh</p>' : '')
+    + (pending.length ? '<table class="assignment-table"><thead><tr><th>Type</th><th>Task</th><th>Status</th><th>Claimed by</th></tr></thead><tbody>'
+      + pending.map(task => '<tr><td>' + esc(label(task)) + '</td><td><details><summary title="' + esc(task.id) + '">' + esc(shortName(task))
+        + '</summary><p>' + esc(task.id) + '</p><p>Producer ' + esc(agentName(task.producer))
+        + ' · result to ' + esc(agentName(task.recipient)) + (task.batch ? ' · batch ' + esc(task.batch) : '') + '</p>'
+        + (status(task) === 'blocked' ? '<p>' + esc(queue.blocked.find(row => row.task === task.id)?.reason
+          || 'Waiting for producer, current evidence, dependencies or reservations.') + '</p>' : '')
+        + '</details></td><td>' + esc(status(task)) + '</td><td>' + esc(owners.get(task.id)?.replace('-', ' ') || 'Unassigned') + '</td></tr>').join('')
+      + '</tbody></table>' : '<p>No pending assignments.</p>')
+    + '<details><summary>Dispatch details</summary><p>' + esc(queue.reason) + '</p></details>';
 })();
 
 (function() {
@@ -1789,6 +1804,10 @@ document.getElementById('stats').innerHTML = [
   const durationReadout = document.getElementById('integrationDurationReadout');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
+  const historicalToggle = document.getElementById('activityHistorical');
+  try { sessionStorage.removeItem('activityWindow'); } catch { /* Storage is optional. */ }
+  const isHistorical = lane => /^(?:A|A2|B|C|P[1-6]|Prep-[1-6])$/.test(lane);
+  const laneVisible = lane => historicalToggle.checked || !isHistorical(lane);
   const activity = DATA.activity || { segments: [], tasks: [] };
   const history = activity.segments || [];
   const durationPoints = integrationDurations(activity);
@@ -1823,8 +1842,9 @@ document.getElementById('stats').innerHTML = [
       + phaseNames[phase] + '</div>').join('') + '</div></div>').join('');
   function utilization(start, end) {
     const percent = value => value == null ? '—' : Math.round(value * 100) + '%';
-    const rows = activityUtilization(segments, start, end);
-    metrics.innerHTML = '<table class="activity-utilization"><thead><tr><th scope="col">Workers</th>'
+    const rows = activityUtilization(segments.filter(row => laneVisible(row.lane)), start, end)
+      .filter(row => historicalToggle.checked || !['A/B/C', 'Prep lanes'].includes(row.role));
+    metrics.innerHTML = '<table class="activity-utilization"><caption>Workers shown in this time range</caption><thead><tr><th scope="col">Workers</th>'
       + '<th scope="col">Work</th><th scope="col">Blocked</th><th scope="col">Idle</th><th scope="col">Unknown</th></tr></thead><tbody>'
       + rows.map(row => '<tr><th scope="row" title="' + esc(row.workers.map(worker =>
         displayLane(worker.lane) + ': ' + percent(worker.utilization) + ' work').join(' · ')) + '">' + row.role + '</th>'
@@ -1853,17 +1873,11 @@ document.getElementById('stats').innerHTML = [
   const lanes = [...new Set(history.map(segment => segment.lane).filter(lane => lane !== 'Main')
     .sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(displayLane))];
   lanes.push('Work lead');
+  const historicalLabels = new Set(history.filter(row => isHistorical(row.lane)).map(row => displayLane(row.lane)));
   const minSpan = Math.min(20 * 60000, latest - first || hourMs);
   const domainEnd = Math.max(latest, first + minSpan);
   let hours = Math.min(6, (domainEnd - first) / hourMs);
   let viewEnd = domainEnd;
-  try {
-    const saved = JSON.parse(sessionStorage.getItem('activityWindow'));
-    if (Array.isArray(saved) && saved.length === 2 && saved.every(Number.isFinite) && saved[1] > saved[0]) {
-      hours = Math.max(minSpan, Math.min(domainEnd - first, saved[1] - saved[0])) / hourMs;
-      viewEnd = saved[1];
-    }
-  } catch { /* Invalid saved ranges open at the latest six hours. */ }
   let selectedIndex = null;
   let pinnedStage = null;
   function pin(index, source = segments) {
@@ -2088,7 +2102,7 @@ document.getElementById('stats').innerHTML = [
     viewEnd = Math.min(domainEnd, Math.max(first + span, viewEnd));
     const start = viewEnd - span;
     const shown = segments.map((segment, index) => ({ segment, index }))
-      .filter(({ segment }) => Date.parse(segment.end) > start && Date.parse(segment.start) < viewEnd);
+      .filter(({ segment }) => laneVisible(segment.lane) && Date.parse(segment.end) > start && Date.parse(segment.start) < viewEnd);
     const waits = shown.filter(({ segment }) => isWait(segment)
       && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
       .sort((a, b) => duration(b.segment) - duration(a.segment));
@@ -2098,7 +2112,6 @@ document.getElementById('stats').innerHTML = [
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
     const preset = [6, 24, 168].find(value => Math.abs(value - hours) < 0.001);
     windowSelect.value = Math.abs(span - (domainEnd - first)) < 1 ? 'all' : preset ? String(preset) : 'custom';
-    sessionStorage.setItem('activityWindow', JSON.stringify([start, viewEnd]));
     drawMinimap(start, viewEnd);
     if (!pinnedStage && !shown.some(row => row.index === selectedIndex)) {
       selectedIndex = blocks[0]?.index ?? waits[0]?.index ?? shown.find(row => row.segment.lane === 'Main')?.index
@@ -2114,7 +2127,7 @@ document.getElementById('stats').innerHTML = [
         + '%">' + label + '</span>';
     }
     html += '</div>';
-    for (const lane of lanes) {
+    for (const lane of lanes.filter(lane => historicalToggle.checked || !historicalLabels.has(lane))) {
       const bars = shown.filter(row => displayLane(row.segment.lane) === lane).map(row => ({
         ...row, a: Math.max(Date.parse(row.segment.start), start),
         b: Math.min(Date.parse(row.segment.end), viewEnd),
@@ -2239,6 +2252,12 @@ document.getElementById('stats').innerHTML = [
     const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left - 112) / Math.max(1, rect.width - 112)));
     zoom(Math.exp(event.deltaY * 0.002), viewEnd - hours * hourMs * (1 - ratio));
   }, { passive: false });
+  historicalToggle.addEventListener('change', () => {
+    if (pinnedStage && !laneVisible(pinnedStage.source[pinnedStage.index]?.lane)) {
+      pinnedStage = null; selectedIndex = null;
+    }
+    render();
+  });
   windowSelect.addEventListener('change', () => {
     const span = windowSelect.value === 'all' ? domainEnd - first : Number(windowSelect.value) * hourMs;
     setRange(viewEnd - span, viewEnd);

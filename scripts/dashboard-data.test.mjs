@@ -80,7 +80,8 @@ function scoreRow(fields) {
     return COLUMNS.map((column) => row[column]).join('\t');
 }
 
-function renderDashboard(data, queue = null) {
+// Historical fixtures opt in so their existing interaction coverage remains useful.
+function renderDashboard(data, queue = null, {showHistorical = true} = {}) {
     const elements = new Map();
     // Every canvas call lands in canvasOps, and also in the drawn element's
     // own ops, so a test can ask what one canvas drew.
@@ -119,7 +120,7 @@ function renderDashboard(data, queue = null) {
             set textContent(value) { text = String(value); markup = text; },
             className: '',
             disabled: false,
-            checked: false,
+            checked: id === 'activityHistorical' && showHistorical,
             hidden: false,
             style: {},
             listeners: {},
@@ -730,6 +731,58 @@ test('legacy queue identities display current role names without changing stored
     assert.match(rendered.get('timeline').innerHTML, /activity-label">Work lead/u);
     assert.match(rendered.get('activityMetrics').innerHTML, /Challenge lead[\s\S]*Work lead/u);
     assert.equal(JSON.stringify(data), before, 'display names must not rewrite historical identities');
+});
+
+test('worker activity hides historical lanes and their utilization until requested', () => {
+    const data = sourceDashboardData();
+    const at = minute => new Date(Date.UTC(2026, 9, 16, 4, minute)).toISOString();
+    data.activity = {capturedAt: at(20), tasks: [], segments: [
+        {lane: 'A', phase: 'working', start: at(0), end: at(20)},
+        {lane: 'Prep-1', phase: 'working', start: at(0), end: at(20)},
+        {lane: 'Worker-1', phase: 'working', start: at(0), end: at(10)},
+        {lane: 'Worker-1', phase: 'idle', start: at(10), end: at(20)},
+        {lane: 'Main', phase: 'review', start: at(0), end: at(20)},
+    ]};
+    const rendered = renderDashboard(data, null, {showHistorical: false});
+    assert.doesNotMatch(rendered.get('timeline').innerHTML, /activity-label">(?:A|P1)</u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">Worker 1</u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">Work lead</u);
+    assert.doesNotMatch(rendered.get('activityMetrics').innerHTML, /A\/B\/C|Prep lanes/u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Workers[\s\S]*50%/u);
+    const toggle = rendered.get('activityHistorical');
+    toggle.checked = true;
+    toggle.listeners.change[0]();
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">A</u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-label">P1</u);
+    assert.match(rendered.get('activityMetrics').innerHTML, /A\/B\/C|Prep lanes/u);
+});
+
+test('shared queue table orders eligible tasks and derives current owners without stale claims', () => {
+    const data = sourceDashboardData();
+    const task = (id, status = 'ready') => ({id, status, type: 'exploration', output: 'exploration',
+        producer: 'Prep', recipient: 'Prep', batch: 'v91', sessions: []});
+    data.assignmentQueue = {readySessions: 0, threshold: 5, reason: 'Prefer exploration.',
+        ready: ['second', 'first'], claimed: [{task: 'active', worker: 'Worker-1'}],
+        workers: [{worker: 'Worker-1', state: 'active', assignment: 'active'},
+            {worker: 'Worker-2', state: 'idle', assignment: null},
+            {worker: 'Worker-3', state: 'offline', assignment: null}],
+        blocked: [{task: 'old-lamp', reason: 'Waiting for producer or dependencies.'}],
+        tasks: [task('first'), task('old-lamp', 'blocked'), task('second'), task('active', 'claimed'),
+            task('not-runnable'), task('finished', 'completed')]};
+    data.assignmentQueue.tasks[1].worker = 'Worker-1';
+    const html = renderDashboard(data).get('assignmentQueue').innerHTML;
+    assert.match(html, /Type<\/th><th>Task<\/th><th>Status<\/th><th>Claimed by/u);
+    assert.ok(html.indexOf('title="active"') < html.indexOf('title="second"'));
+    assert.ok(html.indexOf('title="second"') < html.indexOf('title="first"'));
+    assert.ok(html.indexOf('title="first"') < html.indexOf('title="old-lamp"'));
+    assert.match(html, /title="old-lamp"[\s\S]*?<td>blocked<\/td><td>Unassigned/u);
+    assert.match(html, /Idle workers: Worker 2<\/p>/u);
+    assert.doesNotMatch(html, /title="finished"/u);
+    assert.equal((html.match(/Prefer exploration\./gu) || []).length, 1);
+    data.assignmentQueue.readySessions = null;
+    const stale = renderDashboard(data).get('assignmentQueue').innerHTML;
+    assert.match(stale, /Queue evidence needs refresh/u);
+    assert.doesNotMatch(stale, /<td>ready<\/td>/u);
 });
 
 test('Work lead backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {

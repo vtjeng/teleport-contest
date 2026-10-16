@@ -10,7 +10,9 @@ import { activityTimeline } from './dashboard-activity.mjs';
 const [url, screenshot] = process.argv.slice(2);
 if (!url || process.argv.length > 4) throw new Error('Usage: node scripts/dashboard-activity.browser.mjs <dashboard-url> [screenshot.png]');
 const { chromium } = createRequire(import.meta.url)('playwright');
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true,
+  ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+    ? {executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE} : {}) });
 try {
   // The desktop viewport fits the whole plot, so Playwright scrolling to an
   // offscreen target cannot be mistaken for selection-induced layout motion.
@@ -19,6 +21,19 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   const response = await page.goto(url);
   assert.equal(response.status(), 200);
+  const defaultActivityRange = await page.locator('#activityWindowLabel').innerText();
+  assert.equal(await page.locator('#activityWindow').inputValue(), '6');
+  assert.equal(await page.locator('#activityHistorical').isChecked(), false);
+  const legacyLabels = /^(?:A|A2|B|C|P[1-6])$/;
+  assert.ok((await page.locator('#timeline .activity-label').allTextContents()).every(label => !legacyLabels.test(label)));
+  assert.equal(await page.evaluate(() => sessionStorage.getItem('activityWindow')), null);
+  await page.locator('#activityHistorical').check();
+  const historicalLabels = await page.locator('#timeline .activity-label').allTextContents();
+  const hasLegacy = await page.evaluate(() => DATA.activity.segments.some(row => /^(?:A|A2|B|C|P[1-6]|Prep-[1-6])$/.test(row.lane)));
+  if (hasLegacy) assert.ok(historicalLabels.some(label => legacyLabels.test(label)), 'toggle reveals historical lanes');
+  await page.locator('#activityHistorical').uncheck();
+  assert.ok((await page.locator('#timeline .activity-label').allTextContents()).every(label => !legacyLabels.test(label)));
+  await page.locator('#activityHistorical').check();
   // Large dashboard snapshots can be evicted from Chromium's inspector cache.
   // The request API retains its body for the empty/open-only rendering checks.
   const originalHTML = await (await page.request.get(url)).text();
@@ -31,6 +46,7 @@ try {
   const disclosureStyles = [];
   for (const id of ['integrationDisclosure', 'parkedTaskHistory', 'goalHistoryDisclosure']) {
     const disclosure = page.locator('#' + id), heading = disclosure.locator(':scope > summary');
+    if (!(await disclosure.isVisible())) continue;
     if (await disclosure.evaluate(element => element.open)) {
       await heading.focus(); await heading.press('Enter');
     }
@@ -44,8 +60,7 @@ try {
     await heading.click();
     assert.equal(await disclosure.evaluate(element => element.open), false);
   }
-  assert.deepEqual(disclosureStyles[0], disclosureStyles[1]);
-  assert.deepEqual(disclosureStyles[0], disclosureStyles[2]);
+  for (const style of disclosureStyles.slice(1)) assert.deepEqual(disclosureStyles[0], style);
   await page.locator('#integrationDisclosure > summary').click();
   // Start with the full domain, resize each edge, then drag the resulting
   // window. Both overviews must advertise exactly the operation they perform.
@@ -252,7 +267,10 @@ try {
     const bar = page.locator('.activity-bar');
     const index = await bar.evaluateAll((bars, name) => bars.findIndex(element => element.getAttribute('aria-label')?.includes(name)), label);
     if (index < 0) continue;
-    await bar.nth(index).click();
+    // Recovered intervals can overlap a later stage; keyboard selection reaches
+    // the historical interval without relying on which bar covers its pixels.
+    await bar.nth(index).focus();
+    await bar.nth(index).press('Enter');
     const beforeHistory = await plot.boundingBox(), beforeScroll = await page.evaluate(() => scrollY);
     const publication = readout.getByRole('button', { name: /Publication · duration unknown/u });
     assert.equal(await publication.count(), 1);
@@ -340,7 +358,10 @@ try {
   assert.equal(await page.locator('#activityWindow').inputValue(), 'custom');
   const draggedRange = await page.locator('#activityWindowLabel').innerText();
   await page.reload();
-  assert.equal(await page.locator('#activityWindowLabel').innerText(), draggedRange, 'custom range survives reload');
+  await page.locator('#activityHistorical').check();
+  assert.equal(await page.locator('#activityWindowLabel').innerText(), defaultActivityRange, 'reload opens the latest default range');
+  assert.equal(await page.locator('#activityWindow').inputValue(), '6');
+  assert.equal(await page.evaluate(() => sessionStorage.getItem('activityWindow')), null, 'pan and range changes do not persist a worker window');
   await navigator.focus(); await navigator.press('+');
   assert.notEqual(await page.locator('#activityWindowLabel').innerText(), draggedRange);
   await page.locator('#activityWindow').selectOption('168');
@@ -363,7 +384,7 @@ try {
     await page.locator('#integrationTypicalRange').click();
     assert.equal(await page.locator('#integrationOverflow').innerText(), overflow);
   }
-  console.log('Readability: grouped credit, collapsed history, arbitrary zoom, draggable range, persistence and full duration scale passed.');
+  console.log('Readability: grouped credit, collapsed history, arbitrary zoom, draggable range, reload reset and full duration scale passed.');
   const originalData = await page.evaluate('DATA');
   // Populate the queue with independent actions without altering the saved
   // snapshot: one ready task, one dependency wait and one accepted batch.
@@ -381,6 +402,7 @@ try {
     + ';\n' + originalHTML.slice(queueEnd + 1);
   await page.route(url, route => route.fulfill({contentType: 'text/html', body: queuedHTML}));
   await page.reload();
+  await page.locator('#activityHistorical').check();
   assert.match(await pending.innerText(), /Ready to integrate · 1/u);
   assert.match(await pending.innerText(), /Batches to admit · 1/u);
   assert.match(await pending.innerText(), /Waiting for dependencies · 1/u);
@@ -405,6 +427,7 @@ try {
     await page.unroute(url);
     await page.route(url, route => route.fulfill({contentType: 'text/html', body: html}));
     await page.reload();
+  await page.locator('#activityHistorical').check();
   }
 
   // A shared attempt must remain one Main interval and one duration sample.
@@ -480,6 +503,7 @@ try {
   await page.setViewportSize({width: 1440, height: 1200});
   await page.unroute(url);
   await page.reload();
+  await page.locator('#activityHistorical').check();
   // Replacing the entire dataset changes the number of worker rows above
   // this disclosure. Compare the chart's frame within its own section.
   const sectionFrame = chart => chart.evaluate(element => {
