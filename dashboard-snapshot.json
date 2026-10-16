@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T01:58:22.326Z",
+  "capturedAt": "2026-10-16T02:58:12.296Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -142205,6 +142205,451 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:58:57.998Z",
+        "id": "queue:f26f8634-8952-4549-b107-16b82cc7db1b",
+        "type": "queue-complete",
+        "task": "support-wet-towel-vapor-feasibility-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:58:57.998Z",
+        "id": "queue:f26f8634-8952-4549-b107-16b82cc7db1b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:59:11.431Z",
+        "id": "queue:054993d2-e3b4-4561-8491-2b341e511f54",
+        "type": "queue-complete",
+        "task": "support-erased-study-feasibility-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:59:11.431Z",
+        "id": "queue:054993d2-e3b4-4561-8491-2b341e511f54:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:15:19.732Z",
+        "id": "queue:40a1d51a-2c4b-49bb-96c1-5faf67cd27c1",
+        "type": "assign",
+        "task": "support-c-only-wet-towel-vapor-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:15:25.653Z",
+        "id": "queue:b1b2432f-c1d8-4c2f-8433-f55ee3bbe5fc",
+        "type": "assign",
+        "task": "support-c-only-erased-study-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:20:52.748Z",
+        "id": "queue:2cbec7cd-6fb6-467a-bf09-a69ddfbc0b7e",
+        "type": "queue-complete",
+        "task": "support-c-only-erased-study-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:20:52.748Z",
+        "id": "queue:2cbec7cd-6fb6-467a-bf09-a69ddfbc0b7e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:21:21.214Z",
+        "id": "queue:2806da63-4275-49e2-b158-0d616920ec9e",
+        "type": "queue-complete",
+        "task": "support-c-only-wet-towel-vapor-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:21:21.214Z",
+        "id": "queue:2806da63-4275-49e2-b158-0d616920ec9e:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:26:56.689Z",
+        "id": "queue:fb5d5839-1dc9-48ba-b25c-dcb8fed73dda",
+        "type": "assign",
+        "task": "support-c-only-wet-towel-input-replay-correction-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:28:07.754Z",
+        "id": "queue:d064d20b-66de-4278-85d3-104d624ea517",
+        "type": "assign",
+        "task": "support-v90-fresh-receipts-a-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:28:14.878Z",
+        "id": "queue:8082279f-abf1-4afd-8cd2-411cc7f04ab6",
+        "type": "queue-complete",
+        "task": "support-c-only-wet-towel-input-replay-correction-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:28:14.878Z",
+        "id": "queue:8082279f-abf1-4afd-8cd2-411cc7f04ab6:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:28:45.660Z",
+        "id": "queue:cde1dbe3-2a9d-4dac-87f2-400087ca5804",
+        "type": "assign",
+        "task": "support-v90-fresh-receipts-b-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "assign-prep-v90-fresh-revalidation-20261016",
+        "type": "assign",
+        "at": "2026-10-16T02:29:59.822Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v90"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:31:52.140Z",
+        "id": "queue:3c706eac-64d3-49b9-afdc-c89bc9afca97",
+        "type": "queue-complete",
+        "task": "support-v90-fresh-receipts-a-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:31:52.140Z",
+        "id": "queue:3c706eac-64d3-49b9-afdc-c89bc9afca97:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:34:05.512Z",
+        "id": "queue:4253982d-fe25-4c03-bbe2-83ba4900cc85",
+        "type": "queue-complete",
+        "task": "support-v90-fresh-receipts-b-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:34:05.512Z",
+        "id": "queue:4253982d-fe25-4c03-bbe2-83ba4900cc85:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-c0f45846c38a9e2c4d7fa13b5b9ba9da9ff777ab",
+        "type": "ready",
+        "at": "2026-10-16T02:38:57.774Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "delivery": "c0f45846c38a9e2c4d7fa13b5b9ba9da9ff777ab"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-prep-v90-fresh-revalidation-20261016",
+        "type": "received",
+        "at": "2026-10-16T02:39:14.189Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "delivery": "c0f45846c38a9e2c4d7fa13b5b9ba9da9ff777ab"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-group-da5564fb2c82f71dd1759c7abbb2eb89f503dd1279cd6d5f5427b796759c5035-bc799d03dcf48a0f1c56d9a317cd2cfe180b8527-prep-v90-fresh-revalidation-20261016",
+        "type": "integrating",
+        "at": "2026-10-16T02:39:16.384Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "integration": "bc799d03dcf48a0f1c56d9a317cd2cfe180b8527",
+        "prepGroup": [
+          "prep-v90-fresh-revalidation-20261016"
+        ],
+        "validationGroup": [
+          "prep-v90-fresh-revalidation-20261016"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:42:48.171Z",
+        "id": "queue:e3d39680-6df3-4904-b560-b4035dfd1500",
+        "type": "assign",
+        "task": "support-dull-blade-engraving-feasibility-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:42:53.369Z",
+        "id": "queue:27897e01-6603-4cdb-911d-359d89227101",
+        "type": "assign",
+        "task": "support-deaf-bugle-soldier-feasibility-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:44:53.228Z",
+        "id": "queue:93db7459-2318-4cd3-bf3b-5aabef3c8dcb",
+        "type": "queue-complete",
+        "task": "support-dull-blade-engraving-feasibility-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:44:53.228Z",
+        "id": "queue:93db7459-2318-4cd3-bf3b-5aabef3c8dcb:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "register-worker3-fresh-recovery-20261016",
+        "type": "register",
+        "at": "2026-10-16T02:45:13.998Z",
+        "worker": "Worker-3",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:47:00.277Z",
+        "id": "queue:b1ae4192-e1b3-48c7-ba2f-fdf7c6d653a2",
+        "type": "assign",
+        "task": "support-erased-study-c-first-comparison-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:47:21.916Z",
+        "id": "queue:e058ab84-042c-45e3-ae0d-88984d39f822",
+        "type": "queue-complete",
+        "task": "support-deaf-bugle-soldier-feasibility-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:47:21.916Z",
+        "id": "queue:e058ab84-042c-45e3-ae0d-88984d39f822:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:47:46.090Z",
+        "id": "queue:391e6f0e-5e43-4f93-b372-5d20321d92c4",
+        "type": "assign",
+        "task": "support-region-expiry-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:48:36.095Z",
+        "id": "queue:c20af275-fd3a-434d-b9de-57938604eed1",
+        "type": "assign",
+        "task": "support-dull-blade-engraving-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-validated-prep-v90-fresh-revalidation-20261016-bc799d03dcf48a0f1c56d9a317cd2cfe180b8527",
+        "type": "validated",
+        "at": "2026-10-16T02:49:06.798Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-accepted-prep-v90-fresh-revalidation-20261016-bc799d03dcf48a0f1c56d9a317cd2cfe180b8527",
+        "type": "accepted",
+        "at": "2026-10-16T02:49:06.798Z",
+        "task": "prep-v90-fresh-revalidation-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:50:22.278Z",
+        "id": "queue:c50865e5-8100-4ade-bd1f-eae68016900f",
+        "type": "queue-complete",
+        "task": "support-erased-study-c-first-comparison-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:50:22.278Z",
+        "id": "queue:c50865e5-8100-4ade-bd1f-eae68016900f:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:53:25.570Z",
+        "id": "queue:d5ebd775-2423-4ea7-b005-5851f8228151",
+        "type": "queue-complete",
+        "task": "support-dull-blade-engraving-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:53:25.570Z",
+        "id": "queue:d5ebd775-2423-4ea7-b005-5851f8228151:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:54:11.122Z",
+        "id": "queue:6f9cda29-8475-4803-9e21-680f223719ca",
+        "type": "queue-complete",
+        "task": "support-region-expiry-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:54:11.122Z",
+        "id": "queue:6f9cda29-8475-4803-9e21-680f223719ca:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-baseline-prep-v90-fresh-revalidation-20261016-719d4d944693d9b1d6e7725ec76bc2f773884802",
+        "type": "activity",
+        "at": "2026-10-16T02:55:22.415Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-done-prep-v90-fresh-revalidation-20261016-719d4d944693d9b1d6e7725ec76bc2f773884802",
+        "type": "activity",
+        "at": "2026-10-16T02:55:22.418Z",
+        "task": "prep-v90-fresh-revalidation-20261016",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:56:00.355Z",
+        "id": "queue:f6a2f601-5251-4083-926f-a0ed272387ff",
+        "type": "assign",
+        "task": "support-dull-blade-evidence-transport-correction-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "exploration",
+        "target": "7a1fa0c2c9c6dfa08a00cba33cdf36cea0ac9f98",
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:56:52.562Z",
+        "id": "queue:a2c04ff1-ea65-499b-a63e-d9c2055ebc7e",
+        "type": "queue-complete",
+        "task": "support-dull-blade-evidence-transport-correction-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T02:56:52.562Z",
+        "id": "queue:a2c04ff1-ea65-499b-a63e-d9c2055ebc7e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -142218,39 +142663,64 @@
     "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
-    "blocked": [],
-    "claimed": [
+    "blocked": [
       {
-        "task": "support-wet-towel-vapor-feasibility-20261016",
-        "worker": "Worker-1"
+        "task": "session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
       },
       {
-        "task": "support-erased-study-feasibility-20261016",
-        "worker": "Worker-2"
+        "task": "session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "reason": "Waiting for producer or dependencies."
       }
     ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 2,
-      "blocked": 0,
-      "completed": 2,
+      "claimed": 0,
+      "blocked": 7,
+      "completed": 15,
       "superseded": 0
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "support-wet-towel-vapor-feasibility-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "support-erased-study-feasibility-20261016",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
+      },
+      {
+        "worker": "Worker-3",
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -142288,7 +142758,7 @@
         "id": "support-wet-towel-vapor-feasibility-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -142297,13 +142767,13 @@
         "target": null,
         "readyAt": "2026-10-16T01:56:32.411Z",
         "claimedAt": "2026-10-16T01:56:45.955Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T01:58:57.998Z"
       },
       {
         "id": "support-erased-study-feasibility-20261016",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -142312,13 +142782,297 @@
         "target": null,
         "readyAt": "2026-10-16T01:56:32.572Z",
         "claimedAt": "2026-10-16T01:56:48.288Z",
+        "completedAt": "2026-10-16T01:59:11.431Z"
+      },
+      {
+        "id": "support-c-only-wet-towel-vapor-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T02:15:07.137Z",
+        "claimedAt": "2026-10-16T02:15:19.732Z",
+        "completedAt": "2026-10-16T02:21:21.214Z"
+      },
+      {
+        "id": "support-c-only-erased-study-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T02:15:07.210Z",
+        "claimedAt": "2026-10-16T02:15:25.653Z",
+        "completedAt": "2026-10-16T02:20:52.748Z"
+      },
+      {
+        "id": "support-c-only-wet-towel-input-replay-correction-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T02:26:47.383Z",
+        "claimedAt": "2026-10-16T02:26:56.689Z",
+        "completedAt": "2026-10-16T02:28:14.878Z"
+      },
+      {
+        "id": "support-v90-fresh-receipts-a-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T02:27:46.079Z",
+        "claimedAt": "2026-10-16T02:28:07.754Z",
+        "completedAt": "2026-10-16T02:31:52.140Z"
+      },
+      {
+        "id": "support-v90-fresh-receipts-b-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T02:27:46.162Z",
+        "claimedAt": "2026-10-16T02:28:45.660Z",
+        "completedAt": "2026-10-16T02:34:05.512Z"
+      },
+      {
+        "id": "support-dull-blade-engraving-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T02:42:35.835Z",
+        "claimedAt": "2026-10-16T02:42:48.171Z",
+        "completedAt": "2026-10-16T02:44:53.228Z"
+      },
+      {
+        "id": "support-deaf-bugle-soldier-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T02:42:35.925Z",
+        "claimedAt": "2026-10-16T02:42:53.369Z",
+        "completedAt": "2026-10-16T02:47:21.916Z"
+      },
+      {
+        "id": "support-erased-study-c-first-comparison-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T02:46:38.320Z",
+        "claimedAt": "2026-10-16T02:47:00.277Z",
+        "completedAt": "2026-10-16T02:50:22.278Z"
+      },
+      {
+        "id": "support-region-expiry-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T02:47:32.294Z",
+        "claimedAt": "2026-10-16T02:47:46.090Z",
+        "completedAt": "2026-10-16T02:54:11.122Z"
+      },
+      {
+        "id": "support-dull-blade-engraving-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T02:48:24.425Z",
+        "claimedAt": "2026-10-16T02:48:36.095Z",
+        "completedAt": "2026-10-16T02:53:25.570Z"
+      },
+      {
+        "id": "session:synthetic:v90:v90-p01-mounted-boulder-wall:719d4d944693",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v90/v90-p01-mounted-boulder-wall"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T02:55:22.420Z",
+        "claimedAt": null,
         "completedAt": null
+      },
+      {
+        "id": "session:synthetic:v90:v90-p10-fountain-wash-worn-gloves:719d4d944693",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v90/v90-p10-fountain-wash-worn-gloves"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T02:55:22.420Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "session:synthetic:v90:v90-p13-simple-options-help:719d4d944693",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v90/v90-p13-simple-options-help"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T02:55:22.420Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "session:synthetic:v90:v90-p15-fountain-ordinary-drop:719d4d944693",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v90/v90-p15-fountain-ordinary-drop"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T02:55:22.420Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "session:synthetic:v90:v90-p16-counted-inventory:719d4d944693",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v90/v90-p16-counted-inventory"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T02:55:22.420Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "session:synthetic:v90:v90-p17-compass-trap-list:719d4d944693",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v90/v90-p17-compass-trap-list"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T02:55:22.420Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "session:synthetic:v90:v90-p20-parameterized-keylist:719d4d944693",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v90/v90-p20-parameterized-keylist"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T02:55:22.420Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "support-dull-blade-evidence-transport-correction-20261016",
+        "type": "rework",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "7a1fa0c2c9c6dfa08a00cba33cdf36cea0ac9f98",
+        "readyAt": "2026-10-16T02:55:30.888Z",
+        "claimedAt": "2026-10-16T02:56:00.355Z",
+        "completedAt": "2026-10-16T02:56:52.562Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "ddcd49572c197947db7151e1cc37c7db9eee7884",
-    "measuredAt": "2026-10-16T01:56:41.669Z",
+    "executionCommit": "bc799d03dcf48a0f1c56d9a317cd2cfe180b8527",
+    "measuredAt": "2026-10-16T02:44:44.357Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
