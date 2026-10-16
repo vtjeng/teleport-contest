@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-15T16:42:17.265Z",
+  "capturedAt": "2026-10-16T01:58:22.326Z",
   "activity": {
-    "runId": "loop-20260925",
+    "runId": "loop-20261016-fresh-support",
     "events": [
       {
         "runId": "loop-20260925",
@@ -142095,1178 +142095,230 @@
         "probe": "v90-p11-teleported-shopkeeper-anger",
         "reason": "Both saved scouts are complete and reaped. Terrain was revealed, but shopkeeper presence and the anger branch remain unproved. Deferred with source plan and protocol chronology preserved; no JS comparison or further C continuation.",
         "outcome": "deferred"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "current-challenge-lead",
+        "type": "register",
+        "at": "2026-10-16T01:27:16.489Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "current-worker-1",
+        "type": "register",
+        "at": "2026-10-16T01:27:16.603Z",
+        "worker": "Worker-1",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:27:25.541Z",
+        "id": "queue:862a7f3d-f565-4100-9fde-0275ff99211c",
+        "type": "assign",
+        "task": "support-ci-api-consumer-audit-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:28:18.949Z",
+        "id": "queue:77455ece-b385-4be2-a27e-e5c2f8db02cf",
+        "type": "queue-complete",
+        "task": "support-ci-api-consumer-audit-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:28:18.949Z",
+        "id": "queue:77455ece-b385-4be2-a27e-e5c2f8db02cf:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:44:49.322Z",
+        "id": "queue:dda79d8f-5509-4d69-92f7-fdd40b77e142",
+        "type": "assign",
+        "task": "support-region-expiry-source-plan-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:47:36.677Z",
+        "id": "queue:10e73bab-c01c-408d-a153-53008331f67b",
+        "type": "queue-complete",
+        "task": "support-region-expiry-source-plan-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:47:36.677Z",
+        "id": "queue:10e73bab-c01c-408d-a153-53008331f67b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "current-worker-2",
+        "type": "register",
+        "at": "2026-10-16T01:56:32.230Z",
+        "worker": "Worker-2",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:56:45.955Z",
+        "id": "queue:278c98a2-88d1-4401-bc25-7309d247e623",
+        "type": "assign",
+        "task": "support-wet-towel-vapor-feasibility-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T01:56:48.288Z",
+        "id": "queue:b228276c-a737-45da-9d55-92a797cd8de6",
+        "type": "assign",
+        "task": "support-erased-study-feasibility-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [],
     "preparedBatches": [],
-    "parkedTasks": [
+    "parkedTasks": []
+  },
+  "workerReservations": {
+    "tasks": {},
+    "reservations": {}
+  },
+  "assignmentQueue": {
+    "readySessions": 0,
+    "threshold": 5,
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "ready": [],
+    "blocked": [],
+    "claimed": [
       {
-        "task": "C42",
-        "worker": "C",
-        "goal": "fix-trap-domagictrap-fates-synthetic-v11-20260928",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-09-29T01:41:57.370Z",
-        "blockedBy": [],
-        "reason": "Administrative reclassification: historical domagictrap evidence was invalidated and the implementation continues as C43 whole-function file-port with the same source scope."
+        "task": "support-wet-towel-vapor-feasibility-20261016",
+        "worker": "Worker-1"
       },
       {
-        "task": "B50",
-        "worker": "B",
-        "goal": "port-lock-doorlock-synthetic-v11-20260928",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-09-29T02:34:30.985Z",
-        "blockedBy": [],
-        "reason": "C-only cache probes established a locked doorway and a forced Dispater WAN_STRIKING, but monster action priority selected mcastu.c:castmu or wizard.c:tactics before muse.c:mbhit; the final two-whistle strict replay diverged at segment 1 step 81 on wizard.c:tactics rn2(5). No matching monster doorlock entry-point witness or source change was delivered. Preserve B49 parked source goal and seek a new independent C route."
+        "task": "support-erased-study-feasibility-20261016",
+        "worker": "Worker-2"
+      }
+    ],
+    "counts": {
+      "ready": 0,
+      "claimed": 2,
+      "blocked": 0,
+      "completed": 2,
+      "superseded": 0
+    },
+    "workers": [
+      {
+        "worker": "Worker-1",
+        "assignment": "support-wet-towel-vapor-feasibility-20261016",
+        "state": "active"
       },
       {
-        "task": "C61",
-        "worker": "C",
-        "goal": "port-uhitm-mhitm-ad-slee-v18-20261002",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-02T08:47:31.497Z",
-        "blockedBy": [],
-        "reason": "Unstarted independent sleep helper parked at clean boundary so worker C can correct C60 generic runtime admission misclassifying post-topology special-room generation. Resume after C60 corrected delivery is submitted."
+        "worker": "Worker-2",
+        "assignment": "support-erased-study-feasibility-20261016",
+        "state": "active"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "support-ci-api-consumer-audit-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T01:27:16.746Z",
+        "claimedAt": "2026-10-16T01:27:25.541Z",
+        "completedAt": "2026-10-16T01:28:18.949Z"
       },
       {
-        "task": "B85",
-        "worker": "B",
-        "goal": "port-zap-melt-ice-v17-20261002",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543",
-        "since": "2026-10-02T09:12:51.810Z",
-        "blockedBy": [],
-        "reason": "Recoverable checked correction d2291ade95874236ceba372ab8dcc38b232273a1 is preserved in the clean worker checkout. Monster fire-trap runtime evidence remains blocked at segment 1 step 71 by the whole timeout.c:slip_or_trip helper; implement prerequisite B87 before resuming B85. No monster fire-trap completion credit."
+        "id": "support-region-expiry-source-plan-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T01:44:35.540Z",
+        "claimedAt": "2026-10-16T01:44:49.322Z",
+        "completedAt": "2026-10-16T01:47:36.677Z"
       },
       {
-        "task": "A84",
-        "worker": "A2",
-        "goal": "port-uhitm-mhitm-ad-slim-v18-20261003",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-04T00:28:04.387Z",
-        "blockedBy": [],
-        "reason": "Read-only whole-source audit found a 32-unit consumed-return closure. Before implementation, resolve canonical mkobj ownership/importers for splitobj, nextoid, weight and next_ident; verify muse_unslime to zhitm, burnarmor and destroy_items dependencies; and establish matching runtime evidence for active slime-cure and object-split paths. No source edits or live commands. Preserve the A84 cache/context and owner census. Resume after a tractable source/evidence plan covers those named dependencies; A85 may proceed independently on mhitm_ad_stun."
+        "id": "support-wet-towel-vapor-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T01:56:32.411Z",
+        "claimedAt": "2026-10-16T01:56:45.955Z",
+        "completedAt": null
       },
       {
-        "task": "C72",
-        "worker": "C",
-        "goal": "fix-fountain-drinkfountain-scare-fate29-v21-20261004",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-04T02:42:03.440Z",
-        "blockedBy": [],
-        "reason": "Whole drinkfountain consumes adjattrib, fruitname/makesingular, and monster_detect/unconstrain_map without accepted completion evidence; closure is not bounded. No code edits or live processes."
-      },
-      {
-        "task": "A106",
-        "worker": "A2",
-        "goal": "port-were-you-were-v17-20261006",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-06T14:24:27.482Z",
-        "blockedBy": [],
-        "reason": "Administrative ancestry boundary: A106 was assigned on worker-local merge 6ffed70c, while accepted B113 main f090c5e3 is a sibling history required for final mon_poly caller wiring. Source work is complete at 9b487f6d; reassign the same scope from accepted base f090c5e3 so the immutable delivery excludes inherited accepted-main paths."
-      },
-      {
-        "task": "A107",
-        "worker": "A2",
-        "goal": "port-were-you-were-v17-20261006",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": "bab75effa77c134c27c57251f02d568cfa3addd4",
-        "since": "2026-10-06T14:41:06.174Z",
-        "blockedBy": [],
-        "reason": "Administrative replacement: original immutable delivery contained unrelated historical commits, and the clean resubmission remains chained to that delivery in the same task, so worker-state requires the polluted ancestry. Source changes are preserved unchanged for a fresh task."
-      },
-      {
-        "task": "A112",
-        "worker": "A2",
-        "goal": "port-uhitm-mhitm-ad-cold-whole-20261006",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-06T17:59:32.293Z",
-        "blockedBy": [],
-        "reason": "Central goal selection rejected this independent cold/inventory task because the current v22 synthetic boundary lacks a completed investigation. Preserve the uncommitted implementation and source plan; resume only after the selector admits the goal."
-      },
-      {
-        "task": "B162",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T16:49:04.083Z",
-        "blockedBy": [],
-        "reason": "Queued implementation requires source:cmd.c:doextcmd, currently reserved by ready A159 behind its A158 correction. Preserve the complete report and resume after A159 acceptance; worker B selects independent work now."
-      },
-      {
-        "task": "A161",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T17:12:41.809Z",
-        "blockedBy": [],
-        "reason": "Duplicate selection: completed B162 report ce0074b3 already queues port-wizcmds-wiz-show-stats-v30-20261008; B162 is parked only on pending A159 doextcmd reservation. No A161 report or tracked edits created."
-      },
-      {
-        "task": "A162",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T17:16:02.902Z",
-        "blockedBy": [],
-        "reason": "Completed report b1f12683d saved for later resume. Older queued B162 statistics goal takes source:cmd.c:doextcmd priority immediately after A159 acceptance; A162 implementation must wait for that caller ownership boundary."
-      },
-      {
-        "task": "A163",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T17:22:39.157Z",
-        "blockedBy": [],
-        "reason": "Complete source report saved separately. Whole wiz_objprobs needs the bounded doextcmd caller; older queued B162 statistics takes dispatcher priority after A159 acceptance. Preserve A163 report/session for later resume; no game edits."
-      },
-      {
-        "task": "A169",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T19:56:54.583Z",
-        "blockedBy": [],
-        "reason": "Whole light.c:wiz_light_sources consumes alloc.c:fmt_ptr native allocation address. No patched pointer normalization exists; JS has no source-equivalent address and nonempty-list evidence cannot match ASLR output. Complete report preserved; awaiting coordinator policy or explicit bounded partial-scope decision."
-      },
-      {
-        "task": "C153",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T21:02:41.656Z",
-        "blockedBy": [],
-        "reason": "contract:C-pointer-diagnostic-format owner unresolved: populated light.c:wiz_light_sources consumes alloc.c:fmt_ptr raw native %p addresses without an established source-faithful JS identity contract. Complete investigation saved; no partial owner implementation."
-      },
-      {
-        "task": "B172",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T21:44:09.631Z",
-        "blockedBy": [],
-        "reason": "Complete source diagnosis: Unix/MacOS PORT_ID and DEV_RANDOM compile configuration differ between strict admitted Linux C recording and historical Darwin judge configuration. Coordinator must resolve a general build/evaluation contract; no independent game implementation can satisfy both raw configurations without input representation."
-      },
-      {
-        "task": "C157",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-08T22:17:21.959Z",
-        "blockedBy": [],
-        "reason": "Complete report-only duplicate of earlier B171 doextcmd game-history arm. B171 is first-owner dependency; direct V rhack caller remains behind B170. No implementation edits."
-      },
-      {
-        "task": "A178",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T01:22:13.792Z",
-        "blockedBy": [],
-        "reason": "Source diagnosis complete in report 147cc63afc1cbe431cc15b9d4aba2163947183ed. The manifest classifies Unix/MacOS and urandom/random as platform/build provenance; established Darwin compatibility prevents a portable implementation claim. Coordinator instructed preservation and parking."
-      },
-      {
-        "task": "A183",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T04:01:02.463Z",
-        "blockedBy": [],
-        "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
-      },
-      {
-        "task": "B188",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T08:38:42.919Z",
-        "blockedBy": [],
-        "reason": "Main confirmed bounded Lua divergence tooling gap: worker-delivery only recognizes Lua for lua-port, while this task must retain divergence-only credit. Await canonical luaFile support after A185 checkpoint. Two independent C-first Castle role cases and byte-identical replays preserved under .cache/B188/c-first; no game edits."
-      },
-      {
-        "task": "B190",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T09:02:12.645Z",
-        "blockedBy": [],
-        "reason": "Main confirms B172/A178 already established the platform/build provenance blocker. No new source task or game edits; preserve saved queue observation and reuse their prior audit."
-      },
-      {
-        "task": "B193",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T09:56:14.779Z",
-        "blockedBy": [],
-        "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
-      },
-      {
-        "task": "B200",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:04:52.682Z",
-        "blockedBy": [],
-        "reason": "Main received complete report and directed parking for shared numeric selection subtraction owner adjudication; preserve report3bc79386 and source proposal without game edits."
-      },
-      {
-        "task": "B202",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T14:24:01.151Z",
-        "blockedBy": [],
-        "reason": "Complete Val-strt report is preserved at 2494462c6; implementation waits on central numeric-selection owner adjudication. Worker temporarily resumes B195 evidence correction."
-      },
-      {
-        "task": "C180",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T17:38:16.049Z",
-        "blockedBy": [],
-        "reason": "Source trace confirms v35 version-feature mismatch is the same cross-platform PORT_ID/build-provenance conflict already diagnosed by B172; source implementation cannot choose a single Unix/MacOS identity without a shared replay build-provenance contract. Report is committed at 9f78c78b7; no game edits."
-      },
-      {
-        "task": "A198",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-09T17:46:04.357Z",
-        "blockedBy": [],
-        "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
-      },
-      {
-        "task": "C183",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T02:16:25.792Z",
-        "blockedBy": [],
-        "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
-      },
-      {
-        "task": "C-v41-astral-special-program-generation-investigation-20261010",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T13:49:28.557Z",
-        "blockedBy": [],
-        "reason": "Parked after source trace showed the shared explicit-monster admission defect belongs to B221, which owns the canonical makemon.c:makemon fix; resume only if B221 leaves entry-point coverage incomplete."
-      },
-      {
-        "task": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T14:46:29.538Z",
-        "blockedBy": [],
-        "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
-      },
-      {
-        "task": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-10T18:02:30.072Z",
-        "blockedBy": [],
-        "reason": "Committed refreshed complete expels caller map at 5d1a4c1e7. The full C function has 14 active call expressions across 13 caller functions. Implementation must wire all active direct callers; A2 currently owns overlapping js/zap.js, js/polyself.js, and js/mon.js paths, and B225 owns overlapping js/mon.js. Park until both A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010 and B225-investigation-v41-forced-steed-dismount-at-pool-20261010 are accepted; no game code or implementation scope was claimed."
-      },
-      {
-        "task": "A2-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-11T01:52:16.045Z",
-        "blockedBy": [],
-        "reason": "The source trace points to mon.c:m_detach and quest.c:nemdead, but C owns the active mon.c:mondead task and js/mon.js write path for the Keystone Kop case. Park this session until that task is accepted or the coordinator assigns a disjoint source/write scope. Investigation: investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json at b6453195534c0e8f1d8f6bbae4f820973948231b."
-      },
-      {
-        "task": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
-        "worker": "A2",
-        "goal": "fix-v43-mounted-steed-stair-descent-pager-2-cfirst-20261011",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": "62a839cd330b48bd6d5386a482c80787a2887592",
-        "since": "2026-10-11T03:30:20.681Z",
-        "blockedBy": [],
-        "reason": "Whole-source review found next_to_u, keepdogs, and mon_arrive require incomplete leash, migration, placement, elapsed-time, and active caller families. Resume after a complete source-family scope is selected with caller and entry evidence."
-      },
-      {
-        "task": "B-investigation-v43-mounted-steed-stair-descent-pager-2-20261011",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-11T03:37:51.409Z",
-        "blockedBy": [],
-        "reason": "Main reports this case is parked-needs-recheck after A’s full source audit found that supporting mounted descent beyond apply.c:next_to_u requires the broader leash, migration, placement, elapsed-time, and active-caller families. Do not begin overlapping implementation while those scopes are assigned elsewhere; resume only after Main refreshes ownership/queue. The bounded replay I launched stopped immediately after C reached step 166; no source report or game edits were made."
-      },
-      {
-        "task": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
-        "worker": "A2",
-        "goal": "A2-divergence-v43-potionhit-monster-blindness-cure-20261011",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": "72a82c6a6b107f6e7e235a3872f7981f47315217",
-        "since": "2026-10-11T04:34:27.644Z",
-        "blockedBy": [
-          "A2-investigation-v43-mounted-steed-stair-descent-20261011"
-        ],
-        "reason": "Superseded by a same-goal correction task rooted directly at accepted Main because the immutable original assignment base was the parked mounted delivery. The rebuilt tree is preserved at aa14060e8 and contains only the blindness scope."
-      },
-      {
-        "task": "A2-investigation-v47-shop-sellobj-followthrough-20261011",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-11T23:08:54.777Z",
-        "blockedBy": [],
-        "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
-      },
-      {
-        "task": "C-investigation-v48-name-floor-object-attempt5-20261012",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T05:06:09.795Z",
-        "blockedBy": [],
-        "reason": "Fresh source trace identifies getpos.c:getpos() at @/NHKF_GETPOS_SELF as the first mismatch. Its whole source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved investigations/synthetic/v48/v48-name-floor-object-attempt5.json; resume after B delivery is accepted or releases the source reservation."
-      },
-      {
-        "task": "A2-investigation-v48-name-floor-object-attempt5-20261012",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T05:54:19.277Z",
-        "blockedBy": [],
-        "reason": "The @ input diverges inside getpos.c:getpos, whose full source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved source trace in commit f28bc748f; resume after that reservation is released or accepted."
-      },
-      {
-        "task": "C-investigation-v48-short-version-command-20261012",
-        "worker": "C",
-        "goal": "fix-version-doversion-versionshort-v48-20261012",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T06:28:06.984Z",
-        "blockedBy": [],
-        "reason": "C reports committed implementation and V/mV normalized host-string replay, but strict evidence gate rejects submission: local C emits Unix while official profile emits MacOS. Preserve commits 4f13891af and15e869a33, recipes and private check evidence; no raw mismatching recording is in the regression corpus. Source completion remains unproven pending a permitted host-profile evidence route or matching recorder."
-      },
-      {
-        "task": "C-investigation-v49-apply-book-attempt2-20261012",
-        "worker": "C",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T08:59:00.081Z",
-        "blockedBy": [],
-        "reason": "Step 9 is already covered by delivery 92449c294641f2004c63c94a6eb5f95c721c7e85 from B. That fix depends on A releasing invent.c:getobj; reuse the preserved investigation and resume after that dependency is accepted, without re-diagnosing the unchanged boundary."
-      },
-      {
-        "task": "A2-investigation-v51-stone-golem-nymph-corpse-theft-20261012",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T09:06:00.473Z",
-        "blockedBy": [],
-        "reason": "Diagnosis and baseline are committed at 503fa9ed8. Step 230 reaches steal.c:steal() then trap.c:minstapetrify(); C owns the complete helper family and will include this caller and case. No game edits were made. Release the session for C's active source task."
-      },
-      {
-        "task": "B-investigation-v48-knownclass-attempt3-20261012",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-12T11:30:34.791Z",
-        "blockedBy": [],
-        "reason": "Resolved by C-investigation-v48-discovery-sort-menu-20261012 accepted at 583ca5765128db23e1d43883d8faad7b0dbcdef6. Fresh bounded replay on B accepted Main 24cd67df72e04946883c4dad0b7185ebbbd77449 matched all 14 screens, RNG, and input boundaries; #knownclass reached with unported=[] and no refusal. Do not create duplicate implementation completion evidence."
-      },
-      {
-        "task": "A2-investigation-v52-minetown-move-continuation-20261012",
-        "worker": "A2",
-        "goal": "A2-fix-shk-move-avoid-distance-v52-20261012",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": "ed46996e9a3d80d5c70c1d98c1849d8cf264b339",
-        "since": "2026-10-12T20:29:41.779Z",
-        "blockedBy": [],
-        "reason": "Superseded by accepted hot-pursuit correction 575ed936 at b656ad046. Its source-defined shk_move threshold change and full matching Minetown replay are preserved in the accepted correction; the original movement packet remains historical evidence."
-      },
-      {
-        "task": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
-        "worker": "A2",
-        "goal": "fix-tty-yn-cleanup-topline-nymph-v53-20261012",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T00:10:29.550Z",
-        "blockedBy": [],
-        "reason": "Source trace identifies topl.c:update_topl, already owned by B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012. Preserve A diagnosis deec7a41ae6b854f77de995406a4795cae466b0b and saved replay; release the nymph session and obsolete tty_yn_function reservation for B to claim as an additional target."
-      },
-      {
-        "task": "A2-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T02:21:08.563Z",
-        "blockedBy": [],
-        "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
-      },
-      {
-        "task": "A2-investigation-v57-flying-steed-pool-dismount-action4-20261013",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T15:44:52.102Z",
-        "blockedBy": [],
-        "reason": "Duplicate session already owned by B parked investigation B-investigation-v57-flying-steed-pool-dismount-20261013 (diagnosis 99b0d915d); Root confirmed B ownership. Parked without source edits."
-      },
-      {
-        "task": "A2-investigation-v58-self-stethoscope-held-trap-action1-20261013",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T17:18:47.421Z",
-        "blockedBy": [],
-        "reason": "C already owns the v58 self-stethoscope investigation and its source-traced ustatusline finding; B holds the ready source:insight.c:ustatusline reservation. Park this duplicate session claim without code edits. Resume only if C’s ownership changes and B releases the source reservation."
-      },
-      {
-        "task": "A2-investigation-v59-locking-hole-cover-action2-20261013",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T17:43:16.779Z",
-        "blockedBy": [],
-        "reason": "The case source-traces to zap.c:zap_updown, which A2 already reserves for its ready v58 ceiling-strike delivery. Park this duplicate source-family investigation without code edits; resume after that delivery is accepted and the refreshed queue confirms the locking/HOLE branch remains unmatched."
-      },
-      {
-        "task": "A2-investigation-v48-short-version-command-attempt1-20261013",
-        "worker": "A2",
-        "goal": "port-version-doversion-short-command-v48-20261013",
-        "kind": "implementation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T17:57:37.335Z",
-        "blockedBy": [],
-        "reason": "Raw target has no improvement: Linux C Unix banner differs from retained JS MacOS build-profile contract. Source changes and normalized evidence are preserved; no passing raw runtime entry evidence."
-      },
-      {
-        "task": "A2-investigation-v58-opening-wand-hero-beartrap-action6-20261013",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-13T18:16:32.311Z",
-        "blockedBy": [],
-        "reason": "Diagnosis is committed at 5e8801ffe. The fix is a missing WAN_OPENING/SPE_KNOCK down branch in zap.c:zap_updown, already reserved by A2’s ready v58 ceiling-strike delivery. Resume this follow-on after that delivery is accepted and the queue confirms this case remains unmatched."
-      },
-      {
-        "task": "A2-investigation-v63-sighted-wizard-clone-action4-20261014",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-14T03:21:06.878Z",
-        "blockedBy": [],
-        "reason": "Temporarily yield the claimed wizard-clone investigation while Root-requested empty metadata corrections are submitted for preserved Sokoban and swallowed-light deliveries; the session scan is saved in .cache and ownership will be resumed after the corrections."
-      },
-      {
-        "task": "B-investigation-v64-stair-shipped-object-arrival-action3-20261014",
-        "worker": "B",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-14T03:55:55.487Z",
-        "blockedBy": [],
-        "reason": "Duplicate of C committed parked diagnosis adc0e4d88 for the same session. Reuse that source finding and select a different unowned case."
-      },
-      {
-        "task": "A2-investigation-v63-hostile-ghost-door-action11-20261014",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-14T06:28:18.541Z",
-        "blockedBy": [],
-        "reason": "The accepted lock.c:doorlock callback fix resolves the diagnosed mismatch. The report is committed at 3411bae31, and a focused replay at 599bcfe matched all 921 screens and input boundaries; there is no source work left in this investigation."
-      },
-      {
-        "task": "A2-investigation-v64-stair-shipped-object-arrival-action3-20261014",
-        "worker": "A2",
-        "goal": null,
-        "kind": "investigation",
-        "status": "parked",
-        "delivery": null,
-        "since": "2026-10-14T06:30:28.196Z",
-        "blockedBy": [],
-        "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
+        "id": "support-erased-study-feasibility-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T01:56:32.572Z",
+        "claimedAt": "2026-10-16T01:56:48.288Z",
+        "completedAt": null
       }
     ]
   },
-  "workerReservations": {
-    "tasks": {
-      "C42": {
-        "id": "C42",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v11/hero-magic-trap-summons-monsters",
-        "reservations": [
-          "source:trap.c:domagictrap",
-          "contract:magic-trap-fates"
-        ],
-        "reason": "Administrative reclassification: historical domagictrap evidence was invalidated and the implementation continues as C43 whole-function file-port with the same source scope."
-      },
-      "B50": {
-        "id": "B50",
-        "worker": "B",
-        "status": "parked",
-        "seed": "monster WAN_STRIKING door ray entry point",
-        "reservations": [
-          "source:lock.c:doorlock",
-          "source:muse.c:mbhit",
-          "contract:door-magic"
-        ],
-        "reason": "C-only cache probes established a locked doorway and a forced Dispater WAN_STRIKING, but monster action priority selected mcastu.c:castmu or wizard.c:tactics before muse.c:mbhit; the final two-whistle strict replay diverged at segment 1 step 81 on wizard.c:tactics rn2(5). No matching monster doorlock entry-point witness or source change was delivered. Preserve B49 parked source goal and seek a new independent C route."
-      },
-      "B85": {
-        "id": "B85",
-        "worker": "B",
-        "status": "parked",
-        "seed": null,
-        "reservations": [
-          "source:zap.c:melt_ice",
-          "source:zap.c:zap_over_floor",
-          "contract:ice-melt-floor-transition",
-          "source:trap.c:dofiretrap",
-          "source:trap.c:trapeffect_fire_trap"
-        ],
-        "reason": "Recoverable checked correction d2291ade95874236ceba372ab8dcc38b232273a1 is preserved in the clean worker checkout. Monster fire-trap runtime evidence remains blocked at segment 1 step 71 by the whole timeout.c:slip_or_trip helper; implement prerequisite B87 before resuming B85. No monster fire-trap completion credit."
-      },
-      "C61": {
-        "id": "C61",
-        "worker": "C",
-        "status": "parked",
-        "seed": null,
-        "reservations": [
-          "source:uhitm.c:mhitm_ad_slee",
-          "source:uhitm.c:mhitm_adtyping",
-          "contract:uhitm-adtyping-AD_SLEE-dispatch"
-        ],
-        "reason": "Unstarted independent sleep helper parked at clean boundary so worker C can correct C60 generic runtime admission misclassifying post-topology special-room generation. Resume after C60 corrected delivery is submitted."
-      },
-      "A84": {
-        "id": "A84",
-        "worker": "A2",
-        "status": "parked",
-        "seed": null,
-        "reservations": [
-          "source:uhitm.c:mhitm_ad_slim",
-          "source:muse.c:munslime",
-          "source:muse.c:muse_unslime",
-          "contract:uhitm-ad-slim-dispatch-arm"
-        ],
-        "reason": "Read-only whole-source audit found a 32-unit consumed-return closure. Before implementation, resolve canonical mkobj ownership/importers for splitobj, nextoid, weight and next_ident; verify muse_unslime to zhitm, burnarmor and destroy_items dependencies; and establish matching runtime evidence for active slime-cure and object-split paths. No source edits or live commands. Preserve the A84 cache/context and owner census. Resume after a tractable source/evidence plan covers those named dependencies; A85 may proceed independently on mhitm_ad_stun."
-      },
-      "C72": {
-        "id": "C72",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v21/wizard-drinks-wished-fountain-fate23-demon-v21-cfirst",
-        "reservations": [
-          "source:fountain.c:drinkfountain"
-        ],
-        "reason": "Whole drinkfountain consumes adjattrib, fruitname/makesingular, and monster_detect/unconstrain_map without accepted completion evidence; closure is not bounded. No code edits or live processes."
-      },
-      "A106": {
-        "id": "A106",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
-        "reservations": [
-          "source:were.c:you_were",
-          "source:mhitm.c:mon_poly",
-          "contract:were-you-were-production-callers"
-        ],
-        "reason": "Administrative ancestry boundary: A106 was assigned on worker-local merge 6ffed70c, while accepted B113 main f090c5e3 is a sibling history required for final mon_poly caller wiring. Source work is complete at 9b487f6d; reassign the same scope from accepted base f090c5e3 so the immutable delivery excludes inherited accepted-main paths."
-      },
-      "A107": {
-        "id": "A107",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
-        "reservations": [
-          "source:were.c:you_were",
-          "source:mhitm.c:mon_poly",
-          "contract:were-you-were-production-callers"
-        ],
-        "reason": "Administrative replacement: original immutable delivery contained unrelated historical commits, and the clean resubmission remains chained to that delivery in the same task, so worker-state requires the polluted ancestry. Source changes are preserved unchanged for a fresh task."
-      },
-      "A112": {
-        "id": "A112",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "A111 independent ice-vortex cold branch",
-        "reservations": [
-          "source:uhitm.c:mhitm_ad_cold",
-          "source:uhitm.c:mhitm_adtyping",
-          "source:zap.c:destroy_items",
-          "source:zap.c:maybe_destroy_item",
-          "source:worn.c:bypass_obj",
-          "source:worn.c:bypass_objlist",
-          "source:worn.c:nxt_unbypassed_obj",
-          "contract:object-bypass-traversal",
-          "source:invent.c:askchain"
-        ],
-        "reason": "Central goal selection rejected this independent cold/inventory task because the current v22 synthetic boundary lacks a completed investigation. Preserve the uncommitted implementation and source plan; resume only after the selector admits the goal."
-      },
-      "B162": {
-        "id": "B162",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v30/v30-memory-statistics",
-        "reservations": [
-          "session:synthetic/v30/v30-memory-statistics"
-        ],
-        "reason": "Queued implementation requires source:cmd.c:doextcmd, currently reserved by ready A159 behind its A158 correction. Preserve the complete report and resume after A159 acceptance; worker B selects independent work now."
-      },
-      "A161": {
-        "id": "A161",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v30/v30-memory-statistics",
-        "reservations": [
-          "session:synthetic/v30/v30-memory-statistics"
-        ],
-        "reason": "Duplicate selection: completed B162 report ce0074b3 already queues port-wizcmds-wiz-show-stats-v30-20261008; B162 is parked only on pending A159 doextcmd reservation. No A161 report or tracked edits created."
-      },
-      "A162": {
-        "id": "A162",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v30/v30-wall-modes",
-        "reservations": [
-          "session:synthetic/v30/v30-wall-modes"
-        ],
-        "reason": "Completed report b1f12683d saved for later resume. Older queued B162 statistics goal takes source:cmd.c:doextcmd priority immediately after A159 acceptance; A162 implementation must wait for that caller ownership boundary."
-      },
-      "A163": {
-        "id": "A163",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v30/v30-object-probabilities",
-        "reservations": [
-          "session:synthetic/v30/v30-object-probabilities"
-        ],
-        "reason": "Complete source report saved separately. Whole wiz_objprobs needs the bounded doextcmd caller; older queued B162 statistics takes dispatcher priority after A159 acceptance. Preserve A163 report/session for later resume; no game edits."
-      },
-      "A169": {
-        "id": "A169",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v31/v31-empty-light-sources",
-        "reservations": [
-          "session:synthetic/v31/v31-empty-light-sources"
-        ],
-        "reason": "Whole light.c:wiz_light_sources consumes alloc.c:fmt_ptr native allocation address. No patched pointer normalization exists; JS has no source-equivalent address and nonempty-list evidence cannot match ASLR output. Complete report preserved; awaiting coordinator policy or explicit bounded partial-scope decision."
-      },
-      "C153": {
-        "id": "C153",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v31/v31-empty-light-sources",
-        "reservations": [
-          "session:synthetic/v31/v31-empty-light-sources"
-        ],
-        "reason": "contract:C-pointer-diagnostic-format owner unresolved: populated light.c:wiz_light_sources consumes alloc.c:fmt_ptr raw native %p addresses without an established source-faithful JS identity contract. Complete investigation saved; no partial owner implementation."
-      },
-      "B172": {
-        "id": "B172",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v32/v32-version-build-options",
-        "reservations": [
-          "session:synthetic/v32/v32-version-build-options"
-        ],
-        "reason": "Complete source diagnosis: Unix/MacOS PORT_ID and DEV_RANDOM compile configuration differ between strict admitted Linux C recording and historical Darwin judge configuration. Coordinator must resolve a general build/evaluation contract; no independent game implementation can satisfy both raw configurations without input representation."
-      },
-      "C157": {
-        "id": "C157",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v32/v32-game-history",
-        "reservations": [
-          "session:synthetic/v32/v32-game-history"
-        ],
-        "reason": "Complete report-only duplicate of earlier B171 doextcmd game-history arm. B171 is first-owner dependency; direct V rhack caller remains behind B170. No implementation edits."
-      },
-      "A178": {
-        "id": "A178",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v32/v32-version-build-options",
-        "reservations": [
-          "session:synthetic/v32/v32-version-build-options"
-        ],
-        "reason": "Source diagnosis complete in report 147cc63afc1cbe431cc15b9d4aba2163947183ed. The manifest classifies Unix/MacOS and urandom/random as platform/build provenance; established Darwin compatibility prevents a portable implementation claim. Coordinator instructed preservation and parking."
-      },
-      "A183": {
-        "id": "A183",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v33/v33-invoke-healing-blindness",
-        "reservations": [
-          "session:synthetic/v33/v33-invoke-healing-blindness"
-        ],
-        "reason": "Stale initial saved queue: accepted C160 evaluation at f091b997 proves v33-invoke-healing-blindness exact99/99screens/cursors1854RNG. Already in accepted B181 main4c02dfca and workerHEADd84b3350. No report or source edits needed."
-      },
-      "B188": {
-        "id": "B188",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v35/v35-arrival-castle",
-        "reservations": [
-          "session:synthetic/v35/v35-arrival-castle"
-        ],
-        "reason": "Main confirmed bounded Lua divergence tooling gap: worker-delivery only recognizes Lua for lua-port, while this task must retain divergence-only credit. Await canonical luaFile support after A185 checkpoint. Two independent C-first Castle role cases and byte-identical replays preserved under .cache/B188/c-first; no game edits."
-      },
-      "B190": {
-        "id": "B190",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v32/v32-version-build-options",
-        "reservations": [
-          "session:synthetic/v32/v32-version-build-options"
-        ],
-        "reason": "Main confirms B172/A178 already established the platform/build provenance blocker. No new source task or game edits; preserve saved queue observation and reuse their prior audit."
-      },
-      "B193": {
-        "id": "B193",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v35/v35-gehennom-juiblex",
-        "reservations": [
-          "session:synthetic/v35/v35-gehennom-juiblex"
-        ],
-        "reason": "Complete source report07845e90b: patch006 nomux_capture_screen overflows6144-byte buffer into raw cursor globals after dense Juiblex mapping. RNG/screens match; Main owns recorder repair and admitted-corpus provenance decision. No JavaScript source task is eligible for this cursor corruption."
-      },
-      "B200": {
-        "id": "B200",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v36/v36-quest-tou-goal",
-        "reservations": [
-          "session:synthetic/v36/v36-quest-tou-goal"
-        ],
-        "reason": "Main received complete report and directed parking for shared numeric selection subtraction owner adjudication; preserve report3bc79386 and source proposal without game edits."
-      },
-      "B202": {
-        "id": "B202",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v36/v36-quest-val-strt",
-        "reservations": [
-          "session:synthetic/v36/v36-quest-val-strt"
-        ],
-        "reason": "Complete Val-strt report is preserved at 2494462c6; implementation waits on central numeric-selection owner adjudication. Worker temporarily resumes B195 evidence correction."
-      },
-      "C180": {
-        "id": "C180",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v35/v35-version-feature-report",
-        "reservations": [
-          "session:synthetic/v35/v35-version-feature-report"
-        ],
-        "reason": "Source trace confirms v35 version-feature mismatch is the same cross-platform PORT_ID/build-provenance conflict already diagnosed by B172; source implementation cannot choose a single Unix/MacOS identity without a shared replay build-provenance contract. Report is committed at 9f78c78b7; no game edits."
-      },
-      "A198": {
-        "id": "A198",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v36/v36-quest-rog-goal",
-        "reservations": [
-          "session:synthetic/v36/v36-quest-rog-goal"
-        ],
-        "reason": "The full Rog-goal Lua program reaches an object descriptor that sets tin montype=\"chameleon\" at dat/Rog-goal.lua:45. Upstream sp_lev.c:lspo_object resolves named species to a species index; current JavaScript carries that name string through the corpsenm path. This shared source contract overlaps parked C172. A198 remains blocked until the orchestrator adjudicates C172; do not edit or reserve sp_lev.c:lspo_object while that task is parked/shared."
-      },
-      "C183": {
-        "id": "C183",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v38/v38-cursed-bear-trap-bungle",
-        "reservations": [
-          "session:synthetic/v38/v38-cursed-bear-trap-bungle"
-        ],
-        "reason": "The v38 bear-trap case reaches apply.c:set_trap then trap.c:dotrap after feeltrap reveals the new bear trap; source passes flags 0. The accepted-base preflight rejects this seen BEAR_TRAP path, and B204 owns contract:hero-trap-preflight-admission. B204 change only admits arrow traps. The source trace is recorded in investigations/synthetic/v38/v38-cursed-bear-trap-bungle.json. The reserved contract was left untouched; moving to the next independent case."
-      },
-      "C-v41-astral-special-program-generation-investigation-20261010": {
-        "id": "C-v41-astral-special-program-generation-investigation-20261010",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v41/v41-astral-special-program-generation",
-        "reservations": [
-          "session:synthetic/v41/v41-astral-special-program-generation"
-        ],
-        "reason": "Parked after source trace showed the shared explicit-monster admission defect belongs to B221, which owns the canonical makemon.c:makemon fix; resume only if B221 leaves entry-point coverage incomplete."
-      },
-      "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010": {
-        "id": "C-v40-snuffed-lit-lamp-obj-resists-followup-20261010",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm",
-        "reservations": [
-          "session:synthetic/v40/v40-snuffed-lit-lamp-on-engulfing-worm"
-        ],
-        "reason": "Parked after source trace showed the step-76 object-resistance RNG divergence follows the step-75 leash-snap dog movement. The obj_resists helper already performs the source-matched unconditional rn2(100); the active cause lies in dogmove.c:dog_move and js/dogmove.js, reserved by B220 until its delivery is accepted."
-      },
-      "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010": {
-        "id": "C-v40-opening-wand-expels-swallowed-hero-investigation-20261010",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v40/v40-opening-wand-expels-swallowed-hero",
-        "reservations": [
-          "session:synthetic/v40/v40-opening-wand-expels-swallowed-hero"
-        ],
-        "reason": "Committed refreshed complete expels caller map at 5d1a4c1e7. The full C function has 14 active call expressions across 13 caller functions. Implementation must wire all active direct callers; A2 currently owns overlapping js/zap.js, js/polyself.js, and js/mon.js paths, and B225 owns overlapping js/mon.js. Park until both A2-investigation-v41-polymorphed-hider-remaining-floor-object-20261010 and B225-investigation-v41-forced-steed-dismount-at-pool-20261010 are accepted; no game code or implementation scope was claimed."
-      },
-      "A2-investigation-v43-quest-nemesis-death-wizard-corrected-20261011": {
-        "id": "A2-investigation-v43-quest-nemesis-death-wizard-corrected-20261011",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst",
-        "reservations": [
-          "session:synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst"
-        ],
-        "reason": "The source trace points to mon.c:m_detach and quest.c:nemdead, but C owns the active mon.c:mondead task and js/mon.js write path for the Keystone Kop case. Park this session until that task is accepted or the coordinator assigns a disjoint source/write scope. Investigation: investigations/synthetic/v43/v43-quest-nemesis-death-wizard-corrected-cfirst.json at b6453195534c0e8f1d8f6bbae4f820973948231b."
-      },
-      "A2-investigation-v43-mounted-steed-stair-descent-20261011": {
-        "id": "A2-investigation-v43-mounted-steed-stair-descent-20261011",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
-        "reservations": [
-          "session:synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
-          "source:apply.c:next_to_u",
-          "source:dog.c:keepdogs",
-          "source:dog.c:mon_arrive"
-        ],
-        "reason": "Whole-source review found next_to_u, keepdogs, and mon_arrive require incomplete leash, migration, placement, elapsed-time, and active caller families. Resume after a complete source-family scope is selected with caller and entry evidence."
-      },
-      "A2-investigation-v43-monster-cures-blindness-two-heals-20261011": {
-        "id": "A2-investigation-v43-monster-cures-blindness-two-heals-20261011",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
-        "reservations": [
-          "session:synthetic/v43/v43-monster-cures-blindness-two-heals-seed2-east-complete-cfirst",
-          "source:potion.c:potionhit",
-          "source:muse.c:mcureblindness"
-        ],
-        "reason": "Superseded by a same-goal correction task rooted directly at accepted Main because the immutable original assignment base was the parked mounted delivery. The rebuilt tree is preserved at aa14060e8 and contains only the blindness scope."
-      },
-      "B-investigation-v43-mounted-steed-stair-descent-pager-2-20261011": {
-        "id": "B-investigation-v43-mounted-steed-stair-descent-pager-2-20261011",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst",
-        "reservations": [
-          "session:synthetic/v43/v43-mounted-steed-stair-descent-pager-2-cfirst"
-        ],
-        "reason": "Main reports this case is parked-needs-recheck after A’s full source audit found that supporting mounted descent beyond apply.c:next_to_u requires the broader leash, migration, placement, elapsed-time, and active-caller families. Do not begin overlapping implementation while those scopes are assigned elsewhere; resume only after Main refreshes ownership/queue. The bounded replay I launched stopped immediately after C reached step 166; no source report or game edits were made."
-      },
-      "A2-investigation-v47-shop-sellobj-followthrough-20261011": {
-        "id": "A2-investigation-v47-shop-sellobj-followthrough-20261011",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst",
-        "reservations": [
-          "session:synthetic/v47/v47-drop-wished-dagger-to-sell-in-generated-shop-attempt7-pager-corrected-cfirst"
-        ],
-        "reason": "Parked after committing corrected source findings e546f3c39. The current queue boundary at step 48 is behind the do.c:dropz costly-shop preflight refusal. A whole shk.c:sellobj port is not independently bounded: direct dothrow.c:check_shop_obj ownership and its six throwit callers must be included, and return-valued special_stock -> shknam.c:is_izchak must be ported with its active shk_chat caller. No game code was edited."
-      },
-      "C-investigation-v48-short-version-command-20261012": {
-        "id": "C-investigation-v48-short-version-command-20261012",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v48/v48-short-version-command-attempt1",
-        "reservations": [
-          "session:synthetic/v48/v48-short-version-command-attempt1",
-          "source:version.c:doversion",
-          "source:cmd.c:rhack"
-        ],
-        "reason": "C reports committed implementation and V/mV normalized host-string replay, but strict evidence gate rejects submission: local C emits Unix while official profile emits MacOS. Preserve commits 4f13891af and15e869a33, recipes and private check evidence; no raw mismatching recording is in the regression corpus. Source completion remains unproven pending a permitted host-profile evidence route or matching recorder."
-      },
-      "C-investigation-v48-name-floor-object-attempt5-20261012": {
-        "id": "C-investigation-v48-name-floor-object-attempt5-20261012",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v48/v48-name-floor-object-attempt5",
-        "reservations": [
-          "session:synthetic/v48/v48-name-floor-object-attempt5"
-        ],
-        "reason": "Fresh source trace identifies getpos.c:getpos() at @/NHKF_GETPOS_SELF as the first mismatch. Its whole source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved investigations/synthetic/v48/v48-name-floor-object-attempt5.json; resume after B delivery is accepted or releases the source reservation."
-      },
-      "B-investigation-v48-knownclass-attempt3-20261012": {
-        "id": "B-investigation-v48-knownclass-attempt3-20261012",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v48/v48-knownclass-attempt3",
-        "reservations": [
-          "session:synthetic/v48/v48-knownclass-attempt3"
-        ],
-        "reason": "Resolved by C-investigation-v48-discovery-sort-menu-20261012 accepted at 583ca5765128db23e1d43883d8faad7b0dbcdef6. Fresh bounded replay on B accepted Main 24cd67df72e04946883c4dad0b7185ebbbd77449 matched all 14 screens, RNG, and input boundaries; #knownclass reached with unported=[] and no refusal. Do not create duplicate implementation completion evidence."
-      },
-      "A2-investigation-v48-name-floor-object-attempt5-20261012": {
-        "id": "A2-investigation-v48-name-floor-object-attempt5-20261012",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v48/v48-name-floor-object-attempt5",
-        "reservations": [
-          "session:synthetic/v48/v48-name-floor-object-attempt5"
-        ],
-        "reason": "The @ input diverges inside getpos.c:getpos, whose full source function is reserved by B-investigation-v48-getpos-monster-menu-20261012. Preserved source trace in commit f28bc748f; resume after that reservation is released or accepted."
-      },
-      "C-investigation-v49-apply-book-attempt2-20261012": {
-        "id": "C-investigation-v49-apply-book-attempt2-20261012",
-        "worker": "C",
-        "status": "parked",
-        "seed": "synthetic/v49/v49-apply-book-attempt2",
-        "reservations": [
-          "session:synthetic/v49/v49-apply-book-attempt2"
-        ],
-        "reason": "Step 9 is already covered by delivery 92449c294641f2004c63c94a6eb5f95c721c7e85 from B. That fix depends on A releasing invent.c:getobj; reuse the preserved investigation and resume after that dependency is accepted, without re-diagnosing the unchanged boundary."
-      },
-      "A2-investigation-v51-stone-golem-nymph-corpse-theft-20261012": {
-        "id": "A2-investigation-v51-stone-golem-nymph-corpse-theft-20261012",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v51/v51-stone-golem-nymph-corpse-theft-action-attempt3",
-        "reservations": [
-          "session:synthetic/v51/v51-stone-golem-nymph-corpse-theft-action-attempt3"
-        ],
-        "reason": "Diagnosis and baseline are committed at 503fa9ed8. Step 230 reaches steal.c:steal() then trap.c:minstapetrify(); C owns the complete helper family and will include this caller and case. No game edits were made. Release the session for C's active source task."
-      },
-      "A2-investigation-v52-minetown-move-continuation-20261012": {
-        "id": "A2-investigation-v52-minetown-move-continuation-20261012",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
-        "reservations": [
-          "session:synthetic/v52/v52-minetown-unpaid-tool-pickup-attempt12",
-          "source:monmove.c:m_move",
-          "source:shk.c:shk_move",
-          "source:priest.c:move_special",
-          "source:mon.c:mon_allowflags",
-          "source:mon.c:mfndpos"
-        ],
-        "reason": "Superseded by accepted hot-pursuit correction 575ed936 at b656ad046. Its source-defined shk_move threshold change and full matching Minetown replay are preserved in the accepted correction; the original movement packet remains historical evidence."
-      },
-      "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012": {
-        "id": "A2-investigation-v53-blind-fountain-dip-nymph-residual-action2-20261012",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v53/v53-blind-fountain-dip-nymph-action2",
-        "reservations": [
-          "session:synthetic/v53/v53-blind-fountain-dip-nymph-action2",
-          "source:topl.c:tty_yn_function"
-        ],
-        "reason": "Source trace identifies topl.c:update_topl, already owned by B-investigation-v53-mounted-dragon-purpleworm-engulf-residual-action4-20261012. Preserve A diagnosis deec7a41ae6b854f77de995406a4795cae466b0b and saved replay; release the nymph session and obsolete tty_yn_function reservation for B to claim as an additional target."
-      },
-      "A2-investigation-v54-rogue-fast-apprentice-stun-action3-20261013": {
-        "id": "A2-investigation-v54-rogue-fast-apprentice-stun-action3-20261013",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v54/v54-rogue-fast-apprentice-stun-action3",
-        "reservations": [
-          "session:synthetic/v54/v54-rogue-fast-apprentice-stun-action3"
-        ],
-        "reason": "Diagnosis committed at f70875423; required mcastu.c:mcast_spell dispatcher edit is held by B active blindness task. No game code changes made; retaining this source finding for later continuation."
-      },
-      "A2-investigation-v57-flying-steed-pool-dismount-action4-20261013": {
-        "id": "A2-investigation-v57-flying-steed-pool-dismount-action4-20261013",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v57/v57-flying-steed-pool-dismount-action4",
-        "reservations": [
-          "session:synthetic/v57/v57-flying-steed-pool-dismount-action4"
-        ],
-        "reason": "Duplicate session already owned by B parked investigation B-investigation-v57-flying-steed-pool-dismount-20261013 (diagnosis 99b0d915d); Root confirmed B ownership. Parked without source edits."
-      },
-      "A2-investigation-v58-self-stethoscope-held-trap-action1-20261013": {
-        "id": "A2-investigation-v58-self-stethoscope-held-trap-action1-20261013",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v58/v58-self-stethoscope-held-trap-action1",
-        "reservations": [
-          "session:synthetic/v58/v58-self-stethoscope-held-trap-action1"
-        ],
-        "reason": "C already owns the v58 self-stethoscope investigation and its source-traced ustatusline finding; B holds the ready source:insight.c:ustatusline reservation. Park this duplicate session claim without code edits. Resume only if C’s ownership changes and B releases the source reservation."
-      },
-      "A2-investigation-v59-locking-hole-cover-action2-20261013": {
-        "id": "A2-investigation-v59-locking-hole-cover-action2-20261013",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v59/v59-locking-hole-cover-action2",
-        "reservations": [
-          "session:synthetic/v59/v59-locking-hole-cover-action2"
-        ],
-        "reason": "The case source-traces to zap.c:zap_updown, which A2 already reserves for its ready v58 ceiling-strike delivery. Park this duplicate source-family investigation without code edits; resume after that delivery is accepted and the refreshed queue confirms the locking/HOLE branch remains unmatched."
-      },
-      "A2-investigation-v48-short-version-command-attempt1-20261013": {
-        "id": "A2-investigation-v48-short-version-command-attempt1-20261013",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v48/v48-short-version-command-attempt1",
-        "reservations": [
-          "session:synthetic/v48/v48-short-version-command-attempt1",
-          "source:version.c:doversion",
-          "source:cmd.c:rhack",
-          "source:cmd.c:doextcmd"
-        ],
-        "reason": "Raw target has no improvement: Linux C Unix banner differs from retained JS MacOS build-profile contract. Source changes and normalized evidence are preserved; no passing raw runtime entry evidence."
-      },
-      "A2-investigation-v58-opening-wand-hero-beartrap-action6-20261013": {
-        "id": "A2-investigation-v58-opening-wand-hero-beartrap-action6-20261013",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v58/v58-opening-wand-hero-beartrap-action6",
-        "reservations": [
-          "session:synthetic/v58/v58-opening-wand-hero-beartrap-action6"
-        ],
-        "reason": "Diagnosis is committed at 5e8801ffe. The fix is a missing WAN_OPENING/SPE_KNOCK down branch in zap.c:zap_updown, already reserved by A2’s ready v58 ceiling-strike delivery. Resume this follow-on after that delivery is accepted and the queue confirms this case remains unmatched."
-      },
-      "A2-investigation-v63-sighted-wizard-clone-action4-20261014": {
-        "id": "A2-investigation-v63-sighted-wizard-clone-action4-20261014",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v63/v63-sighted-wizard-clone-action4",
-        "reservations": [
-          "session:synthetic/v63/v63-sighted-wizard-clone-action4"
-        ],
-        "reason": "Temporarily yield the claimed wizard-clone investigation while Root-requested empty metadata corrections are submitted for preserved Sokoban and swallowed-light deliveries; the session scan is saved in .cache and ownership will be resumed after the corrections."
-      },
-      "B-investigation-v64-stair-shipped-object-arrival-action3-20261014": {
-        "id": "B-investigation-v64-stair-shipped-object-arrival-action3-20261014",
-        "worker": "B",
-        "status": "parked",
-        "seed": "synthetic/v64/v64-stair-shipped-object-arrival-action3",
-        "reservations": [
-          "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
-        ],
-        "reason": "Duplicate of C committed parked diagnosis adc0e4d88 for the same session. Reuse that source finding and select a different unowned case."
-      },
-      "A2-investigation-v63-hostile-ghost-door-action11-20261014": {
-        "id": "A2-investigation-v63-hostile-ghost-door-action11-20261014",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v63/v63-hostile-ghost-door-action11",
-        "reservations": [
-          "session:synthetic/v63/v63-hostile-ghost-door-action11"
-        ],
-        "reason": "The accepted lock.c:doorlock callback fix resolves the diagnosed mismatch. The report is committed at 3411bae31, and a focused replay at 599bcfe matched all 921 screens and input boundaries; there is no source work left in this investigation."
-      },
-      "A2-investigation-v64-stair-shipped-object-arrival-action3-20261014": {
-        "id": "A2-investigation-v64-stair-shipped-object-arrival-action3-20261014",
-        "worker": "A2",
-        "status": "parked",
-        "seed": "synthetic/v64/v64-stair-shipped-object-arrival-action3",
-        "reservations": [
-          "session:synthetic/v64/v64-stair-shipped-object-arrival-action3"
-        ],
-        "reason": "Reuse C’s preserved source diagnosis adc0e4d8871f75080a68a3049f58f0b8b4d5660f: dokick.c:obj_delivery and do.c:goto_level reach the migrating-object makemon guard. B’s queued clone20 task owns the conflicting makemon scope, so this investigation does not need a duplicate report or implementation. Resume after that scope is accepted or explicitly reassigned."
-      }
-    },
-    "reservations": {}
-  },
   "development": {
-    "executionCommit": "635c213d360d7b7829fe4864c838b2271a212db0",
-    "measuredAt": "2026-10-15T10:50:57.225Z",
+    "executionCommit": "ddcd49572c197947db7151e1cc37c7db9eee7884",
+    "measuredAt": "2026-10-16T01:56:41.669Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
