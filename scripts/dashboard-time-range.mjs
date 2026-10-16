@@ -23,8 +23,12 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
         const win=doc?.defaultView;
         if(!win||!elements.RangePicker.open)return;
         const box=elements.RangePicker.getBoundingClientRect(),panel=elements.RangeForm.getBoundingClientRect();
-        elements.RangeForm.style.left=(clamp(box.left,16,Math.max(16,win.innerWidth-panel.width-16))-box.left)+'px';
-        elements.RangeForm.style.top=(clamp(box.bottom+6,16,Math.max(16,win.innerHeight-panel.height-16))-box.top)+'px';
+        // Mobile innerWidth can expand to include an overflowing panel. Clamp
+        // against the layout viewport so opening the panel cannot widen it.
+        const width=doc.documentElement?.clientWidth||win.innerWidth;
+        const height=doc.documentElement?.clientHeight||win.innerHeight;
+        elements.RangeForm.style.left=(clamp(box.left,16,Math.max(16,width-panel.width-16))-box.left)+'px';
+        elements.RangeForm.style.top=(clamp(box.bottom+6,16,Math.max(16,height-panel.height-16))-box.top)+'px';
     }
     function sync() {
         if (!elements) return;

@@ -156,3 +156,17 @@ test('Fixed date changes commit only when valid; outside blur commits valid cust
     h.doc.activeElement=h.el('DurationCustom');h.listeners.pointerdown({target:{}});
     assert.equal(h.range.selection().duration,3*HOUR);assert.equal(h.el('RangePicker').open,false);
 });
+
+test('opening a mobile picker clamps to layout viewport despite overflow-expanded innerWidth',()=>{
+    const nodes=new Map(),view={innerWidth:521,innerHeight:1100,addEventListener(){}};
+    const doc={defaultView:view,documentElement:{clientWidth:390,clientHeight:844},addEventListener(){},
+        getElementById(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',hidden:false,open:false,style:{},listeners:{},
+            addEventListener(type,fn){this.listeners[type]=fn;}});return nodes.get(id);}};
+    make({document:doc,prefix:'mobile'});
+    const picker=nodes.get('mobileRangePicker'),form=nodes.get('mobileRangeForm');
+    picker.getBoundingClientRect=()=>({left:163,top:700,bottom:742});
+    form.getBoundingClientRect=()=>({width:358,height:300});
+    picker.open=true;picker.listeners.toggle();
+    assert.equal(form.style.left,'-147px','panel starts at 16, within the actual 390px viewport');
+    assert.equal(form.style.top,'-172px','panel bottom remains inside the layout viewport');
+});
