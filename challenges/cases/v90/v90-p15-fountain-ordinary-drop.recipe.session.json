@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only input refinement uses attempt 1's observed inventory: uncursed potion of fruit juice is an ordinary non-ring starting item in slot f. Move west off the starting stair, wish a fountain underfoot, drop f there, then pick it back up and inspect inventory. Seed/date/role stay fixed; no JavaScript result informed this selection.",
+  "segments": [
+    {
+      "seed": 99017715,
+      "datetime": "20460720150000",
+      "nethackrc": "OPTIONS=name:Worker3P15,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\n",
+      "moves": " h\u0017fountain\ndf,i"
+    }
+  ]
+}

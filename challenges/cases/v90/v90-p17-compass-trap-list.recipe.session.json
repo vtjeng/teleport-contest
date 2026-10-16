@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Second bounded C setup. Based on C #wizmap, the initial map contains known traps but none near the hero; use wizard Ctrl-T to select the map-revealed trap at coordinate east 18 / south 3, then query nearby traps with /t. The same seed and compass option keep the state fixed; no JS comparison is used to tune inputs.",
+  "segments": [
+    {
+      "seed": 9201723,
+      "datetime": "20830511124500",
+      "nethackrc": "OPTIONS=name:V90CompassTrap,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,showexp,time\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,whatis_coord:compass\n",
+      "moves": ".#wizmap\n\u0014  lllllllllllllllllljjj. /t "
+    }
+  ]
+}

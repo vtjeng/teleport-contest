@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90151001,
+      "datetime": "20860612102000",
+      "nethackrc": "OPTIONS=name:V90BoulderRider,role:Knight,race:human,gender=male,align=lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "#wizmap\n#ride\nhyhhhhhhhh#wizwish\nboulder\nlh"
+    }
+  ]
+}

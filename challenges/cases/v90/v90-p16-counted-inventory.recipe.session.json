@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v90 p16 probe for cmd.c:rhack counted GENERALCMD inventory dispatch. Independently selected seed 91673016, date 20771118123000, Wizard, and ordinary play before JavaScript comparison. The time option exposes the turn counter; 2i then Escape should display starting inventory and return without consuming a turn, and the following period should advance one turn. C-observed first setup miss retained: the initial startup --More-- prompt consumed the first command characters. Named correction before the second setup: dismiss that initial prompt with one space before 2i.",
+  "segments": [
+    {
+      "seed": 91673016,
+      "datetime": "20771118123000",
+      "nethackrc": "OPTIONS=name:CountedProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": " 2i\u001b."
+    }
+  ]
+}
