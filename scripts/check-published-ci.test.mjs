@@ -17,7 +17,7 @@ function fixture(t) {
     return join(directory, 'pending.json');
 }
 const client = runs => args => args[0] === 'repo' ? repository
-    : JSON.stringify([{ workflow_runs: runs }]);
+    : JSON.stringify({ workflow_runs: runs });
 
 test('missing runs remain pending; only all four successful workflows complete a commit', () => {
     assert.equal(publicationStatus(commit, [], repository).passed, false);
@@ -49,10 +49,12 @@ test('registers, discovers paginated runs, retains failures and removes successf
     assert.equal(checkPublishedCI({ file }, { gh: client(runs) }).failed, true);
     const final = checkPublishedCI({ file }, { gh: args => {
         if (args[0] === 'repo') return repository;
-        assert.ok(args.includes('--paginate'));
+        assert.deepEqual(args.slice(0, -1), ['api'], 'pagination works without optional gh flags');
         assert.ok(args.at(-1).includes(`head_sha=${commit}`));
-        return JSON.stringify([{ workflow_runs: passing(commit).slice(0, 2) },
-            { workflow_runs: passing(commit).slice(2) }]);
+        const page = new URL(`https://api.github.com/${args.at(-1)}`).searchParams.get('page');
+        return JSON.stringify({workflow_runs: page === '1'
+            ? Array.from({length: 100}, (_, index) => ({...passing(commit)[0], id: index + 100}))
+            : passing(commit).slice(1)});
     } });
     assert.deepEqual(final.completed, [commit]);
     assert.deepEqual(JSON.parse(readFileSync(file)).commits, []);
@@ -77,10 +79,44 @@ test('rejects concurrent changes, competing checkers and malformed API responses
             return repository;
         }
         writeFileSync(file, 'manual edit');
-        return JSON.stringify([{ workflow_runs: passing(commit) }]);
+        return JSON.stringify({ workflow_runs: passing(commit) });
     } }), /changed during/);
     assert.equal(readFileSync(file, 'utf8'), 'manual edit');
     writeFileSync(file, JSON.stringify({ commits: [] }));
     assert.throws(() => checkPublishedCI({ file, commit }, { gh: args => args[0] === 'repo' ? repository : '{}' }), /Invalid workflow/);
     assert.throws(() => checkPublishedCI({ file, commit: 'short' }), /full published/);
+});
+
+test('a malformed or failed later page preserves the full pending cache and releases its lock', t => {
+    const file = fixture(t);
+    const original = JSON.stringify({commits: [{commit, task: 'retained', runs: [23]}]});
+    for (const failure of ['malformed', 'offline']) {
+        writeFileSync(file, original);
+        assert.throws(() => checkPublishedCI({file}, {gh: args => {
+            if (args[0] === 'repo') return repository;
+            if (args.at(-1).endsWith('page=1')) return JSON.stringify({workflow_runs:
+                Array.from({length: 100}, (_, index) => ({...passing(commit)[0], id: index + 100}))});
+            if (failure === 'offline') throw new Error('second page unavailable');
+            return JSON.stringify({workflow_runs: null});
+        }}), /Invalid workflow|second page unavailable/);
+        assert.equal(readFileSync(file, 'utf8'), original);
+        assert.equal(existsSync(`${file}.lock`), false);
+    }
+});
+
+test('pagination is bounded and excessive page results are refused without cache changes', t => {
+    const file = fixture(t);
+    const original = JSON.stringify({commits: [{commit, runs: []}]});
+    writeFileSync(file, original);
+    for (const count of [100, 101]) {
+        let requests = 0;
+        assert.throws(() => checkPublishedCI({file}, {gh: args => {
+            if (args[0] === 'repo') return repository;
+            requests++;
+            return JSON.stringify({workflow_runs: Array.from({length: count}, () => passing(commit)[0])});
+        }}), /pagination limit|Invalid workflow/);
+        assert.equal(requests, count === 100 ? 1000 : 1);
+        assert.equal(readFileSync(file, 'utf8'), original);
+        assert.equal(existsSync(`${file}.lock`), false);
+    }
 });

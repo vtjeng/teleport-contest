@@ -111,6 +111,10 @@ candidate validation and accepted publication. Keep unaccepted candidates on
 Do not force-push or delete refs. Existing validation and publication checks
 still apply.
 
+Accepted pushes to `main` also authorize the normal Dashboard workflow's public
+deployment to `https://vtjeng.com/teleport-contest/`. No separate confirmation
+is needed for each deployment through that tested publication workflow.
+
 For a standalone push, use
 `git push -- https://github.com/vtjeng/teleport-contest.git <refspec>`. The trusted project
 rule in `.codex/rules/teleport-push.rules` allows that exact destination after

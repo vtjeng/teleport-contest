@@ -19,8 +19,8 @@ const EVENT_TYPES = new Set([
 ]);
 
 function legacyActivityFromLedger(ledger) {
-  if (!/^loop-20\d{6}$/u.test(ledger?.runId ?? '')
-      || ledger.runId < 'loop-20260925' || !Array.isArray(ledger.events)) {
+  const run = /^loop-(20\d{6})(?:-[A-Za-z0-9][A-Za-z0-9_.:-]{0,79})?$/u.exec(ledger?.runId ?? '');
+  if (!run || run[1] < '20260925' || !Array.isArray(ledger.events)) {
     throw new Error('expected a worker ledger from loop-20260925 or later');
   }
   return {

@@ -48,3 +48,24 @@ or measured benefits from pending proposals.
 - Follow-up evidence: `unmeasured`. Observe the first real initialization and
   first Prep submission at that baseline; record any rejected supported case,
   provenance updates and retries. Preserve original C captures and packets.
+
+## 2026-10-16 — complete hosted evidence through the GitHub API
+
+- Change: routine checkpoint and admission imports read complete result files
+  from the exact combine job's Check output. Numbered gzip/base64 annotation
+  chunks and a final SHA-256 manifest preserve the original JSON bytes.
+  Imports verify the workflow run, attempt, commit, job, check suite, GitHub
+  Actions app, chunk membership and file digests before existing archive and
+  per-case acceptance checks. Historical artifact transport requires explicit
+  `--artifact`; missing API evidence has no automatic fallback.
+- Why: proxy CONNECT HTTP 403 failures prevented artifact-host access after
+  successful hosted validation; see the recovery entry in [friction.md](friction.md).
+- Implementation: [6bf27a30913ac385d5af8da2556117bd499c1f42](https://github.com/vtjeng/teleport-contest/commit/6bf27a30913ac385d5af8da2556117bd499c1f42).
+- Expected benefit/tradeoff: routine imports no longer depend on the artifact
+  storage host. Annotation encoding and API pagination add transport overhead.
+- Follow-up evidence: [checkpoint 38835906013](https://github.com/vtjeng/teleport-contest/actions/runs/38835906013)
+  passed, and finalized check 116766121192 retained all 14 payload chunks.
+  API import verified 93 files, including all 89 admitted synthetic evaluations,
+  with 496,613 compressed bytes and no artifact download. Existing full-checkpoint
+  and per-case validators passed. This establishes transport availability for one
+  checkpoint; comparative timing and hosted admission publication remain unmeasured.

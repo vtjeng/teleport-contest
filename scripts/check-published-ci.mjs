@@ -65,11 +65,17 @@ export function checkPublishedCI({ file, commit, task }, { gh = args =>
             ? gh(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']).trim() : null;
         const reports = [];
         for (const entry of state.commits) {
-            const pages = JSON.parse(gh(['api', '--paginate', '--slurp',
-                `repos/${repository}/actions/runs?head_sha=${entry.commit}&branch=main&event=push&per_page=100`]));
-            if (!Array.isArray(pages) || pages.some(page => !Array.isArray(page.workflow_runs)))
-                throw new Error('Invalid workflow run response');
-            reports.push({ ...publicationStatus(entry.commit, pages.flatMap(page => page.workflow_runs), repository),
+            const runs = [];
+            for (let page = 1; ; page++) {
+                if (page > 1000) throw new Error('Workflow pagination limit exceeded');
+                const response = JSON.parse(gh(['api',
+                    `repos/${repository}/actions/runs?head_sha=${entry.commit}&branch=main&event=push&per_page=100&page=${page}`]));
+                if (!response || !Array.isArray(response.workflow_runs) || response.workflow_runs.length > 100)
+                    throw new Error('Invalid workflow run response');
+                runs.push(...response.workflow_runs);
+                if (response.workflow_runs.length < 100) break;
+            }
+            reports.push({ ...publicationStatus(entry.commit, runs, repository),
                 ...(entry.task ? { task: entry.task } : {}) });
         }
         // Preserve the old file in full on any API failure, and reject concurrent

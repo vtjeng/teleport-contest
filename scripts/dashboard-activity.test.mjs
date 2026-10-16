@@ -6,6 +6,25 @@ import { activityTimeline, activityUtilization, integrationDurations, agentStage
 import { activityFromLedger, developmentFromCheckpoint, mergeActivity, reservationSnapshot } from './dashboard-snapshot.mjs';
 import {createLedger, recordEvent} from './worker-state.mjs';
 
+test('distinct fresh run IDs preserve history and redact private ownership fields', () => {
+  const make = runId => recordEvent(createLedger(runId, '/private/lead'), {
+    id: 'same-observation', type: 'register', worker: 'Worker-1',
+    worktree: '/private/worker', branch: 'initial', base: 'a'.repeat(40), handle: 'secret-agent-handle',
+  }, '2026-10-16T01:00:00.000Z');
+  const original = make('loop-20261016'), fresh = make('loop-20261016-fresh-support');
+  const saved = JSON.stringify(fresh);
+  const current = activityFromLedger(fresh);
+  const merged = mergeActivity(activityFromLedger(original), current);
+  assert.equal(current.runId, 'loop-20261016-fresh-support');
+  assert.equal(merged.events.length, 2, 'same event ID in distinct runs retains both observations');
+  assert.deepEqual(merged.events.map(row => row.runId), ['loop-20261016', 'loop-20261016-fresh-support']);
+  assert.doesNotMatch(JSON.stringify(current), /\/private|secret-agent-handle|worktree|coordinatorRoot/u);
+  assert.equal(JSON.stringify(fresh), saved, 'snapshot never changes the source ledger identity or events');
+  for (const runId of ['loop-20260924-fresh', 'loop-20261016-', 'loop-20261016-../escape',
+    'loop-20261016-with space', `loop-20261016-${'a'.repeat(81)}`, 'other-20261016-fresh'])
+    assert.throws(() => activityFromLedger({runId, events: []}), /expected a worker ledger/);
+});
+
 test('public reservations retain pending ownership without exposing private worker or delivery fields', () => {
   // Ready source work remains reserved; accepted source and Prep are not assignable source owners.
   const source = {id: 'A1', kind: 'implementation', status: 'ready', worker: 'A', seed: 'synthetic/v1/case',

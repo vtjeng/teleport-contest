@@ -1170,3 +1170,27 @@ triage decisions or fix references.
 - A command labelled independent C replay actually invoked diff-fresh-worker and repeated JavaScript comparison. The lead caught this before submission, preserved run-bQi3jD as protocol rework and obtained the one missing actual record-session replay as bounded run-ofaaBk. Its separate output is byte-identical to the retained C recording; no JavaScript log was relabelled as C proof. Repeated automatic turn-filter failures resumed the same lead with existing process handles and evidence preserved.
 - Prep53 retained one different-square float_down chain-relocation failure from 50 unique recorded input sequences and 51 output aliases. Saved verification checked 366 immutable artifacts, the actual recorder command and terminal receipt, and accepted-c475 comparison provenance without gameplay execution. A preserved version-6 failed-format recipe made Root's session normalizer return default inputs. Inspecting its actual segments established that they equal the corrected version-5 recipe and C capture; both byte histories and the initial verifier failure remain preserved. No valid version-6 recording is claimed.
 - A temporary Main helper for the earlier v87 scope correction failed on an unescaped newline before mutation, then succeeded after correction. One Main read attempted to parse acceptance output before its retained process finished; waiting on that process supplied the completed output without relaunching acceptance. These are coordinator script and collection errors, separate from game evidence.
+
+### 2026-10-16 — fresh execution and hosted evidence recovery
+
+- Artifact storage failed at proxy CONNECT with HTTP 403, leaving successful
+  hosted runs unreadable through artifact downloads. The approved Checks API
+  transport in 6bf27a309 passed hosted run 38835906013; finalized output retained
+  14 payload chunks and the importer verified all 93 original result files,
+  including 89 complete synthetic evaluations, without artifact-host access.
+  Historical missing ownership and delivery packets remain separate unresolved
+  history; the fresh ledger records only newly observed execution and publication.
+- The installed GitHub CLI rejects `gh api --slurp`, which the existing
+  publication CI checker required. A temporary bounded-page adapter used the
+  unchanged checker and pending-cache semantics. The scoped compatibility fix
+  replaces that optional flag with explicit bounded API pages and retains
+  malformed-response, identity, failure, lock and cache-preservation checks.
+- The ledger initializer accepted the distinct run ID
+  `loop-20261016-fresh-support`, but dashboard snapshot parsing accepted only a
+  date-only ID. The scoped fix permits a bounded identifier suffix and preserves
+  the date cutoff and public-field filtering. The original ledger is preserved;
+  the user subsequently approved public dashboard deployment through normal
+  accepted pushes to main, retaining the existing validation and publication gates.
+- Worker 1's next claim overlapped the Work lead's atomic publication update
+  and returned a ledger-lock error. The owner was identified, the supported
+  update finished, and an unchanged retry found no ready task; no lock was removed.
