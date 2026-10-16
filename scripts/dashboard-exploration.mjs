@@ -41,8 +41,9 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
             +selectedEvent.id.replace(/^v\d+-/u,'').replace(/-/g,' ')
             +' (retrospectively qualified). ':'';
         const partial=b.start<geometry.start||b.end-b.start<geometry.bucketMs?' (partial interval)':'';
-        el('Readout').textContent=event+stamp(Math.max(b.start,geometry.start))+' – '+stamp(b.end)+partial+': '+exposure
-            +b.claimedTasks+' new claims · usable C evidence '+b.usableYes+' yes / '+b.usableNo+' no / '+b.usableUnknown+' unknown.';
+        el('Readout').textContent=stamp(Math.max(b.start,geometry.start))+' – '+stamp(b.end)+partial+': '+exposure
+            +b.claimedTasks+' tasks claimed · usable C evidence '+b.usableYes+' yes / '+b.usableNo+' no / '+b.usableUnknown+' unknown.'
+            +(event?' '+event:'');
     }
     function render() {
         const bounds=range.bounds(),bucketMs=bounds.end-bounds.start>48*HOUR?24*HOUR:HOUR;
@@ -78,20 +79,20 @@ export function renderExplorationYield({payload, aggregate, createRange, documen
             if(lane<0)lane=laneEnds.length;laneEnds[lane]=px;
             return {...e,x:px,lane};
         });
-        const eventBase=66+Math.max(1,laneEnds.length)*19,volumeTop=eventBase+43,volumeBottom=volumeTop+68;
+        const eventBase=54+Math.max(1,laneEnds.length)*20,volumeTop=eventBase+40,volumeBottom=volumeTop+68;
         const axisY=volumeBottom+23,height=axisY+12,dpr=window.devicePixelRatio||1;
         canvas.width=width*dpr;canvas.height=height*dpr;canvas.style.height=height+'px';
         const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,width,height);
         const style=getStyle(document.documentElement),color=n=>style.getPropertyValue(n).trim();
         const ink=color('--progress-fill'),muted=color('--ink-muted'),grid=color('--gridline');
-        ctx.font='11px monospace';ctx.fillStyle=muted;
+        ctx.font='12px monospace';ctx.fillStyle=muted;
         ctx.fillText('Qualified sessions · task closure',left,17);
         ctx.strokeStyle=grid;ctx.beginPath();ctx.moveTo(left,eventBase);ctx.lineTo(right,eventBase);ctx.stroke();
         for(const e of eventPoints) {
-            e.y=eventBase-18-e.lane*19;
+            e.y=eventBase-18-e.lane*20;
             ctx.strokeStyle=grid;ctx.beginPath();ctx.moveTo(e.x,e.y+5);ctx.lineTo(e.x,eventBase);ctx.stroke();
-            ctx.fillStyle=ink;ctx.beginPath();ctx.arc(e.x,e.y,5,0,Math.PI*2);ctx.fill();
-            if(selectedEvent?.id===e.id){ctx.strokeStyle=ink;ctx.beginPath();ctx.arc(e.x,e.y,8,0,Math.PI*2);ctx.stroke();}
+            ctx.fillStyle=ink;ctx.beginPath();ctx.arc(e.x,e.y,6,0,Math.PI*2);ctx.fill();
+            if(selectedEvent?.id===e.id){ctx.strokeStyle=ink;ctx.beginPath();ctx.arc(e.x,e.y,9,0,Math.PI*2);ctx.stroke();}
         }
         if(!visible.length){ctx.fillStyle=muted;ctx.fillText('No qualified discoveries in this window',left,eventBase-20);}
         ctx.fillStyle=muted;ctx.fillText('Task volume · '+unit+' counts',left,volumeTop-15);

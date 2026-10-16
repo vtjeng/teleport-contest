@@ -115,10 +115,10 @@ body {
 }
 
 h1 {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
 }
 
 .updated {
@@ -282,8 +282,8 @@ h1 {
 }
 
 .section-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
   letter-spacing: -0.01em;
@@ -291,7 +291,7 @@ h1 {
 
 summary { cursor: pointer; }
 .diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
-summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
+summary:focus-visible { outline: 2px solid var(--integration-blue); outline-offset: 3px; }
 code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
@@ -322,7 +322,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 .chart-wrap {
   background: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 9px;
   padding: 16px;
 }
 
@@ -365,10 +365,10 @@ canvas {
 
 @media (max-width: 480px) {
   body { padding: 12px; }
-  h1 { font-size: 16px; }
+  h1 { font-size: 22px; }
   .stats { column-gap: 8px; }
   .stat { padding: 8px 10px; }
-  .stat-value { font-size: 16px; }
+  .stat-value { font-size: 20px; }
   .stat-detail { font-size: 12px; }
   .chart-wrap { padding: 8px; }
   .goal-table { font-size: 12px; }
@@ -891,7 +891,7 @@ canvas {
 .stat-unmatched { color: var(--ink-primary); font-size: 13px; font-weight: 600; min-height: 20px; margin-top: 4px; }
 
 .dashboard-disclosure > summary { display: flex; align-items: baseline; gap: 8px; list-style: none; cursor: pointer;
-  font: 600 14px/1.5 'JetBrains Mono', monospace; color: var(--ink-primary); }
+  font: 600 16px/1.5 'Inter', system-ui, sans-serif; color: var(--ink-primary); }
 .dashboard-disclosure > summary::-webkit-details-marker { display: none; }
 .dashboard-disclosure > summary::marker { content: ''; }
 .dashboard-disclosure > summary::before { content: ''; display: block; flex: 0 0 8px; width: 8px; height: 8px;
@@ -899,30 +899,39 @@ canvas {
 .dashboard-disclosure[open] > summary::before { transform: rotate(90deg); }
 .dashboard-disclosure > summary .section-title { margin: 0; }
 
-/* --- Time axis --- */
-.time-range-selector { display:flex; flex-wrap:wrap; align-items:start; gap:10px 16px; margin:0; min-width:0; max-width:100%; }
-.time-range-part { display:flex; flex-wrap:wrap; align-items:center; gap:6px; min-width:0; max-width:100%; }
-.time-range-part > span { flex-basis:100%; font:600 10px/1.4 'JetBrains Mono',monospace; color:var(--ink-secondary); letter-spacing:.06em; }
-.time-range-selector select, .time-range-selector input, .time-range-selector button { font:inherit; font-size:12px; color:var(--ink-primary); background:var(--surface-card); border:1px solid var(--border); border-radius:4px; padding:5px 7px; max-width:100%; }
-.time-range-selector input[type=number] { width:8ch; }
-.time-range-selector input[type=datetime-local] { width:24ch; }
-.time-range-selector button { align-self:center; cursor:pointer; }
+/* --- Shared chart controls --- */
+.time-range-selector { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); gap:16px; margin:0; min-width:0; max-width:100%; }
+.time-range-part { display:flex; flex-wrap:wrap; align-content:start; align-items:center; gap:8px; min-width:0; max-width:100%; }
+.time-range-part > span { flex-basis:100%; font-size:12px; font-weight:600; color:var(--ink-secondary); }
+.time-range-selector select, .time-range-selector input, .time-range-selector button { font:inherit; font-size:13px; min-height:36px; color:var(--ink-primary); background:var(--surface-card); border:1px solid var(--border); border-radius:6px; padding:7px 9px; max-width:100%; }
+.time-range-part > select:first-of-type { flex:1 1 100%; width:100%; }
+.time-range-selector input[type=number] { flex:1; min-width:0; width:6ch; }
+.time-range-selector input[type=datetime-local] { width:100%; min-width:0; }
+.time-range-selector button { grid-column:1/-1; justify-self:end; min-width:76px; cursor:pointer; background:var(--ink-primary); color:var(--surface-card); border-color:var(--ink-primary); font-weight:600; }
 .time-range-note { flex-basis:100%; color:var(--ink-secondary); font-size:11px; }
-.time-range-error { flex-basis:100%; color:var(--ink-primary); font-size:12px; }
+.time-range-error { grid-column:1/-1; color:var(--ink-primary); font-size:12px; }
 .time-range-error:empty { display:none; }
-.time-range-part small { flex-basis:100%; color:var(--ink-secondary); font-size:10px; }
+.time-range-part small { flex-basis:100%; color:var(--ink-secondary); font-size:11px; }
 .time-range-selector [hidden] { display:none; }
 .time-range-picker { position:relative; max-width:100%; }
-.time-range-picker > summary { cursor:pointer; font-size:12px; padding:6px 10px; border:1px solid var(--border); border-radius:4px; background:var(--surface-card); }
-.time-range-picker > form { position:absolute; z-index:20; top:calc(100% + 6px); left:0; width:480px; max-width:min(480px,calc(100vw - 48px)); max-height:calc(100vh - 32px); overflow:auto; padding:14px; border:1px solid var(--border); border-radius:6px; background:var(--surface-card); box-shadow:0 5px 18px #0002; }
-.yield-summary { font-size:17px; line-height:1.6; margin:12px 0 4px; }
+.time-range-picker > summary { cursor:pointer; font-size:13px; padding:7px 11px; min-height:36px; border:1px solid var(--border); border-radius:6px; background:var(--surface-chart); }
+.time-range-picker > summary:hover { border-color:var(--ink-muted); }
+.time-range-picker > form { position:absolute; z-index:20; top:calc(100% + 8px); left:0; width:440px; max-width:min(440px,calc(100vw - 32px)); max-height:calc(100vh - 32px); overflow:auto; padding:18px; border:1px solid var(--border); border-radius:10px; background:var(--surface-card); box-shadow:0 10px 32px #0002; }
+button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visible { outline:2px solid var(--integration-blue); outline-offset:3px; }
+#yieldRangeAsOf { display:none; } /* The visible snapshot line supplies the same freshness. */
+@media (max-width:480px) {
+  .time-range-selector { grid-template-columns:minmax(0,1fr); gap:18px; }
+  .time-range-selector select,.time-range-selector input { font-size:16px; min-height:42px; }
+  .time-range-picker > summary,.time-range-selector button { min-height:42px; }
+}
+.yield-summary { font-size:18px; line-height:1.6; margin:12px 0 4px; }
 .yield-cause-count { color:var(--ink-secondary); font-size:13px; }
 .yield-secondary { display:block; color:var(--ink-secondary); font-size:12px; }
 .yield-legend { display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--ink-secondary); font-size:12px; }
 .yield-key { display:inline-block; width:12px; height:9px; margin-right:5px; background:var(--progress-fill); }
 .yield-key.claimed { background:transparent; border:1px solid var(--ink-muted); box-sizing:border-box; }
-#yieldChart { display:block; width:100%; height:250px; touch-action:pan-y; }
-.yield-plot-note { color:var(--ink-secondary); font-size:11px; line-height:1.6; margin:0 0 8px; }
+#yieldChart { display:block; width:100%; height:250px; margin-top:8px; touch-action:pan-y; }
+.yield-plot-note { color:var(--ink-secondary); font-size:12px; line-height:1.6; margin:0 0 8px; }
 #yieldReadout { min-height:3em; margin-top:8px; font-size:12px; line-height:1.6; }
 .yield-markers { font-size:12px; color:var(--ink-secondary); padding-left:20px; line-height:1.6; }
 </style>
@@ -952,7 +961,7 @@ canvas {
     </div>
     <div class="yield-summary" id="yieldSummary"></div>
     <p class="yield-plot-note">Dots are qualified sessions attributed to original task closure; classification is retrospective.</p>
-    <div class="yield-legend"><span><i class="yield-key"></i>Closed tasks</span><span><i class="yield-key claimed"></i>New claims</span></div>
+    <div class="yield-legend"><span><i class="yield-key"></i>Closed tasks</span><span><i class="yield-key claimed"></i>Tasks claimed</span></div>
     <canvas id="yieldChart" tabindex="0" aria-label="Qualified sessions at original task closure, with task volume below. Dots are retrospectively classified sessions, not qualification timestamps. Select a dot or interval; arrow keys inspect every interval, Home and End jump, Escape clears."></canvas>
     <div id="yieldReadout" aria-live="polite"></div>
     <details class="activity-help"><summary>Operational milestones</summary><ol class="yield-markers" id="yieldMarkers"></ol><p class="table-note" id="yieldMarkerNote"></p></details>

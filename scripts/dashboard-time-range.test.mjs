@@ -79,3 +79,20 @@ test('control drafts apply together, retain focus nodes, and invalid input keeps
     change('Ending','now');assert.equal(range.bounds().end,30*DAY);
     assert.ok(changes>=3);assert.match(el('RangeAsOf').textContent,/Latest available/u);
 });
+
+test('Custom preserves a clamped preset instead of exposing fractional coverage hours', () => {
+    const nodes=new Map();
+    const doc={getElementById(id){if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',hidden:false,listeners:{},
+        addEventListener(type,handler){this.listeners[type]=handler;}});return nodes.get(id);}};
+    const range=make({document:doc,prefix:'short',end:14.19323194444445*HOUR,duration:DAY});
+    const el=name=>nodes.get('short'+name);
+    const before=range.bounds();
+    assert.equal(el('RangeTimezone').hidden,true);
+    el('Window').value='custom';el('Window').listeners.change();
+    assert.equal(el('DurationCustom').value,'24');
+    assert.deepEqual(range.bounds(),before,'editing a draft does not alter the applied range');
+    el('Ending').value='fixed';el('Ending').listeners.change();
+    assert.equal(el('RangeTimezone').hidden,false);
+    el('Ending').value='now';el('Ending').listeners.change();
+    assert.equal(el('RangeTimezone').hidden,true);
+});

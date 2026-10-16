@@ -36,7 +36,8 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
             +' · '+(ending==='now'?'Now':'Fixed');
         elements.RangeAsOf.textContent = 'Latest available: ' + new Date(asOf).toLocaleString(undefined,
             {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short'});
-        elements.RangeTimezone.textContent = 'Fixed time: ' + Intl.DateTimeFormat().resolvedOptions().timeZone;
+        elements.RangeTimezone.textContent = 'Timezone: ' + Intl.DateTimeFormat().resolvedOptions().timeZone;
+        elements.RangeTimezone.hidden = ending !== 'fixed';
         if (draft) {position();return;}
         elements.Window.value = requested === 'all' ? 'all' : kind === 'preset' ? String(requested / presetUnit) : 'custom';
         elements.Ending.value = ending;
@@ -78,8 +79,9 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
         elements.Window.addEventListener('change', () => {
             if (elements.Window.value === 'custom') {
                 draft = true;
-                const span = bounds().end - bounds().start;
-                elements.DurationCustom.value = String(span / 3600000);
+                const span = requested === 'all' ? bounds().end - bounds().start : requested;
+                elements.DurationCustom.value = String(requested === 'all'
+                    ? Math.round(span / 3600000 * 1000) / 1000 : span / 3600000);
                 elements.DurationUnit.value = '3600000';
                 elements.DurationCustom.hidden = false; elements.DurationUnit.hidden = false;
             } else if (draft) {
@@ -89,6 +91,7 @@ export function createChartTimeRange({start, end, asOf = end, minimum, duration,
             position();
         });
         elements.Ending.addEventListener('change', () => {
+            elements.RangeTimezone.hidden = elements.Ending.value !== 'fixed';
             if (elements.Ending.value === 'now' && draft) elements.EndingAt.hidden = true;
             else if (elements.Ending.value === 'now') changed(() => api.setEnd('now'));
             else {draft = true; elements.EndingAt.hidden = false; elements.EndingAt.value = localTime(bounds().end);}
