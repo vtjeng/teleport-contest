@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v92/v92-blessed-polymorph-duration-min-rng",
+  "corpus": "synthetic",
+  "batch": "v92",
+  "caseId": "v92-blessed-polymorph-duration-min-rng",
+  "manifestPath": "challenges/manifests/v92.json",
+  "manifestSha256": "a59dd01491b216c843972a68463374c83162c6122be09837657eab56beba2f56",
+  "recordingPath": "challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.session.json",
+  "recordingSha256": "767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47",
+  "evaluationPath": "challenges/evaluations/admission-41b90e0ce39bd417ce7819251d31f7abd3626bfc-v92.json",
+  "evaluationCommit": "41b90e0ce39bd417ce7819251d31f7abd3626bfc",
+  "remainingScreens": 0,
+  "recordedSteps": 91,
+  "status": "complete",
+  "commit": "39d3cdb28fd3bc4b3b1f1007842b77df83d8e700",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v92",
+    "caseId": "v92-blessed-polymorph-duration-min-rng",
+    "session": "synthetic/v92/v92-blessed-polymorph-duration-min-rng",
+    "manifestPath": "challenges/manifests/v92.json",
+    "manifestSha256": "a59dd01491b216c843972a68463374c83162c6122be09837657eab56beba2f56",
+    "recording": "challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.session.json",
+    "recordingPath": "challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.session.json",
+    "recordingSha256": "767dfa74344c064b23ff1e5af9af0a7f509cbf77cf14dcb1fb221289cce02a47",
+    "recipe": "challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.recipe.session.json",
+    "recipeSha256": "436089be65b299434171b7207b23435aae87b326f8be0d5bc3285239a71111d8",
+    "evaluationPath": "challenges/evaluations/admission-41b90e0ce39bd417ce7819251d31f7abd3626bfc-v92.json",
+    "evaluationCommit": "41b90e0ce39bd417ce7819251d31f7abd3626bfc",
+    "evaluationArtifact": "challenges/evaluations/admission-41b90e0ce39bd417ce7819251d31f7abd3626bfc-v92.json",
+    "evaluationUtc": "2026-10-16T08:19:17.770Z",
+    "remainingScreens": 0,
+    "recordedSteps": 91,
+    "previousScreensMatched": 91,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 91,
+        "total": 91
+      },
+      "rng": {
+        "matched": 2686,
+        "total": 2690
+      },
+      "cursors": {
+        "matched": 91,
+        "total": 91
+      }
+    },
+    "firstMismatch": {
+      "segment": 0,
+      "step": 90,
+      "key": " ",
+      "kind": "rng",
+      "index": 2686,
+      "owner": "potion.c:peffect_polymorph",
+      "sourceBehavior": "Repeated random argument evaluation in blessed polymorph duration cap",
+      "c": "rn2(15)=12",
+      "js": "rn2(19)=13"
+    },
+    "step": 90,
+    "kind": "rng",
+    "sourceFile": "potion.c",
+    "function": "peffect_polymorph"
+  },
+  "summary": "The admitted case first diverges at segment 0 step 90 during the blessed polymorph duration cap. C min(u.mtimedone, rn2(15)+10) expands to a conditional macro and can evaluate its random argument twice; this history draws rn2(15)=13 for the condition then rn2(15)=12 for the selected false branch. The JS Math.min expression draws once, yielding 2686/2690 RNG calls while all 91 screens and cursors match. This is a divergence fix in potion.c:peffect_polymorph, not a new whole-source port.",
+  "source": {
+    "file": "potion.c",
+    "branch": "POT_POLYMORPH reaches peffect_polymorph for a blessed potion while the hero is in base form and not Unchanging; polyself(POLY_CONTROLLED|POLY_LOW_CTRL) changes the hero to a monster form, leaving u.mtimedone nonzero and umonnum != umonster. The duration cap uses the C min macro from hack.h, defined as ((x) < (y) ? (x) : (y)); with y=rn2(15)+10, the false branch evaluates y again.",
+    "functions": [
+      "peffect_polymorph"
+    ],
+    "callers": [
+      "cmd.c #quaff command -> potion.c:dodrink() -> dopotion() -> peffects() case POT_POLYMORPH -> peffect_polymorph(otmp), potion.c:526-641 and 1417-1419.",
+      "potion.c:peffect_polymorph() calls polyself(POLY_CONTROLLED|POLY_LOW_CTRL); the C void result is discarded but the transformation updates u.mtimedone and u.umonnum before the cap."
+    ],
+    "dependencies": [
+      "The min macro is defined in include/hack.h:1518. Existing polyself.c:polymon() sets u.mtimedone and the new form before peffect_polymorph reads them; no polyself source edit is required."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "C source nethack-c/upstream/src/potion.c:1318-1331 evaluates min(u.mtimedone, rn2(15)+10) after polyself; include/hack.h:1518 defines min(x,y) as ((x)<(y)?(x):(y)), which repeats y in the false branch.",
+    "C source nethack-c/upstream/src/potion.c:1417-1419 dispatches POT_POLYMORPH to peffect_polymorph; potion.c:526-641 provides the dodrink/dopotion caller path, reached from #quaff.",
+    "C recording challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.session.json step 90 (key space) records rn2(15)=13 then rn2(15)=12 at peffect_polymorph(potion.c:1327); the following C RNG entries begin with exercise(attrib.c:509).",
+    "Pinned evaluation challenges/evaluations/admission-41b90e0ce39bd417ce7819251d31f7abd3626bfc-v92.json at 41b90e0ce39bd417ce7819251d31f7abd3626bfc reports first RNG mismatch index 2686, 2686/2690 RNG, and 91/91 screens and cursors. The current task base is 39d3cdb28fd3bc4b3b1f1007842b77df83d8e700; queue reassessment records case/source evidence unchanged.",
+    "Current JavaScript js/potion.js:1758-1772 uses Math.min(state.u.mtimedone, rn2(15)+10), evaluating rn2 once; mirror C conditional evaluation exactly. The production path is js/cmd.js #quaff -> potion.js:dodrink -> dopotion -> peffects POT_POLYMORPH -> peffect_polymorph -> polyself."
+  ]
+}
