@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T12:21:55.544Z",
+  "capturedAt": "2026-10-16T12:44:14.470Z",
   "activity": {
     "runId": "loop-20261016-fresh-support",
     "events": [
@@ -151127,6 +151127,350 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-prep-v95-source-exploration-20261016-531610d03099f0757adda49f2861a53a1824c4ee",
+        "type": "published",
+        "at": "2026-10-16T12:23:29.836Z",
+        "task": "prep-v95-source-exploration-20261016",
+        "commit": "531610d03099f0757adda49f2861a53a1824c4ee"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:23:34.005Z",
+        "id": "ready-d3865ac9ea03b169ee62b6e3127eeba50d079593:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-read-credit-card-number-punctuation-v94-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-d3865ac9ea03b169ee62b6e3127eeba50d079593",
+        "type": "ready",
+        "at": "2026-10-16T12:23:34.005Z",
+        "task": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "delivery": "d3865ac9ea03b169ee62b6e3127eeba50d079593"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:23:34.005Z",
+        "id": "ready-d3865ac9ea03b169ee62b6e3127eeba50d079593:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:23:34.005Z",
+        "id": "ready-d3865ac9ea03b169ee62b6e3127eeba50d079593:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:23:51.575Z",
+        "id": "queue:91510022-d624-4b67-9ea7-5a457ac39962",
+        "type": "assign",
+        "task": "session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:24:59.733Z",
+        "id": "queue:c64c3f66-ec89-4429-a75b-d3095b6e7717",
+        "type": "assign",
+        "task": "v96-weak-self-mirror-undernourished-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v96",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:25:04.765Z",
+        "id": "queue:f6e7cc99-b421-4824-baee-592fccba9db9",
+        "type": "assign",
+        "task": "v96-self-close-hero-obstruction-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v96",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implement-v95-merged-dragon-skin-takeoff-20261016-worker2",
+        "type": "implement",
+        "at": "2026-10-16T12:25:56.861Z",
+        "task": "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "goal": "fix-dotakeoff-merged-uskin-state-v95-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:28:27.802Z",
+        "id": "ready-2121583fe6878b8bf8b5adc4799f78df0981aaf5:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-dotakeoff-merged-uskin-state-v95-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-2121583fe6878b8bf8b5adc4799f78df0981aaf5",
+        "type": "ready",
+        "at": "2026-10-16T12:28:27.802Z",
+        "task": "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "delivery": "2121583fe6878b8bf8b5adc4799f78df0981aaf5"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:28:27.802Z",
+        "id": "ready-2121583fe6878b8bf8b5adc4799f78df0981aaf5:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:28:27.802Z",
+        "id": "ready-2121583fe6878b8bf8b5adc4799f78df0981aaf5:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-idle-after-v95-takeoff-20261016-1229",
+        "type": "turn",
+        "at": "2026-10-16T12:28:42.354Z",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Completed v95 takeoff delivery; canonical queue currently has no unclaimed task. Waiting for the next eligible assignment."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-implementation-d3865ac9ea03b169ee62b6e3127eeba50d079593",
+        "type": "received",
+        "at": "2026-10-16T12:29:52.606Z",
+        "task": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "delivery": "d3865ac9ea03b169ee62b6e3127eeba50d079593"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-implementation-2121583fe6878b8bf8b5adc4799f78df0981aaf5",
+        "type": "received",
+        "at": "2026-10-16T12:29:53.803Z",
+        "task": "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "delivery": "2121583fe6878b8bf8b5adc4799f78df0981aaf5"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-14da2227227350a98863d9107f9c8565543a8656-2b3c1a9526708401d975b4cfef1c3471c6529c8d6406ed0c7b7d133d0d795653-delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "type": "integrating",
+        "at": "2026-10-16T12:30:21.664Z",
+        "task": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "integration": "14da2227227350a98863d9107f9c8565543a8656",
+        "validationGroup": [
+          "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+          "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-14da2227227350a98863d9107f9c8565543a8656-2b3c1a9526708401d975b4cfef1c3471c6529c8d6406ed0c7b7d133d0d795653-delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "type": "integrating",
+        "at": "2026-10-16T12:30:21.664Z",
+        "task": "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "integration": "14da2227227350a98863d9107f9c8565543a8656",
+        "validationGroup": [
+          "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+          "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:31:43.480Z",
+        "id": "queue:34e4bd19-0531-4d2c-9be9-12b54dbe75e6",
+        "type": "assign",
+        "task": "v96-nohands-engraving-outer-refusal-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v96",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:33:46.703Z",
+        "id": "queue:e8e87762-130b-4c1e-a479-8ed3d858b04a",
+        "type": "queue-complete",
+        "task": "v96-self-close-hero-obstruction-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:33:46.703Z",
+        "id": "queue:e8e87762-130b-4c1e-a479-8ed3d858b04a:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:34:07.475Z",
+        "id": "queue:6699e109-5502-49d5-9c13-2d5801384a26",
+        "type": "assign",
+        "task": "v96-large-object-engraving-refusal-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v96",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:38:13.094Z",
+        "id": "queue:c1629db2-4f77-4bb8-bf4a-305dbbf3da33",
+        "type": "queue-complete",
+        "task": "v96-large-object-engraving-refusal-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:38:13.094Z",
+        "id": "queue:c1629db2-4f77-4bb8-bf4a-305dbbf3da33:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:38:22.130Z",
+        "id": "queue:5b6aaf9d-6ab0-4eb8-a125-a15580fdc24a",
+        "type": "assign",
+        "task": "v96-already-blind-blindness-potion-cfirst-20261016",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v96",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:39:08.544Z",
+        "id": "queue:852606ce-5bbf-45fe-9452-a71c0d18ba85",
+        "type": "queue-complete",
+        "task": "v96-nohands-engraving-outer-refusal-cfirst-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:39:08.544Z",
+        "id": "queue:852606ce-5bbf-45fe-9452-a71c0d18ba85:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:39:24.109Z",
+        "id": "queue:1cffc281-1a84-4b31-b424-30de7ce80936",
+        "type": "assign",
+        "task": "v96-unlit-cursed-oil-quaff-cfirst-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v96",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:41:32.595Z",
+        "id": "queue:f78ae1d5-4168-4a5f-b9d1-7e39ce3b7b3d",
+        "type": "queue-block",
+        "task": "v96-weak-self-mirror-undernourished-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:41:32.595Z",
+        "id": "queue:f78ae1d5-4168-4a5f-b9d1-7e39ce3b7b3d:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T12:41:50.670Z",
+        "id": "queue:087a8061-1099-48d5-9823-a8f4e56fc3bd",
+        "type": "assign",
+        "task": "v96-hallucinated-self-mirror-color-cfirst-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v96",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d-14da2227227350a98863d9107f9c8565543a8656-validated",
+        "type": "validated",
+        "at": "2026-10-16T12:42:30.058Z",
+        "task": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f-14da2227227350a98863d9107f9c8565543a8656-validated",
+        "type": "validated",
+        "at": "2026-10-16T12:42:30.058Z",
+        "task": "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d-14da2227227350a98863d9107f9c8565543a8656-accepted",
+        "type": "accepted",
+        "at": "2026-10-16T12:43:11.383Z",
+        "task": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f-14da2227227350a98863d9107f9c8565543a8656-accepted",
+        "type": "accepted",
+        "at": "2026-10-16T12:43:11.383Z",
+        "task": "delivery:session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f"
       }
     ]
   },
@@ -151136,75 +151480,66 @@
     "parkedTasks": []
   },
   "workerReservations": {
-    "tasks": {
-      "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d": {
-        "id": "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
-        "worker": "Worker-2",
-        "status": "working",
-        "seed": "synthetic/v94/v94-blind-credit-card-quote-punctuation",
-        "reservations": [
-          "session:synthetic/v94/v94-blind-credit-card-quote-punctuation",
-          "source:read.c:doread"
-        ]
-      }
-    },
-    "reservations": {
-      "session:synthetic/v94/v94-blind-credit-card-quote-punctuation": {
-        "tasks": [
-          "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d"
-        ]
-      },
-      "source:read.c:doread": {
-        "tasks": [
-          "delivery:session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d"
-        ]
-      }
-    }
+    "tasks": {},
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
     "threshold": 5,
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [],
+    "ready": [
+      "v96-two-touchstones-self-stack-identification-cfirst-20261016",
+      "v96-zero-charge-magic-lamp-lighting-refusal-cfirst-20261016",
+      "v96-trapped-webmaker-web-refusal-cfirst-20261016",
+      "v96-blind-gaze-early-refusal-cfirst-20261016"
+    ],
     "blocked": [
       {
         "task": "v91-lit-lamp-save-restore-cfirst-20261016",
         "reason": "Waiting for producer or dependencies."
       },
       {
-        "task": "session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
+        "task": "v96-polymorphed-self-mirror-image-cfirst-20261016",
         "reason": "Waiting for producer or dependencies."
       }
     ],
     "claimed": [
       {
-        "task": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "task": "v96-hallucinated-self-mirror-color-cfirst-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "task": "v96-already-blind-blindness-potion-cfirst-20261016",
+        "worker": "Worker-3"
+      },
+      {
+        "task": "v96-unlit-cursed-oil-quaff-cfirst-20261016",
         "worker": "Worker-2"
       }
     ],
     "counts": {
-      "ready": 0,
-      "claimed": 1,
-      "blocked": 2,
-      "completed": 200,
-      "superseded": 51
+      "ready": 5,
+      "claimed": 3,
+      "blocked": 1,
+      "completed": 205,
+      "superseded": 52
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "v96-hallucinated-self-mirror-color-cfirst-20261016",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
+        "assignment": "v96-unlit-cursed-oil-quaff-cfirst-20261016",
         "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "v96-already-blind-blindness-potion-cfirst-20261016",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -154427,7 +154762,7 @@
         "id": "session:synthetic:v94:v94-blind-credit-card-quote-punctuation:c3007d072a7d",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
@@ -154438,7 +154773,7 @@
         "target": null,
         "readyAt": "2026-10-16T10:24:18.207Z",
         "claimedAt": "2026-10-16T12:16:02.548Z",
-        "completedAt": null
+        "completedAt": "2026-10-16T12:23:34.005Z"
       },
       {
         "id": "v95-free-action-floating-eye-self-mirror-cfirst-20261016",
@@ -155029,24 +155364,204 @@
         "id": "session:synthetic:v95:v95-merged-dragon-skin-takeoff-refusal:19608296cf9f",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-16T12:18:55.104Z",
+        "claimedAt": "2026-10-16T12:23:51.575Z",
+        "completedAt": "2026-10-16T12:28:27.802Z"
+      },
+      {
+        "id": "v96-weak-self-mirror-undernourished-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T12:24:03.270Z",
+        "claimedAt": "2026-10-16T12:24:59.733Z",
+        "completedAt": null
+      },
+      {
+        "id": "v96-hallucinated-self-mirror-color-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T12:24:03.804Z",
+        "claimedAt": "2026-10-16T12:41:50.670Z",
+        "completedAt": null
+      },
+      {
+        "id": "v96-polymorphed-self-mirror-image-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "blocked",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T12:24:04.376Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v96-self-close-hero-obstruction-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T12:24:24.430Z",
+        "claimedAt": "2026-10-16T12:25:04.765Z",
+        "completedAt": "2026-10-16T12:33:46.703Z"
+      },
+      {
+        "id": "v96-nohands-engraving-outer-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T12:30:58.996Z",
+        "claimedAt": "2026-10-16T12:31:43.480Z",
+        "completedAt": "2026-10-16T12:39:08.544Z"
+      },
+      {
+        "id": "v96-large-object-engraving-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T12:30:59.556Z",
+        "claimedAt": "2026-10-16T12:34:07.475Z",
+        "completedAt": "2026-10-16T12:38:13.094Z"
+      },
+      {
+        "id": "v96-already-blind-blindness-potion-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-16T12:31:00.155Z",
+        "claimedAt": "2026-10-16T12:38:22.130Z",
+        "completedAt": null
+      },
+      {
+        "id": "v96-unlit-cursed-oil-quaff-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T12:31:00.795Z",
+        "claimedAt": "2026-10-16T12:39:24.109Z",
+        "completedAt": null
+      },
+      {
+        "id": "v96-two-touchstones-self-stack-identification-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T12:31:01.359Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v96-zero-charge-magic-lamp-lighting-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T12:31:01.934Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v96-trapped-webmaker-web-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T12:31:02.541Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "v96-blind-gaze-early-refusal-cfirst-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v96",
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-16T12:31:03.105Z",
         "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "7a0e3dd37f8b6589645b729bf7106be177e9a986",
-    "measuredAt": "2026-10-16T12:11:04.820Z",
+    "executionCommit": "14da2227227350a98863d9107f9c8565543a8656",
+    "measuredAt": "2026-10-16T12:37:06.843Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

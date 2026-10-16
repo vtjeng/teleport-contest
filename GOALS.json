@@ -319652,7 +319652,7 @@
     {
       "id": "fix-read-credit-card-number-punctuation-v94-20261016",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement doread from read.c",
       "cFile": "read.c",
       "sessions": [
@@ -319662,15 +319662,78 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "14da2227227350a98863d9107f9c8565543a8656",
       "delivered": null,
       "function": "doread",
-      "session": "synthetic/v94/v94-blind-credit-card-quote-punctuation"
+      "session": "synthetic/v94/v94-blind-credit-card-quote-punctuation",
+      "closeStanding": {
+        "sha": "14da2227227350a98863d9107f9c8565543a8656",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "7a0e3dd37f8b6589645b729bf7106be177e9a986",
+        "target": "synthetic/v94/v94-blind-credit-card-quote-punctuation",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/14da2227227350a98863d9107f9c8565543a8656/run-hosted-gJl33m/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "doread",
+            "implementation": "js/read.js",
+            "symbol": "doread",
+            "sourceReview": "Read the complete read.c:doread implementation (lines 330-646), including object dispatch and CREDIT_CARD formatting. Confirmed the C format closes the number quote before conditionally appending the period for flags.verbose || Blind; preceding RNG and number construction are unaffected. Compared the JS branch and corrected only punctuation placement.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "The production read command wrapper dispatches to doread; C equivalent is cmd.c:1816-1817."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v94",
+                "caseId": "v94-blind-credit-card-quote-punctuation",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "Blind read of naturally carried credit card through the read command; validates C quote/period position."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Reviewed the full read.c:doread function and its production command wiring. The active read command reaches doread through cmd.c and the JavaScript command dispatcher; the admitted v94 synthetic session executes the credit-card branch through that caller. No inactive caller branch was needed for this narrow divergence fix.",
+        "entryPoints": [
+          {
+            "name": "read command",
+            "functions": [
+              "doread"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v94",
+                "caseId": "v94-blind-credit-card-quote-punctuation",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "cmd.c read command -> doread CREDIT_CARD branch; JS cmd dispatch -> doread"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "fix-dotakeoff-merged-uskin-state-v95-20261016",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dotakeoff from do_wear.c",
       "cFile": "do_wear.c",
       "sessions": [
@@ -319680,10 +319743,73 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "14da2227227350a98863d9107f9c8565543a8656",
       "delivered": null,
       "function": "dotakeoff",
-      "session": "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal"
+      "session": "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal",
+      "closeStanding": {
+        "sha": "14da2227227350a98863d9107f9c8565543a8656",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "7a0e3dd37f8b6589645b729bf7106be177e9a986",
+        "target": "synthetic/v95/v95-merged-dragon-skin-takeoff-refusal",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/14da2227227350a98863d9107f9c8565543a8656/run-hosted-gJl33m/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dotakeoff",
+            "implementation": "js/do_wear.js",
+            "symbol": "dotakeoff",
+            "sourceReview": "Read the complete C do_wear.c:dotakeoff (1833-1853), its count_worn_stuff call precondition, and cmd.c:1887 registration of T. The no-armor/no-accessory branch checks global uskin, chooses the wording using the GRAY_DRAGON_SCALES threshold, prints the merged-skin line, and returns ECMD_OK before getobj or removal handlers. The C polyself controlled merge writes global uskin and clears uarm. JS polyself writes state.uskin; the prior JS guard read state.u.uskin, a location no writer assigns. Corrected the guard to read state.uskin without changing the threshold, RNG, prompts, or removal behavior.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runTakeOffCommand",
+                "source": "cmd.c:1887 binds key T to dotakeoff; js/cmd.js:3459-3464 dispatches the T command through runTakeOffCommand to dotakeoff(state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v95",
+                "caseId": "v95-merged-dragon-skin-takeoff-refusal",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "A controlled matching gray-dragon transformation embeds the ordinary gray dragon scales; the final T command reaches the C dotakeoff global-uskin early return."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Read the complete C dotakeoff function and its C T-command registration. The active JavaScript T command dispatches to runTakeOffCommand, which calls dotakeoff; the admitted v95 synthetic recording executes the controlled scale merge and the final T through that production caller. The relevant source branch returns before object selection or armor removal.",
+        "entryPoints": [
+          {
+            "name": "T takeoff command",
+            "functions": [
+              "dotakeoff"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v95",
+                "caseId": "v95-merged-dragon-skin-takeoff-refusal",
+                "segment": 0,
+                "fromStep": 54,
+                "throughStep": 54,
+                "source": "cmd.c registers T -> dotakeoff; JS command dispatch -> runTakeOffCommand -> dotakeoff; final T reaches the no-armor uskin branch"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
