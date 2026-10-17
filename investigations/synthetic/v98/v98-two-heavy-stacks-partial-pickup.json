@@ -1,0 +1,52 @@
+{
+  "session": "synthetic/v98/v98-two-heavy-stacks-partial-pickup",
+  "remainingScreens": 1,
+  "recordedSteps": 53,
+  "corpus": "synthetic",
+  "batch": "v98",
+  "caseId": "v98-two-heavy-stacks-partial-pickup",
+  "manifestPath": "challenges/manifests/v98.json",
+  "manifestSha256": "a9329bc55dcd9027cba3a314aa9300f06347958b8280c296655e2ae8fb67096c",
+  "recordingSha256": "98989735c23b1e36c4bc87a424cec2704fd23f7d764582765deccc94ebecdfe6",
+  "evaluationPath": "challenges/evaluations/admission-13a9232ce0a6ba4ab78bca79ae1d3d15b038941f-v98.json",
+  "evaluationCommit": "13a9232ce0a6ba4ab78bca79ae1d3d15b038941f",
+  "status": "complete",
+  "commit": "94fbee789f3d74e7421ab9d058d2b9413d43ae43",
+  "mismatch": {
+    "segment": 0,
+    "step": 53,
+    "key": "\\n",
+    "kind": "js-missing",
+    "sourceOwner": "pickup.c:pickup() menu_pickup loop -> pickup_object() -> lift_object() -> carry_count()",
+    "recordedComparison": {
+      "commit": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+      "screens": "53/54",
+      "cursors": "53/54",
+      "rng": "2448/2448",
+      "error": null
+    },
+    "observationLimit": "The accepted C recording stops at the first natural More after carry_count() reports the partial lift. It does not answer the burden question or establish transfer, exact quantity, or processing of the second stack."
+  },
+  "summary": "The multi-selection pickup planner rejects an ordinary selected list whose aggregate weight reaches the maximum-capacity boundary before the C source-ordered pickup loop runs. C processes each selected row in order and lets pickup_object() -> lift_object() -> carry_count() calculate and report a partial lift for the first stack. The saved C recording and admitted comparison establish the first per-object report at step 53, before any burden consent or transfer.",
+  "source": {
+    "file": "pickup.c",
+    "branch": "With an interactive menu selection of two oversized ordinary floor stacks and total projected weight at or above 2 * weight_cap, pickup() reaches menu_pickup and calls pickup_object() once per selected row in order. carry_count() computes a liftable quantity for each object from the current inventory state and emits the partial-lift message before lift_object() asks whether to continue.",
+    "functions": ["pickup", "pickup_object", "lift_object", "carry_count"],
+    "callers": [
+      "hack.c:dopickup() dispatches the interactive pickup command to pickup()",
+      "pickup.c:pickup() menu_pickup loop calls pickup_object() for each selected row",
+      "pickup.c:pickup_object() calls lift_object(); pickup.c:lift_object() calls carry_count()"
+    ],
+    "dependencies": []
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The immutable v98 source plan and C assessment report that both 10000-arrow and 10000-dagger rows were selected in one menu and that C reached the first partial-lift report at natural More. The original unchanged recording SHA-256 is 98989735c23b1e36c4bc87a424cec2704fd23f7d764582765deccc94ebecdfe6; the preparation delivery packet preserves the four C capture prefixes and setup/source provenance.",
+    "challenges/evaluations/admission-13a9232ce0a6ba4ab78bca79ae1d3d15b038941f-v98.json records 53/54 screens and cursors, 2448/2448 RNG calls, no runner error, and the first missing boundary at segment 0 step 53 against the unchanged C recording. Its comparison base is 5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6.",
+    "nethack-c/upstream/src/pickup.c:750-798 has menu_pickup iterate pick_list in order and call pickup_object() for each row; it has no aggregate selected-list capacity refusal.",
+    "nethack-c/upstream/src/pickup.c:1803-1881 calls lift_object() for the ordinary object after pickup_object() special cases; pickup.c:1705-1797 calls carry_count() and propagates its reduced count before the burden prompt.",
+    "nethack-c/upstream/src/pickup.c:1570-1700 computes the per-object liftable quantity from current inventory weight and emits the partial-lift message when qq < count.",
+    "js/pickup.js:942-1024 preflightPickupObjects() sums selected object weights, then throws UnsupportedPickupError('pickup() requiring a partial or failed lift') when the aggregate reaches maximum capacity unless exactly one selected object satisfies the singleton zero-lift or partial-stack exception. js/pickup.js:1458-1583 otherwise follows C's selected-row commit order, but never reaches it after that preflight refusal.",
+    "The implementation scope is the source-traced divergence in pickup.c:pickup() selection sequencing and its current js/pickup.js planning/commit seam. Keep pickup_object(), lift_object(), and carry_count() as reviewed source dependencies; preserve per-object quantity reduction, prompt order, and decline/stop behavior. The v98 target establishes only the first natural More boundary."
+  ]
+}
