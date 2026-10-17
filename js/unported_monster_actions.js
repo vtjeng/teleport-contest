@@ -1575,9 +1575,7 @@ export async function wieldMonsterItemAgainstMonster(
     return mon_wield_item(weaponUser, weaponEnv);
 }
 
-// Execute one already-preflighted monster action. The same function is used
-// by the clone-only planning pass and the live movemon() adapter.
-export async function runSimpleMonsterAction(monster, rawEnv = {}) {
+function simpleMonsterActionEnvironment(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = actionRandom(rawEnv);
     const env = {
@@ -1592,21 +1590,23 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
             ?? ((x, y, subject, operationEnv) =>
                 onscary(x, y, subject, operationEnv.state)),
     };
-    assertSimpleActionState(monster, state);
-    return dochugw(monster, true, {
-        ...env,
-        canSpotMonster: (subject) => canspotmon(subject, state),
+    return { env, state };
+}
+
+// Build the operation bundle once for both C call sites: movemon's wrapped
+// action and shk.c u_entered_shop's direct extra action.
+function simpleMonsterActionOperations(env, state) {
+    return {
         // One dochug() now serves both, as in C. m_move() picks the mover.
-        dochug: (subject, actionEnv) => dochug(subject, {
-                ...actionEnv,
-                // Canonical mattacku operations are shared by both dochug
-                // attacks, both pet calls, shk_move, pri_move and wormhitu.
-                attackHero: attackHeroWithMattacku,
+        // These are the same source-backed providers used by dochugw today.
+        // Canonical mattacku operations are shared by both dochug
+        // attacks, both pet calls, shk_move, pri_move and wormhitu.
+        attackHero: attackHeroWithMattacku,
                 // C ref: monmove.c:895-907. Iterate AT_MAGC attack slots
                 // with AD_SPEL or AD_CLRC and call castmu(FALSE, FALSE).
                 // Most of the time, choose_monster_spell picks a directed
                 // spell and castmu returns M_ATTK_MISS immediately.
-                castUndirectedSpell: async (subject, spellEnv) => {
+        castUndirectedSpell: async (subject, spellEnv) => {
                     const mdat = subject.data;
                     if (!mdat?.mattk) return false;
                     const castEnv = {
@@ -1637,7 +1637,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 },
                 // monmove.c:distfleeck564 and dochug's fear calls share the
                 // canonical flight owner in both cloned and live scans.
-                monFlee: (subject, time, first, showMessage, fleeEnv) =>
+        monFlee: (subject, time, first, showMessage, fleeEnv) =>
                     monflee(subject, time, first, showMessage, {
                         ...fleeEnv,
                         canSeeMonster: (mtmp) => canseemon(mtmp, fleeEnv.state),
@@ -1646,7 +1646,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                             : (fleeEnv.message ?? ttyPline),
                         createGasCloud: createMonsterGasCloud,
                     }),
-                questStatCheck: quest_stat_check,
+        questStatCheck: quest_stat_check,
                 // C ref: monmove.c:722 quest_talk(). The one place a monster's
                 // turn reads the keyboard: quest.c is_pure()'s wizard-mode
                 // `adjust?` prompt. The clone cannot read a key, so it answers
@@ -1655,7 +1655,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 // shuffle (rn2(3), rn2(2)) and one exercise(A_WIS) rn2(19) --
                 // and neither writes anything a later monster in the same scan
                 // reads, so a live `y` cannot invalidate the plan.
-                questTalk: (subject, talkEnv) => quest_talk(subject, {
+        questTalk: (subject, talkEnv) => quest_talk(subject, {
                     ...talkEnv,
                     unsupported,
                     output: env.planning ? SILENT_QUEST_PAGER : undefined,
@@ -1664,13 +1664,13 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                         ? () => 'n'.charCodeAt(0)
                         : undefined,
                 }),
-                monsterCanSeeHero: ordinaryMonsterCanSeeHero,
-                moveMonster: moveSimpleOrdinary,
+        monsterCanSeeHero: ordinaryMonsterCanSeeHero,
+        moveMonster: moveSimpleOrdinary,
                 // muse.c find_offensive(), which dochug()'s post-move
                 // disjunction calls, refuses through this rather than
                 // answering TRUE.
-                unsupported,
-                usePreMoveItems: async (itemUser, itemEnv) => {
+        unsupported,
+        usePreMoveItems: async (itemUser, itemEnv) => {
                     const defensive = find_defensive(
                         itemUser,
                         false,
@@ -1708,15 +1708,36 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                     }
                     return false;
                 },
-                wieldMonsterItem: (weaponUser, weaponEnv) =>
+        wieldMonsterItem: (weaponUser, weaponEnv) =>
                     mon_wield_item(weaponUser, weaponEnv),
-                wieldMonsterItemAgainstMonster,
-                wakeMessage: env.planning ? () => {} : wake_msg,
-                wipeEngraving: wipeSimpleEngraving,
-                finishEating: finish_meating,
-                movePet: moveSimplePet,
-                preflight: assertSimpleActionState,
-            }),
+        wieldMonsterItemAgainstMonster,
+        wakeMessage: env.planning ? () => {} : wake_msg,
+        wipeEngraving: wipeSimpleEngraving,
+        finishEating: finish_meating,
+        movePet: moveSimplePet,
+        preflight: assertSimpleActionState,
+    };
+}
+
+// Execute one already-preflighted direct monster action. C calls dochug()
+// directly from shk.c u_entered_shop(), without dochugw()'s interruption step.
+export async function runDirectMonsterAction(monster, rawEnv = {}) {
+    const { env, state } = simpleMonsterActionEnvironment(rawEnv);
+    return dochug(monster, {
+        ...env,
+        ...simpleMonsterActionOperations(env, state),
+    });
+}
+
+// Execute one already-preflighted monster action. The same function is used
+// by the clone-only planning pass and the live movemon() adapter.
+export async function runSimpleMonsterAction(monster, rawEnv = {}) {
+    const { env, state } = simpleMonsterActionEnvironment(rawEnv);
+    assertSimpleActionState(monster, state);
+    return dochugw(monster, true, {
+        ...env,
+        canSpotMonster: (subject) => canspotmon(subject, state),
+        dochug: runDirectMonsterAction,
         // C ref: monmove.c dochugw():223-235. Its radius is nine squares, so
         // this fires several turns before moveloop_core()'s own
         // monster_nearby() test, which scans the eight adjacent squares alone.

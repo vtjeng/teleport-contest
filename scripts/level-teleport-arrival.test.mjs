@@ -70,6 +70,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
+import { accessible } from '../js/monmove.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
@@ -88,6 +89,7 @@ import {
 } from '../js/region.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { roles } from '../js/roles.js';
+import { in_rooms, move_update } from '../js/rooms.js';
 import {
     costly_spot,
     get_cost_of_shop_item,
@@ -101,6 +103,12 @@ import {
     loadLevelTeleportArrivalRecipe,
     verifyLevelTeleportArrival,
 } from './run-level-teleport-arrival.mjs';
+
+async function directDochugWithGame(shopkeeper) {
+    const { runDirectMonsterAction } =
+        await import('../js/unported_monster_actions.js');
+    return runDirectMonsterAction(shopkeeper, { state: game });
+}
 
 test('the arrival matrix is a clean audited replay recipe', () => {
     const recipe = loadLevelTeleportArrivalRecipe();
@@ -1342,6 +1350,7 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             const lines = [];
             await u_entered_shop([roomno], game, {
                 random,
+                directDochug: directDochugWithGame,
                 message: async (line) => lines.push(line),
             });
             assert.equal(lines.length, expected.length);
@@ -1542,10 +1551,10 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
         const edgeLines = [];
         await u_entered_shop([roomno], game, {
             message: async (line) => edgeLines.push(line),
+            directDochug: directDochugWithGame,
         });
         assert.equal(edgeLines.length, 2);
         assert.match(edgeLines[1], /leave your pick-axe/u);
-        assert.ok(game.unported.has('monmove.c dochug'));
         game.invent = oldInventory;
         game.level.at(interior.x, interior.y).edge = false;
 
@@ -1559,7 +1568,6 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
                 '"Will you please leave your mattock outside?"',
             ],
         });
-        assert.ok(game.unported.has('monmove.c dochug'));
 
         // shk.c u_entered_shop():884-887 changes both the wording and the
         // final punctuation when a surcharge makes the keeper impatient.
@@ -1586,7 +1594,6 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
                 /Will you please leave your (?:little dog|dog) outside\?/u,
             ],
         });
-        assert.ok(game.unported.has('monmove.c dochug'));
 
         // The steed branch has its own conditional format at shk.c:898-900;
         // its surcharge command also ends with a period.
@@ -1616,7 +1623,6 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
                 `"Hello, ${game.plname}!  Welcome again to ${owner} ${shopName}!"`,
             ],
         });
-        assert.ok(game.unported.has('monmove.c dochug'));
         assert.equal(floorPick.otyp, PICK_AXE);
         game.u.uprops[FAST].intrinsic = 0;
         game.level.objects[interior.x][interior.y] = oldFloor;
@@ -1743,6 +1749,136 @@ test('empty-shop suppression resets with each recorder segment', async () => {
         assert.match(lines[0], /^This shop (?:is|seems to be) /u);
     }
 });
+
+test('shop-edge should_block runs one real direct keeper action before return',
+    async () => {
+        await runSegment({
+            seed: 7621001,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '.\x165\n.',
+        });
+        const room = game.level.rooms.find(
+            (candidate) => candidate?.rtype >= SHOPBASE,
+        );
+        assert.ok(room?.resident);
+        const keeper = room.resident;
+        const eshk = keeper.mextra.eshk;
+        const roomno = room.roomnoidx + ROOMOFFSET;
+        const door = eshk.shd;
+        assert.ok(door && Number.isInteger(door.x) && Number.isInteger(door.y));
+        const entryCell = game.level.at(door.x, door.y);
+        assert.ok(entryCell?.edge, 'shop door is on the source shop edge');
+        assert.ok(accessible(door.x, door.y, game), 'shop door is open');
+
+        const outside = [
+            [door.x - 1, door.y], [door.x + 1, door.y],
+            [door.x, door.y - 1], [door.x, door.y + 1],
+        ].find(([x, y]) => game.level.at(x, y)
+            && game.level.at(x, y).roomno !== roomno
+            && !in_rooms(x, y, SHOPBASE, game).length
+            && accessible(x, y, game));
+        assert.ok(outside, 'open cardinal approach begins outside the shop');
+
+        // C shk_move() targets eshk.shk, the keeper's guard square. Put the
+        // resident two open source steps inward on that same axis so the real
+        // dochug action visibly moves one square toward the guard.
+        const guard = eshk.shk;
+        assert.ok(guard && Number.isInteger(guard.x) && Number.isInteger(guard.y));
+        let approach = null;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const next = { x: guard.x + dx, y: guard.y + dy };
+            const start = { x: guard.x + 2 * dx, y: guard.y + 2 * dy };
+            if (game.level.at(next.x, next.y)?.roomno !== roomno
+                || game.level.at(start.x, start.y)?.roomno !== roomno
+                || !accessible(next.x, next.y, game)
+                || !accessible(start.x, start.y, game)
+                || m_at(start.x, start.y, game)
+                || (start.x === door.x && start.y === door.y)) continue;
+            approach = { next, start };
+            break;
+        }
+        assert.ok(approach, 'the generated keeper guard has an open approach');
+
+        const oldKeeper = { x: keeper.mx, y: keeper.my };
+        game.level.monsters[oldKeeper.x][oldKeeper.y] = null;
+        keeper.mx = approach.start.x;
+        keeper.my = approach.start.y;
+        game.level.monsters[keeper.mx][keeper.my] = keeper;
+        keeper.mpeaceful = true;
+        keeper.mcanmove = true;
+        keeper.msleeping = false;
+        keeper.mfrozen = 0;
+        keeper.mconf = 0;
+        keeper.mflee = 0;
+        keeper.minvent = null;
+        eshk.following = false;
+        eshk.surcharge = false;
+        eshk.visitct = 1;
+        eshk.customer = game.plname;
+
+        const oldInventory = game.invent;
+        game.invent = { otyp: PICK_AXE, where: OBJ_INVENT, nobj: oldInventory };
+        const [outsideX, outsideY] = outside;
+        game.u.ux = outsideX;
+        game.u.uy = outsideY;
+        move_update(false, game);
+        game.u.ux0 = outsideX;
+        game.u.uy0 = outsideY;
+        game.u.ux = door.x;
+        game.u.uy = door.y;
+        const messages = [];
+        await check_special_room(false, game, {
+            message: async (line) => messages.push(line),
+        });
+
+        assert.deepEqual([keeper.mx, keeper.my], [approach.next.x, approach.next.y]);
+        assert.deepEqual([game.u.ux, game.u.uy], [door.x, door.y]);
+        assert.match(messages[0], /Welcome/u);
+        assert.match(messages[1], /leave your pick-axe/u);
+
+        // Neither an unarmed entry nor strict-interior processing gets the
+        // one-off source action. Keep the actual keeper state as the oracle.
+        const afterAction = [keeper.mx, keeper.my, keeper.mhp, keeper.mcanmove];
+        game.invent = oldInventory;
+        game.u.ux = outsideX;
+        game.u.uy = outsideY;
+        move_update(false, game);
+        game.u.ux0 = outsideX;
+        game.u.uy0 = outsideY;
+        game.u.ux = door.x;
+        game.u.uy = door.y;
+        const noPickMessages = [];
+        await check_special_room(false, game, {
+            message: async (line) => noPickMessages.push(line),
+        });
+        assert.deepEqual([keeper.mx, keeper.my, keeper.mhp, keeper.mcanmove], afterAction);
+        assert.equal(noPickMessages.some((line) => /pick-axe/u.test(line)), false);
+        assert.equal(inside_shop(door.x, door.y, game), 0);
+
+        game.u.ux = approach.start.x;
+        game.u.uy = approach.start.y;
+        move_update(false, game);
+        const beforeInterior = [keeper.mx, keeper.my, keeper.mhp, keeper.mcanmove];
+        const prior = [game.u.ux, game.u.uy];
+        game.u.ux0 = prior[0];
+        game.u.uy0 = prior[1];
+        game.u.ux = room.lx + 1;
+        game.u.uy = room.ly + 1;
+        game.level.at(game.u.ux, game.u.uy).edge = false;
+        assert.equal(inside_shop(game.u.ux, game.u.uy, game), roomno);
+        await check_special_room(false, game);
+        assert.deepEqual([keeper.mx, keeper.my, keeper.mhp, keeper.mcanmove], beforeInterior);
+        game.level.monsters[keeper.mx][keeper.my] = null;
+        keeper.mx = oldKeeper.x;
+        keeper.my = oldKeeper.y;
+        game.level.monsters[keeper.mx][keeper.my] = keeper;
+    });
 
 test('level teleport fills a LEPREHALL special room',
     async () => {

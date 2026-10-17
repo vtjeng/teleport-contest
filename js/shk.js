@@ -2852,7 +2852,7 @@ function heroIsFast(state) {
 export async function u_entered_shop(
     enterstring,
     state = game,
-    { message = ttyPline, random = rn2 } = {},
+    { message = ttyPline, random = rn2, directDochug = null } = {},
 ) {
     const roomno = Math.trunc(enterstring?.[0] ?? 0);
     if (!roomno) return false;
@@ -3006,8 +3006,7 @@ export async function u_entered_shop(
 
     // Teleporting into a shop skips the block_door path. A walking arrival
     // can still be outside the strict interior, where C gives the keeper an
-    // extra turn to block entry; dochug()'s result is discarded here and
-    // remains an explicitly recorded gap until monmove.c is complete.
+    // extra direct dochug() turn to block entry.
     if (!inside_shop(state.u.ux, state.u.uy, state)) {
         let shouldBlock = false;
         let count = 0;
@@ -3084,7 +3083,11 @@ export async function u_entered_shop(
                     ),
                 );
         }
-        if (shouldBlock) note_unported('monmove.c dochug');
+        if (shouldBlock) {
+            if (typeof directDochug !== 'function')
+                throw new TypeError('u_entered_shop requires direct dochug for should_block');
+            await directDochug(shopkeeper);
+        }
     }
     return true;
 }
