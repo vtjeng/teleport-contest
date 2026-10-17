@@ -697,6 +697,41 @@ test('hero time effects order sequence, encumbrance, then seer cadence',
     assert.equal(state.context.seer_turn, 35);
 });
 
+test('temporary status expiry accounting runs at the hero action boundary',
+    async () => {
+    const state = clairvoyanceTurnState();
+    const xpField = 13; // include/botl.h BL_XP
+    const rule = { behavior: 'changed' };
+    state.moves = 9;
+    state.context.seer_turn = 9;
+    state.iflags = { hilite_delta: 3 };
+    state.gb = {
+        status_hilite_rule: [Array(27).fill(null), Array(27).fill(null)],
+        status_hilite_times: [Array(27).fill(0), Array(27).fill(0)],
+        status_hilite_chg: Array(27).fill(false),
+    };
+    state.gb.status_hilite_rule[0][xpField] = rule;
+    state.gb.status_hilite_chg[xpField] = true;
+    state.disp = { botl: false };
+    let checkedAfterEncumbrance = false;
+
+    await finishHeroTimeEffects(state, {
+        encumberMessage: async () => {
+            assert.equal(state.gb.status_hilite_times[0][xpField], 0);
+        },
+        random: {
+            rn1() {
+                assert.equal(state.gb.status_hilite_times[0][xpField], 12);
+                assert.equal(state.gb.status_hilite_times[1][xpField], 12);
+                checkedAfterEncumbrance = true;
+                return 15;
+            },
+        },
+    });
+    assert.equal(checkedAfterEncumbrance, true);
+    assert.equal(state.disp.botl, true);
+});
+
 test('hero time effects validate due clairvoyance owners atomically',
     async () => {
     const missingMap = clairvoyanceTurnState();

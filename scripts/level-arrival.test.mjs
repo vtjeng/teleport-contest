@@ -1335,24 +1335,31 @@ test('exp_percent_changing answers for the Xp field alone', () => {
     assert.equal(exp_percent_changing(pending), false);
 
     const rule = sightseerState();
-    rule.iflags.status_hilites = [{ field: 'experience-level' }];
-    assert.throws(() => exp_percent_changing(rule),
-        UnsupportedExperienceChangeError);
-
-    // botl.c:2111 tests curr->thresholds alone, and botl.c:2799-2810 chains
-    // every rule for the field onto it whatever its kind, so an 'always' rule
-    // refuses exactly as a percentage rule does. The refusal is the diagnostic
-    // a stopped session reports, so it must name what was tested -- a
-    // highlight rule on Xp -- and not the narrower thing it once claimed.
-    const always = sightseerState();
-    always.iflags.status_hilites = [
-        { field: 'experience-level', behavior: 'always', color: 'red' },
-    ];
-    assert.throws(
-        () => exp_percent_changing(always),
-        (error) => error instanceof UnsupportedExperienceChangeError
-            && /status-highlight rule on Xp/u.test(error.message),
-    );
+    const percentageRule = {
+        field: 'experience-level', behavior: 'percentage', relation: '>=',
+        value: 1, style: { color: 2, attrib: 1 },
+    };
+    rule.iflags.status_hilites = [percentageRule];
+    rule.iflags.hilite_delta = 3;
+    rule.u.uexp = 1;
+    rule.gb = {
+        status_hilite_rule: [Array(27).fill(null), Array(27).fill(null)],
+        status_hilite_value: [Array(27).fill(null), Array(27).fill(null)],
+        status_hilite_percent: [Array(27).fill(null), Array(27).fill(null)],
+    };
+    const xpField = 13; // include/botl.h BL_XP
+    rule.gb.status_hilite_value[0][xpField] = 0;
+    rule.gb.status_hilite_percent[0][xpField] = 0;
+    assert.equal(exp_percent_changing(rule), true,
+        'a percentage change selecting a different rule requests a redraw');
+    rule.gb.status_hilite_rule[0][xpField] = percentageRule;
+    rule.gb.status_hilite_value[0][xpField] = 0;
+    rule.gb.status_hilite_percent[0][xpField] = 5;
+    assert.equal(exp_percent_changing(rule), false,
+        'the same rule identity does not request a second redraw');
+    rule.disp.botl = true;
+    assert.equal(exp_percent_changing(rule), false,
+        'an already pending redraw skips the selection work');
 });
 
 // The sightseeing grant's own guard, do.c:1963's Role_if(PM_TOURIST), is not
