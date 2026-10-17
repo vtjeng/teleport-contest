@@ -320264,6 +320264,442 @@
           }
         ]
       }
+    },
+    {
+      "id": "status-highlight-lifecycle-v97-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Ports the frozen 22-unit botl.c status-highlight lifecycle across the display collector, field adapters, action-time bank lifecycle, option menus, fresh-game initialization, planning clone, and terminal finalizer. Ordinary proof is limited to the listed official recordings and saved production trace; native observations are constructed diagnostics and are not public C parity.",
+      "cFile": "botl.c",
+      "sessions": [
+        "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bot",
+          "line": 253,
+          "endLine": 274,
+          "declared": true
+        },
+        {
+          "name": "timebot",
+          "line": 275,
+          "endLine": 297,
+          "declared": true
+        },
+        {
+          "name": "xlev_to_rank",
+          "line": 298,
+          "endLine": 314,
+          "declared": true
+        },
+        {
+          "name": "rank_to_xlev",
+          "line": 315,
+          "endLine": 331,
+          "declared": true
+        },
+        {
+          "name": "rank_of",
+          "line": 332,
+          "endLine": 360,
+          "declared": true
+        },
+        {
+          "name": "rank",
+          "line": 361,
+          "endLine": 366,
+          "declared": false
+        },
+        {
+          "name": "title_to_mon",
+          "line": 367,
+          "endLine": 401,
+          "declared": false
+        },
+        {
+          "name": "max_rank_sz",
+          "line": 402,
+          "endLine": 418,
+          "declared": true
+        },
+        {
+          "name": "botl_score",
+          "line": 419,
+          "endLine": 440,
+          "declared": false
+        },
+        {
+          "name": "describe_level",
+          "line": 441,
+          "endLine": 480,
+          "declared": true
+        },
+        {
+          "name": "weapon_status",
+          "line": 481,
+          "endLine": 558,
+          "declared": true
+        },
+        {
+          "name": "armor_status",
+          "line": 559,
+          "endLine": 961,
+          "declared": true
+        },
+        {
+          "name": "bot_via_windowport",
+          "line": 962,
+          "endLine": 1284,
+          "declared": false
+        },
+        {
+          "name": "stat_update_time",
+          "line": 1285,
+          "endLine": 1302,
+          "declared": false
+        },
+        {
+          "name": "condopt",
+          "line": 1303,
+          "endLine": 1332,
+          "declared": true
+        },
+        {
+          "name": "cond_cmp",
+          "line": 1333,
+          "endLine": 1345,
+          "declared": false
+        },
+        {
+          "name": "menualpha_cmp",
+          "line": 1346,
+          "endLine": 1353,
+          "declared": false
+        },
+        {
+          "name": "parse_cond_option",
+          "line": 1354,
+          "endLine": 1375,
+          "declared": true
+        },
+        {
+          "name": "cond_menu",
+          "line": 1376,
+          "endLine": 1459,
+          "declared": false
+        },
+        {
+          "name": "opt_next_cond",
+          "line": 1460,
+          "endLine": 1492,
+          "declared": false
+        },
+        {
+          "name": "eval_notify_windowport_field",
+          "line": 1493,
+          "endLine": 1620,
+          "declared": false
+        },
+        {
+          "name": "evaluate_and_notify_windowport",
+          "line": 1621,
+          "endLine": 1682,
+          "declared": false
+        },
+        {
+          "name": "status_initialize",
+          "line": 1683,
+          "endLine": 1722,
+          "declared": true
+        },
+        {
+          "name": "status_finish",
+          "line": 1723,
+          "endLine": 1758,
+          "declared": false
+        },
+        {
+          "name": "init_blstats",
+          "line": 1759,
+          "endLine": 1808,
+          "declared": false
+        },
+        {
+          "name": "compare_blstats",
+          "line": 1809,
+          "endLine": 1885,
+          "declared": false
+        },
+        {
+          "name": "anything_to_s",
+          "line": 1886,
+          "endLine": 1929,
+          "declared": false
+        },
+        {
+          "name": "s_to_anything",
+          "line": 1930,
+          "endLine": 1976,
+          "declared": true
+        },
+        {
+          "name": "percentage",
+          "line": 1977,
+          "endLine": 2051,
+          "declared": false
+        },
+        {
+          "name": "exp_percentage",
+          "line": 2052,
+          "endLine": 2089,
+          "declared": false
+        },
+        {
+          "name": "exp_percent_changing",
+          "line": 2090,
+          "endLine": 2130,
+          "declared": true
+        },
+        {
+          "name": "stat_cap_indx",
+          "line": 2131,
+          "endLine": 2145,
+          "declared": false
+        },
+        {
+          "name": "stat_hunger_indx",
+          "line": 2146,
+          "endLine": 2159,
+          "declared": false
+        },
+        {
+          "name": "bl_idx_to_fldname",
+          "line": 2160,
+          "endLine": 2169,
+          "declared": false
+        },
+        {
+          "name": "repad_with_dashes",
+          "line": 2170,
+          "endLine": 2220,
+          "declared": false
+        },
+        {
+          "name": "fldname_to_bl_indx",
+          "line": 2221,
+          "endLine": 2256,
+          "declared": false
+        },
+        {
+          "name": "hilite_reset_needed",
+          "line": 2257,
+          "endLine": 2278,
+          "declared": false
+        },
+        {
+          "name": "status_eval_next_unhilite",
+          "line": 2279,
+          "endLine": 2320,
+          "declared": false
+        },
+        {
+          "name": "reset_status_hilites",
+          "line": 2321,
+          "endLine": 2335,
+          "declared": true
+        },
+        {
+          "name": "noneoftheabove",
+          "line": 2336,
+          "endLine": 2363,
+          "declared": false
+        },
+        {
+          "name": "get_hilite",
+          "line": 2364,
+          "endLine": 2575,
+          "declared": false
+        },
+        {
+          "name": "split_clridx",
+          "line": 2576,
+          "endLine": 2592,
+          "declared": true
+        },
+        {
+          "name": "parse_status_hl1",
+          "line": 2593,
+          "endLine": 2651,
+          "declared": true
+        },
+        {
+          "name": "is_ltgt_percentnumber",
+          "line": 2652,
+          "endLine": 2672,
+          "declared": true
+        },
+        {
+          "name": "has_ltgt_percentnumber",
+          "line": 2673,
+          "endLine": 2687,
+          "declared": true
+        },
+        {
+          "name": "splitsubfields",
+          "line": 2688,
+          "endLine": 2729,
+          "declared": true
+        },
+        {
+          "name": "is_fld_arrayvalues",
+          "line": 2730,
+          "endLine": 2746,
+          "declared": false
+        },
+        {
+          "name": "query_arrayvalue",
+          "line": 2747,
+          "endLine": 2783,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_add_threshold",
+          "line": 2784,
+          "endLine": 2813,
+          "declared": true
+        },
+        {
+          "name": "parse_status_hl2",
+          "line": 2814,
+          "endLine": 3108,
+          "declared": true
+        },
+        {
+          "name": "query_conditions",
+          "line": 3109,
+          "endLine": 3140,
+          "declared": true
+        },
+        {
+          "name": "conditionbitmask2str",
+          "line": 3141,
+          "endLine": 3170,
+          "declared": true
+        },
+        {
+          "name": "match_str2conditionbitmask",
+          "line": 3171,
+          "endLine": 3208,
+          "declared": true
+        },
+        {
+          "name": "str2conditionbitmask",
+          "line": 3209,
+          "endLine": 3232,
+          "declared": true
+        },
+        {
+          "name": "parse_condition",
+          "line": 3233,
+          "endLine": 3350,
+          "declared": true
+        },
+        {
+          "name": "clear_status_hilites",
+          "line": 3351,
+          "endLine": 3368,
+          "declared": true
+        },
+        {
+          "name": "hlattr2attrname",
+          "line": 3369,
+          "endLine": 3416,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_linestr_add",
+          "line": 3417,
+          "endLine": 3447,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_linestr_done",
+          "line": 3448,
+          "endLine": 3461,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_linestr_countfield",
+          "line": 3462,
+          "endLine": 3476,
+          "declared": true
+        },
+        {
+          "name": "count_status_hilites",
+          "line": 3477,
+          "endLine": 3487,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_linestr_gather_conditions",
+          "line": 3488,
+          "endLine": 3569,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_linestr_gather",
+          "line": 3570,
+          "endLine": 3589,
+          "declared": true
+        },
+        {
+          "name": "status_hilite2str",
+          "line": 3590,
+          "endLine": 3671,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_menu_choose_field",
+          "line": 3672,
+          "endLine": 3706,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_menu_choose_behavior",
+          "line": 3707,
+          "endLine": 3810,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_menu_choose_updownboth",
+          "line": 3811,
+          "endLine": 3889,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_menu_add",
+          "line": 3890,
+          "endLine": 4304,
+          "declared": true
+        },
+        {
+          "name": "status_hilite_remove",
+          "line": 4305,
+          "endLine": 4356,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 253,
+        "to": 4356
+      }
     }
   ]
 }
