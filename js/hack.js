@@ -451,6 +451,7 @@ import {
     Ring_off,
     hard_helmet,
     off_msg,
+    stop_donning,
 } from './do_wear.js';
 import { helm_simple_name } from './objnam.js';
 
@@ -2163,7 +2164,7 @@ export async function dosinkfall(state = game) {
     const u = state.u;
     const levitation = u.uprops[LEVITATION];
     const flying = u.uprops[FLYING];
-    const levBoots = state.uarmf?.otyp === LEVITATION_BOOTS;
+    let levBoots = state.uarmf?.otyp === LEVITATION_BOOTS;
     const innateLev = Boolean(levitation.intrinsic
         & (FROMOUTSIDE | FROMFORM));
     const blockedLev = levitation.blocked === I_SPECIAL;
@@ -2205,7 +2206,12 @@ export async function dosinkfall(state = game) {
         levitation.intrinsic = saveIntrinsic;
     }
 
-    if (ufall || levBoots) note_unported('do_wear.c stop_donning');
+    if (ufall || levBoots) {
+        await stop_donning(levBoots ? state.uarmf : null, state);
+        // stop_donning() cancels a pending donning callback and removes boots
+        // that were not fully put on; only then does C reread uarmf.
+        levBoots = state.uarmf?.otyp === LEVITATION_BOOTS;
+    }
     levitation.extrinsic &= ~W_ARTI;
     levitation.intrinsic &= ~(I_SPECIAL | TIMEOUT);
     levitation.intrinsic++;

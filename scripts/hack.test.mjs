@@ -30,6 +30,7 @@ import {
     HEADSTONE,
     ICE,
     I_SPECIAL,
+    OBJ_INVENT,
     LAST_PROP,
     LEVITATION,
     LAVAWALL,
@@ -123,7 +124,9 @@ import {
     S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
-    BOULDER, CORPSE, DAGGER, HELMET, objects_globals_init,
+    ARMOR_CLASS, BOULDER, CORPSE, DAGGER, HELMET, LEVITATION_BOOTS,
+    LOW_BOOTS,
+    objects_globals_init,
 } from '../js/objects.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_dummyobj, newObject, place_object } from '../js/obj.js';
@@ -134,6 +137,7 @@ import {
     timeout_globals_init,
 } from '../js/timeout.js';
 import { planningState } from '../js/unported_monster_actions.js';
+import { _doWearInternals } from '../js/do_wear.js';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
 const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
@@ -746,6 +750,80 @@ test('dosinkfall removes levitation gear and reports it in C order', () => {
         /await Boots_off\(state\);\s*await off_msg\(boots, state\);/u);
     assert.match(DO_WEAR_JS_SOURCE,
         /export async function off_msg\(otmp, state, message = ttyPline\)/u);
+});
+
+test('sink arrival stops pending real levitation-boots donning before gear cleanup', async () => {
+    const state = { ...resetGame() };
+    objects_globals_init(state);
+    monst_globals_init(state);
+    const uprops = terrainProperties();
+    uprops[FLYING].intrinsic = FROMOUTSIDE;
+    state.u = {
+        ux: 5, uy: 4, ux0: 5, uy0: 4, uinwater: false, usteed: null,
+        uz: { dnum: 0, dlevel: 1 }, umonnum: PM_HUMAN,
+        uprops, uroleplay: { nudist: false },
+    };
+    state.youmonst = { data: state.mons[PM_HUMAN] };
+    state.level = new GameMap();
+    state.level.at(5, 4).typ = SINK;
+    state.flags = { terrainstatus: false, verbose: true };
+    state.iflags = { terrain_typ: SINK };
+    state.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
+    state.unported = new Set();
+
+    const boots = newObject({
+        otyp: LEVITATION_BOOTS,
+        oclass: ARMOR_CLASS,
+        where: OBJ_INVENT,
+        quan: 1,
+        nobj: null,
+        owornmask: 0,
+        known: false,
+    });
+    state.invent = boots;
+    await _doWearInternals.accessory_or_armor_on(boots, state);
+    assert.strictEqual(state.uarmf, boots);
+    assert.strictEqual(state.afternmv, Boots_on);
+    assert.ok(state.multi < 0);
+    assert.ok(state.u.uprops[LEVITATION].extrinsic & W_ARMF);
+
+    await spoteffects(false, state);
+
+    assert.equal(state.afternmv, null);
+    assert.equal(state.uarmf, null);
+    assert.equal(boots.owornmask & W_ARMF, 0);
+    assert.equal(state.u.uprops[LEVITATION].extrinsic & W_ARMF, 0);
+    assert.match(state._ttyToplines, /^You stop putting on /u);
+
+    // An already-worn ordinary boot has no pending callback and is not
+    // removed by the no-fall sink branch.
+    const control = { ...resetGame() };
+    objects_globals_init(control);
+    monst_globals_init(control);
+    const controlProps = terrainProperties();
+    controlProps[LEVITATION].intrinsic = FROMOUTSIDE;
+    controlProps[FLYING].intrinsic = FROMOUTSIDE;
+    control.u = {
+        ux: 5, uy: 4, ux0: 5, uy0: 4, uinwater: false, usteed: null,
+        uz: { dnum: 0, dlevel: 1 }, umonnum: PM_HUMAN,
+        uprops: controlProps, uroleplay: { nudist: false },
+    };
+    control.youmonst = { data: control.mons[PM_HUMAN] };
+    control.level = new GameMap();
+    control.level.at(5, 4).typ = SINK;
+    control.flags = { terrainstatus: false, verbose: true };
+    control.iflags = { terrain_typ: SINK };
+    control.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
+    const ordinaryBoots = newObject({
+        otyp: LOW_BOOTS, oclass: ARMOR_CLASS, where: OBJ_INVENT,
+        quan: 1, owornmask: W_ARMF,
+    });
+    control.uarmf = ordinaryBoots;
+    control.invent = ordinaryBoots;
+    await spoteffects(false, control);
+    assert.strictEqual(control.uarmf, ordinaryBoots);
+    assert.equal(control.afternmv ?? null, null);
+    assert.doesNotMatch(control._ttyToplines, /stop putting on/u);
 });
 
 test('anything converters reuse and overwrite the shared C union', () => {
