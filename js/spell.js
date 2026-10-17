@@ -160,7 +160,12 @@ import {
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } from './rng.js';
 import { aggravate } from './wizard.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    TOPLINE_NEED_MORE,
+    ttyNorep,
+    ttyPline,
+} from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
     P_SKILL,
@@ -551,9 +556,17 @@ export async function confused_book(book, state = game, env = {}) {
             'Being confused you have difficulties in controlling your actions.',
             state,
         );
-        if (state === game) note_unported('windows.c display_nhwindow');
+        if (env.planning && state.nhDisplay?.toplin === TOPLINE_NEED_MORE) {
+            if (typeof env.requestPlanningInput !== 'function')
+                throw new TypeError(
+                    'planned confused_book requires a display input handoff',
+                );
+            await env.requestPlanningInput('windows.c display_nhwindow');
+        } else {
+            await displayPendingTtyMessageWindow(state);
+        }
         await message('You accidentally tear the spellbook to pieces.', state);
-        if (state === game) note_unported('do.c trycall');
+        await trycall(book, state, { ...env, random, message });
         await useup(book, { state, hooks: {} });
         return true;
     }

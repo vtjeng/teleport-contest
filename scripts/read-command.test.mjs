@@ -53,9 +53,11 @@ import {
     seffects,
     seffect_punishment,
 } from '../js/read.js';
-import { getobj } from '../js/invent.js';
+import { addinv, getobj } from '../js/invent.js';
 import { not_fully_identified } from '../js/objnam.js';
+import { mksobj } from '../js/obj.js';
 import { getRngLog, initRng } from '../js/rng.js';
+import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
 import { scrolltele } from '../js/teleport.js';
 import {
     READ_MORE as CONFUSED_TELEPORT_MORE,
@@ -175,6 +177,34 @@ async function prepareIncompleteIdentifyScroll() {
     game.objects[target.otyp].oc_name_known = 0;
     assert.equal(not_fully_identified(target, game), true);
     return { ...prepared, target };
+}
+
+async function prepareConfusedForceBoltBook(seed = 1) {
+    const segment = {
+        seed: 6911001,
+        datetime: '20310203040506',
+        nethackrc: [
+            'OPTIONS=name:ConfusedRead,role:Valkyrie,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none',
+            '',
+        ].join('\n'),
+        moves: WAIT,
+    };
+    const replay = await runSegment(segment);
+    const book = mksobj(SPE_FORCE_BOLT, true, false, { state: game });
+    book.blessed = true;
+    book.cursed = false;
+    book.dknown = true;
+    addinv(book, { state: game });
+    game.objects[SPE_FORCE_BOLT].oc_name_known = 0;
+    game.objects[SPE_FORCE_BOLT].oc_uname = null;
+    game.u.uprops[CONFUSION].intrinsic = 1;
+    assert.equal(game.urole.filecode, 'Val');
+    assert.equal(game.objects[SPE_FORCE_BOLT].oc_name_known, 0);
+    assert.equal(game.objects[SPE_FORCE_BOLT].oc_uname, null);
+    assert.equal(game.svs.spl_book.some(({ sp_id }) => sp_id === SPE_FORCE_BOLT), false);
+    initRng(seed);
+    return { replay, book };
 }
 
 test('read_ok suggests scrolls and spellbooks and downplays other objects',
@@ -668,6 +698,95 @@ test('ordinary identify preserves the conditional second rn2(5)', async () => {
         pendingTopLine(),
         'You have already identified the rest of your possessions.',
     );
+});
+
+test('confused spellbook names a torn book after the real More boundary',
+    async () => {
+    const { replay, book } = await prepareConfusedForceBoltBook(1);
+    const inputBoundaries = [];
+    const oldHook = game._preNhgetchHook;
+    game._preNhgetchHook = async () => inputBoundaries.push({
+        pending: game._pending_message,
+        line: topLine(),
+        topline: game.nhDisplay.toplin,
+        inUse: book.in_use,
+        inInventory: inventorySnapshot().some(({ o_id }) => o_id === book.o_id),
+        known: game.objects[SPE_FORCE_BOLT].oc_name_known,
+        called: game.objects[SPE_FORCE_BOLT].oc_uname,
+    });
+    try {
+        game.nhDisplay.pushKey(book.invlet.charCodeAt(0));
+        game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+        game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+        for (const key of 'Runes\n') game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doread(game), ECMD_TIME);
+    } finally {
+        game._preNhgetchHook = oldHook;
+    }
+
+    const draws = replay.getRngLog();
+    assert.equal(draws.at(-1), 'rn2(3)=0');
+    assert.equal(draws.some((draw) => draw.startsWith('rnd(20)=')), false,
+        'a blessed book does not take the readability roll');
+    const moreBoundary = inputBoundaries.find(({ pending, topline }) => (
+        pending === 'Being confused you have difficulties in controlling your actions.'
+        && topline === TOPLINE_NEED_MORE
+    ));
+    assert.deepEqual(
+        { inUse: moreBoundary?.inUse, inInventory: moreBoundary?.inInventory },
+        { inUse: true, inInventory: true },
+        'the actual More input occurs while the selected book is still held in use',
+    );
+    const callBoundary = inputBoundaries.find(({ pending, line }) => (
+        pending?.startsWith('Call ') || line.includes('Call ')
+    ));
+    assert.ok(inputBoundaries.indexOf(moreBoundary) < inputBoundaries.indexOf(callBoundary),
+        'the real name input follows the existing More boundary');
+    assert.deepEqual(
+        { inUse: callBoundary?.inUse, inInventory: callBoundary?.inInventory,
+            known: callBoundary?.known, called: callBoundary?.called },
+        { inUse: true, inInventory: true, known: 0, called: null },
+        `the actual naming prompt sees the live unknown type and retained book: ${JSON.stringify(inputBoundaries)}`,
+    );
+    assert.equal(game.objects[SPE_FORCE_BOLT].oc_uname, 'Runes');
+    assert.equal(inventorySnapshot().some(({ o_id }) => o_id === book.o_id), false);
+});
+
+test('known or already-called confused book tears without another naming input',
+    async () => {
+    for (const identification of ['known', 'called']) {
+        const { book } = await prepareConfusedForceBoltBook(1);
+        if (identification === 'known')
+            game.objects[SPE_FORCE_BOLT].oc_name_known = 1;
+        else game.objects[SPE_FORCE_BOLT].oc_uname = 'already named';
+        const boundaries = [];
+        const oldHook = game._preNhgetchHook;
+        game._preNhgetchHook = async () => boundaries.push({
+            pending: game._pending_message,
+            line: topLine(),
+        });
+        try {
+            game.nhDisplay.pushKey(book.invlet.charCodeAt(0));
+            game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+            assert.equal(await doread(game), ECMD_TIME);
+        } finally {
+            game._preNhgetchHook = oldHook;
+        }
+        assert.equal(inventorySnapshot().some(({ o_id }) => o_id === book.o_id), false);
+        assert.equal(boundaries.some(({ pending, line }) => (
+            pending?.startsWith('Call ') || line.includes('Call ')
+        )), false);
+    }
+});
+
+test('a confused spellbook that does not tear remains in inventory', async () => {
+    const { replay, book } = await prepareConfusedForceBoltBook(2);
+    game.nhDisplay.pushKey(book.invlet.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+    assert.ok(replay.getRngLog().some((draw) => draw.startsWith('rn2(3)=')
+        && draw !== 'rn2(3)=0'));
+    assert.equal(book.in_use, false);
+    assert.equal(inventorySnapshot().some(({ o_id }) => o_id === book.o_id), true);
 });
 
 test('declining a fresh known healing spellbook refresh takes no turn',
