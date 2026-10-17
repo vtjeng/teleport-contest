@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T22:00:59.172Z",
+  "capturedAt": "2026-10-17T22:31:50.566Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T22:00:59.172Z",
+    "asOf": "2026-10-17T22:31:50.566Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 176,
+      "mainSupportAssignments": 179,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -165081,34 +165081,507 @@
         "type": "accepted",
         "at": "2026-10-17T21:59:18.344Z",
         "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-adjacent-travel-crawl-await-source-parity-20261017-aa5537618a889445666232d6201ae4e2438f280b",
+        "type": "published",
+        "at": "2026-10-17T22:01:15.682Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "commit": "aa5537618a889445666232d6201ae4e2438f280b"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publication-confirmed-delivery:fix-container-artifact-touch-await-source-parity-20261017-aa5537618a889445666232d6201ae4e2438f280b",
+        "type": "publication-confirmed",
+        "at": "2026-10-17T22:01:16.511Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "commit": "aa5537618a889445666232d6201ae4e2438f280b",
+        "knownBy": "2026-10-17T22:01:15.682Z"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publication-confirmed-delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017-aa5537618a889445666232d6201ae4e2438f280b",
+        "type": "publication-confirmed",
+        "at": "2026-10-17T22:01:16.941Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "commit": "aa5537618a889445666232d6201ae4e2438f280b",
+        "knownBy": "2026-10-17T22:01:15.682Z"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:02:18.774Z",
+        "id": "queue:1d8dbf05-1596-4d4b-9630-9e02b57a689e",
+        "type": "assign",
+        "task": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:03:10.660Z",
+        "id": "queue:7b41f376-929b-4239-841e-a5a151db1c42",
+        "type": "assign",
+        "task": "fix-confused-book-display-trycall-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "shop-entry-2a-review-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T22:07:27.988Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "delivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "shop-entry-2a-env-feedback-20261017",
+        "type": "feedback",
+        "at": "2026-10-17T22:07:28.996Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "delivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:08:13.491Z",
+        "id": "queue:5b9ebee1-7e13-4c03-a97a-836a29f36747",
+        "type": "assign",
+        "task": "rework:delivery:fix-shop-entry-extra-dochug-source-parity-20261017:2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:08:47.573Z",
+        "id": "ready-a49aca47033fe8333670dd5542df55a1fcbef9bc:transport",
+        "type": "assign",
+        "task": "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-confused-book-display-trycall-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-a49aca47033fe8333670dd5542df55a1fcbef9bc",
+        "type": "ready",
+        "at": "2026-10-17T22:08:47.573Z",
+        "task": "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+        "delivery": "a49aca47033fe8333670dd5542df55a1fcbef9bc"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:08:47.573Z",
+        "id": "ready-a49aca47033fe8333670dd5542df55a1fcbef9bc:complete",
+        "type": "queue-complete",
+        "task": "fix-confused-book-display-trycall-source-parity-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:08:47.573Z",
+        "id": "ready-a49aca47033fe8333670dd5542df55a1fcbef9bc:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "confused-book-source-parity-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T22:09:38.629Z",
+        "task": "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+        "delivery": "a49aca47033fe8333670dd5542df55a1fcbef9bc"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:12:03.067Z",
+        "id": "ready-e27ed1972d265bef9ee8a5063e2952b58cfbfc9d:transport",
+        "type": "assign",
+        "task": "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-e27ed1972d265bef9ee8a5063e2952b58cfbfc9d",
+        "type": "ready",
+        "at": "2026-10-17T22:12:03.067Z",
+        "task": "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "delivery": "e27ed1972d265bef9ee8a5063e2952b58cfbfc9d"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:12:03.067Z",
+        "id": "ready-e27ed1972d265bef9ee8a5063e2952b58cfbfc9d:complete",
+        "type": "queue-complete",
+        "task": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:12:03.067Z",
+        "id": "ready-e27ed1972d265bef9ee8a5063e2952b58cfbfc9d:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-dd04863a6989b972f9e82989c9c488e14c1f5ee4",
+        "type": "ready",
+        "at": "2026-10-17T22:13:42.528Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "delivery": "dd04863a6989b972f9e82989c9c488e14c1f5ee4"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:13:42.528Z",
+        "id": "ready-dd04863a6989b972f9e82989c9c488e14c1f5ee4:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-shop-entry-extra-dochug-source-parity-20261017:2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:13:42.528Z",
+        "id": "ready-dd04863a6989b972f9e82989c9c488e14c1f5ee4:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "pet-scatter-source-parity-e27-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T22:13:47.802Z",
+        "task": "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "delivery": "e27ed1972d265bef9ee8a5063e2952b58cfbfc9d"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "shop-entry-dd048-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T22:14:42.760Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "delivery": "dd04863a6989b972f9e82989c9c488e14c1f5ee4"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:15:05.402Z",
+        "id": "queue:ca383873-0cd7-4cef-86fc-a76d517e065d",
+        "type": "assign",
+        "task": "fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:18:49.063Z",
+        "id": "queue:d2fb78fc-4abe-46ba-8d0f-28da29786600",
+        "type": "assign",
+        "task": "sleeping-potion-grip-release-source-screen-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:20:25.121Z",
+        "id": "ready-0aee12401eb7a0c73ba37f06f128aa7dbfcbc16b:transport",
+        "type": "assign",
+        "task": "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-swallowed-relocation-shop-actionenv-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-0aee12401eb7a0c73ba37f06f128aa7dbfcbc16b",
+        "type": "ready",
+        "at": "2026-10-17T22:20:25.121Z",
+        "task": "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "delivery": "0aee12401eb7a0c73ba37f06f128aa7dbfcbc16b"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:20:25.121Z",
+        "id": "ready-0aee12401eb7a0c73ba37f06f128aa7dbfcbc16b:complete",
+        "type": "queue-complete",
+        "task": "fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:20:25.121Z",
+        "id": "ready-0aee12401eb7a0c73ba37f06f128aa7dbfcbc16b:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "teleport-actionenv-0aee-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T22:21:14.399Z",
+        "task": "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "delivery": "0aee12401eb7a0c73ba37f06f128aa7dbfcbc16b"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-ef20d749d7ac47b9e3e8726940444908d489c337-e4156bcdc17e77eb5a81f97cabec1fb7ba6308517392577775ce5f0f06c26464-delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T22:21:39.250Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "integration": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "validationGroup": [
+          "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+          "delivery:fix-sink-stop-donning-source-parity-20261017",
+          "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+          "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+          "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-ef20d749d7ac47b9e3e8726940444908d489c337-e4156bcdc17e77eb5a81f97cabec1fb7ba6308517392577775ce5f0f06c26464-delivery:fix-sink-stop-donning-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T22:21:39.250Z",
+        "task": "delivery:fix-sink-stop-donning-source-parity-20261017",
+        "integration": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "validationGroup": [
+          "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+          "delivery:fix-sink-stop-donning-source-parity-20261017",
+          "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+          "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+          "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-ef20d749d7ac47b9e3e8726940444908d489c337-e4156bcdc17e77eb5a81f97cabec1fb7ba6308517392577775ce5f0f06c26464-delivery:fix-confused-book-display-trycall-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T22:21:39.250Z",
+        "task": "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+        "integration": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "validationGroup": [
+          "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+          "delivery:fix-sink-stop-donning-source-parity-20261017",
+          "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+          "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+          "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-ef20d749d7ac47b9e3e8726940444908d489c337-e4156bcdc17e77eb5a81f97cabec1fb7ba6308517392577775ce5f0f06c26464-delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T22:21:39.250Z",
+        "task": "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "integration": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "validationGroup": [
+          "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+          "delivery:fix-sink-stop-donning-source-parity-20261017",
+          "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+          "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+          "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-ef20d749d7ac47b9e3e8726940444908d489c337-e4156bcdc17e77eb5a81f97cabec1fb7ba6308517392577775ce5f0f06c26464-delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T22:21:39.250Z",
+        "task": "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "integration": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "validationGroup": [
+          "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+          "delivery:fix-sink-stop-donning-source-parity-20261017",
+          "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+          "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+          "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:23:54.475Z",
+        "id": "queue:f2aa0930-cb11-4e70-a3e9-ea5b773fd899",
+        "type": "queue-complete",
+        "task": "sleeping-potion-grip-release-source-screen-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:23:54.475Z",
+        "id": "queue:f2aa0930-cb11-4e70-a3e9-ea5b773fd899:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:24:08.345Z",
+        "id": "queue:fed65f44-b57b-4e31-8598-d56a5fe24211",
+        "type": "assign",
+        "task": "shifted-vampire-stoning-message-window-source-screen-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:26:54.604Z",
+        "id": "queue:3f51c602-61db-4115-b8f3-8ec8f5dfbd52",
+        "type": "assign",
+        "task": "fix-sleeping-potion-grip-release-source-parity-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:28:01.148Z",
+        "id": "queue:3dc7aace-7362-44e0-a5c4-7dbf9994af72",
+        "type": "queue-complete",
+        "task": "shifted-vampire-stoning-message-window-source-screen-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:28:01.148Z",
+        "id": "queue:3dc7aace-7362-44e0-a5c4-7dbf9994af72:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-shop-entry-extra-dochug-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-validated",
+        "type": "validated",
+        "at": "2026-10-17T22:29:25.849Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-sink-stop-donning-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-validated",
+        "type": "validated",
+        "at": "2026-10-17T22:29:25.849Z",
+        "task": "delivery:fix-sink-stop-donning-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-confused-book-display-trycall-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-validated",
+        "type": "validated",
+        "at": "2026-10-17T22:29:25.849Z",
+        "task": "delivery:fix-confused-book-display-trycall-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-validated",
+        "type": "validated",
+        "at": "2026-10-17T22:29:25.849Z",
+        "task": "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-validated",
+        "type": "validated",
+        "at": "2026-10-17T22:29:25.849Z",
+        "task": "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-shop-entry-extra-dochug-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T22:30:01.129Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-sink-stop-donning-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T22:30:01.129Z",
+        "task": "delivery:fix-sink-stop-donning-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-confused-book-display-trycall-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T22:30:01.129Z",
+        "task": "delivery:fix-confused-book-display-trycall-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T22:30:01.129Z",
+        "task": "delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017-ef20d749d7ac47b9e3e8726940444908d489c337-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T22:30:01.129Z",
+        "task": "delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:31:23.201Z",
+        "id": "queue:1145849e-e33c-4dde-a622-de8f97ceeba8",
+        "type": "queue-block",
+        "task": "fix-sleeping-potion-grip-release-source-parity-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T22:31:23.201Z",
+        "id": "queue:1145849e-e33c-4dde-a622-de8f97ceeba8:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-sink-stop-donning-source-parity-20261017",
-        "worker": "Worker-3",
-        "goal": "fix-sink-stop-donning-source-parity-20261017",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "bc87bfb609edb8f5257bcda7a5086e5098ee3696",
-        "since": "2026-10-17T21:47:12.851Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
-        "worker": "Worker-1",
-        "goal": "fix-shop-entry-extra-dochug-source-parity-20261017",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
-        "since": "2026-10-17T21:57:59.074Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": []
   },
@@ -165125,54 +165598,42 @@
         ],
         "reason": "Blocked by existing production control flow: do.c:1226-1228 returns after dotrap(TOOKPLUNGE) whenever uescaped_shaft(trap) is true. trap.c:6659-6664 defines that as every seen HOLE/TRAPDOOR at the hero square; unseen or non-hole traps fail the following validity guard. Therefore the later do.c:1281-1282 Stronghold goto_hell branch cannot run for a valid hole/trapdoor. JS dodown mirrors the earlier return; a constructed D:2 Stronghold-hole case stayed at D:2 through the fall_through path. Reaching goto_hell requires changing the earlier guard/fall-through semantics, outside this frozen tiny helper+caller review and its explicitly distinct automatic-fall-through scope. No source changes retained; runtime parity remains pending."
       },
-      "delivery:fix-sink-stop-donning-source-parity-20261017": {
-        "id": "delivery:fix-sink-stop-donning-source-parity-20261017",
-        "worker": "Worker-3",
-        "status": "ready",
-        "seed": null,
-        "reservations": [
-          "source:hack.c:dosinkfall"
-        ]
-      },
-      "delivery:fix-shop-entry-extra-dochug-source-parity-20261017": {
-        "id": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+      "delivery:fix-sleeping-potion-grip-release-source-parity-20261017": {
+        "id": "delivery:fix-sleeping-potion-grip-release-source-parity-20261017",
         "worker": "Worker-1",
-        "status": "ready",
+        "status": "parked",
         "seed": null,
         "reservations": [
-          "source:shk.c:u_entered_shop"
-        ]
+          "source:potion.c:potionhit"
+        ],
+        "reason": "Real public dothrow fixture did not produce the separately pending grip More required by this reviewed runtime claim; committed .cache/sleeping-potion-grip-release-source-parity-20261017/runtime-observation.json with exact readKey transcript and post-action state. No source edit or forced fixture; Work lead review needed before re-scope."
       }
     },
-    "reservations": {
-      "source:hack.c:dosinkfall": {
-        "tasks": [
-          "delivery:fix-sink-stop-donning-source-parity-20261017"
-        ]
-      },
-      "source:shk.c:u_entered_shop": {
-        "tasks": [
-          "delivery:fix-shop-entry-extra-dochug-source-parity-20261017"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
     "threshold": 5,
     "preferred": "exploration",
-    "reason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [
-      "fix-pet-scatter-occupation-clone-source-parity-20261017"
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "ready": [],
+    "blocked": [
+      {
+        "task": "fix-sleeping-potion-grip-release-source-parity-20261017",
+        "reason": "Waiting for producer or dependencies."
+      },
+      {
+        "task": "unpaid-shop-hole-shipping-value-source-screen-20261017",
+        "reason": "Waiting for producer or dependencies."
+      }
     ],
-    "blocked": [],
     "claimed": [],
     "counts": {
       "ready": 1,
       "claimed": 0,
-      "blocked": 0,
-      "completed": 407,
-      "superseded": 66
+      "blocked": 1,
+      "completed": 413,
+      "superseded": 67
     },
     "workers": [
       {
@@ -172323,7 +172784,7 @@
         "id": "fix-pet-scatter-occupation-clone-source-parity-20261017",
         "type": "implementation",
         "output": "implementation",
-        "status": "ready",
+        "status": "superseded",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -172333,12 +172794,132 @@
         "readyAt": "2026-10-17T22:00:44.474Z",
         "claimedAt": null,
         "completedAt": null
+      },
+      {
+        "id": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T22:01:59.674Z",
+        "claimedAt": "2026-10-17T22:02:18.774Z",
+        "completedAt": "2026-10-17T22:12:03.067Z"
+      },
+      {
+        "id": "fix-confused-book-display-trycall-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T22:02:36.597Z",
+        "claimedAt": "2026-10-17T22:03:10.660Z",
+        "completedAt": "2026-10-17T22:08:47.573Z"
+      },
+      {
+        "id": "rework:delivery:fix-shop-entry-extra-dochug-source-parity-20261017:2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "readyAt": "2026-10-17T22:07:28.996Z",
+        "claimedAt": "2026-10-17T22:08:13.491Z",
+        "completedAt": "2026-10-17T22:13:42.528Z"
+      },
+      {
+        "id": "fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T22:14:44.234Z",
+        "claimedAt": "2026-10-17T22:15:05.402Z",
+        "completedAt": "2026-10-17T22:20:25.121Z"
+      },
+      {
+        "id": "sleeping-potion-grip-release-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T22:18:39.114Z",
+        "claimedAt": "2026-10-17T22:18:49.063Z",
+        "completedAt": "2026-10-17T22:23:54.475Z"
+      },
+      {
+        "id": "shifted-vampire-stoning-message-window-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T22:23:45.895Z",
+        "claimedAt": "2026-10-17T22:24:08.345Z",
+        "completedAt": "2026-10-17T22:28:01.148Z"
+      },
+      {
+        "id": "fix-sleeping-potion-grip-release-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T22:26:34.917Z",
+        "claimedAt": "2026-10-17T22:26:54.604Z",
+        "completedAt": null
+      },
+      {
+        "id": "unpaid-shop-hole-shipping-value-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-17T22:29:19.116Z",
+        "claimedAt": null,
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
-    "measuredAt": "2026-10-17T21:56:39.749Z",
+    "executionCommit": "ef20d749d7ac47b9e3e8726940444908d489c337",
+    "measuredAt": "2026-10-17T22:27:56.807Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

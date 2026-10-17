@@ -321835,7 +321835,7 @@
     {
       "id": "fix-sink-stop-donning-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dosinkfall from hack.c",
       "cFile": "hack.c",
       "sessions": [],
@@ -321843,7 +321843,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ef20d749d7ac47b9e3e8726940444908d489c337",
       "delivered": null,
       "functions": [
         {
@@ -321916,12 +321916,56 @@
           "reachability": "Exact chain: passive teleport/safe_teleds→teleds nomul(0) (negative multi returns without callback clearing)→spoteffects IS_SINK&&Levitation→dosinkfall. Its helper guard is ufall||levBoots; one jointly valid constructed state can have pending putting-on levitation boots and flight (ufall=false,levBoots=true), reaching cancellation without unrelated crash/selftouch damage. C stop_donning clears afternmv and may remove incomplete uarmf, so reread is necessary. Earlier spoteffects conditions and stop_donning/donning predicates reviewed in a0e1 source report and CL guard-review correction; worker must verify exact valid production state in red/green regression."
         },
         "reviewSha256": "18c01e25bd9598e248e4ae0a346601c893af592be20272d1cf7403132f57a89a"
+      },
+      "closeStanding": {
+        "sha": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/ef20d749d7ac47b9e3e8726940444908d489c337/run-hosted-mRBtsT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dosinkfall",
+            "implementation": "js/hack.js",
+            "symbol": "dosinkfall",
+            "sourceReview": "Read the complete upstream hack.c:836-919 dosinkfall() and the production spoteffects() sink/Levitation guard and call at hack.c:3312-3360. C snapshots lev_boots and ufall, preserves its no-fall or fall branch, awaits stop_donning(lev_boots ? uarmf : NULL) exactly under ufall || lev_boots, rereads nullable uarmf, then removes levitation properties/rings/boots in source order. JavaScript now awaits the existing do_wear.js stop_donning helper at that same point and recomputes levBoots before cleanup; no other sink behavior changed.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "C spoteffects IS_SINK and Levitation branch invokes dosinkfall; current real JS spoteffects awaits dosinkfall after level arrival."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "C hack.c spoteffects() reaches dosinkfall() only for IS_SINK(current square) && Levitation; the JavaScript spoteffects() has the same guard and awaits dosinkfall(). The focused constructed-state test creates pending putting-on levitation boots through the existing real accessory_or_armor_on equipment path, keeps the hero flying to avoid the unrelated fall/selftouch arm, then enters the actual spoteffects() sink caller. It verifies cancellation, equipment removal, and the stop-donning message with an ordinary already-worn boots control. This does not establish public runtime parity or source certification.",
+        "entryPoints": [
+          {
+            "name": "spoteffects sink-arrival dosinkfall",
+            "functions": [
+              "dosinkfall"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-confused-book-display-trycall-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement confused_book from undefined",
       "cFile": "spell.c",
       "sessions": [],
@@ -321929,7 +321973,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ef20d749d7ac47b9e3e8726940444908d489c337",
       "delivered": null,
       "functions": [
         {
@@ -322090,12 +322134,78 @@
           }
         },
         "reviewSha256": "14ec1ac22d60acb8e61bed68c48b3e29868aaf36010b0405544cc7e465026fa5"
+      },
+      "closeStanding": {
+        "sha": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/ef20d749d7ac47b9e3e8726940444908d489c337/run-hosted-mRBtsT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "confused_book",
+            "implementation": "js/spell.js",
+            "symbol": "confused_book",
+            "sourceReview": "Read the complete C spell.c:confused_book (189-211) and current JS implementation. For rn2(3)==0 and non-Book-of-the-Dead, C sets in_use, emits the confusion line, calls display_nhwindow(WIN_MESSAGE,FALSE), emits the tear line, awaits the unknown/uncalled shared-type trycall/docall prompt when dknown, then useup and returns gone. JS now preserves that order through the existing displayPendingTtyMessageWindow and trycall helpers; source RNG and caller study-delay behavior are unchanged. The jointly valid initial read path is a sighted, unencumbered Valkyrie with active Confusion, blessed noncursed dknown Force Bolt book, shared type unknown/uncalled, no known Force Bolt and no existing study delay; earlier read_ok, capacity, blindness, blank/novel/unique-book, continuation, difficulty and known-spell guards permit study_book to reach this arm. The earlier display boundary is retained before naming. In planned contexts a pending More requests the existing windows.c display input handoff before trycall can request do.c trycall; no clone performs TTY input. No whole-function certification or public parity is claimed.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "Exact initial public r selects inventory unknown blessed force-bolt book under active Confusion, read_ok/doread→study_book→confused_book. Existing shared learn caller must preserve planning/input handoff; C confused_book189-211 displays WIN_MESSAGE FALSE before tear then trycall before useup."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "study_book",
+                "source": "Full preceding read/study guards and jointly valid Confused blessed unknown object/type state reviewed; no alternate history or naming-only late-call inference."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "learn",
+                "source": "Existing occupation continuation calls confused_book when Confusion arises during study. learn forwards env/random and clears the stored study context after the helper returns; planned input must be handed off at the display More boundary before the later trycall naming boundary."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-message.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "The selected C unit has two live JS call paths. Initial public r dispatch enters read.js:doread, where read_ok/getobj selection and all earlier read guards reach spell.js:study_book then confused_book. Existing study occupation continuation enters spell.js:learn and may reach confused_book when Confusion arises during study; it forwards the same environment and must hand off a pending planned More before the later planned trycall input. The constructed-state regression exercises the actual initial doread path with production TTY queue, display More, trycall/docall/getlin and useup. It does not claim runtime coverage for the later learn/planning clone path; that path retains an explicit requestPlanningInput boundary.",
+        "entryPoints": [
+          {
+            "name": "initial r / read.js:doread",
+            "functions": [
+              "confused_book"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "study occupation / spell.js:learn",
+            "functions": [
+              "confused_book"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-shop-entry-extra-dochug-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement u_entered_shop from shk.c",
       "cFile": "shk.c",
       "sessions": [],
@@ -322103,7 +322213,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ef20d749d7ac47b9e3e8726940444908d489c337",
       "delivered": null,
       "functions": [
         {
@@ -322233,12 +322343,60 @@
           ]
         },
         "reviewSha256": "95da42376004d9f1c647c3fc82dd6bca7352154320a1d9bbec1898c47ade5f32"
+      },
+      "closeStanding": {
+        "sha": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/ef20d749d7ac47b9e3e8726940444908d489c337/run-hosted-mRBtsT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "u_entered_shop",
+            "implementation": "js/shk.js",
+            "symbol": "u_entered_shop",
+            "pure": false,
+            "sourceReview": "Read the complete C body shk.c:751-917 and the caller/order in hack.c check_special_room. Preserved the shopkeeper, customer, speech, RNG and strict-interior guards; the picked-tool, steed and Fast-plus-floor-tool branches keep their source tests/messages and the resulting should_block call now awaits one direct dochug after the greeting. The operation bundle is the existing production provider set extracted from runSimpleMonsterAction; wrapper-only canSpotMonster/occupation interruption remains in dochugw, supplemental state/migration/apparent-hero/quest/weapon/eating/pet providers and RNG/planning closures are retained. The production room caller injects the adapter lazily, avoiding an eager import cycle; no new AI/scheduler behavior or unported substitute was added.",
+            "callers": [
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "C check_special_room dispatches u_entered_shop on newly entered shop membership; C shk.c751-917 awaits one direct dochug at should_block before returning. Existing ordinary monster scheduler is subsequent and does not replace this action."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/rooms.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/level-teleport-arrival.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Read the complete shk.c u_entered_shop definition (751-917) and its caller/order. hack.c check_special_room dispatches on newly entered shop membership before spoteffects returns; after greeting, !inside_shop and the carried-pick branch sets should_block, then C directly calls dochug(shkp) exactly once. The focused regression establishes the ordered ordinary edge-entry guard with an open cardinal door, a real SHOP resident that is calm, awake, mobile and in-shop, and a carried ordinary pickaxe. The real check_special_room call lazily reaches the shared existing direct-dochug provider bundle and real monmove.c dochug/m_move/shk_move, moving the keeper one source-selected step before return. No-pick re-entry and strict-interior/no-entry controls do not change keeper state. This constructed-state result is runtime-pending source-parity evidence; it is not recorded public-play parity or source certification.",
+        "entryPoints": [
+          {
+            "name": "newly entered shop edge carrying a pickaxe",
+            "functions": [
+              "u_entered_shop"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement scatter from explode.c",
       "cFile": "explode.c",
       "sessions": [],
@@ -322246,7 +322404,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ef20d749d7ac47b9e3e8726940444908d489c337",
       "delivered": null,
       "functions": [
         {
@@ -322388,12 +322546,57 @@
           }
         },
         "reviewSha256": "8452de2bef5d7f5d8b3163190709c68fbde547882fbefc0a347b0b8ac05d6981"
+      },
+      "closeStanding": {
+        "sha": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/ef20d749d7ac47b9e3e8726940444908d489c337/run-hosted-mRBtsT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "scatter",
+            "implementation": "js/unported_monster_actions.js",
+            "symbol": "runSimpleMonsterAction",
+            "pure": false,
+            "sourceReview": "Read the complete C explode.c scatter (721-947) and allmain.c stop_occupation. C successful-hit branch calls stop_occupation() on its current state. JS scatter remains unchanged and forwards (state, env); the narrow correction changes only runSimpleMonsterAction’s callback provider to close over its selected `state` and ignore call argument shape. Actual planned damage and state effects traverse real dog movement, postmov, mintrap, landmine, scatter and thitu.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "Existing normal preflight planningState→runSimpleMonsterAction→dochugw→tame pet dog_move→postmov→mintrap→landmine→scatter. C explode.c successful thitu calls stop_occupation on its current game; JS provider must target selected planning/live action state."
+              }
+            ],
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/explode.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "C explode.c scatter (721-947) invokes stop_occupation only after thitu reports a successful hit. The real JS blow_up_landmine -> scatter -> thitu route is reached by runSimpleMonsterAction on planningState(game) with a tame pony, landmine, ordinary rock, unfinished meal and canned command. The regression proves the fix captures the selected action state; no gameplay, recorder, public runtime parity, or source certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "planned tame-pet movement through landmine scatter and hit interruption",
+            "functions": [
+              "scatter"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement rloc_to_core from undefined",
       "cFile": "teleport.c",
       "sessions": [],
@@ -322401,7 +322604,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ef20d749d7ac47b9e3e8726940444908d489c337",
       "delivered": null,
       "functions": [
         {
@@ -322568,6 +322771,51 @@
           }
         },
         "reviewSha256": "e262d2a762e28293283b0fd371655dd52d38d5038d698df4699bb52065b3a156"
+      },
+      "closeStanding": {
+        "sha": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/ef20d749d7ac47b9e3e8726940444908d489c337/run-hosted-mRBtsT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "teleport.c",
+            "name": "rloc_to_core",
+            "implementation": "js/teleport.js",
+            "pure": false,
+            "sourceReview": "Forward the normalized full relocation env as actionEnv at the swallowed follow check_special_room call, retaining selected state and message plus the existing scalar random. This preserves caller-owned planning RNG and hooks through the dependent direct keeper action.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "rloc_to",
+                "source": "C teleport.c rloc_to→rloc_to_core follows swallowed hero and calls check_special_room on selected current game; real JS planning relocation must preserve current clone/full RNG/planning operations through that exact call."
+              }
+            ],
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/teleport-monster-traps.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The reviewed C unit is rloc_to_core. The test starts at real rloc_to with an ordinary swallowed hero and source-proved purple worm, then follows its real placement into check_special_room, shop entry, and direct keeper prephase. It demonstrates only this constructed production-path contract; public C runtime parity remains pending. The other after_shk_move caller was inspected and left outside the authorized source scope.",
+        "entryPoints": [
+          {
+            "name": "real swallowed rloc_to shop-entry path",
+            "functions": [
+              "rloc_to_core"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
