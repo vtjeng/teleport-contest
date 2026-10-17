@@ -1,0 +1,59 @@
+{
+  "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+  "scope": "same frozen botl.c 22-unit task; source-review continuation only",
+  "implementationCommit": "9d60fae075ba5c7e11e33bf19dda9ea449cd3588",
+  "interpretation": "C side is split between a saved fresh-compiled constructed-field input/output receipt and explicit C source expectations for paint-only/new lifecycle edges. Rows marked source-only were not executed in C; no source certification or public C parity is claimed.",
+  "savedCReceipt": {
+    "assessment": "/workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/assessment.json",
+    "assessmentSha256": "32bae2c2a7e6dba78c4e110cadd3d7a2494e55270228935b7f99f56448cddb30",
+    "stdout": "/workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/probe-clang-fresh.stdout.jsonl",
+    "stdoutSha256": "4c99ec03567b4abfbdaecd62c8bb7d2d800412c4fda67e7e95c425236415d3ee",
+    "outcome": "/workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/probe-clang-fresh-outcome.json",
+    "outcomeSha256": "a2092f73c6eb4ccb90271a3b5e986dddbc3a140e26825d3bce1ec7ee2999570a",
+    "inputClass": "primitive hero level/XP and moves/multi at evaluator-input seam; no injected selected rule, timer, percent cache or expected return; actual aggregate notifier clears flags",
+    "nativeObservations": "10 source-pinned observations summarized in the existing assessment; constructed-field evidence only"
+  },
+  "rows": [
+    {
+      "case": "xp-percent-early-selector",
+      "cExpected": "botl.c exp_percent_changing invokes get_hilite with chg=0 (botl.c:2090-2120)",
+      "cRuntimeReceipt": "saved constructed-field receipt observes false then true for XP percentage candidate and same-rule no-redraw; it does not specifically exercise a competing up/down rule",
+      "jsEvidence": "scripts/level-arrival.test.mjs exp_percent_changing test, including up/down candidate and stable identity case",
+      "jsObserved": "focused test passes: early check selects using literal zero; no spurious up/down redraw",
+      "classification": "saved-C observation plus source expectation, JS focused test"
+    },
+    {
+      "case": "plain-repaint-without-status-notification",
+      "cExpected": "display flush of a clean status line redraws retained delivered field/style state; no botl evaluator callback is made",
+      "cRuntimeReceipt": "not observed by reused constructed-field C receipt",
+      "jsEvidence": "scripts/display-symbols.test.mjs plain screen repaint test",
+      "jsObserved": "focused test passes: grid text/style and status value/rule snapshots remain last delivered values after live hero state changes",
+      "classification": "C source/control-flow expectation; no direct C invocation for this edge"
+    },
+    {
+      "case": "changed-event-repeated-bot-before-action-hook",
+      "cExpected": "eval_notify sets curr/prev chg on notification; only status_eval_next_unhilite consumes and clears it, then stamps both timers for a temporary rule (botl.c:1610-1621, 2279-2310)",
+      "cRuntimeReceipt": "saved C receipt observes both timer banks and expiry behavior, but not a repeated-bot-before-hook sequence",
+      "jsEvidence": "scripts/display-symbols.test.mjs repeated bot test; scripts/status-hilite-lifecycle.test.mjs timer hook tests",
+      "jsObserved": "focused tests pass: repeated bot preserves the pending selected temporary rule and chg flag until the action hook stamps/clears both banks",
+      "classification": "saved-C timer observations plus source expectation; exact repeated-bot edge source-only on C"
+    },
+    {
+      "case": "update_all",
+      "cExpected": "evaluation sets chg=0 and curr/prev time=0 when gu.update_all is true; status_initialize sets update_all and aggregate notifier clears it (botl.c:1514, 1574-1586, 1679, 1721)",
+      "cRuntimeReceipt": "saved C receipt observes reset requesting redraw and timer behavior, not the exact full update_all/up-down combination",
+      "jsEvidence": "scripts/display-symbols.test.mjs update_all test and options status initialization adapter",
+      "jsObserved": "focused tests pass: both timer banks reset, changed selector receives zero direction and request is consumed after bot",
+      "classification": "saved-C reset observation plus source expectation; exact combination source-only on C"
+    },
+    {
+      "case": "unchanged-public-tourist-replay",
+      "cExpected": "match the admitted frozen v97 recording exactly",
+      "cRuntimeReceipt": "admitted expected recording and manifest",
+      "jsEvidence": "score-challenges v97 replay evaluated at commit 9d60fae075ba5c7e11e33bf19dda9ea449cd3588",
+      "jsObserved": "complete 1/1 session, 5/5 screens, 5/5 cursors, 4904/4904 ordered RNG",
+      "classification": "public JS replay pass; does not cover menu/reset/removal controls or broad ordinary impure entrypoints"
+    }
+  ],
+  "remaining": "Full 22-unit review and source matrix, exact C runtime cases for the repaint/repeated-bot/update_all edges, public menu/reset/remove/ordinary impure entrypoint coverage, full regressions and independent lead review remain open."
+}
