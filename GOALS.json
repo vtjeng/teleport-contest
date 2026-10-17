@@ -320268,7 +320268,7 @@
     {
       "id": "status-highlight-lifecycle-v97-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Ports the frozen 22-unit botl.c status-highlight lifecycle across the display collector, field adapters, action-time bank lifecycle, option menus, fresh-game initialization, planning clone, and terminal finalizer. Ordinary proof is limited to the listed official recordings and saved production trace; native observations are constructed diagnostics and are not public C parity.",
       "cFile": "botl.c",
       "sessions": [
@@ -320278,7 +320278,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "6356d95de5424b681d21f7cc815c5cfeb90a360e",
       "delivered": null,
       "functions": [
         {
@@ -320699,6 +320699,692 @@
       "range": {
         "from": 253,
         "to": 4356
+      },
+      "closeStanding": {
+        "sha": "6356d95de5424b681d21f7cc815c5cfeb90a360e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d99ab0d96ffe4a4c36d4195ce96a748029dd6e5e",
+        "target": "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/6356d95de5424b681d21f7cc815c5cfeb90a360e/run-hosted-heJIT0/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "bot",
+            "implementation": "js/display.js",
+            "symbol": "bot",
+            "pure": false,
+            "sourceReview": "Read botl.c:253-273 and 962-1006, 1621-1680. Preserve callback gating, field pass order, window-port update behavior, and paint from delivered/cached state. JS bot() drives _collectStatusHilites before writing rows; repaint does not advance selection history. The bot() guard now skips status collection before JS player initialization and for status_updates-disabled or suppressMapOutput phases, while clearing pending disp flags; bot_disabled and uhp == -1 retain their exact early behavior.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c moveloop_core calls bot for requested status refresh; js/allmain.js moveloop_core calls bot at the matching turn boundary."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "botl.c bot_via_windowport/evaluate_and_notify_windowport collect typed values before notification; js/display.js _collectStatusHilites is invoked by bot() and timebot()."
+              },
+              {
+                "path": "js/tty_menu.js",
+                "symbol": "erase_menu_or_text",
+                "source": "wintty.c erase_menu_or_text calls docrt() then flush_screen(); for a no-player/no-position state, docrt_flags returns before gameplay redraw. The JS repair restores the covered frame without collecting uninitialized status."
+              }
+            ],
+            "tests": [
+              "scripts/display.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "timebot",
+            "implementation": "js/display.js",
+            "symbol": "timebot",
+            "pure": false,
+            "sourceReview": "Read botl.c:275-297 and 1285-1302. It refreshes only BL_TIME through stat_update_time and retains the C callback/change/timer semantics; it does not copy or toggle both value banks.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c time update reaches timebot; js/allmain.js invokes timebot from the elapsed-time path."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_stat_update_time",
+                "source": "timebot invokes _stat_update_time, which collects only BL_TIME and reports the time field."
+              }
+            ],
+            "tests": [
+              "scripts/display.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/botl.c/status-time-cleared-rules.session.json"
+            ]
+          },
+          {
+            "name": "bot_via_windowport",
+            "implementation": "js/display.js",
+            "symbol": "_collectStatusHilites",
+            "pure": false,
+            "sourceReview": "Read botl.c:962-1168. The JS collector maps the enabled typed fields and sends the selected notification into the two status banks; source-pinned tests cover repaint, repeated-bot and update_all countercases.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "bot",
+                "source": "botl.c bot calls bot_via_windowport; js/display.js bot calls _collectStatusHilites."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "botl.c bot_via_windowport/evaluate_and_notify_windowport collect typed values before notification; js/display.js _collectStatusHilites is invoked by bot() and timebot()."
+              }
+            ],
+            "tests": [
+              "scripts/display-symbols.test.mjs",
+              "scripts/status-field-data.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "stat_update_time",
+            "implementation": "js/display.js",
+            "symbol": "_stat_update_time",
+            "pure": false,
+            "sourceReview": "Read botl.c:1285-1302. Preserve its field write and immediate eval_notify callback without a whole-bank value copy; notification may update both selected-rule/chg members as C does.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "timebot",
+                "source": "botl.c timebot calls stat_update_time; js/display.js timebot invokes _stat_update_time."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "botl.c bot_via_windowport/evaluate_and_notify_windowport collect typed values before notification; js/display.js _collectStatusHilites is invoked by bot() and timebot()."
+              }
+            ],
+            "tests": [
+              "scripts/display.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/botl.c/status-time-cleared-rules.session.json"
+            ]
+          },
+          {
+            "name": "eval_notify_windowport_field",
+            "implementation": "js/display.js",
+            "symbol": "_collectStatusHilites",
+            "pure": false,
+            "sourceReview": "Read botl.c:1493-1620. Keep update_all zero-direction reset, typed comparison/percent/text notification, XP raw-level direction reset, rule identity writes on notification, and curr/prev chg ownership. JS performs this inside the notified-field branch of _collectStatusHilites.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "botl.c bot_via_windowport/evaluate_and_notify_windowport collect typed values before notification; js/display.js _collectStatusHilites is invoked by bot() and timebot()."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_stat_update_time",
+                "source": "stat_update_time calls the field notification callback for BL_TIME; JS time path passes the BL_TIME-only collector."
+              }
+            ],
+            "tests": [
+              "scripts/display-symbols.test.mjs",
+              "scripts/display.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/botl.c/status-time-cleared-rules.session.json"
+            ]
+          },
+          {
+            "name": "evaluate_and_notify_windowport",
+            "implementation": "js/display.js",
+            "symbol": "_collectStatusHilites",
+            "pure": false,
+            "sourceReview": "Read botl.c:1621-1680. Preserve aggregate callback ordering, enabled-field filtering, update_all consumption, and redraw request propagation through the real status collector.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "botl.c bot_via_windowport/evaluate_and_notify_windowport collect typed values before notification; js/display.js _collectStatusHilites is invoked by bot() and timebot()."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "bot",
+                "source": "botl.c bot_via_windowport invokes the aggregate evaluator; JS bot invokes _collectStatusHilites before painting."
+              }
+            ],
+            "tests": [
+              "scripts/display-symbols.test.mjs",
+              "scripts/display.test.mjs",
+              "scripts/status-field-data.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "status_initialize",
+            "implementation": "js/display.js",
+            "symbol": "status_initialize",
+            "pure": false,
+            "sourceReview": "Read botl.c:1683-1721 and callers allmain.c:721, options.c:5350/5389 and polyself.c:123. JS has a full fresh-game initialization path and a reassessment path; both refresh enabled-field state and request update_all/botlx, with initialization invoked after player setup before newgame. Cite the real startup capture and public menu controls only for their observed ranges.",
+            "callers": [
+              {
+                "path": "js/jsmain.js",
+                "symbol": "runSegment",
+                "source": "allmain.c newgame calls status_initialize(FALSE); js/jsmain.js initializes the fresh game after player selection before invoking newgame."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "setStatusHiliteOption",
+                "source": "options.c status hilite options reassess field state; js/options.js setStatusHiliteOption invokes status_initialize."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-lifecycle.test.mjs",
+              "scripts/startup-status-hilites.test.mjs",
+              "scripts/status-field-data.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json",
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json"
+            ]
+          },
+          {
+            "name": "status_finish",
+            "implementation": "js/display.js",
+            "symbol": "status_finish",
+            "pure": false,
+            "sourceReview": "Read botl.c:1723-1755 and save.c:1077-1174; end.c nh_terminate reaches freedynamicdata on nonpanic termination. JS finishTerminatedSegment gates on terminal state outside in_really_done, captures final output first, then clears selected rules and owned status layout/style cache. Wizard stopprint exercises the official terminal caller; constructed fixture separately observes cleanup effects.",
+            "callers": [
+              {
+                "path": "js/jsmain.js",
+                "symbol": "finishTerminatedSegment",
+                "source": "save.c freedynamicdata calls status_finish; end.c nh_terminate reaches freedynamicdata on nonpanic termination; js/jsmain.js invokes status_finish after the final terminal capture."
+              },
+              {
+                "path": "js/jsmain.js",
+                "symbol": "runSegment",
+                "source": "js/jsmain.js runSegment invokes finishTerminatedSegment after gameover terminal completion."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-lifecycle.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "init_blstats",
+            "implementation": "js/display.js",
+            "symbol": "init_blstats",
+            "pure": false,
+            "sourceReview": "Read botl.c:1759-1788. JS initialization creates both status banks, field metadata, timer/change arrays and preserves configured threshold ownership; all-row/both-bank structure is covered by source-derived lifecycle tests and the constructed native init/evaluator/finish fixture, not by a claim of public C parity.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_initialize",
+                "source": "botl.c status_initialize(FALSE) invokes init_blstats once; js/display.js status_initialize invokes init_blstats on the full-init path."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-lifecycle.test.mjs",
+              "scripts/status-field-data.test.mjs",
+              "scripts/startup-status-hilites.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "compare_blstats",
+            "implementation": "js/display.js",
+            "symbol": "_collectStatusHilites",
+            "pure": false,
+            "sourceReview": "Read botl.c:1809-1885. Preserve typed integer/long/unsigned/string comparisons and failure behavior; JS typed values and comparison direction are collected before rule selection.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "botl.c bot_via_windowport/evaluate_and_notify_windowport collect typed values before notification; js/display.js _collectStatusHilites is invoked by bot() and timebot()."
+              },
+              {
+                "path": "js/exper.js",
+                "symbol": "more_experienced",
+                "source": "exper.c more_experienced compares status values through the XP notification path; js/exper.js more_experienced consults exp_percent_changing."
+              }
+            ],
+            "tests": [
+              "scripts/status-field-data.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/level-arrival.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "anything_to_s",
+            "implementation": "js/display.js",
+            "symbol": "_statusFieldData",
+            "pure": false,
+            "sourceReview": "Read botl.c:1886-1929. Preserve typed numeric formatting and string behavior; JS status field data exposes the collected typed/text representation used by the real status line.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_statusFieldData",
+                "source": "botl.c bot_via_windowport formats ANY values for status fields; js/display.js _statusFieldData provides their display and comparison values."
+              }
+            ],
+            "tests": [
+              "scripts/status-field-data.test.mjs",
+              "scripts/display.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "percentage",
+            "implementation": "js/display.js",
+            "symbol": "_statusPercentage",
+            "pure": false,
+            "sourceReview": "Read botl.c:1977-2051. Preserve integer truncation, nonzero-to-one correction, typed widths, and invalid-pointer handling; JS percentage helper is used for corresponding field and XP percentages.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_statusExperiencePercentage",
+                "source": "botl.c exp_percentage delegates to percentage; js/display.js _statusExperiencePercentage delegates to _statusPercentage."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_statusFieldData",
+                "source": "status fields derive percentages through js/display.js _statusFieldData."
+              }
+            ],
+            "tests": [
+              "scripts/status-field-data.test.mjs",
+              "scripts/level-arrival.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "exp_percentage",
+            "implementation": "js/display.js",
+            "symbol": "_statusExperiencePercentage",
+            "pure": false,
+            "sourceReview": "Read botl.c:2052-2089. Preserve level-band XP percentage calculation, the next-level-minus-one 100% case and percentage helper behavior.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "exp_percent_changing",
+                "source": "botl.c exp_percent_changing calls exp_percentage for changed XP; js/display.js exp_percent_changing computes _statusExperiencePercentage."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_statusFieldData",
+                "source": "XP status field collection computes its percentage in _statusFieldData."
+              }
+            ],
+            "tests": [
+              "scripts/level-arrival.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "exp_percent_changing",
+            "implementation": "js/display.js",
+            "symbol": "exp_percent_changing",
+            "pure": true,
+            "sourceReview": "Read botl.c:2090-2130. It compares XP percentage and selected rule without mutating game state; selector call uses literal chg=0 and is used from exper.c more_experienced. Source-pinned tests cover XP percentage changes and direction.",
+            "callers": [
+              {
+                "path": "js/exper.js",
+                "symbol": "more_experienced",
+                "source": "exper.c more_experienced asks exp_percent_changing whether a status redraw is needed; js/exper.js more_experienced calls exp_percent_changing."
+              }
+            ],
+            "tests": [
+              "scripts/level-arrival.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ]
+          },
+          {
+            "name": "hilite_reset_needed",
+            "implementation": "js/display.js",
+            "symbol": "_collectStatusHilites",
+            "pure": true,
+            "sourceReview": "Read botl.c:2257-2278. Preserve the predicate conditions for whether a changed highlight remains held by multi/action timing; JS evaluates the equivalent condition in the field collection/action-hook path.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "C notification pass selects a temporary rule before action timing; JS collector holds a pending temporary selection until action hook."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "status_eval_next_unhilite",
+                "source": "botl.c action-time expiry helper uses the reset predicate; JS status_eval_next_unhilite processes pending bank changes."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-lifecycle.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ]
+          },
+          {
+            "name": "status_eval_next_unhilite",
+            "implementation": "js/display.js",
+            "symbol": "status_eval_next_unhilite",
+            "pure": false,
+            "sourceReview": "Read botl.c:2279-2310. Preserve unconditional redraw when notified changes are consumed, both timer banks, multi hold, time stamps and clearing of chg flags. Production caller is guarded by hilite_delta and runs once after a hero took-time action, not per world turn.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishHeroTimeEffects",
+                "source": "allmain.c calls status_eval_next_unhilite only under hilite_delta after a hero action; js/allmain.js finishHeroTimeEffects uses that same action boundary."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-lifecycle.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/botl.c/status-time-cleared-rules.session.json"
+            ]
+          },
+          {
+            "name": "reset_status_hilites",
+            "implementation": "js/display.js",
+            "symbol": "reset_status_hilites",
+            "pure": false,
+            "sourceReview": "Read botl.c:2321-2335 and options caller. Preserve clearing of both timer banks, selected-rule invalidation and redraw request for configuration reset.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu",
+                "source": "options status menu resets status highlighting after an accepted edit; js/display.js status_hilite_menu calls reset_status_hilites."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-lifecycle.test.mjs",
+              "scripts/status-hilite-menu.test.mjs",
+              "scripts/options.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json"
+            ]
+          },
+          {
+            "name": "noneoftheabove",
+            "implementation": "js/display.js",
+            "symbol": "_noneOfTheAbove",
+            "pure": true,
+            "sourceReview": "Read botl.c:2336-2363 and get_hilite title call site. Preserve accepted aliases and fuzzy matching only in polymorph-title selection; source-pinned tests cover aliases and polymorph gating.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_selectStatusHilite",
+                "source": "botl.c get_hilite calls noneoftheabove for BL_TITLE rules; js/display.js _selectStatusHilite calls _noneOfTheAbove for title matching."
+              }
+            ],
+            "tests": [
+              "scripts/display-symbols.test.mjs",
+              "scripts/status-field-data.test.mjs"
+            ]
+          },
+          {
+            "name": "get_hilite",
+            "implementation": "js/display.js",
+            "symbol": "_selectStatusHilite",
+            "pure": false,
+            "sourceReview": "Read botl.c:2364-2575. Preserve candidate order, rule identity, absolute/percentage/temp/change/critical/text precedence, sentinel and output color. JS selector is called by ordinary field collection only when a field notification/update_all/reset occurs and by XP change assessment with literal zero direction.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "botl.c get_hilite runs inside eval_notify on the notification gate; js/display.js _collectStatusHilites calls _selectStatusHilite only inside that gate."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "exp_percent_changing",
+                "source": "botl.c exp_percent_changing calls get_hilite with chg=0; js/display.js exp_percent_changing selects using literal zero."
+              }
+            ],
+            "tests": [
+              "scripts/display-symbols.test.mjs",
+              "scripts/level-arrival.test.mjs",
+              "scripts/status-field-data.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/botl.c/status-time-cleared-rules.session.json",
+              "recordings/options.c/status-menu-value-change.session.json"
+            ]
+          },
+          {
+            "name": "status_hilite_add_threshold",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_add_threshold",
+            "pure": false,
+            "sourceReview": "Read botl.c:2784-2813. Preserve rule append order and threshold ownership; menu-created rules are added through the status menu adapter.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_add",
+                "source": "options status highlight menu calls status_hilite_add_threshold after accepting rule input; js/display.js status_hilite_menu_add calls the same adapter."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "setStatusHiliteOption",
+                "source": "options setStatusHiliteOption applies configured status rules; js/options.js invokes the rule adapter."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs",
+              "scripts/options.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-value-change.session.json"
+            ]
+          },
+          {
+            "name": "clear_status_hilites",
+            "implementation": "js/options.js",
+            "symbol": "clear_status_hilites",
+            "pure": false,
+            "sourceReview": "Read botl.c:3351-3368 and options.c clear call. Preserve clear semantics for non-condition rules, selected-pointer invalidation and subsequent plain-TIME behavior. The newly imported ordinary clear/TIME recording is replay-qualified at 932ee; the C trace proves the observed TIME2/3/4 fields and bot=0, while clear-helper invocation is source/input inference only.",
+            "callers": [
+              {
+                "path": "js/options.js",
+                "symbol": "setStatusHiliteOption",
+                "source": "options.c status hilite option setter invokes clear_status_hilites on a negative/clear configuration; js/options.js setStatusHiliteOption calls clear_status_hilites."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "_collectStatusHilites",
+                "source": "cleared config is consumed by subsequent status field collection; js/display.js _collectStatusHilites."
+              }
+            ],
+            "tests": [
+              "scripts/options.test.mjs",
+              "scripts/status-hilite-menu.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-cleared-rules.session.json",
+              "recordings/botl.c/status-time-up-rule.session.json"
+            ]
+          },
+          {
+            "name": "status_hilite_remove",
+            "implementation": "js/display.js",
+            "symbol": "status_hilite_remove",
+            "pure": false,
+            "sourceReview": "Read botl.c:4305-4356 and menu caller. Preserve selected-rule and timer cleanup when removing an existing rule; official selected remove and value-add recordings exercise the public menu routes.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "status_hilite_menu_fld",
+                "source": "options status menu removal invokes status_hilite_remove; js/display.js status_hilite_menu_fld handles selection/removal."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "reset_status_hilites",
+                "source": "successful menu changes request rule reset/redraw through reset_status_hilites."
+              }
+            ],
+            "tests": [
+              "scripts/status-hilite-menu.test.mjs",
+              "scripts/options.test.mjs",
+              "scripts/status-hilite-lifecycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/options.c/status-menu-value-change.session.json"
+            ]
+          }
+        ],
+        "entryPointReview": "Mapped all 22 frozen botl.c units to the current JS implementation symbols and source-derived tests. Active C routes reviewed: allmain.c moveloop_core -> bot/timebot -> bot_via_windowport -> field evaluation/notification; allmain.c newgame -> status_initialize(FALSE) -> init_blstats and field enablement; exper.c more_experienced -> exp_percent_changing -> XP selector; options.c status configuration -> clear/add/remove/reset menu adapters; end.c nh_terminate -> save.c freedynamicdata -> status_finish for nonpanic termination. JS routes are js/allmain.js moveloop_core/time updates/action hook, js/jsmain.js fresh-game setup and terminal finalizer, js/exper.js more_experienced, js/options.js status setter, and js/display.js menu/collector helpers. Evidence tiers: official 932ee Healer TIME-up 4/4 frames/cursors and 3046 ordered RNG; official negative-clear/plain-TIME 4/4 and 3046 RNG (the clear-helper invocation is inferred from the recipe/source, not captured internally); options existing-rule remove 59/59 and 2401 RNG, add/value change 55/55 and 2560 RNG; stopprint terminal 10/10 and 2691 RNG. The v97 Tourist XP replay is 5/5 screens/cursors and 4904 RNG at 8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777, so it is historical evidence at that exact commit, not an exact-932ee replay. Constructed native init/finish and timebot observations are diagnostic fixtures only. No public C parity, exhaustive branch coverage, whole-source certification, or independent status_finish internal native teardown capture is claimed. Existing saved JS countercases cover repaint caching, repeated bot before the action hook, update_all, XP direction on level loss, selector precedence/aliases and planning-clone isolation. Unexercised typed-value and selector combinations are coverage limits, not asserted defects. The failed hosted menu path was traced through wintty.c erase_menu_or_text(): docrt_flags() returns before map/status redraw when the player has no map position. JS tty_menu.js now avoids rendering status without initialized game.u and follows botl.c bot() dirty-flag semantics: bot_disabled retains flags; no-player/status_updates-disabled/suppressed paths do not paint and clear them. This is caller behavior supporting the existing bot unit, not a new botl.c function claim.",
+        "entryPoints": [
+          {
+            "name": "ordinary status callback and time update",
+            "functions": [
+              {
+                "sourceFile": "botl.c",
+                "name": "bot"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "timebot"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "stat_update_time"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "eval_notify_windowport_field"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "evaluate_and_notify_windowport"
+              }
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json",
+              "recordings/botl.c/status-time-cleared-rules.session.json"
+            ]
+          },
+          {
+            "name": "fresh game status initialization",
+            "functions": [
+              {
+                "sourceFile": "botl.c",
+                "name": "status_initialize"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "init_blstats"
+              }
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "status configuration menu",
+            "functions": [
+              {
+                "sourceFile": "botl.c",
+                "name": "status_hilite_add_threshold"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "clear_status_hilites"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "status_hilite_remove"
+              }
+            ],
+            "recordings": [
+              "recordings/options.c/status-menu-value-change.session.json",
+              "recordings/options.c/status-menu-existing-view-remove.session.json",
+              "recordings/botl.c/status-time-cleared-rules.session.json"
+            ]
+          },
+          {
+            "name": "nonpanic terminal cleanup",
+            "functions": [
+              {
+                "sourceFile": "botl.c",
+                "name": "status_finish"
+              }
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json"
+            ]
+          },
+          {
+            "name": "XP percentage and rule-selection callback",
+            "functions": [
+              {
+                "sourceFile": "botl.c",
+                "name": "exp_percent_changing"
+              },
+              {
+                "sourceFile": "botl.c",
+                "name": "get_hilite"
+              }
+            ],
+            "recordings": [
+              "recordings/botl.c/status-time-up-rule.session.json"
+            ]
+          }
+        ]
       }
     }
   ]

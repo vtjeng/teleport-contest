@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T06:47:21.845Z",
+  "capturedAt": "2026-10-17T07:45:13.281Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T06:47:21.845Z",
+    "asOf": "2026-10-17T07:45:13.281Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5774,7 +5774,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 80,
+      "mainSupportAssignments": 81,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -161291,6 +161291,204 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:48:41.432Z",
+        "id": "queue:9a3cb595-0cbe-4e46-ab69-612ca6a3b9d0",
+        "type": "queue-complete",
+        "task": "support-status-timebot-public-setup-preflight-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:48:41.432Z",
+        "id": "queue:9a3cb595-0cbe-4e46-ab69-612ca6a3b9d0:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:54:28.043Z",
+        "id": "queue:ec4f4973-219e-46b8-af07-bd7963dba162",
+        "type": "assign",
+        "task": "support-status-timebot-public-evidence-run-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:03:09.261Z",
+        "id": "queue:dba9272c-e773-4ce7-ac86-155278a0ce44",
+        "type": "queue-complete",
+        "task": "support-status-timebot-public-evidence-run-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:03:09.261Z",
+        "id": "queue:dba9272c-e773-4ce7-ac86-155278a0ce44:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:13:49.977Z",
+        "id": "ready-f172288b6b1c392219c3b60c04c6479a43b933ee:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "status-highlight-lifecycle-v97-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-f172288b6b1c392219c3b60c04c6479a43b933ee",
+        "type": "ready",
+        "at": "2026-10-17T07:13:49.977Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "delivery": "f172288b6b1c392219c3b60c04c6479a43b933ee"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:13:49.977Z",
+        "id": "ready-f172288b6b1c392219c3b60c04c6479a43b933ee:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:13:49.977Z",
+        "id": "ready-f172288b6b1c392219c3b60c04c6479a43b933ee:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-status-lifecycle-f172288-20261017",
+        "type": "received",
+        "at": "2026-10-17T07:14:31.667Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "delivery": "f172288b6b1c392219c3b60c04c6479a43b933ee"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-e2cb54b006aa46384a7dce1b3cee091f0340ec5f-b220912c84684a72b5c9e159675d0e1b5d7414417d42ef372964c7d6dece9652-delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "type": "integrating",
+        "at": "2026-10-17T07:14:56.128Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "integration": "e2cb54b006aa46384a7dce1b3cee091f0340ec5f",
+        "validationGroup": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "status-lifecycle-final-candidate-75dce43341814b77c08257d5b2cda30a0f3fcacf",
+        "type": "integrating",
+        "at": "2026-10-17T07:15:19.738Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "integration": "75dce43341814b77c08257d5b2cda30a0f3fcacf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-status-lifecycle-checkpoint-39012966823-delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "type": "feedback",
+        "at": "2026-10-17T07:26:55.529Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "delivery": "f172288b6b1c392219c3b60c04c6479a43b933ee"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:27:13.053Z",
+        "id": "queue:5bc13098-242d-4453-8d76-30bcc30a9203",
+        "type": "assign",
+        "task": "rework:delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae:f172288b6b1c392219c3b60c04c6479a43b933ee",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "f172288b6b1c392219c3b60c04c6479a43b933ee",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-94b0f25ae3310b738cd6642ddc888678ccc2f600",
+        "type": "ready",
+        "at": "2026-10-17T07:34:30.615Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "delivery": "94b0f25ae3310b738cd6642ddc888678ccc2f600"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:34:30.615Z",
+        "id": "ready-94b0f25ae3310b738cd6642ddc888678ccc2f600:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae:f172288b6b1c392219c3b60c04c6479a43b933ee",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:34:30.615Z",
+        "id": "ready-94b0f25ae3310b738cd6642ddc888678ccc2f600:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-status-lifecycle-correction-94b0f25-20261017",
+        "type": "received",
+        "at": "2026-10-17T07:35:19.116Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "delivery": "94b0f25ae3310b738cd6642ddc888678ccc2f600"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-6356d95de5424b681d21f7cc815c5cfeb90a360e-b220912c84684a72b5c9e159675d0e1b5d7414417d42ef372964c7d6dece9652-delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "type": "integrating",
+        "at": "2026-10-17T07:35:25.673Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "integration": "6356d95de5424b681d21f7cc815c5cfeb90a360e",
+        "validationGroup": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "status-lifecycle-hosted-retry-wait-39014218102",
+        "type": "activity",
+        "at": "2026-10-17T07:38:35.334Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "phase": "waiting",
+        "reason": "Corrected status lifecycle candidate is undergoing its exact full hosted checkpoint."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae-6356d95de5424b681d21f7cc815c5cfeb90a360e-validated",
+        "type": "validated",
+        "at": "2026-10-17T07:43:50.946Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae-6356d95de5424b681d21f7cc815c5cfeb90a360e-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T07:44:22.276Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
       }
     ]
   },
@@ -161300,197 +161498,34 @@
     "parkedTasks": []
   },
   "workerReservations": {
-    "tasks": {
-      "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae": {
-        "id": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
-        "worker": "Worker-2",
-        "status": "working",
-        "seed": "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight",
-        "reservations": [
-          "session:synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight",
-          "contract:status-highlight-history",
-          "source:botl.c:bot",
-          "source:botl.c:timebot",
-          "source:botl.c:bot_via_windowport",
-          "source:botl.c:stat_update_time",
-          "source:botl.c:eval_notify_windowport_field",
-          "source:botl.c:evaluate_and_notify_windowport",
-          "source:botl.c:status_initialize",
-          "source:botl.c:status_finish",
-          "source:botl.c:init_blstats",
-          "source:botl.c:compare_blstats",
-          "source:botl.c:anything_to_s",
-          "source:botl.c:percentage",
-          "source:botl.c:exp_percentage",
-          "source:botl.c:exp_percent_changing",
-          "source:botl.c:hilite_reset_needed",
-          "source:botl.c:status_eval_next_unhilite",
-          "source:botl.c:reset_status_hilites",
-          "source:botl.c:noneoftheabove",
-          "source:botl.c:get_hilite",
-          "source:botl.c:status_hilite_add_threshold",
-          "source:botl.c:clear_status_hilites",
-          "source:botl.c:status_hilite_remove"
-        ]
-      }
-    },
-    "reservations": {
-      "session:synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "contract:status-highlight-history": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:bot": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:timebot": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:bot_via_windowport": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:stat_update_time": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:eval_notify_windowport_field": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:evaluate_and_notify_windowport": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:status_initialize": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:status_finish": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:init_blstats": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:compare_blstats": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:anything_to_s": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:percentage": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:exp_percentage": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:exp_percent_changing": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:hilite_reset_needed": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:status_eval_next_unhilite": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:reset_status_hilites": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:noneoftheabove": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:get_hilite": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:status_hilite_add_threshold": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:clear_status_hilites": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      },
-      "source:botl.c:status_hilite_remove": {
-        "tasks": [
-          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
-        ]
-      }
-    }
+    "tasks": {},
+    "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
-        "worker": "Worker-2"
-      },
-      {
-        "task": "support-status-timebot-public-setup-preflight-20261017",
-        "worker": "Worker-1"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 2,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 303,
+      "completed": 307,
       "superseded": 64
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "support-status-timebot-public-setup-preflight-20261017",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
@@ -166899,7 +166934,7 @@
         "id": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
@@ -166910,7 +166945,7 @@
         "target": null,
         "readyAt": "2026-10-17T04:39:54.120Z",
         "claimedAt": "2026-10-17T04:42:09.248Z",
-        "completedAt": null
+        "completedAt": "2026-10-17T07:13:49.977Z"
       },
       {
         "id": "headless-eyewear-c-only-feasibility-20261017",
@@ -167053,7 +167088,7 @@
         "id": "support-status-timebot-public-setup-preflight-20261017",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -167062,13 +167097,45 @@
         "target": null,
         "readyAt": "2026-10-17T06:42:16.307Z",
         "claimedAt": "2026-10-17T06:42:36.067Z",
-        "completedAt": null
+        "completedAt": "2026-10-17T06:48:41.432Z"
+      },
+      {
+        "id": "support-status-timebot-public-evidence-run-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T06:54:04.999Z",
+        "claimedAt": "2026-10-17T06:54:28.043Z",
+        "completedAt": "2026-10-17T07:03:09.261Z"
+      },
+      {
+        "id": "rework:delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae:f172288b6b1c392219c3b60c04c6479a43b933ee",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight"
+        ],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "f172288b6b1c392219c3b60c04c6479a43b933ee",
+        "readyAt": "2026-10-17T07:26:55.529Z",
+        "claimedAt": "2026-10-17T07:27:13.053Z",
+        "completedAt": "2026-10-17T07:34:30.615Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "d99ab0d96ffe4a4c36d4195ce96a748029dd6e5e",
-    "measuredAt": "2026-10-17T06:26:41.644Z",
+    "executionCommit": "6356d95de5424b681d21f7cc815c5cfeb90a360e",
+    "measuredAt": "2026-10-17T07:40:45.650Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
