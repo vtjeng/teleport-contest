@@ -225,3 +225,9 @@ a useful case; discovery yield and coordination effects remain unmeasured.
   and ledger bytes unchanged. Hosted validation, first canonical successor
   assignment and elapsed handoff benefit are initially unmeasured. Existing
   C evidence, comparison, replay, acceptance and admission gates remain intact.
+
+### 2026-10-17 follow-up — Use the unsubmitted v96 batch for the saved case
+
+Vincent explicitly chose to place the saved qualifying case in unsubmitted v96, preserving the exhausted attempts and original v97 delivery. Prep97's earlier supported assignment remains historical; its wrapper is explicitly parked and immutable delivery d504e3f is unchanged. The additional gap-admission bridge (PA fae18209e, preserved candidate 4b8c8d969) remains unvalidated and unpublished. Its CLI failed with an unsettled top-level-await cycle before writing a receipt; no further bridge fix or gameplay run was made.
+
+The original v96 transport is resumed through the existing contiguous admission path. Its old assignment base and attempts remain intact; the new delivery uses explicit accepted base 520b47b so only the two newly namespaced case files are submitted. Recipe and recording bytes remain identical to the frozen evidence, with the v97 wrapper linked and left unadmitted. Count the case once. Hosted validation, admission, publication and any handoff benefit remain pending. This follows the earlier [continuation decision](#2026-10-17--explicit-continuation-after-exhausted-parked-preparation) without rewriting that history.
