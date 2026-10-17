@@ -1323,6 +1323,37 @@ test('pickup defers planning through the source partial-stack lift path', async 
     assert.notEqual(state.invent, arrows);
 });
 
+test('pickup resolves a heavy multi-selection in source row order', async () => {
+    const state = await heroOnAnEmptySquare();
+    state.flags.pickup = true;
+    quiet(state);
+
+    // The head row is the oversized arrow stack. Its partial lift is declined
+    // at the ordinary burden prompt; C then continues to the selected dagger.
+    const dagger = typedObjectUnderHero(state, ELVEN_DAGGER);
+    const arrows = typedObjectUnderHero(state, ELVEN_ARROW);
+    arrows.quan = 5000;
+    arrows.owt = weight(arrows, { state });
+    const floorHead = arrows;
+    const floorTail = dagger;
+
+    // Select both rows, confirm, dismiss carry_count()'s More, then decline
+    // the burden prompt with n. C continues to the next selected row.
+    state.nhDisplay.pushKey('a'.charCodeAt(0));
+    state.nhDisplay.pushKey('b'.charCodeAt(0));
+    state.nhDisplay.pushKey('\r'.charCodeAt(0));
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.nhDisplay.pushKey('n'.charCodeAt(0));
+
+    assert.equal(await pickup(0, state), 1);
+    assert.equal(arrows.where, OBJ_FLOOR);
+    assert.equal(arrows.quan, 5000);
+    assert.equal(dagger.where, OBJ_INVENT);
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], floorHead);
+    assert.equal(floorHead.nexthere, null);
+    assert.equal(floorTail.where, OBJ_INVENT);
+});
+
 test('carry_count prints its C partial-lift and zero-lift branches', async () => {
     const cSource = await readFile(
         new URL('../nethack-c/upstream/src/pickup.c', import.meta.url),
