@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 97101739,
+      "datetime": "20711017151500",
+      "nethackrc": "OPTIONS=name:DepthXp,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=pauper\nOPTIONS=pettype:none,!autopickup,!legacy,!tutorial,!splash_screen,time,!showexp,statushilites:10\nOPTIONS=hilite_status:experience-level/<=0%/red/>0%/green\n",
+      "moves": "i\u00162\n"
+    }
+  ]
+}
