@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "batch": "v96",
+  "comparisonBase": "d20a0846c2570ca4b7ac73fae462d0b5e1d1679c",
+  "preparationComparisonBase": "d20a0846c2570ca4b7ac73fae462d0b5e1d1679c",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v96-fumbling-stair-fall-wielded-corpse-selftouch",
+      "title": "A fumbling downstairs fall touches a wielded cockatrice corpse",
+      "mission": "Ordinary healthy human, gloved and wielding one fresh cockatrice corpse, sets public timed Fumbling after controlled arrival on an existing downstairs, then makes one ordinary descent.",
+      "recipe": "challenges/cases/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch.recipe.session.json",
+      "recipeSha256": "6db9c998cefc86ceaebc6653c5463f28216c9adbd6daf94fed6cbfd97faa7f35",
+      "recording": "challenges/cases/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch.session.json",
+      "recordingSha256": "81bd890d56799959e5a9a97ed6cad76034ccf7aa5a398e9c72d254a6d3fee892",
+      "reproducibility": "One independent unchanged input-only C replay exited0; recipe and all482484 Ccapture bytes exactly equal, SHA81bd890d56799959e5a9a97ed6cad76034ccf7aa5a398e9c72d254a6d3fee892. Everyphysicalprefix retained. No C after requiredreplay/oneJScomparison.",
+      "sourcePointers": [
+        "do.c:goto_level1780–1796",
+        "trap.c:selftouch3883–3898",
+        "js/do.js:goto_level3071–3074",
+        "js/trap.js:selftouch420"
+      ],
+      "sourceTrace": "C ordinary unpunished onfoot downstairs Fumbling branch loses rnd3 HP then calls selftouch. Gloved wielding legally acquires corpse; selftouch initial petrifying-corpse predicate ignoresgloves and prints contact before instapetrify. Current JScalls note_unported rather than existing canonical selftouch. All earlier148minus1frames and all4892RNG match; final contacttext is absent in JS. No completedpetrification/death assertion.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 147,
+        "key": ">",
+        "kind": "screen",
+        "row": 0,
+        "column": 25,
+        "owner": "do.c:goto_level ordinary stair fall selftouch caller",
+        "c": " ",
+        "js": "-"
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4892,
+            "js": 4892
+          },
+          "screens": {
+            "c": 148,
+            "js": 148
+          },
+          "cursors": {
+            "c": 148,
+            "js": 148
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 147,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 147,
+            "key": ">"
+          },
+          "kind": "ch",
+          "row": 0,
+          "column": 25,
+          "cCell": {
+            "ch": " ",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          },
+          "jsCell": {
+            "ch": "-",
+            "color": 8,
+            "attr": 0,
+            "decgfx": 0
+          }
+        },
+        "cursorMismatch": {
+          "index": 147,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 147,
+            "key": ">"
+          },
+          "cCursor": [
+            76,
+            0,
+            1
+          ],
+          "jsCursor": [
+            33,
+            0,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "d20a0846c2570ca4b7ac73fae462d0b5e1d1679c",
+          "recordingSha256": "81bd890d56799959e5a9a97ed6cad76034ccf7aa5a398e9c72d254a6d3fee892"
+        }
+      },
+      "independentReplay": {
+        "recipeSha256": "6db9c998cefc86ceaebc6653c5463f28216c9adbd6daf94fed6cbfd97faa7f35",
+        "recordingSha256": "81bd890d56799959e5a9a97ed6cad76034ccf7aa5a398e9c72d254a6d3fee892",
+        "replaySha256": "81bd890d56799959e5a9a97ed6cad76034ccf7aa5a398e9c72d254a6d3fee892",
+        "byteIdentical": true,
+        "sourceCommit": "16ff59115315917b93185d026aeefea06db9b0f4"
+      },
+      "overlap": {
+        "review": "Full15436indexedraw+341savedrecursivepackets/1164840actualsteps;25relatedfall/contacthits,0integrityerrors. Allactualstairfallsegments lacked cockatrice/chickatricecorpse context; related resistance-loss/pit helper witnesses and v56 timeoutfloorcorpse caller distinguished.3unrelated malformedrecipes preserved; no external/unindexedabsencecertificate. IndependentWL109payload/source/replay/knowncausequalification approved before submission.",
+        "sourceOwnership": "Closed ordinarygoto_level fallingstairs scope; parked punished/specialtransit and getposlocationcycle/GFILTER_VIEW entries excluded. No wholehelper/transit certification."
+      },
+      "evidenceEnvelopeSha256": "71d98d62fad470d96132090f56f365cf477e48c1ce4d15323f4cbe680c0c91dc",
+      "comparisonReceiptMeaning": "Original ONE directJScomparison exit1/passedfalse. Post-run packaging adds framing/provenacceptedcommit+recordinghash only; original result/command/stdout/exits immutable. No newexecution implied."
+    }
+  ]
+}
