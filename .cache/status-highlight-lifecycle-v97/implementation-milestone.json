@@ -271,7 +271,7 @@
     "focusedVerificationAt": "2026-10-17T04:58:42Z",
     "firstMilestoneDeadline": "2026-10-17T05:42:09.248Z"
   },
-  "latestImplementationCommit": "28f66dc6888f89d103cdc1de42864fafc1491a66",
+  "latestImplementationCommit": "8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777",
   "reviewContinuation": {
     "reviewReceipt": "/workspace/teleport-contest/.cache/xp-status-production-feasibility/implementation-milestone-review.json",
     "reviewReceiptSha256": "0e4eb5f0ee394e1a4026763a34938cf3b446fa8d33b7e963bedfc28589924cfe",
@@ -427,12 +427,9 @@
     ]
   },
   "planningIsolationFinding": {
-    "status": "concrete blocker; fix not authorized in current path set",
-    "source": "js/unported_monster_actions.js:734 planningState shallow-copies gb without cloning status_hilite_times/status_hilite_chg_banks",
-    "writer": "js/allmain.js:524 finishHeroTimeEffects invokes status_eval_next_unhilite on planned state when hilite_delta is enabled; it writes timer/chg banks and can mutate live arrays through aliases",
-    "existingTest": "scripts/allmain-turn.test.mjs:2876 planned finished meal checks no repaint/status refresh, but not bank aliases",
-    "requiredScopedFix": "clone nested status bank arrays and ensure cloned gb selected-rule pointers refer to cloned iflags rule objects; preserve status_hilite_chg alias to bank 0",
-    "authorization": "awaiting lead scope authorization for planner adapter path"
+    "status": "fixed in continuation commit",
+    "source": "js/unported_monster_actions.js planningState() and js/allmain.js:512-525 finishHeroTimeEffects()",
+    "regression": "scripts/allmain-turn.test.mjs planned hero action isolates status banks and cloned rule identity"
   },
   "actionBoundaryEvidence": {
     "source": "js/allmain.js:512-525 finishHeroTimeEffects calls status_eval_next_unhilite after each hero took-time action when hilite_delta enabled; this is not an elapsed world-turn hook",
@@ -442,9 +439,11 @@
     ]
   },
   "milestoneDisposition": {
-    "status": "partial-unaccepted",
-    "submit": "do not submit as complete",
-    "remaining": "planner clone bank alias is a known implementation gap blocked on path authorization; public ordinary callback/menu coverage and dedicated repaint/repeated-bot/update_all C runtime cases remain evidence gaps. v97 replay is bound to earlier evaluated commit and not proof for latest runtime commit. Full regression is hosted gate after complete delivery; no independent source certification claimed."
+    "status": "partial-unaccepted; planner isolation correction implemented in authorized continuation",
+    "submit": "do not submit as complete without normal delivery/hosted gate decision",
+    "remaining": "Dedicated C repaint/repeated-bot/update_all runtime comparisons and broader ordinary callback/menu evidence remain unclosed. Earlier public Tourist replay at e6f was stale for latest runtime; a new replay now passes at exact continuation commit 8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777. No known planner clone-bank alias remains after the scoped fix. Full regression and acceptance remain lead/hosted gates.",
+    "activeEffortSeconds": null,
+    "activeEffortStatus": "unknown; not instrumented"
   },
   "candidateFreeze": {
     "codeCommit": "28f66dc6888f89d103cdc1de42864fafc1491a66",
@@ -453,5 +452,85 @@
     "continuationDeadline": "2026-10-17T05:57:09.248Z",
     "activeEffortSeconds": null,
     "activeEffortStatus": "unknown; not instrumented"
+  },
+  "plannerIsolationContinuation": {
+    "authorizedScopeEvent": "scope-status-lifecycle-planner-isolation-continuation-20261017",
+    "authorizedPath": "js/unported_monster_actions.js",
+    "existingTestPath": "scripts/allmain-turn.test.mjs",
+    "continuationStartedNoEarlierThan": "2026-10-17T05:42:46.491Z",
+    "continuationDeadline": "2026-10-17T05:57:09.248Z",
+    "implementationCommit": "8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777",
+    "changes": [
+      "Clone each nested status highlight bank row in planningState",
+      "Map selected rule pointers to the corresponding cloned iflags.status_hilites entry",
+      "Preserve gb.status_hilite_chg as an alias of cloned status_hilite_chg_banks[0]"
+    ],
+    "regression": "planned hero action isolates status banks and cloned rule identity; freezes live banks, checks clone identity and alias, calls finishHeroTimeEffects on clone, and asserts clone timers/chg/redraw change while every live bank remains unchanged",
+    "knownGapStatus": "planner array alias gap fixed; ordinary callback/menu and dedicated C repaint/repeated-bot/update_all evidence remains unclosed; overall task remains partial/unaccepted pending normal delivery and hosted gates",
+    "activeEffortSeconds": null,
+    "activeEffortStatus": "unknown; not instrumented"
+  },
+  "continuationChecks": {
+    "targetedActionBoundaryTests": {
+      "status": "pass",
+      "passed": 3,
+      "failed": 0,
+      "command": "node --test --test-name-pattern='temporary status expiry accounting|planned hero action isolates status banks|a planned finished meal refreshes no status line' scripts/allmain-turn.test.mjs"
+    },
+    "allmainTurnSuite": {
+      "status": "pass",
+      "passed": 70,
+      "failed": 0,
+      "command": "node --test scripts/allmain-turn.test.mjs"
+    },
+    "plannerSuite": {
+      "status": "pass",
+      "passed": 141,
+      "failed": 0,
+      "command": "node --test scripts/unported-monster-actions.test.mjs"
+    },
+    "lint": "pass",
+    "gitDiffCheck": "pass",
+    "latestPublicJsReplay": {
+      "kind": "status-planner-continuation-v97-replay",
+      "codeCommit": "8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777",
+      "command": "node scripts/score-challenges.mjs --batch v97 --output challenges/evaluations/worker2-planner-continuation-v97.json",
+      "exitCode": 0,
+      "completedAt": "2026-10-17T05:45:19.636Z",
+      "evaluationPath": "challenges/evaluations/worker2-planner-continuation-v97.json",
+      "evaluationSha256": "7031cc2046081e5977afbf87d15f75709cf435fd7d63605207ed3d6c38fefaf6",
+      "evaluationStatus": "complete",
+      "case": "v97-tourist-first-new-depth-xp-percent-highlight",
+      "casePassed": true,
+      "totals": {
+        "sessions": {
+          "matched": 1,
+          "total": 1
+        },
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 4904,
+          "total": 4904
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
+      "inputsSha256": "25eedeac6b3d8606848075b377b5a5b02cd326e278bdfd33e735d96e0bc569fd",
+      "logPath": ".cache/status-highlight-lifecycle-v97/v97-after-planner.log",
+      "logSha256": "9bc35850a51cf565fb81f32cbd9c7ce7089deaa70b5b1ca1392be739deb18c53",
+      "limitations": "JS replay at exact planner-fix commit; not public C parity."
+    }
+  },
+  "plannerIsolationFinding": {
+    "status": "fixed in continuation commit",
+    "source": "js/unported_monster_actions.js planningState(); action-boundary hook js/allmain.js:512-525",
+    "requiredBehavior": "Nested status bank arrays are cloned; selected rule pointers refer to corresponding cloned iflags.status_hilites entries; status_hilite_chg aliases cloned bank 0",
+    "test": "scripts/allmain-turn.test.mjs planned hero action isolates status banks and cloned rule identity"
   }
 }

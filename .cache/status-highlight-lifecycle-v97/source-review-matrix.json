@@ -123,5 +123,62 @@
     "evaluatedCommit": "e6f00292d9e0ad38b4e61698b8b7dde3f483eccb",
     "result": "5/5 screens, 5/5 cursors, 4904/4904 ordered RNG",
     "latestRuntimeProof": false
+  },
+  "plannerIsolationContinuation": {
+    "authorizedScopeEvent": "scope-status-lifecycle-planner-isolation-continuation-20261017",
+    "authorizedPath": "js/unported_monster_actions.js",
+    "existingTestPath": "scripts/allmain-turn.test.mjs",
+    "continuationStartedNoEarlierThan": "2026-10-17T05:42:46.491Z",
+    "continuationDeadline": "2026-10-17T05:57:09.248Z",
+    "implementationCommit": "8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777",
+    "changes": [
+      "Clone each nested status highlight bank row in planningState",
+      "Map selected rule pointers to the corresponding cloned iflags.status_hilites entry",
+      "Preserve gb.status_hilite_chg as an alias of cloned status_hilite_chg_banks[0]"
+    ],
+    "regression": "planned hero action isolates status banks and cloned rule identity; freezes live banks, checks clone identity and alias, calls finishHeroTimeEffects on clone, and asserts clone timers/chg/redraw change while every live bank remains unchanged",
+    "knownGapStatus": "planner array alias gap fixed; ordinary callback/menu and dedicated C repaint/repeated-bot/update_all evidence remains unclosed; overall task remains partial/unaccepted pending normal delivery and hosted gates",
+    "activeEffortSeconds": null,
+    "activeEffortStatus": "unknown; not instrumented"
+  },
+  "latestPublicJsReplay": {
+    "kind": "status-planner-continuation-v97-replay",
+    "codeCommit": "8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777",
+    "command": "node scripts/score-challenges.mjs --batch v97 --output challenges/evaluations/worker2-planner-continuation-v97.json",
+    "exitCode": 0,
+    "completedAt": "2026-10-17T05:45:19.636Z",
+    "evaluationPath": "challenges/evaluations/worker2-planner-continuation-v97.json",
+    "evaluationSha256": "7031cc2046081e5977afbf87d15f75709cf435fd7d63605207ed3d6c38fefaf6",
+    "evaluationStatus": "complete",
+    "case": "v97-tourist-first-new-depth-xp-percent-highlight",
+    "casePassed": true,
+    "totals": {
+      "sessions": {
+        "matched": 1,
+        "total": 1
+      },
+      "screens": {
+        "matched": 5,
+        "total": 5
+      },
+      "rng": {
+        "matched": 4904,
+        "total": 4904
+      },
+      "cursors": {
+        "matched": 5,
+        "total": 5
+      }
+    },
+    "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
+    "inputsSha256": "25eedeac6b3d8606848075b377b5a5b02cd326e278bdfd33e735d96e0bc569fd",
+    "logPath": ".cache/status-highlight-lifecycle-v97/v97-after-planner.log",
+    "logSha256": "9bc35850a51cf565fb81f32cbd9c7ce7089deaa70b5b1ca1392be739deb18c53",
+    "limitations": "JS replay at exact planner-fix commit; not public C parity."
+  },
+  "planningIsolationFinding": {
+    "status": "fixed in continuation commit",
+    "implementationCommit": "8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777",
+    "test": "scripts/allmain-turn.test.mjs planned hero action isolates status banks and cloned rule identity"
   }
 }
