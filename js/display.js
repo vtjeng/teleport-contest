@@ -5556,6 +5556,7 @@ function statusLayouts({ initialTtyRefresh = false } = {}) {
     // stores inv_weight()'s result in gw.wc, so layout retries and highlight
     // selection must reuse this snapshot rather than recomputing live state.
     const capacity = game.u ? near_capacity(game) : 0;
+    game._statusCapacitySnapshot = capacity;
     return count === 3
         ? [
             _statusLine1Layout(false),
@@ -5699,13 +5700,23 @@ function _statusFieldData(field, valueSnapshot = null) {
             text: enc_stat[capacity] ?? '',
         };
     }
-    case 'gold': return { value: money_cnt(game.invent) };
+    case 'gold': {
+        const raw = money_cnt(game.invent);
+        return { value: Math.min(raw, 999999), compareValue: raw };
+    }
     case 'power':
+        {
+            const raw = u?.uen ?? 0;
         return {
-            value: u?.uen ?? 0,
-            percent: _statusPercentage(u?.uen ?? 0, u?.uenmax ?? 0),
+                value: Math.min(raw, 9999),
+                compareValue: raw,
+                percent: _statusPercentage(raw, u?.uenmax ?? 0),
         };
-    case 'power-max': return { value: u?.uenmax ?? 0 };
+        }
+    case 'power-max': {
+        const raw = u?.uenmax ?? 0;
+        return { value: Math.min(raw, 9999), compareValue: raw };
+    }
     case 'experience-level':
         return {
             value: u?.ulevel ?? 1,
@@ -5723,11 +5734,18 @@ function _statusFieldData(field, valueSnapshot = null) {
             text: hungerStatusField(u?.uhs ?? NOT_HUNGRY) ?? '',
         };
     case 'hitpoints':
+        {
+            const raw = _statusHitPoints(u);
         return {
-            value: _statusHitPoints(u),
-            percent: _statusPercentage(_statusHitPoints(u), _statusMaxHitPoints(u)),
+                value: Math.min(raw, 9999),
+                compareValue: raw,
+                percent: _statusPercentage(raw, _statusMaxHitPoints(u)),
         };
-    case 'hitpoints-max': return { value: _statusMaxHitPoints(u) };
+        }
+    case 'hitpoints-max': {
+        const raw = _statusMaxHitPoints(u);
+        return { value: Math.min(raw, 9999), compareValue: raw };
+    }
     case 'dungeon-level': return { text: _statusLevelDescription(u) };
     case 'experience':
         return {
@@ -5763,133 +5781,214 @@ function _statusRelationMatches(actual, relation, threshold) {
     }
 }
 
-// C ref: botl.c:get_hilite(). Initial status has no up/down transition, but
-// persistent percentage, absolute, text, always, and critical rules retain
-// the source best-fit precedence.
-function _statusFieldStyle(field, valueSnapshot = null) {
-    if (!game.iflags?.hilite_delta) return null;
+// Read-only TTY painting consumes the selection made by the status
+// notification pass. Plain flush_screen repaints never advance this history.
+function _statusFieldStyle(field) {
     const fieldRow = STATUS_FIELDS.find(row => row.key === field);
     if (!fieldRow) return null;
-    const gb = game.gb ??= {};
-    const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
-    for (const name of ['status_hilite_rule', 'status_hilite_value',
-        'status_hilite_percent', 'status_hilite_text']) {
-        gb[name] ??= [Array(size).fill(null), Array(size).fill(null)];
-        for (let bank = 0; bank < 2; ++bank)
-            gb[name][bank] ??= Array(size).fill(null);
+    return game.gb?.status_hilite_rule?.[0]?.[fieldRow.fld]?.style ?? null;
+}
+
+function _statusHiliteChangeBanks(gb, size) {
+    if (!gb.status_hilite_chg_banks) {
+        const prior = Array.isArray(gb.status_hilite_chg)
+            ? gb.status_hilite_chg : [];
+        gb.status_hilite_chg_banks = [
+            Array.from({ length: size }, (_, i) => Boolean(prior[i])),
+            Array.from({ length: size }, (_, i) => Boolean(prior[i])),
+        ];
     }
-    if (game._statusHiliteOnlyField && game._statusHiliteOnlyField !== field) {
-        return gb.status_hilite_rule[0][fieldRow.fld]?.style ?? null;
-    }
-    const previousValue = gb.status_hilite_value[1][fieldRow.fld];
-    const previousPercent = gb.status_hilite_percent[1][fieldRow.fld];
-    const previousText = gb.status_hilite_text[1][fieldRow.fld];
-    const previousRule = gb.status_hilite_rule[1][fieldRow.fld];
-    const data = _statusFieldData(field, valueSnapshot);
-    let change = previousValue == null || data.value == null
-        ? 0 : Math.sign(data.value - previousValue);
-    if (data.value == null && data.text != null && previousText != null
-        && data.text !== previousText)
-        change = data.text < previousText ? -1 : 1;
-    if (data.percent != null && previousPercent != null
-        && data.percent !== previousPercent)
-        change = Math.sign(data.percent - previousPercent);
-    // C eval_notify_windowport_field() changes chg from a percentage delta
-    // back to compare_blstats() for BL_XP, whose raw value is the level.
-    if (field === 'experience-level' && previousValue != null
-        && data.value === previousValue)
-        change = 0;
-    if (game._statusHiliteUpdateAll) change = 0;
-    const unchanged = previousValue === (data.value ?? null)
-        && previousPercent === (data.percent ?? null)
-        && previousText === (data.text ?? null);
-    const until = gb.status_hilite_times?.[0]?.[fieldRow.fld] ?? 0;
-    const pendingChanged = Boolean(gb.status_hilite_chg?.[fieldRow.fld]);
-    const holdTemporary = !game._statusHiliteUpdateAll && unchanged
-        && previousRule?.behavior === 'changed'
-        && (pendingChanged || game.multi
-            || (until > 0 && (game.moves ?? 0) <= until));
-    const selected = holdTemporary
-        ? previousRule : _selectStatusHilite(field, data, change);
-    gb.status_hilite_rule[0][fieldRow.fld] = selected;
-    gb.status_hilite_rule[1][fieldRow.fld] = selected;
-    gb.status_hilite_value[0][fieldRow.fld] = data.value ?? null;
-    gb.status_hilite_percent[0][fieldRow.fld] = data.percent ?? null;
-    gb.status_hilite_text[0][fieldRow.fld] = data.text ?? null;
-    if (previousValue !== (data.value ?? null)
-        || previousPercent !== (data.percent ?? null)
-        || previousText !== (data.text ?? null)
-        || previousRule !== selected) {
-        gb.status_hilite_chg ??= Array(size).fill(false);
-        gb.status_hilite_chg[fieldRow.fld] = true;
-    }
-    return selected?.style ?? null;
+    gb.status_hilite_chg_banks[0] ??= Array(size).fill(false);
+    gb.status_hilite_chg_banks[1] ??= Array(size).fill(false);
+    gb.status_hilite_chg = gb.status_hilite_chg_banks[0];
+    return gb.status_hilite_chg_banks;
+}
+
+function _setStatusHiliteChange(gb, fld, value) {
+    const banks = _statusHiliteChangeBanks(gb,
+        Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1);
+    banks[0][fld] = value;
+    banks[1][fld] = value;
 }
 
 function _beginStatusHilitePass(onlyField = null) {
     const gb = game.gb ??= {};
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
     for (const name of ['status_hilite_rule', 'status_hilite_value',
-        'status_hilite_percent', 'status_hilite_text']) {
+        'status_hilite_compare_value', 'status_hilite_percent',
+        'status_hilite_text', 'status_hilite_type']) {
         gb[name] ??= [Array(size).fill(null), Array(size).fill(null)];
         gb[name][0] ??= Array(size).fill(null);
         gb[name][1] ??= Array(size).fill(null);
-        if (onlyField) {
-            const fld = STATUS_FIELDS.find(row => row.key === onlyField)?.fld;
-            if (fld != null) gb[name][1][fld] = gb[name][0][fld];
-        } else {
+        if (!onlyField) {
             gb[name][1] = [...gb[name][0]];
         }
     }
     game.gb.status_hilite_times ??= [Array(size).fill(0), Array(size).fill(0)];
     game.gb.status_hilite_times[0] ??= Array(size).fill(0);
     game.gb.status_hilite_times[1] ??= Array(size).fill(0);
-    game.gb.status_hilite_chg ??= Array(size).fill(false);
+    const chgBanks = _statusHiliteChangeBanks(game.gb, size);
+    if (!onlyField) chgBanks[1] = [...chgBanks[0]];
     game._statusHiliteUpdateAll = !onlyField && Boolean(game.gu?.update_all);
-    if (onlyField) {
-        const fld = STATUS_FIELDS.find(row => row.key === onlyField)?.fld;
-        if (fld != null) {
-            game.gb.status_hilite_times[1][fld]
-                = game.gb.status_hilite_times[0][fld];
-        }
-    } else {
+    if (!onlyField) {
         game.gb.status_hilite_times[1] = [...game.gb.status_hilite_times[0]];
         if (game._statusHiliteUpdateAll) {
             game.gb.status_hilite_times[0].fill(0);
             game.gb.status_hilite_times[1].fill(0);
+            for (const field of STATUS_FIELDS) {
+                if (_statusFieldEnabled(field, game))
+                    _setStatusHiliteChange(game.gb, field.fld, true);
+            }
         }
     }
     game._statusHiliteOnlyField = onlyField;
+}
+
+function _statusFieldEnabled(field, state) {
+    const polymorphed = Boolean(state.u && Upolyd(state.u));
+    switch (field.key) {
+    case 'score': return Boolean(state.flags?.showscore);
+    case 'time': return Boolean(state.flags?.time);
+    case 'experience': return Boolean(state.flags?.showexp) && !polymorphed;
+    case 'experience-level': return !polymorphed;
+    case 'hd': return polymorphed;
+    case 'version': return Boolean(state.flags?.showvers);
+    case 'weapon': return Boolean(state.flags?.weaponstatus);
+    case 'armor': return Boolean(state.flags?.armorstatus);
+    case 'terrain': return Boolean(state.flags?.terrainstatus);
+    default: return true;
+    }
+}
+
+// C ref: bot_via_windowport() plus evaluate_and_notify_windowport(). Collect
+// every enabled typed field once per bot notification; status painting only
+// consumes these delivered banks. `onlyField` is the timebot fast path.
+function _collectStatusHilites(layouts, onlyField = null) {
+    const gb = game.gb ??= {};
+    const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
+    for (const name of ['status_hilite_rule', 'status_hilite_value',
+        'status_hilite_compare_value', 'status_hilite_percent',
+        'status_hilite_text', 'status_hilite_type']) {
+        gb[name] ??= [Array(size).fill(null), Array(size).fill(null)];
+        gb[name][0] ??= Array(size).fill(null);
+        gb[name][1] ??= Array(size).fill(null);
+    }
+    _statusHiliteChangeBanks(gb, size);
+    const updateAll = Boolean(game._statusHiliteUpdateAll && !onlyField);
+    const activeConditions = new Set();
+    for (const layout of layouts) {
+        for (const owner of layout.owners ?? []) {
+            if (owner?.kind === 'condition') activeConditions.add(owner.option);
+        }
+    }
+    const conditionField = STATUS_FIELDS.find(row => row.key === 'condition');
+    if (conditionField && (!onlyField || onlyField === 'condition')) {
+        const fld = conditionField.fld;
+        const previous = gb.status_hilite_text[1][fld];
+        const current = [...activeConditions].sort().join('\u0000');
+        gb.status_hilite_type[0][fld] = conditionField.type;
+        gb.status_hilite_type[1][fld] = conditionField.type;
+        gb.status_hilite_text[0][fld] = current;
+        if (updateAll || previous !== current)
+            _setStatusHiliteChange(gb, fld, true);
+    }
+    for (const field of STATUS_FIELDS) {
+        if (field.key === 'condition' || !_statusFieldEnabled(field, game)
+            || (onlyField && field.key !== onlyField)) continue;
+        const fld = field.fld;
+        const data = _statusFieldData(field.key,
+            field.key === 'carrying-capacity'
+                ? game._statusCapacitySnapshot : null);
+        const value = data.value ?? null;
+        const compareValue = data.compareValue ?? value;
+        const percent = data.percent ?? null;
+        const text = data.text ?? null;
+        const previousValue = gb.status_hilite_value[1][fld];
+        const previousCompareValue = gb.status_hilite_compare_value[1][fld];
+        const previousPercent = gb.status_hilite_percent[1][fld];
+        const previousText = gb.status_hilite_text[1][fld];
+        const previousRule = gb.status_hilite_rule[1][fld];
+        const changed = previousCompareValue !== compareValue
+            || previousPercent !== percent || previousText !== text;
+        const until = gb.status_hilite_times?.[0]?.[fld] ?? 0;
+        const expired = !updateAll && !game.multi && until > 0
+            && until < (game.moves ?? 0)
+            && previousRule?.behavior === 'changed';
+        if (expired) {
+            gb.status_hilite_times[0][fld] = 0;
+            gb.status_hilite_times[1][fld] = 0;
+        }
+        const notification = updateAll || changed || expired;
+        let change = previousCompareValue == null || compareValue == null
+            ? 0 : Math.sign(compareValue - previousCompareValue);
+        if (data.value == null && text != null && previousText != null
+            && text !== previousText)
+            change = text < previousText ? -1 : 1;
+        if (percent != null && previousPercent != null
+            && percent !== previousPercent)
+            change = Math.sign(percent - previousPercent);
+        // BL_XP uses a percentage to decide whether to notify, then resets
+        // chg to compare_blstats() on its level value.
+        if (field.key === 'experience-level'
+            && previousCompareValue != null
+            && compareValue === previousCompareValue)
+            change = 0;
+        if (updateAll) change = 0;
+        const unchanged = previousValue === value
+            && previousCompareValue === compareValue
+            && previousPercent === percent && previousText === text;
+        const pendingChanged = Boolean(gb.status_hilite_chg_banks[0][fld]);
+        const holdTemporary = !updateAll && unchanged
+            && previousRule?.behavior === 'changed'
+            && (pendingChanged || game.multi
+                || (until > 0 && (game.moves ?? 0) <= until));
+        const selected = holdTemporary
+            ? previousRule
+            : game.iflags?.hilite_delta
+                ? _selectStatusHilite(field.key, data, change) : null;
+        gb.status_hilite_rule[0][fld] = selected;
+        // eval_notify_windowport_field() writes the selected rule into both
+        // current and previous banks even on stat_update_time().
+        gb.status_hilite_rule[1][fld] = selected;
+        gb.status_hilite_value[0][fld] = value;
+        gb.status_hilite_compare_value[0][fld] = compareValue;
+        gb.status_hilite_percent[0][fld] = percent;
+        gb.status_hilite_text[0][fld] = text;
+        gb.status_hilite_type[0][fld] = field.type;
+        if (notification) _setStatusHiliteChange(gb, fld, true);
+    }
 }
 
 // C ref: botl.c status_eval_next_unhilite(), called once after each hero
 // took-time action. This owns the two timer banks and requests botl only once
 // an existing temporary highlight expires.
 export function status_eval_next_unhilite(state = game) {
-    if (!state.iflags?.hilite_delta) return;
     const gb = state.gb ??= {};
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
     gb.status_hilite_times ??= [Array(size).fill(0), Array(size).fill(0)];
     gb.status_hilite_times[0] ??= Array(size).fill(0);
     gb.status_hilite_times[1] ??= Array(size).fill(0);
+    _statusHiliteChangeBanks(gb, size);
     const moves = state.moves ?? 0;
     const multi = state.multi ?? 0;
+    const duration = state.iflags?.hilite_delta ?? 0;
     for (const field of STATUS_FIELDS) {
         const fld = field.fld;
         const rule = gb.status_hilite_rule?.[0]?.[fld] ?? null;
-        if (gb.status_hilite_chg?.[fld]) {
-            const until = rule?.behavior === 'changed'
-                ? moves + state.iflags.hilite_delta : 0;
+        if (gb.status_hilite_chg_banks[0][fld]) {
+            const until = rule?.behavior === 'changed' && duration > 0
+                ? moves + duration : 0;
             gb.status_hilite_times[0][fld] = until;
             gb.status_hilite_times[1][fld] = until;
-            gb.status_hilite_chg[fld] = false;
+            _setStatusHiliteChange(gb, fld, false);
             state.disp ??= {};
             state.disp.botl = true;
             continue;
         }
         if (state.disp?.botl) continue;
         const until = gb.status_hilite_times[0][fld] ?? 0;
-        if (multi || rule?.behavior !== 'changed' || !until || until >= moves)
+        if (!duration || multi || rule?.behavior !== 'changed' || !until
+            || until >= moves)
             continue;
         state.disp ??= {};
         state.disp.botl = true;
@@ -6521,6 +6620,7 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     _beginStatusHilitePass();
     game._statusOptionalFieldSnapshot = optionalSnapshot;
     game._renderedStatusLayouts = layouts;
+    _collectStatusHilites(layouts);
     const styles = game.iflags?.status_updates === false
         ? layouts.map(() => []) : _statusStyleRows(layouts);
     game._renderedStatusStyles = styles;
@@ -6586,6 +6686,7 @@ function _stat_update_time() {
         ? rendered.map((layout) => _refreshTimeField(layout))
         : statusLayouts();
     game._renderedStatusLayouts = layouts;
+    _collectStatusHilites(layouts, 'time');
     const styles = game.iflags?.status_updates === false
         ? layouts.map(() => []) : _statusStyleRows(layouts);
     game._renderedStatusStyles = styles;
