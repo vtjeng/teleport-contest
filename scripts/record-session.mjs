@@ -557,6 +557,7 @@ export async function recordSegment({
     let pendingFailure = null;
     let completionStop = null;
     let totalTimeout = null;
+    let childClosed = false;
     let resolveDone, rejectDone;
     let settled = false;
     const done = new Promise((res, rej) => {
@@ -565,6 +566,9 @@ export async function recordSegment({
     });
 
     const armTimeout = (ms, why) => {
+        // A marker can still finish its awaited receipt writes after close.
+        // Re-arming here would keep the CLI alive after its result is saved.
+        if (childClosed) return;
         if (timeoutHandle) clearTimeout(timeoutHandle);
         timeoutHandle = setTimeout(() => {
             fail(new Error(`recorder timeout: ${why} (after ${ms}ms)`));
@@ -756,6 +760,7 @@ export async function recordSegment({
     child.stdout.on('error', (err) => fail(err));
     child.on('error', (err) => fail(err));
     child.on('close', (code, signal) => {
+        childClosed = true;
         if (totalTimeout) clearTimeout(totalTimeout);
         if (timeoutHandle) clearTimeout(timeoutHandle);
         if (forceKillHandle) clearTimeout(forceKillHandle);

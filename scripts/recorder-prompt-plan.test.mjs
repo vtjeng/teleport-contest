@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import {mkdtemp, writeFile, readFile, mkdir, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {spawnSync} from 'node:child_process';
+import childProcess, {spawnSync} from 'node:child_process';
+import {syncBuiltinESMExports} from 'node:module';
+import {EventEmitter} from 'node:events';
 import test from 'node:test';
 import {createPromptController, digest} from './recorder-prompt-plan.mjs';
 import {recordSegment, replayWithinDeadline} from './record-session.mjs';
@@ -212,8 +214,43 @@ test('changed source proof rejects before any physical child invocation', async 
 test('early process failure never puts unsent prefix keys in the emitted recipe', async t => {
     const f = await fixture(t, 'crash');
     await writeFile(f.input, JSON.stringify({version: 5, segments: [{moves: 'abc'}]}));
-    assert.equal(f.run().status, 2);
+    const result = f.run();
+    const diagnostic = {error: result.error && {code: result.error.code, message: result.error.message},
+        signal: result.signal, stderr: result.stderr, stdout: result.stdout};
+    if (result.status !== 2) {
+        for (const name of ['recipe', 'receipt', 'output']) {
+            try { diagnostic[name] = JSON.parse(await readFile(f[name])); }
+            catch (error) { diagnostic[name] = {error: error.message}; }
+        }
+    }
+    assert.equal(result.status, 2, JSON.stringify(diagnostic));
     assert.equal(JSON.parse(await readFile(f.recipe)).segments[0].moves, 'a');
+});
+
+test('early child close cannot leave a watchdog armed by queued marker work', async t => {
+    const f = await fixture(t, 'crash');
+    const child = new EventEmitter(), kills = [];
+    child.stdout = new EventEmitter();
+    child.stdin = new EventEmitter();
+    child.stdin.write = () => child.emit('close', 7, null);
+    child.kill = signal => { kills.push(signal); };
+    const spawnMock = t.mock.method(childProcess, 'spawn', () => {
+        queueMicrotask(() => {
+            child.emit('spawn');
+            child.stdout.emit('data', Buffer.from('\x1b]7777;KIND=input;SEQ=1;CX=0;CY=0;LEN=4\x07boot'));
+        });
+        return child;
+    });
+    syncBuiltinESMExports();
+    t.after(() => { spawnMock.mock.restore(); syncBuiltinESMExports(); });
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const result = await recordSegment({seg: {moves: 'abc'}, isFirstSegment: true,
+        binary: f.binary, installDir: path.join(f.dir, 'install'), rngLogPath: path.join(f.dir, 'rng'),
+        homeDir: path.join(f.dir, 'home'), tz: 'America/New_York', prompt: await plan()});
+    assert.equal(result.promptResult.command.exitCode, 7);
+    assert.equal(result.moves, 'a');
+    t.mock.timers.tick(20001);
+    assert.deepEqual(kills, [], 'a closed child must have no remaining watchdog');
 });
 
 test('capture finalization exhausting deadline cannot launch an independent replay', async t => {
