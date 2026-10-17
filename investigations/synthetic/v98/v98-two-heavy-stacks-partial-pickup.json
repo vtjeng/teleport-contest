@@ -1,7 +1,7 @@
 {
   "session": "synthetic/v98/v98-two-heavy-stacks-partial-pickup",
   "remainingScreens": 1,
-  "recordedSteps": 53,
+  "recordedSteps": 54,
   "corpus": "synthetic",
   "batch": "v98",
   "caseId": "v98-two-heavy-stacks-partial-pickup",
@@ -15,7 +15,7 @@
   "mismatch": {
     "segment": 0,
     "step": 53,
-    "key": "\\n",
+    "key": "\n",
     "kind": "js-missing",
     "sourceOwner": "pickup.c:pickup() menu_pickup loop -> pickup_object() -> lift_object() -> carry_count()",
     "recordedComparison": {
@@ -31,7 +31,12 @@
   "source": {
     "file": "pickup.c",
     "branch": "With an interactive menu selection of two oversized ordinary floor stacks and total projected weight at or above 2 * weight_cap, pickup() reaches menu_pickup and calls pickup_object() once per selected row in order. carry_count() computes a liftable quantity for each object from the current inventory state and emits the partial-lift message before lift_object() asks whether to continue.",
-    "functions": ["pickup", "pickup_object", "lift_object", "carry_count"],
+    "functions": [
+      "pickup",
+      "pickup_object",
+      "lift_object",
+      "carry_count"
+    ],
     "callers": [
       "hack.c:dopickup() dispatches the interactive pickup command to pickup()",
       "pickup.c:pickup() menu_pickup loop calls pickup_object() for each selected row",
@@ -47,6 +52,7 @@
     "nethack-c/upstream/src/pickup.c:1803-1881 calls lift_object() for the ordinary object after pickup_object() special cases; pickup.c:1705-1797 calls carry_count() and propagates its reduced count before the burden prompt.",
     "nethack-c/upstream/src/pickup.c:1570-1700 computes the per-object liftable quantity from current inventory weight and emits the partial-lift message when qq < count.",
     "js/pickup.js:942-1024 preflightPickupObjects() sums selected object weights, then throws UnsupportedPickupError('pickup() requiring a partial or failed lift') when the aggregate reaches maximum capacity unless exactly one selected object satisfies the singleton zero-lift or partial-stack exception. js/pickup.js:1458-1583 otherwise follows C's selected-row commit order, but never reaches it after that preflight refusal.",
-    "The implementation scope is the source-traced divergence in pickup.c:pickup() selection sequencing and its current js/pickup.js planning/commit seam. Keep pickup_object(), lift_object(), and carry_count() as reviewed source dependencies; preserve per-object quantity reduction, prompt order, and decline/stop behavior. The v98 target establishes only the first natural More boundary."
+    "The implementation scope is the source-traced divergence in pickup.c:pickup() selection sequencing and its current js/pickup.js planning/commit seam. Keep pickup_object(), lift_object(), and carry_count() as reviewed source dependencies; preserve per-object quantity reduction, prompt order, and decline/stop behavior. The v98 target establishes only the first natural More boundary.",
+    "The accepted-base queue refresh at 94fbee789f3d74e7421ab9d058d2b9413d43ae43 still lists this batch-qualified case as unresolved (queue evidence digest 1fc56d401162285217e743b05baccf7d5171527402ce51f1e5821b1c38444cff). The worker replayed the unchanged admitted recording on JavaScript after the fix; no C recorder was rerun."
   ]
 }
