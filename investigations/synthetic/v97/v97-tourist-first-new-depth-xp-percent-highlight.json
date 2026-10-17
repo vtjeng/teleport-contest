@@ -34,7 +34,9 @@
       "total": 4904
     },
     "rngMismatch": null,
-    "observationLimit": "The captured comparison is JS-missing; its exact JS exception/helper invocation is not dynamically observed."
+    "observationLimit": "The captured comparison is JS-missing; its exact JS exception/helper invocation is not dynamically observed.",
+    "session": "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight",
+    "remainingScreens": 1
   },
   "summary": "A public Tourist first-entry depth reward changes the XP percentage highlight rule without changing experience level and with showexp disabled. Native C source says more_experienced calls exp_percent_changing after updating XP; it compares the newly selected rule identity to the last-drawn XP rule and requests a botl redraw when the integer percent changes and the rule identity changes. JS exp_percent_changing currently throws UnsupportedExperienceChangeError whenever an XP highlight rule exists because it has no per-field selected-rule history. The accepted public case differs only at its final status boundary: JS is missing screen/cursor 5 while its 4904 ordered RNG calls match C. The exact JS exception path is causally inferred from source, not dynamically captured.",
   "source": {
