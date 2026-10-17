@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T04:40:57.171Z",
+  "capturedAt": "2026-10-17T05:20:02.210Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T04:40:57.171Z",
+    "asOf": "2026-10-17T05:20:02.210Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5647,6 +5647,27 @@
           {
             "kind": "packet",
             "digest": "1d80739103b36a7a74b71eea188f43f189ac9e600abc56415967b32b7ca22591"
+          }
+        ]
+      },
+      {
+        "id": "headless-eyewear-c-only-feasibility-20261017",
+        "batch": "v99",
+        "claimedAt": "2026-10-17T05:09:02.242Z",
+        "closedAt": "2026-10-17T05:19:24.908Z",
+        "terminal": "result",
+        "outcome": "deferred",
+        "packetDigest": "d43dc0cb67ec118ae3aff68812d3468c6b11f450f6038a8f1e5a4fc5ce3bd37b",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "d43dc0cb67ec118ae3aff68812d3468c6b11f450f6038a8f1e5a4fc5ce3bd37b"
           }
         ]
       }
@@ -160601,6 +160622,261 @@
         "task": "Prep97",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-Prep97-5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+        "type": "published",
+        "at": "2026-10-17T04:41:02.851Z",
+        "task": "Prep97",
+        "commit": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-amorphous-prefix01-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:41:23.874Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-amorphous-prefix02-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:41:47.582Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-amorphous-prefix03-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:42:03.786Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T04:42:09.248Z",
+        "id": "queue:3ae6d91f-ffd1-410d-b0f7-a12dac7b1a6d",
+        "type": "assign",
+        "task": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-amorphous-c-frozen-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:42:29.481Z",
+        "worker": "Prep",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-status-v97-turn-active-20261017T0443Z",
+        "type": "turn",
+        "at": "2026-10-17T04:43:41.271Z",
+        "worker": "Worker-2",
+        "state": "active",
+        "reason": "Worker-2 owns the admitted v97 status-highlight case; source investigation and scope confirmation in progress."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-implement-status-highlight-lifecycle-v97-20261017",
+        "type": "implement",
+        "at": "2026-10-17T04:47:43.092Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "goal": "status-highlight-lifecycle-v97-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-amorphous-matched-standing-discovery-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:49:37.569Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-multistack-prefix01-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:54:46.024Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-multistack-prefix02-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:55:09.539Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-multistack-prefix03-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:55:24.620Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-multistack-prefix04-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:55:49.987Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-multistack-c-frozen-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:56:28.814Z",
+        "worker": "Prep",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-multistack-independent-replay-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:58:26.560Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-multistack-reproduced-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:58:39.517Z",
+        "worker": "Prep",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "assign-prep98-multi-stack-pickup-20261017",
+        "type": "assign",
+        "at": "2026-10-17T04:59:35.319Z",
+        "task": "Prep98",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v98"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-acc598db3db43f7887d278c03e145d871044cb12",
+        "type": "ready",
+        "at": "2026-10-17T05:00:43.913Z",
+        "task": "Prep98",
+        "delivery": "acc598db3db43f7887d278c03e145d871044cb12"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep98-submitted-standing-discovery-20261017",
+        "type": "turn",
+        "at": "2026-10-17T05:00:55.832Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-prep98-multi-stack-pickup-20261017",
+        "type": "received",
+        "at": "2026-10-17T05:02:01.764Z",
+        "task": "Prep98",
+        "delivery": "acc598db3db43f7887d278c03e145d871044cb12"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-group-b56547b145d3d0dc800a5d4a52b20d611f0140334931aca7bfe9e5559aa041d1-593cc1c90e6d4ac0232c908dcc72f37a8e36e04a-Prep98",
+        "type": "integrating",
+        "at": "2026-10-17T05:02:29.815Z",
+        "task": "Prep98",
+        "integration": "593cc1c90e6d4ac0232c908dcc72f37a8e36e04a",
+        "prepGroup": [
+          "Prep98"
+        ],
+        "validationGroup": [
+          "Prep98"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:09:02.242Z",
+        "id": "queue:9ca0f960-36eb-496e-9f0c-d4bf2426f19c",
+        "type": "assign",
+        "task": "headless-eyewear-c-only-feasibility-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-validated-Prep98-593cc1c90e6d4ac0232c908dcc72f37a8e36e04a",
+        "type": "validated",
+        "at": "2026-10-17T05:10:34.842Z",
+        "task": "Prep98",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-accepted-Prep98-593cc1c90e6d4ac0232c908dcc72f37a8e36e04a",
+        "type": "accepted",
+        "at": "2026-10-17T05:10:34.842Z",
+        "task": "Prep98"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "activity-prep98-hosted-baseline-39005353924",
+        "type": "activity",
+        "at": "2026-10-17T05:13:26.640Z",
+        "task": "Prep98",
+        "phase": "baseline",
+        "reason": "Manifest-only hosted Admission baseline for the independently reproduced multistack pickup case."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-baseline-Prep98-13a9232ce0a6ba4ab78bca79ae1d3d15b038941f",
+        "type": "activity",
+        "at": "2026-10-17T05:15:29.800Z",
+        "task": "Prep98",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-done-Prep98-13a9232ce0a6ba4ab78bca79ae1d3d15b038941f",
+        "type": "activity",
+        "at": "2026-10-17T05:15:29.976Z",
+        "task": "Prep98",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:19:24.908Z",
+        "id": "queue:bbdb408f-c31f-4f38-b667-02e834671597",
+        "type": "queue-complete",
+        "task": "headless-eyewear-c-only-feasibility-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:19:24.908Z",
+        "id": "queue:bbdb408f-c31f-4f38-b667-02e834671597:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -160610,8 +160886,162 @@
     "parkedTasks": []
   },
   "workerReservations": {
-    "tasks": {},
-    "reservations": {}
+    "tasks": {
+      "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae": {
+        "id": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "worker": "Worker-2",
+        "status": "working",
+        "seed": "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight",
+        "reservations": [
+          "session:synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight",
+          "contract:status-highlight-history",
+          "source:botl.c:bot",
+          "source:botl.c:timebot",
+          "source:botl.c:bot_via_windowport",
+          "source:botl.c:stat_update_time",
+          "source:botl.c:eval_notify_windowport_field",
+          "source:botl.c:evaluate_and_notify_windowport",
+          "source:botl.c:status_initialize",
+          "source:botl.c:status_finish",
+          "source:botl.c:init_blstats",
+          "source:botl.c:compare_blstats",
+          "source:botl.c:anything_to_s",
+          "source:botl.c:percentage",
+          "source:botl.c:exp_percentage",
+          "source:botl.c:exp_percent_changing",
+          "source:botl.c:hilite_reset_needed",
+          "source:botl.c:status_eval_next_unhilite",
+          "source:botl.c:reset_status_hilites",
+          "source:botl.c:noneoftheabove",
+          "source:botl.c:get_hilite",
+          "source:botl.c:status_hilite_add_threshold",
+          "source:botl.c:clear_status_hilites",
+          "source:botl.c:status_hilite_remove"
+        ]
+      }
+    },
+    "reservations": {
+      "session:synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "contract:status-highlight-history": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:bot": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:timebot": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:bot_via_windowport": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:stat_update_time": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:eval_notify_windowport_field": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:evaluate_and_notify_windowport": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:status_initialize": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:status_finish": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:init_blstats": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:compare_blstats": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:anything_to_s": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:percentage": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:exp_percentage": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:exp_percent_changing": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:hilite_reset_needed": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:status_eval_next_unhilite": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:reset_status_hilites": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:noneoftheabove": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:get_hilite": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:status_hilite_add_threshold": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:clear_status_hilites": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      },
+      "source:botl.c:status_hilite_remove": {
+        "tasks": [
+          "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
     "readySessions": null,
@@ -160621,16 +161051,21 @@
     "ready": [],
     "blocked": [
       {
-        "task": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "task": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
         "reason": "Waiting for producer or dependencies."
       }
     ],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "worker": "Worker-2"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 1,
       "blocked": 1,
-      "completed": 294,
+      "completed": 295,
       "superseded": 64
     },
     "workers": [
@@ -160641,8 +161076,8 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -166051,24 +166486,56 @@
         "id": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "claimed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-17T04:39:54.120Z",
+        "claimedAt": "2026-10-17T04:42:09.248Z",
+        "completedAt": null
+      },
+      {
+        "id": "headless-eyewear-c-only-feasibility-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T05:07:57.052Z",
+        "claimedAt": "2026-10-17T05:09:02.242Z",
+        "completedAt": "2026-10-17T05:19:24.908Z"
+      },
+      {
+        "id": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v98/v98-two-heavy-stacks-partial-pickup"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-17T05:15:30.245Z",
         "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "25200c6199ab3bd8e18f3e69da058cb61b0d3d42",
-    "measuredAt": "2026-10-17T04:33:53.751Z",
+    "executionCommit": "593cc1c90e6d4ac0232c908dcc72f37a8e36e04a",
+    "measuredAt": "2026-10-17T05:07:53.970Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
