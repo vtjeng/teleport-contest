@@ -226,7 +226,17 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
             clearRow(display, display.rows - 1 - row);
         state.disp ??= {};
         state.disp.botlx = true;
-        await bot();
+        // wintty.c erase_menu_or_text() calls docrt() here; docrt_flags()
+        // returns while the player has no map position. With no JS player
+        // state there is no status to paint; mirror bot()'s no-output arm by
+        // clearing pending flags unless select_menu() disabled bot().
+        if (state.u) {
+            await bot();
+        } else if (state.gb?.bot_disabled !== true) {
+            state.disp.botl = false;
+            state.disp.botlx = false;
+            state.disp.time_botl = false;
+        }
         return;
     }
     await docrt({

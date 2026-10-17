@@ -136,6 +136,7 @@ import {
     glyph_is_body,
     GLYPH_INVISIBLE,
     status_eval_next_unhilite,
+    status_initialize,
     glyph_is_body_piletop,
     glyph_is_cmap,
     glyph_is_cmap_zap,
@@ -8453,6 +8454,7 @@ test('status uses source attribute order and exceptional strength text', async (
         uprops: zeroHeroProperties(),
     };
     state.moves = 7;
+    status_initialize(state, false);
 
     await flush_screen(1);
 
@@ -8490,6 +8492,7 @@ test('status uses source attribute order and exceptional strength text', async (
     state.iflags = parseNethackrc(
         'OPTIONS=hilite_status:strength/<119/red',
     ).iflags;
+    status_initialize(state);
     await bot();
     const strengthColumn = row(22).indexOf('St:18/**');
     assert.notEqual(strengthColumn, -1);
@@ -8610,6 +8613,7 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
 
     state.disp ??= {};
     state.disp.botlx = true;
+    status_initialize(state, false);
     await flush_screen(1);
     const row = (index) => state.nhDisplay.grid[index]
         .map((cell) => cell.ch).join('').trimEnd();
@@ -8709,6 +8713,7 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         'OPTIONS=hilite_status:'
         + 'hitpoints/<20/red/<=100%/bright-blue',
     ).iflags;
+    status_initialize(state);
     state.u.uhp = state.u.uhpmax;
     await bot();
     assert.equal(
@@ -8722,6 +8727,7 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         'OPTIONS=hilite_status:title/always/bright-blue '
         + 'alignment/always/yellow',
     ).iflags;
+    status_initialize(state);
     await bot();
     assert.equal(styledCell(22, 'Neutral').color, CLR_BRIGHT_BLUE);
     const alignmentColumn = row(22).lastIndexOf('Chaotic');
@@ -8755,6 +8761,7 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
             twoAfter: false },
     ];
     const expected = { color: CLR_RED, attr: ATR_BOLD };
+    status_initialize(state, false);
 
     for (const lines of [2, 3]) {
         for (const expectedField of cases) {
@@ -8765,6 +8772,7 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
                 ...parsed.iflags,
                 wc2_statuslines: lines,
             };
+            status_initialize(state);
             await bot();
             const row = lines === 2
                 ? expectedField.twoRow ?? 23 : expectedField.threeRow;
@@ -8791,6 +8799,7 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
             'OPTIONS=hilite_status:title/always/red&bold',
         );
         state.iflags = { ...parsed.iflags, wc2_statuslines: lines };
+        status_initialize(state);
         await bot();
         const titleRow = lines === 2 ? 22 : 21;
         assertCellRange(
@@ -9584,6 +9593,34 @@ test('bot leaves the status row and the pending flag alone while disabled',
         assert.notEqual(statusRow(), before);
         assert.equal(game.disp.botl, false);
     });
+
+test('bot skips status collection before player initialization', async () => {
+    resetGame();
+    game.nhDisplay = new GameDisplay(null);
+    game.iflags = { status_updates: true };
+    game.disp = { botl: true, botlx: true, time_botl: true };
+    game.nhDisplay.setCell(7, 22, 'X', 2, 1);
+
+    await bot();
+
+    assert.deepEqual(game.disp, {
+        botl: false,
+        botlx: false,
+        time_botl: false,
+    });
+    assert.equal(game.nhDisplay.grid[22][7].ch, 'X');
+    assert.equal(game.gb?.status_hilite_value, undefined);
+
+    game.gb ??= {};
+    game.gb.bot_disabled = true;
+    game.disp = { botl: true, botlx: true, time_botl: true };
+    await bot();
+    assert.deepEqual(game.disp, {
+        botl: true,
+        botlx: true,
+        time_botl: true,
+    });
+});
 
 // C ref: botl.c timebot() (276-278), the same early return over the turn
 // counter's own refresh path.

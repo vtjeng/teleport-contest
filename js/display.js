@@ -6653,9 +6653,11 @@ export async function cls() {
 // bot() still paints it.  js/windows.js select_menu() and getlin() are the two
 // writers of the flag.
 //
-// C's remaining guards -- gy.youmonst.data and suppress_map_output() -- cover
-// pre-initialization and the save/restore/hangup states this port does not
-// enter.  The u.uhp != -1 guard is ported below: the C comment attributes it
+// The C gy.youmonst.data guard covers the pre-player boundary. In JS, absence
+// of game.u marks that state; the global C u struct exists there but has not
+// received player values. C's suppress_map_output() covers save/restore/
+// hangup; the JS helper below carries those same phase flags. The
+// u.uhp != -1 guard is ported below: the C comment attributes it
 // to dosave(), but it also fires during normal gameplay when mdamageu reduces
 // HP to exactly -1 (e.g. HP 1 minus 2 damage).  Without it, bot() would
 // render HP:0 (clamped) before done() sets u.uhp = 0, and screens captured
@@ -6667,6 +6669,18 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     // C botl.c bot() line 259: skip the status update when u.uhp == -1 but
     // still clear the display flags (line 270).
     if (game.u?.uhp === -1) {
+        if (game.disp) {
+            game.disp.botl = false;
+            game.disp.botlx = false;
+            game.disp.time_botl = false;
+        }
+        return;
+    }
+    // botl.c bot() skips window-port updates before player initialization,
+    // when status updates are disabled, or while map output is suppressed,
+    // but still clears its pending flags (unless bot_disabled returned above).
+    if (!game.u || game.iflags?.status_updates === false
+        || suppressMapOutput()) {
         if (game.disp) {
             game.disp.botl = false;
             game.disp.botlx = false;

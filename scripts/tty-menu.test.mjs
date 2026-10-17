@@ -426,6 +426,39 @@ test('NHW_MENU text honors disabled overlays and paginates full-screen text',
         assert.equal(paged.nhDisplay.inputQueueLength, 0);
     });
 
+test('pre-player text dismissal clears status flags without painting', async () => {
+    const state = menuState('  ');
+    state.disp = { botl: true, time_botl: true, botlx: false };
+
+    await displayTtyMenuTextWindow(
+        state,
+        Array.from({ length: 42 }, (_, index) => `help ${index}`),
+    );
+
+    assert.deepEqual(state.disp, {
+        botl: false,
+        time_botl: false,
+        botlx: false,
+    });
+    assert.equal(state.gb?.status_hilite_value, undefined);
+    for (const row of [22, 23])
+        assert.equal(rowText(state, row), '', `status row ${row} stays blank`);
+
+    const disabled = menuState('  ');
+    disabled.gb ??= {};
+    disabled.gb.bot_disabled = true;
+    disabled.disp = { botl: true, time_botl: true, botlx: false };
+    await displayTtyMenuTextWindow(
+        disabled,
+        Array.from({ length: 42 }, (_, index) => `help ${index}`),
+    );
+    assert.deepEqual(disabled.disp, {
+        botl: true,
+        time_botl: true,
+        botlx: true,
+    });
+});
+
 test('NHW_MENU text dismisses a pending topline before drawing the window',
     async () => {
         // Two spaces dismiss the pending-message More and the menu More in
