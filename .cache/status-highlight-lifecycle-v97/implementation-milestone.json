@@ -41,10 +41,13 @@
     "orderedRng": "4904/4904",
     "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
     "inputSha256": "dc39c0684f2c9614e2b1d60610113dc4b6dc7ffb26817bbbdd5f3eb5342dae85",
-    "evaluatedCommit": "66cb8b508c99d8c7c61d83f22135e2e4b2ad6f24",
-    "evaluationOutput": "temporary challenges/evaluations/worker2-temporary-v97.json removed after extracting summary",
+    "evaluatedCommit": "e6f00292d9e0ad38b4e61698b8b7dde3f483eccb",
+    "evaluationOutput": "challenges/evaluations/worker2-temporary-v97.json retained unchanged",
     "command": "node scripts/score-challenges.mjs --batch v97 --output challenges/evaluations/worker2-temporary-v97.json",
-    "sanitizedCommandLog": "/tmp/worker2-v97-score.log (recoverable owner command log; reports complete, 1/1 sessions, 5/5 screens, 5/5 cursors, 4904/4904 RNG)"
+    "sanitizedCommandLog": "/tmp/worker2-v97-score.log (recoverable owner command log; reports complete, 1/1 sessions, 5/5 screens, 5/5 cursors, 4904/4904 RNG)",
+    "evaluationSha256": "39d5434590f22f6432256b49e8b0b3cca00c8ee52d4b72a57806aa38c9d988d0",
+    "identityReceipt": ".cache/status-highlight-lifecycle-v97/v97-e6f-replay-identity.json",
+    "scopeLimit": "earlier code; does not prove latest 28f66 runtime"
   },
   "reusableNativeConstructedFieldAssessment": {
     "path": "/workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/assessment.json",
@@ -77,112 +80,178 @@
       {
         "unit": "bot",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: starts a full status-highlight snapshot pass; public callback/field comparison still not independently closed"
+        "milestoneWorkOrGap": "partial: starts a full status-highlight snapshot pass; public callback/field comparison still not independently closed",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "timebot",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: runs a time-only highlight pass through stat_update_time and preserves other selected fields"
+        "milestoneWorkOrGap": "partial: runs a time-only highlight pass through stat_update_time and preserves other selected fields",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "bot_via_windowport",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS callback route; actual field collection not exercised or C-compared in this milestone"
+        "milestoneWorkOrGap": "preexisting JS callback route; actual field collection not exercised or C-compared in this milestone",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "stat_update_time",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "existing JS counterpart used by timebot; tty cells/cursor behavior not C-compared here"
+        "milestoneWorkOrGap": "existing JS counterpart used by timebot; tty cells/cursor behavior not C-compared here",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "eval_notify_windowport_field",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; ordinary public notification order and typed provenance remain unclosed"
+        "milestoneWorkOrGap": "preexisting JS counterpart; ordinary public notification order and typed provenance remain unclosed",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "evaluate_and_notify_windowport",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; whole callback contract unclosed"
+        "milestoneWorkOrGap": "preexisting JS counterpart; whole callback contract unclosed",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "status_initialize",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; full source comparison pending"
+        "milestoneWorkOrGap": "preexisting JS counterpart; full source comparison pending",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "status_finish",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; full source comparison pending"
+        "milestoneWorkOrGap": "preexisting JS counterpart; full source comparison pending",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "init_blstats",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; double-bank initialization and typed values need independent audit"
+        "milestoneWorkOrGap": "preexisting JS counterpart; double-bank initialization and typed values need independent audit",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "compare_blstats",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; C comparison coverage incomplete"
+        "milestoneWorkOrGap": "preexisting JS counterpart; C comparison coverage incomplete",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "anything_to_s",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; typed union and formatting edge matrix incomplete"
+        "milestoneWorkOrGap": "preexisting JS counterpart; typed union and formatting edge matrix incomplete",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "percentage",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; complete source edge matrix not run"
+        "milestoneWorkOrGap": "preexisting JS counterpart; complete source edge matrix not run",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "exp_percentage",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; complete source edge matrix not run"
+        "milestoneWorkOrGap": "preexisting JS counterpart; complete source edge matrix not run",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "exp_percent_changing",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: percentage change compares candidate rule identity with the current BL_XP bank; source/native matrix review pending"
+        "milestoneWorkOrGap": "partial: percentage change compares candidate rule identity with the current BL_XP bank; source/native matrix review pending",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "hilite_reset_needed",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart or equivalent reset check not independently established in this milestone"
+        "milestoneWorkOrGap": "preexisting JS counterpart or equivalent reset check not independently established in this milestone",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "status_eval_next_unhilite",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: dual-bank timer stamp, multi hold and t+1 redraw path implemented and focused-tested"
+        "milestoneWorkOrGap": "partial: dual-bank timer stamp, multi hold and t+1 redraw path implemented and focused-tested",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "reset_status_hilites",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: clears both temporary timer banks and requests a redraw"
+        "milestoneWorkOrGap": "partial: clears both temporary timer banks and requests a redraw",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "noneoftheabove",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: title polymorph matcher added; full C precedence/parity pending"
+        "milestoneWorkOrGap": "partial: title polymorph matcher added; full C precedence/parity pending",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unfinished-scope-plus-unexercised-contract",
+        "gapInterpretation": "candidate/title-polymorph path added; broad full precedence matrix is not claimed. Existing focused tests cover relation best-fit, title matching/fallback, changed direction, and critical-HP precedence; remaining selector edge coverage is open."
       },
       {
         "unit": "get_hilite",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: `_selectStatusHilite` candidate selection added; full source precedence matrix pending"
+        "milestoneWorkOrGap": "partial: `_selectStatusHilite` candidate selection added; full source precedence matrix pending",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unfinished-scope-plus-unexercised-contract",
+        "gapInterpretation": "candidate/title-polymorph path added; broad full precedence matrix is not claimed. Existing focused tests cover relation best-fit, title matching/fallback, changed direction, and critical-HP precedence; remaining selector edge coverage is open."
       },
       {
         "unit": "status_hilite_add_threshold",
         "status": "not independently audited/closed in this milestone",
-        "milestoneWorkOrGap": "preexisting JS counterpart; selector integration and rule-identity behavior need full audit"
+        "milestoneWorkOrGap": "preexisting JS counterpart; selector integration and rule-identity behavior need full audit",
+        "implementationState": "existing JS counterpart predates this milestone; no specific defect isolated here",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "clear_status_hilites",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: option clear preserves condition rules and invalidates freed selected-rule pointers"
+        "milestoneWorkOrGap": "partial: option clear preserves condition rules and invalidates freed selected-rule pointers",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       },
       {
         "unit": "status_hilite_remove",
         "status": "partial implementation; not independently closed",
-        "milestoneWorkOrGap": "partial: existing removal path clears selected identity/timers; source/ordinary callback review pending"
+        "milestoneWorkOrGap": "partial: existing removal path clears selected identity/timers; source/ordinary callback review pending",
+        "implementationState": "task implementation changed; focused behavior exists, but no unit is claimed fully accepted",
+        "gapKind": "unexercised-contract",
+        "gapInterpretation": "evidence coverage only; this status does not assert the implementation is missing or incorrect"
       }
     ],
     "completionRule": "A changed/present JS counterpart is not counted complete without full source-contract review plus required native/public evidence."
@@ -202,7 +271,7 @@
     "focusedVerificationAt": "2026-10-17T04:58:42Z",
     "firstMilestoneDeadline": "2026-10-17T05:42:09.248Z"
   },
-  "latestImplementationCommit": "9d60fae075ba5c7e11e33bf19dda9ea449cd3588",
+  "latestImplementationCommit": "28f66dc6888f89d103cdc1de42864fafc1491a66",
   "reviewContinuation": {
     "reviewReceipt": "/workspace/teleport-contest/.cache/xp-status-production-feasibility/implementation-milestone-review.json",
     "reviewReceiptSha256": "0e4eb5f0ee394e1a4026763a34938cf3b446fa8d33b7e963bedfc28589924cfe",
@@ -230,5 +299,159 @@
     },
     "sourceReviewMatrix": ".cache/status-highlight-lifecycle-v97/source-review-matrix.json"
   },
-  "sourceReviewMatrix": ".cache/status-highlight-lifecycle-v97/source-review-matrix.json"
+  "sourceReviewMatrix": ".cache/status-highlight-lifecycle-v97/source-review-matrix.json",
+  "continuedSourceEvidence": {
+    "status": "source/test followup only; overall implementation remains partial and unaccepted",
+    "latestCommit": "7c677ec4157502d93cf71e5767efd9182680fd7f",
+    "priorAuthorizedDisplayAssertionsCommit": "e008fdaf33a40c686c140c5514626f231c70e86e",
+    "focusedChecks": {
+      "node --test scripts/display.test.mjs": {
+        "status": "pass",
+        "passed": 5,
+        "failed": 0
+      },
+      "npm run lint": "pass",
+      "git diff --check": "pass"
+    },
+    "nativeTimebotProbe": {
+      "failedFirstAttempt": ".cache/status-highlight-lifecycle-v97/native-timebot/execution.json; guard iflags.status_updates was not initialized",
+      "correctedExecution": ".cache/status-highlight-lifecycle-v97/native-timebot/guarded-execution.json",
+      "correctedExecutionSha256": "cf0013c782fd17864bc57e0281998d135ca287d11b8fdce08e6090dfb5f94bb8",
+      "stdout": ".cache/status-highlight-lifecycle-v97/native-timebot/guarded-stdout.jsonl",
+      "stdoutSha256": "e4ac37309859054d8ba388ed727d9f1147fe3e518c853dc599359c610cc215bc",
+      "evidenceLimit": "constructed direct timebot with source-proven guards, parser, and evaluator; not public gameplay evidence"
+    },
+    "sourceReviewMatrix": ".cache/status-highlight-lifecycle-v97/source-review-matrix.json",
+    "sourceReviewMatrixSha256": "86b4354f897b4bce0c62f02a561abb00af12e88cbdd444b81384a265ded7e2e9",
+    "retainedEvaluationIdentity": ".cache/status-highlight-lifecycle-v97/v97-e6f-replay-identity.json",
+    "retainedEvaluation": "challenges/evaluations/worker2-temporary-v97.json",
+    "retainedEvaluationSha256": "39d5434590f22f6432256b49e8b0b3cca00c8ee52d4b72a57806aa38c9d988d0",
+    "knownRemaining": "Full 22-unit source review, C repaint/repeated-bot/update_all runtime cases, broader public ordinary-entrypoint evidence, full regressions, and independent lead review remain open.",
+    "additionalFocusedChecks": {
+      "source-derived-countercases": {
+        "status": "pass",
+        "passed": 5,
+        "failed": 0
+      },
+      "selector-source-matrix-cases": {
+        "status": "pass",
+        "passed": 2,
+        "failed": 0
+      },
+      "selectorCommand": "node --test --test-name-pattern=\"status highlight rules preserve source matching and precedence|a criticalhp hilite follows pray.c and outranks later rules\" scripts/display-symbols.test.mjs",
+      "none-of-the-above aliases": {
+        "status": "pass",
+        "passed": 1,
+        "failed": 0
+      },
+      "lintAfterAliasTest": "pass"
+    },
+    "latestImplementationCommit": "aaffc21fcd504fe3937e7d38cd7d4e823287fab1"
+  },
+  "sourceFamilyCompletionAssessment": {
+    "taskContinuationCommit": "aaffc21fcd504fe3937e7d38cd7d4e823287fab1",
+    "specificKnownUnfinishedBehavior": [
+      {
+        "units": [
+          "get_hilite",
+          "noneoftheabove"
+        ],
+        "detail": "No concrete wrong-output case was established in this continuation. Remaining gap is incomplete precedence/alias edge coverage: focused existing tests cover best-fit thresholds, exact match, title text fallback, critical HP, and the added three none-of-the-above aliases, but not the entire C rule-order matrix."
+      }
+    ],
+    "testedSourceDerivedCountercases": [
+      {
+        "case": "plain screen repaint reuses delivered status values/styles",
+        "result": "pass",
+        "command": "node --test --test-name-pattern=\"plain screen repaint\" scripts/display-symbols.test.mjs"
+      },
+      {
+        "case": "repeated bot preserves pending change until action hook",
+        "result": "pass",
+        "command": "node --test --test-name-pattern=\"repeated bot passes\" scripts/display-symbols.test.mjs"
+      },
+      {
+        "case": "update_all notifies enabled fields and resets both banks",
+        "result": "pass",
+        "command": "node --test --test-name-pattern=\"update_all resets both\" scripts/display-symbols.test.mjs"
+      },
+      {
+        "case": "timebot threshold change moves10\u219211 matches corrected native C observation",
+        "result": "pass",
+        "command": "node --test --test-name-pattern=\"timebot selects BL_TIME\" scripts/display.test.mjs"
+      },
+      {
+        "case": "source matching/best-fit/title and critical HP precedence cases",
+        "result": "pass",
+        "command": "node --test --test-name-pattern=\"status highlight rules preserve source matching and precedence|a criticalhp hilite follows pray.c and outranks later rules\" scripts/display-symbols.test.mjs"
+      },
+      {
+        "case": "none-of-the-above title aliases require polymorph and match all accepted aliases",
+        "result": "pass",
+        "command": "node --test --test-name-pattern=\"title none-of-the-above aliases\" scripts/display-symbols.test.mjs",
+        "commit": "aaffc21fcd504fe3937e7d38cd7d4e823287fab1"
+      }
+    ],
+    "unexercisedContracts": [
+      "ordinary/public callback entrypoints through full bot_via_windowport field collection",
+      "dedicated C runtime repaint/repeated-bot/update_all cases; current JS assertions are source-derived countercases",
+      "broad public menu add/clear/remove and source typed-value/formatting matrix"
+    ],
+    "reviewAndGates": {
+      "independentSourceCertification": "not an ordinary acceptance requirement; no certification claim is made",
+      "fullRegressionSuite": "hosted gate after complete delivery, not a worker milestone check",
+      "deliveryStatus": "partial and unaccepted; no complete submit"
+    },
+    "decision": "Continue same task; no specific wrong-output defect was found in the focused source-derived countercases, but selector precedence and ordinary callback contracts remain unexercised enough to keep delivery partial. No complete submit."
+  },
+  "latestFocusedChecks": {
+    "command": "node --test --test-name-pattern=\"XP level loss overrides a rising percentage|unnotified HP field retains|title none-of-the-above aliases|specific up and down rules|status highlight rules preserve source matching|a criticalhp hilite|plain screen repaint|repeated bot passes|update_all resets both|timebot selects BL_TIME\" scripts/display-symbols.test.mjs scripts/display.test.mjs",
+    "status": "pass",
+    "passed": 10,
+    "failed": 0,
+    "lint": "pass",
+    "gitDiffCheck": "pass",
+    "newCorrections": [
+      {
+        "case": "XP percent increase while raw level falls",
+        "result": "fixed; change direction now uses sign of compareValue minus previousCompareValue when C resets XP delta to full compare_blstats",
+        "source": "botl.c:1590-1597",
+        "test": "XP level loss overrides a rising percentage when choosing direction"
+      },
+      {
+        "case": "selector context changes without field notification",
+        "result": "fixed; selected rule banks are updated only inside notification/update_all/reset callback, preserving last delivered rule otherwise",
+        "source": "botl.c:1493-1618",
+        "test": "an unnotified HP field retains its last selected critical rule"
+      }
+    ]
+  },
+  "planningIsolationFinding": {
+    "status": "concrete blocker; fix not authorized in current path set",
+    "source": "js/unported_monster_actions.js:734 planningState shallow-copies gb without cloning status_hilite_times/status_hilite_chg_banks",
+    "writer": "js/allmain.js:524 finishHeroTimeEffects invokes status_eval_next_unhilite on planned state when hilite_delta is enabled; it writes timer/chg banks and can mutate live arrays through aliases",
+    "existingTest": "scripts/allmain-turn.test.mjs:2876 planned finished meal checks no repaint/status refresh, but not bank aliases",
+    "requiredScopedFix": "clone nested status bank arrays and ensure cloned gb selected-rule pointers refer to cloned iflags rule objects; preserve status_hilite_chg alias to bank 0",
+    "authorization": "awaiting lead scope authorization for planner adapter path"
+  },
+  "actionBoundaryEvidence": {
+    "source": "js/allmain.js:512-525 finishHeroTimeEffects calls status_eval_next_unhilite after each hero took-time action when hilite_delta enabled; this is not an elapsed world-turn hook",
+    "tests": [
+      "scripts/allmain-turn.test.mjs:700 temporary status expiry accounting runs at hero action boundary",
+      "scripts/allmain-turn.test.mjs:2876 planned finished meal refreshes no status line"
+    ]
+  },
+  "milestoneDisposition": {
+    "status": "partial-unaccepted",
+    "submit": "do not submit as complete",
+    "remaining": "planner clone bank alias is a known implementation gap blocked on path authorization; public ordinary callback/menu coverage and dedicated repaint/repeated-bot/update_all C runtime cases remain evidence gaps. v97 replay is bound to earlier evaluated commit and not proof for latest runtime commit. Full regression is hosted gate after complete delivery; no independent source certification claimed."
+  },
+  "candidateFreeze": {
+    "codeCommit": "28f66dc6888f89d103cdc1de42864fafc1491a66",
+    "frozenAt": "2026-10-17T05:41:56.845Z",
+    "continuationAuthorizedStartAt": "2026-10-17T05:42:09.248Z",
+    "continuationDeadline": "2026-10-17T05:57:09.248Z",
+    "activeEffortSeconds": null,
+    "activeEffortStatus": "unknown; not instrumented"
+  }
 }

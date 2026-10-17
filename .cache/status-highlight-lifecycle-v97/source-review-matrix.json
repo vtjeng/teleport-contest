@@ -1,7 +1,7 @@
 {
   "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
   "scope": "same frozen botl.c 22-unit task; source-review continuation only",
-  "implementationCommit": "9d60fae075ba5c7e11e33bf19dda9ea449cd3588",
+  "implementationCommit": "28f66dc6888f89d103cdc1de42864fafc1491a66",
   "interpretation": "C side is split between a saved fresh-compiled constructed-field input/output receipt and explicit C source expectations for paint-only/new lifecycle edges. Rows marked source-only were not executed in C; no source certification or public C parity is claimed.",
   "savedCReceipt": {
     "assessment": "/workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/assessment.json",
@@ -53,7 +53,75 @@
       "jsEvidence": "score-challenges v97 replay evaluated at commit 9d60fae075ba5c7e11e33bf19dda9ea449cd3588",
       "jsObserved": "complete 1/1 session, 5/5 screens, 5/5 cursors, 4904/4904 ordered RNG",
       "classification": "public JS replay pass; does not cover menu/reset/removal controls or broad ordinary impure entrypoints"
+    },
+    {
+      "case": "constructed-native-timebot-probe-attempt",
+      "cExpected": "A direct timebot transition across a selected time-highlight rule should expose stat_update_time bank/per-member writes and eval_notify results.",
+      "cRuntimeReceipt": "The one constructed invocation completed on pinned botl/exper C production objects but failed to select either rule: at moves 10 and 11 current/previous values, rules, timers, and chg all remained zero; direct hook label only showed botl=1. It is not evidence of the intended transition.",
+      "jsEvidence": "Existing constructed JS timebot test exercises time-only selected-rule copy to both rule banks while preserving prior value/timer members.",
+      "jsObserved": "Focused test passes; no actual C\u2192JS parity claim for time-only selected-rule transition.",
+      "classification": "inconclusive native probe; C-source expectation plus constructed JS unit test"
+    },
+    {
+      "case": "constructed-native-timebot-rule-threshold-transition",
+      "cExpected": "botl.c timebot guard passes with flags.time/status_updates enabled, bot_disabled false, and output unsuppressed; stat_update_time writes current BL_TIME only; eval_notify changes both selected-rule banks and marks both chg banks when crossing the threshold.",
+      "cRuntimeReceipt": {
+        "artifact": ".cache/status-highlight-lifecycle-v97/native-timebot/guarded-stdout.jsonl",
+        "stdoutSha256": "e4ac37309859054d8ba388ed727d9f1147fe3e518c853dc599359c610cc215bc",
+        "execution": ".cache/status-highlight-lifecycle-v97/native-timebot/guarded-execution.json",
+        "executionSha256": "cf0013c782fd17864bc57e0281998d135ca287d11b8fdce08e6090dfb5f94bb8",
+        "probeSourceSha256": "3c74b44a04c6c0ef5ef0b40c2158ba5806340a30141917d10f2d45241eb7931e",
+        "method": "single constructed invocation, real parser/init and real C timebot/stat_update_time/evaluator; primitive moves 10\u219211; thresholds parsed from time/<11/red/>=11/green; no selected rule/value/timer injected",
+        "observations": "moves10: current raw value10, previous0, both rule1, both chg1, times0/0; action hook clears both chg and requests redraw. moves11: current raw11, previous0, both rule2, both chg1, times0/0."
+      },
+      "jsEvidence": "scripts/display.test.mjs timebot bank test, commit 7c677ec4157502d93cf71e5767efd9182680fd7f",
+      "jsObserved": "Focused test passes: real JS timebot at moves10\u219211 matches raw current value, retained prior raw value, both selected-rule banks, and both notification banks; hook clears notification banks. Nonzero timer/type/text/compare sentinels additionally prove timebot does not copy unrelated per-member banks.",
+      "classification": "constructed native C timebot observation compared with focused constructed JS transition; not public C parity/gameplay evidence"
+    },
+    {
+      "case": "title-none-of-the-above-polymorph-aliases",
+      "cExpected": "botl.c get_hilite() checks noneoftheabove() only for BL_TITLE while Upolyd is true; noneoftheabove() accepts none of the above, (polymorphed), and none of the above (polymorphed), using fuzzy matching.",
+      "cRuntimeReceipt": "Not directly invoked in C during this continuation; expectation pinned to botl.c:2336-2344 and 2543-2547.",
+      "jsEvidence": "scripts/display-symbols.test.mjs test `title none-of-the-above aliases require a polymorphed form`, commit aaffc21fcd504fe3937e7d38cd7d4e823287fab1.",
+      "jsObserved": "Pass: each alias fails for an unpolymorphed hero and styles the title for a polymorphed form.",
+      "classification": "C-source expectation plus focused JS countercase; no C runtime parity claim"
     }
   ],
-  "remaining": "Full 22-unit review and source matrix, exact C runtime cases for the repaint/repeated-bot/update_all edges, public menu/reset/remove/ordinary impure entrypoint coverage, full regressions and independent lead review remain open."
+  "remaining": "Additionally to runtime/C/public evidence gaps, planner clone status bank alias is a concrete source implementation gap, awaiting authorized planner adapter path.",
+  "latestCorrections": [
+    {
+      "case": "XP percent rises while raw level falls",
+      "source": "botl.c:1590-1597",
+      "jsTest": "scripts/display-symbols.test.mjs: XP level loss overrides a rising percentage when choosing direction",
+      "result": "fixed and focused-tested"
+    },
+    {
+      "case": "unnotified field selector must retain last delivered rule",
+      "source": "botl.c:1493-1618",
+      "jsTest": "scripts/display-symbols.test.mjs: an unnotified HP field retains its last selected critical rule",
+      "result": "fixed and focused-tested"
+    }
+  ],
+  "planningCloneIsolation": {
+    "status": "known implementation gap; path authorization pending",
+    "finding": "planningState shallow-copies gb, leaving status highlight timer/chg arrays aliased to live state; finishHeroTimeEffects action hook can mutate those arrays on the clone",
+    "refs": [
+      "js/unported_monster_actions.js:734",
+      "js/allmain.js:512-525",
+      "scripts/allmain-turn.test.mjs:2876"
+    ],
+    "requiredFix": "clone status bank arrays while preserving cloned rule-object identity and chg-to-bank0 alias"
+  },
+  "candidateFreeze": {
+    "codeCommit": "28f66dc6888f89d103cdc1de42864fafc1491a66",
+    "frozenAt": "2026-10-17T05:41:56.845Z",
+    "sourceChangesAfterFreeze": "none"
+  },
+  "savedEarlierPublicReplay": {
+    "evaluation": "challenges/evaluations/worker2-temporary-v97.json",
+    "identityReceipt": ".cache/status-highlight-lifecycle-v97/v97-e6f-replay-identity.json",
+    "evaluatedCommit": "e6f00292d9e0ad38b4e61698b8b7dde3f483eccb",
+    "result": "5/5 screens, 5/5 cursors, 4904/4904 ordered RNG",
+    "latestRuntimeProof": false
+  }
 }
