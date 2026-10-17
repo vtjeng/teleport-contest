@@ -279,6 +279,7 @@ import {
     place_worm_tail_randomly,
     place_wsegs,
     remove_worm,
+    worm_known,
     wormgone,
 } from './worm.js';
 import { expels, gazemu, m_next2u } from './mhitu.js';
@@ -5910,11 +5911,8 @@ function monsterDigests(species) {
 // C stores the disintegration test in gd.disintegested, a global, which
 // vamprises() reads while mondead() handles a shape-shifted vampire.
 //
-// Two arms stop:
+// One arm stops:
 //
-//   3384       worm_known(), for a long worm whose visible segment decides
-//              whether the message is printed. The refusal precedes the
-//              message and every write below it.
 //   3414-3415  the "May <pet> rest in peace." farewell, which needs
 //              do_name.c noit_mon_nam(). Its guard is C's own `rxt`, so an
 //              ordinary pet -- one killed by neither fire, rust nor decay --
@@ -5924,10 +5922,8 @@ export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
     const message = requiredKillOperation(env, 'message');
     const mptr = mdef.data;
 
-    if (fltxt != null && mdef.wormno)
-        unsupported("a long worm's death by another monster");
-
-    if (fltxt != null && cansee(mdef.mx, mdef.my, state)) {
+    if (fltxt != null && (mdef.wormno
+        ? worm_known(mdef, state) : cansee(mdef.mx, mdef.my, state))) {
         await message(
             messageAt(
                 `${capitalizedMonsterName(mdef, state)} is`

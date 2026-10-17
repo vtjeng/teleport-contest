@@ -34,10 +34,18 @@ import {
 import { set_malign } from '../js/makemon.js';
 import { emits_light, is_neuter } from '../js/mondata.js';
 import { new_light_source } from '../js/light.js';
+import { cansee } from '../js/vision.js';
+import { initworm } from '../js/worm.js';
 
 import { accessible } from '../js/monmove.js';
 import { maketrap } from '../js/trap.js';
-import { IN_SIGHT, PIT, RLOC_NOMSG, WEB } from '../js/const.js';
+import {
+    IN_SIGHT,
+    MAX_NUM_WORMS,
+    PIT,
+    RLOC_NOMSG,
+    WEB,
+} from '../js/const.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -1861,23 +1869,47 @@ test('the pet golem farewell stops where C prints it', async () => {
     }
 });
 
-// mon.c monkilled():3384. A long worm's visibility is worm_known() rather than
-// cansee(), and that function is not ported. The stop sits above the message
-// and above everything mondied() would do.
-test('a long worm stops above the monkilled message', async () => {
+// mon.c monkilled():3384. A segmented worm uses worm_known(), which sees any
+// visible tail segment even when the head square itself is unseen.
+test('monkilled uses any visible long-worm segment, and defers the unseen pet feeling', async () => {
     await hero();
 
-    const worm = spawn(PM_LONG_WORM, { wormno: 1 });
-    const env = killEnv();
-    await refusesAsync(
-        () => monkilled(worm, '', AD_PHYS, game, env),
-        "a long worm's death by another monster",
-    );
-    assert.deepEqual(env.lines, [], 'printed nothing');
-    assert.deepEqual(env.bounds, [], 'drew nothing');
-    assert.equal(m_at(worm.mx, worm.my, game), worm, 'still on the map');
-    assert.equal((worm.mstate ?? 0) & MON_DETACH, 0, 'not detached');
-    assert.equal(game.svm.mvitals[PM_LONG_WORM].died, 0, 'not counted');
+    const visible = spawn(PM_LONG_WORM, { wormno: 1 });
+    game.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    initworm(visible, 1, { state: game });
+    const tail = [visible.mx - 1, visible.my];
+    if (tail[0] === game.u.ux && tail[1] === game.u.uy) tail[0]--;
+    game.level.worms[1].segments[0] = { x: tail[0], y: tail[1] };
+    game.level.monsters[tail[0]][tail[1]] = visible;
+    game.viz_array[visible.my][visible.mx] &= ~IN_SIGHT;
+    game.viz_array[tail[1]][tail[0]] |= IN_SIGHT;
+    assert.equal(cansee(visible.mx, visible.my, game), false, 'head is unseen');
+    assert.equal(cansee(tail[0], tail[1], game), true, 'tail is visible');
+    const visibleEnv = killEnv([1]);
+    await monkilled(visible, '', AD_PHYS, game, visibleEnv);
+    assert.equal(visibleEnv.lines.length, 1, 'worm_known permits the death line');
+    assert.match(visibleEnv.lines[0], /killed!/);
+    assert.equal((visible.mstate ?? 0) & MON_DETACH, MON_DETACH, 'victim detached');
+    assert.equal(game.level.worms[1], null, 'visible worm slot released');
+
+    const unseenPet = spawn(PM_LONG_WORM, { wormno: 1, mtame: 1 });
+    game.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    initworm(unseenPet, 1, { state: game });
+    const unseenTail = [unseenPet.mx - 1, unseenPet.my];
+    if (unseenTail[0] === game.u.ux && unseenTail[1] === game.u.uy)
+        unseenTail[0]--;
+    game.level.worms[1].segments[0] = {
+        x: unseenTail[0], y: unseenTail[1],
+    };
+    game.level.monsters[unseenTail[0]][unseenTail[1]] = unseenPet;
+    game.viz_array[unseenPet.my][unseenPet.mx] &= ~IN_SIGHT;
+    game.viz_array[unseenTail[1]][unseenTail[0]] &= ~IN_SIGHT;
+    const unseenEnv = killEnv([1]);
+    await monkilled(unseenPet, '', AD_PHYS, game, unseenEnv);
+    assert.deepEqual(unseenEnv.lines, [
+        'You have a sad feeling for a moment, then it passes.',
+    ], 'unseen pet feeling follows possible lifesaving/death handling');
+    assert.equal((unseenPet.mstate ?? 0) & MON_DETACH, MON_DETACH);
 });
 
 // mon.c mondead():3170-3171. The clear runs before m_detach()'s newsym()
