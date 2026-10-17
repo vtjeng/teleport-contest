@@ -12,6 +12,7 @@ import {
     FOUNTAIN,
     ECMD_FAIL,
     ECMD_TIME,
+    OBJ_FREE,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     LOST_DROPPED,
@@ -20,6 +21,7 @@ import {
     LEVITATION,
     OBJ_FLOOR,
     OBJ_INVENT,
+    OBJ_MIGRATING,
     PIT,
     HOLE,
     LAVAPOOL,
@@ -37,20 +39,25 @@ import {
 } from '../js/const.js';
 import {
     UnsupportedDropError, _dropInternals, canletgo, dropCommandEnv, dropx, preflight_dropx,
+    dodrop,
 } from '../js/do.js';
 import { game } from '../js/gstate.js';
+import { ship_object } from '../js/dokick.js';
 import { glibr } from '../js/do_wear.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
-import { addinv, any_obj_ok } from '../js/invent.js';
+import { addinv, any_obj_ok, freeinv } from '../js/invent.js';
+import { addtobill, costly_spot, onbill, shop_keeper } from '../js/shk.js';
 import { runSegment } from '../js/jsmain.js';
 import { loadThroneDropRecipe, THRONE_DROP_CASES } from './run-throne-drop.mjs';
-import { getRngLog } from '../js/rng.js';
-import { mksobj, newObject, remove_object } from '../js/obj.js';
+import { getRngLog, initRng } from '../js/rng.js';
+import {
+    mksobj, newObject, place_object, remove_object,
+} from '../js/obj.js';
 import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
-    ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
+    DAGGER, ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
     BOULDER, CORPSE, RIN_SEARCHING, SPEAR,
     TWO_HANDED_SWORD, WEAPON_CLASS,
     RUBY, SCROLL_CLASS, SCR_ENCHANT_WEAPON, SCR_BLANK_PAPER,
@@ -444,6 +451,111 @@ test('IA_DROP_OBJ reaches dodrop through the queued item action', async () => {
     assert.equal(game.uswapwep, null);
     assert.equal(game._ttyToplines, 'You drop a +1 lance.');
 });
+
+test('public drop through a known shop hole clears the real bill before migration',
+    async () => {
+        const recipe = JSON.parse(readFileSync(new URL(
+            '../recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
+            import.meta.url,
+        ), 'utf8'));
+        await runSegment(recipe.segments[0]);
+        const state = game;
+        clearTtyMessageWindow(state);
+        const { ux, uy } = state.u;
+        const room = state.level.at(ux, uy).roomno;
+        assert.ok(room >= 3, 'hero starts in a generated shop interior');
+        assert.ok(state.level.flags.has_shop);
+        assert.ok(state.u.ushops[0]);
+
+        // Construct the C-valid state after the source guard chain: an ordinary
+        // shop-interior hole (not a shopdoor), with levitation and a peaceful
+        // resident. A real dighole path reaches this arm without shopdoor
+        // damage or the fall/anger path.
+        state.level.traps = [{ tx: ux, ty: uy, ttyp: HOLE, tseen: true }];
+        state.u.uprops[LEVITATION].intrinsic = 1;
+        const keeper = shop_keeper(room, state);
+        assert.ok(keeper, 'generated room has its real keeper');
+        assert.equal(keeper.mpeaceful, true);
+        const obj = mksobj(DAGGER, false, false, { state });
+        await addtobill(obj, true, false, true, state);
+        addinv(obj, { state });
+        const bill = keeper.mextra.eshk.bill_p[0];
+        assert.equal(obj.unpaid, 1);
+        assert.equal(keeper.mextra.eshk.billct, 1);
+        assert.equal(bill?.bo_id, obj.o_id);
+        const expectedDebit = bill.bquan * bill.price;
+        assert.ok(expectedDebit > 0);
+        assert.equal(keeper.mextra.eshk.debit, 0);
+        assert.equal(keeper.mextra.eshk.credit, 0);
+        const source = { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel };
+
+        // Feed the real getobj() selector and any actual More boundaries.
+        // This core stream leaves the ordinary dagger intact and takes the
+        // source ship_object fall branch (rn2(3) === 0).
+        initRng(2);
+        state.nhDisplay.pushKey(obj.invlet.charCodeAt(0));
+        for (let i = 0; i < 12; i++) state.nhDisplay.pushKey(32);
+        const result = await dodrop(state);
+
+        assert.equal(result, ECMD_TIME);
+        assert.equal(obj.where, OBJ_MIGRATING);
+        assert.equal(obj.unpaid, 0);
+        assert.equal(keeper.mextra.eshk.billct, 0);
+        assert.equal(onbill(obj, keeper, true), null);
+        assert.equal(keeper.mextra.eshk.debit, expectedDebit);
+        assert.equal(keeper.mextra.eshk.credit, 0);
+        assert.equal(keeper.mextra.eshk.robbed, 0);
+        assert.deepEqual([obj.omigr_from_dnum, obj.omigr_from_dlevel],
+            [source.dnum, source.dlevel]);
+        assert.deepEqual([obj.ox, obj.oy], [0, source.dlevel + 1]);
+        for (let inv = state.invent; inv; inv = inv.nobj)
+            assert.notEqual(inv, obj, 'the migrated object left inventory');
+
+        // The sibling shop-floor arm bills from the saved source coordinates
+        // and still runs the same real helper before migration.
+        const sourceSquare = [];
+        for (let y = 0; y < 21 && !sourceSquare.length; y++) {
+            for (let x = 0; x < 80; x++) {
+                if ((x !== ux || y !== uy)
+                    && state.level.at(x, y).roomno === room
+                    && costly_spot(x, y, state)) {
+                    sourceSquare.push(x, y);
+                    break;
+                }
+            }
+        }
+        assert.equal(sourceSquare.length, 2);
+        const floorObj = mksobj(DAGGER, false, false, { state });
+        place_object(floorObj, sourceSquare[0], sourceSquare[1], { state });
+        remove_object(floorObj, { state });
+        const floorDebit = keeper.mextra.eshk.debit;
+        assert.equal(await ship_object(floorObj, ux, uy, true, {
+            state,
+            random: { rn2: (n) => n === 3 ? 0 : 1 },
+        }), true);
+        assert.equal(floorObj.where, OBJ_MIGRATING);
+        assert.ok(keeper.mextra.eshk.debit > floorDebit);
+        assert.equal(keeper.mextra.eshk.robbed, 0);
+
+        // A real unpaid object that takes the existing stay-here roll keeps
+        // its genuine bill and does not migrate or incur a debit.
+        const stays = mksobj(DAGGER, false, false, { state });
+        await addtobill(stays, true, false, true, state);
+        addinv(stays, { state });
+        const stayBill = keeper.mextra.eshk.bill_p[0];
+        const stayDebit = keeper.mextra.eshk.debit;
+        await freeinv(stays, { state });
+        assert.equal(await ship_object(stays, ux, uy, false, {
+            state, random: { rn2: (n) => n === 3 ? 1 : 1 },
+        }), false);
+        assert.equal(stays.where, OBJ_FREE,
+            'the failed attempt leaves it free');
+        assert.equal(stays.unpaid, 1);
+        assert.equal(keeper.mextra.eshk.billct, 1);
+        assert.equal(keeper.mextra.eshk.bill_p[0], stayBill);
+        assert.equal(keeper.mextra.eshk.debit, stayDebit);
+        assert.notEqual(state.gm.migrating_objs, stays);
+    });
 
 async function playDrop(keys) {
     let boundary = null;

@@ -1717,7 +1717,23 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
         return false;
     }
     if (unpaid || shop_floor_obj) {
-        note_unported('shk.c stolen_value');
+        if (unpaid) {
+            await stolen_value(
+                obj, state.u.ux, state.u.uy, true, false, state,
+            );
+        } else {
+            const ox = obj.ox;
+            const oy = obj.oy;
+            await stolen_value(
+                obj, ox, oy,
+                costly_spot(state.u.ux, state.u.uy, state)
+                    && state.u.urooms.includes(
+                        in_rooms(ox, oy, SHOPBASE, state)[0] ?? 0,
+                    ),
+                false,
+                state,
+            );
+        }
         if (container) picked_container(obj);
         if (obj.oclass !== COIN_CLASS) obj.no_charge = 0;
     }
