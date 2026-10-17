@@ -3720,6 +3720,17 @@ test('planned pony rolling trap uses clone RNG for real hero collision', async (
     const planned = planningState(game);
     const initialCanonicalBhitpos = planned.gb?.bhitpos
         ? { ...planned.gb.bhitpos } : null;
+    let firstLaunchDropSpot = null;
+    let launchplace = planned.launchplace;
+    Object.defineProperty(planned, 'launchplace', {
+        configurable: true,
+        get: () => launchplace,
+        set(value) {
+            if (!firstLaunchDropSpot && value?.obj)
+                firstLaunchDropSpot = { x: value.x, y: value.y };
+            launchplace = value;
+        },
+    });
     const clonedCore = cloneIsaacContext(planned.coreCtx);
     const standardRandom = createCoreRandom(clonedCore, planned);
     const draws = [];
@@ -3780,6 +3791,8 @@ test('planned pony rolling trap uses clone RNG for real hero collision', async (
     }));
     assert.ok(draws.some(([name, bound]) => name === 'rn2' && bound === 2),
         JSON.stringify(draws));
+    assert.deepEqual(firstLaunchDropSpot, { x: 2, y: 10 },
+        'the initial in-flight placement marker uses the launch origin');
     assert.deepEqual(planned.gb.bhitpos, { x: 14, y: 10 }, JSON.stringify({
         initialCanonicalBhitpos,
         finalCanonicalBhitpos: planned.gb.bhitpos,

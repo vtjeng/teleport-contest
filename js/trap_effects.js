@@ -2698,8 +2698,8 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     let x, y;
     const globalState = state.gb ??= {};
     globalState.bhitpos ??= {};
-    globalState.bhitpos.x = x1;
-    globalState.bhitpos.y = y1;
+    x = globalState.bhitpos.x = x1;
+    y = globalState.bhitpos.y = y1;
     const dx = sgn(x2 - x1);
     const dy = sgn(y2 - y1);
     let delaycnt = 0;
