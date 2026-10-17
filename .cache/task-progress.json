@@ -1,0 +1,20 @@
+{
+  "task": "session:synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+  "claimedAt": "2026-10-17T04:42:09.248Z",
+  "scopeConfirmedAt": "2026-10-17T04:44:25Z",
+  "investigationReportWrittenAt": "2026-10-17T04:45:05.879Z",
+  "firstMilestoneDeadline": "2026-10-17T05:42:09.248Z",
+  "activeEffortSeconds": null,
+  "activeEffortStatus": "unknown; not instrumented; do not infer from wall time",
+  "phases": [
+    {"name": "claim", "elapsed": "2026-10-17T04:42:09.248Z"},
+    {"name": "before-code scope confirmation", "elapsed": "2026-10-17T04:44:25Z"},
+    {"name": "source investigation and frozen evidence reconciliation", "elapsed": "2026-10-17T04:52:00Z"},
+    {"name": "implementation commit", "elapsed": "2026-10-17T04:57:04Z"},
+    {"name": "focused verification and unchanged v97 replay", "elapsed": "2026-10-17T04:58:42Z"},
+    {"name": "independent review and acceptance evidence", "elapsed": "pending"}
+  ],
+  "implementationCommit": "66cb8b508c99d8c7c61d83f22135e2e4b2ad6f24",
+  "milestone": ".cache/status-highlight-lifecycle-v97/implementation-milestone.json",
+  "milestoneStatus": "incomplete-unaccepted"
+}

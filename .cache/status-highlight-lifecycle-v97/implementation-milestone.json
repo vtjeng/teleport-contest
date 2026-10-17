@@ -1,0 +1,111 @@
+{
+  "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+  "goal": "status-highlight-lifecycle-v97-20261017",
+  "branch": "queue/7a8c70d1776f7a6b82f3efb29ba5b3b12b07697ef7f06252b3f092f5ef9e84b2/attempt-1",
+  "base": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+  "implementationCommit": "66cb8b508c99d8c7c61d83f22135e2e4b2ad6f24",
+  "milestoneAt": "2026-10-17T04:58:42Z",
+  "status": "milestone-incomplete-unaccepted",
+  "activeEffortSeconds": null,
+  "activeEffortStatus": "unknown; not instrumented; do not infer from phase elapsed",
+  "changedPaths": [
+    "js/display.js",
+    "js/allmain.js",
+    "js/options.js",
+    "scripts/allmain-turn.test.mjs",
+    "scripts/level-arrival.test.mjs",
+    "scripts/status-hilite-lifecycle.test.mjs"
+  ],
+  "focusedChecks": {
+    "npm run lint": "pass",
+    "git diff --check": "pass",
+    "node --test scripts/status-hilite-lifecycle.test.mjs scripts/allmain-turn.test.mjs scripts/display-symbols.test.mjs scripts/status-hilite-menu.test.mjs scripts/level-arrival.test.mjs": {
+      "status": "pass",
+      "passed": 308,
+      "failed": 0
+    }
+  },
+  "unchangedTouristReplay": {
+    "batch": "v97",
+    "case": "v97-tourist-first-new-depth-xp-percent-highlight",
+    "status": "complete",
+    "casePassed": true,
+    "sessions": "1/1",
+    "screens": "5/5",
+    "cursors": "5/5",
+    "orderedRng": "4904/4904",
+    "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
+    "inputSha256": "dc39c0684f2c9614e2b1d60610113dc4b6dc7ffb26817bbbdd5f3eb5342dae85",
+    "evaluatedCommit": "66cb8b508c99d8c7c61d83f22135e2e4b2ad6f24",
+    "evaluationOutput": "temporary challenges/evaluations/worker2-temporary-v97.json removed after extracting summary"
+  },
+  "reusableNativeConstructedFieldAssessment": {
+    "path": "/workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/assessment.json",
+    "sha256": "32bae2c2a7e6dba78c4e110cadd3d7a2494e55270228935b7f99f56448cddb30",
+    "verdict": "CONSTRUCTED_FIELD_ORACLE_FEASIBLE; full public integration/reachability oracle remains unclosed",
+    "observed": [
+      "XP returns false then true",
+      "threshold grant requests redraw",
+      "same-rule grant leaves botl clear",
+      "temporary rule in both banks",
+      "both banks expire at 13",
+      "equality not expired",
+      "multi holds expired rule",
+      "strict expiry after multi clears",
+      "real redraw restores persistent rule",
+      "reset requests full redraw"
+    ],
+    "notObserved": [
+      "actual bot_via_windowport field collection",
+      "moveloop caller timing",
+      "real TTY cells/attributes/cursor",
+      "ordered RNG channels",
+      "public input reachability",
+      "JS parity"
+    ]
+  },
+  "frozen22UnitScopeStatus": {
+    "overall": "partial; no unit certified complete",
+    "touchedOrIntegrated": [
+      "bot",
+      "timebot",
+      "stat_update_time",
+      "exp_percent_changing",
+      "status_eval_next_unhilite",
+      "reset_status_hilites",
+      "clear_status_hilites",
+      "status_hilite_remove"
+    ],
+    "notIndependentlyClosed": [
+      "bot_via_windowport",
+      "eval_notify_windowport_field",
+      "evaluate_and_notify_windowport",
+      "status_initialize",
+      "status_finish",
+      "init_blstats",
+      "compare_blstats",
+      "anything_to_s",
+      "percentage",
+      "exp_percentage",
+      "noneoftheabove",
+      "get_hilite",
+      "status_hilite_add_threshold"
+    ],
+    "allUnitClaims": "not made; changes approximate selected semantics and require full frozen C/public evidence matrix"
+  },
+  "remainingAcceptanceGaps": [
+    "complete source comparison and lifecycle evidence for all 22 frozen botl.c units",
+    "independent actual-C comparison matrix for the full status callback/selector/notification route; reused native assessment is constructed-field evidence only",
+    "public status menu controls, reset, option removal, and temporary timer behavior not exercised by the unchanged Tourist replay",
+    "full regression suite and independent lead review pending",
+    "no public C parity or general runtime certification claimed"
+  ],
+  "phaseTimes": {
+    "claimAt": "2026-10-17T04:42:09.248Z",
+    "scopeConfirmedAt": "2026-10-17T04:44:25Z",
+    "investigationReportAt": "2026-10-17T04:45:05.879Z",
+    "implementationCommitAt": "2026-10-17T04:57:04Z",
+    "focusedVerificationAt": "2026-10-17T04:58:42Z",
+    "firstMilestoneDeadline": "2026-10-17T05:42:09.248Z"
+  }
+}
