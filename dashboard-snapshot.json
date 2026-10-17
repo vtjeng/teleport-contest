@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T21:02:48.650Z",
+  "capturedAt": "2026-10-17T21:22:27.367Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T21:02:48.650Z",
+    "asOf": "2026-10-17T21:22:27.367Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 166,
+      "mainSupportAssignments": 172,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -164292,6 +164292,160 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:04:20.209Z",
+        "id": "queue:ecfa0e55-8cf4-4e0c-a001-4fbc7ce0dc1c",
+        "type": "assign",
+        "task": "container-artifact-touch-async-rejection-source-screen-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:06:33.663Z",
+        "id": "queue:7fcb8ba9-7155-44ef-a7a8-ea735ff7685b",
+        "type": "queue-complete",
+        "task": "container-artifact-touch-async-rejection-source-screen-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:06:33.663Z",
+        "id": "queue:7fcb8ba9-7155-44ef-a7a8-ea735ff7685b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:08:38.020Z",
+        "id": "queue:799ed851-e70d-4854-91ae-32a29d59347b",
+        "type": "assign",
+        "task": "adjacent-pool-travel-crawl-await-source-screen-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:12:56.843Z",
+        "id": "queue:106fc0bc-53e8-4654-a356-bedd183d2f9a",
+        "type": "queue-complete",
+        "task": "adjacent-pool-travel-crawl-await-source-screen-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:12:56.843Z",
+        "id": "queue:106fc0bc-53e8-4654-a356-bedd183d2f9a:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:14:16.216Z",
+        "id": "queue:dfb295fb-de45-42e8-99a9-94f90fd432dd",
+        "type": "assign",
+        "task": "rogue-unseen-ray-secret-door-draft-source-screen-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:16:01.516Z",
+        "id": "queue:087aa579-3943-4d40-8bc2-319e0181859a",
+        "type": "queue-complete",
+        "task": "rogue-unseen-ray-secret-door-draft-source-screen-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:16:01.516Z",
+        "id": "queue:087aa579-3943-4d40-8bc2-319e0181859a:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:17:49.332Z",
+        "id": "queue:61fcafbb-f9a1-45d1-8611-a46252ac83b1",
+        "type": "assign",
+        "task": "sink-armor-occupation-cancel-source-screen-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:20:15.695Z",
+        "id": "queue:d13f3d01-5322-4c0b-b771-6b49cb8ca726",
+        "type": "queue-complete",
+        "task": "sink-armor-occupation-cancel-source-screen-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:20:15.695Z",
+        "id": "queue:d13f3d01-5322-4c0b-b771-6b49cb8ca726:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-recovery-2120-observe-20261017",
+        "type": "observe",
+        "at": "2026-10-17T21:20:40.442Z",
+        "worker": "Worker-1",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:21:55.542Z",
+        "id": "queue:f6761cb4-8eca-4d36-a83f-d0fd85f0d5d4",
+        "type": "assign",
+        "task": "stronghold-dodown-gotohell-source-screen-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:22:19.981Z",
+        "id": "queue:33cfdb95-98a0-4077-9b05-014bdf09b671",
+        "type": "assign",
+        "task": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -164311,24 +164465,33 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "stronghold-dodown-gotohell-source-screen-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "task": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
+        "worker": "Worker-2"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 392,
+      "completed": 396,
       "superseded": 65
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "stronghold-dodown-gotohell-source-screen-20261017",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -171223,6 +171386,96 @@
         "readyAt": "2026-10-17T20:51:27.676Z",
         "claimedAt": "2026-10-17T20:51:38.051Z",
         "completedAt": "2026-10-17T20:54:15.397Z"
+      },
+      {
+        "id": "container-artifact-touch-async-rejection-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T21:03:59.964Z",
+        "claimedAt": "2026-10-17T21:04:20.209Z",
+        "completedAt": "2026-10-17T21:06:33.663Z"
+      },
+      {
+        "id": "adjacent-pool-travel-crawl-await-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T21:08:19.021Z",
+        "claimedAt": "2026-10-17T21:08:38.020Z",
+        "completedAt": "2026-10-17T21:12:56.843Z"
+      },
+      {
+        "id": "rogue-unseen-ray-secret-door-draft-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T21:14:06.215Z",
+        "claimedAt": "2026-10-17T21:14:16.216Z",
+        "completedAt": "2026-10-17T21:16:01.516Z"
+      },
+      {
+        "id": "sink-armor-occupation-cancel-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T21:17:37.879Z",
+        "claimedAt": "2026-10-17T21:17:49.332Z",
+        "completedAt": "2026-10-17T21:20:15.695Z"
+      },
+      {
+        "id": "stronghold-dodown-gotohell-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T21:20:22.998Z",
+        "claimedAt": "2026-10-17T21:21:55.542Z",
+        "completedAt": null
+      },
+      {
+        "id": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T21:22:09.535Z",
+        "claimedAt": "2026-10-17T21:22:19.981Z",
+        "completedAt": null
       }
     ]
   },
