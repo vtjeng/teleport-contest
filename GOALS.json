@@ -319920,6 +319920,55 @@
           }
         ]
       }
+    },
+    {
+      "id": "explicit-search-hallu-capability-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement find_trap from detect.c",
+      "cFile": "detect.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:explicit-search-hallu-capability-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "find_trap",
+          "line": 1935,
+          "endLine": 1964,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1935,
+        "to": 1964
+      },
+      "requiredFunctions": [
+        {
+          "name": "dosearch0",
+          "line": 2016,
+          "endLine": 2096,
+          "declared": true,
+          "sourceFile": "detect.c"
+        },
+        {
+          "name": "dosearch",
+          "line": 2097,
+          "endLine": 2106,
+          "declared": true,
+          "sourceFile": "detect.c"
+        }
+      ],
+      "sourceTrial": {
+        "id": "explicit-search-hallu-capability-20261017",
+        "reviewedBase": "0915ed8f939110d89cb36c27465a1e9a51c143de",
+        "reviewSha256": "c03aba059bc7dc3e7a8a3faa49decfd72ef8b401885417db59ba1b22f2234d87",
+        "evidenceBasis": "constructed-state-runtime-pending",
+        "assignmentBase": "f2b94f80f8dbcd508cc3836c2a34edb657f30eef"
+      }
     }
   ]
 }
