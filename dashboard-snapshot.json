@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-16T23:13:53.436Z",
+  "capturedAt": "2026-10-17T02:13:45.885Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-16T23:13:53.436Z",
+    "asOf": "2026-10-17T02:13:45.885Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5711,7 +5711,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 70,
+      "mainSupportAssignments": 73,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -160003,6 +160003,235 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:16:10.943Z",
+        "id": "queue:b44633fb-5ca6-43b4-a46f-b69f9ba07ad8",
+        "type": "assign",
+        "task": "support-xp-highlight-public-caller-proof-followup-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:18:53.102Z",
+        "id": "queue:7513ca5a-8622-4519-b338-7cae0506c12f",
+        "type": "queue-complete",
+        "task": "support-xp-highlight-public-caller-proof-followup-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:18:53.102Z",
+        "id": "queue:7513ca5a-8622-4519-b338-7cae0506c12f:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:29:42.731Z",
+        "id": "queue:b67c9643-5ffe-43d9-b2ff-498ad888486d",
+        "type": "assign",
+        "task": "support-lit-stack-split-merge-timer-source-prior-20261016",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:29:47.021Z",
+        "id": "queue:da7446a3-97e0-40db-8ba2-6fabadbc442f",
+        "type": "assign",
+        "task": "support-monster-undead-wand-object-callback-source-prior-20261016",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:31:22.799Z",
+        "id": "queue:8dce74ef-8064-456e-8d36-a7fa76a5d5ce",
+        "type": "queue-complete",
+        "task": "support-lit-stack-split-merge-timer-source-prior-20261016",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:31:22.799Z",
+        "id": "queue:8dce74ef-8064-456e-8d36-a7fa76a5d5ce:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:33:12.182Z",
+        "id": "queue:7822fc6a-9fc5-42a2-bb96-c2cf7edf8029",
+        "type": "queue-complete",
+        "task": "support-monster-undead-wand-object-callback-source-prior-20261016",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-16T23:33:12.182Z",
+        "id": "queue:7822fc6a-9fc5-42a2-bb96-c2cf7edf8029:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "observe-prep97-minimal-handoff-20261017",
+        "type": "observe",
+        "at": "2026-10-17T00:03:15.584Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "assign-prep97-after-exhausted-parked96-20261017",
+        "type": "assign",
+        "at": "2026-10-17T00:19:42.149Z",
+        "task": "Prep97",
+        "worker": "Prep",
+        "kind": "challenge-preparation",
+        "batch": "v97"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-d504e3f4c373f9216cb1bd87a0ee93e86e1b77cc",
+        "type": "ready",
+        "at": "2026-10-17T00:20:43.728Z",
+        "task": "Prep97",
+        "delivery": "d504e3f4c373f9216cb1bd87a0ee93e86e1b77cc"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-prep97-d504e3f-20261017",
+        "type": "received",
+        "at": "2026-10-17T00:21:15.654Z",
+        "task": "Prep97",
+        "delivery": "d504e3f4c373f9216cb1bd87a0ee93e86e1b77cc"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-prep97-consumer-integration-20261017",
+        "type": "activity",
+        "at": "2026-10-17T00:21:16.245Z",
+        "task": "Prep97",
+        "phase": "review",
+        "reason": "Review saved independent case evidence and supported planner/admission continuation guards"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "park-prep97-user-selects-unsubmitted-v96-20261017",
+        "type": "park",
+        "at": "2026-10-17T00:37:25.920Z",
+        "task": "Prep97",
+        "reason": "User explicitly selected the same saved case for earlier unsubmitted v96. Preserve this unaccepted v97 wrapper and immutable delivery unchanged; defer its disposition until v96 intake resolves. No completion, acceptance, admission or runtime is claimed."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-original-v96-user-approved-saved-case-20261017",
+        "type": "resume",
+        "at": "2026-10-17T00:38:07.129Z",
+        "task": "prep-v96-source-exploration-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-cb34813cc868432e050a4c21ae41d77d84b0ab2a",
+        "type": "ready",
+        "at": "2026-10-17T00:38:35.945Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "delivery": "cb34813cc868432e050a4c21ae41d77d84b0ab2a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-v96-cb34813-20261017",
+        "type": "received",
+        "at": "2026-10-17T00:39:07.490Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "delivery": "cb34813cc868432e050a4c21ae41d77d84b0ab2a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-v96-user-saved-case-20261017",
+        "type": "activity",
+        "at": "2026-10-17T00:39:08.392Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "phase": "review",
+        "reason": "Review unchanged saved C evidence under user-directed unsubmitted batch v96"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-group-e94ce2bc8c1e061bd3a9a3de088a7371e058ab9c031cd9d0f32e4e8f0dd3d8db-47e1509a9ba6a4b627a2da5bc673198aaedb1dd0-prep-v96-source-exploration-20261016",
+        "type": "integrating",
+        "at": "2026-10-17T00:39:22.069Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "integration": "47e1509a9ba6a4b627a2da5bc673198aaedb1dd0",
+        "prepGroup": [
+          "prep-v96-source-exploration-20261016"
+        ],
+        "validationGroup": [
+          "prep-v96-source-exploration-20261016"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-validated-prep-v96-source-exploration-20261016-47e1509a9ba6a4b627a2da5bc673198aaedb1dd0",
+        "type": "validated",
+        "at": "2026-10-17T00:48:43.495Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-accepted-prep-v96-source-exploration-20261016-47e1509a9ba6a4b627a2da5bc673198aaedb1dd0",
+        "type": "accepted",
+        "at": "2026-10-17T00:48:43.495Z",
+        "task": "prep-v96-source-exploration-20261016"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-v96-after-normal-prep-acceptance-20261017",
+        "type": "activity",
+        "at": "2026-10-17T00:49:06.595Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "phase": "admission",
+        "reason": "Admit accepted unchanged v96 case and obtain its first hosted baseline"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-baseline-prep-v96-source-exploration-20261016-8cc2677aab9ae7eabe4981a42c3bde9cf7b0bb50",
+        "type": "activity",
+        "at": "2026-10-17T02:11:45.385Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-done-prep-v96-source-exploration-20261016-8cc2677aab9ae7eabe4981a42c3bde9cf7b0bb50",
+        "type": "activity",
+        "at": "2026-10-17T02:11:45.519Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
@@ -160011,16 +160240,16 @@
     "preparedBatches": [],
     "parkedTasks": [
       {
-        "task": "prep-v96-source-exploration-20261016",
+        "task": "Prep97",
         "worker": "Prep",
         "goal": null,
         "kind": "challenge-preparation",
         "status": "parked",
-        "delivery": null,
-        "batch": "v96",
-        "since": "2026-10-16T19:45:14.471Z",
+        "delivery": "d504e3f4c373f9216cb1bd87a0ee93e86e1b77cc",
+        "batch": "v97",
+        "since": "2026-10-17T00:37:25.920Z",
         "blockedBy": [],
-        "reason": "Bounded planning/exploration exhausted without qualifying deliverable. Original twelve questions and extensions retain explicit outcomes; stopped pilot was feasibility only. Two unrun source risks remain leads, not a valid next plan or named live dependency. No empty delivery, budget reset or source release."
+        "reason": "User explicitly selected the same saved case for earlier unsubmitted v96. Preserve this unaccepted v97 wrapper and immutable delivery unchanged; defer its disposition until v96 intake resolves. No completion, acceptance, admission or runtime is claimed."
       }
     ]
   },
@@ -160029,18 +160258,23 @@
     "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
-    "blocked": [],
+    "blocked": [
+      {
+        "task": "session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "reason": "Waiting for producer or dependencies."
+      }
+    ],
     "claimed": [],
     "counts": {
       "ready": 0,
       "claimed": 0,
-      "blocked": 0,
-      "completed": 288,
+      "blocked": 1,
+      "completed": 291,
       "superseded": 64
     },
     "workers": [
@@ -165364,12 +165598,74 @@
         "readyAt": "2026-10-16T23:10:02.944Z",
         "claimedAt": "2026-10-16T23:10:10.553Z",
         "completedAt": "2026-10-16T23:12:42.976Z"
+      },
+      {
+        "id": "support-xp-highlight-public-caller-proof-followup-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T23:15:59.771Z",
+        "claimedAt": "2026-10-16T23:16:10.943Z",
+        "completedAt": "2026-10-16T23:18:53.102Z"
+      },
+      {
+        "id": "support-lit-stack-split-merge-timer-source-prior-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-16T23:29:32.863Z",
+        "claimedAt": "2026-10-16T23:29:42.731Z",
+        "completedAt": "2026-10-16T23:31:22.799Z"
+      },
+      {
+        "id": "support-monster-undead-wand-object-callback-source-prior-20261016",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-16T23:29:33.673Z",
+        "claimedAt": "2026-10-16T23:29:47.021Z",
+        "completedAt": "2026-10-16T23:33:12.182Z"
+      },
+      {
+        "id": "session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-17T02:11:45.802Z",
+        "claimedAt": null,
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "1c6cfbc07e1807cc55c400b0afae636bc9565597",
-    "measuredAt": "2026-10-16T23:11:20.490Z",
+    "executionCommit": "47e1509a9ba6a4b627a2da5bc673198aaedb1dd0",
+    "measuredAt": "2026-10-17T00:47:52.238Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
