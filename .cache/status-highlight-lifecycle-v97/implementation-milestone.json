@@ -37,7 +37,9 @@
     "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
     "inputSha256": "dc39c0684f2c9614e2b1d60610113dc4b6dc7ffb26817bbbdd5f3eb5342dae85",
     "evaluatedCommit": "66cb8b508c99d8c7c61d83f22135e2e4b2ad6f24",
-    "evaluationOutput": "temporary challenges/evaluations/worker2-temporary-v97.json removed after extracting summary"
+    "evaluationOutput": "temporary challenges/evaluations/worker2-temporary-v97.json removed after extracting summary",
+    "command": "node scripts/score-challenges.mjs --batch v97 --output challenges/evaluations/worker2-temporary-v97.json",
+    "sanitizedCommandLog": "/tmp/worker2-v97-score.log (recoverable owner command log; reports complete, 1/1 sessions, 5/5 screens, 5/5 cursors, 4904/4904 RNG)"
   },
   "reusableNativeConstructedFieldAssessment": {
     "path": "/workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/assessment.json",
@@ -66,32 +68,119 @@
   },
   "frozen22UnitScopeStatus": {
     "overall": "partial; no unit certified complete",
-    "touchedOrIntegrated": [
-      "bot",
-      "timebot",
-      "stat_update_time",
-      "exp_percent_changing",
-      "status_eval_next_unhilite",
-      "reset_status_hilites",
-      "clear_status_hilites",
-      "status_hilite_remove"
+    "unitMatrix": [
+      {
+        "unit": "bot",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: starts a full status-highlight snapshot pass; public callback/field comparison still not independently closed"
+      },
+      {
+        "unit": "timebot",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: runs a time-only highlight pass through stat_update_time and preserves other selected fields"
+      },
+      {
+        "unit": "bot_via_windowport",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS callback route; actual field collection not exercised or C-compared in this milestone"
+      },
+      {
+        "unit": "stat_update_time",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "existing JS counterpart used by timebot; tty cells/cursor behavior not C-compared here"
+      },
+      {
+        "unit": "eval_notify_windowport_field",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; ordinary public notification order and typed provenance remain unclosed"
+      },
+      {
+        "unit": "evaluate_and_notify_windowport",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; whole callback contract unclosed"
+      },
+      {
+        "unit": "status_initialize",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; full source comparison pending"
+      },
+      {
+        "unit": "status_finish",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; full source comparison pending"
+      },
+      {
+        "unit": "init_blstats",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; double-bank initialization and typed values need independent audit"
+      },
+      {
+        "unit": "compare_blstats",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; C comparison coverage incomplete"
+      },
+      {
+        "unit": "anything_to_s",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; typed union and formatting edge matrix incomplete"
+      },
+      {
+        "unit": "percentage",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; complete source edge matrix not run"
+      },
+      {
+        "unit": "exp_percentage",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; complete source edge matrix not run"
+      },
+      {
+        "unit": "exp_percent_changing",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: percentage change compares candidate rule identity with the current BL_XP bank; source/native matrix review pending"
+      },
+      {
+        "unit": "hilite_reset_needed",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart or equivalent reset check not independently established in this milestone"
+      },
+      {
+        "unit": "status_eval_next_unhilite",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: dual-bank timer stamp, multi hold and t+1 redraw path implemented and focused-tested"
+      },
+      {
+        "unit": "reset_status_hilites",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: clears both temporary timer banks and requests a redraw"
+      },
+      {
+        "unit": "noneoftheabove",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: title polymorph matcher added; full C precedence/parity pending"
+      },
+      {
+        "unit": "get_hilite",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: `_selectStatusHilite` candidate selection added; full source precedence matrix pending"
+      },
+      {
+        "unit": "status_hilite_add_threshold",
+        "status": "not independently audited/closed in this milestone",
+        "milestoneWorkOrGap": "preexisting JS counterpart; selector integration and rule-identity behavior need full audit"
+      },
+      {
+        "unit": "clear_status_hilites",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: option clear preserves condition rules and invalidates freed selected-rule pointers"
+      },
+      {
+        "unit": "status_hilite_remove",
+        "status": "partial implementation; not independently closed",
+        "milestoneWorkOrGap": "partial: existing removal path clears selected identity/timers; source/ordinary callback review pending"
+      }
     ],
-    "notIndependentlyClosed": [
-      "bot_via_windowport",
-      "eval_notify_windowport_field",
-      "evaluate_and_notify_windowport",
-      "status_initialize",
-      "status_finish",
-      "init_blstats",
-      "compare_blstats",
-      "anything_to_s",
-      "percentage",
-      "exp_percentage",
-      "noneoftheabove",
-      "get_hilite",
-      "status_hilite_add_threshold"
-    ],
-    "allUnitClaims": "not made; changes approximate selected semantics and require full frozen C/public evidence matrix"
+    "completionRule": "A changed/present JS counterpart is not counted complete without full source-contract review plus required native/public evidence."
   },
   "remainingAcceptanceGaps": [
     "complete source comparison and lifecycle evidence for all 22 frozen botl.c units",
