@@ -46,6 +46,7 @@ import {
     MMOVE_DONE,
     MMOVE_NOTHING,
     MAX_NUM_WORMS,
+    MON_DETACH,
     MOAT,
     NATTK,
     NEED_HTH_WEAPON,
@@ -6138,6 +6139,102 @@ test('awake or visible long worms use the ordinary movement path', async () => {
             testCase.label,
         );
     }
+});
+
+// C: monmove.c m_move()/postmov() -> trap.c mintrap() ->
+// trapeffect_arrow_trap() -> thitm() -> mon.c monkilled(). The first real
+// movement places a source-valid tail and establishes the next growtime; the
+// fixture then represents an ordinary already-injured (but living) worm at
+// HP 1 before the one fresh arrow trap. The selected action itself uses the
+// production planning clone and the normal monster-action provider.
+test('a planned long worm dies through a fresh arrow trap and releases its tail', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_LONG_WORM });
+    const sourceWorm = target.monster;
+    const sourceX = target.monsterX - 1;
+    game.level.monsters[target.monsterX][target.heroY] = null;
+    game.level.at(sourceX, target.heroY).typ = ROOM;
+    game.level.at(sourceX, target.heroY).wall_info = 0;
+    game.level.monsters[sourceX][target.heroY] = sourceWorm;
+    sourceWorm.mx = sourceX;
+    sourceWorm.wormno = 1;
+    game.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    initworm(sourceWorm, 1, { state: game });
+    game.viz_array[target.heroY][sourceX] |= COULD_SEE;
+
+    const planned = planningState(game);
+    const worm = planned.level.monlist;
+    const liveGuard = freezeLiveState(game);
+    const random = createCoreRandom(
+        cloneIsaacContext(planned.coreCtx),
+        planned,
+    );
+    assert.equal(worm.data.pmidx, PM_LONG_WORM);
+    assert.ok(worm.mhpmax > 1, 'retain the source-derived maximum HP');
+
+    // This first production action is the ordinary prior movement that
+    // creates a real visible segment and a future growth deadline.
+    await runSimpleMonsterAction(worm, {
+        state: planned,
+        planning: true,
+        random,
+    });
+    assert.equal(worm.mx, target.monsterX, 'worm moved through m_move');
+    assert.ok(planned.level.worms[1].growtime > planned.moves,
+        'prior worm_move established future growtime');
+    const tail = planned.level.worms[1].segments[1];
+    assert.deepEqual(tail, { x: sourceX, y: target.heroY });
+
+    // The selected route starts from an ordinary injured HP-1 worm, keeps its
+    // source-derived max HP, and retains the future growth deadline so the
+    // action's worm_move cannot heal it before the arrow trap.
+    worm.mhp = 1;
+    planned.level.at(target.destinationX + 1, target.heroY).typ = STONE;
+    planned.level.at(target.destinationX + 1, target.heroY).wall_info =
+        W_NONDIGGABLE | W_NONPASSWALL;
+    planned.level.traps = [{
+        tx: target.destinationX,
+        ty: target.heroY,
+        ttyp: ARROW_TRAP,
+        tseen: false,
+        once: false,
+        madeby_u: false,
+        tnote: 0,
+        vl: {},
+        launch: { x: -1, y: -1 },
+        dst: { dnum: -1, dlevel: -1 },
+        teledest: { x: 0, y: 0 },
+        conjoined: 0,
+    }];
+
+    const routeBefore = {
+        mx: worm.mx,
+        mhp: worm.mhp,
+        growtime: planned.level.worms[1].growtime,
+        tail: planned.level.worms[1].segments.map((segment) => ({ ...segment })),
+    };
+    assert.equal(routeBefore.mhp, 1);
+    assert.equal(planned.level.traps[0].once, false);
+    await runSimpleMonsterAction(worm, {
+        state: planned,
+        planning: true,
+        random,
+    });
+    liveGuard.assertNoLeak(assert);
+    assert.equal(worm.mx, routeBefore.mx + 1,
+        'arrow trap was reached through a real closer move');
+    assert.equal(worm.mhp, 0, 'real arrow damage completed death');
+    assert.equal(worm.wormno, 0, 'death releases the active worm number');
+    assert.equal(planned.level.worms[1], null,
+        'death cleanup releases the segment slot');
+    assert.notEqual(worm.mstate & MON_DETACH, 0,
+        'death completed the source detach path');
+    for (const x of [sourceX, target.monsterX, target.destinationX])
+        assert.equal(planned.level.monsters[x][target.heroY], null,
+            `worm segment at ${x},${target.heroY} was removed`);
+    assert.equal(planned.level.traps[0].once, true,
+        'the real arrow trap fired');
+    assert.deepEqual(routeBefore.tail.at(-1),
+        { x: routeBefore.mx, y: target.heroY }, 'pre-hit head was real');
 });
 
 // C ref: monmove.c dochug():717-724. Conflict can clear msleeping during an
