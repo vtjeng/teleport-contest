@@ -13,6 +13,7 @@ import {
     docrt,
     knowninvisible,
     see_nearby_objects,
+    status_eval_next_unhilite,
     timebot,
 } from '../js/display.js';
 import { GameMap } from '../js/game.js';
@@ -62,13 +63,17 @@ test('timebot selects BL_TIME in both rule banks without copying prior values',
         const field = STATUS_FIELDS.find(row => row.key === 'time').fld;
         const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
         const bank = () => Array(size).fill(null);
-        const selectedRule = {
-            field: 'time', behavior: 'absolute', relation: '>=', value: 0,
+        const firstRule = {
+            field: 'time', behavior: 'absolute', relation: '<', value: 11,
             style: { attrib: 2, color: 1 },
         };
+        const selectedRule = {
+            field: 'time', behavior: 'absolute', relation: '>=', value: 11,
+            style: { attrib: 2, color: 2 },
+        };
         state.flags = { time: true };
-        state.iflags = { hilite_delta: 3, status_hilites: [selectedRule] };
-        state.moves = 12;
+        state.iflags = { hilite_delta: 3, status_hilites: [firstRule, selectedRule] };
+        state.moves = 10;
         state._renderedStatusLayouts = [];
         state.disp = { time_botl: true };
         state.gb = {
@@ -81,7 +86,7 @@ test('timebot selects BL_TIME in both rule banks without copying prior values',
             status_hilite_times: [bank().map(() => 0), bank().map(() => 0)],
             status_hilite_chg: Array(size).fill(false),
         };
-        state.gb.status_hilite_value[1][field] = 91;
+        state.gb.status_hilite_value[1][field] = 0;
         state.gb.status_hilite_compare_value[1][field] = 92;
         state.gb.status_hilite_percent[1][field] = 93;
         state.gb.status_hilite_text[1][field] = 'old time text';
@@ -91,15 +96,34 @@ test('timebot selects BL_TIME in both rule banks without copying prior values',
 
         await timebot();
 
-        assert.equal(state.gb.status_hilite_rule[0][field], selectedRule);
-        assert.equal(state.gb.status_hilite_rule[1][field], selectedRule);
-        assert.equal(state.gb.status_hilite_value[1][field], 91);
+        assert.equal(state.gb.status_hilite_value[0][field], 10);
+        assert.equal(state.gb.status_hilite_value[1][field], 0,
+            'stat_update_time changes the current raw value without copying it');
+        assert.equal(state.gb.status_hilite_rule[0][field], firstRule);
+        assert.equal(state.gb.status_hilite_rule[1][field], firstRule);
+        assert.equal(state.gb.status_hilite_value[1][field], 0);
         assert.equal(state.gb.status_hilite_compare_value[1][field], 92);
         assert.equal(state.gb.status_hilite_percent[1][field], 93);
         assert.equal(state.gb.status_hilite_text[1][field], 'old time text');
         assert.equal(state.gb.status_hilite_type[1][field], 94);
         assert.equal(state.gb.status_hilite_times[0][field], 12);
         assert.equal(state.gb.status_hilite_times[1][field], 95);
+        assert.equal(state.gb.status_hilite_chg_banks[0][field], true);
+        assert.equal(state.gb.status_hilite_chg_banks[1][field], true);
+
+        status_eval_next_unhilite(state);
+        assert.equal(state.gb.status_hilite_chg_banks[0][field], false);
+        assert.equal(state.gb.status_hilite_chg_banks[1][field], false);
+        state.moves = 11;
+        state.disp.botl = false;
+        await timebot();
+
+        assert.equal(state.gb.status_hilite_value[0][field], 11);
+        assert.equal(state.gb.status_hilite_value[1][field], 0,
+            'the timebot transition preserves the previous raw-value bank');
+        assert.equal(state.gb.status_hilite_rule[0][field], selectedRule);
+        assert.equal(state.gb.status_hilite_rule[1][field], selectedRule,
+            'eval_notify writes a newly selected rule into both banks');
         assert.equal(state.gb.status_hilite_chg_banks[0][field], true);
         assert.equal(state.gb.status_hilite_chg_banks[1][field], true);
     });
