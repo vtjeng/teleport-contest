@@ -124,7 +124,7 @@ function recorderOffsetAt(epochMillis) {
         - wholeSecondMillis;
 }
 
-function canonicalRecorderIsDst(now = new Date()) {
+export function canonicalRecorderIsDst(now = new Date()) {
     const year = recorderFieldsAt(now.getTime()).year;
     const offsets = [];
     // This captures the contemporary standard and daylight offsets used by
