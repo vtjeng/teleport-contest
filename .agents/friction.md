@@ -1324,3 +1324,9 @@ triage decisions or fix references.
   its stale owner record and journal, removed only that stale owner file, and
   started one replacement observer from accepted code. It continues to defer
   under the Main lease; no discovery event or publication was fabricated.
+
+### 2026-10-17 — Source-led one-task handoff
+
+- The approved source-led experiment did not fit ordinary queue selection (implementation requires a mismatching session) or impure delivery evidence (matching recording/synthetic range). The one-task policy/tooling exception is explicit; no fake session, pure label or inactive reason is used. Prior version-gap tooling passed imported-helper tests but failed its actual CLI entry point, so this candidate exercises real spawned commands through received goal registration. All rejected fixture operations preserve ledger/branch/evidence bytes. See the linked decision above.
+- XP dependency closure stopped after 105.939 seconds elapsed; its shared-engine risk was not reduced to a partial selector fix. The subsequent bounded alternative-selection window was 371 seconds elapsed, with independent Main review occurring within it. These are observation windows, not CPU or all-in effort; do not sum overlapping work as a throughput claim. Preserve setup/review/CI cost separately from the future worker trial.
+- Separate source-support wording correction: immutable W2 result `3570095f` overstated a public `#wizgenesis` prohibition after reading “no injected state” as a debug-command ban. The worker acknowledged the error after freezing. Main's additive producer disposition preserves NOT_CLOSED for missing creation/placement/transfer proof, not a policy ban. Original packet unchanged; no runtime, ownership release, or schema/tool change follows this occurrence. Saved evidence: Main `.cache/defensive-undead-floor-callback-review/producer-disposition.json`.
