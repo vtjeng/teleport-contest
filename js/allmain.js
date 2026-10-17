@@ -121,6 +121,7 @@ import {
     swallowed,
     under_water,
     timebot,
+    status_eval_next_unhilite,
 } from './display.js';
 import {
     dismissPendingTtyMessage,
@@ -520,6 +521,7 @@ export async function finishHeroTimeEffects(state = game, env = {}) {
     const plan = clairvoyancePlan(state, env);
     state.hero_seq++;
     await env.encumberMessage(state);
+    status_eval_next_unhilite(state);
     await applyClairvoyancePlan(plan, state, env);
     if (!state.u.utrap || state.u.utraptype !== TT_LAVA) {
         if (!state.u.umoved) await pooleffects(false, state);

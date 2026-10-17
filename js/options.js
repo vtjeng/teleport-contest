@@ -2799,6 +2799,12 @@ function clear_status_hilites(result) {
     result.iflags.status_hilites = result.iflags.status_hilites.filter(
         (rule) => rule.field === 'condition',
     );
+    // botl.c clear_status_hilites() invalidates the selected rule pointers
+    // because those pointers refer into the freed threshold lists. Condition
+    // attributes are stored separately and intentionally survive.
+    for (const bank of result.gb?.status_hilite_rule ?? []) {
+        if (bank) bank.fill(null);
+    }
 }
 
 // C ref: options.c optfn_hilite_status() (1851-1893), the do_set arm.  Its
