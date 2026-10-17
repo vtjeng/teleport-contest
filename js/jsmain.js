@@ -72,6 +72,8 @@ import {
     docrt,
     bot,
     flush_screen,
+    status_finish,
+    status_initialize,
     reglyph_darkroom,
 } from './display.js';
 import {
@@ -590,6 +592,10 @@ export class NethackGame {
         }
 
         // Run game startup
+        // C ref: allmain.c newgame() creates the status window and calls
+        // status_initialize(FALSE) after player selection, only on a fresh
+        // game. Restores retain their serialized status banks.
+        status_initialize(g, false);
         await newgame();
         // C ref: sys/unix/unixmain.c nethack_main().  This boundary must
         // precede moveloop(): an existing welcome message can force More
@@ -770,7 +776,10 @@ export async function runSegment(
         }
         throw error;
     }
-    if (!started) return nhGame;
+    if (!started) {
+        await finishTerminatedSegment(game);
+        return nhGame;
+    }
 
     // Drive the game loop until input is exhausted. The judge looks
     // at game.getScreens() afterwards; whatever the contestant
@@ -809,11 +818,19 @@ export async function runSegment(
     // capture hook is _preNhgetchHook; during normal gameplay it fires at
     // each nhgetch call, but after gameover no more keys are read. This
     // explicit call after the loop mirrors nh_terminate's capture position.
-    if (game.program_state?.gameover
-        && !game.program_state?.in_really_done
-        && game._preNhgetchHook) {
-        await game._preNhgetchHook();
-    }
+    await finishTerminatedSegment(game);
 
     return nhGame;
+}
+
+// C ref: end.c nh_terminate() calls the patched final input-boundary capture
+// before save.c freedynamicdata() reaches status_finish(). A nonterminal input
+// boundary never releases these banks; panic preserves C's cleanup bypass.
+export async function finishTerminatedSegment(state = game) {
+    if (!state.program_state?.gameover) return false;
+    if (!state.program_state?.in_really_done && state._preNhgetchHook)
+        await state._preNhgetchHook();
+    if (!state.program_state?.panicking)
+        status_finish(state);
+    return true;
 }

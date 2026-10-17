@@ -200,6 +200,7 @@ import {
     flush_screen,
     reglyph_darkroom,
     count_status_hilites, status_hilite_menu, s_to_anything, status_hilite_add_threshold,
+    status_initialize,
 } from './display.js';
 import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
@@ -7874,22 +7875,6 @@ function string_for_env_opt(opts, val_optional, result = null) {
 function VIA_WINDOWPORT() {
     return TTY_WINCAP2.has('WC2_HILITE_STATUS')
         || TTY_WINCAP2.has('WC2_FLUSH_STATUS');
-}
-
-// C ref: botl.c status_initialize(REASSESS_ONLY) (1697-1721).  Its loop hands
-// every field to windows.c genl_status_enablefield(), which caches the field's
-// format, name and enabled state in three module arrays that
-// bot_via_windowport() reads back.  This port keeps no such cache:
-// js/display.js recomputes each field from flags on every bot(), which is what
-// makes flags.showexp and flags.time reach the status line at all, and
-// writeStatusRows() clears and rewrites both rows rather than sending only the
-// fields C would have marked dirty. Preserve C's one-shot update_all request
-// so the first delivered pass starts with zero change and reset timers.
-function status_initialize(state) {
-    state.disp ??= {};
-    state.gu ??= {};
-    state.gu.update_all = true;
-    state.disp.botlx = true;
 }
 
 // C ref: windows.c adjust_menu_promptstyle().  It relays iflags.menu_headings
