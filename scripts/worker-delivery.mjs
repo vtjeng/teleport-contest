@@ -480,9 +480,18 @@ export function verifyPublicationChanges(root, tested, published, admission) {
 
 export function verifyToolingChanges(root, base, head) {
     const changed = git(root, 'diff', '--name-only', '--no-renames', '-z', base, head).split('\0').filter(Boolean);
-    check(changed.every(path => BOOKKEEPING_FILES.includes(path) || path === 'AGENTS.md'
-        || /^(?:scripts|\.agents|\.claude|\.codex|\.github)\//u.test(path)),
-    'standalone publication accepts only tooling and bookkeeping, not game or corpus changes');
+    for (const path of changed) {
+        // Tool dependencies remain execution inputs: they need the exact full
+        // checkpoint and cannot change in its report-only publication suffix.
+        if (path === 'package.json' || path === 'package-lock.json') {
+            check(git(root, 'ls-tree', '-z', head, '--', path).startsWith('100644 blob '),
+                `tooling dependency manifest must be a regular non-executable file: ${path}`);
+            continue;
+        }
+        check(BOOKKEEPING_FILES.includes(path) || path === 'AGENTS.md'
+            || /^(?:scripts|\.agents|\.claude|\.codex|\.github)\//u.test(path),
+        'standalone publication accepts only tooling and bookkeeping, not game or corpus changes');
+    }
 }
 
 export function verifyPublicMain(root, commit, {localTooling = false} = {}) {

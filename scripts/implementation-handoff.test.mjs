@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
+import {chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, unlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -9,7 +9,7 @@ import {acceptImplementationGroup, integrateImplementationGroup, parseImplementa
     planImplementationGroup, publishImplementationGroup, splitImplementationGroup, bootstrapImplementationGroup} from './implementation-handoff.mjs';
 import {acceptTask} from './accept-task.mjs';
 import {createLedger, recordEvent, summarizeLedger} from './worker-state.mjs';
-import {deliveryGit, verifyEvent} from './worker-delivery.mjs';
+import {deliveryGit, verifyEvent, verifyToolingChanges, verifyPublicationChanges} from './worker-delivery.mjs';
 import {challengeInputSnapshot, corpusDigest, digest, totalsFor} from './challenge-results.mjs';
 import {COLUMNS, readRows} from './score-log.mjs';
 import {acceptedMain} from './worker-backlog.mjs';
@@ -197,7 +197,9 @@ test('bootstrap rejects invalid baseline ancestry and source commits before free
 test('published tooling advances the frozen baseline without reopening a delivery', t => {
     const f = fixture(t);
     f.save('.agents/tooling.md', 'Standalone tooling, not a worker source fix.\n');
-    f.git('add', '.agents/tooling.md'); f.git('commit', '-qm', 'Validated tooling');
+    f.save('package.json', {type: 'module', devDependencies: {'fast-check': '4.10.2'}});
+    f.save('package-lock.json', {lockfileVersion: 3, packages: {'': {devDependencies: {'fast-check': '4.10.2'}}}});
+    f.git('add', '.agents/tooling.md', 'package.json', 'package-lock.json'); f.git('commit', '-qm', 'Validated tooling');
     const tested = f.git('rev-parse', 'HEAD'), checkpoint = f.checkpoint(tested, []);
     // Goal registration is a permitted report descendant, as in the real pilot.
     const goals = JSON.parse(readFileSync(join(f.root, 'GOALS.json')));
@@ -254,6 +256,32 @@ test('standalone tooling rejects failed evidence, unvalidated descendants and un
     f.git('commit', '-qm', 'Unvalidated later tooling'); f.git('push', '-q', 'origin', 'main');
     assert.throws(() => verifyEvent(f.root, f.state(), {...event, commit: f.git('rev-parse', 'HEAD')}), /unvalidated changes/u);
 });
+
+for (const path of ['package.json', 'package-lock.json']) {
+    test(`standalone tooling requires a regular retained ${path}`, t => {
+        const f = fixture(t);
+        f.save(path, '{}\n'); f.git('add', path); f.git('commit', '-qm', 'Regular dependency manifest');
+        const base = f.git('rev-parse', 'HEAD');
+        verifyToolingChanges(f.root, f.base, base);
+        f.save(path, {unvalidatedDependency: true}); f.git('add', path);
+        f.git('commit', '-qm', 'Later dependency edit');
+        verifyToolingChanges(f.root, base, 'HEAD');
+        assert.throws(() => verifyPublicationChanges(f.root, base, f.git('rev-parse', 'HEAD')), /unvalidated changes/u);
+        chmodSync(join(f.root, path), 0o755); f.git('add', path); f.git('commit', '-qm', 'Executable dependency manifest');
+        assert.throws(() => verifyToolingChanges(f.root, base, 'HEAD'), /regular non-executable/u);
+        unlinkSync(join(f.root, path)); symlinkSync('AGENTS.md', join(f.root, path));
+        f.git('add', path); f.git('commit', '-qm', 'Symlink dependency manifest');
+        assert.throws(() => verifyToolingChanges(f.root, base, 'HEAD'), /regular non-executable/u);
+        unlinkSync(join(f.root, path)); f.git('add', path); f.git('commit', '-qm', 'Deleted dependency manifest');
+        assert.throws(() => verifyToolingChanges(f.root, base, 'HEAD'), /regular non-executable/u);
+        for (const extra of ['nested/package.json', '.npmrc']) {
+            const extraBase = f.git('rev-parse', 'HEAD');
+            f.save(path, '{}\n'); f.save(extra, '{}\n'); f.git('add', path, extra);
+            f.git('commit', '-qm', 'Additional dependency path');
+            assert.throws(() => verifyToolingChanges(f.root, extraBase, 'HEAD'), /only tooling and bookkeeping/u);
+        }
+    });
+}
 
 for (const path of ['js/f1.js', 'challenges/cases/new.recipe.json']) {
     test(`standalone tooling cannot accept ${path} even with a passing checkpoint`, t => {
