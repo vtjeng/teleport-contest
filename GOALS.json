@@ -319814,7 +319814,7 @@
     {
       "id": "goto-level-selftouch-call",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Wire both source-ordered fall calls in do.c:goto_level to the existing js/trap.js:selftouch implementation. Preserve the no-return behavior when petrification ends the game; validate the admitted Fumbling stair-fall range and independent hole-fall random-arrival range.",
       "cFile": "do.c",
       "sessions": [
@@ -319825,10 +319825,101 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "67e3410d84eeb61a511cb94566bbd99389faf093",
       "delivered": null,
       "function": "goto_level",
-      "session": "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch"
+      "session": "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch",
+      "closeStanding": {
+        "sha": "67e3410d84eeb61a511cb94566bbd99389faf093",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "0915ed8f939110d89cb36c27465a1e9a51c143de",
+        "target": "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/67e3410d84eeb61a511cb94566bbd99389faf093/run-hosted-7LXSvr/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "goto_level",
+            "implementation": "js/do.js",
+            "symbol": "goto_level",
+            "sourceReview": "Read do.c:1479-1998 and trap.c:selftouch. The C function calls selftouch(\"Falling, you\") after ordinary stair-fall effects (around line 1796) and again in the random-arrival falling branch (around line 1808), with the latter before deferred shaft damage. Both return values are discarded. JS already imports and implements the callee in trap.js. Await each same callee call in source order, then return when program_state.gameover is set to preserve the terminal no-return behavior.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dodown",
+                "source": "do.js:dodown routes the down-stair and trap descent paths through goto_level."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runDownCommand",
+                "source": "cmd.js:runDownCommand dispatches the user down command to dodown."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dodown.test.mjs",
+              "scripts/ball-fall.test.mjs"
+            ],
+            "synthetic": [
+              {
+                "batch": "v96",
+                "caseId": "v96-fumbling-stair-fall-wielded-corpse-selftouch",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 147,
+                "source": "Admitted v96 ordinary Fumbling stair-fall case; C and JS match through the final down-stair input at the original first mismatch."
+              },
+              {
+                "batch": "v28",
+                "caseId": "v28-hole-floor-pile-fall",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "Admitted v28 hole-fall case exercises the independent random-arrival fall branch in goto_level; C and JS match through the end of the recording."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The production down-command path is cmd.js:runDownCommand → do.js:dodown → goto_level. The divergence is at both C source-ordered fall sites in do.c:goto_level: ordinary stair fall calls selftouch after fall damage; random-arrival fall calls selftouch before deferred fall damage. Both calls discard the C return value. js/trap.js:selftouch already ports the callee. The implementation now awaits it at both sites and returns if the helper marks gameover, preserving the C no-return terminal path. The v96 recording proves the ordinary stair-fall call path through step 147; v28's admitted hole-fall recording covers the random-arrival fall path through step 41. The v96 gloved-corpse case demonstrates contact messaging only, not lethal petrification.",
+        "entryPoints": [
+          {
+            "name": "down command ordinary stair fall",
+            "functions": [
+              "goto_level"
+            ],
+            "synthetic": [
+              {
+                "batch": "v96",
+                "caseId": "v96-fumbling-stair-fall-wielded-corpse-selftouch",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 147,
+                "source": "Ordinary stair-fall call site in goto_level."
+              }
+            ]
+          },
+          {
+            "name": "hole fall random arrival",
+            "functions": [
+              "goto_level"
+            ],
+            "synthetic": [
+              {
+                "batch": "v28",
+                "caseId": "v28-hole-floor-pile-fall",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "Independent random-arrival fall call site in goto_level."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

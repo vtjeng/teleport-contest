@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T02:13:45.885Z",
+  "capturedAt": "2026-10-17T03:14:31.661Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T02:13:45.885Z",
+    "asOf": "2026-10-17T03:14:31.661Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5711,7 +5711,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 73,
+      "mainSupportAssignments": 74,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -160232,6 +160232,150 @@
         "task": "prep-v96-source-exploration-20261016",
         "phase": "done",
         "reason": "Hosted baseline saved; new cases are available for selection."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-prep-v96-source-exploration-20261016-93582abfd96f1953681ac7aa349afd7787072cd9",
+        "type": "published",
+        "at": "2026-10-17T02:13:52.595Z",
+        "task": "prep-v96-source-exploration-20261016",
+        "commit": "93582abfd96f1953681ac7aa349afd7787072cd9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-recovery-observe-20261017-v96",
+        "type": "observe",
+        "at": "2026-10-17T02:17:26.671Z",
+        "worker": "Worker-1",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T02:17:57.582Z",
+        "id": "queue:913475f2-0900-4e31-ac48-2e6bbb1ad0a9",
+        "type": "assign",
+        "task": "session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implement-worker1-v96-goto-level-selftouch",
+        "type": "implement",
+        "at": "2026-10-17T02:20:28.433Z",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "goal": "goto-level-selftouch-call"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-recovery-observe-20261017-defensive-callback",
+        "type": "observe",
+        "at": "2026-10-17T02:26:31.240Z",
+        "worker": "Worker-2",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:05:13.506Z",
+        "id": "ready-2b519aad396c8b546098b2c21b2c4dda254b9d35:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "goto-level-selftouch-call"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-2b519aad396c8b546098b2c21b2c4dda254b9d35",
+        "type": "ready",
+        "at": "2026-10-17T03:05:13.506Z",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "delivery": "2b519aad396c8b546098b2c21b2c4dda254b9d35"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:05:13.506Z",
+        "id": "ready-2b519aad396c8b546098b2c21b2c4dda254b9d35:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:05:13.506Z",
+        "id": "ready-2b519aad396c8b546098b2c21b2c4dda254b9d35:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:05:23.994Z",
+        "id": "queue:f60a6ed1-ef80-4890-8ae8-79742b7aff54",
+        "type": "assign",
+        "task": "support-defensive-undead-floor-callback-source-closure-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "v96-fix-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T03:06:17.783Z",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "delivery": "2b519aad396c8b546098b2c21b2c4dda254b9d35"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-67e3410d84eeb61a511cb94566bbd99389faf093-65787f6e0fb3148821d8539f0398e778a32a1b8b929859634eaf6e4d57a074cd-delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "type": "integrating",
+        "at": "2026-10-17T03:06:44.156Z",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "integration": "67e3410d84eeb61a511cb94566bbd99389faf093",
+        "validationGroup": [
+          "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:07:30.687Z",
+        "id": "queue:56a65068-b99a-425a-883b-3d765897552e",
+        "type": "queue-complete",
+        "task": "support-defensive-undead-floor-callback-source-closure-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:07:30.687Z",
+        "id": "queue:56a65068-b99a-425a-883b-3d765897552e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a-67e3410d84eeb61a511cb94566bbd99389faf093-validated",
+        "type": "validated",
+        "at": "2026-10-17T03:13:06.327Z",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a-67e3410d84eeb61a511cb94566bbd99389faf093-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T03:13:37.280Z",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a"
       }
     ]
   },
@@ -160263,18 +160407,13 @@
     "preferred": null,
     "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
-    "blocked": [
-      {
-        "task": "session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
-        "reason": "Waiting for producer or dependencies."
-      }
-    ],
+    "blocked": [],
     "claimed": [],
     "counts": {
       "ready": 0,
       "claimed": 0,
-      "blocked": 1,
-      "completed": 291,
+      "blocked": 0,
+      "completed": 293,
       "superseded": 64
     },
     "workers": [
@@ -165648,24 +165787,39 @@
         "id": "session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
         "readyAt": "2026-10-17T02:11:45.802Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-17T02:17:57.582Z",
+        "completedAt": "2026-10-17T03:05:13.506Z"
+      },
+      {
+        "id": "support-defensive-undead-floor-callback-source-closure-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T03:05:11.851Z",
+        "claimedAt": "2026-10-17T03:05:23.994Z",
+        "completedAt": "2026-10-17T03:07:30.687Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "47e1509a9ba6a4b627a2da5bc673198aaedb1dd0",
-    "measuredAt": "2026-10-17T00:47:52.238Z",
+    "executionCommit": "67e3410d84eeb61a511cb94566bbd99389faf093",
+    "measuredAt": "2026-10-17T03:12:15.096Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
