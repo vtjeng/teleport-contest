@@ -1,0 +1,98 @@
+{
+  "session": "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight",
+  "corpus": "synthetic",
+  "batch": "v97",
+  "caseId": "v97-tourist-first-new-depth-xp-percent-highlight",
+  "manifestPath": "challenges/manifests/v97.json",
+  "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
+  "recordingSha256": "7bab4bdd79192693c363e5ebaaa3455ca709ad2e1dbf129aff8b189c3dc8ceaa",
+  "evaluationPath": "challenges/evaluations/admission-1c9e11e7cbaebb8daf3b09f69a17360909c7db14-v97.json",
+  "evaluationCommit": "1c9e11e7cbaebb8daf3b09f69a17360909c7db14",
+  "remainingScreens": 1,
+  "recordedSteps": 5,
+  "status": "complete",
+  "commit": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+  "mismatch": {
+    "caseId": "v97-tourist-first-new-depth-xp-percent-highlight",
+    "kind": "js-missing",
+    "owner": "botl.c:exp_percent_changing XP selected-rule lifecycle after Tourist first-depth more_experienced",
+    "firstMismatch": {
+      "segment": 0,
+      "step": 4,
+      "key": "\n"
+    },
+    "screens": {
+      "matched": 4,
+      "total": 5
+    },
+    "cursors": {
+      "matched": 4,
+      "total": 5
+    },
+    "rng": {
+      "matched": 4904,
+      "total": 4904
+    },
+    "rngMismatch": null,
+    "observationLimit": "The captured comparison is JS-missing; its exact JS exception/helper invocation is not dynamically observed."
+  },
+  "summary": "A public Tourist first-entry depth reward changes the XP percentage highlight rule without changing experience level and with showexp disabled. Native C source says more_experienced calls exp_percent_changing after updating XP; it compares the newly selected rule identity to the last-drawn XP rule and requests a botl redraw when the integer percent changes and the rule identity changes. JS exp_percent_changing currently throws UnsupportedExperienceChangeError whenever an XP highlight rule exists because it has no per-field selected-rule history. The accepted public case differs only at its final status boundary: JS is missing screen/cursor 5 while its 4904 ordered RNG calls match C. The exact JS exception path is causally inferred from source, not dynamically captured.",
+  "source": {
+    "file": "botl.c",
+    "branch": "With STATUS_HILITES active, showexp disabled, experience points changed while experience level is unchanged, and the integer XP percentage changes across a configured rule boundary, exp_percent_changing asks get_hilite for the new XP rule and compares its identity to the current status bank’s last-drawn hilite_rule. A different rule requests a full status update. Tourist first-entry depth reward is the selected public trigger.",
+    "functions": [
+      "bot",
+      "timebot",
+      "bot_via_windowport",
+      "stat_update_time",
+      "eval_notify_windowport_field",
+      "evaluate_and_notify_windowport",
+      "status_initialize",
+      "status_finish",
+      "init_blstats",
+      "compare_blstats",
+      "anything_to_s",
+      "percentage",
+      "exp_percentage",
+      "exp_percent_changing",
+      "hilite_reset_needed",
+      "status_eval_next_unhilite",
+      "reset_status_hilites",
+      "noneoftheabove",
+      "get_hilite",
+      "status_hilite_add_threshold",
+      "clear_status_hilites",
+      "status_hilite_remove"
+    ],
+    "callers": [
+      "exper.c:more_experienced assigns new uexp and, when showexp is false and disp.botl is not already set, calls botl.c:exp_percent_changing; C then sets disp.botl on a true result.",
+      "do.c:goto_level calls more_experienced for the first-arrival Tourist depth reward; JS counterpart js/do.js:goto_level calls js/exper.js:more_experienced.",
+      "allmain.c:moveloop_core invokes botl/timebot at the source-ordered redraw boundaries; JS js/display.js:bot/timebot owns status rendering and js/allmain.js:finishHeroTimeEffects is the once-per-hero-action hook, not the elapsed-world-turn hook.",
+      "options.c status-hilite parse/add/clear/remove/reassessment paths call the botl lifecycle and its threshold helpers; corresponding option adapters are in js/options.js and the canonical selector/render state is in js/display.js.",
+      "save.c status_finish and win/tty/wintty.c status callback/notification paths participate in teardown and rendering; JS adapters are in js/save.js and js/wintty.js."
+    ],
+    "dependencies": [
+      "Source-selected botl.c units include the entire field collector, typed current/previous banks, formatter/converter, selector, notification, initialization, reset, expiry, add/remove, and clear logic.",
+      "Existing semantic helpers: exper.c:newuexp / js/exper.js:newuexp for XP boundaries; existing parsed rule objects and status field metadata; existing TTY layout, style, flush and status-window functions. Keep js/exper.js and js/do.js read-only per the reviewed caller pins.",
+      "The current source audit found no need for a new generic renderer, generator, metadata file, or C helper outside the pinned 22-unit family. Re-stop if implementation uncovers a value-return dependency or path outside the launch brief."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "At accepted assignment base 5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6, challenges/manifests/v97.json pins the public case recipe and recording; manifest SHA-256 d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882, recording SHA-256 7bab4bdd79192693c363e5ebaaa3455ca709ad2e1dbf129aff8b189c3dc8ceaa. The admitted evaluation at challenges/evaluations/admission-1c9e11e7cbaebb8daf3b09f69a17360909c7db14-v97.json (evaluation commit 1c9e11e7cbaebb8daf3b09f69a17360909c7db14) records 4/5 screens, 4/5 cursors, and 4904/4904 ordered RNG entries; only the final public status boundary is missing in JS.",
+    "The existing frozen public packet /workspace/shared/teleport-loop-20261016/challenge-evidence/xp-tourist-public-20261017/08b97a86563feb15ac7f55fcbb4ca8fb52f5a4d4db60d03ed66af750ed385d49.json has SHA-256 08b97a86563feb15ac7f55fcbb4ca8fb52f5a4d4db60d03ed66af750ed385d49 and establishes a canonical C observation from the unchanged finalized public recipe. It shows 5 screens/cursors and 4904 ordered RNG entries; it does not prove downstream arrival, timer lifecycle, or JS parity.",
+    "The existing native constructed-state assessment /workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-oracle/assessment.json (SHA-256 32bae2c2a7e6dba78c4e110cadd3d7a2494e55270228935b7f99f56448cddb30) reports 5 native diagnostic invocations and zero full-game C runs, independent game replays, or JS gameplay runs. Its actual selected functions are freshly built from pinned botl.c/exper.c; it does not observe bot_via_windowport field collection, moveloop timing, real TTY cells/cursors, ordered RNG channels, public input reachability, or JS parity. Treat it only as a constructed C matrix foundation.",
+    "The existing production-feasibility assessment /workspace/teleport-contest-process-analysis-recovery/.cache/xp-status-production/assessment.json (SHA-256 4d1c811cf1fea8ca8cf7c45d0cbcbac8022a4889d2108c077367662d871599db) separately records a Healer production run and Tourist public feasibility result; these remain independent evidence tiers. Existing measured elapsed/active effort receipts are not treated as this worker’s active effort.",
+    "Direct source trace: nethack-c/upstream/src/botl.c:2090-2124 returns TRUE only when XP percentage changes and get_hilite selects a pointer different from the current bank’s hilite_rule. nethack-c/upstream/src/exper.c:more_experienced invokes that predicate after assigning u.uexp when showexp is off; nethack-c/upstream/src/do.c:goto_level supplies the Tourist reward. In js/display.js:5601-5612 the XP-rule path instead throws UnsupportedExperienceChangeError because the current implementation stores temporary timers but not selected rule identity in both banks.",
+    "Source family and owner scope are fixed before code: all 22 whole C functions in botl.c listed in source.functions; primary JS owner js/display.js, with only necessary adapters/tests from the launch brief. The first milestone audits field collection/adapter contracts, then implements typed state, pointer identity, full selector/notify and native matrix cases. The caller cadence must be js/allmain.js:finishHeroTimeEffects exactly once after hero took time, not per elapsed world-turn. Preserve raw HP/energy/gold values, 16-bit LARGEST_INT sentinel semantics, equal-style distinct pointer identity, two-bank selected-pointer coupling, clear/remove selected-pointer timer rules, clone isolation, and cached non-time styles across time-only redraws."
+  ],
+  "provenance": {
+    "assignedBase": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+    "originEvidence": "1c9e11e7cbaebb8daf3b09f69a17360909c7db14",
+    "publicPacketSha256": "08b97a86563feb15ac7f55fcbb4ca8fb52f5a4d4db60d03ed66af750ed385d49",
+    "nativeAssessmentSha256": "32bae2c2a7e6dba78c4e110cadd3d7a2494e55270228935b7f99f56448cddb30",
+    "productionAssessmentSha256": "4d1c811cf1fea8ca8cf7c45d0cbcbac8022a4889d2108c077367662d871599db",
+    "scopeReview": "/workspace/teleport-contest/.cache/xp-status-production-feasibility/independent-implementation-scope-review.json",
+    "launchBrief": "/workspace/teleport-contest/.cache/xp-status-production-feasibility/implementation-launch-brief.json"
+  }
+}
