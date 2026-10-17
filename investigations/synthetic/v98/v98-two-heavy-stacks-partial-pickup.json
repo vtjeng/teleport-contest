@@ -25,7 +25,9 @@
       "rng": "2448/2448",
       "error": null
     },
-    "observationLimit": "The accepted C recording stops at the first natural More after carry_count() reports the partial lift. It does not answer the burden question or establish transfer, exact quantity, or processing of the second stack."
+    "observationLimit": "The accepted C recording stops at the first natural More after carry_count() reports the partial lift. It does not answer the burden question or establish transfer, exact quantity, or processing of the second stack.",
+    "session": "synthetic/v98/v98-two-heavy-stacks-partial-pickup",
+    "remainingScreens": 1
   },
   "summary": "The multi-selection pickup planner rejects an ordinary selected list whose aggregate weight reaches the maximum-capacity boundary before the C source-ordered pickup loop runs. C processes each selected row in order and lets pickup_object() -> lift_object() -> carry_count() calculate and report a partial lift for the first stack. The saved C recording and admitted comparison establish the first per-object report at step 53, before any burden consent or transfer.",
   "source": {
