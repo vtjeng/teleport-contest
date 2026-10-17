@@ -26,11 +26,13 @@ import {
     MON_FLOOR,
     MON_MIGRATING,
     OBJ_FLOOR,
+    OBJ_INVENT,
     POOL,
     RLOC_MSG,
     RLOC_NOMSG,
     ROOM,
     ROOMOFFSET,
+    SHOPBASE,
     ROWNO,
     SWIMMING,
     VAULT,
@@ -54,6 +56,7 @@ import {
     PM_JUIBLEX,
     PM_GUARD,
     PM_PONY,
+    PM_PURPLE_WORM,
     PM_SMALL_MIMIC,
     PM_SEWER_RAT,
     PM_WIZARD_OF_YENDOR,
@@ -69,6 +72,7 @@ import {
     create_region,
 } from '../js/region.js';
 import { mnexto } from '../js/mon.js';
+import { move_update } from '../js/rooms.js';
 import {
     collect_coords,
     enexto_core,
@@ -88,8 +92,16 @@ import {
 } from '../js/teleport.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { resetGame } from '../js/gstate.js';
-import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { BOULDER, ROCK, SCR_SCARE_MONSTER } from '../js/objects.js';
+import {
+    cloneIsaacContext,
+    createCoreRandom,
+    enableRngLog,
+    getRngLog,
+    initRng,
+} from '../js/rng.js';
+import {
+    BOULDER, PICK_AXE, ROCK, SCR_SCARE_MONSTER,
+} from '../js/objects.js';
 import { newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
@@ -491,6 +503,160 @@ test('planning relocation records the discarded swallowed-map redraw gap',
         assert.ok(game.unported.has('display.c docrt'),
             'the discarded C redraw is named instead of running live docrt');
         game.unported = priorUnported;
+    });
+
+test('swallowed relocation forwards planning action environment into shop entry',
+    async () => {
+        await runSegment({
+            seed: 7621001,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '.\x165\n.',
+        });
+        const room = game.level.rooms.find(
+            (candidate) => candidate?.rtype >= SHOPBASE,
+        );
+        assert.ok(room?.resident, 'generated shop has its real keeper');
+        const liveKeeper = room.resident;
+        const liveMconf = liveKeeper.mconf;
+        const planned = planningState(game);
+        const keeper = planned.level.rooms[room.roomnoidx].resident;
+        const door = keeper.mextra.eshk.shd;
+        const roomno = room.roomnoidx + ROOMOFFSET;
+        assert.ok(planned.level.at(door.x, door.y)?.edge);
+
+        keeper.mcanmove = true;
+        keeper.msleeping = false;
+        keeper.mfrozen = 0;
+        keeper.mconf = 1;
+        keeper.mflee = 0;
+        keeper.mstrategy = 0;
+        keeper.mpeaceful = true;
+        keeper.minvent = null;
+        keeper.mextra.eshk.following = false;
+        keeper.mextra.eshk.surcharge = false;
+        keeper.mextra.eshk.visitct = 1;
+        keeper.mextra.eshk.customer = planned.plname;
+        planned.invent = { otyp: PICK_AXE, where: OBJ_INVENT, nobj: planned.invent };
+
+        const outside = [
+            [door.x - 1, door.y], [door.x + 1, door.y],
+            [door.x, door.y - 1], [door.x, door.y + 1],
+        ].find(([x, y]) => planned.level.at(x, y)
+            && planned.level.at(x, y).roomno !== roomno
+            && goodpos(x, y, planned.youmonst, 0, { state: planned }));
+        assert.ok(outside, 'shop door has an unoccupied legal outside square');
+
+        for (const field of [
+            'urooms', 'urooms0', 'uentered',
+            'ushops', 'ushops0', 'ushops_entered', 'ushops_left',
+        ]) planned.u[field]?.fill(0);
+        planned.u.ux = outside[0];
+        planned.u.uy = outside[1];
+        move_update(false, planned);
+        planned.u.ux0 = outside[0];
+        planned.u.uy0 = outside[1];
+
+        const worm = newMonster({
+            data: planned.mons[PM_PURPLE_WORM],
+            mnum: PM_PURPLE_WORM,
+            m_id: 98761,
+            mx: outside[0],
+            my: outside[1],
+            mhp: 30,
+            mhpmax: 30,
+        });
+        place_monster(worm, outside[0], outside[1], planned);
+        planned.u.ustuck = worm;
+        planned.u.uswallow = true;
+
+        const coreRandom = createCoreRandom(
+            cloneIsaacContext(game.coreCtx), planned,
+        );
+        const actionDraws = [];
+        const actionRandom = {
+            ...coreRandom,
+            rn2(bound) {
+                actionDraws.push(bound);
+                return bound === 50 ? 0 : coreRandom.rn2(bound);
+            },
+        };
+        const messages = [];
+        const liveCoreBefore = structuredClone(game.coreCtx);
+        await rloc_to(worm, door.x, door.y, {
+            state: planned,
+            planning: true,
+            random: actionRandom,
+            message: async (line) => messages.push(line),
+            redraw: () => {},
+            setApparxy: () => {},
+        });
+
+        assert.deepEqual([worm.mx, worm.my], [door.x, door.y],
+            'the actual swallowed relocation reaches the legal shop door');
+        assert.ok(actionDraws.includes(50),
+            'the actual direct keeper action uses the supplied planning RNG');
+        assert.equal(keeper.mconf, 0,
+            'the keeper prephase runs before swallowed-other movement refusal');
+        assert.equal(liveKeeper.mconf, liveMconf,
+            'the planning action leaves the live keeper unchanged');
+        assert.deepEqual(game.coreCtx, liveCoreBefore,
+            'the cloned keeper action does not advance live core RNG');
+        assert.ok(messages.some((line) => /pick-axe/u.test(line)));
+
+        const ordinary = planningState(game);
+        const ordinaryKeeper = ordinary.level.rooms[room.roomnoidx].resident;
+        const ordinaryMconf = ordinaryKeeper.mconf;
+        const ordinaryWorm = newMonster({
+            data: ordinary.mons[PM_PURPLE_WORM],
+            mnum: PM_PURPLE_WORM,
+            m_id: 98762,
+            mx: outside[0],
+            my: outside[1],
+            mhp: 30,
+            mhpmax: 30,
+        });
+        for (const field of [
+            'urooms', 'urooms0', 'uentered',
+            'ushops', 'ushops0', 'ushops_entered', 'ushops_left',
+        ]) ordinary.u[field]?.fill(0);
+        ordinary.u.ux = outside[0];
+        ordinary.u.uy = outside[1];
+        move_update(false, ordinary);
+        ordinary.u.ux0 = outside[0];
+        ordinary.u.uy0 = outside[1];
+        place_monster(ordinaryWorm, outside[0], outside[1], ordinary);
+        ordinary.u.ustuck = ordinaryWorm;
+        ordinary.u.uswallow = true;
+        ordinary.invent = null;
+        const ordinaryCore = createCoreRandom(
+            cloneIsaacContext(game.coreCtx), ordinary,
+        );
+        const ordinaryDraws = [];
+        const ordinaryRandom = {
+            ...ordinaryCore,
+            rn2(bound) {
+                ordinaryDraws.push(bound);
+                return ordinaryCore.rn2(bound);
+            },
+        };
+        await rloc_to(ordinaryWorm, door.x, door.y, {
+            state: ordinary,
+            planning: true,
+            random: ordinaryRandom,
+            message: async () => {},
+            redraw: () => {},
+            setApparxy: () => {},
+        });
+        assert.deepEqual([ordinaryWorm.mx, ordinaryWorm.my], [door.x, door.y]);
+        assert.equal(ordinaryKeeper.mconf, ordinaryMconf);
+        assert.ok(!ordinaryDraws.includes(50),
+            'ordinary entry without a pickaxe does not run the extra keeper action');
     });
 
 test('wizard can decline scrolltele disorientation after the C rn2(3) gate',

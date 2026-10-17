@@ -1226,6 +1226,7 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
                 const roomCheck = check_special_room(false, state, {
                     message,
                     random: env.random.rn2,
+                    actionEnv: { ...env, state, message },
                 });
                 return thenResult(roomCheck, () => thenResult(
                     state === game
