@@ -58,6 +58,7 @@ import {
     STEALTH,
     TEST_TRAV,
     TIP_SWIM,
+    TRAVP_TRAVEL,
     TRAVP_VALID,
     TRAVP_GUESS,
     TIMER_OBJECT,
@@ -1547,6 +1548,24 @@ function runState(overrides = {}) {
     };
 }
 
+function adjacentTravelState(targetType = ROOM) {
+    const base = runState();
+    const state = runState({
+        u: { ...base.u, tx: 11, ty: 10 },
+        context: { run: 8, travel: 1, travel1: 1, mv: 1, move: 1 },
+    });
+    state.level = new GameMap();
+    for (let x = 8; x <= 14; ++x) {
+        state.level.at(x, 10).typ = ROOM;
+        state.level.at(x, 10).seenv = 1;
+    }
+    state.level.at(11, 10).typ = targetType;
+    if (targetType === POOL) state.level.at(11, 10).seenv = 0;
+    state.iflags = { travelcc: { x: 0, y: 0 } };
+    state.travelmap = new Uint8Array(COLNO * ROWNO);
+    return state;
+}
+
 test('in_town uses a containing subroom parent as the town boundary', () => {
     // hack.c:3569-3584. A town level without subrooms admits every square;
     // once any room has subrooms, only that parent room and its one-square
@@ -1839,6 +1858,53 @@ test('travel validation does not consume the adjacent travel state', async () =>
     );
     assert.equal(state.multi, 0);
 });
+
+test('findtravelpath awaits a false adjacent pool crawl before its fast path',
+    async () => {
+        // C hack.c:1271-1289 skips the shortcut when crawl_destination is
+        // false, then reverse BFS restores run=8 for TRAVP_TRAVEL.
+        const state = adjacentTravelState(POOL);
+
+        assert.equal(await crawl_destination(11, 10, state), false);
+        assert.equal(await findtravelpath(TRAVP_TRAVEL, state), true);
+        assert.equal(state.context.run, 8);
+    });
+
+test('findtravelpath adjacent guard preserves C mode and await ordering', () => {
+    assert.equal(
+        /if \(\(mode == TRAVP_TRAVEL \|\| mode == TRAVP_VALID\)\s*&& svc\.context\.travel1[\s\S]*?&& next2u\(u\.tx, u\.ty\)[\s\S]*?&& crawl_destination\(u\.tx, u\.ty\)\) \{\s*end_running\(FALSE\);/u.test(HACK_SOURCE),
+        true,
+        'C permits the adjacent shortcut only for TRAVEL/VALID and checks crawl before end_running',
+    );
+    assert.equal(
+        /if \(\(mode === TRAVP_TRAVEL \|\| mode === TRAVP_VALID\)\s*&& state\.context\.travel1[\s\S]*?&& dist2\(state\.u\.ux, state\.u\.uy, state\.u\.tx, state\.u\.ty\) <= 2\s*&& await crawl_destination\(state\.u\.tx, state\.u\.ty, state\)\) \{\s*end_running\(false, state\);/u.test(HACK_JS_SOURCE),
+        true,
+        'JS awaits the source guard before ending the run',
+    );
+});
+
+test('findtravelpath keeps the adjacent shortcut for TRAVEL and VALID',
+    async () => {
+        for (const mode of [TRAVP_TRAVEL, TRAVP_VALID]) {
+            const state = adjacentTravelState();
+
+            assert.equal(await crawl_destination(11, 10, state), true);
+            assert.equal(await findtravelpath(mode, state), true);
+            assert.equal(state.context.run, 0);
+            assert.equal(state.context.travel1, mode === TRAVP_VALID ? 1 : 0);
+        }
+    });
+
+test('findtravelpath excludes adjacent TRAVP_GUESS from the fast path',
+    async () => {
+        const state = adjacentTravelState();
+
+        assert.equal(await crawl_destination(11, 10, state), true);
+        assert.equal(await findtravelpath(TRAVP_GUESS, state), true);
+        // Guess uses ordinary search; its restarted TRAVP_TRAVEL path restores
+        // the run rather than taking the adjacent shortcut.
+        assert.equal(state.context.run, 8);
+    });
 
 test('travel guessing selects a visible reachable point and restarts travel',
     async () => {
