@@ -66,7 +66,8 @@ by this command, not the caller. Required fields by type:
           reservations, allowedPaths; optional kind (implementation,
           investigation or challenge-preparation), goal (required for implementation), and
           span (accepted for historical tasks); Work lead only controlCases
-          lists explicitly requested matching case IDs for Prep
+          lists explicitly requested matching case IDs for Prep; Work lead only
+          afterParked (prior preparation task IDs) requires continuationReason
   scope: task, reservations, allowedPaths (expand working scope; include old entries)
   implement: task, goal, reservations, allowedPaths (claim an investigation's source scope)
   received: task, delivery (exact SHA being acknowledged)
@@ -165,10 +166,14 @@ source reservations and implementation paths. Conflicts leave the claim unchange
 assign and resume reject another worker's reservations. ready frees the worker
 to start another task but keeps that delivery's reservations through acceptance.
 Parking releases only that task's active reservations. A batch identity cannot
-be assigned again; resume a parked preparation task before preparing the next
-version. Only one preparation task may be working at a time; submitted batches
-do not block preparation of the next version. Handle earlier parked tasks and
-corrections before starting another batch. Resuming rechecks ownership;
+be assigned again. By default resume a parked preparation before a later batch.
+Work lead may instead assign a fresh later batch with afterParked:["prior-task"]
+and a nonempty continuationReason, naming every older parked preparation. This
+records the disposition on the new task without changing the parked history;
+the predecessor must have no submitted deliveries and be parked from working.
+It requires no live prior processes/probes and cannot bypass corrections or a
+working preparation. Only one preparation task may be working at a time;
+submitted batches do not block preparation of the next version. Resuming rechecks ownership;
 a parked ready delivery returns to ready, and failed validation requires rework
 and a new delivery SHA. Only one candidate can be integrating/validated at a time.
 Prep submissions may share it through prep-handoff.mjs; implementation tasks
@@ -209,7 +214,7 @@ const FIELDS = {
     'publication-confirmed': ['task', 'commit', 'knownBy', 'evidenceTask'],
     park: ['task', 'reason'], resume: ['task'],
 };
-const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span', 'controlCases'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
+const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span', 'controlCases', 'afterParked', 'continuationReason'], published: ['supplementalCheckpoint', 'supplementalAdmission'],
     feedback: ['prepGroup', 'implementationGroup'], turn: ['summary'],
     'prep-probe': ['worktree', 'branch', 'handle', 'source', 'outcome'] };
 
@@ -273,7 +278,15 @@ function checkOwnership(state, task) {
             if (task.status === 'working') {
                 check(other.status !== 'working', `preparation task ${other.id} is still pending`);
                 const laterBatch = task.reservations[0].localeCompare(other.reservations[0], 'en', { numeric: true }) > 0;
-                check(!laterBatch || !['parked', 'changes-required'].includes(other.status),
+                const deferred = other.status === 'parked' && other.parkedFrom === 'working'
+                    && other.deliveries.length === 0 && task.afterParked?.includes(other.id);
+                if (deferred) {
+                    check(!state.workers[other.worker].processes.length,
+                        `afterParked task ${other.id} still has recorded processes; reconcile its owner first`);
+                    check(!Object.values(state.probes).some(probe => probe.task === other.id && probe.state !== 'done'),
+                        `afterParked task ${other.id} still has an outstanding preparation probe`);
+                }
+                check(!laterBatch || !['parked', 'changes-required'].includes(other.status) || deferred,
                     `preparation task ${other.id} is still pending (${other.status}); resume it before a later batch`);
             }
         }
@@ -518,6 +531,24 @@ function applyLegacyEvent(state, event, at) {
             check(event.reservations.every(key => !key.startsWith('challenge-batch:')),
                 'implementation tasks cannot reserve a challenge batch');
         }
+        if (event.afterParked !== undefined || event.continuationReason !== undefined) {
+            check(event.kind === 'challenge-preparation', 'afterParked is only for preparation assignments');
+            list(event.afterParked, 'afterParked', identifier);
+            string(event.continuationReason, 'continuationReason');
+            for (const id of event.afterParked) {
+                const prior = state.tasks[id];
+                check(prior?.kind === 'challenge-preparation' && prior.status === 'parked',
+                    `afterParked task ${id} must be an explicitly parked preparation`);
+                check(prior.parkedFrom === 'working' && prior.deliveries.length === 0,
+                    `afterParked task ${id} must be an unsubmitted preparation parked from working`);
+                check(event.reservations[0].localeCompare(prior.reservations[0], 'en', {numeric: true}) > 0,
+                    `afterParked task ${id} must have an older batch identity`);
+                check(!state.workers[prior.worker].processes.length,
+                    `afterParked task ${id} still has recorded processes; reconcile its owner first`);
+                check(!Object.values(state.probes).some(probe => probe.task === id && probe.state !== 'done'),
+                    `afterParked task ${id} still has an outstanding preparation probe`);
+            }
+        }
         const task = { ...event, kind: event.kind ?? 'implementation', id: event.task,
             status: 'working', assignedAt: at, deliveries: [] };
         delete task.type;
@@ -708,7 +739,9 @@ export function nextActions(state, admittedBatches = [], queue = null) {
     const short = available.candidateGroups !== null && available.candidateGroups < available.workersNeedingWork;
     const readyPrep = ready.filter(row => row.kind === 'challenge-preparation')
         .sort((a, b) => a.batch.localeCompare(b.batch, 'en', { numeric: true }))[0];
-    const preparing = tasks.find(task => task.kind === 'challenge-preparation' && task.status !== 'accepted');
+    const preparing = tasks.find(task => task.kind === 'challenge-preparation'
+        && !['accepted', 'parked'].includes(task.status))
+        ?? tasks.find(task => task.kind === 'challenge-preparation' && task.status === 'parked');
     const prepAction = readyPrep ? { action: 'integrate-prepared-batches-next', task: readyPrep.task, batch: readyPrep.batch }
         : preparing ? { action: 'finish-preparation', task: preparing.id,
             batch: preparing.reservations[0].split(':')[1] } : { action: 'prepare-more-work' };
@@ -765,6 +798,8 @@ function authorizeWorker(state, root, event) {
     check(event && ['assign', 'scope', 'implement', 'ready', 'connect', 'turn', 'resume', 'park', 'prep-probe'].includes(event.type),
         'only the Work lead may record this event');
     check(event.controlCases === undefined, 'only the Work lead may authorize user-requested controlCases');
+    check(event.afterParked === undefined && event.continuationReason === undefined,
+        'only the Work lead may authorize preparation after parked history');
     if (event.type === 'park') check(state.tasks[event.task]?.kind === 'investigation',
         'only the Work lead may park implementation or preparation tasks');
     const parent = event.type === 'prep-probe' ? state.workers[state.tasks[event.task]?.worker] : null;

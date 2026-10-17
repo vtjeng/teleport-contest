@@ -424,6 +424,16 @@ Challenge lead starts a clean batch branch with `work-queue.mjs batch --branch p
 --file <absolute-ledger>` before existing batch assignment/submission commands.
 For a rejected batch, pass `--base <rejected-delivery-SHA>` to resume its
 transport on a new correction branch; Work lead enqueues the needed worker rework.
+An exhausted, unsubmitted earlier preparation may remain explicitly parked from
+`working` while Work lead assigns a fresh later batch. On the new `assign` event include
+`"afterParked":["<prior-preparation-task-id>"]` and a nonempty
+`"continuationReason"`, naming every older parked preparation being deferred.
+This Work-lead-only disposition preserves the earlier task, status, evidence,
+batch identity and budgets; it does not accept or complete that work, release
+source ownership, or satisfy dependencies. Reconcile recorded prior processes
+and probes first. A working preparation or an unparked correction still blocks
+the later assignment; resuming old work rechecks current ownership. Without
+this explicit disposition, the existing resume-before-later-batch guard remains.
 The branch command preserves Challenge lead's producer identity and refuses live batch
 work or commands. Admission import adds unresolved new sessions as blocked
 assignments. Refresh after accepted publication to make their current evidence

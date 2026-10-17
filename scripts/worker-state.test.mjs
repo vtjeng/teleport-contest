@@ -437,6 +437,96 @@ test('a parked preparation task keeps its version until resumed and accepted', (
     assert.equal(f.send({ type: 'resume', task: 'batch-v2' }).tasks['batch-v2'].status, 'working');
 });
 
+test('Work lead can explicitly defer parked preparation on a fresh assignment without changing history', () => {
+    const f = fixture();
+    const prepare = (batch, extra = {}) => f.send({type: 'assign', task: `prep-${batch}`, worker: 'A',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: [`challenge-batch:${batch}`], allowedPaths: [`challenges/cases/${batch}/`], ...extra});
+    prepare('v2');
+    f.send({type: 'park', task: 'prep-v2', reason: 'Exhausted bounded history; retain all evidence.'});
+    const prefix = structuredClone(f.ledger().events);
+    const old = structuredClone(summarizeLedger(f.ledger()).tasks['prep-v2']);
+    const state = prepare('v3', {afterParked: ['prep-v2'], continuationReason: 'Independent qualified case; preserve v2.'});
+    assert.deepEqual(state.tasks['prep-v2'], old);
+    assert.deepEqual(f.ledger().events.slice(0, prefix.length), prefix);
+    assert.deepEqual(state.tasks['prep-v3'].afterParked, ['prep-v2']);
+    assert.equal(state.tasks['prep-v3'].continuationReason, 'Independent qualified case; preserve v2.');
+    assert.equal(state.tasks['prep-v3'].status, 'working');
+    assert.equal(nextActions(state, [], {mode: 'work', sessions: []}).workerWork.admission.task, 'prep-v3');
+    assert.throws(() => f.send({type: 'resume', task: 'prep-v2'}), /already working/);
+    assert.throws(() => prepare('v4', {worker: 'B', afterParked: ['prep-v2'], continuationReason: 'Overlap'}),
+        /prep-v3.*still pending/);
+    assert.throws(() => prepare('v2', {task: 'reused-v2', afterParked: ['prep-v2'], continuationReason: 'Reuse'}),
+        /older batch identity/);
+    f.send({type: 'park', task: 'prep-v3', reason: 'Explicit new stop.'});
+    const resumed = f.send({type: 'resume', task: 'prep-v2'});
+    assert.equal(resumed.tasks['prep-v2'].status, 'working');
+    assert.equal(resumed.tasks['prep-v3'].status, 'parked');
+    f.send({type: 'ready', task: 'prep-v2', delivery: FIRST, base: BASE, commits: [FIRST],
+        paths: ['challenges/cases/v2/one.json'], evidence: `${ROOT}/v2.json`, dependencies: []});
+    f.send({type: 'park', task: 'prep-v2', reason: 'Retain newly submitted delivery.'});
+    assert.throws(() => f.send({type: 'resume', task: 'prep-v3'}), /prep-v2.*still pending/,
+        'an old disposition cannot bypass a later submission on the predecessor');
+});
+
+test('parked continuation rejects invalid links, live processes and outstanding corrections without mutation', () => {
+    const f = fixture();
+    const assign = (batch, extra = {}) => f.send({type: 'assign', task: `prep-${batch}`, worker: 'A',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: [`challenge-batch:${batch}`], allowedPaths: [`challenges/cases/${batch}/`], ...extra});
+    assign('v2');
+    const grant = {afterParked: ['prep-v2'], continuationReason: 'Explicit continuation.'};
+    const reject = (extra, pattern) => {
+        const before = structuredClone(f.ledger());
+        assert.throws(() => assign('v3', extra), pattern);
+        assert.deepEqual(f.ledger(), before);
+    };
+    reject(grant, /explicitly parked/);
+    f.send({type: 'park', task: 'prep-v2', reason: 'Exhausted.'});
+    reject({afterParked: ['missing'], continuationReason: 'Explicit.'}, /explicitly parked/);
+    reject({afterParked: ['prep-v2']}, /continuationReason/);
+    reject({continuationReason: 'Missing exact link'}, /afterParked/);
+    reject({...grant, afterParked: ['prep-v2', 'prep-v2']}, /duplicates/);
+    reject({...grant, continuationReason: ''}, /nonempty/);
+    f.send({type: 'observe', worker: 'A', handle: 'handle-A', processes: ['exec:owned-recorder']});
+    reject(grant, /recorded processes/);
+    f.send({type: 'observe', worker: 'A', handle: 'handle-A', processes: []});
+    f.assign('implementation', 'B');
+    reject({...grant, afterParked: ['implementation']}, /explicitly parked/);
+    f.send({type: 'resume', task: 'prep-v2'});
+    f.send({type: 'ready', task: 'prep-v2', delivery: FIRST, base: BASE, commits: [FIRST],
+        paths: ['challenges/cases/v2/one.json'], evidence: `${ROOT}/v2.json`, dependencies: []});
+    f.send({type: 'feedback', task: 'prep-v2', delivery: FIRST, reason: 'Required correction.'});
+    reject(grant, /explicitly parked/);
+    reject({}, /still pending/);
+    f.send({type: 'park', task: 'prep-v2', reason: 'Preserve correction.'});
+    reject(grant, /unsubmitted preparation/);
+});
+
+test('parked continuation requires Work lead authority and names every deferred older preparation', t => {
+    const f = fixture();
+    const assign = (batch, extra = {}) => f.send({type: 'assign', task: `prep-${batch}`, worker: 'A',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: [`challenge-batch:${batch}`], allowedPaths: [`challenges/cases/${batch}/`], ...extra});
+    assign('v2'); f.send({type: 'park', task: 'prep-v2', reason: 'Exhausted.'});
+    assign('v3', {afterParked: ['prep-v2'], continuationReason: 'Independent next case.'});
+    f.send({type: 'park', task: 'prep-v3', reason: 'Stopped.'});
+    assert.throws(() => assign('v4', {afterParked: ['prep-v3'], continuationReason: 'Incomplete disposition.'}),
+        /prep-v2.*still pending/);
+    const root = mkdtempSync(join(tmpdir(), 'worker-state-parked-authority-'));
+    t.after(() => rmSync(root, {recursive: true, force: true}));
+    const file = join(root, 'state.json');
+    const before = JSON.stringify(f.ledger());
+    writeFileSync(file, before);
+    const event = {type: 'assign', afterParked: ['prep-v2', 'prep-v3'], continuationReason: 'All deferred.'};
+    assert.throws(() => updateLedger(file, `${ROOT}/A`, value => value, event), /only the Work lead/);
+    assert.equal(readFileSync(file, 'utf8'), before);
+    const state = assign('v4', event);
+    assert.equal(state.tasks['prep-v4'].status, 'working');
+    assert.equal(state.tasks['prep-v2'].status, 'parked');
+    assert.equal(state.tasks['prep-v3'].status, 'parked');
+});
+
 test('Prep continues across submitted batches without acceptance or admission', () => {
     const f = fixture();
     const prepare = (batch) => f.send({ type: 'assign', task: `prep-${batch}`, worker: 'A',
