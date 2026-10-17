@@ -5,8 +5,37 @@ import {authorizeQueueEvent, publicQueue, queueWork} from './assignment-queue.mj
 import {activityFromLedger} from './dashboard-snapshot.mjs';
 import {activityTimeline, activityUtilization} from './dashboard-activity.mjs';
 import {SOURCE_TRIAL, SOURCE_TRIAL_PATHS, SOURCE_TRIAL_UNITS} from './port-evidence.mjs';
+import {SOURCE_PARITY_BASIS, sourceParityDigest} from './source-parity.mjs';
 
 const BASE = 'a'.repeat(40), REV = 'b'.repeat(40), DIGEST = 'c'.repeat(64);
+
+test('authorized source parity keeps frozen scope through priority, transport and correction', () => {
+    const f = fixture(), id = 'source-parity-correction';
+    const review = {reviewedBase: BASE, authorization: 'Explicit source correction authorization.',
+        currentBehavior: 'Promise selects a false Boolean branch.', expectedBehavior: 'Await the Boolean.',
+        units: ['fixture.c:repair'], allowedPaths: ['js/fixture.js', 'scripts/fixture.test.mjs', '.cache/'],
+        regressionTests: ['scripts/fixture.test.mjs'],
+        callers: [{path: 'js/fixture.js', symbol: 'caller', source: 'fixture.c caller invokes repair'}],
+        pins: ['js/fixture.js', 'scripts/fixture.test.mjs', 'nethack-c/upstream'].map(path => ({path, object: BASE}))};
+    const sourceParity = {version: 1, id, assignmentBase: BASE, evidenceBasis: SOURCE_PARITY_BASIS,
+        review, reviewSha256: sourceParityDigest(review)};
+    f.enqueue('ordinary-exploration');
+    f.enqueue(id, 'implementation', {goal: id, sessions: [], urgent: true, sourceParity,
+        reservations: ['source:fixture.c:repair'], allowedPaths: review.allowedPaths, checks: ['focused', 'lint']});
+    assert.equal(queueWork(f.state()).readySessions, 0, 'do not invent an implementation session');
+    assert.equal(queueWork(f.state()).ready[0], id, 'honor explicit urgent repair priority');
+    assert.throws(() => f.send({type: 'queue-reassess', task: id, base: BASE, reason: 'Rebase review.'}), /frozen/);
+    f.claim(id);
+    const transport = f.state().queue.tasks[id].transport;
+    assert.deepEqual(f.state().tasks[transport].sourceParity, sourceParity);
+    assert.throws(() => f.send({type: 'scope', task: transport, reservations: ['source:fixture.c:repair'],
+        allowedPaths: [...review.allowedPaths, 'js/other.js']}), /scope is frozen/);
+    f.send({type: 'ready', task: transport, delivery: REV, base: BASE, commits: [REV],
+        paths: ['js/fixture.js'], evidence: '/tmp/source-parity-packet.json', dependencies: []});
+    f.send({type: 'feedback', task: transport, delivery: REV, reason: 'Scoped regression correction.'});
+    const correction = queueWork(f.state()).ready[0];
+    assert.deepEqual(f.state().queue.tasks[correction].sourceParity, sourceParity);
+});
 function fixture({legacyCollision = false} = {}) {
     let ledger = createLedger('loop-20261015', '/tmp/queue-main');
     let count = 0;

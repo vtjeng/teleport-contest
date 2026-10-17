@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {verifySourceParityBase} from './source-parity.mjs';
 import {spawnSync} from 'node:child_process';
 import {createHash, randomUUID} from 'node:crypto';
 import {existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync} from 'node:fs';
@@ -117,6 +118,7 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 'producer must match the actual producer checkout');
             event.assignment.base = git(root, 'rev-parse', `${event.assignment.base}^{commit}`);
             if (event.assignment.sourceTrial) verifySourceTrialBase(root, event.assignment.sourceTrial);
+            if (event.assignment.sourceParity) verifySourceParityBase(root, event.assignment.sourceParity);
         } else if (command === 'batch') {
             ensure(root === state.queue.prepRoot && options.branch, 'batch branch changes run from the Challenge lead with --branch');
             event.type = 'queue-prep-branch';
@@ -148,6 +150,7 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 if (!next) {result = {assignment: null, allocation: queueWork(state)}; return current;}
                 const task = state.queue.tasks[next];
                 if (task.sourceTrial) verifySourceTrialBase(root, task.sourceTrial);
+                if (task.sourceParity) verifySourceParityBase(root, task.sourceParity);
                 const branchBase = task.resumeFrom ?? task.base;
                 event.task = task.id;
                 event.branch = `queue/${hash(JSON.stringify([current.runId, task.id]))}/attempt-${task.attempts.length + 1}`;

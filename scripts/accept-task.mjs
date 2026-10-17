@@ -119,6 +119,8 @@ function acceptTasksOwned(options, taskIds, root = process.cwd()) {
         goals = JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8'));
         for (const task of pending) {
             const goal = goals.goals.find(entry => entry.id === task.goal);
+            if (task.sourceParity && !isDeepStrictEqual(goal?.sourceParity, task.sourceParity))
+                throw new Error('source parity goal differs from its assigned review/base');
             if (task.sourceTrial && !isDeepStrictEqual(goal?.sourceTrial, task.sourceTrial))
                 throw new Error('source trial goal differs from its assigned review/base');
             if (!goal || !(['queued', 'parked'].includes(goal.status)

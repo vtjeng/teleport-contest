@@ -300,6 +300,13 @@ the failure; do not silently baseline locally or select the new cases.
 
 ## Source completion evidence
 
+The explicit user-authorized `sourceParity` correction in selection.md retains
+source-parity-runtime-pending worker claims. Its pinned source/caller review,
+frozen scope and failing/passing focused regression receipts support ordinary
+submission and exact hosted no-regression acceptance without a public mismatch
+or matching new recording. They do not certify source completion, public input
+parity or a discovery. Ordinary assignments retain their evidence rules below.
+
 The exact one-task source-led capability trial in [selection.md](selection.md#one-source-led-capability-trial)
 may submit impure constructed-state test claims without a matching recording.
 Its frozen review, source units/write scope and `evidenceBasis` are checked by

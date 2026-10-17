@@ -1,5 +1,6 @@
 // Git-backed delivery snapshots and cheap integration checks. None of these
 // functions merges, pushes, replays a game or claims to prove source equivalence.
+import {validateSourceParityGoal, SOURCE_PARITY_BASIS} from './source-parity.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { closeSync, existsSync, fsyncSync, mkdirSync, openSync,
@@ -157,6 +158,13 @@ function scopeEvidence(root, commit, task, packet) {
     const goal = { kind: lua ? 'lua-port' : 'file-port', cFile: context.cFile,
         luaFile: context.luaFile, functions: context.functions.map(name => ({ name })),
         requiredFunctions: context.requiredFunctions ?? [] };
+    check(isDeepStrictEqual(context.sourceParity, task.sourceParity), 'context source parity differs from assignment');
+    if (task.sourceParity) {
+        Object.assign(goal, {id: task.goal, sessions: context.sessions, sourceParity: task.sourceParity});
+        validateSourceParityGoal(goal);
+        check(packet.evidenceBasis === SOURCE_PARITY_BASIS, 'source parity must declare runtime-pending evidence');
+        check(!packet.incompleteFunctions?.length, 'source parity cannot expand its reviewed units');
+    }
     check(isDeepStrictEqual(context.sourceTrial, task.sourceTrial), 'context source trial differs from assignment');
     if (task.sourceTrial) {
         Object.assign(goal, {id: task.goal, sessions: context.sessions, sourceTrial: task.sourceTrial});
