@@ -30,6 +30,7 @@ import {
     OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
+    OBJ_CONTAINED,
     OBJ_MINVENT,
     OBJ_DELETED,
     POOL,
@@ -53,7 +54,12 @@ import {
 import { game } from '../js/gstate.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { begin_burn } from '../js/timeout.js';
-import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
+import {
+    ART_EXCALIBUR,
+    ART_ORB_OF_DETECTION,
+    ART_ORB_OF_FATE,
+    init_artifacts,
+} from '../js/artifacts.js';
 import {
     calc_capacity,
     inv_cnt,
@@ -72,9 +78,21 @@ import {
     PM_SHOPKEEPER,
     PM_STONE_GOLEM,
 } from '../js/monsters.js';
-import { mksobj_at, splitobj, unsplitobj, clear_splitobjs, weight } from '../js/obj.js';
+import {
+    mksobj,
+    mksobj_at,
+    splitobj,
+    unsplitobj,
+    clear_splitobjs,
+    weight,
+} from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { addinv, look_here, obj_extract_self } from '../js/invent.js';
+import {
+    add_to_container,
+    addinv,
+    look_here,
+    obj_extract_self,
+} from '../js/invent.js';
 import { HLIQUIDS } from '../js/random_text_data.js';
 import { rn2_on_display_rng } from '../js/rng.js';
 import { make_engr_at } from '../js/engrave.js';
@@ -88,6 +106,7 @@ import {
     observe_pickup_object,
     pickup,
     pickup_object,
+    menu_loot,
     preflight_describe_decor_at,
     preflight_initial_pickup,
     preflight_projected_random_arrival_pickup,
@@ -101,6 +120,7 @@ import {
     BOULDER,
     COIN_CLASS,
     CORPSE,
+    CRYSTAL_BALL,
     ELVEN_ARROW,
     ELVEN_DAGGER,
     FIGURINE,
@@ -2367,6 +2387,70 @@ test('in_container preserves C icebox and discarded-void call order', async () =
     assert.doesNotMatch(ageMacro, /MAGIC_LAMP/u);
     assert.doesNotMatch(jsBody, /UnsupportedPickupError/u);
 });
+
+test('menu_loot awaits real artifact rejection before container extraction',
+    async () => {
+        async function makeContainer(otyp, artifactIndex = 0) {
+            const state = await heroOnAnEmptySquare();
+            init_artifacts(state);
+            const container = carryGeneratedObject(state, SACK);
+            const item = mksobj(
+                otyp, true, false, objectGenerationEnv({ state }),
+            );
+            add_to_container(container, item, { state });
+            assert.equal(item.where, OBJ_CONTAINED);
+            assert.equal(item.ocontainer, container);
+            container.owt = weight(container, { state });
+            state.gc.current_container = container;
+            if (artifactIndex) {
+                item.oartifact = artifactIndex;
+                state.artiexist[artifactIndex].exists = 1;
+            }
+            state.nhDisplay.pushKey('a'.charCodeAt(0));
+            state.nhDisplay.pushKey('\r'.charCodeAt(0));
+            for (let index = 0; index < 8; ++index)
+                state.nhDisplay.pushKey(' '.charCodeAt(0));
+            return { state, container, item };
+        }
+
+        // The Orb of Detection is a real self-willed artifact restricted to
+        // the Archaeologist and lawful alignment. This Valkyrie is neither.
+        const rejected = await makeContainer(
+            CRYSTAL_BALL, ART_ORB_OF_DETECTION,
+        );
+        const before = {
+            inventory: rejected.state.invent,
+            contents: rejected.container.cobj,
+            next: rejected.item.nobj,
+            containerWeight: rejected.container.owt,
+            itemWeight: rejected.item.owt,
+            where: rejected.item.where,
+        };
+        assert.equal(await menu_loot(-2, false, rejected.state), 1);
+        assert.equal(rejected.container.cobj, before.contents,
+            'the rejected artifact stays in its original container list');
+        assert.equal(rejected.item.nobj, before.next);
+        assert.equal(rejected.item.where, before.where);
+        assert.equal(rejected.container.owt, before.containerWeight);
+        assert.equal(rejected.item.owt, before.itemWeight);
+        assert.equal(rejected.state.invent, before.inventory,
+            'rejection does not add the artifact to inventory');
+        assert.match(rejected.state._ttyToplines, /evades your grasp/u,
+            'the awaited touch decision reaches its final refusal message');
+
+        // A self-willed artifact matching this Valkyrie remains extractable.
+        const accepted = await makeContainer(CRYSTAL_BALL, ART_ORB_OF_FATE);
+        assert.equal(await menu_loot(-2, false, accepted.state), 1);
+        assert.equal(accepted.item.where, OBJ_INVENT);
+        assert.notEqual(accepted.container.cobj, accepted.item);
+        assert.equal(accepted.item.ocontainer, null);
+
+        // Ordinary objects still follow the same production menu path.
+        const ordinary = await makeContainer(ELVEN_DAGGER);
+        assert.equal(await menu_loot(-2, false, ordinary.state), 1);
+        assert.equal(ordinary.item.where, OBJ_INVENT);
+        assert.notEqual(ordinary.container.cobj, ordinary.item);
+    });
 
 test('out_container resumes icebox timers before billing and inventory', async () => {
     const [pickupC, monC, museC, monmoveC, dogC, dogmoveC,

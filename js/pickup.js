@@ -3332,7 +3332,8 @@ async function out_container(obj, state) {
         obj.owt = weight(obj, { state });
     }
 
-    if (obj.oartifact && !touch_artifact(obj, state.youmonst, { state }))
+    if (obj.oartifact
+        && !(await touch_artifact(obj, state.youmonst, { state })))
         return 0;
 
     if (await fatal_corpse_mistake(obj, false, state))
