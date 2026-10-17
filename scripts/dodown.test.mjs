@@ -1076,8 +1076,27 @@ test('goto_level falls down burdened stairs before the arrival tail',
         /^rn2\(10\)=/u,
         'the drawless selftouch() call precedes mon_arrive() randomness',
     );
-    assert.ok(game.unported?.has('trap.c selftouch'),
-        'the discarded selftouch() result is recorded as a gap');
+    assert.equal(game.unported?.has('trap.c selftouch'), false,
+        'goto_level reaches the existing selftouch() helper');
+});
+
+test('goto_level calls selftouch at both source fall sites', () => {
+    const cStart = C_SOURCE.indexOf('\ngoto_level(\n');
+    const jsStart = JS_SOURCE.indexOf('export async function goto_level');
+    const jsEnd = JS_SOURCE.indexOf('\nasync function u_collide_m', jsStart);
+    assert.ok(cStart >= 0 && jsStart >= 0 && jsEnd > jsStart);
+    const cBody = C_SOURCE.slice(cStart, C_SOURCE.indexOf('\n}\n', cStart));
+    const jsBody = JS_SOURCE.slice(jsStart, jsEnd);
+
+    assert.match(cBody,
+        /losehp\(Maybe_Half_Phys\(rnd\(3\)\),[\s\S]*?KILLED_BY\);\s*selftouch\("Falling, you"\);/u);
+    assert.match(cBody,
+        /if \(falling\) \{\s*if \(Punished && !welded\(uball\)\)\s*ballfall\(\);\s*selftouch\("Falling, you"\);\s*do_fall_dmg = TRUE;/u);
+    assert.match(jsBody,
+        /await losehp\([\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*\}\s*\/\/ do\.c:1796 calls trap\.c:selftouch[\s\S]*?await selftouch\('Falling, you', state\);/u);
+    assert.match(jsBody,
+        /if \(falling\) \{[\s\S]*?await selftouch\('Falling, you', state\);\s*if \(state\.program_state\?\.gameover\) return;\s*do_fall_dmg = true;/u);
+    assert.doesNotMatch(jsBody, /note_unported\('trap\.c selftouch'\)/u);
 });
 
 test('goto_level stops a terminal stair fall before pickup', async () => {

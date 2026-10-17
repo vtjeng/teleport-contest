@@ -6,7 +6,7 @@
   "batch": "v96",
   "caseId": "v96-fumbling-stair-fall-wielded-corpse-selftouch",
   "manifestPath": "challenges/manifests/v96.json",
-  "manifestSha256": "bdde74dc7df7b781b9331b129824e5a202c11a3afd6acdc78927c98976f6e60c",
+  "manifestSha256": "7abdfc0c7ee427b3522ac727b412e3012267629bea9efbb3673823607210838c",
   "recordingSha256": "81bd890d56799959e5a9a97ed6cad76034ccf7aa5a398e9c72d254a6d3fee892",
   "evaluationPath": "challenges/evaluations/admission-8cc2677aab9ae7eabe4981a42c3bde9cf7b0bb50-v96.json",
   "evaluationCommit": "8cc2677aab9ae7eabe4981a42c3bde9cf7b0bb50",
@@ -44,6 +44,7 @@
     "The frozen v96 preparation evidence identifies the planned behavior as a Fumbling downward-stair fall with a gloved wielded cockatrice corpse and records the original comparison against the accepted JavaScript pin. The JS object tree was verified unchanged through the published accepted base.",
     "Upstream nethack-c/upstream/src/do.c:1796 calls selftouch(\"Falling, you\") after the stair-fall damage branch; nethack-c/upstream/src/trap.c:3883-3910 implements that helper.",
     "js/do.js:3071-3074 currently substitutes note_unported('trap.c selftouch') at the matching stair-fall call site. js/trap.js:selftouch implements trap.c:selftouch, so this call can be wired without new gameplay behavior or session-specific logic.",
-    "A second matching note_unported('trap.c selftouch') exists in the goto_level random-arrival fall branch at js/do.js:3099, paired with upstream do.c:1808. It is the same discarded-result callee and should be wired consistently if within the claimed caller scope."
+    "A second matching note_unported('trap.c selftouch') exists in the goto_level random-arrival fall branch at js/do.js:3099, paired with upstream do.c:1808. It is the same discarded-result callee and should be wired consistently if within the claimed caller scope.",
+    "The v96 recording demonstrates the contact message and matching screen only; it does not demonstrate lethal petrification or the helper's terminal no-return path."
   ]
 }

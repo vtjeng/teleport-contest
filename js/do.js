@@ -387,6 +387,7 @@ import {
     float_down,
     minstapetrify,
     reset_utrap,
+    selftouch,
     t_at,
     uescaped_shaft,
     uteetering_at_seen_pit,
@@ -2690,7 +2691,7 @@ function discard_unreachable_levels(state, leavingTutorial) {
 // the arrival tail at 1967-1993.
 //
 // Remaining gaps are limited to discarded calls whose source owners are not
-// yet available (selftouch and the migration sweeps). The selected
+// yet available (the migration sweeps). The selected
 // goto_level branches themselves are source-ordered,
 // including endgame/tutorial transitions, portal fallback, flight, falling,
 // and the unreachable-level cleanup. Gehennom, Knox, Mines, Sokoban and the
@@ -3068,10 +3069,10 @@ export async function goto_level(
                 );
                 if (state.program_state?.gameover) return;
             }
-            // trap.c selftouch() returns no value and remains outside this
-            // span; preserving the discarded-result call keeps the arrival
-            // tail source-ordered without inventing petrification behavior.
-            note_unported('trap.c selftouch');
+            // do.c:1796 calls trap.c:selftouch after the stair-fall effects.
+            await selftouch('Falling, you', state);
+            // C's fatal stoning path does not return from selftouch().
+            if (state.program_state?.gameover) return;
         } else if (state.flags?.verbose) { /* ordinary descent */
             await ttyPline(
                 state.ga?.at_ladder
@@ -3096,7 +3097,9 @@ export async function goto_level(
                 // stop before self-touch and the rest of level arrival.
                 if (state.program_state?.gameover) return;
             }
-            note_unported('trap.c selftouch');
+            // do.c:1808 calls trap.c:selftouch before deferring shaft damage.
+            await selftouch('Falling, you', state);
+            if (state.program_state?.gameover) return;
             do_fall_dmg = true;
         }
     }

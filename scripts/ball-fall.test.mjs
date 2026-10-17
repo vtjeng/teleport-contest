@@ -50,7 +50,7 @@ test('ballfall callers stop where C final death does not return',()=>{
     assert.match(cEnd,
         /ATTRNORETURN staticfn void really_done\(int\) NORETURN;/u);
     assert.match(jsDo,
-        /await ballfall\(state\);\s*\/\/ C losehp\(\) does not return[\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*\}\s*note_unported\('trap\.c selftouch'\)/u);
+        /await ballfall\(state\);\s*\/\/ C losehp\(\) does not return[\s\S]*?if \(state\.program_state\?\.gameover\) return;\s*\}\s*\/\/ do\.c:1808 calls trap\.c:selftouch[\s\S]*?await selftouch\('Falling, you', state\);\s*if \(state\.program_state\?\.gameover\) return;\s*do_fall_dmg = true;/u);
     assert.match(jsTrap,
         /await ballfall\(state, env\);[\s\S]*?if \(state\.program_state\?\.gameover\)\s*return Trap_Effect_Finished;\s*await placebc\(state\);/u);
     assert.match(jsTrap,
