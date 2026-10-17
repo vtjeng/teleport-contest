@@ -322821,7 +322821,7 @@
     {
       "id": "fix-shop-hole-shipping-value-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement ship_object from undefined",
       "cFile": "dokick.c",
       "sessions": [],
@@ -322829,7 +322829,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "8293affe4f732347dfcd275a745e30768da662bf",
       "delivered": null,
       "functions": [
         {
@@ -322931,6 +322931,56 @@
           }
         },
         "reviewSha256": "f65c1e643339ec2e49e409c0cfb39e8f54fb9f87be563728889e303a24c35293"
+      },
+      "closeStanding": {
+        "sha": "8293affe4f732347dfcd275a745e30768da662bf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "ef20d749d7ac47b9e3e8726940444908d489c337",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/8293affe4f732347dfcd275a745e30768da662bf/run-hosted-Xquo3G/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "dokick.c",
+            "name": "ship_object",
+            "implementation": "js/dokick.js",
+            "pure": false,
+            "sourceReview": "C charges before picked_container/no_charge, worn-item removal, breakage, and migration. For unpaid objects it calls stolen_value(otmp,u.ux,u.uy,TRUE,FALSE); for shop-floor objects it saves otmp->ox/oy and calls stolen_value at those coordinates with peaceful = costly_spot(u.ux,u.uy) && strchr(u.urooms,*in_rooms(ox,oy,SHOPBASE)). JS now awaits the imported existing helper in each arm at that same point and preserves all later order.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hitfloor",
+                "source": "C dothrow.c hitfloor first tests hero_breaks then ship_object; JS real hitfloor awaits ship_object for free dropped object before dropz."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dodrop",
+                "source": "Public d/getobj→drop: canletgo/weapon checks then nonswallowed !can_reach_floor branch frees inventory and calls actual hitfloor; no dropx unpaid/hole refusal before this branch."
+              }
+            ],
+            "tests": [
+              "scripts/drop-command.test.mjs",
+              "scripts/dokick-shipping.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Read all of dokick.c:ship_object and the complete production callers: public dodrop -> getobj -> drop -> !can_reach_floor -> freeinv -> hitfloor -> hero_breaks -> ship_object, plus C-valid known-hole delivery guards. The regression drives real dodrop/getobj with the game display input queue, actual addtobill billing and keeper, inventory free, real hitfloor/ship_object, and imported stolen_value. It asserts baseline migration with bill/unpaid intact and debit unchanged, then fixed migration with the bill removed, unpaid cleared and exact debit; it also covers the shop-floor helper arm and a genuine nodrop negative control. The state is source-constructed only; public C runtime parity, gameplay history, and source certification remain pending.",
+        "entryPoints": [
+          {
+            "name": "public dodrop through a known ordinary shop hole into migration",
+            "functions": [
+              "ship_object"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
