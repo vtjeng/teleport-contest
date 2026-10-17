@@ -139,6 +139,7 @@ h1 {
   font-size: 13px;
   margin-bottom: 24px;
 }
+.snapshot-status { color:var(--ink-primary); font-size:13px; line-height:1.5; border-left:3px solid var(--ink-muted); padding-left:10px; margin:0 0 16px; overflow-wrap:anywhere; }
 
 /* --- Stat tiles --- */
 .stats {
@@ -1001,6 +1002,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 
 <section class="section" id="assignmentQueueSection" hidden aria-labelledby="assignmentQueueTitle">
   <h3 class="section-title" id="assignmentQueueTitle">Shared work queue</h3>
+  <p class="snapshot-status" id="assignmentQueueSnapshotTime" role="note"></p>
   <div class="activity-backlog" id="assignmentQueue"></div>
 </section>
 
@@ -1029,7 +1031,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
     </div>
   </div>
   <div class="section-context"><span class="chart-range" id="activityWindowLabel"></span><span class="time-range-note" id="activityRangeAsOf"></span></div>
-  <p class="subtitle" id="activitySnapshotTime"></p>
+  <p class="snapshot-status" id="activitySnapshotTime" role="note"></p>
 
   <div class="chart-wrap">
     <div id="activityMetrics" aria-label="Recorded worker utilization for visible lanes in the selected time window"></div>
@@ -1182,6 +1184,14 @@ function relativeTime(iso) {
 
 // --- Last updated ---
 const activityAsOf = DATA.activity?.capturedAt;
+function workerSnapshotText(iso) {
+  const at = Date.parse(iso);
+  if (!Number.isFinite(at)) return 'Snapshot time unavailable. Recorded worker status cannot establish current activity.';
+  const age = at > Date.now() ? 'clock ahead; age unavailable' : relativeTime(iso) + ' at page load';
+  return 'Snapshot ' + new Date(at).toISOString().replace('T', ' ').replace('Z', ' UTC')
+    + ' · ' + age + '. Not live: workers and claims may have changed.';
+}
+document.getElementById('assignmentQueueSnapshotTime').textContent = workerSnapshotText(activityAsOf);
 document.getElementById('updated').textContent = activityAsOf
   ? 'Activity snapshot ' + relativeTime(activityAsOf) : 'Activity snapshot unavailable';
 document.getElementById('updated').title = (activityAsOf ? 'Activity as of ' + activityAsOf + '. ' : '')
@@ -1884,7 +1894,7 @@ document.getElementById('stats').innerHTML = [
     .replace(/^(?:v[0-9]+|support)-/, '').replace(/-cfirst-[0-9]+$/, '').replace(/-[0-9]{8}$/, '').replaceAll('-', ' ');
   const idle = (queue.workers || []).filter(worker => worker.state === 'idle' && !worker.assignment)
     .map(worker => worker.worker.replace('-', ' '));
-  container.innerHTML = '<p>Idle workers: ' + (idle.length ? idle.map(esc).join(', ') : 'None') + '</p>'
+  container.innerHTML = '<p>Idle at snapshot: ' + (idle.length ? idle.map(esc).join(', ') : 'None') + '</p>'
     + (queue.readySessions === null ? '<p>Queue evidence needs refresh</p>' : '')
     + (pending.length ? '<table class="assignment-table"><thead><tr><th>Type</th><th>Task</th><th>Status</th><th>Claimed by</th></tr></thead><tbody>'
       + pending.map(task => '<tr><td>' + esc(label(task)) + '</td><td><details><summary title="' + esc(task.id) + '">' + esc(shortName(task))
@@ -1976,7 +1986,7 @@ document.getElementById('stats').innerHTML = [
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const snapshotTime = document.getElementById('activitySnapshotTime');
-  snapshotTime.textContent = activity.capturedAt ? 'Snapshot ' + relativeTime(activity.capturedAt) : '';
+  snapshotTime.textContent = workerSnapshotText(activity.capturedAt);
   snapshotTime.title = activity.capturedAt ? new Date(activity.capturedAt).toLocaleString('en-US', {timeZoneName: 'short'}) : '';
   const taskById = new Map((activity.tasks || []).map(task => [task.id, task]));
   const phaseNames = { working: 'Assigned task', queued: 'Delivery pending', pending: 'Delivery pending',

@@ -132,6 +132,15 @@ as `READY_TO_MERGE` with their immutable packet reference. Work lead records rec
 in the ledger; it does not send routine `QUEUED_FOR_MERGE` or `ACCEPTED`
 messages. Workers read `accepted-main` at clean task boundaries.
 
+Use the existing phase or handoff receipt as the shared reference: give its
+path, exact task/commit or run ID, verdict, evidence references, next owner and
+next action. Read the referenced evidence needed for your decision; do not
+repeat a full ledger dump or recap unchanged history in each role's reply.
+Independent source review and all validation requirements still apply. Open
+the canonical queue when ownership, readiness or a material state change needs
+reconciliation; a dashboard snapshot is dated evidence, not a live connection
+check.
+
 At startup and after a delivery, correction, acceptance, or batch baseline,
 use `worker-state.mjs next` or the publication helper's next-work summary.
 Handle unread deliveries and record finished turns. Before waiting, handle
@@ -309,7 +318,12 @@ successful CI checks locally.
    and state the concrete reason. Import the hosted run's saved evidence; do
    not repeat its checks locally. Give each hosted checkpoint one monitoring
    owner. Once its run ID is known, start one watch and retain its process
-   handle through completion. While it runs, preview the next delivery.
+   handle through completion. Share that run/owner/watch reference in the
+   existing receipt. Other roles use notification-aware waits or continue
+   independent work; do not send status-only turns or start duplicate watchers.
+   On recovery, reconcile the saved owner and handle before replacing a failed
+   watch. A material result, failure, requested decision or changed prerequisite
+   warrants a new handoff. While it runs, preview the next delivery.
    Do not issue additional status queries for that run unless the watch
    fails or the user requests details. After completion, import the result
    through the existing exact-commit checks.

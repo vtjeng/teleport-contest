@@ -240,6 +240,34 @@ test('exploration chart embeds its real aggregator and separates snapshot freshn
     assert.match(rendered.get('yieldReadout').textContent,/1 qualified discovery among 1 closed task/);
 });
 
+test('worker status prominently dates its snapshot and never presents old idle rows as live', () => {
+    const data = sourceDashboardData();
+    const capturedAt = new Date(Date.now() - 21 * 60000).toISOString();
+    data.activity = {capturedAt, tasks: [], segments: []};
+    data.assignmentQueue = {readySessions: 0, ready: [], blocked: [], claimed: [], tasks: [],
+        workers: [{worker: 'Worker-3', state: 'idle', assignment: null}]};
+    const rendered = renderDashboard(data);
+    const exactTime = capturedAt.replace('T', ' ').replace('Z', ' UTC');
+    for (const id of ['assignmentQueueSnapshotTime', 'activitySnapshotTime']) {
+        const text = rendered.get(id).textContent;
+        assert.ok(text.includes(exactTime), 'exact UTC capture time is visible, not only a tooltip');
+        assert.match(text, /21m ago at page load/u);
+        assert.match(text, /Not live: workers and claims may have changed/u);
+    }
+    assert.match(rendered.get('assignmentQueue').innerHTML, /Idle at snapshot: Worker 3/u);
+    for (const capturedAt of [undefined, 'invalid']) {
+        data.activity.capturedAt = capturedAt;
+        const missing = renderDashboard(data);
+        for (const id of ['assignmentQueueSnapshotTime', 'activitySnapshotTime'])
+            assert.match(missing.get(id).textContent, /Snapshot time unavailable.*cannot establish current activity/u);
+    }
+    data.activity.capturedAt = new Date(Date.now() + 60000).toISOString();
+    assert.match(renderDashboard(data).get('activitySnapshotTime').textContent, /clock ahead; age unavailable/u);
+    const template = readFileSync(TEMPLATE, 'utf8');
+    for (const id of ['assignmentQueueSnapshotTime', 'activitySnapshotTime'])
+        assert.ok(template.includes(`class="snapshot-status" id="${id}" role="note"`));
+});
+
 test('integration series share a chart but keep independent medians and pin the original task', () => {
     const data = sourceDashboardData();
     const at = minute => new Date(Date.UTC(2026, 9, 12, 10) + minute * 60000).toISOString();
@@ -795,7 +823,7 @@ test('shared queue table orders eligible tasks and derives current owners withou
     assert.ok(html.indexOf('title="second"') < html.indexOf('title="first"'));
     assert.ok(html.indexOf('title="first"') < html.indexOf('title="old-lamp"'));
     assert.match(html, /title="old-lamp"[\s\S]*?<td>blocked<\/td><td>Unassigned/u);
-    assert.match(html, /Idle workers: Worker 2<\/p>/u);
+    assert.match(html, /Idle at snapshot: Worker 2<\/p>/u);
     assert.doesNotMatch(html, /title="finished"/u);
     assert.equal((html.match(/Prefer exploration\./gu) || []).length, 1);
     data.assignmentQueue.readySessions = null;
