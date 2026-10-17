@@ -24,19 +24,36 @@
     },
     "rngMismatch": null,
     "metrics": {
-      "screens": {"matched": 147, "total": 148},
-      "rng": {"matched": 4892, "total": 4892},
-      "cursors": {"matched": 147, "total": 148}
+      "screens": {
+        "matched": 147,
+        "total": 148
+      },
+      "rng": {
+        "matched": 4892,
+        "total": 4892
+      },
+      "cursors": {
+        "matched": 147,
+        "total": 148
+      }
     },
-    "owner": "do.c:goto_level ordinary stair fall selftouch caller"
+    "owner": "do.c:goto_level ordinary stair fall selftouch caller",
+    "session": "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch",
+    "remainingScreens": 1
   },
   "summary": "On the final downward-stair input, the accepted JavaScript replay misses the C screen after Fumbling makes the hero fall while wielding a cockatrice corpse. C do.c:goto_level calls selftouch(\"Falling, you\") after fall damage; js/do.js:goto_level skips that call with note_unported('trap.c selftouch'). The existing js/trap.js:selftouch implementation already ports trap.c:selftouch, so this is missing caller wiring in goto_level. The C call returns no value; the JavaScript gap marker improperly omits an available source call.",
   "source": {
     "file": "do.c",
     "branch": "After downward stair travel, when excessive burden, punishment, or Fumbling causes a stair fall, goto_level applies fall effects and then calls selftouch(\"Falling, you\") before the arrival tail.",
-    "functions": ["goto_level"],
-    "callers": ["dodown() at do.c:1131-1294 calls goto_level() at do.c:1287; js/do.js:dodown() routes through next_level() to goto_level()."],
-    "dependencies": ["trap.c:selftouch; already implemented in js/trap.js:selftouch"]
+    "functions": [
+      "goto_level"
+    ],
+    "callers": [
+      "dodown() at do.c:1131-1294 calls goto_level() at do.c:1287; js/do.js:dodown() routes through next_level() to goto_level()."
+    ],
+    "dependencies": [
+      "trap.c:selftouch; already implemented in js/trap.js:selftouch"
+    ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
