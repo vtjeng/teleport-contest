@@ -1493,3 +1493,20 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
   Challenge lead own offline source/budget disposition. No independent budget,
   runtime parity or eligibility verdict is claimed; later reduction in reading
   rework remains unmeasured.
+
+### 2026-10-17 — Ready task waited across lead context recovery
+
+- EARTH conditional C-only task was enqueued at 19:13:54.061 UTC and claimed
+  by Worker 2 at 19:17:01.541: 3m7.480s ready wait. Work lead confirmed its
+  own context recovery occurred before the `followup_task` wakeup; no recorder
+  or other execution prerequisite blocked the claim. At 19:16:43, saved queue
+  output showed the task ready, no claims/processes/blockers, and live Worker
+  2 completed on the previous AP source task.
+- This differs from the earlier [handle-recovery wait](#2026-10-17--source-qualification-gaps-and-stale-recovery-ownership):
+  EARTH's frozen launcher/context required Worker 2, whose handle already
+  existed. Waking a different lane would not execute that contract unchanged.
+  Complete the supported wakeup immediately after a successful enqueue,
+  before unrelated lead/context work; `send_message` alone cannot start a
+  completed turn. This is an existing-policy handoff correction, not a new
+  queue/tooling proposal. Keep original claim time/cap and all physical limits.
+  Future wait reduction remains unmeasured; no CPU or worker-delay claim.
