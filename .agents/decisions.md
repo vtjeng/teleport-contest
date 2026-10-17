@@ -231,3 +231,11 @@ a useful case; discovery yield and coordination effects remain unmeasured.
 Vincent explicitly chose to place the saved qualifying case in unsubmitted v96, preserving the exhausted attempts and original v97 delivery. Prep97's earlier supported assignment remains historical; its wrapper is explicitly parked and immutable delivery d504e3f is unchanged. The additional gap-admission bridge (PA fae18209e, preserved candidate 4b8c8d969) remains unvalidated and unpublished. Its CLI failed with an unsettled top-level-await cycle before writing a receipt; no further bridge fix or gameplay run was made.
 
 The original v96 transport is resumed through the existing contiguous admission path. Its old assignment base and attempts remain intact; the new delivery uses explicit accepted base 520b47b so only the two newly namespaced case files are submitted. Recipe and recording bytes remain identical to the frozen evidence, with the v97 wrapper linked and left unadmitted. Count the case once. Hosted validation, admission, publication and any handoff benefit remain pending. This follows the earlier [continuation decision](#2026-10-17--explicit-continuation-after-exhausted-parked-preparation) without rewriting that history.
+
+Follow-up: exact v96 preparation checkpoint 38987618073 and admission 38993707573
+passed. The first complete baseline is 147/148 screens and 4,892/4,892 RNG values;
+Main publication 93582abfd96f1953681ac7aa349afd7787072cd9 completed with passing
+Dashboard and Lint workflows. The case was admitted once, and its remaining
+source-traced mismatch entered the canonical implementation queue. The v97
+wrapper remains parked and its original delivery unchanged. No elapsed-time
+benefit or broader source completeness is established by this successful route.

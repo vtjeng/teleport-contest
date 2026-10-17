@@ -1303,3 +1303,24 @@ triage decisions or fix references.
 - The first continuation assignment succeeded, but a read-only planner check still held the historical parked task. Narrow follow-up found contiguous-version checks in planning, local admission and hosted proof. The additional bridge was preserved as unvalidated, unpublished candidate 4b8c8d969. Its 89 focused imported-helper tests passed, while its first actual CLI invocation exited 13 with a top-level-await import cycle. No continuation receipt was written and no aggregate checkpoint ran. Future command changes need a real CLI regression covering entry-point initialization as well as imported helpers.
 - Vincent then explicitly selected the simpler unsubmitted v96 path. No further bridge repair or gameplay run was made. Original v97 delivery d504e3f remains immutable and its wrapper is parked; original v96 attempts and base remain intact. Current intake reuses the exact saved evidence once under v96. The decision and pending outcomes are recorded in [decisions](decisions.md#2026-10-17-follow-up--use-the-unsubmitted-v96-batch-for-the-saved-case).
 - The preceding tooling checkpoint monitor also encountered a transient GitHub HTTP 401. Work lead collected it and monitored the same run with one replacement, without restarting validation. The retained refresh observer still defers under the Main lease; its unavailable old tool handle and live OS process require a graceful restart from accepted code at the final boundary, preserving its saved journal.
+
+### 2026-10-17 — Standing push authorization and worker environment recovery
+
+- Automatic approval review separately rejected the exact preparation and
+  admission candidate pushes, asking for repository-content and branch scope.
+  Vincent explicitly approved each preserved push, then reaffirmed standing
+  approval for normal pushes to this same project repository. Each retry used
+  the same candidate and destination; neither denial was bypassed. The single
+  canonical authorization section in AGENTS.md now states that scope, retaining
+  validation, accepted-publication and no-force/no-delete requirements. Future
+  approval-review behavior and time savings remain unmeasured.
+- After the admitted v96 baseline entered the queue, the old Worker 1 agent
+  could not execute because its selected environment was unavailable. It
+  reported no claim or source work. A fresh worker using the documented model
+  verified the same preserved worktree clean; Work lead updated the registered
+  handle through the supported observation protocol before connection/claim.
+  This was execution-environment recovery, not evidence of a failed assignment.
+- The old refresh observer was later verified as a zombie. Work lead preserved
+  its stale owner record and journal, removed only that stale owner file, and
+  started one replacement observer from accepted code. It continues to defer
+  under the Main lease; no discovery event or publication was fabricated.

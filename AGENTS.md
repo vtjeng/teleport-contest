@@ -106,7 +106,12 @@ use the supported enable/migration commands without discarding legacy work.
 ## GitHub push authorization
 
 The user authorizes normal pushes to `vtjeng/teleport-contest` for hosted
-candidate validation and accepted publication. Keep unaccepted candidates on
+candidate validation and accepted publication. On 2026-10-17, Vincent reaffirmed
+standing approval for normal pushes to this repository, including candidate
+case files, manifests, baseline evaluations, SCORE and dashboard reports.
+A new branch or commit alone does not require renewed approval. This scope
+applies to `https://github.com/vtjeng/teleport-contest.git` only.
+Keep unaccepted candidates on
 `integration-checkpoint/*` branches; publish only accepted work to `main`.
 Do not force-push or delete refs. Existing validation and publication checks
 still apply.
