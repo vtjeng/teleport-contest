@@ -319810,6 +319810,25 @@
           }
         ]
       }
+    },
+    {
+      "id": "goto-level-selftouch-call",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire both source-ordered fall calls in do.c:goto_level to the existing js/trap.js:selftouch implementation. Preserve the no-return behavior when petrification ends the game; validate the admitted Fumbling stair-fall range and independent hole-fall random-arrival range.",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch",
+        "synthetic/v28/v28-hole-floor-pile-fall"
+      ],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "goto_level",
+      "session": "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch"
     }
   ]
 }
