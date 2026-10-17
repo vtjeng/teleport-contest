@@ -465,6 +465,8 @@ function applyLegacyEvent(state, event, at) {
             check(event.state === 'active' || event.processes.length === 0, 'reap or hand off processes before ending a turn');
             Object.assign(worker, { turn: event.state, reason: event.reason,
                 processes: [...event.processes], turnAt: at });
+            worker.reasonAt = event.reason === null ? null : at;
+            worker.reasonTask = event.reason === null ? null : worker.assignment ?? null;
         } else {
             check(worker.handle === event.handle, 'connection handle differs from registered handle');
             if (type === 'connect') {
@@ -491,6 +493,7 @@ function applyLegacyEvent(state, event, at) {
             const worker = state.workers[event.worker];
             delete worker.connectionRequestedAt; delete worker.connectedAt;
             delete worker.turn; delete worker.reason; delete worker.turnAt;
+            delete worker.reasonAt; delete worker.reasonTask;
         }
         Object.assign(type === 'coordinator' ? state.coordinator : state.workers[event.worker],
             { handle: event.handle, processes: [...event.processes], observedAt: at });
@@ -781,7 +784,8 @@ export function nextActions(state, admittedBatches = [], queue = null) {
                 ? w.assignment ? 'continue' : assignments.ready.length ? 'claim-next' : 'wait'
                 : w.turn === 'idle' ? 'wait'
                 : w.turn === 'blocked' ? 'resolve-blocker' : w.turn === 'active' ? 'continue' : 'inspect-turn',
-            reason: w.reason ?? null, processes: w.processes,
+            reason: w.reason ?? null, reasonAt: w.reasonAt ?? null,
+            reasonTask: w.reasonTask ?? null, processes: w.processes,
             task: assignments && w.worker !== 'Prep' ? w.assignment ?? null
                 : tasks.find(t => t.worker === w.worker && t.status === 'working')?.id ?? null })),
         integration: slot ? { task: slot.id, status: slot.status } : preferred

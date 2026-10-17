@@ -287,3 +287,43 @@ Observed elapsed phases: initial setup 797.932 seconds; consumer repair 69.130; 
 - Implementation: PA change `04bc8935741b19ed04a4d9e43649af658112ea79`, integrated as `c95b3ce17`; exact hosted candidate result remains pending. Dashboard queue and activity show exact UTC capture timestamp, age explicitly at page load, and Not live; idle rows say Idle at snapshot. Missing/invalid time cannot establish current activity; future timestamp reports clock discrepancy. No new coordination schema, watcher, refresh cadence, model/capacity change or validation exemption.
 - Verification: three focused rendered-template tests passed (184.269 ms); targeted test-file ESLint and diffcheck passed. Tests cover visible timestamp/age, missing/invalid/future times, unchanged queue ordering and existing exploration/build freshness distinction. No gameplay or worker interruption. Work lead also checked Chromium at 320/1440 pixels: exact UTC timestamp, page-load age, Not live wording and wrapped text were visible without page errors; saved screenshots use a dated local fixture, not live deployment proof. Exact hosted candidate validation remains pending.
 - Expected benefit/tradeoff: reduce status-only handoffs and mistaken interpretations of dated idle rows; receipts still require decision-relevant evidence reads, and display age is measured at page load rather than a live connection check. Follow-up **unmeasured** until subsequent actual handoff/recovery use; no token-saving claim.
+
+## 2026-10-17 — Dispatch independent work during handle recovery
+
+- Change: Work lead wakes an available eligible worker through the existing
+  shared queue priority while another worker reconnects. A recovery alone is
+  no reason to reserve an independent task for that lane. Retain existing
+  claims, source reservations and all acceptance gates.
+- Why: [Source qualification gaps and stale recovery ownership](friction.md#2026-10-17--source-qualification-gaps-and-stale-recovery-ownership).
+  The lamp assignment waited 88.976 seconds after becoming ready while Worker
+  2 was registered idle. Work lead confirmed there was no context or ownership
+  reason for waiting on Worker 1's connection and adopted this practice.
+- Implementation: an existing-policy dispatch correction; no code, new
+  service, tests, validation rerun or worker interruption. Work lead integrates
+  this record at the next genuine publication boundary and records that commit.
+- Expected benefit/tradeoff: avoid independent ready-work delay during
+  recovery, while losing any informal preference for restoring a specific
+  lane first. Preserve useful context preference when there is a concrete
+  dependency. Later comparable recovery-to-dispatch observations remain
+  **unmeasured**; no CPU, capacity or comparative throughput claim.
+
+## 2026-10-17 — Scope turn reasons to their original task and time
+
+- Change: Work lead owns the narrow queue/state projection fix to clear old
+  reason/provenance at claim/result/block boundaries, bind explicit turn
+  reasons to their original timestamp and current task, and expose that
+  provenance in next-work output. Preserve immutable ledger events, claims,
+  physical budgets and all evidence/acceptance gates.
+- Why: [Old turn reason mistaken for lava execution provenance](friction.md#2026-10-17--old-turn-reason-mistaken-for-lava-execution-provenance).
+  A mimic status reason survived seven Worker 2 claims and appeared beside
+  the new lava task at 76m8.614s old. The lava recovery packet preserves missing
+  execution evidence and an UNKNOWN physical setup count; it grants no retry.
+- Implementation: Work lead fills the exact integrated commit and focused/
+  hosted validation results at the genuine publication boundary. PA supplies
+  saved read-only ledger-prefix and source evidence; source/tests remain
+  exclusively with Work lead. Implementation and validation are pending.
+- Expected benefit/tradeoff: prevent a prior task's status from being read as
+  current execution evidence; newly claimed or completed lanes may have no
+  reason until an explicit current observation. Actual invocation receipts
+  remain necessary. Future recurrence reduction and effort savings are
+  **unmeasured**; no gameplay or CPU claim.

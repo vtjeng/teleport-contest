@@ -1379,3 +1379,92 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
 
 
 **Scoped first correction.** The source review tied the exception to the existing `bot()` pre-player/status-updates/suppressed-output guards and to a non-gameplay menu repair. It also distinguished direct test-fixture rule replacement from C's option reassessment lifecycle. Correction `94b0f25ae…` preserves the style assertions, adds pre-player and multi-page dismissal regressions, and passed all 271 tests in the three affected files plus lint, with raw output retained. The original 22-unit scope stays intact; only the existing menu caller adapter and two existing test paths were added after an owner check. A basename-format reservation rejection made no ledger change; one premature caller hunk was immediately reverted before the approved scope event and is disclosed in the phase receipt. No C capture or differential was repeated. Normal combined hosted revalidation and acceptance remain pending at this record.
+
+### 2026-10-17 — Source qualification gaps and stale recovery ownership
+
+- Saved canonical ledger evidence from 17:00:00 through 18:02:00 UTC covers
+  17 newly enqueued assignments, 16 worker results, and 15 closed
+  result-to-next-claim intervals. Enqueue-to-claim elapsed was 9.349–25.635
+  seconds, median 14.956 seconds. The closed result-to-next-claim intervals
+  were 2m16.401s–14m57.696s, median 4m51.862s. Every result left zero eligible
+  ready assignments immediately afterward. Worker 1's unicorn result at
+  17:58:17.437 left an open 3m42.563s interval at the audit cutoff. The
+  observable gap is qualification/review/replenishment before enqueueing;
+  it does not establish avoidable review time or slow ready-task dispatch.
+- The denominator is three worker lanes over 62 minutes, or 186 lane
+  minutes: 73.295 were claimed and 112.705 unclaimed. These are ownership
+  intervals, not active-execution or CPU measurements. Review, evidence
+  packaging, other lead work and interrupted recovery can occupy unclaimed
+  time; lead effort has no complete denominator. Ready work shared among
+  several free lanes must not be counted as several independent opportunities.
+- At 18:02 UTC, the canonical next-work projection still registered Worker 1
+  to the former Work lead's handle and displayed an old Castle idle reason,
+  despite the newer completed unicorn result. The live agent tree had no
+  Worker 1 and contained a stale pending Challenge lead recovery handle
+  alongside the live continuation. The Coordinator confirmed the pending
+  Challenge lead handle was stale and asked Work lead to reconcile Worker 1
+  through the supported ownership protocol before waking it. No claim was
+  changed by this audit; registration staleness does not prove a worker failed
+  or lost an assignment.
+- Supporting private receipt: Process analyst worktree
+  `.cache/process-monitoring-20261017/audit-1700-1802.json`, including the
+  canonical ledger byte digest, event count, task timestamps, original ready
+  projections and right-censored interval. Action: reconcile ownership at
+  recovery, then use the already-owned conditional setup verdicts or a
+  distinct qualified candidate when available. Preserve bounded negative
+  outcomes and necessary independent review; no filler task, repeated prior
+  audit, gameplay rerun or new coordination tooling is justified by this sample.
+  Subsequent recovery and replenishment improvement remains unmeasured.
+
+- First recovery follow-up: the unavailable handle was cleared at 18:02:58.321,
+  its replacement observed at 18:07:10.456, connected at 18:07:38.831, and
+  claimed at 18:07:45.124 UTC: 4m46.803s from removal to claim. Most of that
+  elapsed window preceded new qualification. The lamp task itself was eligible
+  from 18:06:16.148, waiting 88.976 seconds while Worker 2 was registered idle
+  with no owned processes. Work lead confirmed there was no context or
+  ownership reason to bind it to Worker 1; targeting the recovering lane caused
+  avoidable ready-work delay. Adopt the existing shared-priority practice of
+  waking an available eligible worker while another reconnects. Preserve the
+  current claims; no new tooling or check is needed. Receipt:
+  `.cache/process-monitoring-20261017/recovery-followup-1808.json`. Reduction
+  in later ready-work delay remains unmeasured.
+
+### 2026-10-17 — Old turn reason mistaken for lava execution provenance
+
+- Lava task `support-lava-trapped-ring-complete-conditional-c-only-20261017`
+  claimed at 18:28:21.468 UTC and blocked at 18:30:43.518 (2m22.050s).
+  Recovery packet `8791d679154d76512bb5cfdcb72970c0247fbe9aa53cca7cb9dbd74b3cce097a`,
+  commit `02de3a8b7867a9a15d1749276c4d041dad87f2a1`, preserves the missing
+  actual launcher/capture evidence and UNKNOWN physical setup count. Its typed
+  envelope contains four provenance/assignment/plan/review files, not an
+  execution request, result, stdout/stderr or capture. No target or retry is
+  justified; retain the original cap and immutable block.
+- The apparent canonical statement that one setup capture exited zero belongs
+  to the earlier mimic task. Its sole originating event is
+  `worker2-mimic-setup-recording-collected-20261017T171200`, 17:12:12.854 UTC,
+  during `support-mimic-genocide-fixed-history-setup-c-only-20261017`. It
+  survived seven later Worker 2 claims and was 76m8.614s old at the lava claim.
+  No new Worker 2 turn/invocation event appears in the lava claim-to-block
+  interval. This establishes status contamination; it does not establish
+  whether a lava process ran or why actual invocation evidence is unavailable.
+- Cause: `assignment-queue.mjs` claim and finish transitions change assignment
+  and `turnAt` without clearing `worker.reason`; the block transition also
+  leaves that text. `worker-state.mjs` next-work output then displays the old
+  reason beside the new assignment. A read-only actual-ledger prefix reproduces
+  exactly that association. The prior fresh timestamp could misleadingly age
+  the old text. Task prose already required actual request/outcome receipts
+  before C; adding more launcher prose would not address this attribution bug.
+- Work lead adopted a narrow projection fix: clear obsolete reason provenance
+  at queue claim/result/block boundaries, stamp an explicit turn reason with
+  its original time/current task, and expose that provenance in next-work
+  output. Retain historical events and execution/acceptance gates. Until
+  integrated, trace any status statement to its originating event/task and
+  demand actual receipts for execution claims. Physical lava count remains
+  UNKNOWN; no cap reset, retry, new gameplay or historical packet rewrite.
+- Supporting private receipt: Process analyst
+  `.cache/lava-provenance-triage-20261017/observation.json`, including exact
+  ledger/packet/source hashes, the original reason event, seven claims and
+  before-block projection. Work lead owns implementation, focused regression
+  checks and normal hosted validation/publication. Future recurrence reduction
+  remains unmeasured. The Process analyst did not modify source/tests or claims
+  or invoke C/JavaScript gameplay.

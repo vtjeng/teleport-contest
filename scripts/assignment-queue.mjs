@@ -267,6 +267,9 @@ export function applyQueueEvent(state, event, at, legacy) {
         task.attempts.push({worker: event.worker, branch: event.branch, base: task.resumeFrom ?? task.base, at});
         Object.assign(worker, {assignment: task.id, branch: event.branch, base: task.base,
             turn: 'active', turnAt: at});
+        delete worker.reason;
+        delete worker.reasonAt;
+        delete worker.reasonTask;
         if (task.output === 'implementation') {
             const previous = state.tasks[task.transport];
             if (previous) {
@@ -310,8 +313,12 @@ export function applyQueueEvent(state, event, at, legacy) {
             legacy(state, {id: `${event.id}:park`, type: 'park', task: task.transport, reason: event.reason}, at);
         Object.assign(task, {status: 'blocked', reason: event.reason, resumeFrom: event.base, recovery: event.packet});
         task.recoveryPackets = [...new Set([...(task.recoveryPackets ?? []), event.packet])];
-        delete state.workers[event.worker].assignment;
-        state.workers[event.worker].turn = 'idle';
+        const worker = state.workers[event.worker];
+        delete worker.assignment;
+        Object.assign(worker, {turn: 'idle', turnAt: at});
+        delete worker.reason;
+        delete worker.reasonAt;
+        delete worker.reasonTask;
     } else if (event.type === 'queue-unblock') {
         const task = state.queue.tasks[event.task];
         ensure(task?.status === 'blocked' && text(event.reason), 'unblock requires a blocked task and new evidence');
@@ -342,6 +349,9 @@ function finish(state, task, at) {
     const worker = state.workers[task.worker];
     delete worker.assignment;
     Object.assign(worker, {turn: 'idle', turnAt: at, processes: []});
+    delete worker.reason;
+    delete worker.reasonAt;
+    delete worker.reasonTask;
 }
 
 // Acceptance helpers keep their proven transport identities. Execution has its

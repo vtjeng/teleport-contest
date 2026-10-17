@@ -65,6 +65,35 @@ test('completed exploration frees its persistent worker and retains immutable re
     assert.equal(first.status, 'completed');
 });
 
+test('worker reasons retain their original task and time and never carry into another assignment', () => {
+    for (const ending of ['result', 'block']) {
+        const f = fixture();
+        f.enqueue('first'); f.claim('first');
+        f.send({type: 'turn', worker: 'Worker-1', state: 'active',
+            reason: 'First capture collected.', processes: []});
+        const worker = f.state().workers['Worker-1'];
+        const row = nextActions(f.state()).workers.find(w => w.worker === 'Worker-1');
+        assert.equal(row.reason, 'First capture collected.');
+        assert.equal(row.reasonAt, worker.turnAt);
+        assert.equal(row.reasonTask, 'first');
+        if (ending === 'result') f.result('first');
+        else f.send({type: 'queue-block', task: 'first', worker: 'Worker-1',
+            reason: 'Receipt missing.', base: REV, packet: '/tmp/handoff.json'});
+        let idle = nextActions(f.state()).workers.find(w => w.worker === 'Worker-1');
+        assert.equal(idle.reason, null);
+        assert.equal(idle.reasonAt, null);
+        assert.equal(idle.reasonTask, null);
+        f.send({type: 'turn', worker: 'Worker-1', state: 'idle',
+            reason: 'Waiting for another task.', processes: []});
+        f.enqueue('second'); f.claim('second');
+        idle = nextActions(f.state()).workers.find(w => w.worker === 'Worker-1');
+        assert.equal(idle.task, 'second');
+        assert.equal(idle.reason, null);
+        assert.equal(idle.reasonAt, null);
+        assert.equal(idle.reasonTask, null);
+    }
+});
+
 test('coordination uses execution assignments for exploration and invites idle workers to claim queued work', () => {
     const f = fixture();
     f.enqueue('first'); f.enqueue('second');
