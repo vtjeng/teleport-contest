@@ -28,6 +28,13 @@ priorities, and decisions; it does not relay routine task traffic. The Work lead
 integration, validation, acceptance, admission, central records, and
 publication. The dashboard uses the same role names irrespective of agent parentage.
 
+Before ending an authorized continuous run while the queue is empty, the
+Coordinator verifies that a live lead owns the next productive investigation,
+or surfaces the concrete decision blocker that prevents it. An individual idle
+worker or completion of a finite pilot does not end the authorized run. Preserve
+queue dispatch, evidence, validation and publication gates; do not create filler
+work merely to keep agents busy.
+
 The Challenge lead plans exploration, adds bounded investigation tasks,
 evaluates returned evidence, deduplicates causes, and assembles batches for
 the Work lead. It may also execute its own investigations under "Direct
