@@ -1510,3 +1510,37 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
   completed turn. This is an existing-policy handoff correction, not a new
   queue/tooling proposal. Keep original claim time/cap and all physical limits.
   Future wait reduction remains unmeasured; no CPU or worker-delay claim.
+
+### 2026-10-17 — Successful physical phases awaiting interrupted receipt closure
+
+- At the 19:35:29.046 UTC recovery observation, EARTH task
+  `support-dwarf-earthsense-fixed-east-complete-conditional-c-only-20261017`
+  remained canonically claimed from 19:17:01.541, with no result or block.
+  Its original total deadline was 19:27:01.541. Main's saved 19:20:58.855
+  review already accepted the C witness and exact unchanged replay, exhausting
+  the one setup, one target and one replay allowances. All three retained
+  phase results exit zero without timeout; offline hashes and byte counts
+  match their referenced request, full stdout/stderr and capture files.
+  This observation establishes available physical evidence and missing
+  terminal transport, without certifying source novelty or batch eligibility.
+- The Main review preceded the deadline by 6m2.686s. Review to this observation
+  is an open, right-censored 14m30.191s interval; the deadline was exceeded by
+  8m27.505s. Worker 2 still points at its original assignment base, and the
+  live recovery tree lists no worker handles. The Coordinator reports the
+  old handles vanished near 19:33. Interruption onset, packaging progress and
+  the cause of missing receipt remain unknown. These overlapping intervals
+  concern one task and are not additive CPU, active effort or proven avoidable
+  wait measurements; the lead-effort denominator is unavailable.
+- Work lead owns preservation and supported terminal receipt recovery. Reuse
+  retained evidence with the original claim/clock, disclose packaging after
+  the cap, and preserve the physical phase exhaustion. This is a narrow
+  recovery action under existing policy, not authorization for more C,
+  JavaScript comparison, a new claim or reset deadline. The Process analyst
+  changed no claim, ran no gameplay or validator, and repeated no successful
+  validation. Closure and later handoff improvement remain unmeasured.
+- Private supporting receipt:
+  `.cache/process-monitoring-20261017/earth-interruption-receipt-gap-1936.json`
+  records ledger digest/event count, task events, exact review and phase
+  receipt hashes, retained file inventory, branch/base and the observation
+  cutoff. This is distinct from the earlier ready-task wakeup delay: the
+  current gap begins after saved successful physical evidence and review.
