@@ -322389,6 +322389,186 @@
         },
         "reviewSha256": "8452de2bef5d7f5d8b3163190709c68fbde547882fbefc0a347b0b8ac05d6981"
       }
+    },
+    {
+      "id": "fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement rloc_to_core from undefined",
+      "cFile": "teleport.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "rloc_to_core",
+          "line": 1645,
+          "endLine": 1770,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1645,
+        "to": 1770
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-swallowed-relocation-shop-actionenv-source-parity-20261017",
+        "assignmentBase": "aa5537618a889445666232d6201ae4e2438f280b",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "aa5537618a889445666232d6201ae4e2438f280b",
+          "authorization": "2026-10-17 user and Coordinator authorize source-proved caller-state/RNG parity repair, paired with corrected shop-entry adapter, no intermediate publication.",
+          "currentBehavior": "Planning rloc_to_core forwards only message + scalar env.random.rn2 into rooms; even corrected W1 rooms cannot infer the complete action RNG/planning/operation environment from those values. New direct keeper action then uses live fallback providers/global RNG unless caller passes optional full actionEnv.",
+          "expectedBehavior": "At this exact swallowed relocation check_special_room call, pass actionEnv:{...env,state,message} (or same env if identity/overrides already exact) alongside existing message and scalar random. Preserve env.random as complete object, planning flag, redraw/newsym, input handoff and custom operations; rooms corrected direct closure overlays only intended selected state/message, never replaces full RNG with scalar.",
+          "units": [
+            "teleport.c:rloc_to_core"
+          ],
+          "allowedPaths": [
+            "js/teleport.js",
+            "scripts/teleport.test.mjs",
+            "scripts/teleport-monster-traps.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/teleport.test.mjs",
+            "scripts/teleport-monster-traps.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/teleport.js",
+              "symbol": "rloc_to",
+              "source": "C teleport.c rloc_to→rloc_to_core follows swallowed hero and calls check_special_room on selected current game; real JS planning relocation must preserve current clone/full RNG/planning operations through that exact call."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/teleport.js",
+              "object": "c9a33b794b2dd45f1a367a03d62450c8650f21dc"
+            },
+            {
+              "path": "scripts/teleport.test.mjs",
+              "object": "630436ff632262984c3d65c1a15b2532f0df1c81"
+            },
+            {
+              "path": "scripts/teleport-monster-traps.test.mjs",
+              "object": "0954de7b246873cdde731ba9b5ffc5397acbd128"
+            },
+            {
+              "path": "js/rooms.js",
+              "object": "50b1daf066abb8ce905070a7540d282d972df522"
+            },
+            {
+              "path": "js/shk.js",
+              "object": "2210c8d3e4f415c4259b1d4a1e9957cac1072200"
+            },
+            {
+              "path": "js/unported_monster_actions.js",
+              "object": "06ade888f5ed4bd9fa5a58b7575b1e60782bbac8"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "producerReview": {
+            "updatedAt": "2026-10-17T22:10:07.355559+00:00",
+            "status": "Narrow dependent caller sourceParity review for Work lead task construction; not enqueue-ready until corrected W1 dependency/base is pinned",
+            "acceptedBase": "aa5537618a889445666232d6201ae4e2438f280b",
+            "sourceUnit": "teleport.c:rloc_to_core swallowed hero-follow call to check_special_room only; JavaScript environment plumbing for existing C current-state/RNG semantics, no teleport behavior expansion",
+            "dependency": {
+              "task": "fix-shop-entry-extra-dochug-source-parity-20261017",
+              "originalDelivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+              "required": "Corrected frozen W1 delivery must implement optional rooms.actionEnv full forwarding and own real RNG/planning actor regression within original allowed paths. Pin exact corrected revision and include it in worker comparison/source base before caller task executes. Parent candidate must contain both W1 correction and this caller fix; no intermediate environment gap publication.",
+              "pet": "Existing pet provider task keeps explicit same corrected/frozen provider dependency; no competing unported edits in this caller task."
+            },
+            "orderedGuardAndJointState": [
+              "Ordinary human hero swallowed by hostile PM_PURPLE_WORM, ustuck points to that real on-map actor, uswallow positive, ordinary carried pickaxe. Purple worm source monsters.h1138 has AT_ENGL/AD_DGST, no natural teleport requirement, wormno0. Hero digestion timer/HP valid, level normal and non-noteleport.",
+              "Worm awake/canmove, notfrozen/nottrapped/notmeating, mconf=true and source nonzero rn2(50) preserves confusion. Not covetous/demon/watch/mindflayer/cube/bee, minventory empty and no defensive/offensive preemption; movement disjunction true because mconf.",
+              "m_move swallowed guard1851 excludes OTHER monsters, not ustuck actor; engulfing actor gets approach0 and can source-select an allowed next floor square carrying unknown ordinary TELEP_TRAP (notonce, unmadebyhero, no remembered trap). No wall/door/liquid/region/refusal on that step.",
+              "postmov invokes mintrap before later swallowed-follow map update. Unknown teleport trap bypasses rememberedtrap avoidance; no existing trapped escape/airborne floor gate, source selector enters mtele_trap. mtele_trap only requires notnoteleport/notsteed/teleport_pet passes/noonce. Nontame unleashing is irrelevant and !mleashed returns true. No can_teleport species predicate exists.",
+              "Ordinary random rloc can legally sample an unoccupied open shop edge, validated by rloc_pos_ok/goodpos with no level restriction or limiting teleport-region conflict. Actual engulfer moves, ustuck/uswallow branch calls u_on_newpos and check_special_room(FALSE). No fixed teledest or physical-history claim is needed.",
+              "Room update sees hero outside->edge SHOP membership; inside_shop edge returns NO_ROOM. Real peaceful awake nonmute/nonfollowing resident, visible hero, ordinary pickaxe; all entry early returns false and should_block true, even while swallowed (no such guard in u_entered_shop).",
+              "The direct keeper m_move can subsequently return early because hero swallowed by OTHER actor. That does not make direct dochug call unreachable or inert: its pre-movement phases run first. One source-valid confused peaceful keeper (nonzero rn2(50), muteshk not confusion) spends selected action RNG before m_move. Alternatively a real wipeable engraving at keeper square spends RNG in wipe_engr_at. These valid state observations show dropped clone RNG matters without requiring a keeper movement while swallowed."
+            ],
+            "proofLimit": "Positive path uses hostile confused PURPLE_WORM with valid AT_ENGL AD_DGST plus ordinary teleport trap; it does NOT require can_teleport. Reject lava-naturalteleport conjunction without species proof. A normal room edge while swallowed can enter shop callback; no public trap/input/seed history claimed.",
+            "currentBehavior": "Planning rloc_to_core forwards only message + scalar env.random.rn2 into rooms; even corrected W1 rooms cannot infer the complete action RNG/planning/operation environment from those values. New direct keeper action then uses live fallback providers/global RNG unless caller passes optional full actionEnv.",
+            "expectedBehavior": "At this exact swallowed relocation check_special_room call, pass actionEnv:{...env,state,message} (or same env if identity/overrides already exact) alongside existing message and scalar random. Preserve env.random as complete object, planning flag, redraw/newsym, input handoff and custom operations; rooms corrected direct closure overlays only intended selected state/message, never replaces full RNG with scalar.",
+            "allowedPaths": [
+              "js/teleport.js",
+              "scripts/teleport.test.mjs",
+              "scripts/teleport-monster-traps.test.mjs",
+              ".cache/"
+            ],
+            "doNotChange": [
+              "No rooms/shk/unported edits in caller task: optional full-env seam is W1 supported rework within frozen original paths.",
+              "No can_teleport species flags, swallowed state constraints, trap behavior, RNG primitives or global defaults changed.",
+              "No new generalized environment factory or tests that replace keeper action with successstub.",
+              "No original W1 delivery amend; no intermediate candidate with only half of environment route published."
+            ],
+            "operationHandling": {
+              "preserve": [
+                "state reference is actual selected clone/live game",
+                "random remains full existing env.random object; do not reconstruct missing primitives from scalar rn2",
+                "planning true/false unchanged",
+                "message callback and redraw/newsym silence/clone-vision operations",
+                "requestPlanningInput or other existing operation hooks",
+                "migration/region/source refusal providers already in env"
+              ],
+              "existingRoomRandom": "Keep random:env.random.rn2 for room non-action source code; additional actionEnv is independent full provider context. Source caller does not know/build a new NPC adapter itself.",
+              "callee": "W1 corrected rooms closure runs direct helper with full actionEnv then explicit state/message; no wholemovemon or bare dochug."
+            },
+            "productionRegression": {
+              "sourceState": "Initialized live globalgame + real planningState clone; actual purple-worm engulfer pointer is cloned, uswallow valid, hero carryingpick, source-valid legal open shop edge and ordinary peaceful resident with valid extension. Set resident mconf true to force source rn2(50) prephase draw while keeping it nonmute/awake/canmove and peaceful. This is a legal monster state; no forged trait combination.",
+              "entry": "Invoke real rloc_to or rloc_to_flag on cloned engulfer with planning:true/full deterministic cloned RNG and current silent message/redraw hooks, to a destination asserted legal for that actor. This exact source relocation entry must follow hero -> real check_special_room -> real u_entered_shop -> real direct keeper dochug; not bare room/direct helper.",
+              "assertions": [
+                "Clone actor and hero reach selected edge; shop entry chooses actual carried-pick shouldBlock; source prephase keeper rn2(50) consumed from supplied clone RNG.",
+                "Live global RNG state/log unchanged; no actual live output/redraw effects and original hero/resident/world state unchanged.",
+                "Do not require keeper physical movement: while hero swallowed by other actor its m_move can return early AFTER prephase RNG, which is exactly why concrete prephase observation is chosen.",
+                "Negative relocation notswallowed or hero/shop guard state without shouldBlock performs no additional keeper action; existing nonplanning live relocation/room entry remains valid.",
+                "Real actor and real helper providers; no overridden relocation/directAction/mock keeper success and no naturalteleport species fiction."
+              ],
+              "focusedChecks": [
+                "node --test scripts/teleport.test.mjs scripts/teleport-monster-traps.test.mjs",
+                "W1 corrected real room/action planning tests must stay passing as candidate dependency"
+              ],
+              "failurePolicy": "Earlier guard/refusal or inconsistent actor/destination invalidates fixture and must be preserved as blocker; no weakened late-helper-only test.",
+              "runtimeLabel": "Constructed production path regression only; public C runtime/holdout evidence pending.",
+              "baselineIsolation": {
+                "initialAcceptedRed": "Accepted aa5537618a889445666232d6201ae4e2438f280b red must be truthful; it lacks original extra keeper action and cannot by itself isolate the later forwarding defect.",
+                "requiredPreFixRed": "After exact corrected immutable W1 delivery is merged into required source/task base, run identical real relocation/RNG/planning regression BEFORE teleport caller forwarding delta. Preserve failing assertion/log/exit/base plus W1 dependency commit; this red isolates missing actionEnv at caller.",
+                "afterGreen": "Run same exact command/assertions on caller fix over same corrected-W1 composition. Preserve actual green output and hashes; no action/provider stubs, success hooks, source guard bypass or ordinary-helper-only replacement."
+              }
+            },
+            "otherCallerInventory": "Existing after_shk_move call also only passes scalar message/random. This review does not assert that unrelated sentinel-return route reaches shouldBlock during planning. Record it as unproved route during implementation source caller inventory, rather than silently claim a global environment API fix or expand source scope without proof.",
+            "parentCandidateHold": "Keep W1 corrected delivery plus teleport caller fix plus compatible provider/pet delta in same candidate validation/publication boundary, as Work lead directed.",
+            "sourceReviewReference": "/workspace/teleport-contest-challenge-recovery/.cache/shop-entry-planning-forwarding-correction-2112/review.json"
+          },
+          "frozenDependency": {
+            "delivery": "dd04863a6989b972f9e82989c9c488e14c1f5ee4",
+            "execution": "rework:delivery:fix-shop-entry-extra-dochug-source-parity-20261017:2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+            "pins": [
+              {
+                "path": "js/rooms.js",
+                "object": "d35e27a3d2d100dbd69b1d4e2f92192dc91dae39"
+              },
+              {
+                "path": "js/shk.js",
+                "object": "9f60e7ad74dcd418597869306755c20fb58a36d2"
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "object": "90cdcf4c6d4dba513c8337da7a161286a0a68c97"
+              }
+            ]
+          }
+        },
+        "reviewSha256": "e262d2a762e28293283b0fd371655dd52d38d5038d698df4699bb52065b3a156"
+      }
     }
   ]
 }
