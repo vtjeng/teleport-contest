@@ -56,3 +56,28 @@ test('a changed-field event stamps both timer banks and requests a refresh', () 
     assert.equal(state.gb.status_hilite_chg[xpField], false);
     assert.equal(state.disp.botl, true);
 });
+
+test('a changed event clears from both banks when highlight duration is off',
+    () => {
+    const field = xpField;
+    const state = {
+        iflags: { hilite_delta: 0 },
+        gb: {
+            status_hilite_rule: banks(null),
+            status_hilite_times: banks(12),
+            status_hilite_chg: Array(27).fill(false),
+        },
+        moves: 12,
+        multi: 0,
+        disp: { botl: false },
+    };
+    state.gb.status_hilite_rule[0][field] = { behavior: 'changed' };
+    state.gb.status_hilite_chg[field] = true;
+
+    status_eval_next_unhilite(state);
+
+    assert.equal(state.gb.status_hilite_times[0][field], 0);
+    assert.equal(state.gb.status_hilite_times[1][field], 0);
+    assert.equal(state.gb.status_hilite_chg[field], false);
+    assert.equal(state.disp.botl, true);
+});

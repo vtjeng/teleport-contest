@@ -9,14 +9,20 @@ import {
     SEE_INVIS,
     TELEPAT,
 } from '../js/const.js';
-import { docrt, knowninvisible, see_nearby_objects } from '../js/display.js';
+import {
+    docrt,
+    knowninvisible,
+    see_nearby_objects,
+    timebot,
+} from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
-import { game } from '../js/gstate.js';
+import { game, resetGame } from '../js/gstate.js';
 import { POT_HEALING, POTION_CLASS } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
+import { STATUS_FIELDS } from '../js/status_field_data.js';
 
 function nearbyObjectState() {
     const state = {
@@ -49,6 +55,54 @@ function invisibleState() {
     };
     return state;
 }
+
+test('timebot selects BL_TIME in both rule banks without copying prior values',
+    async () => {
+        const state = resetGame();
+        const field = STATUS_FIELDS.find(row => row.key === 'time').fld;
+        const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
+        const bank = () => Array(size).fill(null);
+        const selectedRule = {
+            field: 'time', behavior: 'absolute', relation: '>=', value: 0,
+            style: { attrib: 2, color: 1 },
+        };
+        state.flags = { time: true };
+        state.iflags = { hilite_delta: 3, status_hilites: [selectedRule] };
+        state.moves = 12;
+        state._renderedStatusLayouts = [];
+        state.disp = { time_botl: true };
+        state.gb = {
+            status_hilite_rule: [bank(), bank()],
+            status_hilite_value: [bank(), bank()],
+            status_hilite_compare_value: [bank(), bank()],
+            status_hilite_percent: [bank(), bank()],
+            status_hilite_text: [bank(), bank()],
+            status_hilite_type: [bank(), bank()],
+            status_hilite_times: [bank().map(() => 0), bank().map(() => 0)],
+            status_hilite_chg: Array(size).fill(false),
+        };
+        state.gb.status_hilite_value[1][field] = 91;
+        state.gb.status_hilite_compare_value[1][field] = 92;
+        state.gb.status_hilite_percent[1][field] = 93;
+        state.gb.status_hilite_text[1][field] = 'old time text';
+        state.gb.status_hilite_type[1][field] = 94;
+        state.gb.status_hilite_times[0][field] = 12;
+        state.gb.status_hilite_times[1][field] = 95;
+
+        await timebot();
+
+        assert.equal(state.gb.status_hilite_rule[0][field], selectedRule);
+        assert.equal(state.gb.status_hilite_rule[1][field], selectedRule);
+        assert.equal(state.gb.status_hilite_value[1][field], 91);
+        assert.equal(state.gb.status_hilite_compare_value[1][field], 92);
+        assert.equal(state.gb.status_hilite_percent[1][field], 93);
+        assert.equal(state.gb.status_hilite_text[1][field], 'old time text');
+        assert.equal(state.gb.status_hilite_type[1][field], 94);
+        assert.equal(state.gb.status_hilite_times[0][field], 12);
+        assert.equal(state.gb.status_hilite_times[1][field], 95);
+        assert.equal(state.gb.status_hilite_chg_banks[0][field], true);
+        assert.equal(state.gb.status_hilite_chg_banks[1][field], true);
+    });
 
 test('knowninvisible uses visible see-invisible and monster-detection senses', () => {
     // display.h:_knowninvisible() is pure: it reads minvis, cansee, three
