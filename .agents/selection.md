@@ -107,6 +107,8 @@ Producer and Main review trace every preceding branch, return, helper predicate
 and state change on the exact entry-to-target path, and establish one jointly
 satisfiable valid state. A missing late call alone does not establish
 reachability. This is a source review attestation, not mechanical proof.
+Use effective initialized values when predicates depend on startup or table
+fixups; a raw declaration alone does not establish the selected state.
 
 For UI timing repairs, establish the actual rendered text (including object
 knownness), window/topline contents and input boundary on one valid production

@@ -439,3 +439,19 @@ No test, validation or gameplay was repeated for this observation.
   its target before stoning, so its timing claim remains unreached and no
   repair was selected.
 
+
+## 2026-10-17 — Trace initialized predicate values in source screens
+
+- Change: producer review traces relevant startup initialization and table
+  fixups to the effective field values used by the exact proposed route,
+  alongside its preceding runtime guards. Raw declarations are insufficient.
+- Why: bullwhip source screen `de2a2d98` refuted the selected Archeologist/
+  Excalibur rejection state before implementation. `hack_artifacts` clears
+  Excalibur's Knight role for non-Knights, so the combined bad-class and
+  bad-alignment refusal is false. Producer prefilter had missed this fixup.
+- Limits/follow-up: preserve the original result, owners, budgets and
+  unqualified conditional drop hook; no alternate role/artifact/history
+  rescue or global initialization audit. This differs from a preceding
+  return or rendered-input error. Existing source review caught it without
+  gameplay. Prevention benefit is unmeasured.
+
