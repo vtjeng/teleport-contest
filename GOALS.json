@@ -321386,6 +321386,280 @@
           }
         ]
       }
+    },
+    {
+      "id": "fix-adjacent-travel-crawl-await-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement findtravelpath from hack.c",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "findtravelpath",
+          "line": 1266,
+          "endLine": 1525,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1266,
+        "to": 1525
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "assignmentBase": "5aa8270965655e5bd165c053b66924712d753fac",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "5aa8270965655e5bd165c053b66924712d753fac",
+          "authorization": "2026-10-17 user explicitly requested fixing the source-proved adjacent-pool travel control-flow difference without requiring a public output mismatch; Coordinator authorized sourceParity protocol and worker implementation, standard exact validation.",
+          "currentBehavior": "js/hack.js findtravelpath tests async crawl_destination without await and omits the C mode restriction. An ordinary pool false result selects adjacent path and end_running(false) clears run before TEST_MOVE; C skips that path and reverse BFS restores run=8. Current GUESS can also enter the adjacent-only arm contrary to C.",
+          "expectedBehavior": "C hack.c1271–1290: adjacent fast path applies only to TRAVP_TRAVEL or TRAVP_VALID, travel1, next2u and true completed crawl_destination. Await helper Boolean before end_running(FALSE), retaining source short-circuit/order and downstream BFS run bookkeeping. GUESS must follow its source search. No extra GUESS audit or unrelated movement changes.",
+          "units": [
+            "hack.c:findtravelpath"
+          ],
+          "allowedPaths": [
+            "js/hack.js",
+            "scripts/hack.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/hack.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/hack.js",
+              "symbol": "domove_core",
+              "source": "hack.c domove_core2724–2728 awaits TRAVP_TRAVEL then TRAVP_GUESS on failure; js/hack.js4129–4130 uses these real production calls."
+            },
+            {
+              "path": "js/hack.js",
+              "symbol": "is_valid_travelpt",
+              "source": "hack.c is_valid_travelpt1538–1540 invokes TRAVP_VALID with temporary destination; js/hack.js3350 awaits this real production validator."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/hack.js",
+              "object": "ac58c7df369256394d08c9137482b90117c3ed62"
+            },
+            {
+              "path": "js/teleport.js",
+              "object": "c9a33b794b2dd45f1a367a03d62450c8650f21dc"
+            },
+            {
+              "path": "js/cmd.js",
+              "object": "74600753d452ebee099f2764f6c54ac38de36e3f"
+            },
+            {
+              "path": "scripts/hack.test.mjs",
+              "object": "d9190b7886566594af145fb4a633d3572866f656"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "packetDigest": "df8ff9ddfec524daa7fd426fb838e933d1817e09e428ab798bb0a4fa963397d5",
+            "envelopeSha256": "d36ea6659c2bab37c65434c5893c3f1723a7261b25b72dfa1bd8054173d45241",
+            "reviewReceipt": ".cache/continuous-run-resume/adjacent-pool-travel-result-review.json",
+            "limits": "No public output difference or physical setup established; same owners/physical budgets retained. next2u macro include/you.h558 is distu<=2, matching existing distance predicate."
+          }
+        },
+        "reviewSha256": "851750612f51a5bdf453fed807380dcb9e47115dbabddd3f5a9f081b30769318"
+      }
+    },
+    {
+      "id": "fix-container-artifact-touch-await-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement out_container from pickup.c",
+      "cFile": "pickup.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-container-artifact-touch-await-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "out_container",
+          "line": 2727,
+          "endLine": 2780,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2727,
+        "to": 2780
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-container-artifact-touch-await-source-parity-20261017",
+        "assignmentBase": "5aa8270965655e5bd165c053b66924712d753fac",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "5aa8270965655e5bd165c053b66924712d753fac",
+          "authorization": "2026-10-17 user authorized source-proved parity repairs without requiring a public mismatch; Coordinator explicitly requested container assessment and independent idle-worker implementation under sourceParity.",
+          "currentBehavior": "C pickup.c2741 rejects false synchronous touch_artifact before removal. JS pickup.js out_container negates unawaited async touch_artifact Promise, so rejects neither delayed nor immediate false and can transfer an artifact. menu_loot awaits the wrong positive result and use_container/addinv do not compensate.",
+          "expectedBehavior": "Await existing imported artifacts.js touch_artifact exactly once before corpse/lift/extraction/weight/billing/inventory. False returns0 with same item in same container and no transfer side effects; accepted artifact and ordinary-object routes retain source order. Preserve blast/message/rejection ordering and existing async production menu caller.",
+          "units": [
+            "pickup.c:out_container"
+          ],
+          "allowedPaths": [
+            "js/pickup.js",
+            "scripts/pickup.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/pickup.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/pickup.js",
+              "symbol": "menu_loot",
+              "source": "pickup.c menu_loot3265+ dispatches out_container for extraction and consumes its result; js/pickup.js menu_loot awaits that real production callback."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/pickup.js",
+              "object": "de4765b0a2f46820dda39a3082e8a311309d8c60"
+            },
+            {
+              "path": "js/artifacts.js",
+              "object": "4d45930283425823c7a135fd11052e2a140b8fff"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "scripts/pickup.test.mjs",
+              "object": "17406499597be8a66d5952e57270add5c24728ae"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "packetDigest": "00daa1e47c8d2449c09042a1ad5d497b752eaa6048d36c1fe0f6b038055ea1ce",
+            "envelopeSha256": "adfe13b6e479ba5e5995a08adc3d838d2baea16ce849a5ea5ba9b61a87e72d2e",
+            "reviewReceipt": ".cache/continuous-run-resume/container-artifact-touch-result-review.json",
+            "limits": "A27 input-only own-role quest pager is retained; fixed Samurai/Mirror wrong-role target does not imply gotit pager. All original physical/setup budgets remain unknown/preserved. Constructed-state evidence only, no gameplay/public parity."
+          }
+        },
+        "reviewSha256": "e374f670c8ed9add365a160020ad0ea70226e5a1a3d19439a6cf2019213008c8"
+      }
+    },
+    {
+      "id": "fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement shkgone from shk.c",
+      "cFile": "shk.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "shkgone",
+          "line": 235,
+          "endLine": 271,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 235,
+        "to": 271
+      },
+      "requiredFunctions": [
+        {
+          "name": "discard_damage_owned_by",
+          "line": 4530,
+          "endLine": 4555,
+          "declared": false,
+          "sourceFile": "shk.c"
+        }
+      ],
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "assignmentBase": "5aa8270965655e5bd165c053b66924712d753fac",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "5aa8270965655e5bd165c053b66924712d753fac",
+          "authorization": "2026-10-17 user authorized source-proved semantic parity fixes; Coordinator specifically selected independent shopkeeper damage cleanup for idle Worker1, with standard exact hosted/no-regression gates.",
+          "currentBehavior": "C shk.c shkgone246 calls discard_damage_owned_by before resident removal on the same shop level. Current js/shk.js393 notes this unported although add_damage/find/repair already share a real linked level.damagelist; death leaves owned nodes. mon.m_detach reaches shkgone and no later death cleanup compensates.",
+          "expectedBehavior": "Implement complete shk.c discard_damage_owned_by4530–4553 and call from shkgone inside existing on_level guard before resident=null. Use in_rooms(place.x,place.y,SHOPBASE) membership to remove all keeper-owned nodes including head and consecutive nodes, preserving unrelated order. Follow existing list element disposal conventions and retain off-level behavior. No billing/repair or NPC scheduler changes.",
+          "units": [
+            "shk.c:shkgone",
+            "shk.c:discard_damage_owned_by"
+          ],
+          "allowedPaths": [
+            "js/shk.js",
+            "scripts/shk.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/shk.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/mon.js",
+              "symbol": "m_detach",
+              "source": "mon.c m_detach reaches shkgone for shopkeeper death; js/mon.js m_detach uses the real matching callback."
+            },
+            {
+              "path": "js/shk.js",
+              "symbol": "shkgone",
+              "source": "shk.c shkgone246 invokes discard_damage_owned_by before clearing resident under the same-level guard."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/shk.js",
+              "object": "63be970a2681e941befab35edafa5706e965402d"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "8ecb6be8f48a8c71e9c72bce27f78173568af1ac"
+            },
+            {
+              "path": "js/rooms.js",
+              "object": "50b1daf066abb8ce905070a7540d282d972df522"
+            },
+            {
+              "path": "scripts/shk.test.mjs",
+              "object": "13855a16910a6dd916b8304797f9526a1c707e86"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "packetDigest": "a4a3251ac87189bd5af1b64b5b9eddb3ac8fc168e780cb5f8906c13b0b083b7a",
+            "envelopeSha256": "970cabc0fdae0c32de3e215fac8e563d1d5938ba2b164b6af141d6d9f0cc2c6b",
+            "limits": "Old lifecycle owner covers shkgone; old repair inventory included helper but recorded claims did not. Neither acceptance nor source screen certifies whole functions. Runtime pending, no physical budget/reset."
+          }
+        },
+        "reviewSha256": "d3315be7de2367769df98c1e7d73f81121f012f98d2c741204fef9b44bf62107"
+      }
     }
   ]
 }
