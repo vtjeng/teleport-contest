@@ -418,3 +418,24 @@ No test, validation or gameplay was repeated for this observation.
   for the shop-entry delivery awaiting Work lead review.
 
 - When a production import is added, review the existing isolated fixture module lists for its importers and run affected checks before the hosted candidate. This follows the observed goal-log fixture failure; it adds no new gate.
+
+## 2026-10-17 — Establish the real input boundary before UI timing repairs
+
+- Change: producer and Main review qualify a UI timing repair only after
+  actual rendered text (including knownness), window/topline contents and
+  input boundary are established on one jointly valid production route.
+  Retained evidence or an explicitly authorized focused fixture supplies
+  this proof; source-only call gaps and length calculations remain hypotheses.
+- Why: sleeping result `3845b196` estimated a grip More using invented generic
+  evaporation text. Real public `dothrow` instead paused at the named potion's
+  evaporation plus falls-asleep; no separate grip input occurred. Worker
+  blocked `4f24caa5`, retaining observation `84785effb` without a source fix
+  or a fabricated red regression. Preserve the original source and budgets.
+- Limits/follow-up: no extra lead gameplay, C run or alternate history is
+  authorized. The selected timing claim is rejected without claiming general
+  parity. Vampire timing remains conditional on real input/form-state proof.
+  Prevention benefit is unmeasured; observe false promotions and required
+  fixture effort separately. The fixed vampire qualification `1117b7ba` missed
+  its target before stoning, so its timing claim remains unreached and no
+  repair was selected.
+

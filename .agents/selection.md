@@ -108,6 +108,13 @@ and state change on the exact entry-to-target path, and establish one jointly
 satisfiable valid state. A missing late call alone does not establish
 reachability. This is a source review attestation, not mechanical proof.
 
+For UI timing repairs, establish the actual rendered text (including object
+knownness), window/topline contents and input boundary on one valid production
+route using retained evidence or an explicitly authorized focused fixture.
+A skipped source display call or text-length estimate remains a hypothesis
+until that boundary is reached. Preserve an unreached or refuted fixed fixture
+without alternate history, naming or width rescue.
+
 The version-1 object binds its assignment/goal ID, accepted `assignmentBase`,
 `evidenceBasis: "source-parity-runtime-pending"`, and an inline `review` with its
 `reviewSha256` (SHA-256 of its exact JSON serialization). The review records the

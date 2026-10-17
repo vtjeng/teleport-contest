@@ -322817,6 +322817,121 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-shop-hole-shipping-value-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement ship_object from undefined",
+      "cFile": "dokick.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-shop-hole-shipping-value-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "ship_object",
+          "line": 1639,
+          "endLine": 1768,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1639,
+        "to": 1768
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-shop-hole-shipping-value-source-parity-20261017",
+        "assignmentBase": "c0d17393e261d8cb43277e5fd0b7cfe3f70af1fb",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "c0d17393e261d8cb43277e5fd0b7cfe3f70af1fb",
+          "authorization": "2026-10-17 user authorized source-proved parity repairs; Coordinator specifically requested shipping repair after independent full guard/helper/owner review, without public mismatch requirement.",
+          "currentBehavior": "C dokick.c ship_object charges stolen_value before container flags/breakage/migration. JS shipping billing arm only note_unported, leaving genuinely unpaid migrated object on original bill with no debit. Freeinv keeps unpaid/bill and migration/delivery do not compensate.",
+          "expectedBehavior": "Replace billing note_unported with awaited existing stolen_value using source exact unpaid and shop_floor_obj arguments. Unpaid branch await stolen_value(obj,u.ux,u.uy,true,false,state). Floorowned branch uses saved obj.ox/oy and peaceful Boolean costly_spot(hero)&&u.urooms.includes(first in_rooms(objcoords,SHOPBASE)). Preserve before picked_container/no_charge and migration/break ordering. No shk/do/dig/game helper port or unrelated launch/remove-worn fix.",
+          "units": [
+            "dokick.c:ship_object"
+          ],
+          "allowedPaths": [
+            "js/dokick.js",
+            "scripts/drop-command.test.mjs",
+            "scripts/dokick-shipping.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/drop-command.test.mjs",
+            "scripts/dokick-shipping.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/dothrow.js",
+              "symbol": "hitfloor",
+              "source": "C dothrow.c hitfloor first tests hero_breaks then ship_object; JS real hitfloor awaits ship_object for free dropped object before dropz."
+            },
+            {
+              "path": "js/do.js",
+              "symbol": "dodrop",
+              "source": "Public d/getobj→drop: canletgo/weapon checks then nonswallowed !can_reach_floor branch frees inventory and calls actual hitfloor; no dropx unpaid/hole refusal before this branch."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/dokick.js",
+              "object": "4fb6dae1a8157d85715616375d1b2ec4ab8696a0"
+            },
+            {
+              "path": "js/do.js",
+              "object": "eefeb62643f7474e80dc0f1b53186fdebfa315eb"
+            },
+            {
+              "path": "js/dothrow.js",
+              "object": "89c5cee6c7cdcf044bd1d8bbc992322e9f19d063"
+            },
+            {
+              "path": "js/shk.js",
+              "object": "cea46c1f25f241db8a5931fde90eaa12f918cede"
+            },
+            {
+              "path": "js/dig.js",
+              "object": "c06226dddffc6f2e165301ca7b2b70c16288ffba"
+            },
+            {
+              "path": "scripts/drop-command.test.mjs",
+              "object": "0490481c9600d18db15b618586b793cdd20135fe"
+            },
+            {
+              "path": "scripts/dokick-shipping.test.mjs",
+              "object": "bb39cf2daaabedaa6b7a20d6920ae96c1d7e9f62"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "packetDigest": "00cde07333bd2c83432040aaa4274efc840c564c485083d952f12729203bb0fb",
+            "envelopeSha256": "99f4b26d908a642eea50270a68f2dcf12f1944ba4df4ad3b80f9e3fbdd1746e2",
+            "reviewReceipt": ".cache/continuous-run-resume/unpaid-shipping-source-review.json",
+            "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/shop-hole-shipping-implementation-review-2112/review.json",
+            "guardMatrix": [
+              "Source-valid ordinary diggable shop INTERIOR square not shopdoor, nonbottom ordinary level with valid lower destination, no fountain/altar/stairs/furniture; downward wand digging dighole produces HOLE. Levitation -> wont_fall -> u.ustuck||wont_fall arm, no shopdig(1) and pay_for_damage only shopdoor false; no fall. Empty floor avoids impact/pickup. Valid peaceful resident can remain peaceful. This state need not fake hole or keeper anger.",
+              "Real shop pickup/addtobill binds same single ordinary dagger.o_id to resident bill, then paid levitation item active and hero stands above knownhole. No attachments/wornmask/container/special item. Levitation knownhole legal; ordinary dagger canletgo true.",
+              "Public dodrop/getobj->drop reaches !can_reach_floor first, freeinv->hitfloor. It bypasses normal preflight_dropx unpaid/hole refusal. hitfloor hard nonaltar nonswallowed floor -> real hero_breaks false -> ship_object.",
+              "down_gate known ordinaryhole -> MIGR_RANDOM, drop_to valid dnum/dlevel+1. rn2(3)=0 so !nodrop; no ball/chain/boulder/impact guard. obj still unpaid and OBJ_FREE with same real bill.",
+              "freeinv removes inventory/setsfree, does not clear bill/unpaid. find_objowner uses supplied hero coordinates, in_rooms and onbill same object identity. billable supplies resident+inhishop, returns false for existing bill. stolen_value recovers billamt=bquan*price and sub_one_frombill clearsunpaid/removes entry. single billedquantity1 avoids split-used remainder.",
+              "credit0 and peacefulresident -> existingcheck_credit returns fullvalue and debit += billamount; robbed unchanged. Message is normal actual debt feedback; no UI-boundary timing inference needed for finding. Source permits angry variant but fixed regression selects valid peaceful setup.",
+              "Afterhelper same nonfragile dagger breaktest false, add_to_migration records source/dest fields and only clears no_charge, never bill/unpaid/debit. Successful ship returns before dropz/sellobj; obj_delivery also not compensating. Baseline leaves old bill/unpaid and debit0 on migrating item."
+            ],
+            "owners": "Retain parkedv10wholehitfloor (original levitating touchstone/stair captures no unpaidbill), v28impact, parkedv25kick, v64arrivalobjdelivery and separate dig-shopanger owner. No old physical budget reset, no admission/wholecompletion/publicwitness.",
+            "limits": "Source-only selected joint state, no public runtime/C recording/source certification, all previous physical budgets retained."
+          }
+        },
+        "reviewSha256": "f65c1e643339ec2e49e409c0cfb39e8f54fb9f87be563728889e303a24c35293"
+      }
     }
   ]
 }
