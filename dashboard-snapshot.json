@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T22:59:27.809Z",
+  "capturedAt": "2026-10-17T23:21:50.269Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T22:59:27.809Z",
+    "asOf": "2026-10-17T23:21:50.269Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 183,
+      "mainSupportAssignments": 186,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -165914,23 +165914,261 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-shop-hole-shipping-value-source-parity-20261017-ecd974a5265576a8e10897f9ced32e1f8fc6307f",
+        "type": "published",
+        "at": "2026-10-17T22:59:45.792Z",
+        "task": "delivery:fix-shop-hole-shipping-value-source-parity-20261017",
+        "commit": "ecd974a5265576a8e10897f9ced32e1f8fc6307f"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-rolling-composed-093db560-20261017",
+        "type": "received",
+        "at": "2026-10-17T23:00:40.787Z",
+        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
+        "delivery": "093db56097c347c8134358157051f80d18226443"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-rolling-composed-initial-locals-093db560-20261017",
+        "type": "feedback",
+        "at": "2026-10-17T23:00:41.795Z",
+        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
+        "delivery": "093db56097c347c8134358157051f80d18226443"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:01:01.940Z",
+        "id": "queue:869faac4-7042-4e98-88a3-b7b3681a107c",
+        "type": "assign",
+        "task": "rework:delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017:093db56097c347c8134358157051f80d18226443",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "093db56097c347c8134358157051f80d18226443",
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:01:58.393Z",
+        "id": "queue:a1dfde8e-4536-47b0-abf9-4c5489b74d6d",
+        "type": "queue-complete",
+        "task": "bullwhip-artifact-rejection-dropy-source-screen-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:01:58.393Z",
+        "id": "queue:a1dfde8e-4536-47b0-abf9-4c5489b74d6d:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-622f399867462fb8867725e2e618e1fb8af1faa7",
+        "type": "ready",
+        "at": "2026-10-17T23:02:17.543Z",
+        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
+        "delivery": "622f399867462fb8867725e2e618e1fb8af1faa7"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:02:17.543Z",
+        "id": "ready-622f399867462fb8867725e2e618e1fb8af1faa7:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017:093db56097c347c8134358157051f80d18226443",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:02:17.543Z",
+        "id": "ready-622f399867462fb8867725e2e618e1fb8af1faa7:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:03:22.445Z",
+        "id": "queue:3903f941-d0fd-4cdd-8cc7-d1b8bc53d61e",
+        "type": "assign",
+        "task": "fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:05:19.245Z",
+        "id": "queue:0ed3e4b2-6d4a-4c23-8c84-43e61d00850e",
+        "type": "assign",
+        "task": "unseen-shopkeeper-wakeup-pursuit-source-screen-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-rolling-corrected-622f3998-20261017",
+        "type": "received",
+        "at": "2026-10-17T23:07:49.300Z",
+        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
+        "delivery": "622f399867462fb8867725e2e618e1fb8af1faa7"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:08:29.069Z",
+        "id": "queue:553d6af0-91b5-4eeb-9ebc-01474db4157e",
+        "type": "queue-complete",
+        "task": "unseen-shopkeeper-wakeup-pursuit-source-screen-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:08:29.069Z",
+        "id": "queue:553d6af0-91b5-4eeb-9ebc-01474db4157e:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-464a42193329f7515854896891f584bfc40b7df6-0f9208dac2f4ec7b17186234825dd108d925ae6a4405c8e3601544a683e654ca-delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T23:08:39.848Z",
+        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
+        "integration": "464a42193329f7515854896891f584bfc40b7df6",
+        "validationGroup": [
+          "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:11:21.281Z",
+        "id": "ready-4bdf364eb756fe95b12affa797dda255c801d959:transport",
+        "type": "assign",
+        "task": "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-sokoban-ring-floatdown-selftouch-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-4bdf364eb756fe95b12affa797dda255c801d959",
+        "type": "ready",
+        "at": "2026-10-17T23:11:21.281Z",
+        "task": "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "delivery": "4bdf364eb756fe95b12affa797dda255c801d959"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:11:21.281Z",
+        "id": "ready-4bdf364eb756fe95b12affa797dda255c801d959:complete",
+        "type": "queue-complete",
+        "task": "fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:11:21.281Z",
+        "id": "ready-4bdf364eb756fe95b12affa797dda255c801d959:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:13:34.568Z",
+        "id": "queue:1acf2728-99d7-47aa-9cec-8f72abed9ac1",
+        "type": "assign",
+        "task": "shop-floor-polymorph-shock-billing-source-screen-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-sokoban-4bdf364e-20261017",
+        "type": "received",
+        "at": "2026-10-17T23:14:24.982Z",
+        "task": "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "delivery": "4bdf364eb756fe95b12affa797dda255c801d959"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-sokoban-postfatal-observable-4bdf364e-20261017",
+        "type": "feedback",
+        "at": "2026-10-17T23:14:26.440Z",
+        "task": "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "delivery": "4bdf364eb756fe95b12affa797dda255c801d959"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:14:39.231Z",
+        "id": "queue:59ba55e5-e59d-4566-a6bb-2de8dbb10637",
+        "type": "assign",
+        "task": "rework:delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017:4bdf364eb756fe95b12affa797dda255c801d959",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "4bdf364eb756fe95b12affa797dda255c801d959",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:15:47.627Z",
+        "id": "queue:183cc4b8-1ebf-472f-861a-1d5bc60da024",
+        "type": "queue-complete",
+        "task": "shop-floor-polymorph-shock-billing-source-screen-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T23:15:47.627Z",
+        "id": "queue:183cc4b8-1ebf-472f-861a-1d5bc60da024:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017-464a42193329f7515854896891f584bfc40b7df6-validated",
+        "type": "validated",
+        "at": "2026-10-17T23:17:18.971Z",
+        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017-464a42193329f7515854896891f584bfc40b7df6-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T23:17:56.874Z",
+        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
-        "worker": "Worker-1",
-        "goal": "fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "093db56097c347c8134358157051f80d18226443",
-        "since": "2026-10-17T22:58:36.452Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": []
   },
@@ -165967,20 +166205,26 @@
         ],
         "reason": "Blocked after preserving the original-source live-RNG red and scoped-provider post-fix trace. The real route reaches the hero and then hits the pony at trap center; unrelated downstream ohitmon→drop_throw reaches place_object with undefined gb.bhitpos and throws. Required full green cannot be established without expanding beyond authorized trap_effects RNG adapter scope. Reverted source/test changes; cache-only patch/report/logs preserved in recovery commit d8740049ce7820e9329280870b354e87268a0ade."
       },
-      "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017": {
-        "id": "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
-        "worker": "Worker-1",
-        "status": "ready",
+      "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017": {
+        "id": "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "worker": "Worker-2",
+        "status": "working",
         "seed": null,
         "reservations": [
-          "source:trap.c:launch_obj"
+          "source:trap.c:float_down",
+          "source:do_wear.c:Ring_off_or_gone"
         ]
       }
     },
     "reservations": {
-      "source:trap.c:launch_obj": {
+      "source:trap.c:float_down": {
         "tasks": [
-          "delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017"
+          "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017"
+        ]
+      },
+      "source:do_wear.c:Ring_off_or_gone": {
+        "tasks": [
+          "delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017"
         ]
       }
     }
@@ -165990,19 +166234,21 @@
     "threshold": 5,
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [],
+    "ready": [
+      "planned-mounted-hero-knockback-premise-source-screen-20261017"
+    ],
     "blocked": [],
     "claimed": [
       {
-        "task": "bullwhip-artifact-rejection-dropy-source-screen-20261017",
-        "worker": "Worker-3"
+        "task": "rework:delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017:4bdf364eb756fe95b12affa797dda255c801d959",
+        "worker": "Worker-2"
       }
     ],
     "counts": {
-      "ready": 0,
+      "ready": 1,
       "claimed": 1,
       "blocked": 0,
-      "completed": 419,
+      "completed": 424,
       "superseded": 69
     },
     "workers": [
@@ -166013,13 +166259,13 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "rework:delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017:4bdf364eb756fe95b12affa797dda255c801d959",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": "bullwhip-artifact-rejection-dropy-source-screen-20261017",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -173379,7 +173625,7 @@
         "id": "bullwhip-artifact-rejection-dropy-source-screen-20261017",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -173388,13 +173634,103 @@
         "target": null,
         "readyAt": "2026-10-17T22:57:30.532Z",
         "claimedAt": "2026-10-17T22:57:48.598Z",
+        "completedAt": "2026-10-17T23:01:58.393Z"
+      },
+      {
+        "id": "rework:delivery:fix-rolling-launch-position-and-planning-rng-source-parity-20261017:093db56097c347c8134358157051f80d18226443",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": "093db56097c347c8134358157051f80d18226443",
+        "readyAt": "2026-10-17T23:00:41.795Z",
+        "claimedAt": "2026-10-17T23:01:01.940Z",
+        "completedAt": "2026-10-17T23:02:17.543Z"
+      },
+      {
+        "id": "fix-sokoban-ring-floatdown-selftouch-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T23:03:04.921Z",
+        "claimedAt": "2026-10-17T23:03:22.445Z",
+        "completedAt": "2026-10-17T23:11:21.281Z"
+      },
+      {
+        "id": "unseen-shopkeeper-wakeup-pursuit-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T23:05:09.462Z",
+        "claimedAt": "2026-10-17T23:05:19.245Z",
+        "completedAt": "2026-10-17T23:08:29.069Z"
+      },
+      {
+        "id": "shop-floor-polymorph-shock-billing-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T23:13:19.571Z",
+        "claimedAt": "2026-10-17T23:13:34.568Z",
+        "completedAt": "2026-10-17T23:15:47.627Z"
+      },
+      {
+        "id": "rework:delivery:fix-sokoban-ring-floatdown-selftouch-source-parity-20261017:4bdf364eb756fe95b12affa797dda255c801d959",
+        "type": "rework",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "4bdf364eb756fe95b12affa797dda255c801d959",
+        "readyAt": "2026-10-17T23:14:26.440Z",
+        "claimedAt": "2026-10-17T23:14:39.231Z",
+        "completedAt": null
+      },
+      {
+        "id": "planned-mounted-hero-knockback-premise-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-17T23:21:38.014Z",
+        "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "8293affe4f732347dfcd275a745e30768da662bf",
-    "measuredAt": "2026-10-17T22:55:10.697Z",
+    "executionCommit": "464a42193329f7515854896891f584bfc40b7df6",
+    "measuredAt": "2026-10-17T23:14:23.148Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

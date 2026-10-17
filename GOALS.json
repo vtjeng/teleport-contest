@@ -322986,7 +322986,7 @@
     {
       "id": "fix-rolling-launch-position-and-planning-rng-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement launch_obj from undefined",
       "cFile": "trap.c",
       "sessions": [],
@@ -322994,7 +322994,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "464a42193329f7515854896891f584bfc40b7df6",
       "delivered": null,
       "functions": [
         {
@@ -323122,6 +323122,57 @@
           }
         },
         "reviewSha256": "8c02ad809e69c870dcc442492348b30cb3f6f0c5394f1a79b588ed613093e410"
+      },
+      "closeStanding": {
+        "sha": "464a42193329f7515854896891f584bfc40b7df6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "8293affe4f732347dfcd275a745e30768da662bf",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/464a42193329f7515854896891f584bfc40b7df6/run-hosted-mqZRSO/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "launch_obj",
+            "implementation": "js/trap_effects.js",
+            "symbol": "launch_obj",
+            "pure": false,
+            "sourceReview": "Ported only reviewed launch_obj behavior: selected action RNG and exercise encumber-message adapter at existing thitu child call; initialize/update/read canonical state.gb.bhitpos at existing sites. Directly dereference the canonical record because flooreffects temporarily replaces that object and restores a prior snapshot. Removed separate root state.bhitpos writes. No alias, generic drop_throw fallback, mthrowu rewrite, planningDeath, or lethal-path claim.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "Normal planned clone scan uses real action provider: m_move→moveSimplePet/dog_move→postmov→mintrap→monster rolling trap→launch_obj with selected clone random/planning. Keep full ordered guards/joint geometry in source evidence."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_rolling_boulder_trap",
+                "source": "C trap.c monster rolling-trap arm and JS matching selector invoke real launch_obj with ground actor, source launch endpoints and current action environment."
+              }
+            ],
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/hero-rolling-boulder-trap.test.mjs",
+              "scripts/trap-mintrap.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Reviewed launch_obj direct source-port sites only. The real planning path is runSimpleMonsterAction → m_move/dog_move/postmov/mintrap → trapeffect_rolling_boulder_trap → launch_obj; selected clone RNG reaches real thitu/exercise, then real ohitmon/drop_throw/place/extract and rolling continuation. No C recording, public-runtime parity, lethality, or whole-helper certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "runSimpleMonsterAction planning route to launch_obj and endpoint",
+            "functions": [
+              "launch_obj"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
