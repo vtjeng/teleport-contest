@@ -8930,6 +8930,33 @@ test('title none-of-the-above aliases require a polymorphed form', async () => {
     }
 });
 
+test('specific up and down rules outrank generic changed rules in either order',
+    async () => {
+        for (const { rules, quantity, expected } of [
+            { rules: 'gold/changed/red/up/bright-green', quantity: 51,
+                expected: CLR_BRIGHT_GREEN },
+            { rules: 'gold/up/bright-green/changed/red', quantity: 51,
+                expected: CLR_BRIGHT_GREEN },
+            { rules: 'gold/changed/red/down/bright-blue', quantity: 49,
+                expected: CLR_BRIGHT_BLUE },
+            { rules: 'gold/down/bright-blue/changed/red', quantity: 49,
+                expected: CLR_BRIGHT_BLUE },
+        ]) {
+            const state = statusRenderingState();
+            state.iflags = {
+                ...parseNethackrc(`OPTIONS=hilite_status:${rules}`).iflags,
+                wc2_statuslines: 2,
+            };
+            await bot();
+            state.invent.quan = quantity;
+            await bot();
+
+            const column = terminalRow(state, 23).indexOf('$:');
+            assert.notEqual(column, -1, rules);
+            assert.equal(state.nhDisplay.grid[23][column].color, expected, rules);
+        }
+    });
+
 // botl.c get_hilite()'s BL_TH_CRITICALHP arm asks critically_low_hp(FALSE) for
 // BL_HP, and on a match sets crit_hp, which its loop head then uses to skip
 // every later rule that is not itself a criticalhp rule.
