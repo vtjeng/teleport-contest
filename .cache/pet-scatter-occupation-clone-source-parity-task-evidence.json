@@ -5,7 +5,7 @@
     {
       "name": "scatter",
       "implementation": "js/unported_monster_actions.js",
-      "symbol": "scatter",
+      "symbol": "runSimpleMonsterAction",
       "pure": false,
       "sourceReview": "Read the complete C explode.c scatter (721-947) and allmain.c stop_occupation. C successful-hit branch calls stop_occupation() on its current state. JS scatter remains unchanged and forwards (state, env); the narrow correction changes only runSimpleMonsterAction’s callback provider to close over its selected `state` and ignore call argument shape. Actual planned damage and state effects traverse real dog movement, postmov, mintrap, landmine, scatter and thitu.",
       "callers": [
