@@ -550,7 +550,7 @@ function closeGoalFixture(standingSha, checkpoint = {}) {
     const root = mkdtempSync(join(tmpdir(), 'goal-log-close-'));
     mkdirSync(join(root, 'scripts'));
     for (const name of ['goal-log.mjs', 'score-log.mjs', 'c-functions.mjs',
-        'lua-sources.mjs', 'port-evidence.mjs', 'check-namespace-members.mjs',
+        'lua-sources.mjs', 'port-evidence.mjs', 'source-parity.mjs', 'check-namespace-members.mjs',
         'development-standing.mjs', 'scoring-workspace.mjs', 'fixed-workload.mjs',
         'local-tmpdir.mjs',
         'checkpoint-results.mjs']) {

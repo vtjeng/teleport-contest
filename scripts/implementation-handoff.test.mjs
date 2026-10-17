@@ -459,7 +459,8 @@ test('implementation feedback releases siblings and preserves group metadata on 
     f.git('add', '-f', 'scripts/coordinator-protocol.mjs', 'investigations/required.json');
     f.git('commit', '-qm', 'Coordinator tooling and required diagnosis'); const retainedFirst = f.git('rev-parse', 'HEAD');
     f.save('scripts/coordinator-protocol.mjs', 'export const version = 2;\n');
-    f.git('add', '-f', 'scripts/coordinator-protocol.mjs');
+    f.save('.agents/selection.md', 'Review preceding guards and a jointly valid state.\n');
+    f.git('add', '-f', 'scripts/coordinator-protocol.mjs', '.agents/selection.md');
     f.git('commit', '-qm', 'Coordinator tooling correction'); const retainedSecond = f.git('rev-parse', 'HEAD');
     const event = verifyEvent(f.root, f.state(), {id: 'correct-A2', type: 'feedback', task: 'A2',
         delivery: f.deliveries[1], reason: 'Correct the target behavior.'});
@@ -491,6 +492,7 @@ test('implementation feedback releases siblings and preserves group metadata on 
     assert.equal(plan.base, originalPlan.base); assert.equal(plan.baseline, originalPlan.baseline);
     assert.deepEqual(plan.retained, [retainedFirst, retainedSecond], 'retained changes are frozen in original history order');
     assert.match(f.git('show', 'HEAD:scripts/coordinator-protocol.mjs'), /version = 2/);
+    assert.match(f.git('show', 'HEAD:.agents/selection.md'), /jointly valid state/);
     assert.equal(JSON.parse(f.git('show', 'HEAD:investigations/required.json')).diagnosis, 'corrected');
     assert.match(f.git('show', 'HEAD:js/f1.js'), /return 1/);
     assert.match(f.git('show', 'HEAD:js/f2.js'), /return 2/);

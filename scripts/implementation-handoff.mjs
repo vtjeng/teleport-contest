@@ -207,7 +207,7 @@ function selectRetained(ctx, plan, requested) {
             throw new Error('retained commits must be single-parent commits from the current failed candidate after its base');
         const paths = git(ctx.root, 'diff-tree', '--no-commit-id', '--no-renames', '--name-only', '-r', sha).split('\n').filter(Boolean);
         if (paths.some(path => !(path.startsWith('scripts/') || path === 'QUALITY.json' || path === 'QUALITY-evidence.json'
-            || path === '.agents/friction.md' || /^investigations\/.+\.json$/u.test(path))))
+            || path === '.agents/friction.md' || path === '.agents/selection.md' || /^investigations\/.+\.json$/u.test(path))))
             throw new Error('retain only coordinator tooling, quality, friction and diagnosis commits; worker fixes belong in submissions');
     }
     const ordered = git(ctx.root, 'rev-list', '--reverse', '--topo-order', `${plan.base}..${head}`).split('\n').filter(sha => added.has(sha));

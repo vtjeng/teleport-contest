@@ -103,6 +103,11 @@ Work lead may enqueue a sessionless Main implementation with `sourceParity`.
 Do not invent a session, discovery, runtime witness or score gain. This is a
 correction to existing reachable behavior, not general roadmap selection.
 
+Producer and Main review trace every preceding branch, return, helper predicate
+and state change on the exact entry-to-target path, and establish one jointly
+satisfiable valid state. A missing late call alone does not establish
+reachability. This is a source review attestation, not mechanical proof.
+
 The version-1 object binds its assignment/goal ID, accepted `assignmentBase`,
 `evidenceBasis: "source-parity-runtime-pending"`, and an inline `review` with its
 `reviewSha256` (SHA-256 of its exact JSON serialization). The review records the
