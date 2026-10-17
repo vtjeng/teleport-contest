@@ -1745,7 +1745,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
         // whose last bite is already taken finishes there too, which is why
         // planningState() copies the hero's pack -- and both display operations
         // fall silent so only the live pass writes to the terminal.
-        stopOccupation: (occupationEnv) => stop_occupation(occupationEnv.state, {
+        stopOccupation: () => stop_occupation(state, {
             message: env.planning ? async () => {} : ttyPline,
             statusRefresh: env.planning ? () => {} : () => bot(),
         }),

@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/unported-monster-actions.test.mjs",
+      "scripts/explode.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/pet-scatter-occupation-clone-source-parity-aa5537618-20261017/regression.after.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/pet-scatter-occupation-clone-source-parity-aa5537618-20261017/lint.after.log"
+  }
+]

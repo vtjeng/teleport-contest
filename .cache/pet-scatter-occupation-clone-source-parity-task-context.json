@@ -1,0 +1,146 @@
+{
+  "goal": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+  "kind": "file-port",
+  "sourceFile": "explode.c",
+  "cFile": "explode.c",
+  "functions": [
+    "scatter"
+  ],
+  "requiredFunctions": [],
+  "lineRanges": [
+    "721-947"
+  ],
+  "cLines": 227,
+  "jsFile": "js/explode.js",
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+    "assignmentBase": "aa5537618a889445666232d6201ae4e2438f280b",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "aa5537618a889445666232d6201ae4e2438f280b",
+      "authorization": "2026-10-17 user and Coordinator authorize reachable source-proved parity correction with constructed regression and unchanged exact hosted/no-regression gates.",
+      "currentBehavior": "Normal planned monster action closes over selected clone state, but callback expects argument.env.state. scatter passes (cloneState,env); cloneState has no .state; undefined triggers stop_occupation default globalgame. Actual mutation: global game.go.occupation=null and global command_queue cleared while clone separate go/queue not cleared. Live callback can later mask wrong early effect by defaulting to same globalgame.",
+      "expectedBehavior": "Make the normal runSimpleMonsterAction wrapper provider capture its own selected state and ignore callback argument shape: () => stop_occupation(state,{same captured planning/live message and statusRefresh}). Both env-form and state-form callers then target same selected action state; source current-state semantics preserved with no global fallback or duck-typed overload. W1 may move this code; patch exact current provider only after W1 frozen.",
+      "units": [
+        "explode.c:scatter"
+      ],
+      "allowedPaths": [
+        "js/unported_monster_actions.js",
+        "scripts/unported-monster-actions.test.mjs",
+        "scripts/explode.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/unported-monster-actions.test.mjs",
+        "scripts/explode.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/unported_monster_actions.js",
+          "symbol": "runSimpleMonsterAction",
+          "source": "Existing normal preflight planningState→runSimpleMonsterAction→dochugw→tame pet dog_move→postmov→mintrap→landmine→scatter. C explode.c successful thitu calls stop_occupation on its current game; JS provider must target selected planning/live action state."
+        }
+      ],
+      "pins": [
+        {
+          "path": "js/unported_monster_actions.js",
+          "object": "06ade888f5ed4bd9fa5a58b7575b1e60782bbac8"
+        },
+        {
+          "path": "scripts/unported-monster-actions.test.mjs",
+          "object": "230c07852d711d851c507cc0a37b7adf0b3a4b68"
+        },
+        {
+          "path": "scripts/explode.test.mjs",
+          "object": "6ce4437fc538f09bb33d6875b6dfe02e56922c6f"
+        },
+        {
+          "path": "js/explode.js",
+          "object": "766da06f8d68e2844ca73d2a2ae7263e6820055a"
+        },
+        {
+          "path": "js/monmove.js",
+          "object": "a4b39dfb7a4e3075db1f07dbb09556a985a0d993"
+        },
+        {
+          "path": "js/trap_effects.js",
+          "object": "9a42313abdae8108496eb61baab0024b58b9d113"
+        },
+        {
+          "path": "js/allmain.js",
+          "object": "ad08141d2b299823bf6ad4a0008feca1c66025c0"
+        },
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "sourceReview": {
+        "updatedAt": "2026-10-17T21:55:33.835639+00:00",
+        "status": "Independently source-reviewed real clone/live mutation candidate, public-runtime-pending; implementation WAIT for W1 shop adapter frozen delivery",
+        "base": "5aa8270965655e5bd165c053b66924712d753fac",
+        "resultDigest": "91854a449cb06425b0e644a56168ee91203ca81cbe82f91dc80430f26a4ab634",
+        "packet": "/workspace/shared/teleport-loop-20261016/worker-state.json.results/91854a449cb06425b0e644a56168ee91203ca81cbe82f91dc80430f26a4ab634.json",
+        "verification": "Exact result/envelope length/hash and all3 files verified from raw bytes; source provider/caller chain independently checked.",
+        "sourceUnit": "C explode.c:scatter721-947, successful thitu branch876-882 requires current-state stop_occupation; repair only its supplied JS normal-NPC callback provider targeting state. Existing allmain.c stop_occupation implementation reused.",
+        "sourceVerdict": "Normal planned monster action closes over selected clone state, but callback expects argument.env.state. scatter passes (cloneState,env); cloneState has no .state; undefined triggers stop_occupation default globalgame. Actual mutation: global game.go.occupation=null and global command_queue cleared while clone separate go/queue not cleared. Live callback can later mask wrong early effect by defaulting to same globalgame.",
+        "independentGuardReview": [
+          "Normal preflightSimpleMonsterActions creates planningState, clones go and command_queue arrays and executes same runSimpleMonsterAction with planning:true; clone is not globalgame and has no synthetic .state self alias.",
+          "Awake canmove tame starting pony with valid edog, sufficient movement/hunger, not steed/meating/trapped, no WAITMASK; C/JS m_move pet dispatch reaches dog_move. Hero ordinary nonhallucinating with actual unfinished eatfood occupation; peaceful pony makes dochugw threat disjunct false, so occupation not precleared by wrapper.",
+          "One ordinary open corridor can make unknown LANDMINE square next step toward hero; allowed-traps pet flags and unknown trap avoid avoidance guard, grounded pony avoids floor-trigger-in-air guard. Current movement admission no longer refuses actual traps. postmov calls mintrap on newly reached square; mintrap rawEnv overrides defaults without replacing stopOccupation.",
+          "Pony cwt1300, source draw rn2(1301)>=WT_ELF/2=400 triggers mine, not airborne; blow_up_landmine forwards same callback into scatter. One ordinary rock can survive destruction and select legal direction/range to adjacent surviving hero; no monster occupies hero square. Flags MAY_HITYOU true and legal positive thitu hit reach callback.",
+          "Checked current thitu1886+ ordinary-rock path: requires real message/losehp/exercise, spends hit draw and damage, returns hit result; it does not clear occupation first. No generic hit compensation replaces scatter current-state callback. No actual gameplay/draw or public prefix claimed.",
+          "moveSimplePet/normalizePetMoveEnv and m_move/postmov/mintrap/blow_up_landmine preserve callback; separate monsterMissileEnv state-form callback belongs attack/missile route and is not installed for selected pet movement."
+        ],
+        "dualContract": {
+          "envForm": "dochugw calls stopOccupation({...env,state}); dogmove occupation sites also pass env.",
+          "stateForm": "scatter calls stopOccupation(state,env); existing monsterMissileEnv callback(state) explicitly supports state-form projectile consumers.",
+          "doNotChange": "Do not mechanically replace scatter state argument with env, rename common hooks globally, or modify valid monsterMissileEnv state-form provider.",
+          "narrowRepair": "Make the normal runSimpleMonsterAction wrapper provider capture its own selected state and ignore callback argument shape: () => stop_occupation(state,{same captured planning/live message and statusRefresh}). Both env-form and state-form callers then target same selected action state; source current-state semantics preserved with no global fallback or duck-typed overload. W1 may move this code; patch exact current provider only after W1 frozen."
+        },
+        "dependency": "Work lead must sequence after W1 shop-entry delivery is frozen/received, with explicit accepted/dependency base. W1 actively factors same unported_monster_actions action bundle; no competing edit allowed. If W1 provider extraction changes callback placement, rebase source review onto exact frozen revision before scope/claim.",
+        "allowedPaths": [
+          "js/unported_monster_actions.js",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/explode.test.mjs",
+          ".cache/"
+        ],
+        "productionRegression": {
+          "entry": "Use real global game as live state with real unfinished eatfood/victual, nonempty canned queue, grounded tame pony and ordinary rock/mine state. Create clone with real planningState(game), then invoke normal real runSimpleMonsterAction on cloned pony with planning:true and legal source-pinned deterministic RNG; real dog_move->postmov->mintrap->landmine->scatter->thitu, not direct callback unit invocation.",
+          "assertions": [
+            "Actual cloned hero stone hit/HP change confirms target route reached; cloned occupation becomes null and cloned canned queue emptied.",
+            "Live game occupation object identity/victual/HP/canned queue contents and live output remain unchanged by planning action.",
+            "No stopOccupation, hitHero, scatter, movement, trap or success callback stub; assert selected source RNG draws/consumption if injecting deterministic generator.",
+            "Retain normal wrapper occupation-interruption coverage (env-form) and existing real missile hit/scatter state-form coverage to ensure valid monsterMissileEnv contract unchanged."
+          ],
+          "failurePolicy": "If real fixture cannot reach selected hit because earlier predicate, missing prerequisite or different provider, preserve failing assertion/source and block; do not weaken to mocked callback success or invent alternate route.",
+          "focusedChecks": [
+            "node --test scripts/unported-monster-actions.test.mjs scripts/explode.test.mjs"
+          ],
+          "limits": "No new public C witness/recipe/session, seed scan or source completeness claim. Work lead owns sourceParity task, real red/green regression, hosted nonregression/acceptance."
+        },
+        "risks": [
+          "Same provider region as active W1 factoring; must wait frozen dependency.",
+          "A test on custom nonglobal live state alone can miss the incorrect default-global mutation; anchor actual global game and snapshot it.",
+          "Planning may have other refusals on route; real target effect required before calling test a regression witness.",
+          "Clone state separate go/canned arrays is essential; checking final live state after replay masks original planning leak."
+        ]
+      },
+      "frozenDependency": {
+        "delivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "path": "js/unported_monster_actions.js",
+        "blob": "90cdcf4c6d4dba513c8337da7a161286a0a68c97",
+        "review": "W1 frozen exact extraction inspected; normal wrapper stopOccupation remains env-form closure and is the sole intended provider repair. Real direct-action helper and all other providers unchanged."
+      },
+      "publicationReReview": {
+        "base": "aa5537618a889445666232d6201ae4e2438f280b",
+        "priorTask": "fix-pet-scatter-occupation-clone-source-parity-20261017",
+        "reason": "Published accepted report changed queue base; every C/JS/caller/test Git pin reverified identical, review and dependency unchanged. Original packet unclaimed, no claim cap reset."
+      }
+    },
+    "reviewSha256": "8452de2bef5d7f5d8b3163190709c68fbde547882fbefc0a347b0b8ac05d6981"
+  },
+  "evidenceRequired": "Retain the source-parity review and constructed-state regression. Runtime/public parity and source certification remain pending."
+}
