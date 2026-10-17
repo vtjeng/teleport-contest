@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "batch": "v98",
+  "comparisonBase": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+  "preparationComparisonBase": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+  "assemblyBase": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v98-two-heavy-stacks-partial-pickup",
+      "title": "Two selected heavy stacks reach per-item partial lifting",
+      "mission": "A healthy empty-inventory human Wizard publicly wishes two oversized ordinary weapon stacks onto the floor, selects both full stacks in one pickup menu, and reaches the first per-object partial-lift report before burden consent.",
+      "recipe": "challenges/cases/v98/v98-two-heavy-stacks-partial-pickup.recipe.session.json",
+      "recipeSha256": "3c20fbb396caf65b3ea1184c076a498eb80e7ac54d88fcb13ed80c63aca5679a",
+      "recording": "challenges/cases/v98/v98-two-heavy-stacks-partial-pickup.session.json",
+      "recordingSha256": "98989735c23b1e36c4bc87a424cec2704fd23f7d764582765deccc94ebecdfe6",
+      "inputs": 53,
+      "boundaries": 54,
+      "playmode": "debug",
+      "reproducibility": "Exactly one independent unchanged input-only canonical C replay exited0. Full capture bytes match SHA98989735c23b1e36c4bc87a424cec2704fd23f7d764582765deccc94ebecdfe6, including all54screens/cursors,2448orderedRNG and53originalkeys; no additional target key or More acknowledgment.",
+      "sourcePointers": [
+        "pickup.c:pickup750-798 menu_pickup",
+        "pickup.c:pickup_object1868-1881",
+        "pickup.c:lift_object1705-1797",
+        "pickup.c:carry_count1570-1700",
+        "js/pickup.js:preflightPickupObjects942-1024"
+      ],
+      "sourceTrace": "C selects both10000arrow/10000dagger rows in one menu, then pickup menu_pickup calls first pickup_object -> lift_object -> carry_count. FinalCstep53 prints You can only lift some of the10000arrows lyinghere at naturalMore. JS preflightPickupObjects only permits above-capacity singleton or single ordinary partial-stack selections; the two-selected-list path is an explicit retained refusal. Soleaccepted5957comparison has first53screens/cursors match, all2448RNG exact, finalCboundary missing. ExactJSthrow is source-inferred, not dynamically captured; actualcomparisonerror:null.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 53,
+        "key": "\n",
+        "kind": "js-missing",
+        "owner": "pickup.c:pickup multi-selection -> first per-object carry_count vs preflightPickupObjects multi-selection capacity refusal",
+        "observationLimit": "Missing boundary observed; exact JS exception inferred from accepted source only."
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 2448,
+            "js": 2448
+          },
+          "screens": {
+            "c": 54,
+            "js": 53
+          },
+          "cursors": {
+            "c": 54,
+            "js": 53
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 53,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 53,
+            "key": "\n"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 53,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 53,
+            "key": "\n"
+          },
+          "cCursor": [
+            62,
+            0,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "5957d0cefd7a25c2dc857a3cfbbb0b1220c818f6",
+          "recordingSha256": "98989735c23b1e36c4bc87a424cec2704fd23f7d764582765deccc94ebecdfe6"
+        }
+      },
+      "selectionRationale": "Distinct multi-selection caller contract from current passing v30single100dagger, v55singlearmor burden and v56single5000arrow partiallift. No monster/corpse/boulder/fullpack/status/adjust route. Known retained source frontier, no new omission discovery claim.",
+      "observationLimit": "Natural More at first partial-count report. No burden consent, completed item transfer, exact liftable quantity or second-stack processing observed."
+    }
+  ]
+}
