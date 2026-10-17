@@ -62,6 +62,7 @@ import {
     POISON_RES,
     POOL,
     ROOM,
+    ROLLING_BOULDER_TRAP,
     RLOC_MSG,
     SATIATED,
     SINK,
@@ -154,6 +155,7 @@ import { cmdq_add_key } from '../js/cmd.js';
 import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ARROW,
+    BOULDER,
     BOW,
     DAGGER,
     ELVEN_DAGGER,
@@ -193,6 +195,13 @@ import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { canseemon } from '..//js/display.js';
+import {
+    cloneIsaacContext,
+    createCoreRandom,
+    enableRngLog,
+    getRngLog,
+    initRng,
+} from '../js/rng.js';
 
 // C permonst.h:48 has NATTK attack slots; AD_PHYS (include/monattk.h) and
 // AT_NONE describe an unused slot without shortening that fixed array.
@@ -3662,6 +3671,137 @@ test('planned pet landmine scatter interrupts the selected clone', async () => {
     }, 'scatter interruption belongs only to the selected planning state');
     assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 1301));
     assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 8));
+});
+
+test('planned pony rolling trap uses clone RNG for real hero collision', async () => {
+    const target = await prepareStartingPetAction(PM_PONY);
+    const pony = target.monster;
+    const oldX = pony.mx, oldY = pony.my;
+    game.level.monsters[oldX][oldY] = null;
+    pony.mx = 8;
+    pony.my = 11;
+    game.level.monsters[pony.mx][pony.my] = pony;
+    game.u.ux = game.u.ux0 = 7;
+    game.u.uy = game.u.uy0 = 10;
+    game.u.uhp = game.u.uhpmax = 100;
+    game.moves = 2;
+    // A source-valid clear CORR line permits a naturally generated straight
+    // launch from (2,10) across trap (8,10) to (14,10). The only closer
+    // neighbor the pony can occupy is the unseen trap center.
+    for (let x = 2; x <= 14; ++x) {
+        for (let y = 8; y <= 12; ++y) {
+            const cell = game.level.at(x, y);
+            cell.typ = STONE;
+            cell.flags = cell.doormask = 0;
+            cell.wall_info = W_NONDIGGABLE | W_NONPASSWALL;
+        }
+        const lane = game.level.at(x, 10);
+        lane.typ = CORR;
+        lane.wall_info = 0;
+    }
+    game.level.at(8, 11).typ = ROOM;
+    const trap = {
+        tx: 8, ty: 10, ttyp: ROLLING_BOULDER_TRAP,
+        tseen: false, madeby_u: false,
+        launch: { x: 2, y: 10 }, launch2: { x: 14, y: 10 },
+    };
+    game.level.traps.push(trap);
+    const boulder = floorObject(2, 10, 9450, BOULDER);
+    installObject(target, boulder);
+
+    initRng(3612346);
+    enableRngLog();
+    const liveRngBefore = rngSnapshot();
+    const liveHpBefore = game.u.uhp;
+    const liveMessagesBefore = [...game.nhDisplay.messages];
+    const liveHadRootBhitpos = Object.hasOwn(game, 'bhitpos');
+    const liveCanonicalBhitposBefore = game.gb?.bhitpos
+        ? { ...game.gb.bhitpos } : null;
+    const planned = planningState(game);
+    const initialCanonicalBhitpos = planned.gb?.bhitpos
+        ? { ...planned.gb.bhitpos } : null;
+    const clonedCore = cloneIsaacContext(planned.coreCtx);
+    const standardRandom = createCoreRandom(clonedCore, planned);
+    const draws = [];
+    const random = new Proxy(standardRandom, {
+        get(owner, name) {
+            const operation = owner[name];
+            return typeof operation === 'function'
+                ? (...args) => {
+                    const value = operation(...args);
+                    draws.push([name, ...args, value]);
+                    return value;
+                }
+                : operation;
+        },
+    });
+
+    let actionError = null;
+    try {
+        await runSimpleMonsterAction(planned.level.monlist, {
+            state: planned, planning: true, random,
+        });
+    } catch (error) {
+        actionError = error;
+    }
+
+    assert.deepEqual({ x: planned.level.monlist.mx, y: planned.level.monlist.my },
+        { x: 8, y: 10 }, 'the real pet step selects the unseen trap center');
+    assert.ok(planned.u.uhp < liveHpBefore, JSON.stringify({
+        message: 'actual rolling boulder hits the planned hero',
+        plannedHp: planned.u.uhp,
+        liveHpBefore,
+        pony: { x: planned.level.monlist.mx, y: planned.level.monlist.my },
+        draws,
+        liveLog: getRngLog(),
+    }));
+    assert.ok(draws.some(([name, bound]) => name === 'rnd' && bound === 20),
+        JSON.stringify(draws));
+    assert.deepEqual(rngSnapshot(), liveRngBefore, JSON.stringify({
+        message: 'planning must not advance the live core RNG',
+        actionError: actionError?.message ?? null,
+        liveLog: getRngLog(),
+        cloneDraws: draws,
+        plannedHp: planned.u.uhp,
+        liveContextSame: game.coreCtx === clonedCore,
+        liveRemaining: game.coreCtx.n,
+        clonedRemaining: clonedCore.n,
+    }));
+    assert.equal(actionError, null, JSON.stringify({
+        blocker: actionError?.stack ?? null,
+        cloneDraws: draws,
+        plannedHp: planned.u.uhp,
+        liveHp: game.u.uhp,
+        liveLog: getRngLog(),
+        liveBhitpos: game.bhitpos ?? null,
+        plannedBhitpos: planned.bhitpos ?? null,
+        plannedGbBhitpos: planned.gb?.bhitpos ?? null,
+        pony: { x: planned.level.monlist.mx, y: planned.level.monlist.my },
+    }));
+    assert.ok(draws.some(([name, bound]) => name === 'rn2' && bound === 2),
+        JSON.stringify(draws));
+    assert.deepEqual(planned.gb.bhitpos, { x: 14, y: 10 }, JSON.stringify({
+        initialCanonicalBhitpos,
+        finalCanonicalBhitpos: planned.gb.bhitpos,
+        rootBhitpos: planned.bhitpos ?? null,
+    }));
+    assert.equal(Object.hasOwn(planned, 'bhitpos'), false,
+        'launch position stays on the canonical gb owner');
+    assert.equal(Object.hasOwn(game, 'bhitpos'), liveHadRootBhitpos,
+        'planning does not create a root hit-position alias on the live game');
+    assert.deepEqual(game.gb?.bhitpos ?? null, liveCanonicalBhitposBefore,
+        'planning leaves the live canonical hit position unchanged');
+    const boulderLocations = [];
+    for (let object = planned.level.objlist; object; object = object.nobj) {
+        if (object.otyp === BOULDER)
+            boulderLocations.push({ x: object.ox, y: object.oy, where: object.where });
+    }
+    assert.deepEqual(boulderLocations, [{ x: 14, y: 10, where: 1 }],
+        'one launched boulder is placed at the canonical endpoint');
+    assert.deepEqual(getRngLog(), [], 'planning must not append live RNG log entries');
+    assert.equal(game.u.uhp, liveHpBefore, 'planned damage stays on clone');
+    assert.deepEqual([...game.nhDisplay.messages], liveMessagesBefore,
+        'planned collision emits no live output');
 });
 
 // C ref: dogmove.c:466-470. dog_invent()'s carry arm hands an AT_WEAP pet

@@ -2696,9 +2696,10 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
 
     let dist = distmin(x1, y1, x2, y2);
     let x, y;
-    if (!state.bhitpos) state.bhitpos = {};
-    x = state.bhitpos.x = x1;
-    y = state.bhitpos.y = y1;
+    const globalState = state.gb ??= {};
+    globalState.bhitpos ??= {};
+    globalState.bhitpos.x = x1;
+    globalState.bhitpos.y = y1;
     const dx = sgn(x2 - x1);
     const dy = sgn(y2 - y1);
     let delaycnt = 0;
@@ -2764,13 +2765,13 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 await delayOutput(state);
 
         // Bounds check (github issue #1490 fix)
-        if (!isok(state.bhitpos.x + dx, state.bhitpos.y + dy)) {
+        if (!isok(state.gb.bhitpos.x + dx, state.gb.bhitpos.y + dy)) {
             x2 = x; y2 = y;
             break;
         }
 
-        x = (state.bhitpos.x += dx);
-        y = (state.bhitpos.y += dy);
+        x = (state.gb.bhitpos.x += dx);
+        y = (state.gb.bhitpos.y += dy);
 
         const mtmp = m_at(x, y, state);
         if (mtmp) {
@@ -2863,8 +2864,11 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     singleobj, null, state, {
                         message,
                         losehp: (d, r, k, s) => losehp(d, r, k, s),
-                        exercise: (a, b) => exercise(a, b, state),
-                        random: { rnd },
+                        exercise: (a, b) => exercise(a, b, state, env.random, {
+                            encumberMessage: (subject) =>
+                                encumber_msg(subject, { message }),
+                        }),
+                        random: env.random,
                     }))
                 await stop_occupation(state, {
                     message,
