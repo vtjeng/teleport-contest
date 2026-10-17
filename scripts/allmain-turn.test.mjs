@@ -732,6 +732,84 @@ test('temporary status expiry accounting runs at the hero action boundary',
     assert.equal(state.disp.botl, true);
 });
 
+test('planned hero action isolates status banks and cloned rule identity',
+    async () => {
+    const segment = loadEatOccupationRecipe().segments.find(
+        (entry) => entry.seed === 5820011,
+    );
+    assert.ok(segment);
+    await runSegment({ ...segment, moves: '.' });
+    const state = game;
+    const xpField = 13; // include/botl.h BL_XP
+    const rule = { behavior: 'changed', marker: 'planner-status-rule' };
+    const banks = () => [Array(27).fill(null), Array(27).fill(null)];
+    state.moves = 9;
+    state.iflags = {
+        ...state.iflags,
+        hilite_delta: 3,
+        status_hilites: [rule],
+    };
+    state.gb = {
+        ...state.gb,
+        status_hilite_rule: banks(),
+        status_hilite_value: banks(),
+        status_hilite_compare_value: banks(),
+        status_hilite_percent: banks(),
+        status_hilite_text: banks(),
+        status_hilite_type: banks(),
+        status_hilite_times: [Array(27).fill(0), Array(27).fill(0)],
+        status_hilite_chg_banks: [Array(27).fill(false), Array(27).fill(false)],
+    };
+    state.gb.status_hilite_chg = state.gb.status_hilite_chg_banks[0];
+    state.gb.status_hilite_rule[0][xpField] = rule;
+    state.gb.status_hilite_rule[1][xpField] = rule;
+    state.gb.status_hilite_chg[xpField] = true;
+    state.gb.status_hilite_value[0][xpField] = 17;
+    state.gb.status_hilite_value[1][xpField] = 11;
+    state.disp = { botl: false };
+    state.context.seer_turn = 100000;
+    state.context.next_attrib_check = 100000;
+    state.u.umoved = true;
+
+    const liveBanks = Object.fromEntries([
+        'status_hilite_rule',
+        'status_hilite_value',
+        'status_hilite_compare_value',
+        'status_hilite_percent',
+        'status_hilite_text',
+        'status_hilite_type',
+        'status_hilite_times',
+        'status_hilite_chg_banks',
+    ].map((name) => [name, structuredClone(state.gb[name])]));
+    const planned = planningState(state);
+    const plannedRule = planned.iflags.status_hilites[0];
+    assert.notEqual(plannedRule, rule);
+    assert.equal(planned.gb.status_hilite_rule[0][xpField], plannedRule);
+    assert.equal(planned.gb.status_hilite_rule[1][xpField], plannedRule);
+    assert.equal(planned.gb.status_hilite_chg,
+        planned.gb.status_hilite_chg_banks[0]);
+    for (const name of Object.keys(liveBanks)) {
+        assert.notEqual(planned.gb[name], state.gb[name], `${name} outer bank`);
+        assert.notEqual(planned.gb[name][0], state.gb[name][0], `${name} row 0`);
+        assert.notEqual(planned.gb[name][1], state.gb[name][1], `${name} row 1`);
+    }
+
+    await finishHeroTimeEffects(planned, {
+        encumberMessage: async () => {},
+        random: { rn1: () => 15 },
+    });
+
+    assert.equal(planned.gb.status_hilite_times[0][xpField], 12);
+    assert.equal(planned.gb.status_hilite_times[1][xpField], 12);
+    assert.equal(planned.gb.status_hilite_chg[xpField], false);
+    assert.equal(planned.disp.botl, true);
+    for (const [name, snapshot] of Object.entries(liveBanks))
+        assert.deepEqual(state.gb[name], snapshot, `${name} live bank`);
+    assert.equal(state.gb.status_hilite_chg, state.gb.status_hilite_chg_banks[0]);
+    assert.equal(state.gb.status_hilite_chg[xpField], true);
+    assert.equal(state.disp.botl, false);
+});
+
 test('hero time effects validate due clairvoyance owners atomically',
     async () => {
     const missingMap = clairvoyanceTurnState();

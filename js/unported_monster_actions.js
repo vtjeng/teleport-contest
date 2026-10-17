@@ -654,6 +654,51 @@ export function planningState(state) {
             next: cloneTimerList(source.next),
         };
     };
+    // BOTL's selected-rule pointers name entries in iflags.status_hilites,
+    // while its value, timer, and notification histories are nested banks.
+    // A planned action can run status_eval_next_unhilite(), so both the bank
+    // rows and the rules they point at must belong to this clone.
+    const iflags = structuredClone(state.iflags);
+    const clonedStatusRules = new Map();
+    for (const [index, rule] of (state.iflags?.status_hilites ?? []).entries()) {
+        if (rule && iflags?.status_hilites?.[index])
+            clonedStatusRules.set(rule, iflags.status_hilites[index]);
+    }
+    const cloneStatusRule = (rule) => {
+        if (!rule || typeof rule !== 'object') return rule;
+        if (!clonedStatusRules.has(rule))
+            clonedStatusRules.set(rule, structuredClone(rule));
+        return clonedStatusRules.get(rule);
+    };
+    const gb = state.gb ? { ...state.gb } : state.gb;
+    if (gb) {
+        for (const name of [
+            'status_hilite_rule',
+            'status_hilite_value',
+            'status_hilite_compare_value',
+            'status_hilite_percent',
+            'status_hilite_text',
+            'status_hilite_type',
+            'status_hilite_times',
+        ]) {
+            if (!Array.isArray(state.gb[name])) continue;
+            gb[name] = state.gb[name].map((bank) => Array.isArray(bank)
+                ? bank.map((value) => name === 'status_hilite_rule'
+                    ? cloneStatusRule(value) : value)
+                : bank);
+        }
+        if (Array.isArray(state.gb.status_hilite_chg_banks)) {
+            gb.status_hilite_chg_banks = state.gb.status_hilite_chg_banks
+                .map((bank) => Array.isArray(bank) ? [...bank] : bank);
+        } else if (Array.isArray(state.gb.status_hilite_chg)) {
+            gb.status_hilite_chg_banks = [
+                [...state.gb.status_hilite_chg],
+                Array(state.gb.status_hilite_chg.length).fill(false),
+            ];
+        }
+        if (Array.isArray(gb.status_hilite_chg_banks?.[0]))
+            gb.status_hilite_chg = gb.status_hilite_chg_banks[0];
+    }
     return {
         ...state,
         ...topLevelObjectPointers,
@@ -731,8 +776,8 @@ export function planningState(state) {
         // run that raised the live flag and left the live timestamp alone
         // would silence the line the live pass owes.
         gf: { ...(state.gf ?? {}) },
-        gb: state.gb ? {
-            ...state.gb,
+        gb: gb ? {
+            ...gb,
             bhitpos: { ...(state.gb.bhitpos ?? {}) },
             billobjs: objectMap.get(state.gb.billobjs) ?? null,
         } : state.gb,
@@ -760,7 +805,7 @@ export function planningState(state) {
         gs: { ...(state.gs ?? {}) },
         gv: { ...(state.gv ?? {}) },
         head_engr: structuredClone(state.head_engr),
-        iflags: structuredClone(state.iflags),
+        iflags,
         level,
         mvitals,
         // hack.c losehp() writes decl.h svk.killer before its planned-death
