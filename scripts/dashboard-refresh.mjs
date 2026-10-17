@@ -11,9 +11,9 @@ import {acceptedMain} from './worker-backlog.mjs';
 import {recordEvent, summarizeLedger, updateLedger} from './worker-state.mjs';
 import {verifyEvent} from './worker-delivery.mjs';
 import {buildExplorationYieldPayload} from './exploration-yield.mjs';
-import {writeDashboardSnapshot} from './dashboard-snapshot.mjs';
+import {activityFromLedger, mergeActivity, writeDashboardSnapshot} from './dashboard-snapshot.mjs';
 import {checkPublishedCI} from './check-published-ci.mjs';
-import {discoveryWatermark, snapshotDigest, snapshotReadiness, snapshotRefreshLock,
+import {snapshotWatermark, snapshotDigest, snapshotReadiness, snapshotRefreshLock,
     validatePublicSnapshot, verifySnapshotPublication} from './snapshot-publication.mjs';
 
 export const REFRESH_INTERVAL_MS = 15*60*1000;
@@ -76,9 +76,9 @@ function safeMain(io, expected) {
 }
 
 // Exposed pure decision permits tests without time, network or gameplay.
-export function refreshDecision(previous, payload, pending, now) {
-    const watermark = discoveryWatermark(payload);
-    if (watermark.digest === discoveryWatermark(previous.explorationYield).digest)
+export function refreshDecision(previous, projection, pending, now) {
+    const watermark = snapshotWatermark(projection);
+    if (watermark.digest === snapshotWatermark(previous).digest)
         return {action:'unchanged',watermark,pending:null};
     const firstSeen = pending?.firstSeen ?? now;
     return {action:now-firstSeen >= REFRESH_INTERVAL_MS ? 'due' : 'coalescing',watermark,
@@ -132,7 +132,8 @@ export function refreshOnce({ledger:ledgerPath, root = process.cwd(), now = Date
             const auditIndex = json(join(root,'scripts/exploration-yield-audit.json'));
             const payload = buildExplorationYieldPayload(ledger,{asOf:new Date(Math.max(now,
                 Date.parse(ledger.events.at(-1).at))).toISOString(),auditIndex});
-            const decision = refreshDecision(previous,payload,local.pending,now);
+            const activity = mergeActivity(previous.activity,activityFromLedger(ledger));
+            const decision = refreshDecision(previous,{explorationYield:payload,activity},local.pending,now);
             local.pending = decision.pending; save(cache,local);
             if (decision.action !== 'due' || observe) return {status:decision.action,watermark:decision.watermark,
                 dueAt:local.pending ? new Date(local.pending.firstSeen+REFRESH_INTERVAL_MS).toISOString() : null};
@@ -144,7 +145,7 @@ export function refreshOnce({ledger:ledgerPath, root = process.cwd(), now = Date
             io.snapshot(prefix,anchor.checkpoint,output);
             const summary = json(anchor.checkpoint), bytes = readFileSync(output), snapshot = JSON.parse(bytes);
             const watermark = validatePublicSnapshot(snapshot,summary);
-            ensure(watermark.digest === decision.watermark.digest,'captured discovery projection changed');
+            ensure(watermark.digest === decision.watermark.digest,'captured exploration projection changed');
             chmodSync(prefix,0o444); chmodSync(output,0o444);
             const proof = {anchor:anchor.commit,tested:summary.executionCommit,commit:null,checkpoint:anchor.checkpoint,
                 snapshotSha256:snapshotDigest(bytes),watermark:watermark.digest,

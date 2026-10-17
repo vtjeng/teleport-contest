@@ -34,6 +34,23 @@ export function discoveryWatermark(payload) {
         latest:records.map(row => row.closedAt).sort().at(-1) ?? null};
 }
 
+// Completion activity has its own refresh trigger; discovery yield retains its
+// narrower denominator. Claims, turn/connection chatter and timestamps alone
+// cannot advance this watermark. Use only the sanitized public projection.
+export function snapshotWatermark(snapshot) {
+    const discovery = discoveryWatermark(snapshot.explorationYield);
+    const claims = new Set((snapshot.activity?.events ?? []).filter(row => row.type === 'assign'
+        && row.kind === 'queue-execution' && row.output === 'exploration'
+        && /^Worker-[123]$/u.test(row.worker)).map(row => `${row.runId}/${row.task}/${row.worker}`));
+    const closures = (snapshot.activity?.events ?? []).filter(row => ['queue-complete', 'queue-block'].includes(row.type)
+        && claims.has(`${row.runId}/${row.task}/${row.worker}`))
+        .map(({runId, id, type, at, task, worker}) => ({runId, id, type, at, task, worker}))
+        .sort((a,b) => `${a.runId}/${a.id}`.localeCompare(`${b.runId}/${b.id}`));
+    return {digest:snapshotDigest(JSON.stringify({discovery:discovery.digest,closures})),
+        count:discovery.count, closedWorkerExplorations:closures.length,
+        latest:[discovery.latest,...closures.map(row=>row.at)].filter(Boolean).sort().at(-1) ?? null};
+}
+
 export function validatePublicSnapshot(snapshot, summary) {
     ensure(snapshot?.version === 1 && Number.isFinite(Date.parse(snapshot.capturedAt))
         && Date.parse(snapshot.capturedAt) <= Date.now()+60_000
@@ -62,7 +79,7 @@ export function validatePublicSnapshot(snapshot, summary) {
     ensure(isDeepStrictEqual(snapshot.development,
         developmentFromCheckpoint(summary, JSON.parse(bytes), bytes)),
     'dashboard development evidence differs from original checkpoint');
-    return discoveryWatermark(snapshot.explorationYield);
+    return snapshotWatermark(snapshot);
 }
 
 export function snapshotReadiness(state, {started = false} = {}) {
@@ -133,8 +150,8 @@ export function verifySnapshotPublication(root, state, proof, {published = false
     ensure(isDeepStrictEqual(snapshot,projected), 'public snapshot differs from captured ledger projection');
     ensure(Date.parse(snapshot.capturedAt) > Date.parse(previous.capturedAt), 'snapshot capture must advance');
     ensure(watermark.digest === proof.watermark
-        && watermark.digest !== discoveryWatermark(previous.explorationYield).digest,
-    'snapshot refresh has no meaningful completed discovery change');
+        && watermark.digest !== snapshotWatermark(previous).digest,
+    'snapshot refresh has no meaningful completed exploration change');
     ensure(/^[a-f0-9]{64}$/u.test(proof.ledgerSha256) && typeof proof.through === 'string' && proof.through,
         'snapshot refresh needs captured ledger prefix identity');
     if (published) {

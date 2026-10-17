@@ -11,7 +11,7 @@ import {queueCommand} from './work-queue.mjs';
 import {developmentFromCheckpoint} from './dashboard-snapshot.mjs';
 import {buildExplorationYieldPayload} from './exploration-yield.mjs';
 import {refreshDecision, refreshOnce, REFRESH_INTERVAL_MS, withRefreshLock} from './dashboard-refresh.mjs';
-import {discoveryWatermark, requireNoSnapshotRefresh, snapshotDigest, snapshotReadiness,
+import {discoveryWatermark, snapshotWatermark, requireNoSnapshotRefresh, snapshotDigest, snapshotReadiness,
     validatePublicSnapshot, verifySnapshotPublication, snapshotRefreshLock} from './snapshot-publication.mjs';
 import {verifyToolingPublication} from './worker-delivery.mjs';
 import {withMainWork} from './main-work.mjs';
@@ -89,14 +89,46 @@ function runDue(f,hooks={}) {
     return ()=>refreshOnce({...options,now:now+REFRESH_INTERVAL_MS+1},{...f.hooks,...hooks});
 }
 
-test('coalesces only discovery closures, not claims, support or capturedAt; zero change is a no-op',()=>{
+test('discovery metrics stay independent while closure activity coalesces without claim or timestamp churn',()=>{
     const row={id:'a',kind:'discovery',claimedAt:'2026-10-16T00:00:00Z',closedAt:'2026-10-16T00:01:00Z'};
     const old={explorationYield:{records:[]}};
-    const p={records:[row]};const start=refreshDecision(old,p,null,1000);
-    assert.equal(start.action,'coalescing');assert.equal(refreshDecision(old,p,start.pending,901000).action,'due');
+    const p={records:[row]},projection={explorationYield:p};const start=refreshDecision(old,projection,null,1000);
+    assert.equal(start.action,'coalescing');assert.equal(refreshDecision(old,projection,start.pending,901000).action,'due');
     const unchanged={...p,records:[row,{...row,id:'support',kind:'follow-up'}],asOf:'later'};
     assert.equal(discoveryWatermark(p).digest,discoveryWatermark(unchanged).digest);
-    assert.equal(refreshDecision({explorationYield:p},unchanged,start.pending,999999).action,'unchanged');
+    assert.equal(refreshDecision(projection,{explorationYield:unchanged},start.pending,999999).action,'unchanged');
+    const claim={runId:'run',id:'claim',type:'assign',task:'support',worker:'Worker-2',
+        kind:'queue-execution',output:'exploration',at:'2026-10-16T00:02:00Z'};
+    const claimed={...projection,activity:{events:[claim]}};
+    assert.equal(refreshDecision(projection,claimed,null,1000).action,'unchanged');
+    const closure={...claim,id:'close',type:'queue-complete',at:'2026-10-16T00:03:00Z'};
+    const completed={...claimed,activity:{events:[claim,closure]}};
+    const pending=refreshDecision(projection,completed,null,1000);
+    assert.equal(pending.action,'coalescing');
+    assert.equal(refreshDecision(projection,completed,pending.pending,901000).action,'due');
+    assert.equal(snapshotWatermark(completed).closedWorkerExplorations,1);
+    for(const activity of [{events:[closure]}, {events:[{...claim,output:'implementation'},closure]},
+        {events:[claim,{...closure,type:'turn'}]}])
+        assert.equal(snapshotWatermark({...projection,activity}).digest,snapshotWatermark(projection).digest);
+    const chatter={...completed,capturedAt:'later',activity:{events:[claim,closure,
+        {...claim,id:'another-claim',task:'later'}, {...closure,id:'observation',type:'turn'}]}};
+    assert.equal(refreshDecision(completed,chatter,null,999999).action,'unchanged');
+    assert.equal(snapshotWatermark({...completed,activity:{events:[claim,{...closure,type:'queue-block'}]}})
+        .closedWorkerExplorations,1);
+});
+
+test('closed Main support alone publishes a checked activity snapshot and never changes discovery yield',t=>{
+    const f=fixture(t);runDue(f)();
+    f.send({type:'queue-refresh',base:f.anchor,digest:'2'.repeat(64),sessions:[],populate:false,regressions:[],sources:{}});
+    const before=read(join(f.root,'dashboard-snapshot.json'));
+    f.close('source-support',{producer:'Main',recipient:'Main',purpose:'support',batch:undefined});
+    const receipt=runDue(f)();
+    const after=read(join(f.root,'dashboard-snapshot.json'));
+    assert.equal(receipt.status,'published');
+    assert.deepEqual(discoveryWatermark(after.explorationYield),discoveryWatermark(before.explorationYield));
+    assert.equal(snapshotWatermark(after).closedWorkerExplorations,snapshotWatermark(before).closedWorkerExplorations+1);
+    assert.ok(after.activity.events.some(row=>row.type==='queue-complete'&&row.task==='source-support'));
+    assert.equal(refreshOnce({root:f.root,ledger:f.file},f.hooks).status,'unchanged');
 });
 
 test('common exclusive lock protects integration and never steals an existing owner',t=>{

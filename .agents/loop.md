@@ -215,9 +215,12 @@ or amend submitted delivery commits.
 Vincent approved the checked WL-local 15-minute coalescer on 2026-10-16.
 `node scripts/dashboard-refresh.mjs --ledger <absolute-ledger> --watch`
 checks once a minute while this environment and its owned process remain running.
-Only changes to closed independent discovery records (including retrospective
-classification/qualification) create a pending watermark. Claims, Main support,
-linked follow-ups, the publisher's own events and capture time do not. Changes
+Changes to closed independent discovery records (including retrospective
+classification/qualification), or completed/blocked Worker 1..3 exploration
+assignments with a recorded queue claim, create a pending watermark. The latter
+includes Main support and linked exploration follow-ups without changing the
+independent discovery yield denominator. Claims alone, turn/connection chatter,
+the publisher's own events and capture time do not. Changes
 coalesce for 15 minutes from first observation; active integration, ready
 implementation/deliveries, review/admission, dirty or off-Main work, and pending
 or failed publication CI defer publication. This is a snapshot, not a live feed
