@@ -135,6 +135,7 @@ import {
     generic_obj_to_glyph,
     glyph_is_body,
     GLYPH_INVISIBLE,
+    status_eval_next_unhilite,
     glyph_is_body_piletop,
     glyph_is_cmap,
     glyph_is_cmap_zap,
@@ -7566,6 +7567,94 @@ test('the two-line status row reports carrying capacity', async () => {
     }, { after: false });
 });
 
+test('a plain screen repaint reuses the delivered status values and styles',
+    async () => {
+    const state = statusRenderingState();
+    state.flags.showexp = false;
+    state.iflags.hilite_delta = 3;
+    const rule = {
+        field: 'hitpoints', behavior: 'absolute', relation: '>=', value: 0,
+        style: { attrib: HL_BOLD, color: CLR_RED },
+    };
+    state.iflags.status_hilites = [rule];
+
+    await bot();
+    const field = 18; // BL_HP
+    const delivered = terminalRow(state, 23);
+    const value = state.gb.status_hilite_value[0][field];
+    const selected = state.gb.status_hilite_rule[0][field];
+    const styles = structuredClone(state._renderedStatusStyles);
+
+    state.u.uhp = Math.max(0, state.u.uhp - 2);
+    await flush_screen(1); // no disp.botl/botlx: paint the cached delivery
+
+    assert.equal(terminalRow(state, 23), delivered);
+    assert.equal(state.gb.status_hilite_value[0][field], value);
+    assert.equal(state.gb.status_hilite_rule[0][field], selected);
+    assert.deepEqual(state._renderedStatusStyles, styles);
+    assert.equal(selected, rule);
+});
+
+test('repeated bot passes preserve a changed highlight until the action hook',
+    async () => {
+    const state = statusRenderingState();
+    state.flags.showexp = false;
+    state.iflags.hilite_delta = 3;
+    state.iflags.status_hilites = [{
+        field: 'hitpoints', behavior: 'changed', relation: '>',
+        style: { attrib: HL_BOLD, color: CLR_RED },
+    }];
+    await bot();
+    status_eval_next_unhilite(state);
+    state.disp.botl = false;
+    const field = 18; // BL_HP
+
+    state.u.uhp += 1;
+    state.disp.botl = true;
+    await bot();
+    assert.equal(state.gb.status_hilite_rule[0][field].behavior, 'changed');
+    assert.equal(state.gb.status_hilite_chg[field], true);
+
+    state.disp.botl = true;
+    await bot();
+    assert.equal(state.gb.status_hilite_rule[0][field].behavior, 'changed');
+    assert.equal(state.gb.status_hilite_chg[field], true);
+
+    status_eval_next_unhilite(state);
+    assert.equal(state.gb.status_hilite_chg[field], false);
+    assert.equal(state.gb.status_hilite_times[0][field], state.moves + 3);
+    assert.equal(state.gb.status_hilite_times[1][field], state.moves + 3);
+});
+
+test('update_all resets both temporary banks and selects with zero change',
+    async () => {
+    const state = statusRenderingState();
+    state.flags.showexp = false;
+    state.iflags.hilite_delta = 3;
+    const rule = {
+        field: 'hitpoints', behavior: 'changed', relation: '>',
+        style: { attrib: HL_BOLD, color: CLR_RED },
+    };
+    state.iflags.status_hilites = [rule];
+    await bot();
+    const field = 18; // BL_HP
+    state.gb.status_hilite_rule[0][field] = rule;
+    state.gb.status_hilite_rule[1][field] = rule;
+    state.gb.status_hilite_times[0][field] = state.moves + 3;
+    state.gb.status_hilite_times[1][field] = state.moves + 3;
+    state.gu ??= {};
+    state.gu.update_all = true;
+    state.disp ??= {};
+    state.disp.botlx = true;
+
+    await bot();
+
+    assert.equal(state.gb.status_hilite_times[0][field], 0);
+    assert.equal(state.gb.status_hilite_times[1][field], 0);
+    assert.equal(state.gb.status_hilite_rule[0][field], null);
+    assert.equal(state.gu.update_all, false);
+});
+
 // C ref: botl.c do_statusline2():140-142 and bot_via_windowport():1036-1037,
 // the same `if (hp < 0) hp = 0` written once for the string the status line
 // draws and once for the BL_HP value the field system stores and compares.
@@ -8507,6 +8596,8 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
     };
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
 
+    state.disp ??= {};
+    state.disp.botlx = true;
     await flush_screen(1);
     const row = (index) => state.nhDisplay.grid[index]
         .map((cell) => cell.ch).join('').trimEnd();

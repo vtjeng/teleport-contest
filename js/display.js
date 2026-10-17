@@ -5613,9 +5613,9 @@ export function exp_percent_changing(state = game) {
     if (previousPercent == null || previousPercent === data.percent) return false;
     const currentRule = state.gb?.status_hilite_rule?.[0]?.[field.fld] ?? null;
     const rawPrevious = state.gb?.status_hilite_value?.[0]?.[field.fld];
-    const change = rawPrevious == null
-        ? 0 : Math.sign(data.value - rawPrevious);
-    return _selectStatusHilite('experience-level', data, change, state)
+    // botl.c passes literal chg=0 here. Experience points may have changed,
+    // but the level field itself did not change.
+    return _selectStatusHilite('experience-level', data, 0, state)
         !== currentRule;
 }
 
@@ -5799,12 +5799,16 @@ function _statusFieldStyle(field, valueSnapshot = null) {
     if (field === 'experience-level' && previousValue != null
         && data.value === previousValue)
         change = 0;
+    if (game._statusHiliteUpdateAll) change = 0;
     const unchanged = previousValue === (data.value ?? null)
         && previousPercent === (data.percent ?? null)
         && previousText === (data.text ?? null);
     const until = gb.status_hilite_times?.[0]?.[fieldRow.fld] ?? 0;
-    const holdTemporary = unchanged && previousRule?.behavior === 'changed'
-        && (game.multi || (until > 0 && (game.moves ?? 0) <= until));
+    const pendingChanged = Boolean(gb.status_hilite_chg?.[fieldRow.fld]);
+    const holdTemporary = !game._statusHiliteUpdateAll && unchanged
+        && previousRule?.behavior === 'changed'
+        && (pendingChanged || game.multi
+            || (until > 0 && (game.moves ?? 0) <= until));
     const selected = holdTemporary
         ? previousRule : _selectStatusHilite(field, data, change);
     gb.status_hilite_rule[0][fieldRow.fld] = selected;
@@ -5841,16 +5845,19 @@ function _beginStatusHilitePass(onlyField = null) {
     game.gb.status_hilite_times[0] ??= Array(size).fill(0);
     game.gb.status_hilite_times[1] ??= Array(size).fill(0);
     game.gb.status_hilite_chg ??= Array(size).fill(false);
+    game._statusHiliteUpdateAll = !onlyField && Boolean(game.gu?.update_all);
     if (onlyField) {
         const fld = STATUS_FIELDS.find(row => row.key === onlyField)?.fld;
         if (fld != null) {
             game.gb.status_hilite_times[1][fld]
                 = game.gb.status_hilite_times[0][fld];
-            game.gb.status_hilite_chg[fld] = false;
         }
     } else {
         game.gb.status_hilite_times[1] = [...game.gb.status_hilite_times[0]];
-        game.gb.status_hilite_chg = Array(size).fill(false);
+        if (game._statusHiliteUpdateAll) {
+            game.gb.status_hilite_times[0].fill(0);
+            game.gb.status_hilite_times[1].fill(0);
+        }
     }
     game._statusHiliteOnlyField = onlyField;
 }
@@ -6181,11 +6188,12 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
 function writeStatusRows(
     display,
     layouts = statusLayouts(),
+    styles = null,
 ) {
     if (!display?.grid) return;
-    const styles = game.iflags?.status_updates === false
-        ? layouts.map(() => [])
-        : _statusStyleRows(layouts);
+    styles ??= layouts.map(({ owners }) => owners.map(
+        () => ({ color: NO_COLOR, attr: ATR_NONE }),
+    ));
     const firstRow = display.rows - layouts.length;
     for (let index = 0; index < layouts.length; ++index) {
         const screenRow = firstRow + index;
@@ -6223,6 +6231,7 @@ function _buildScreenOutput(cursorOnHero = true) {
     // menu or text window over every clean map cell.
     const bufferedOnly = (display.inread ?? 0) > 0;
     const statusRows = game._renderedStatusLayouts ?? statusLayouts();
+    const statusStyles = game._renderedStatusStyles;
     // botl.c bot() leaves the physical status window untouched while
     // gb.bot_disabled is raised.  Keep those cells across the canonical
     // rebuild so a prompt preserves an already-painted status, while a
@@ -6294,7 +6303,7 @@ function _buildScreenOutput(cursorOnHero = true) {
         // rebuilt terminal: repainting the cached status layouts here would
         // put the covered status rows back underneath a getlin prompt.
         if (!bufferedOnly && game.gb?.bot_disabled !== true)
-            writeStatusRows(display, statusRows);
+            writeStatusRows(display, statusRows, statusStyles);
         else if (!bufferedOnly && savedStatusCells) {
             const firstRow = display.rows - savedStatusCells.length;
             for (let row = 0; row < savedStatusCells.length; ++row) {
@@ -6512,16 +6521,21 @@ export async function bot({ initialTtyRefresh = false } = {}) {
     _beginStatusHilitePass();
     game._statusOptionalFieldSnapshot = optionalSnapshot;
     game._renderedStatusLayouts = layouts;
+    const styles = game.iflags?.status_updates === false
+        ? layouts.map(() => []) : _statusStyleRows(layouts);
+    game._renderedStatusStyles = styles;
     try {
-        writeStatusRows(game?.nhDisplay, layouts);
+        writeStatusRows(game?.nhDisplay, layouts, styles);
     } finally {
         game._statusHiliteOnlyField = null;
+        game._statusHiliteUpdateAll = false;
     }
     if (game.disp) {
         game.disp.botl = false;
         game.disp.botlx = false;
         game.disp.time_botl = false;
     }
+    if (game.gu) game.gu.update_all = false;
 }
 
 // ── timebot ──
@@ -6572,7 +6586,10 @@ function _stat_update_time() {
         ? rendered.map((layout) => _refreshTimeField(layout))
         : statusLayouts();
     game._renderedStatusLayouts = layouts;
-    writeStatusRows(game?.nhDisplay, layouts);
+    const styles = game.iflags?.status_updates === false
+        ? layouts.map(() => []) : _statusStyleRows(layouts);
+    game._renderedStatusStyles = styles;
+    writeStatusRows(game?.nhDisplay, layouts, styles);
 }
 
 export class UnsupportedStatusRefreshError extends Error {

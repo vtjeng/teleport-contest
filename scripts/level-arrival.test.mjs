@@ -1360,6 +1360,28 @@ test('exp_percent_changing answers for the Xp field alone', () => {
     rule.disp.botl = true;
     assert.equal(exp_percent_changing(rule), false,
         'an already pending redraw skips the selection work');
+
+    const upDown = sightseerState();
+    const stableRule = {
+        field: 'experience-level', behavior: 'always',
+        style: { color: 3, attrib: 1 },
+    };
+    upDown.iflags.status_hilites = [{
+        field: 'experience-level', behavior: 'changed', relation: '>',
+        style: { color: 4, attrib: 1 },
+    }, stableRule];
+    upDown.iflags.hilite_delta = 3;
+    upDown.u.uexp = 1;
+    upDown.gb = {
+        status_hilite_rule: [Array(27).fill(null), Array(27).fill(null)],
+        status_hilite_value: [Array(27).fill(null), Array(27).fill(null)],
+        status_hilite_percent: [Array(27).fill(null), Array(27).fill(null)],
+    };
+    upDown.gb.status_hilite_rule[0][xpField] = stableRule;
+    upDown.gb.status_hilite_value[0][xpField] = 0;
+    upDown.gb.status_hilite_percent[0][xpField] = 0;
+    assert.equal(exp_percent_changing(upDown), false,
+        'C selects for early XP redraw with literal chg=0, not level delta');
 });
 
 // The sightseeing grant's own guard, do.c:1963's Role_if(PM_TOURIST), is not

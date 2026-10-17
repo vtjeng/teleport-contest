@@ -7883,10 +7883,12 @@ function VIA_WINDOWPORT() {
 // js/display.js recomputes each field from flags on every bot(), which is what
 // makes flags.showexp and flags.time reach the status line at all, and
 // writeStatusRows() clears and rewrites both rows rather than sending only the
-// fields C would have marked dirty, so gu.update_all is permanently set here.
-// The redraw request the function ends with is the part that needs a home.
+// fields C would have marked dirty. Preserve C's one-shot update_all request
+// so the first delivered pass starts with zero change and reset timers.
 function status_initialize(state) {
     state.disp ??= {};
+    state.gu ??= {};
+    state.gu.update_all = true;
     state.disp.botlx = true;
 }
 
