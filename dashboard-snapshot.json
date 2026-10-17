@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T04:01:26.943Z",
+  "capturedAt": "2026-10-17T04:40:57.171Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T04:01:26.943Z",
+    "asOf": "2026-10-17T04:40:57.171Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -160483,26 +160483,131 @@
         "type": "accepted",
         "at": "2026-10-17T04:00:04.331Z",
         "task": "delivery:explicit-search-hallu-capability-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:explicit-search-hallu-capability-20261017-3e40baeade9fe8fb92098d00afa31056850baf5e",
+        "type": "published",
+        "at": "2026-10-17T04:01:42.203Z",
+        "task": "delivery:explicit-search-hallu-capability-20261017",
+        "commit": "3e40baeade9fe8fb92098d00afa31056850baf5e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-xp-route-owner-recovery-20261017",
+        "type": "observe",
+        "at": "2026-10-17T04:08:17.152Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-xp-route-active-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:12:15.047Z",
+        "worker": "Prep",
+        "state": "active"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-xp-route-c-frozen-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:13:20.491Z",
+        "worker": "Prep",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep97-xp-correction-resume-20261017",
+        "type": "resume",
+        "at": "2026-10-17T04:25:08.991Z",
+        "task": "Prep97"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep97-xp-correction-feedback-20261017",
+        "type": "feedback",
+        "at": "2026-10-17T04:25:09.711Z",
+        "task": "Prep97",
+        "delivery": "d504e3f4c373f9216cb1bd87a0ee93e86e1b77cc"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-808587432d0f94ba876fe787998e02f761a0e441",
+        "type": "ready",
+        "at": "2026-10-17T04:27:24.660Z",
+        "task": "Prep97",
+        "delivery": "808587432d0f94ba876fe787998e02f761a0e441"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep97-xp-correction-submitted-idle-20261017",
+        "type": "turn",
+        "at": "2026-10-17T04:27:45.855Z",
+        "worker": "Prep",
+        "state": "idle"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep97-xp-correction-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T04:28:05.205Z",
+        "task": "Prep97",
+        "delivery": "808587432d0f94ba876fe787998e02f761a0e441"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-group-4d1165b55f274547b3c474f9f135ccbe4930321d7aa91f8cc93fd81431803199-25200c6199ab3bd8e18f3e69da058cb61b0d3d42-Prep97",
+        "type": "integrating",
+        "at": "2026-10-17T04:28:08.166Z",
+        "task": "Prep97",
+        "integration": "25200c6199ab3bd8e18f3e69da058cb61b0d3d42",
+        "prepGroup": [
+          "Prep97"
+        ],
+        "validationGroup": [
+          "Prep97"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-validated-Prep97-25200c6199ab3bd8e18f3e69da058cb61b0d3d42",
+        "type": "validated",
+        "at": "2026-10-17T04:34:57.477Z",
+        "task": "Prep97",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-accepted-Prep97-25200c6199ab3bd8e18f3e69da058cb61b0d3d42",
+        "type": "accepted",
+        "at": "2026-10-17T04:34:57.477Z",
+        "task": "Prep97"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-baseline-Prep97-1c9e11e7cbaebb8daf3b09f69a17360909c7db14",
+        "type": "activity",
+        "at": "2026-10-17T04:39:53.715Z",
+        "task": "Prep97",
+        "phase": "baseline",
+        "reason": "New-case baseline imported from the hosted Admission workflow."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "admission-done-Prep97-1c9e11e7cbaebb8daf3b09f69a17360909c7db14",
+        "type": "activity",
+        "at": "2026-10-17T04:39:53.869Z",
+        "task": "Prep97",
+        "phase": "done",
+        "reason": "Hosted baseline saved; new cases are available for selection."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [],
     "preparedBatches": [],
-    "parkedTasks": [
-      {
-        "task": "Prep97",
-        "worker": "Prep",
-        "goal": null,
-        "kind": "challenge-preparation",
-        "status": "parked",
-        "delivery": "d504e3f4c373f9216cb1bd87a0ee93e86e1b77cc",
-        "batch": "v97",
-        "since": "2026-10-17T00:37:25.920Z",
-        "blockedBy": [],
-        "reason": "User explicitly selected the same saved case for earlier unsubmitted v96. Preserve this unaccepted v97 wrapper and immutable delivery unchanged; defer its disposition until v96 intake resolves. No completion, acceptance, admission or runtime is claimed."
-      }
-    ]
+    "parkedTasks": []
   },
   "workerReservations": {
     "tasks": {},
@@ -160514,12 +160619,17 @@
     "preferred": null,
     "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
-    "blocked": [],
+    "blocked": [
+      {
+        "task": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "reason": "Waiting for producer or dependencies."
+      }
+    ],
     "claimed": [],
     "counts": {
       "ready": 0,
       "claimed": 0,
-      "blocked": 0,
+      "blocked": 1,
       "completed": 294,
       "superseded": 64
     },
@@ -165936,12 +166046,29 @@
         "readyAt": "2026-10-17T03:41:33.449Z",
         "claimedAt": "2026-10-17T03:42:03.771Z",
         "completedAt": "2026-10-17T03:50:46.606Z"
+      },
+      {
+        "id": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [
+          "synthetic/v97/v97-tourist-first-new-depth-xp-percent-highlight"
+        ],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-17T04:39:54.120Z",
+        "claimedAt": null,
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "c282cb6447d27f72f94a21a2b0bdfeaa07463874",
-    "measuredAt": "2026-10-17T03:58:18.180Z",
+    "executionCommit": "25200c6199ab3bd8e18f3e69da058cb61b0d3d42",
+    "measuredAt": "2026-10-17T04:33:53.751Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
