@@ -246,8 +246,15 @@ verify the tree is clean. Never stash, reset, rebase, amend, or delete another
 agent's work or an immutable submitted revision just to make a switch easy.
 
 Verify checkout root, branch, task context, and reservations before edits.
-Use `worker-worktree.mjs prepare --branch <assigned-branch>` for supported
-setup, then its check command as appropriate. A branch switch may invalidate
+Classify the assignment's execution permission before setup. For source/prior-only
+assignments that forbid C execution, use read-only root, branch, HEAD, task-context,
+reservation, pinned C gitlink, and source-access checks. Do not run
+`worker-worktree.mjs prepare` or `check`, recorder smoke, builds, or recorder copies:
+both readiness commands run a fresh C game. Report a missing prerequisite as a
+blocker rather than treating it as permission to run C.
+For assignments authorized to record C, use
+`worker-worktree.mjs prepare --branch <assigned-branch>` for supported setup,
+then its check command as appropriate. A branch switch may invalidate
 generated data, dependencies, the C submodule, or recorder patches; inspect
 and refresh those prerequisites before relying on retained outputs.
 Each worktree that records C games needs a private recorder installation,
