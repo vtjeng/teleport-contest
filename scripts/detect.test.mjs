@@ -65,7 +65,6 @@ import {
     o_material,
     openone,
     reconstrain_map,
-    UnsupportedSearchError,
     unconstrain_map,
     warnreveal,
 } from '../js/detect.js';
@@ -595,6 +594,27 @@ function scriptedRandom(events, rnlResults, rn2Results = []) {
         done() {
             assert.deepEqual(rnlQueue, []);
             assert.deepEqual(rn2Queue, []);
+        },
+    };
+}
+
+function productionTrapRandom(events, displayChoice) {
+    return {
+        rnl(bound) {
+            events.push(`rnl(${bound})`);
+            assert.equal(bound, 8);
+            return 0;
+        },
+        rn2(bound) {
+            events.push(`rn2(${bound})`);
+            if (bound === 19) return 18;
+            if (bound === 3) return 1;
+            assert.fail(`unexpected rn2(${bound})`);
+        },
+        rn2_on_display_rng(bound) {
+            events.push(`rn2_on_display_rng(${bound})`);
+            return typeof displayChoice === 'function'
+                ? displayChoice(bound) : displayChoice;
         },
     };
 }
@@ -1604,6 +1624,95 @@ test('cluttered and hallucinatory trap finds reveal, wait, then redraw', async (
     }
 });
 
+test('find_trap uses C Hallucination and resistance properties', async () => {
+    const cases = [
+        ['intrinsic timeout', { intrinsic: 1 }, null, true],
+        ['extrinsic hallucination alone', { extrinsic: 1 }, null, false],
+        ['blocked hallucination timeout', { intrinsic: 1, blocked: 1 }, null, true],
+        ['blocked extrinsic resistance', { intrinsic: 1 },
+            { extrinsic: 1, blocked: 1 }, false],
+    ];
+    for (const [label, hallucination, resistance, expectedReveal] of cases) {
+        const state = explicitSearchState();
+        const trap = {
+            tx: 11, ty: 11, ttyp: ANTI_MAGIC, tseen: false,
+        };
+        state.level.traps.push(trap);
+        state.u.uprops[HALLUC] = hallucination;
+        if (resistance) state.u.uprops[HALLUC_RES] = resistance;
+        const events = [];
+        const random = scriptedRandom(events, [0], [18]);
+
+        assert.equal(await dosearch0(0, {
+            state,
+            random,
+            ...recordingOperations(state, events),
+            trapName() { return 'anti-magic field'; },
+            revealFoundTrap() { events.push('revealTrap'); },
+            waitFoundTrap() { events.push('waitAndRedraw'); },
+        }), 1, label);
+        assert.equal(events.includes('revealTrap'), expectedReveal, label);
+        assert.equal(events.includes('waitAndRedraw'), expectedReveal, label);
+        assert.equal(trap.tseen, true, label);
+        random.done();
+    }
+});
+
+test('explicit default search uses global trap naming, reveal, and queued acknowledgement', async () => {
+    const target = await globalSearchState('', { blind: false });
+    const trap = installUnseenAntiMagicTrap(target);
+    game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    game._ttyMessageStopped = false;
+    const captures = captureInputBoundaries();
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const randomCalls = [];
+    const random = productionTrapRandom(randomCalls, ANTI_MAGIC);
+
+    assert.equal(await dosearch0(0, { state: game, random }), 1);
+
+    assert.equal(trap.tseen, true);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    assert.equal(captures.length, 1);
+    assertTemporaryTrapScreen(
+        captures[0], target, { x: game.u.ux, y: game.u.uy },
+    );
+    assertCompleteMappedGlyph(
+        game.level.at(target.x, target.y), trap_glyph_info(trap, game),
+    );
+    assert.deepEqual(randomCalls.slice(0, 2), ['rnl(8)', 'rn2(19)']);
+    assert.match(randomCalls[2], /^rn2_on_display_rng\(\d+\)$/u);
+    assert.equal(randomCalls.length, 3);
+});
+
+test('dosearch caller uses the default role/rank trap-name RNG path', async () => {
+    const target = await globalSearchState('', { blind: false });
+    const trap = installUnseenAntiMagicTrap(target);
+    game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    game.multi = 0;
+    game.flags.safe_wait = false;
+    game._ttyMessageStopped = false;
+    const captures = captureInputBoundaries();
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const randomCalls = [];
+    const random = productionTrapRandom(randomCalls, (bound) => bound - 1);
+
+    assert.equal(await dosearch(game, { random }), ECMD_TIME);
+
+    assert.equal(trap.tseen, true);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    assert.equal(captures.length, 1);
+    assert.match(
+        screenRow(captures[0].grid, 0).trimEnd(),
+        /^You find (?:a|an) .+ trap\.--More--$/u,
+    );
+    assert.deepEqual(randomCalls.slice(0, 2), ['rnl(8)', 'rn2(19)']);
+    assert.match(randomCalls[2], /^rn2_on_display_rng\(\d+\)$/u);
+    assert.equal(randomCalls[3], 'rn2(3)');
+    assert.equal(randomCalls.length, 4);
+});
+
 test('automatic search computes artifact and lenses fund before rnl', async () => {
     const state = searchState();
     state.level.at(9, 9).typ = SDOOR;
@@ -1733,56 +1842,29 @@ const FOUND_DOOR_EVENTS = Object.freeze([
     'message(9,9,You find a hidden door.)',
 ]);
 
-// The remaining explicit-search refusal is find_trap()'s hallucinatory arm.
-// Statue activation and swallowed searching now reach the source behavior.
-test('the remaining explicit search refusal leaves automatic search intact', async () => {
-    const rows = [
-        ['a hallucinatory trap find', (state) => {
-            state.u.uprops[HALLUC] = {
-                intrinsic: 1, extrinsic: 0, blocked: 0,
-            };
-            state.level.traps.push({
-                tx: 11, ty: 11, ttyp: ANTI_MAGIC, tseen: false,
-            });
-        }, /hallucinatory display/, [0, 1],
-        [...FOUND_DOOR_EVENTS, 'rnl(8)']],
-    ];
+test('explicit search reaches the hallucinatory trap path after preflight', async () => {
+    const state = explicitSearchState();
+    const trap = {
+        tx: 11, ty: 11, ttyp: ANTI_MAGIC, tseen: false,
+    };
+    state.level.traps.push(trap);
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const events = [];
+    const random = scriptedRandom(events, [0], [18]);
 
-    for (const [label, setup, expected, rnlResults, expectedEvents] of rows) {
-        const state = explicitSearchState();
-        state.level.at(9, 9).typ = SDOOR;
-        setup(state);
-
-        const refusedEvents = [];
-        const refusedRandom = scriptedRandom(refusedEvents, []);
-        await assert.rejects(dosearch0(0, {
-            state,
-            random: refusedRandom,
-            ...recordingOperations(state, refusedEvents),
-            newSym: (x, y) => refusedEvents.push(`newSym(${x},${y})`),
-        }), (error) => error instanceof UnsupportedSearchError
-            && expected.test(error.message), label);
-        assert.deepEqual(refusedEvents, [], label);
-        refusedRandom.done();
-        assert.equal(state.level.at(9, 9).typ, SDOOR, label);
-
-        const events = [];
-        const random = scriptedRandom(events, rnlResults, expectedEvents.length
-            ? [18] : []);
-        assert.equal(await dosearch0(1, {
-            state,
-            random,
-            ...recordingOperations(state, events),
-            newSym: (x, y) => events.push(`newSym(${x},${y})`),
-        }), 1, label);
-        assert.deepEqual(events, expectedEvents, label);
-        random.done();
-        assert.equal(
-            state.level.at(9, 9).typ,
-            expectedEvents.length ? DOOR : SDOOR,
-            label,
-        );
-    }
+    assert.equal(await dosearch0(0, {
+        state,
+        random,
+        ...recordingOperations(state, events),
+        trapName() { return 'anti-magic field'; },
+        revealFoundTrap() { events.push('revealTrap'); },
+        waitFoundTrap() { events.push('waitAndRedraw'); },
+    }), 1);
+    assert.equal(trap.tseen, true);
+    assert.ok(events.includes('rnl(8)'));
+    assert.ok(events.includes('revealTrap'));
+    assert.ok(events.includes('waitAndRedraw'));
+    random.done();
 });
 
 test('dosearch0 rejects a flag that is neither automatic nor explicit', async () => {
@@ -2330,24 +2412,30 @@ test('explicit search while swallowed prints the Norep answer and consumes time'
     random.done();
 });
 
-test('explicit search refuses a hallucinatory trap find before any draw', async () => {
+test('hallucinatory clone search preserves isolated display capabilities before draw', async () => {
     const state = explicitSearchState();
-    state.level.at(9, 9).typ = SDOOR;
-    // find_trap()'s hallucinatory arm clears the screen and waits, which the
-    // port does not own. HALLUC is the property hallucinating() reads.
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     state.level.traps.push({
-        tx: 11, ty: 11, ttyp: 1, tseen: false,
+        tx: 11, ty: 11, ttyp: ANTI_MAGIC, tseen: false,
     });
     const events = [];
     const random = scriptedRandom(events, []);
 
-    await assert.rejects(dosearch0(0, {
-        state, random, ...recordingOperations(state, events),
-    }), (error) => error instanceof UnsupportedSearchError
-        && /hallucinatory display is not ported/.test(error.message));
+    await assert.rejects(dosearch0(0, { state, random }),
+        /injected displayFoundTrap for non-global state/u);
     assert.deepEqual(events, []);
     random.done();
+
+    const operations = recordingOperations(state, events);
+    const noDisplayRandom = scriptedRandom(events, []);
+    await assert.rejects(dosearch0(0, {
+        state,
+        random: noDisplayRandom,
+        ...operations,
+        trapName: undefined,
+    }), /random\.rn2_on_display_rng for hallucinatory trap naming/u);
+    assert.deepEqual(events, []);
+    noDisplayRandom.done();
 });
 
 

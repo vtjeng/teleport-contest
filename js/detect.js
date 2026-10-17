@@ -1858,8 +1858,14 @@ function propertyActiveUnblocked(hero, propertyIndex) {
 }
 
 function hallucinating(state) {
-    return propertyActiveUnblocked(state.u, HALLUC)
-        && !propertyActiveUnblocked(state.u, HALLUC_RES);
+    // C's youprop.h Hallucination macro uses the intrinsic timeout only and
+    // treats either kind of hallucination resistance as effective, even when
+    // its property record is marked blocked.
+    const properties = state.u?.uprops;
+    const hallucination = properties?.[HALLUC];
+    const resistance = properties?.[HALLUC_RES];
+    return Boolean(hallucination?.intrinsic)
+        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
 }
 
 function compassDescription(x, y, state, full) {
@@ -2069,8 +2075,10 @@ function normalizeSearchEnv(rawEnv = {}) {
     // Statue activation can create a monster through trap.c animate_statue()
     // and makemon(). Keep the full shared random interface available to that
     // callee; explicit-search draws still use the same rn2/rnl functions.
-    const random = rawEnv.random ?? (state === game
-        ? { d, rn1, rn2, rnd, rne, rnl, rnz } : {});
+    const defaultRandom = state === game
+        ? { d, rn1, rn2, rnd, rne, rnl, rnz, rn2_on_display_rng } : {};
+    const random = rawEnv.random
+        ? { ...defaultRandom, ...rawEnv.random } : defaultRandom;
 
     const injected = new Set();
     const operation = (name, fallback) => {
@@ -2162,11 +2170,11 @@ function normalizeSearchEnv(rawEnv = {}) {
             'displayPendingTtyMessageWindow',
             defaultDisplayPendingTtyMessageWindow,
         ),
-        // C ref: detect.c:1956, trapname(trap->ttyp, FALSE). A hallucinating
-        // hero needs the branch js/trap.js trapname() leaves unported, which
-        // requireInjected() above demands an injection for, so the default
-        // only ever formats the true name.
-        trapName: operation('trapName', (trap) => trapname(trap.ttyp)),
+        // C ref: detect.c:1956, trapname(trap->ttyp, FALSE). Pass the
+        // searching state and its core/display RNG so the default preserves
+        // Hallucination naming, including the rare core role/rank draw.
+        trapName: operation('trapName', (trap) =>
+            trapname(trap.ttyp, false, state, random)),
     };
     return env;
 }
@@ -2230,6 +2238,20 @@ function preflightTrap(env, trap) {
     validateDisplayCapability(env, 'displayFoundTrap', 'an unseen trap');
     requireOperation(env, 'message', 'an unseen trap');
     requireOperation(env, 'trapName', 'an unseen trap');
+    if (hallucinating(env.state) && !env.injected.has('trapName')) {
+        if (typeof env.random.rn2_on_display_rng !== 'function') {
+            throw new TypeError(
+                'automatic search requires random.rn2_on_display_rng '
+                + 'for hallucinatory trap naming',
+            );
+        }
+        if (typeof env.random.rn2 !== 'function') {
+            throw new TypeError(
+                'automatic search requires random.rn2 '
+                + 'for hallucinatory trap naming',
+            );
+        }
+    }
     if (env.injected.has('message')
         && !env.injected.has('waitFoundTrap')) {
         throw new Error(
@@ -2243,20 +2265,6 @@ function preflightTrap(env, trap) {
         );
         requireInjected(
             env, 'waitFoundTrap', 'non-global trap display',
-        );
-    }
-    if (hallucinating(env.state)) {
-        requireInjected(
-            env, 'displayFoundTrap', 'hallucinatory trap display',
-        );
-        requireInjected(
-            env, 'trapName', 'hallucinatory trap naming',
-        );
-        requireOperation(
-            env, 'revealFoundTrap', 'hallucinatory trap display',
-        );
-        requireOperation(
-            env, 'waitFoundTrap', 'hallucinatory trap display',
         );
     }
 }
@@ -2309,15 +2317,7 @@ function preflightExplicitSearch(env) {
             // detect.c:2076-2077's unmap_invisible() needs no preflight: both
             // of its arms are ported now, and neither draws.
             const trap = t_at(x, y, state);
-            if (trap && !trap.tseen) {
-                if (hallucinating(state)) {
-                    throw new UnsupportedSearchError(
-                        "detect.c find_trap()'s hallucinatory display is not "
-                        + 'ported',
-                    );
-                }
-                preflightTrap(env, trap);
-            }
+            if (trap && !trap.tseen) preflightTrap(env, trap);
         }
     }
 }
