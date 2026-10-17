@@ -320098,7 +320098,7 @@
     {
       "id": "v98-two-heavy-stacks-partial-pickup-divergence",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement pickup, pickup_object, lift_object, carry_count from pickup.c",
       "cFile": "pickup.c",
       "sessions": [
@@ -320108,10 +320108,162 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "fd0b128f650b49996f58623e684626bfeb946896",
       "delivered": null,
       "function": "pickup",
-      "session": "synthetic/v98/v98-two-heavy-stacks-partial-pickup"
+      "session": "synthetic/v98/v98-two-heavy-stacks-partial-pickup",
+      "closeStanding": {
+        "sha": "fd0b128f650b49996f58623e684626bfeb946896",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "target-improvement",
+        "baseline": "d174200d388b98c0db1ff52c171b6c6a1912cb92",
+        "target": "synthetic/v98/v98-two-heavy-stacks-partial-pickup",
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/fd0b128f650b49996f58623e684626bfeb946896/run-hosted-HEzNyp/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "pickup",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup",
+            "sourceReview": "Read pickup.c:672-912 completely, including menu_pickup and the subsequent source-ordered selected-item commit loop. The selected rows are processed one at a time with pickup_object(); there is no aggregate weight rejection in C. The JavaScript preflight now defers ordinary multi-selection addinv planning at the aggregate capacity boundary and lets the existing live loop decide each item. RNG/output/game state remains untouched by selection planning. Existing singleton special-object, zero-lift and partial-stack handling remains in place. This evidence concerns the selected-object path, not every pickup() branch.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "dopickup",
+                "source": "hack.c:3876-3891 dopickup() calls pickup(-count); js/hack.js dopickup() implements the command-dispatch call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v98",
+                "caseId": "v98-two-heavy-stacks-partial-pickup",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 53,
+                "source": "hack.c:dopickup() -> pickup.c:pickup() menu_pickup -> pickup_object() -> lift_object() -> carry_count(); the admitted recording reaches the first partial-lift report at the natural More boundary only."
+              }
+            ]
+          },
+          {
+            "name": "pickup_object",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup_object",
+            "sourceReview": "Read pickup.c:1803-1888 completely. For an ordinary floor object, pickup_object() calls lift_object() after its special-object checks and propagates refusal/quantity outcomes to pickup(). The target recording reaches this path through pickup() for the first selected row; the change leaves the live source-ordered call intact.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c:784 calls pickup_object() for each menu_pickup row; js/pickup.js pickup() retains that ordered call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v98",
+                "caseId": "v98-two-heavy-stacks-partial-pickup",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 53,
+                "source": "pickup.c:pickup() -> pickup_object() for first selected row; admitted trace ends at the first partial-lift More boundary."
+              }
+            ]
+          },
+          {
+            "name": "lift_object",
+            "implementation": "js/pickup.js",
+            "symbol": "lift_object",
+            "sourceReview": "Read pickup.c:1705-1797 completely. lift_object() calls carry_count(), carries its reduced quantity forward, and only then asks whether to continue with a burdened partial lift. The change does not alter prompt, decline, failure or stop behavior.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup_object",
+                "source": "pickup.c:1869 pickup_object() calls lift_object() for the ordinary floor object."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs",
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v98",
+                "caseId": "v98-two-heavy-stacks-partial-pickup",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 53,
+                "source": "pickup.c:pickup() -> pickup_object() -> lift_object() -> carry_count(); admitted trace reaches the partial-lift report before burden response."
+              }
+            ]
+          },
+          {
+            "name": "carry_count",
+            "implementation": "js/pickup.js",
+            "symbol": "carry_count",
+            "sourceReview": "Read pickup.c:1570-1700 completely. carry_count() evaluates liftable quantity against current inventory and emits partial-lift or zero-lift output. Ordered per-object calls see the state left by prior rows. The implementation keeps this helper unchanged and relies on the existing live source-ordered behavior; the regression test separately covers declining the first lift and continuing to the next selected item.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "lift_object",
+                "source": "pickup.c:1736 lift_object() calls carry_count() for the selected object."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs",
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v98",
+                "caseId": "v98-two-heavy-stacks-partial-pickup",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 53,
+                "source": "pickup.c:pickup() -> pickup_object() -> lift_object() -> carry_count(); admitted trace reaches the first partial-lift report."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The selected-object path is reached by the interactive comma command: hack.c:dopickup() dispatches pickup(), whose menu_pickup loop calls pickup_object() in row order. The admitted v98 range covers only the first heavy row through the natural More screen, not the response or subsequent stack. The focused source-pinned test supplies n at the burden prompt and checks that the first stack remains on the floor while the next selected dagger is picked up. Existing focused tests retain the singleton zero-lift/partial-stack and special-object refusal guards. No claim is made about transfer or quantity from the v98 recording itself.",
+        "entryPoints": [
+          {
+            "name": "pickup",
+            "functions": [
+              "pickup",
+              "pickup_object",
+              "lift_object",
+              "carry_count"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v98",
+                "caseId": "v98-two-heavy-stacks-partial-pickup",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 53,
+                "source": "hack.c:dopickup() -> pickup.c:pickup() menu_pickup -> pickup_object() -> lift_object() -> carry_count(); first-row partial-lift report only."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T05:44:49.457Z",
+  "capturedAt": "2026-10-17T06:15:20.262Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T05:44:49.457Z",
+    "asOf": "2026-10-17T06:15:20.262Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5691,6 +5691,26 @@
             "digest": "aa064e08574dd95676012006deb2bef10053b0f8f0eb84a18beb7955226d5509"
           }
         ]
+      },
+      {
+        "id": "towel-floor-sit-c-only-feasibility-20261017",
+        "batch": "v99",
+        "claimedAt": "2026-10-17T06:09:55.883Z",
+        "closedAt": null,
+        "terminal": null,
+        "outcome": null,
+        "packetDigest": null,
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "ledger"
+          }
+        ]
       }
     ],
     "markers": [
@@ -5753,7 +5773,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 74,
+      "mainSupportAssignments": 75,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -160974,6 +160994,144 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:44:51.254Z",
+        "id": "ready-36579dd46c857c8db5ba3bb4c34ba2d9244f4342:transport",
+        "type": "assign",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "v98-two-heavy-stacks-partial-pickup-divergence"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-36579dd46c857c8db5ba3bb4c34ba2d9244f4342",
+        "type": "ready",
+        "at": "2026-10-17T05:44:51.254Z",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "delivery": "36579dd46c857c8db5ba3bb4c34ba2d9244f4342"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:44:51.254Z",
+        "id": "ready-36579dd46c857c8db5ba3bb4c34ba2d9244f4342:complete",
+        "type": "queue-complete",
+        "task": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:44:51.254Z",
+        "id": "ready-36579dd46c857c8db5ba3bb4c34ba2d9244f4342:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:48:55.125Z",
+        "id": "queue:ac304c52-cbd5-41c8-bd16-68478627dddf",
+        "type": "assign",
+        "task": "support-inventory-adjust-fast-check-pilot-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-corrected-pilot-observe-20261017-0601",
+        "type": "observe",
+        "at": "2026-10-17T06:00:30.650Z",
+        "worker": "Worker-1",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-corrected-pilot-clear-20261017-0600",
+        "type": "observe",
+        "at": "2026-10-17T06:00:44.935Z",
+        "worker": "Worker-1",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:02:55.556Z",
+        "id": "queue:80f32548-3d11-4f30-85c9-8111331f98eb",
+        "type": "queue-complete",
+        "task": "support-inventory-adjust-fast-check-pilot-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:02:55.556Z",
+        "id": "queue:80f32548-3d11-4f30-85c9-8111331f98eb:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-completed-idle-20261017-0603",
+        "type": "turn",
+        "at": "2026-10-17T06:03:01.197Z",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Completed the bounded inventory-adjust fast-check pilot and preserved its immutable result."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-v98-pickup-36579dd46-20261017",
+        "type": "received",
+        "at": "2026-10-17T06:04:41.159Z",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "delivery": "36579dd46c857c8db5ba3bb4c34ba2d9244f4342"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-fd0b128f650b49996f58623e684626bfeb946896-a4b0854d2a026e8de3438e95091dbf21c2adcf6dfa465075cd16bb4465460bf6-delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "type": "integrating",
+        "at": "2026-10-17T06:05:49.719Z",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "integration": "fd0b128f650b49996f58623e684626bfeb946896",
+        "validationGroup": [
+          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:09:55.883Z",
+        "id": "queue:1584c1f9-29d5-400e-a4f0-2f893d59a84d",
+        "type": "assign",
+        "task": "towel-floor-sit-c-only-feasibility-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6-fd0b128f650b49996f58623e684626bfeb946896-validated",
+        "type": "validated",
+        "at": "2026-10-17T06:13:44.607Z",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6-fd0b128f650b49996f58623e684626bfeb946896-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T06:14:24.653Z",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
       }
     ]
   },
@@ -161014,19 +161172,6 @@
           "source:botl.c:status_hilite_add_threshold",
           "source:botl.c:clear_status_hilites",
           "source:botl.c:status_hilite_remove"
-        ]
-      },
-      "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6": {
-        "id": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
-        "worker": "Worker-3",
-        "status": "working",
-        "seed": "synthetic/v98/v98-two-heavy-stacks-partial-pickup",
-        "reservations": [
-          "session:synthetic/v98/v98-two-heavy-stacks-partial-pickup",
-          "source:pickup.c:pickup",
-          "source:pickup.c:pickup_object",
-          "source:pickup.c:lift_object",
-          "source:pickup.c:carry_count"
         ]
       }
     },
@@ -161150,31 +161295,6 @@
         "tasks": [
           "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
         ]
-      },
-      "session:synthetic/v98/v98-two-heavy-stacks-partial-pickup": {
-        "tasks": [
-          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
-        ]
-      },
-      "source:pickup.c:pickup": {
-        "tasks": [
-          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
-        ]
-      },
-      "source:pickup.c:pickup_object": {
-        "tasks": [
-          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
-        ]
-      },
-      "source:pickup.c:lift_object": {
-        "tasks": [
-          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
-        ]
-      },
-      "source:pickup.c:carry_count": {
-        "tasks": [
-          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
-        ]
       }
     }
   },
@@ -161191,22 +161311,22 @@
         "worker": "Worker-2"
       },
       {
-        "task": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
-        "worker": "Worker-3"
+        "task": "towel-floor-sit-c-only-feasibility-20261017",
+        "worker": "Worker-1"
       }
     ],
     "counts": {
       "ready": 0,
       "claimed": 2,
       "blocked": 0,
-      "completed": 296,
+      "completed": 298,
       "superseded": 64
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "towel-floor-sit-c-only-feasibility-20261017",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -161215,8 +161335,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -166652,7 +166772,7 @@
         "id": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
@@ -166663,7 +166783,7 @@
         "target": null,
         "readyAt": "2026-10-17T05:15:30.245Z",
         "claimedAt": "2026-10-17T05:33:58.813Z",
-        "completedAt": null
+        "completedAt": "2026-10-17T05:44:51.254Z"
       },
       {
         "id": "wood-object-touchstone-c-only-feasibility-20261017",
@@ -166679,12 +166799,42 @@
         "readyAt": "2026-10-17T05:29:41.201Z",
         "claimedAt": "2026-10-17T05:30:04.771Z",
         "completedAt": "2026-10-17T05:42:13.793Z"
+      },
+      {
+        "id": "support-inventory-adjust-fast-check-pilot-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T05:48:32.760Z",
+        "claimedAt": "2026-10-17T05:48:55.125Z",
+        "completedAt": "2026-10-17T06:02:55.556Z"
+      },
+      {
+        "id": "towel-floor-sit-c-only-feasibility-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T06:09:18.929Z",
+        "claimedAt": "2026-10-17T06:09:55.883Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "d174200d388b98c0db1ff52c171b6c6a1912cb92",
-    "measuredAt": "2026-10-17T05:36:07.601Z",
+    "executionCommit": "fd0b128f650b49996f58623e684626bfeb946896",
+    "measuredAt": "2026-10-17T06:11:33.331Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
