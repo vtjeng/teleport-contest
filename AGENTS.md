@@ -18,6 +18,9 @@ every valid seed, date and time, set of options, and input sequence.
   `node scripts/goal-log.mjs roadmap` lists C declarations separately from
   verified functions, and every Lua program with its completion evidence.
 
+For public-input hunger and corpse setup witnesses and their adaptation limits,
+see [.agents/setup-recipes.md](.agents/setup-recipes.md).
+
 ## Recorded test sessions
 
 The patched C program records games as session files. Each file contains the
