@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T05:20:02.210Z",
+  "capturedAt": "2026-10-17T05:44:49.457Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T05:20:02.210Z",
+    "asOf": "2026-10-17T05:44:49.457Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5668,6 +5668,27 @@
           {
             "kind": "packet",
             "digest": "d43dc0cb67ec118ae3aff68812d3468c6b11f450f6038a8f1e5a4fc5ce3bd37b"
+          }
+        ]
+      },
+      {
+        "id": "wood-object-touchstone-c-only-feasibility-20261017",
+        "batch": "v100",
+        "claimedAt": "2026-10-17T05:30:04.771Z",
+        "closedAt": "2026-10-17T05:42:13.793Z",
+        "terminal": "result",
+        "outcome": "deferred",
+        "packetDigest": "aa064e08574dd95676012006deb2bef10053b0f8f0eb84a18beb7955226d5509",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "aa064e08574dd95676012006deb2bef10053b0f8f0eb84a18beb7955226d5509"
           }
         ]
       }
@@ -160877,6 +160898,82 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-Prep98-94fbee789f3d74e7421ab9d058d2b9413d43ae43",
+        "type": "published",
+        "at": "2026-10-17T05:20:07.870Z",
+        "task": "Prep98",
+        "commit": "94fbee789f3d74e7421ab9d058d2b9413d43ae43"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "observe-challenge-lead-resume-20261017",
+        "type": "observe",
+        "at": "2026-10-17T05:23:20.402Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:30:04.771Z",
+        "id": "queue:c9c99345-4a1c-4e0e-99a9-ff9c94eb5c97",
+        "type": "assign",
+        "task": "wood-object-touchstone-c-only-feasibility-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v100",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "observe-worker3-recovery-v98-20261017",
+        "type": "observe",
+        "at": "2026-10-17T05:33:24.734Z",
+        "worker": "Worker-3",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:33:58.813Z",
+        "id": "queue:7fe3f1ab-91ac-4c6b-a866-3e691f4c7ae1",
+        "type": "assign",
+        "task": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "1 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implement-v98-two-heavy-stacks-pickup-worker3-20261017",
+        "type": "implement",
+        "at": "2026-10-17T05:37:18.752Z",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "goal": "v98-two-heavy-stacks-partial-pickup-divergence"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:42:13.793Z",
+        "id": "queue:a7c300b2-997a-42a1-9f8a-84b9b69c2af9",
+        "type": "queue-complete",
+        "task": "wood-object-touchstone-c-only-feasibility-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T05:42:13.793Z",
+        "id": "queue:a7c300b2-997a-42a1-9f8a-84b9b69c2af9:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -160917,6 +161014,19 @@
           "source:botl.c:status_hilite_add_threshold",
           "source:botl.c:clear_status_hilites",
           "source:botl.c:status_hilite_remove"
+        ]
+      },
+      "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6": {
+        "id": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "worker": "Worker-3",
+        "status": "working",
+        "seed": "synthetic/v98/v98-two-heavy-stacks-partial-pickup",
+        "reservations": [
+          "session:synthetic/v98/v98-two-heavy-stacks-partial-pickup",
+          "source:pickup.c:pickup",
+          "source:pickup.c:pickup_object",
+          "source:pickup.c:lift_object",
+          "source:pickup.c:carry_count"
         ]
       }
     },
@@ -161040,6 +161150,31 @@
         "tasks": [
           "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
         ]
+      },
+      "session:synthetic/v98/v98-two-heavy-stacks-partial-pickup": {
+        "tasks": [
+          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
+        ]
+      },
+      "source:pickup.c:pickup": {
+        "tasks": [
+          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
+        ]
+      },
+      "source:pickup.c:pickup_object": {
+        "tasks": [
+          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
+        ]
+      },
+      "source:pickup.c:lift_object": {
+        "tasks": [
+          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
+        ]
+      },
+      "source:pickup.c:carry_count": {
+        "tasks": [
+          "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
+        ]
       }
     }
   },
@@ -161049,23 +161184,22 @@
     "preferred": null,
     "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
-    "blocked": [
-      {
-        "task": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
-        "reason": "Waiting for producer or dependencies."
-      }
-    ],
+    "blocked": [],
     "claimed": [
       {
         "task": "session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
         "worker": "Worker-2"
+      },
+      {
+        "task": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "worker": "Worker-3"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 1,
-      "blocked": 1,
-      "completed": 295,
+      "claimed": 2,
+      "blocked": 0,
+      "completed": 296,
       "superseded": 64
     },
     "workers": [
@@ -161081,8 +161215,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -166518,24 +166652,39 @@
         "id": "session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
         "type": "implementation",
         "output": "implementation",
-        "status": "blocked",
+        "status": "claimed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [
           "synthetic/v98/v98-two-heavy-stacks-partial-pickup"
         ],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-17T05:15:30.245Z",
-        "claimedAt": null,
+        "claimedAt": "2026-10-17T05:33:58.813Z",
         "completedAt": null
+      },
+      {
+        "id": "wood-object-touchstone-c-only-feasibility-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v100",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T05:29:41.201Z",
+        "claimedAt": "2026-10-17T05:30:04.771Z",
+        "completedAt": "2026-10-17T05:42:13.793Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "593cc1c90e6d4ac0232c908dcc72f37a8e36e04a",
-    "measuredAt": "2026-10-17T05:07:53.970Z",
+    "executionCommit": "d174200d388b98c0db1ff52c171b6c6a1912cb92",
+    "measuredAt": "2026-10-17T05:36:07.601Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
