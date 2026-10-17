@@ -87,7 +87,13 @@ import {
     in_out_region,
     visible_region_at,
 } from '../js/region.js';
-import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import {
+    createCoreRandom,
+    cloneIsaacContext,
+    enableRngLog,
+    getRngLog,
+    initRng,
+} from '../js/rng.js';
 import { roles } from '../js/roles.js';
 import { in_rooms, move_update } from '../js/rooms.js';
 import {
@@ -1878,6 +1884,98 @@ test('shop-edge should_block runs one real direct keeper action before return',
         keeper.mx = oldKeeper.x;
         keeper.my = oldKeeper.y;
         game.level.monsters[keeper.mx][keeper.my] = keeper;
+    });
+
+test('shop-entry direct action preserves planning state and supplied RNG',
+    async () => {
+        await runSegment({
+            seed: 7621001,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '.\x165\n.',
+        });
+        const { planningState } =
+            await import('../js/unported_monster_actions.js');
+        const room = game.level.rooms.find(
+            (candidate) => candidate?.rtype >= SHOPBASE,
+        );
+        assert.ok(room?.resident);
+        const liveKeeper = room.resident;
+        const liveMconf = liveKeeper.mconf;
+        const planned = planningState(game);
+        const plannedRoom = planned.level.rooms[room.roomnoidx];
+        const keeper = plannedRoom.resident;
+        assert.ok(keeper);
+        const roomno = room.roomnoidx + ROOMOFFSET;
+        const door = keeper.mextra.eshk.shd;
+        assert.ok(planned.level.at(door.x, door.y)?.edge);
+        const outside = [
+            [door.x - 1, door.y], [door.x + 1, door.y],
+            [door.x, door.y - 1], [door.x, door.y + 1],
+        ].find(([x, y]) => planned.level.at(x, y)
+            && planned.level.at(x, y).roomno !== roomno
+            && !in_rooms(x, y, SHOPBASE, planned).length
+            && accessible(x, y, planned));
+        assert.ok(outside);
+
+        keeper.mcanmove = true;
+        keeper.msleeping = false;
+        keeper.mfrozen = 0;
+        keeper.mconf = 1;
+        keeper.mflee = 0;
+        keeper.mstrategy = 0;
+        keeper.mpeaceful = true;
+        keeper.minvent = null;
+        keeper.mextra.eshk.following = false;
+        keeper.mextra.eshk.surcharge = false;
+        keeper.mextra.eshk.visitct = 1;
+        keeper.mextra.eshk.customer = planned.plname;
+        for (const field of [
+            'urooms', 'urooms0', 'uentered',
+            'ushops', 'ushops0', 'ushops_entered', 'ushops_left',
+        ]) planned.u[field]?.fill(0);
+        planned.invent = { otyp: PICK_AXE, where: OBJ_INVENT, nobj: planned.invent };
+        planned.u.ux = outside[0];
+        planned.u.uy = outside[1];
+        move_update(false, planned);
+        planned.u.ux0 = outside[0];
+        planned.u.uy0 = outside[1];
+        planned.u.ux = door.x;
+        planned.u.uy = door.y;
+
+        const coreRandom = createCoreRandom(
+            cloneIsaacContext(game.coreCtx), planned,
+        );
+        const actionDraws = [];
+        const actionRandom = {
+            ...coreRandom,
+            rn2(bound) {
+                actionDraws.push(bound);
+                return bound === 50 ? 0 : coreRandom.rn2(bound);
+            },
+        };
+        const messages = [];
+        const liveCoreBefore = structuredClone(game.coreCtx);
+        await check_special_room(false, planned, {
+            message: async (line) => messages.push(line),
+            random: () => 0,
+            actionEnv: { planning: true, random: actionRandom },
+        });
+
+        assert.ok(actionDraws.includes(50),
+            'the real direct dochug uses the supplied action RNG');
+        assert.equal(keeper.mconf, 0,
+            'the real direct action changed only the planned keeper');
+        assert.equal(liveKeeper.mconf, liveMconf,
+            'the live keeper remains unchanged');
+        assert.deepEqual(game.coreCtx, liveCoreBefore,
+            'the planning action does not advance live core RNG');
+        assert.ok(messages.some((line) => /pick-axe/u.test(line)));
     });
 
 test('level teleport fills a LEPREHALL special room',

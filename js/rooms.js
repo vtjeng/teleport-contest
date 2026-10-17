@@ -216,7 +216,12 @@ export function move_update(newlev, state = game) {
 export async function check_special_room(
     newlev,
     state = game,
-    { message = ttyPline, random = rn2, canSeeMonster = null } = {},
+    {
+        message = ttyPline,
+        random = rn2,
+        canSeeMonster = null,
+        actionEnv = {},
+    } = {},
 ) {
     move_update(newlev, state);
 
@@ -253,7 +258,11 @@ export async function check_special_room(
                 // path, without adding a static cycle through do.js/monmove.js.
                 const { runDirectMonsterAction } =
                     await import('./unported_monster_actions.js');
-                return runDirectMonsterAction(shopkeeper, { state, message });
+                return runDirectMonsterAction(shopkeeper, {
+                    ...actionEnv,
+                    state,
+                    message,
+                });
             },
         });
     }
