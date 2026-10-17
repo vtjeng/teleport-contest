@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 97101791,
+      "datetime": "20711017194000",
+      "nethackrc": "OPTIONS=name:LiftTwo,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=pauper\nOPTIONS=pettype:none,!autopickup,!legacy,!tutorial,!splash_screen,menustyle:full\n",
+      "moves": "i\u001710000 uncursed arrows\n\u001710000 uncursed daggers\ni,ab\n"
+    }
+  ]
+}
