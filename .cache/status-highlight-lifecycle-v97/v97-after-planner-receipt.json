@@ -1,0 +1,35 @@
+{
+  "kind": "status-planner-continuation-v97-replay",
+  "codeCommit": "8cdd9c1d8b0cac6aaa4513d6a4a27b582d819777",
+  "command": "node scripts/score-challenges.mjs --batch v97 --output challenges/evaluations/worker2-planner-continuation-v97.json",
+  "exitCode": 0,
+  "completedAt": "2026-10-17T05:45:19.636Z",
+  "evaluationPath": "challenges/evaluations/worker2-planner-continuation-v97.json",
+  "evaluationSha256": "7031cc2046081e5977afbf87d15f75709cf435fd7d63605207ed3d6c38fefaf6",
+  "evaluationStatus": "complete",
+  "case": "v97-tourist-first-new-depth-xp-percent-highlight",
+  "casePassed": true,
+  "totals": {
+    "sessions": {
+      "matched": 1,
+      "total": 1
+    },
+    "screens": {
+      "matched": 5,
+      "total": 5
+    },
+    "rng": {
+      "matched": 4904,
+      "total": 4904
+    },
+    "cursors": {
+      "matched": 5,
+      "total": 5
+    }
+  },
+  "manifestSha256": "d036f9b633188edb1734f8211e90c3b52a0c65d2ded9dcd9cd65fe6a35e11882",
+  "inputsSha256": "25eedeac6b3d8606848075b377b5a5b02cd326e278bdfd33e735d96e0bc569fd",
+  "logPath": ".cache/status-highlight-lifecycle-v97/v97-after-planner.log",
+  "logSha256": "9bc35850a51cf565fb81f32cbd9c7ce7089deaa70b5b1ca1392be739deb18c53",
+  "limitations": "JS replay at exact planner-fix commit; not public C parity."
+}
