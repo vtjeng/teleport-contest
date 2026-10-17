@@ -1544,3 +1544,13 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
   receipt hashes, retained file inventory, branch/base and the observation
   cutoff. This is distinct from the earlier ready-task wakeup delay: the
   current gap begins after saved successful physical evidence and review.
+
+- Recovery follow-up: Work lead froze terminal `deferred` result
+  `cff4926a39dc9043bdde0535333cd1fc5ebf128ff0b9c061a7658485b2720d1e`
+  at 19:35:31.889 UTC. Its 840,422-byte immutable packet retains a
+  836,904-byte, 30-file envelope and explicitly records the original deadline
+  miss, successful physical witness, exhausted phases and no additional C/JS.
+  Review-to-result closed at 14m33.034s; result was 8m30.348s after the cap.
+  The supported next-work projection then shows zero ready, claimed or blocked
+  assignments and three workers needing work. This closes the interrupted
+  handoff; it does not measure reduced future delay or establish C/JS parity.
