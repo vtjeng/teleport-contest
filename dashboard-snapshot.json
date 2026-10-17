@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T07:45:13.281Z",
+  "capturedAt": "2026-10-17T15:12:35.496Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T07:45:13.281Z",
+    "asOf": "2026-10-17T15:12:35.496Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5712,6 +5712,27 @@
             "digest": "5e2e0bf3e9f1be8714e748cfbdf7835c15af79319444d86b4b91d676a8196c53"
           }
         ]
+      },
+      {
+        "id": "born-deaf-conduct-c-only-feasibility-20261017",
+        "batch": "v99",
+        "claimedAt": "2026-10-17T07:56:28.057Z",
+        "closedAt": "2026-10-17T08:01:03.995Z",
+        "terminal": "result",
+        "outcome": "deferred",
+        "packetDigest": "ec0a256ba94b537f29b2564a8de82bc89dcd55e54a25db61f230c2cb104a6c7a",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "ec0a256ba94b537f29b2564a8de82bc89dcd55e54a25db61f230c2cb104a6c7a"
+          }
+        ]
       }
     ],
     "markers": [
@@ -5774,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 81,
+      "mainSupportAssignments": 82,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -161489,6 +161510,66 @@
         "type": "accepted",
         "at": "2026-10-17T07:44:22.276Z",
         "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae-59ff8dc47fc0ba8404ca143222d72dbe6edf235e",
+        "type": "published",
+        "at": "2026-10-17T07:45:29.130Z",
+        "task": "delivery:session:synthetic:v97:v97-tourist-first-new-depth-xp-percent-highlight:1c9e11e7cbae",
+        "commit": "59ff8dc47fc0ba8404ca143222d72dbe6edf235e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T07:56:28.057Z",
+        "id": "queue:a0d0ca54-7c64-44cd-b13c-f68bdee41a88",
+        "type": "assign",
+        "task": "born-deaf-conduct-c-only-feasibility-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T08:01:03.995Z",
+        "id": "queue:1242ef1a-ad9a-4ded-a6b4-662fa2622213",
+        "type": "queue-complete",
+        "task": "born-deaf-conduct-c-only-feasibility-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T08:01:03.995Z",
+        "id": "queue:1242ef1a-ad9a-4ded-a6b4-662fa2622213:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "observe-worker1-continuous-20261017",
+        "type": "observe",
+        "at": "2026-10-17T15:11:22.369Z",
+        "worker": "Worker-1",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T15:11:38.982Z",
+        "id": "queue:5930407c-4fdb-488f-8c1d-d8dcfad74eec",
+        "type": "assign",
+        "task": "support-bullwhip-petrifying-corpse-skeleton-transfer-source-screen-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -161502,25 +161583,30 @@
     "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "support-bullwhip-petrifying-corpse-skeleton-transfer-source-screen-20261017",
+        "worker": "Worker-1"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 307,
+      "completed": 308,
       "superseded": 64
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "support-bullwhip-petrifying-corpse-skeleton-transfer-source-screen-20261017",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -167130,12 +167216,42 @@
         "readyAt": "2026-10-17T07:26:55.529Z",
         "claimedAt": "2026-10-17T07:27:13.053Z",
         "completedAt": "2026-10-17T07:34:30.615Z"
+      },
+      {
+        "id": "born-deaf-conduct-c-only-feasibility-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T07:55:19.371Z",
+        "claimedAt": "2026-10-17T07:56:28.057Z",
+        "completedAt": "2026-10-17T08:01:03.995Z"
+      },
+      {
+        "id": "support-bullwhip-petrifying-corpse-skeleton-transfer-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T15:10:09.026Z",
+        "claimedAt": "2026-10-17T15:11:38.982Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "6356d95de5424b681d21f7cc815c5cfeb90a360e",
-    "measuredAt": "2026-10-17T07:40:45.650Z",
+    "executionCommit": "192ba1349024fe4c05239f324cfda027118be2a5",
+    "measuredAt": "2026-10-17T15:11:45.262Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
