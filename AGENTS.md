@@ -291,6 +291,10 @@ the recordings corpus under
 matching.
 
 Every C or Lua source port identifies its entry points and runtime evidence.
+The single reviewed source-led capability trial in `.agents/selection.md` is
+an explicit exception: constructed-state production-path tests may support its
+runtime-pending delivery, without claiming matching public play or source
+certification. Ordinary assignments retain the recording requirements below.
 An entry point is a command, monster action, level feature, or startup path the
 range implements. An admitted synthetic case may provide evidence when its
 recorded replay matches through the cited step range; a later divergence does

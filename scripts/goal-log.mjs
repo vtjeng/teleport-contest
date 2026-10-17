@@ -18,7 +18,8 @@ import {
     parseCFunctions,
 } from './c-functions.mjs';
 import { listLuaFiles, luaProgram } from './lua-sources.mjs';
-import { completedSourceUnits, sourceUnits, sourceUnitKey, validatePortEvidence } from './port-evidence.mjs';
+import { completedSourceUnits, sourceUnits, sourceUnitKey, validatePortEvidence, validateSourceTrialGoal } from './port-evidence.mjs';
+import { isDeepStrictEqual } from 'node:util';
 import { fixedWorkload } from './fixed-workload.mjs';
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
@@ -65,6 +66,7 @@ export function validateGoals(store) {
     }
     const ids = new Set();
     for (const goal of store.goals) {
+        if (goal.sourceTrial) validateSourceTrialGoal(goal);
         if (!nonempty(goal.id)) throw new Error('every goal needs a nonempty id');
         if (ids.has(goal.id)) throw new Error(`duplicate goal id: ${goal.id}`);
         ids.add(goal.id);
@@ -405,8 +407,10 @@ export function spanContext(goal, span) {
         jsFile: goal.luaFile ? null : jsFileFor(goal.cFile),
         sessions: goal.sessions ?? [],
         ...(synthetic.length ? { syntheticProvenance: synthetic } : {}),
-        evidenceRequired: 'whole source, production callers, tests for pure '
-            + 'functions, matching recordings or synthetic ranges for impure functions and entry points',
+        evidenceRequired: goal.sourceTrial ? 'frozen source trial: whole reviewed units, actual default production path '
+            + 'and source-pinned constructed-state tests; public-input parity/runtime certification pending'
+            : 'whole source, production callers, tests for pure '
+                + 'functions, matching recordings or synthetic ranges for impure functions and entry points',
     };
 }
 
@@ -436,6 +440,7 @@ export function taskContext(goal) {
         cLines: entries.reduce((sum, entry) => sum + (entry.endLine - entry.line + 1), 0),
         jsFile: goal.luaFile ? null : jsFileFor(goal.cFile),
         sessions,
+        ...(goal.sourceTrial ? {sourceTrial: goal.sourceTrial} : {}),
         ...(goal.step !== undefined ? { step: goal.step } : {}),
         ...(synthetic.length ? { syntheticProvenance: synthetic } : {}),
         evidenceRequired: 'whole source, production callers, tests for pure '
@@ -790,11 +795,19 @@ export function goalFromWorkerContext(task, context) {
     if (context.kind !== 'divergence-fix' && context.requiredFunctions?.length)
         options['required-functions'] = context.requiredFunctions.map(entry =>
             typeof entry === 'string' ? entry : `${entry.sourceFile}:${entry.name}`).join(',');
-    return newGoal(options);
+    const goal = newGoal(options);
+    if (!isDeepStrictEqual(task.sourceTrial, context.sourceTrial))
+        throw new Error('worker context source trial differs from assigned review');
+    if (task.sourceTrial) {
+        goal.sourceTrial = structuredClone(task.sourceTrial);
+        validateSourceTrialGoal(goal);
+    }
+    return goal;
 }
 
 /** A name inventory or a unit test alone cannot close a port. */
 export function assertPortComplete(goal) {
+    if (goal.sourceTrial) throw new Error('source trial constructed-state claims do not certify source completion');
     if (!isSourcePort(goal)) return;
     const pending = sourceUnits(goal).filter((entry) => !entry.complete);
     if (pending.length) throw new Error(`unverified source units: ${pending.map((entry) => entry.sourceFile === sourceFile(goal)
@@ -813,6 +826,7 @@ export function assertPortComplete(goal) {
 
 /** Merge one span's evidence without discarding evidence for earlier spans. */
 export function recordEvidence(goal, evidence, head) {
+    if (goal.sourceTrial) throw new Error('source trial needs separate ordinary runtime certification; keep constructed-state claims separate');
     const previous = goal.evidence ?? {};
     const functions = new Map((previous.functions ?? []).map((entry) => [sourceUnitKey(goal, entry), entry]));
     for (const entry of evidence.functions ?? [])
@@ -1015,7 +1029,11 @@ async function main(args) {
             throw new Error('goal registration requires a received implementation delivery');
         const store = readGoals();
         const existing = store.goals.find(entry => entry.id === task.goal);
-        if (existing) { console.log(formatGoal(existing)); return; }
+        if (existing) {
+            if (task.sourceTrial && !isDeepStrictEqual(existing.sourceTrial, task.sourceTrial))
+                throw new Error('registered source trial goal differs from its assigned review/base');
+            console.log(formatGoal(existing)); return;
+        }
         const goal = goalFromWorkerContext(task, readDelivery(delivery).context);
         store.goals.push(goal);
         writeGoals(store);

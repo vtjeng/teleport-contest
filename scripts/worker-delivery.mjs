@@ -6,7 +6,7 @@ import { closeSync, existsSync, fsyncSync, mkdirSync, openSync,
     readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
-import { sourceUnitKey, validatePortEvidence } from './port-evidence.mjs';
+import { sourceUnitKey, validatePortEvidence, validateSourceTrialGoal, SOURCE_TRIAL } from './port-evidence.mjs';
 import { BOOKKEEPING_FILES, executionTree } from './checkpoint-reuse.mjs';
 import { validInvestigation } from './investigation-cache.mjs';
 import { corpusDigest, validateEvaluation } from './challenge-results.mjs';
@@ -157,6 +157,14 @@ function scopeEvidence(root, commit, task, packet) {
     const goal = { kind: lua ? 'lua-port' : 'file-port', cFile: context.cFile,
         luaFile: context.luaFile, functions: context.functions.map(name => ({ name })),
         requiredFunctions: context.requiredFunctions ?? [] };
+    check(isDeepStrictEqual(context.sourceTrial, task.sourceTrial), 'context source trial differs from assignment');
+    if (task.sourceTrial) {
+        Object.assign(goal, {id: task.goal, sessions: context.sessions, sourceTrial: task.sourceTrial});
+        validateSourceTrialGoal(goal);
+        check(packet.evidenceBasis === SOURCE_TRIAL.evidenceBasis,
+            'source trial must declare constructed-state runtime-pending evidence');
+        check(!packet.incompleteFunctions?.length, 'source trial cannot expand or submit incomplete selected units');
+    }
     check(Array.isArray(goal.requiredFunctions), 'requiredFunctions must be an array');
     const planned = new Set([
         ...context.functions.map(name => sourceUnitKey(goal, { name })),
@@ -164,7 +172,7 @@ function scopeEvidence(root, commit, task, packet) {
     ]);
     for (const key of planned) check(task.reservations.includes(lua
         ? `source:${file}` : `source:${key}`), `unreserved source function: ${key}`);
-    const evidence = validatePortEvidence(goal, packet, { root, commit });
+    const evidence = validatePortEvidence(goal, packet, { root, commit, deliveryClaims: true });
     const verified = new Set(evidence.functions.map(entry => sourceUnitKey(goal, entry)));
     const incomplete = packet.incompleteFunctions ?? [];
     check(Array.isArray(incomplete), 'incompleteFunctions must be an array');

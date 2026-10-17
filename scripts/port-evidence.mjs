@@ -5,9 +5,70 @@
 import { lstatSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 
 import { PROJECT_ROOT, parseCFunctions } from './c-functions.mjs';
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
+
+// One frozen experiment, not a general source-first task selector. The review
+// is a trusted Main attestation; neither its digest nor these guards proves
+// gameplay parity. assignmentBase is the current accepted execution base.
+export const SOURCE_TRIAL = Object.freeze({
+    id: 'explicit-search-hallu-capability-20261017',
+    reviewedBase: '0915ed8f939110d89cb36c27465a1e9a51c143de',
+    reviewSha256: 'c03aba059bc7dc3e7a8a3faa49decfd72ef8b401885417db59ba1b22f2234d87',
+    evidenceBasis: 'constructed-state-runtime-pending',
+});
+export const SOURCE_TRIAL_UNITS = Object.freeze(['detect.c:find_trap', 'detect.c:dosearch0', 'detect.c:dosearch']);
+export const SOURCE_TRIAL_PATHS = Object.freeze(['js/detect.js', 'scripts/detect.test.mjs', '.cache/']);
+const SOURCE_TRIAL_PINS = {
+    'js/attrib.js': '454a6f872a9ddf29cf2f9c48f5ac893399a08308',
+    'js/cmd.js': '74600753d452ebee099f2764f6c54ac38de36e3f',
+    'js/const.js': '548fd4c012c2a6c3f9563e491feb6bce5a46dda8',
+    'js/detect.js': '67d45ef6e8378c3e4b391dc01a246384ef6d6793',
+    'js/display.js': '4802f48a1a53a5c4d39ba165c8bd95e4a33fdad8',
+    'js/hack.js': 'ac58c7df369256394d08c9137482b90117c3ed62',
+    'js/mon.js': '8ecb6be8f48a8c71e9c72bce27f78173568af1ac',
+    'js/objnam.js': 'cff691875b79c9f0328e954337567988ddb94d16',
+    'js/rng.js': '76efef3acbed3922b6a7d235a5420c43080538b0',
+    'js/trap.js': '12234b3a2a1b30a13aa35e9c091c53d0803d7820',
+    'js/trap_names_data.js': '6c3b26befa1c1ee914d07e6a534bea69c5970312',
+    'js/tty_menu.js': '3401c8c4dab5707080f03600bd02c588742c4aaf',
+    'js/tty_message.js': '5b0185c0e571b2fc73dffe15c504b1e919e583ec',
+    'js/vision.js': 'f8d278fc3103d2cb430afe356935d3b1f98f11d7',
+    'scripts/detect.test.mjs': '47dae0ec4a9eccf3389317387cc81ef1963739b4',
+    'nethack-c/upstream': '16ff59115315917b93185d026aeefea06db9b0f4',
+};
+
+export function validateSourceTrial(trial) {
+    if (!trial || !/^[a-f0-9]{40}$/u.test(trial.assignmentBase ?? '')
+        || !isDeepStrictEqual(trial, {...SOURCE_TRIAL, assignmentBase: trial.assignmentBase}))
+        throw new Error('source trial must bind the one reviewed ID/base/digest and constructed-state evidence basis');
+    return trial;
+}
+
+export function verifySourceTrialBase(root, trial) {
+    validateSourceTrial(trial);
+    for (const [path, expected] of Object.entries(SOURCE_TRIAL_PINS)) {
+        const entry = execFileSync('git', ['-C', root, 'ls-tree', trial.assignmentBase, '--', path],
+            {encoding: 'utf8'}).trim();
+        const [metadata, actualPath] = entry.split('\t');
+        const [mode, type, object] = metadata.split(' ');
+        if (actualPath !== path || object !== expected
+            || mode !== (path === 'nethack-c/upstream' ? '160000' : '100644')
+            || type !== (path === 'nethack-c/upstream' ? 'commit' : 'blob'))
+            throw new Error(`source trial reviewed identity changed: ${path}; stop and re-review`);
+    }
+}
+
+export function validateSourceTrialGoal(goal) {
+    validateSourceTrial(goal.sourceTrial);
+    const units = sourceUnits(goal).map(entry => sourceUnitKey(goal, entry)).sort();
+    if (goal.id !== SOURCE_TRIAL.id || goal.kind !== 'file-port' || goal.cFile !== 'detect.c'
+        || goal.session || (goal.sessions ?? []).length
+        || !isDeepStrictEqual(units, [...SOURCE_TRIAL_UNITS].sort()))
+        throw new Error('source trial goal differs from its reviewed source units or sessionless scope');
+}
 
 function text(value, label) {
     if (typeof value !== 'string' || value.trim() === '') {
@@ -105,7 +166,7 @@ function goalScope(goal) {
     return { lua, file, names, units };
 }
 
-function functionEvidence(record, scope) {
+function functionEvidence(record, scope, constructedTrial = false) {
     const name = text(record?.name, 'function name');
     const sourceFile = record.sourceFile ?? scope.file;
     if (!scope.units.has(`${sourceFile}:${name}`)) throw new Error(`goal does not contain source unit ${sourceFile}:${name}`);
@@ -124,6 +185,8 @@ function functionEvidence(record, scope) {
     const synthetic = syntheticRanges(record.synthetic ?? [], name);
     const result = { name, implementation, symbol, sourceReview, callers,
         pure: record.pure, tests, recordings };
+    if (constructedTrial && (!tests.length || !callers.length || record.inactiveReason || record.pure))
+        throw new Error(`${name} source trial needs impure source-pinned tests and production callers, not pure/inactive evidence`);
     if (record.sourceFile !== undefined) result.sourceFile = sourceFile;
     if (record.synthetic !== undefined) result.synthetic = synthetic;
     if (record.inactiveReason !== undefined) {
@@ -138,18 +201,18 @@ function functionEvidence(record, scope) {
     if (record.pure && tests.length === 0) {
         throw new Error(`${name} pure function needs a source-pinned test`);
     }
-    if (!record.pure && recordings.length === 0 && synthetic.length === 0 && !result.inactiveReason) {
+    if (!constructedTrial && !record.pure && recordings.length === 0 && synthetic.length === 0 && !result.inactiveReason) {
         throw new Error(`${name} impure function needs a matching recording or synthetic range through its caller`);
     }
     return result;
 }
 
-function evidenceShape(goal, evidence) {
+function evidenceShape(goal, evidence, constructedTrial = false) {
     const scope = goalScope(goal);
     if (!Array.isArray(evidence?.functions)) throw new Error('port evidence needs a functions array');
     const names = new Set();
     const functions = evidence.functions.map((record) => {
-        const result = functionEvidence(record, scope);
+        const result = functionEvidence(record, scope, constructedTrial);
         const key = `${result.sourceFile ?? scope.file}:${result.name}`;
         if (names.has(key)) throw new Error(`duplicate function evidence for ${key}`);
         names.add(key);
@@ -235,8 +298,19 @@ function hasSymbol(source, symbol, allowConst) {
  * are checked with lstat only; this function never reads recording contents.
  * A checkpoint supplies replay results separately when the goal is closed.
  */
-export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, commit } = {}) {
-    const { scope, evidence: result } = evidenceShape(goal, evidence);
+export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, commit, deliveryClaims = false } = {}) {
+    if (goal.sourceTrial) validateSourceTrialGoal(goal);
+    const constructedTrial = Boolean(deliveryClaims && goal.sourceTrial);
+    const { scope, evidence: result } = evidenceShape(goal, evidence, constructedTrial);
+    if (constructedTrial) {
+        if (result.functions.some(entry => entry.implementation !== 'js/detect.js'
+            || entry.symbol !== entry.name || !entry.tests.includes('scripts/detect.test.mjs')))
+            throw new Error('source trial claims must use the reviewed detect implementation symbols and focused test');
+        const reached = new Set((result.entryPoints ?? []).flatMap(entry => entry.functions)
+            .map(unit => sourceUnitKey(goal, typeof unit === 'string' ? {name: unit} : unit)));
+        if (!SOURCE_TRIAL_UNITS.every(unit => reached.has(unit)))
+            throw new Error('source trial needs production entry-point claims for all three reviewed units');
+    }
     // A queued delivery remains reviewable after its worker changes HEAD or
     // starts editing again. Read its references from Git, not that moving tree.
     const git = (directory, args) => execFileSync('git', ['-C', directory, ...args],
@@ -316,6 +390,8 @@ export function completedFunctionNames(goal) {
 }
 
 export function completedSourceUnits(goal) {
+    // Even accepted constructed-state claims do not certify source coverage.
+    if (goal.sourceTrial) return [];
     try {
         const invalidated = new Set((goal.invalidatedFunctions ?? [])
             .map(entry => sourceUnitKey(goal, entry)));

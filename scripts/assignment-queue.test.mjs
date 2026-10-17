@@ -4,6 +4,7 @@ import {createLedger, nextActions, recordEvent, summarizeLedger} from './worker-
 import {authorizeQueueEvent, publicQueue, queueWork} from './assignment-queue.mjs';
 import {activityFromLedger} from './dashboard-snapshot.mjs';
 import {activityTimeline, activityUtilization} from './dashboard-activity.mjs';
+import {SOURCE_TRIAL, SOURCE_TRIAL_PATHS, SOURCE_TRIAL_UNITS} from './port-evidence.mjs';
 
 const BASE = 'a'.repeat(40), REV = 'b'.repeat(40), DIGEST = 'c'.repeat(64);
 function fixture({legacyCollision = false} = {}) {
@@ -84,6 +85,31 @@ test('Main can enqueue bounded read-only support without claiming a Prep batch o
     assert.equal(f.state().queue.tasks.survey.recipient, 'Main');
     assert.throws(() => f.enqueue('bad-support', 'exploration', {producer: 'Prep', recipient: 'Main',
         purpose: 'support', batch: undefined, allowedPaths: ['.cache/']}));
+});
+
+test('the one source trial retains frozen scope and allows only one correction', () => {
+    const f = fixture();
+    const trial = {goal: SOURCE_TRIAL.id, sessions: [], allowedPaths: [...SOURCE_TRIAL_PATHS],
+        reservations: SOURCE_TRIAL_UNITS.map(unit => `source:${unit}`), checks: ['focused', 'lint'],
+        sourceTrial: {...SOURCE_TRIAL, assignmentBase: BASE}};
+    f.enqueue(SOURCE_TRIAL.id, 'implementation', trial);
+    assert.throws(() => f.send({type: 'queue-reassess', task: SOURCE_TRIAL.id, base: BASE, reason: 'No base change anyway.'}), /frozen/);
+    f.claim(SOURCE_TRIAL.id);
+    const transport = f.state().queue.tasks[SOURCE_TRIAL.id].transport;
+    const ready = (delivery, base) => f.send({type: 'ready', task: transport, delivery, base, commits: [delivery],
+        paths: ['js/detect.js'], evidence: `/tmp/${delivery}.json`, dependencies: []});
+    ready(REV, BASE);
+    f.send({type: 'feedback', task: transport, delivery: REV, reason: 'One scoped correction.'});
+    const correction = queueWork(f.state()).ready[0];
+    assert.deepEqual(f.state().queue.tasks[correction].sourceTrial, trial.sourceTrial);
+    f.claim(correction, 'Worker-2');
+    const corrected = 'd'.repeat(40);
+    ready(corrected, REV);
+    f.send({type: 'feedback', task: transport, delivery: corrected, reason: 'Stop; correction did not suffice.'});
+    assert.deepEqual(queueWork(f.state()).ready, []);
+    assert.equal(f.state().tasks[transport].deliveries.length, 2);
+    assert.throws(() => f.enqueue('second-correction', 'implementation', {...trial, type: 'rework',
+        target: corrected, base: corrected, findings: 'No second correction allowed.'}), /at most one/);
 });
 
 test('reservations, dependencies, process ownership and stale evidence prevent invalid claims', () => {

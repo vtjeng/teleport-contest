@@ -2,7 +2,9 @@
 // Legacy state.tasks/deliveries are transport/acceptance records, not dispatch.
 import assert from 'node:assert/strict';
 import {isAbsolute} from 'node:path';
+import {isDeepStrictEqual} from 'node:util';
 import {validateEvidenceContract} from './queue-evidence.mjs';
+import {SOURCE_TRIAL, SOURCE_TRIAL_PATHS, SOURCE_TRIAL_UNITS, validateSourceTrial} from './port-evidence.mjs';
 
 const ensure = (condition, message) => assert.ok(condition, message);
 const text = value => typeof value === 'string' && value.trim().length > 0;
@@ -103,7 +105,20 @@ function validateTask(state, event) {
     ensure(task.sessions.every(sessionId),
         'sessions must use canonical corpus/batch IDs');
     ensure(task.dependencies.every(key => state.queue.tasks[key] || state.deliveries[key]), 'unknown assignment dependency');
-    ensure(task.output !== 'implementation' || (task.sessions.length > 0 && task.recipient === 'Main'),
+    if (task.sourceTrial !== undefined) {
+        validateSourceTrial(task.sourceTrial);
+        ensure(task.output === 'implementation' && task.producer === 'Main' && task.recipient === 'Main'
+            && task.goal === SOURCE_TRIAL.id && task.sessions.length === 0 && task.batch === undefined,
+        'source trial must be the one sessionless Main implementation');
+        ensure(task.type === 'rework' || task.id === SOURCE_TRIAL.id, 'source trial assignment ID differs');
+        ensure((task.type === 'rework' ? task.base === task.target : task.base === task.sourceTrial.assignmentBase)
+            && isDeepStrictEqual([...task.allowedPaths].sort(), [...SOURCE_TRIAL_PATHS].sort())
+            && isDeepStrictEqual([...task.reservations].sort(), SOURCE_TRIAL_UNITS.map(unit => `source:${unit}`).sort())
+            && !task.sourceReservations?.length,
+        'source trial assignment differs from frozen base/units/write scope');
+        ensure(task.checks.includes('focused') && task.checks.includes('lint'), 'source trial needs focused and lint checks');
+    }
+    ensure(task.output !== 'implementation' || ((task.sessions.length > 0 || task.sourceTrial) && task.recipient === 'Main'),
         'implementation needs session provenance and recipient Main (Work lead)');
     if (task.output === 'exploration') {
         const support = task.purpose === 'support';
@@ -122,6 +137,8 @@ function validateTask(state, event) {
             'exploration rework needs the exact targetTask as well as its commit');
         if (task.output === 'implementation') {
             const prior = state.tasks[state.deliveries[task.target]?.task];
+            ensure(isDeepStrictEqual(task.sourceTrial, prior?.sourceTrial), 'rework must retain its source trial identity');
+            if (task.sourceTrial) ensure(prior?.deliveries.length === 1, 'source trial permits at most one scoped rework');
             ensure(prior?.kind === 'implementation' && prior.status === 'changes-required',
                 'implementation rework needs a rejected implementation deliverable');
             ensure(prior.deliveries.at(-1) === task.target, 'rework must target the latest rejected delivery');
@@ -243,6 +260,8 @@ export function applyQueueEvent(state, event, at, legacy) {
         ensure(event.selectionReason === undefined || event.selectionReason === view.reason, 'claim reason differs from queue priority');
         ensure(text(event.branch) && !event.branch.startsWith('-'), 'claim needs an assignment branch');
         const task = state.queue.tasks[event.task];
+        if (task.sourceTrial) ensure(!task.target || state.tasks[task.transport]?.deliveries.length === 1,
+            'source trial permits at most one scoped rework');
         Object.assign(task, {status: 'claimed', worker: event.worker, branch: event.branch,
             worktree: worker.worktree, claimedAt: at, selectionReason: view.reason, processes: []});
         task.attempts.push({worker: event.worker, branch: event.branch, base: task.resumeFrom ?? task.base, at});
@@ -262,9 +281,10 @@ export function applyQueueEvent(state, event, at, legacy) {
                 ensure(task.type !== 'rework', 'rework transport is missing');
                 legacy(state, {id: `${event.id}:assign`, type: 'assign', task: task.transport,
                     worker: task.worker, kind: task.goal ? 'implementation' : 'investigation',
-                    ...(task.goal ? {goal: task.goal} : {}), seed: task.sessions[0], base: task.base,
+                    ...(task.goal ? {goal: task.goal} : {}), seed: task.sessions[0] ?? null, base: task.base,
                     reservations: task.reservations, allowedPaths: task.allowedPaths}, at);
                 state.tasks[task.transport].execution = task.id;
+                if (task.sourceTrial) state.tasks[task.transport].sourceTrial = structuredClone(task.sourceTrial);
             }
         }
     } else if (event.type === 'queue-processes') {
@@ -302,6 +322,7 @@ export function applyQueueEvent(state, event, at, legacy) {
         ensure(task && ['ready', 'blocked'].includes(task.status) && text(event.reason)
             && task.type !== 'rework' && event.base === state.queue.evidence?.base,
             'reassessment needs a ready/blocked ordinary task and current evidence');
+        ensure(!task.sourceTrial, 'source trial base is frozen; stop and re-review instead of reassessing');
         if (task.output === 'implementation') ensure(task.sessions.every(session => state.queue.evidence.sessions.includes(session)),
             'reassessment cannot revive resolved sessions');
         Object.assign(task, {base: event.base, status: 'ready', reassessedAt: at});
@@ -343,6 +364,9 @@ export function queueDeliveryEvent(state, event, at) {
     if (event.type === 'feedback') {
         const original = Object.values(state.queue.tasks).find(item => item.result?.commit === event.delivery);
         if (!original) return; // Historical batch corrections can be enqueued explicitly by Main.
+        // Retain second-review feedback, but do not generate another attempt.
+        // Main must stop/park the trial, preserving both immutable deliveries.
+        if (original.sourceTrial && state.tasks[original.transport].deliveries.length > 1) return;
         const key = `rework:${original.transport}:${event.delivery}`;
         if (state.queue.tasks[key]) {
             ensure(state.queue.tasks[key].type === 'rework' && state.queue.tasks[key].target === event.delivery

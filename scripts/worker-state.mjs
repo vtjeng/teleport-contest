@@ -14,6 +14,7 @@ import { acceptedMain, acceptedDependency, batchWakeups, pendingMainWork, worker
 import { readRows } from './score-log.mjs';
 import { publicationConfirmations } from './worker-publication.mjs';
 import {applyQueueEvent, authorizeQueueEvent, isQueueEvent, queueDeliveryEvent, queueWork} from './assignment-queue.mjs';
+import {SOURCE_TRIAL_PATHS, SOURCE_TRIAL_UNITS} from './port-evidence.mjs';
 
 export const USAGE = `Usage (run from the Work lead or assigned worker checkout root):
   node scripts/worker-state.mjs init --run <run-id> [--file <ledger.json>]
@@ -597,6 +598,9 @@ function applyLegacyEvent(state, event, at) {
         check(task.kind !== 'investigation', 'claim source scope with implement before expanding an investigation');
         list(event.reservations, 'reservations', sourceReservation);
         list(event.allowedPaths, 'allowedPaths', repoPath);
+        if (task.sourceTrial) check(isDeepStrictEqual([...event.allowedPaths].sort(), [...SOURCE_TRIAL_PATHS].sort())
+            && isDeepStrictEqual([...event.reservations].sort(), SOURCE_TRIAL_UNITS.map(unit => `source:${unit}`).sort()),
+        'source trial scope is frozen; stop rather than expand');
         if (task.kind === 'challenge-preparation') {
             check(isDeepStrictEqual(event.reservations, task.reservations)
                 && isDeepStrictEqual(event.allowedPaths, task.allowedPaths),

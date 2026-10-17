@@ -26,6 +26,75 @@ functions, defects in existing code, screen and cursor mismatches, and
 unresolved source owners.
 A JavaScript declaration is inventory information, never completion evidence.
 
+### One source-led capability trial
+
+Vincent authorized exactly one implementation experiment,
+`explicit-search-hallu-capability-20261017`, before a full failing recording.
+This is the explicit-search caller/capability frontier, **not** a new port of
+the already implemented `find_trap`. Main independently closed its source and
+owner review at `0915ed8f939110d89cb36c27465a1e9a51c143de`, review SHA-256
+`c03aba059bc7dc3e7a8a3faa49decfd72ef8b401885417db59ba1b22f2234d87`.
+Only this assignment/goal may have empty `sessions` and constructed-state,
+runtime-pending implementation claims. This grants no general source backlog.
+
+Freeze the whole `detect.c:find_trap`, `detect.c:dosearch0`, and
+`detect.c:dosearch` source/caller review; permit writes only to `js/detect.js`,
+`scripts/detect.test.mjs`, and private `.cache/`. Remove only obsolete
+hallucinatory explicit-search capability refusals, with default state/random
+wiring and exact Hallucination predicates. Preserve real non-global/planning
+isolation and injected-message/wait guards, source state/RNG ordering, messages,
+map memory, acknowledgement/WIN_STOP, and redraw. Existing helpers must suffice;
+stop on an unresolved callee, helper-file expansion, renderer/engine rewrite,
+owner conflict, or inability to test the actual default production path.
+
+Main enqueues through the existing `work-queue.mjs enqueue --json` command,
+using the exact ID above as `id` and `goal`, Main producer/recipient,
+implementation type/output, the three `source:detect.c:<function>` reservations,
+and focused/lint checks. `sourceTrial` is the following immutable object, with
+`assignmentBase` set to that assignment's **current accepted** base:
+
+```json
+{
+  "id": "explicit-search-hallu-capability-20261017",
+  "reviewedBase": "0915ed8f939110d89cb36c27465a1e9a51c143de",
+  "reviewSha256": "c03aba059bc7dc3e7a8a3faa49decfd72ef8b401885417db59ba1b22f2234d87",
+  "evidenceBasis": "constructed-state-runtime-pending",
+  "assignmentBase": "<current accepted full SHA>"
+}
+```
+
+Enqueue and claim verify pinned relevant source/test identities and C gitlink
+against the reviewed source; changed identities require re-review. Normal queue
+freshness, priority, dependencies and ownership still apply. Do not reassess the
+trial onto a different base. One worker has at most 60 minutes implementation
+and focused verification, plus 15 minutes independent review/triage, and at most
+one scoped rework. No substitution or automatic scope extension on failure.
+
+The worker uses normal claim and `worker-state.mjs submit --task <transport>`.
+Copy `sourceTrial` unchanged to its context, choose file-port `cFile: detect.c`,
+`functions: ["find_trap"]`, and `requiredFunctions` entries for `dosearch0` and
+`dosearch` with `sourceFile: detect.c`; the noncontiguous functions are not a
+range spanning unrelated `mfind0`. Submission evidence declares
+`evidenceBasis: "constructed-state-runtime-pending"`, impure source units,
+source-pinned tests and real production callers. Exercise initialized live-game
+defaults and real queued acknowledgement, not injected success substitutes;
+cover core/display RNG including role/rank naming, resistance, remembered glyph,
+WIN_STOP, clone guards and ordinary search/kick countercases. Missing recording
+coverage remains explicit. Goal creation remains the existing received-delivery
+registration path; workers do not edit `GOALS.json`.
+
+Main reviews and accepts only after the normal exact hosted checkpoint,
+fixed-44, regression recordings, all admitted synthetic evaluations and per-case
+no-regression gates. Preserve the evidence basis under goal worker claims;
+acceptance certifies neither source completion nor public input parity. These
+constructed states are not recipes, C differential discoveries, admitted cases,
+or score gains. Any later public recipe/replay/comparison and challenge admission
+must satisfy the ordinary rules separately. Compare observed behaviors exercised,
+regressions, rework, and recorded worker/lead effort including setup and triage;
+mark unmeasured effort unknown and never treat calendar elapsed as CPU. Stop or
+expand only after an explicit review decision; this one trial supplies no
+general effectiveness claim.
+
 The queue displays measured unmatched screens, first mismatch steps, and
 source groups for diagnosis. Neither screen counts nor first mismatch steps
 predict how much source behavior a fix will complete. Keep RNG, cursor,

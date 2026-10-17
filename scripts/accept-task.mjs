@@ -119,6 +119,8 @@ function acceptTasksOwned(options, taskIds, root = process.cwd()) {
         goals = JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8'));
         for (const task of pending) {
             const goal = goals.goals.find(entry => entry.id === task.goal);
+            if (task.sourceTrial && !isDeepStrictEqual(goal?.sourceTrial, task.sourceTrial))
+                throw new Error('source trial goal differs from its assigned review/base');
             if (!goal || !(['queued', 'parked'].includes(goal.status)
             || goal.status === 'open' || (goal.status === 'closed' && goal.closedAt === commit)))
             throw new Error('goal must be available or already closed at this candidate');
@@ -162,7 +164,7 @@ function acceptTasksOwned(options, taskIds, root = process.cwd()) {
         // Resolve every target before writing any closure or acceptance.
         for (const task of pending) {
             const packet = readDelivery(state.deliveries[task.deliveries.at(-1)]);
-            const claims = Object.fromEntries(['functions', 'entryPointReview', 'entryPoints', 'incompleteFunctions']
+            const claims = Object.fromEntries(['functions', 'entryPointReview', 'entryPoints', 'incompleteFunctions', 'evidenceBasis']
                 .filter(key => packet[key] !== undefined).map(key => [key, packet[key]]));
             recordTaskAcceptance(goals.goals.find(entry => entry.id === task.goal), checkpoint,
                 verdicts.find(verdict => verdict.task === task.id), claims);

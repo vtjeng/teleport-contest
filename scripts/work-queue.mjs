@@ -10,6 +10,7 @@ import {admittedBatchIds} from './challenge-results.mjs';
 import {investigationReservations, savedQueueIssues} from './worker-backlog.mjs';
 import {readRows} from './score-log.mjs';
 import {readQueueEvidence} from './queue-evidence.mjs';
+import {verifySourceTrialBase} from './port-evidence.mjs';
 
 export const USAGE = `Usage (from the Work lead, Challenge lead or a registered worker checkout root):
   node scripts/work-queue.mjs enable --prep <challenge-lead-worktree> --file <absolute-ledger>
@@ -28,6 +29,7 @@ Register the Challenge lead as Prep and up to three Worker-1..Worker-3 worktrees
 enable preserves the existing ledger; no live legacy execution may remain.
 enqueue reads a JSON file, not inline JSON. Assignment schema and examples are
 in .agents/architecture.md. The Challenge lead can enqueue exploration/rework for itself (stored recipient Prep);
+The single reviewed sourceTrial opt-in is documented in .agents/selection.md.
 The Work lead owns all other producer operations. claim atomically selects the next
 prioritized task and switches a clean worker worktree to a new assignment branch.
 It never resets dirty files or amends submitted commits. Complete implementation
@@ -114,6 +116,7 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
             ensure(event.assignment.producer === (root === state.coordinatorRoot ? 'Main' : 'Prep'),
                 'producer must match the actual producer checkout');
             event.assignment.base = git(root, 'rev-parse', `${event.assignment.base}^{commit}`);
+            if (event.assignment.sourceTrial) verifySourceTrialBase(root, event.assignment.sourceTrial);
         } else if (command === 'batch') {
             ensure(root === state.queue.prepRoot && options.branch, 'batch branch changes run from the Challenge lead with --branch');
             event.type = 'queue-prep-branch';
@@ -144,6 +147,7 @@ export function queueCommand(command, options, root = realpathSync(process.cwd()
                 const next = queueWork(state).ready[0];
                 if (!next) {result = {assignment: null, allocation: queueWork(state)}; return current;}
                 const task = state.queue.tasks[next];
+                if (task.sourceTrial) verifySourceTrialBase(root, task.sourceTrial);
                 const branchBase = task.resumeFrom ?? task.base;
                 event.task = task.id;
                 event.branch = `queue/${hash(JSON.stringify([current.runId, task.id]))}/attempt-${task.attempts.length + 1}`;

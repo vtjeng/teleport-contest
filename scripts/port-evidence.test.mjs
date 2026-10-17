@@ -77,6 +77,7 @@ test('pure functions need source-pinned tests and impure functions need recordin
     assert.throws(() => validatePortEvidence(goal, evidence, { root }), /pure.*test/u);
     evidence.functions[0].pure = false;
     assert.throws(() => validatePortEvidence(goal, evidence, { root }), /impure.*recording/u);
+    assert.throws(() => validatePortEvidence(goal, evidence, { root, deliveryClaims: true }), /impure.*recording/u);
     evidence.functions[0].recordings = ['recordings/widget/entry.session.json'];
     assert.doesNotThrow(() => validatePortEvidence(goal, evidence, { root }));
 });

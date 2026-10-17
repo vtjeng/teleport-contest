@@ -300,6 +300,16 @@ the failure; do not silently baseline locally or select the new cases.
 
 ## Source completion evidence
 
+The exact one-task source-led capability trial in [selection.md](selection.md#one-source-led-capability-trial)
+may submit impure constructed-state test claims without a matching recording.
+Its frozen review, source units/write scope and `evidenceBasis` are checked by
+the existing queue/delivery path. Preserve `pure: false`, real production caller
+references, source-pinned tests and explicit runtime-pending classification.
+Do not invent an inactive reason or weaken ordinary evidence. The opt-in cannot
+record verified source completion; public input parity, challenge admission and
+score/discovery evidence still require their separate normal proofs. Full
+hosted regression/acceptance gates remain mandatory.
+
 Whole-source certification is outside the normal implementation loop. Do not
 start a background coverage audit unless the user requests one. Accepting a
 task does not certify its selected functions. Preserve existing verified
