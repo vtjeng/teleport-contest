@@ -146,6 +146,38 @@ function bootstrapFixture(t) {
         bootstrap: {...f.options, checkpoint, published, tooling}};
 }
 
+test('initial retained coordinator tooling shares the received implementation candidate and normal gates', t => {
+    const f = fixture(t);
+    f.git('switch', '-qc', 'integration-checkpoint/reviewed-protocol');
+    f.save('.agents/reviewed-protocol.md', 'Explicitly authorized protocol fixture.\n');
+    f.git('add', '.agents/reviewed-protocol.md'); f.git('commit', '-qm', 'Reviewed coordinator protocol');
+    const retain = f.git('rev-parse', 'HEAD');
+    const group = integrateImplementationGroup({...f.options, retain}, f.root);
+    assert.equal(f.git('rev-parse', 'main'), f.base);
+    assert.match(f.git('show', `${group.commit}:.agents/reviewed-protocol.md`), /authorized/);
+    assert.equal(group.tasks.length, 4);
+    const plan = JSON.parse(readFileSync(join(f.root, '.cache/implementation-group.json')));
+    assert.deepEqual(plan.retained, [retain]);
+    assert.equal(plan.base, f.base);
+    f.checkpoint(group.commit);
+    assert.equal(acceptImplementationGroup(f.options, f.root).tasks.length, 4);
+});
+
+test('initial retained tooling rejects omitted commits and game edits without freezing a group', t => {
+    const f = fixture(t);
+    f.git('switch', '-qc', 'integration-checkpoint/rejected-protocol');
+    f.save('.agents/one.md', 'First protocol fixture.\n');
+    f.git('add', '.agents/one.md'); f.git('commit', '-qm', 'First tooling');
+    const first = f.git('rev-parse', 'HEAD');
+    f.save('js/f1.js', 'export function f1() { return 2; }\n');
+    f.git('add', 'js/f1.js'); f.git('commit', '-qm', 'Worker source cannot enter tooling list');
+    const second = f.git('rev-parse', 'HEAD');
+    assert.throws(() => integrateImplementationGroup({...f.options, retain: first}, f.root), /complete coordinator tooling suffix/);
+    assert.throws(() => integrateImplementationGroup({...f.options, retain: `${first},${second}`}, f.root), /only tooling and bookkeeping/);
+    assert.equal(existsSync(join(f.root, '.cache/implementation-group.json')), false);
+    assert.equal(f.git('rev-parse', 'main'), f.base);
+});
+
 test('bootstrap validates helper, unpublished notes and all ports together without a baseline event or ref rewind', t => {
     const f = bootstrapFixture(t);
     assert.throws(() => planImplementationGroup(f.options, f.root), /unvalidated changes/u);

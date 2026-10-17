@@ -194,6 +194,14 @@ order on an `integration-checkpoint/*` candidate branch. Dependencies must be
 accepted or included earlier in the group. Hold concrete scope conflicts and
 missing evidence; do not repeat source review. Local `main` stays unchanged.
 
+For an explicitly authorized protocol prerequisite and source repair validated
+together, `integrate --retain <SHA,...>` may start from a clean coordinator
+candidate above exact accepted local `main`. Name its complete single-parent
+tooling/bookkeeping suffix. The helper verifies every commit, preserves Main,
+freezes that suffix before worker submissions, and uses the existing checkpoint,
+baseline, acceptance and publication gates. Game changes belong in immutable
+worker deliveries. No standalone tooling publication is required first.
+
 Use bootstrap only to recover an unrecorded tooling publication when committed
 tooling fixes need to share a validation run with ready implementation submissions.
 Prefer ordinary `tooling-published` recording or Challenge lead acceptance when sufficient.

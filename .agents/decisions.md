@@ -375,3 +375,29 @@ No test, validation or gameplay was repeated for this observation.
   pending eligibility and checked publication, recording first-seen, deferral,
   capture and Dashboard/Lint outcome separately. No artificial task, repeated
   validation or gameplay is needed to manufacture a freshness observation.
+
+## 2026-10-17 — Accept reviewed source parity repairs before public witnesses
+
+- Change: the user authorized bounded semantic corrections with empty session
+  lists after explicit Main review. The `file-port` transport carries frozen
+  correction units; it grants no certification of whole functions.
+- Why: source screens `df8ff9dd` (travel) and `00daa1e4` (container extraction)
+  established branch/state differences from testing a Promise without awaiting it but remained deferred
+  for missing public witnesses. Those are distinct evidence requirements.
+- Implementation/evidence: `f5d753942` adds a separate `sourceParity` review;
+  initial tooling/implementation retention keeps the protocol and repairs in
+  one checked candidate. Immutable C/JS/caller/test pins, production route and
+  explicit C and JS state traces, and the same focused regression failing before and
+  passing after the correction bind the claim. Real CLI coverage exercises
+  enqueue, claim, submit, receipt and goal registration; focused handoff checks
+  pass 23/23. Full candidate validation remains required.
+- Acceptance/limits: preserve normal ownership, exact hosted checkpoint,
+  fixed 44 sessions, recordings and no-regression gates for every admitted synthetic case.
+  No fake session or target-score gain is required. Claims remain
+  `source-parity-runtime-pending`; acceptance supplies no parity from public inputs,
+  source certification, challenge admission, independent discovery or score gain
+  claim, and resets no physical budget.
+- Follow-up: benefit is **unmeasured**. Observe accepted repairs, exercised
+  behavior, rework and total validation effort separately from future public
+  reproductions and challenge yield. No standalone publication is needed solely
+  for this protocol entry.
