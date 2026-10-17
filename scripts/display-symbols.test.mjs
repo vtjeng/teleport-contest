@@ -229,6 +229,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
+import { STATUS_FIELDS } from '../js/status_field_data.js';
 import {
     apply_customizations,
     numeric_glyph_customization,
@@ -8816,6 +8817,8 @@ test('status highlight rules preserve source matching and precedence', async () 
     const install = (rules) => {
         const parsed = parseNethackrc(`OPTIONS=hilite_status:${rules}`);
         state.iflags = { ...parsed.iflags, wc2_statuslines: 2 };
+        state.gu ??= {};
+        state.gu.update_all = true;
     };
     const goldStyle = () => {
         const row = terminalRow(state, 23);
@@ -8913,6 +8916,8 @@ test('title none-of-the-above aliases require a polymorphed form', async () => {
             ).iflags,
             wc2_statuslines: 2,
         };
+        state.gu ??= {};
+        state.gu.update_all = true;
         await bot();
         assert.equal(
             state.nhDisplay.grid[22][0].color,
@@ -8921,6 +8926,7 @@ test('title none-of-the-above aliases require a polymorphed form', async () => {
         );
 
         state.u.umonnum = state.u.umonster + 1;
+        state.gu.update_all = true;
         await bot();
         assert.equal(
             state.nhDisplay.grid[22][0].color,
@@ -8957,6 +8963,60 @@ test('specific up and down rules outrank generic changed rules in either order',
         }
     });
 
+test('XP level loss overrides a rising percentage when choosing direction',
+    async () => {
+        const state = statusRenderingState();
+        const field = STATUS_FIELDS.find(row => row.key === 'experience-level').fld;
+        const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
+        const bank = () => Array(size).fill(null);
+        state.iflags = {
+            wc2_statuslines: 2,
+            hilite_delta: 3,
+            status_hilites: [
+                {
+                    field: 'experience-level', behavior: 'changed',
+                    relation: '>', style: { attrib: ATR_BOLD,
+                        color: CLR_BRIGHT_GREEN },
+                },
+                {
+                    field: 'experience-level', behavior: 'changed',
+                    relation: '<', style: { attrib: ATR_BOLD,
+                        color: CLR_RED },
+                },
+            ],
+        };
+        // Level two at 30 XP has greater progress (50%) than the previous
+        // level-three observation (10%), but the level itself fell 3→2.
+        state.u.ulevel = 2;
+        state.u.uexp = 30;
+        state.gb = {
+            status_hilite_rule: [bank(), bank()],
+            status_hilite_value: [bank(), bank()],
+            status_hilite_compare_value: [bank(), bank()],
+            status_hilite_percent: [bank(), bank()],
+            status_hilite_text: [bank(), bank()],
+            status_hilite_type: [bank(), bank()],
+            status_hilite_times: [bank().map(() => 0), bank().map(() => 0)],
+            status_hilite_chg: Array(size).fill(false),
+        };
+        for (const bankIndex of [0, 1]) {
+            state.gb.status_hilite_value[bankIndex][field] = 3;
+            state.gb.status_hilite_compare_value[bankIndex][field] = 3;
+            state.gb.status_hilite_percent[bankIndex][field] = 10;
+        }
+
+        await bot();
+
+        assert.equal(state.gb.status_hilite_value[0][field], 2);
+        assert.ok(state.gb.status_hilite_percent[0][field] > 10);
+        assert.equal(state.gb.status_hilite_rule[0][field]?.relation, '<',
+            'C restores raw level direction after percentage increase');
+        assert.equal(state.gb.status_hilite_rule[1][field],
+            state.gb.status_hilite_rule[0][field]);
+        assert.equal(state.gb.status_hilite_chg_banks[0][field], true);
+        assert.equal(state.gb.status_hilite_chg_banks[1][field], true);
+    });
+
 // botl.c get_hilite()'s BL_TH_CRITICALHP arm asks critically_low_hp(FALSE) for
 // BL_HP, and on a match sets crit_hp, which its loop head then uses to skip
 // every later rule that is not itself a criticalhp rule.
@@ -8965,6 +9025,8 @@ test('a criticalhp hilite follows pray.c and outranks later rules', async () => 
     const install = (rules) => {
         const parsed = parseNethackrc(`OPTIONS=hilite_status:${rules}`);
         state.iflags = { ...parsed.iflags, wc2_statuslines: 2 };
+        state.gu ??= {};
+        state.gu.update_all = true;
     };
     const hpStyle = () => {
         const row = terminalRow(state, 23);
@@ -9021,6 +9083,37 @@ test('a criticalhp hilite follows pray.c and outranks later rules', async () => 
         { color: CLR_RED, attr: ATR_BOLD },
         'a criticalhp match replaces an earlier percentage match',
     );
+});
+
+test('an unnotified HP field retains its last selected critical rule', async () => {
+    const state = statusRenderingState();
+    const field = STATUS_FIELDS.find(row => row.key === 'hitpoints').fld;
+    const critical = {
+        field: 'hitpoints', behavior: 'critical', relation: null, value: null,
+        style: { attrib: ATR_BOLD, color: CLR_RED },
+    };
+    state.iflags = {
+        wc2_statuslines: 2,
+        hilite_delta: 3,
+        status_hilites: [critical],
+    };
+    state.u.ulevel = 5;
+    state.u.uhp = 6;
+    state.u.uhpmax = 30;
+
+    await bot();
+    assert.equal(state.gb.status_hilite_rule[0][field], critical);
+
+    // The C critical-low predicate changes with level, but BL_HP's typed
+    // value/percentage do not. C eval_notify_windowport_field therefore does
+    // not call get_hilite() on this pass and retains the delivered rule.
+    state.u.ulevel = 6;
+    await bot();
+
+    assert.equal(state.gb.status_hilite_chg_banks[0][field], true,
+        'an unchanged field keeps its previous notification state too');
+    assert.equal(state.gb.status_hilite_rule[0][field], critical);
+    assert.equal(state.gb.status_hilite_rule[1][field], critical);
 });
 
 test('title formatting and matching use source byte limits', async () => {
