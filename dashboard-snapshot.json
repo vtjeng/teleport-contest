@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T03:14:31.661Z",
+  "capturedAt": "2026-10-17T04:01:26.943Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T03:14:31.661Z",
+    "asOf": "2026-10-17T04:01:26.943Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -160376,6 +160376,113 @@
         "type": "accepted",
         "at": "2026-10-17T03:13:37.280Z",
         "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a-f1b859c93550c2f8daea88f6bf4772e65b7a6ef8",
+        "type": "published",
+        "at": "2026-10-17T03:14:46.945Z",
+        "task": "delivery:session:synthetic:v96:v96-fumbling-stair-fall-wielded-corpse-selftouch:8cc2677aab9a",
+        "commit": "f1b859c93550c2f8daea88f6bf4772e65b7a6ef8"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:42:03.771Z",
+        "id": "queue:de611e8a-76af-479b-8f71-c4e8f4c6be27",
+        "type": "assign",
+        "task": "explicit-search-hallu-capability-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "prep-source-review-recovery-observe-20261017",
+        "type": "observe",
+        "at": "2026-10-17T03:44:07.713Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:50:46.606Z",
+        "id": "ready-2bcdbb8b45b2e9a0a0cac1784d1f100fea8e1efa:transport",
+        "type": "assign",
+        "task": "delivery:explicit-search-hallu-capability-20261017",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "explicit-search-hallu-capability-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-2bcdbb8b45b2e9a0a0cac1784d1f100fea8e1efa",
+        "type": "ready",
+        "at": "2026-10-17T03:50:46.606Z",
+        "task": "delivery:explicit-search-hallu-capability-20261017",
+        "delivery": "2bcdbb8b45b2e9a0a0cac1784d1f100fea8e1efa"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:50:46.606Z",
+        "id": "ready-2bcdbb8b45b2e9a0a0cac1784d1f100fea8e1efa:complete",
+        "type": "queue-complete",
+        "task": "explicit-search-hallu-capability-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T03:50:46.606Z",
+        "id": "ready-2bcdbb8b45b2e9a0a0cac1784d1f100fea8e1efa:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "explicit-search-trial-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T03:51:33.804Z",
+        "task": "delivery:explicit-search-hallu-capability-20261017",
+        "delivery": "2bcdbb8b45b2e9a0a0cac1784d1f100fea8e1efa"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "explicit-search-trial-review-20261017",
+        "type": "activity",
+        "at": "2026-10-17T03:51:49.146Z",
+        "task": "delivery:explicit-search-hallu-capability-20261017",
+        "phase": "review",
+        "reason": "Reviewing the frozen source-led explicit-search delivery and constructed-state production-path evidence before hosted regression validation."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-c282cb6447d27f72f94a21a2b0bdfeaa07463874-ec3cc528ee67723dd863e90e1477266ccce9ec014b17ba2464d2151fce4cda57-delivery:explicit-search-hallu-capability-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T03:52:53.662Z",
+        "task": "delivery:explicit-search-hallu-capability-20261017",
+        "integration": "c282cb6447d27f72f94a21a2b0bdfeaa07463874",
+        "validationGroup": [
+          "delivery:explicit-search-hallu-capability-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:explicit-search-hallu-capability-20261017-c282cb6447d27f72f94a21a2b0bdfeaa07463874-validated",
+        "type": "validated",
+        "at": "2026-10-17T03:59:34.449Z",
+        "task": "delivery:explicit-search-hallu-capability-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:explicit-search-hallu-capability-20261017-c282cb6447d27f72f94a21a2b0bdfeaa07463874-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T04:00:04.331Z",
+        "task": "delivery:explicit-search-hallu-capability-20261017"
       }
     ]
   },
@@ -160413,7 +160520,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 293,
+      "completed": 294,
       "superseded": 64
     },
     "workers": [
@@ -165814,12 +165921,27 @@
         "readyAt": "2026-10-17T03:05:11.851Z",
         "claimedAt": "2026-10-17T03:05:23.994Z",
         "completedAt": "2026-10-17T03:07:30.687Z"
+      },
+      {
+        "id": "explicit-search-hallu-capability-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T03:41:33.449Z",
+        "claimedAt": "2026-10-17T03:42:03.771Z",
+        "completedAt": "2026-10-17T03:50:46.606Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "67e3410d84eeb61a511cb94566bbd99389faf093",
-    "measuredAt": "2026-10-17T03:12:15.096Z",
+    "executionCommit": "c282cb6447d27f72f94a21a2b0bdfeaa07463874",
+    "measuredAt": "2026-10-17T03:58:18.180Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -319924,7 +319924,7 @@
     {
       "id": "explicit-search-hallu-capability-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement find_trap from detect.c",
       "cFile": "detect.c",
       "sessions": [],
@@ -319932,7 +319932,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c282cb6447d27f72f94a21a2b0bdfeaa07463874",
       "delivered": null,
       "functions": [
         {
@@ -319968,6 +319968,131 @@
         "reviewSha256": "c03aba059bc7dc3e7a8a3faa49decfd72ef8b401885417db59ba1b22f2234d87",
         "evidenceBasis": "constructed-state-runtime-pending",
         "assignmentBase": "f2b94f80f8dbcd508cc3836c2a34edb657f30eef"
+      },
+      "closeStanding": {
+        "sha": "c282cb6447d27f72f94a21a2b0bdfeaa07463874",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "f2b94f80f8dbcd508cc3836c2a34edb657f30eef",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/c282cb6447d27f72f94a21a2b0bdfeaa07463874/run-hosted-1vd5Bi/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "find_trap",
+            "implementation": "js/detect.js",
+            "symbol": "find_trap",
+            "pure": false,
+            "sourceReview": "Reviewed nethack-c/upstream/src/detect.c:1935-1964. C marks tseen, exercises wisdom and redraws the square; Hallucination || glyph mismatch clears and maps the trap before setting the message coordinates and calling You(find %s, an(trapname(ttyp,FALSE)); only that clear arm waits on WIN_MAP then docrt. Verified youprop.h Hallucination uses intrinsic HALLUC and is disabled by intrinsic or extrinsic HALLUC_RES. JS preflight now preserves clone and injected-message/wait ownership, checks required default Hallu RNG capabilities before mutation/draw, and the real default trapname receives the state and both RNG functions. No unresolved callee substituted or source unit split.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "dosearch0",
+                "source": "detect.c:2086 calls find_trap(trap) from dosearch0; js/detect.js:2930 dispatches to find_trap."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "really_kick_object",
+                "source": "dokick.c:524 calls find_trap(trap) for a floor trap; js/dokick.js really_kick_object has the corresponding caller."
+              }
+            ],
+            "tests": [
+              "scripts/detect.test.mjs"
+            ]
+          },
+          {
+            "name": "dosearch0",
+            "sourceFile": "detect.c",
+            "implementation": "js/detect.js",
+            "symbol": "dosearch0",
+            "pure": false,
+            "sourceReview": "Reviewed nethack-c/upstream/src/detect.c:2016-2096. Preserved swallowed handling, search-fund cap, x-major/y-minor order, explicit feel-before-terrain, secret door/corridor arms, explicit mfind0 short circuits, invisible-map reconciliation before trap lookup, per-candidate rnl(8), nomul(0) before statue activation or find_trap, and early statue return. Explicit trap preflight now reaches the same find_trap default branch instead of the stale unconditional Hallu refusal; it still validates all required capabilities before the search draws or mutates. No unresolved callee substituted or source unit split.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "dosearch",
+                "source": "detect.c:2106 returns dosearch0(0); js/detect.js dosearch dispatches to dosearch0(0)."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "automatic_search",
+                "source": "allmain.c moveloop_core calls automatic search; js/allmain.js finishElapsedTurnAfterTimeout calls automatic_search at the SEARCHING turn boundary."
+              }
+            ],
+            "tests": [
+              "scripts/detect.test.mjs"
+            ]
+          },
+          {
+            "name": "dosearch",
+            "sourceFile": "detect.c",
+            "implementation": "js/detect.js",
+            "symbol": "dosearch",
+            "pure": false,
+            "sourceReview": "Reviewed nethack-c/upstream/src/detect.c:2097-2106. Preserved cmd_safety_prevention before dispatch and the ECMD_OK/ECMD_TIME mapping from dosearch0(0). The production command dispatcher and timed occupation retain the existing dosearch handler. Hallu search now uses the same default find_trap path after preflight. No unresolved callee substituted or source unit split.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runSearchCommand",
+                "source": "cmd.c:1846-1847 binds s to dosearch; js/cmd.js command dispatch runs runSearchCommand, which invokes dosearch."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "timedOccupationFunction",
+                "source": "cmd.c:1846-1847 maps the searching occupation to dosearch; js/cmd.js timedOccupationFunction returns dosearch for that occupation row."
+              }
+            ],
+            "tests": [
+              "scripts/detect.test.mjs"
+            ]
+          }
+        ],
+        "entryPointReview": "Reviewed production caller chains for explicit command and searching occupation through js/cmd.js runSearchCommand/timedOccupationFunction -> dosearch -> dosearch0 -> find_trap, automatic searching through js/allmain.js finishElapsedTurnAfterTimeout -> automatic_search -> dosearch0, and the kick floor-trap caller through js/dokick.js really_kick_object -> find_trap. Constructed-state tests exercise initialized global game defaults, capture the real queued acknowledgement, and preserve clone/injected guards. Public-input command reachability, C parity, and source certification remain pending; no recording or score claim is made.",
+        "entryPoints": [
+          {
+            "name": "explicit search command and occupation",
+            "functions": [
+              {
+                "sourceFile": "detect.c",
+                "name": "dosearch"
+              },
+              {
+                "sourceFile": "detect.c",
+                "name": "dosearch0"
+              },
+              {
+                "sourceFile": "detect.c",
+                "name": "find_trap"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "automatic searching turn boundary",
+            "functions": [
+              {
+                "sourceFile": "detect.c",
+                "name": "dosearch0"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "kick floor-trap callback",
+            "functions": [
+              {
+                "sourceFile": "detect.c",
+                "name": "find_trap"
+              }
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "constructed-state-runtime-pending"
       }
     }
   ]
