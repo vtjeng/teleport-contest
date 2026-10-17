@@ -152,17 +152,34 @@ test('terminal final capture precedes status cleanup; panic and live boundaries 
     assert.equal(panicState.gb.status_hilite_rule[0][0].style, 'blue');
     const liveState = { program_state: { gameover: false } };
     assert.equal(await finishTerminatedSegment(liveState), false);
+
+    const disclosureState = {
+        program_state: { gameover: 1, in_really_done: true },
+        iflags: { status_hilites: [{ field: 'time' }] },
+        gb: { status_hilite_rule: banks({ style: 'green' }),
+            status_hilite_times: banks(21) },
+        _renderedStatusLayouts: [{ text: 'disclosure' }],
+    };
+    let disclosureCaptures = 0;
+    disclosureState._preNhgetchHook = async () => { disclosureCaptures++; };
+    assert.equal(await finishTerminatedSegment(disclosureState), false);
+    assert.equal(disclosureCaptures, 0);
+    assert.equal(disclosureState.gb.status_hilite_rule[0][0].style, 'green');
+    assert.equal(disclosureState.gb.status_hilite_times[0][0], 21);
+    assert.equal(disclosureState.iflags.status_hilites.length, 1);
+    assert.equal(disclosureState._renderedStatusLayouts[0].text, 'disclosure');
 });
 
-test('really-done termination captures before the status teardown path', async () => {
+test('really-done wait-synch boundary retains status state before termination', async () => {
     const recording = JSON.parse(readFileSync(new URL(
         '../recordings/end.c/really-done-wait-synch.session.json', import.meta.url,
     ), 'utf8'));
     const result = await runSegment(recording.segments[0]);
     assert.equal(Boolean(game.program_state?.gameover), true);
-    assert.ok(result.getScreens().length > 0, 'the terminal boundary was captured');
+    assert.equal(Boolean(game.program_state?.in_really_done), true,
+        'replay exhaustion stopped inside really_done rather than nh_terminate');
+    assert.ok(result.getScreens().length > 0, 'the wait boundary was captured');
     assert.ok((game.gb?.status_hilite_rule ?? []).length > 0);
-    assert.ok(game.gb.status_hilite_rule.every(bank => bank.every(rule => rule == null)));
-    assert.deepEqual(game.iflags.status_hilites, []);
-    assert.deepEqual(game._renderedStatusLayouts, []);
+    assert.ok(game._renderedStatusLayouts.length > 0,
+        'partial disclosure preserves rendered status state');
 });
