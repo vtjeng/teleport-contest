@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "batch": "v97",
+  "comparisonBase": "3e40baeade9fe8fb92098d00afa31056850baf5e",
+  "preparationComparisonBase": "3e40baeade9fe8fb92098d00afa31056850baf5e",
+  "caseCount": 1,
+  "qualifyingDistinctMismatchCount": 1,
+  "matchingControlCount": 0,
+  "cases": [
+    {
+      "id": "v97-tourist-first-new-depth-xp-percent-highlight",
+      "title": "Tourist depth reward changes experience-level percentage highlight",
+      "mission": "Public legal debug Tourist first-entry main depth2 gives 2XP with showexp disabled and previously selected <=0% red XP highlight, selecting >0% green without experience level increase.",
+      "recipe": "challenges/cases/v97/v97-tourist-first-new-depth-xp-percent-highlight.recipe.session.json",
+      "recipeSha256": "45caa01c94c9649a98a627f25e1426b4cb1340ff4f7ae6abc3894f5185eac9e5",
+      "recording": "challenges/cases/v97/v97-tourist-first-new-depth-xp-percent-highlight.session.json",
+      "recordingSha256": "7bab4bdd79192693c363e5ebaaa3455ca709ad2e1dbf129aff8b189c3dc8ceaa",
+      "reproducibility": "One independent canonical C invocation of identical finalized input-only recipe exited0; fullcapture bytes SHA7bab4bdd79192693c363e5ebaaa3455ca709ad2e1dbf129aff8b189c3dc8ceaa equal observed capture. All5screens/cursors/ordered4904RNG and original4keys match. Observer diagnostic retained separately.",
+      "sourcePointers": [
+        "do.c:goto_level1958-1963",
+        "exper.c:more_experienced169-191",
+        "botl.c:exp_percent_changing2090-2124",
+        "js/do.js:goto_level3283-3288",
+        "js/exper.js:more_experienced305-335",
+        "js/display.js:exp_percent_changing5601-5609"
+      ],
+      "sourceTrace": "C observer proves clean botl + selected old XP percentage rule then helper TRUE at XP2, visible greenXP1/D2. AcceptedJS source explicitly refuses this rule-selection path after same caller. Canonical comparison observes missing final boundary only; actualJS exception/stack/helper invocation is not dynamically exposed, and independent WL causal confirmation remains required.",
+      "firstMismatch": {
+        "segment": 0,
+        "step": 4,
+        "key": "\n",
+        "kind": "js-missing",
+        "owner": "botl.c:exp_percent_changing XP selected-rule lifecycle from Tourist first-depth more_experienced",
+        "observationLimit": "Exact JS exception is inferred from accepted source and C predicate; not dynamically captured."
+      },
+      "localComparison": {
+        "passed": false,
+        "error": null,
+        "lengths": {
+          "rng": {
+            "c": 4904,
+            "js": 4904
+          },
+          "screens": {
+            "c": 5,
+            "js": 4
+          },
+          "cursors": {
+            "c": 5,
+            "js": 4
+          },
+          "animFrames": {
+            "c": 0,
+            "js": 0
+          }
+        },
+        "rngMismatch": null,
+        "screenMismatch": {
+          "index": 4,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 4,
+            "key": "\n"
+          },
+          "kind": "js-missing"
+        },
+        "cursorMismatch": {
+          "index": 4,
+          "location": {
+            "segmentIndex": 0,
+            "stepIndex": 4,
+            "key": "\n"
+          },
+          "cCursor": [
+            45,
+            0,
+            1
+          ]
+        },
+        "animMismatch": null,
+        "segmentMismatch": null,
+        "provenance": {
+          "commit": "3e40baeade9fe8fb92098d00afa31056850baf5e",
+          "recordingSha256": "7bab4bdd79192693c363e5ebaaa3455ca709ad2e1dbf129aff8b189c3dc8ceaa"
+        }
+      },
+      "playmode": "debug; only real public character/options/inventory/wizlevelport input",
+      "inputs": 4,
+      "boundaries": 5,
+      "pagerLimit": "Final C frame is natural You materialize on a different level!--More--; no dismissal or aftertarget input/run. No finalized downstream arrival/status-timer behavior claim.",
+      "knownPrior": "Known retained STATUS_HILITES gap; new public witness does not claim newly discovered source behavior. Admitted2,053recipes reviewed, six closest savedpassingpriors; original Prep97stair is excluded as already admittedv96."
+    }
+  ],
+  "correction": "Original d504 stair case excluded as already admitted v96; this revision includes only independent qualified frozen TouristXP case.",
+  "assemblyBase": "77a09a223efe13e99a6dc1ab516c9a26b88fd42d"
+}
