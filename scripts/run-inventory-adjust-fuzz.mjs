@@ -89,6 +89,7 @@ export function validateTarget(base, built, recording, calibration = null) {
 }
 
 export function classify(result, prefixEnd) {
+    if (result.cStatus === 'runner-error') return {classification: 'runner-error'};
     if (result.cStatus !== 'static-complete') return {classification: result.cStatus === 'time-cap'
         ? 'timeout' : 'recorder-failure'};
     if (!result.target?.valid) return {classification: 'setup-failure'};

@@ -72,6 +72,8 @@ test('classification excludes errors/invalid setup/prefix and chooses first stri
     const built = buildCase(base, ['A']), end = base.segments[0].moves.length;
     assert.equal(classify(raw(built), end).classification, 'matched');
     assert.equal(classify({...raw(built), cStatus: 'time-cap'}, end).classification, 'timeout');
+    assert.equal(classify({...raw(built), cStatus: 'runner-error'}, end).classification, 'runner-error');
+    assert.equal(classify({...raw(built), cStatus: 'recorder-failure'}, end).classification, 'recorder-failure');
     assert.equal(classify({...raw(built), target: {valid: false}}, end).classification, 'setup-failure');
     assert.equal(classify(raw(built, {error: 'unknown failure'}), end).classification, 'js-error');
     const d = different(built); d.screenMismatch.location.stepIndex = end;
