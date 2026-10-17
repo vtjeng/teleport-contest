@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T06:15:20.262Z",
+  "capturedAt": "2026-10-17T06:47:21.845Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T06:15:20.262Z",
+    "asOf": "2026-10-17T06:47:21.845Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5696,10 +5696,10 @@
         "id": "towel-floor-sit-c-only-feasibility-20261017",
         "batch": "v99",
         "claimedAt": "2026-10-17T06:09:55.883Z",
-        "closedAt": null,
-        "terminal": null,
-        "outcome": null,
-        "packetDigest": null,
+        "closedAt": "2026-10-17T06:18:36.536Z",
+        "terminal": "result",
+        "outcome": "deferred",
+        "packetDigest": "5e2e0bf3e9f1be8714e748cfbdf7835c15af79319444d86b4b91d676a8196c53",
         "kind": "discovery",
         "usable": "unknown",
         "classification": "unknown",
@@ -5708,7 +5708,8 @@
         "bugFamilyIds": [],
         "evidence": [
           {
-            "kind": "ledger"
+            "kind": "packet",
+            "digest": "5e2e0bf3e9f1be8714e748cfbdf7835c15af79319444d86b4b91d676a8196c53"
           }
         ]
       }
@@ -5773,7 +5774,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 75,
+      "mainSupportAssignments": 80,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -161132,6 +161133,164 @@
         "type": "accepted",
         "at": "2026-10-17T06:14:24.653Z",
         "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6-9caa9d2d0399a13ca4bd016b1a32309fe4493c89",
+        "type": "published",
+        "at": "2026-10-17T06:15:36.869Z",
+        "task": "delivery:session:synthetic:v98:v98-two-heavy-stacks-partial-pickup:13a9232ce0a6",
+        "commit": "9caa9d2d0399a13ca4bd016b1a32309fe4493c89"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:18:36.536Z",
+        "id": "queue:9b45442c-d0b2-4938-9d13-993ab67d820d",
+        "type": "queue-complete",
+        "task": "towel-floor-sit-c-only-feasibility-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:18:36.536Z",
+        "id": "queue:9b45442c-d0b2-4938-9d13-993ab67d820d:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:20:42.908Z",
+        "id": "queue:d48e4a5c-2824-4208-8ea5-51c99b36c388",
+        "type": "assign",
+        "task": "support-status-public-lifecycle-evidence-map-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:26:00.233Z",
+        "id": "queue:0e638815-37e0-4c0f-9bc7-ed822afebec7",
+        "type": "assign",
+        "task": "support-status-completed-termination-route-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:26:14.632Z",
+        "id": "queue:fe0e67e3-722f-494f-b936-62bc9868ca43",
+        "type": "queue-complete",
+        "task": "support-status-public-lifecycle-evidence-map-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:26:14.632Z",
+        "id": "queue:fe0e67e3-722f-494f-b936-62bc9868ca43:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:29:21.706Z",
+        "id": "queue:a01edfdb-b2b0-4b8e-8911-e95e4320f800",
+        "type": "queue-complete",
+        "task": "support-status-completed-termination-route-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:29:21.706Z",
+        "id": "queue:a01edfdb-b2b0-4b8e-8911-e95e4320f800:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:30:48.819Z",
+        "id": "queue:f9b731c2-e0bb-4da9-9f0f-642e32457a4b",
+        "type": "assign",
+        "task": "support-status-authentic-time-recording-package-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:34:26.681Z",
+        "id": "queue:c9721d19-25b6-400c-aee6-0e28dd51b952",
+        "type": "assign",
+        "task": "support-status-existing-options-recording-map-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:36:53.333Z",
+        "id": "queue:dd3f5567-8359-4577-bca0-12fc4aea4e46",
+        "type": "queue-complete",
+        "task": "support-status-existing-options-recording-map-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:36:53.333Z",
+        "id": "queue:dd3f5567-8359-4577-bca0-12fc4aea4e46:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:38:20.805Z",
+        "id": "queue:79a9f074-9f34-43a0-ae9a-84eb931a0480",
+        "type": "queue-complete",
+        "task": "support-status-authentic-time-recording-package-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:38:20.805Z",
+        "id": "queue:79a9f074-9f34-43a0-ae9a-84eb931a0480:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T06:42:36.067Z",
+        "id": "queue:54add868-942c-400e-b5d8-005b0b14793f",
+        "type": "assign",
+        "task": "support-status-timebot-public-setup-preflight-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -161299,10 +161458,10 @@
     }
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
     "claimed": [
@@ -161311,7 +161470,7 @@
         "worker": "Worker-2"
       },
       {
-        "task": "towel-floor-sit-c-only-feasibility-20261017",
+        "task": "support-status-timebot-public-setup-preflight-20261017",
         "worker": "Worker-1"
       }
     ],
@@ -161319,13 +161478,13 @@
       "ready": 0,
       "claimed": 2,
       "blocked": 0,
-      "completed": 298,
+      "completed": 303,
       "superseded": 64
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "towel-floor-sit-c-only-feasibility-20261017",
+        "assignment": "support-status-timebot-public-setup-preflight-20261017",
         "state": "active"
       },
       {
@@ -166819,7 +166978,7 @@
         "id": "towel-floor-sit-c-only-feasibility-20261017",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Prep",
         "recipient": "Prep",
         "sessions": [],
@@ -166828,13 +166987,88 @@
         "target": null,
         "readyAt": "2026-10-17T06:09:18.929Z",
         "claimedAt": "2026-10-17T06:09:55.883Z",
+        "completedAt": "2026-10-17T06:18:36.536Z"
+      },
+      {
+        "id": "support-status-public-lifecycle-evidence-map-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T06:20:33.284Z",
+        "claimedAt": "2026-10-17T06:20:42.908Z",
+        "completedAt": "2026-10-17T06:26:14.632Z"
+      },
+      {
+        "id": "support-status-completed-termination-route-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T06:25:42.402Z",
+        "claimedAt": "2026-10-17T06:26:00.233Z",
+        "completedAt": "2026-10-17T06:29:21.706Z"
+      },
+      {
+        "id": "support-status-authentic-time-recording-package-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T06:30:39.268Z",
+        "claimedAt": "2026-10-17T06:30:48.819Z",
+        "completedAt": "2026-10-17T06:38:20.805Z"
+      },
+      {
+        "id": "support-status-existing-options-recording-map-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T06:34:16.600Z",
+        "claimedAt": "2026-10-17T06:34:26.681Z",
+        "completedAt": "2026-10-17T06:36:53.333Z"
+      },
+      {
+        "id": "support-status-timebot-public-setup-preflight-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T06:42:16.307Z",
+        "claimedAt": "2026-10-17T06:42:36.067Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "fd0b128f650b49996f58623e684626bfeb946896",
-    "measuredAt": "2026-10-17T06:11:33.331Z",
+    "executionCommit": "d99ab0d96ffe4a4c36d4195ce96a748029dd6e5e",
+    "measuredAt": "2026-10-17T06:26:41.644Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
