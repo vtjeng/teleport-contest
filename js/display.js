@@ -5804,6 +5804,66 @@ function _statusHiliteChangeBanks(gb, size) {
     return gb.status_hilite_chg_banks;
 }
 
+// C ref: botl.c init_blstats(). Both banks begin with every field row
+// initialized, including the zeroed any-value union. The configured threshold
+// list belongs to iflags and is deliberately left intact here.
+export function init_blstats(state = game) {
+    const gb = state.gb ??= {};
+    if (gb.blinit) return false;
+    const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
+    for (const name of ['status_hilite_rule', 'status_hilite_value',
+        'status_hilite_compare_value', 'status_hilite_percent',
+        'status_hilite_text', 'status_hilite_type']) {
+        gb[name] = [Array(size).fill(null), Array(size).fill(null)];
+    }
+    for (const field of STATUS_FIELDS) {
+        for (const bank of [0, 1]) {
+            gb.status_hilite_value[bank][field.fld] = 0;
+            gb.status_hilite_compare_value[bank][field.fld] = 0;
+            gb.status_hilite_type[bank][field.fld] = field.type;
+        }
+    }
+    gb.status_hilite_times = [Array(size).fill(0), Array(size).fill(0)];
+    gb.status_hilite_chg_banks = [Array(size).fill(false),
+        Array(size).fill(false)];
+    gb.status_hilite_chg = gb.status_hilite_chg_banks[0];
+    return true;
+}
+
+// C ref: botl.c status_initialize(). Full initialization owns the one-time
+// banks; reassessment only requests a fresh delivered pass and repaint.
+export function status_initialize(state = game, reassessOnly = true) {
+    state.disp ??= {};
+    state.gu ??= {};
+    state.gb ??= {};
+    if (!reassessOnly) {
+        if (!state.gb.blinit) init_blstats(state);
+        state.gb.blinit = true;
+    } else if (!state.gb.blinit) {
+        throw new Error('status_initialize reassessment before init_blstats');
+    }
+    const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
+    state.gb.status_hilite_enabled = Array(size).fill(false);
+    for (const field of STATUS_FIELDS)
+        state.gb.status_hilite_enabled[field.fld]
+            = _computeStatusFieldEnabled(field, state);
+    state.gu.update_all = true;
+    state.disp.botlx = true;
+}
+
+// C ref: botl.c status_finish(), reached from freedynamicdata() after the
+// final recorder boundary. The window-port value strings correspond to the
+// cached rendered layouts; raw typed values, timers and change flags are not
+// reset by the C function and remain untouched.
+export function status_finish(state = game) {
+    for (const bank of state.gb?.status_hilite_rule ?? [])
+        bank?.fill(null);
+    if (state.iflags)
+        state.iflags.status_hilites = [];
+    state._renderedStatusLayouts = [];
+    state._renderedStatusStyles = null;
+}
+
 function _setStatusHiliteChange(gb, fld, value) {
     const banks = _statusHiliteChangeBanks(gb,
         Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1);
@@ -5844,7 +5904,7 @@ function _beginStatusHilitePass(onlyField = null) {
     game._statusHiliteOnlyField = onlyField;
 }
 
-function _statusFieldEnabled(field, state) {
+function _computeStatusFieldEnabled(field, state) {
     const polymorphed = Boolean(state.u && Upolyd(state.u));
     switch (field.key) {
     case 'score': return Boolean(state.flags?.showscore);
@@ -5858,6 +5918,13 @@ function _statusFieldEnabled(field, state) {
     case 'terrain': return Boolean(state.flags?.terrainstatus);
     default: return true;
     }
+}
+
+function _statusFieldEnabled(field, state) {
+    const enabled = state.gb?.status_hilite_enabled;
+    return Array.isArray(enabled) && field.fld < enabled.length
+        ? Boolean(enabled[field.fld])
+        : _computeStatusFieldEnabled(field, state);
 }
 
 // C ref: bot_via_windowport() plus evaluate_and_notify_windowport(). Collect
