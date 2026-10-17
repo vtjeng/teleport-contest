@@ -31,6 +31,8 @@ Wait for CI to finish before splitting. Resolve any unfinished cherry-pick first
 Use --retain for tooling fixes, quality records, friction notes and prerequisite
 diagnoses already committed on the failed candidate. They are frozen in history
 order and reapplied before worker submissions on corrected rebuilds and splits.
+For an initial group, --retain may name the complete tooling-only suffix of a
+clean coordinator candidate above accepted local main. Main stays unchanged.
 Worker source fixes stay in their task submissions, not the retained list.
 bootstrap starts from an imported checkpoint already published to remote Main
 when no delivery recorded that tooling baseline. Unpublished local Main edits
@@ -117,6 +119,25 @@ function planTasks(ctx, base, baseline) {
         held: pending.filter(row => !included.has(row.task)).map(row => ({task: row.task,
             reason: row.status !== 'ready' ? row.status : !latest(ctx.state, ctx.state.tasks[row.task]).receivedAt
                 ? 'receipt required' : 'dependency or reserved scope outside the group'}))};
+}
+
+function initialRetainedPlan(ctx, options) {
+    const accepted = acceptedMain(ctx.state), head = git(ctx.root, 'rev-parse', 'HEAD');
+    if (!accepted?.checkpoint || git(ctx.root, 'rev-parse', 'main') !== accepted.commit
+        || !git(ctx.root, 'branch', '--show-current').startsWith('integration-checkpoint/')
+        || !isAncestor(ctx.root, accepted.commit, head))
+        throw new Error('initial retained tooling requires a clean candidate above accepted local main');
+    const requested = options.retain.split(',').map(sha => resolveCommit(ctx.root, sha));
+    const history = git(ctx.root, 'rev-list', '--reverse', '--topo-order', `${accepted.commit}..${head}`).split('\n').filter(Boolean);
+    if (!history.length || new Set(requested).size !== requested.length
+        || requested.length !== history.length || history.some(sha => !requested.includes(sha)))
+        throw new Error('initial retain must name the complete coordinator tooling suffix');
+    for (const sha of history) {
+        const parents = git(ctx.root, 'show', '-s', '--format=%P', sha).split(' ');
+        if (parents.length !== 1) throw new Error('initial retained tooling must have single-parent history');
+        verifyToolingChanges(ctx.root, parents[0], sha);
+    }
+    return {...planTasks(ctx, accepted.commit, accepted.checkpoint), retained: history};
 }
 
 export function bootstrapImplementationGroup(options, root = process.cwd()) {
@@ -238,12 +259,17 @@ function integrateImplementationGroupOwned(options, root = process.cwd()) {
     if (existsSync(git(ctx.root, 'rev-parse', '--git-path', 'CHERRY_PICK_HEAD')))
         throw new Error('resolve the unfinished cherry-pick before retrying');
     if (plan && plan.tasks.every(member => ctx.state.tasks[member.task]?.status === 'accepted')) {
-        if (git(ctx.root, 'branch', '--show-current') !== 'main') throw new Error('publish the accepted group before starting another');
+        const published = plan.tasks.every(member => {
+            const commit = ctx.state.deliveries[member.delivery]?.publishedCommit;
+            return commit && isAncestor(ctx.root, commit, git(ctx.root, 'rev-parse', 'main'));
+        });
+        if (git(ctx.root, 'branch', '--show-current') !== 'main' && !(options.retain && published))
+            throw new Error('publish the accepted group before starting another');
         plan = null;
     }
     if (!plan) {
-        if (options.retain !== undefined) throw new Error('retained commits require a frozen failed group');
-        plan = planImplementationGroup(options, ctx.root);
+        plan = options.retain !== undefined ? initialRetainedPlan(ctx, options)
+            : planImplementationGroup(options, ctx.root);
         if (!plan.tasks.length) return {commit: plan.base, tasks: [], held: plan.held};
         plan = createCandidate(ctx, plan);
     }
