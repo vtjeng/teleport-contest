@@ -3075,9 +3075,10 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
     // C ref: hack.c:1271-1290. A one-step target is handed back to normal
     // movement, after which end_running() has already disposed of travel-map
     // state and the caller continues through domove_core().
-    if (state.context.travel1
+    if ((mode === TRAVP_TRAVEL || mode === TRAVP_VALID)
+        && state.context.travel1
         && dist2(state.u.ux, state.u.uy, state.u.tx, state.u.ty) <= 2
-        && crawl_destination(state.u.tx, state.u.ty, state)) {
+        && await crawl_destination(state.u.tx, state.u.ty, state)) {
         end_running(false, state);
         if (await test_move(
             state.u.ux,
