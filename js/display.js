@@ -5929,10 +5929,13 @@ function _collectStatusHilites(layouts, onlyField = null) {
             change = Math.sign(percent - previousPercent);
         // BL_XP uses a percentage to decide whether to notify, then resets
         // chg to compare_blstats() on its level value.
-        if (field.key === 'experience-level'
-            && previousCompareValue != null
-            && compareValue === previousCompareValue)
-            change = 0;
+        if (field.key === 'experience-level' && change === 1
+            && previousCompareValue != null)
+            // botl.c eval_notify_windowport_field() resets an XP percentage
+            // increase to compare_blstats(prev, curr), not just to zero when
+            // the level is unchanged. Losing a level can raise the new-level
+            // percentage while the raw BL_XP direction is still downward.
+            change = Math.sign(compareValue - previousCompareValue);
         if (updateAll) change = 0;
         const unchanged = previousValue === value
             && previousCompareValue === compareValue
@@ -5942,14 +5945,17 @@ function _collectStatusHilites(layouts, onlyField = null) {
             && previousRule?.behavior === 'changed'
             && (pendingChanged || game.multi
                 || (until > 0 && (game.moves ?? 0) <= until));
-        const selected = holdTemporary
-            ? previousRule
-            : game.iflags?.hilite_delta
-                ? _selectStatusHilite(field.key, data, change) : null;
-        gb.status_hilite_rule[0][fld] = selected;
-        // eval_notify_windowport_field() writes the selected rule into both
-        // current and previous banks even on stat_update_time().
-        gb.status_hilite_rule[1][fld] = selected;
+        if (notification) {
+            const selected = holdTemporary
+                ? previousRule
+                : game.iflags?.hilite_delta
+                    ? _selectStatusHilite(field.key, data, change) : null;
+            gb.status_hilite_rule[0][fld] = selected;
+            // eval_notify_windowport_field() writes the selected rule into
+            // both banks only when it notifies the field, including on
+            // stat_update_time(). An unchanged field keeps its prior rule.
+            gb.status_hilite_rule[1][fld] = selected;
+        }
         gb.status_hilite_value[0][fld] = value;
         gb.status_hilite_compare_value[0][fld] = compareValue;
         gb.status_hilite_percent[0][fld] = percent;
