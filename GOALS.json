@@ -321390,7 +321390,7 @@
     {
       "id": "fix-adjacent-travel-crawl-await-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement findtravelpath from hack.c",
       "cFile": "hack.c",
       "sessions": [],
@@ -321398,7 +321398,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
       "delivered": null,
       "functions": [
         {
@@ -321475,12 +321475,68 @@
           }
         },
         "reviewSha256": "851750612f51a5bdf453fed807380dcb9e47115dbabddd3f5a9f081b30769318"
+      },
+      "closeStanding": {
+        "sha": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "a016c2a65453dca23d9c501086b7d42b85aa6c8e",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/571d5b4c7d1f2fee43f17618c208a560da4a0d3b/run-hosted-EhNkcX/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "findtravelpath",
+            "implementation": "js/hack.js",
+            "symbol": "findtravelpath",
+            "pure": false,
+            "sourceReview": "Read the complete C hack.c findtravelpath (1266-1523), crawl_destination (4079-4099), adjacent test_move restrictions and end_running ordering. The C adjacent shortcut is short-circuited to TRAVP_TRAVEL/TRAVP_VALID, travel1, next2u, then true crawl_destination before end_running(FALSE); if false, TRAVP_TRAVEL reaches reverse BFS, which restores context.run=8 when the selected target is the start square. JS now preserves that order by awaiting the real async crawl_destination before clearing run and bypasses the shortcut for TRAVP_GUESS. The test uses actual imported crawl_destination and findtravelpath with a constructed GameMap, not injected return values. Runtime/published parity remains pending.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c domove_core2724–2728 awaits TRAVP_TRAVEL then TRAVP_GUESS on failure; js/hack.js4129–4130 uses these real production calls."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "is_valid_travelpt",
+                "source": "hack.c is_valid_travelpt1538–1540 invokes TRAVP_VALID with temporary destination; js/hack.js3350 awaits this real production validator."
+              }
+            ],
+            "tests": [
+              "scripts/hack.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "C hack.c domove_core awaits TRAVP_TRAVEL then TRAVP_GUESS, and is_valid_travelpt invokes TRAVP_VALID. JS domove_core and is_valid_travelpt are the real production callers. The correction was exercised only through imported functions with constructed GameMap state; no gameplay, recorded session or public parity is claimed.",
+        "entryPoints": [
+          {
+            "name": "domove_core travel then guess dispatch",
+            "functions": [
+              "findtravelpath"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "is_valid_travelpt travel validation dispatch",
+            "functions": [
+              "findtravelpath"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-container-artifact-touch-await-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement out_container from pickup.c",
       "cFile": "pickup.c",
       "sessions": [],
@@ -321488,7 +321544,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
       "delivered": null,
       "functions": [
         {
@@ -321560,12 +321616,56 @@
           }
         },
         "reviewSha256": "e374f670c8ed9add365a160020ad0ea70226e5a1a3d19439a6cf2019213008c8"
+      },
+      "closeStanding": {
+        "sha": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "a016c2a65453dca23d9c501086b7d42b85aa6c8e",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/571d5b4c7d1f2fee43f17618c208a560da4a0d3b/run-hosted-EhNkcX/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "out_container",
+            "implementation": "js/pickup.js",
+            "symbol": "out_container",
+            "sourceReview": "Read the complete upstream pickup.c:2727-2777 function. C checks touch_artifact before fatal-corpse handling, lift decisions, list extraction, container-weight recomputation, billing and inventory. The real JavaScript touch_artifact is async; out_container previously negated its Promise. It now awaits that existing helper once before the same false-result return. All later source-ordered operations remain in place.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "menu_loot",
+                "source": "pickup.c menu_loot3265+ dispatches out_container for extraction and consumes its result; js/pickup.js menu_loot awaits that real production callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "C use_container dispatches menu_loot for interactive container menus; pickup.c:3265+ menu_loot selects out_container for removal and consumes its result. JavaScript menu_loot is the actual exported production caller and awaits out_container for selected items. The constructed-state test drives this menu and the imported real touch_artifact. It does not establish recorded public play or whole-source certification.",
+        "entryPoints": [
+          {
+            "name": "menu_loot container extraction",
+            "functions": [
+              "out_container"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement shkgone from shk.c",
       "cFile": "shk.c",
       "sessions": [],
@@ -321573,7 +321673,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
       "delivered": null,
       "functions": [
         {
@@ -321659,6 +321759,77 @@
           }
         },
         "reviewSha256": "d3315be7de2367769df98c1e7d73f81121f012f98d2c741204fef9b44bf62107"
+      },
+      "closeStanding": {
+        "sha": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "a016c2a65453dca23d9c501086b7d42b85aa6c8e",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/571d5b4c7d1f2fee43f17618c208a560da4a0d3b/run-hosted-EhNkcX/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "shk.c",
+            "name": "shkgone",
+            "implementation": "js/shk.js",
+            "symbol": "shkgone",
+            "pure": false,
+            "sourceReview": "Read complete shk.c:235-269. Retained the on_level(shoplevel,u.uz) guard, invokes the complete cleanup helper before resident removal, and preserves subsequent special-shop, object-charge, billing, and u.ushops ordering. The C body mutates shop, object, and bill state and has a runtime caller; it is impure. No unported callees were introduced.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c m_detach reaches shkgone for shopkeeper death; js/mon.js m_detach uses the real matching callback."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "shkgone",
+                "source": "shk.c shkgone246 invokes discard_damage_owned_by before clearing resident under the same-level guard."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "sourceFile": "shk.c",
+            "name": "discard_damage_owned_by",
+            "implementation": "js/shk.js",
+            "symbol": "discard_damage_owned_by",
+            "pure": false,
+            "sourceReview": "Read complete shk.c:4530-4552. Walks the actual linked damage list, evaluates each record with in_rooms(place.x,place.y,SHOPBASE) and the keeper shoproom, unlinks every match including head/consecutive records, preserves previous links for unrelated nodes and detaches each removed JS node per existing discard_damage_struct convention. Its caller discards no return value and no unported callee is called.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "shkgone",
+                "source": "C shk.c:shkgone calls discard_damage_owned_by(mtmp) before nulling the same-level resident."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "C shk.c shkgone is reached by mon.c m_detach and calls discard_damage_owned_by before clearing the resident, only when the keeper home level matches the current level. The helper filters the active level damage list using hack.c in_rooms(..., SHOPBASE) membership for ESHK(shkp)->shoproom. JS m_detach reaches real shkgone; add_damage constructs the same state.level.damagelist consumed by production cleanup. The focused test exercises this production path using add_damage-created records, including shared-room membership, head and consecutive deletion, unrelated-order preservation, all/no-owned boundaries, and the same-level guard. These constructed-state receipts are runtime-pending source parity evidence; no recorded gameplay parity or source certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "shopkeeper death cleanup",
+            "functions": [
+              "shkgone",
+              "discard_damage_owned_by"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

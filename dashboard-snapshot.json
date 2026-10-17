@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-17T21:22:27.367Z",
+  "capturedAt": "2026-10-17T22:00:59.172Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-17T21:22:27.367Z",
+    "asOf": "2026-10-17T22:00:59.172Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 172,
+      "mainSupportAssignments": 176,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -164446,52 +164446,744 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:24:02.008Z",
+        "id": "queue:07a99bdf-55cc-4d9b-8704-d4ee6721692a",
+        "type": "queue-complete",
+        "task": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:24:02.008Z",
+        "id": "queue:07a99bdf-55cc-4d9b-8704-d4ee6721692a:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:24:06.772Z",
+        "id": "queue:e503fad1-13df-4f7e-9428-b3471b60d6ad",
+        "type": "queue-complete",
+        "task": "stronghold-dodown-gotohell-source-screen-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:24:06.772Z",
+        "id": "queue:e503fad1-13df-4f7e-9428-b3471b60d6ad:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:26:10.888Z",
+        "id": "queue:b26b5bf4-a1d8-4d13-92fc-714988fbb892",
+        "type": "assign",
+        "task": "shop-entry-extra-dochug-source-screen-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:27:29.574Z",
+        "id": "queue:eb87e62f-a2c6-4523-a9cc-5ab4b36721a9",
+        "type": "assign",
+        "task": "fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:28:37.376Z",
+        "id": "queue:10f1736e-06fa-4628-bab4-dffaedd6c09c",
+        "type": "queue-complete",
+        "task": "shop-entry-extra-dochug-source-screen-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:28:37.376Z",
+        "id": "queue:10f1736e-06fa-4628-bab4-dffaedd6c09c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker3-recovery-2129-observe-20261017",
+        "type": "observe",
+        "at": "2026-10-17T21:28:54.381Z",
+        "worker": "Worker-3",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:29:40.442Z",
+        "id": "queue:7ef3108b-0820-4406-82d6-6932d909c65b",
+        "type": "assign",
+        "task": "fix-container-artifact-touch-await-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:31:41.124Z",
+        "id": "queue:a4393297-3c7d-4db1-861b-c9129e99f53f",
+        "type": "assign",
+        "task": "fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:32:29.872Z",
+        "id": "ready-9cd8f7317b1b04528de849be42a2d313de4db57c:transport",
+        "type": "assign",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-adjacent-travel-crawl-await-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-9cd8f7317b1b04528de849be42a2d313de4db57c",
+        "type": "ready",
+        "at": "2026-10-17T21:32:29.872Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "delivery": "9cd8f7317b1b04528de849be42a2d313de4db57c"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:32:29.872Z",
+        "id": "ready-9cd8f7317b1b04528de849be42a2d313de4db57c:complete",
+        "type": "queue-complete",
+        "task": "fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:32:29.872Z",
+        "id": "ready-9cd8f7317b1b04528de849be42a2d313de4db57c:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-travel-source-parity-9cd8f731-20261017",
+        "type": "received",
+        "at": "2026-10-17T21:32:58.149Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "delivery": "9cd8f7317b1b04528de849be42a2d313de4db57c"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:34:44.585Z",
+        "id": "ready-9466c11358631372f6d5d4f933e5a6635b0f37bc:transport",
+        "type": "assign",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-container-artifact-touch-await-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-9466c11358631372f6d5d4f933e5a6635b0f37bc",
+        "type": "ready",
+        "at": "2026-10-17T21:34:44.585Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "delivery": "9466c11358631372f6d5d4f933e5a6635b0f37bc"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:34:44.585Z",
+        "id": "ready-9466c11358631372f6d5d4f933e5a6635b0f37bc:complete",
+        "type": "queue-complete",
+        "task": "fix-container-artifact-touch-await-source-parity-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:34:44.585Z",
+        "id": "ready-9466c11358631372f6d5d4f933e5a6635b0f37bc:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:34:49.432Z",
+        "id": "queue:7bf17bee-a43b-4bd6-8e7b-831913d1b77f",
+        "type": "assign",
+        "task": "fix-stronghold-dodown-gotohell-source-parity-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:35:21.352Z",
+        "id": "ready-f35a3cd3f9999bc05ab0fa0f098c06dac592e698:transport",
+        "type": "assign",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-f35a3cd3f9999bc05ab0fa0f098c06dac592e698",
+        "type": "ready",
+        "at": "2026-10-17T21:35:21.352Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "delivery": "f35a3cd3f9999bc05ab0fa0f098c06dac592e698"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:35:21.352Z",
+        "id": "ready-f35a3cd3f9999bc05ab0fa0f098c06dac592e698:complete",
+        "type": "queue-complete",
+        "task": "fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:35:21.352Z",
+        "id": "ready-f35a3cd3f9999bc05ab0fa0f098c06dac592e698:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-container-source-parity-9466c113-20261017",
+        "type": "received",
+        "at": "2026-10-17T21:35:41.109Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "delivery": "9466c11358631372f6d5d4f933e5a6635b0f37bc"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:36:59.842Z",
+        "id": "queue:b1134607-7596-4232-9712-6152e6a37b96",
+        "type": "queue-block",
+        "task": "fix-stronghold-dodown-gotohell-source-parity-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:36:59.842Z",
+        "id": "queue:b1134607-7596-4232-9712-6152e6a37b96:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-cleanup-source-parity-f35a3cd3-20261017",
+        "type": "received",
+        "at": "2026-10-17T21:37:26.445Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "delivery": "f35a3cd3f9999bc05ab0fa0f098c06dac592e698"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:38:27.387Z",
+        "id": "queue:aa76d229-e694-4fd0-9896-b8b2d40eca78",
+        "type": "assign",
+        "task": "shop-entry-dochug-adapter-prerequisite-source-proof-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-206b86e5dab0ea6165513e1edb01fcd270639259-ab2e5787cc5aabf35a0eddc057234414733a4cef2e3e68a05201622cfa5c4365-delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T21:38:38.236Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259",
+        "validationGroup": [
+          "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+          "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+          "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-206b86e5dab0ea6165513e1edb01fcd270639259-ab2e5787cc5aabf35a0eddc057234414733a4cef2e3e68a05201622cfa5c4365-delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T21:38:38.236Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259",
+        "validationGroup": [
+          "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+          "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+          "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-206b86e5dab0ea6165513e1edb01fcd270639259-ab2e5787cc5aabf35a0eddc057234414733a4cef2e3e68a05201622cfa5c4365-delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T21:38:38.236Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259",
+        "validationGroup": [
+          "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+          "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+          "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:40:45.989Z",
+        "id": "queue:07804511-e8dd-47c8-8706-0b24cee119c5",
+        "type": "assign",
+        "task": "fix-sink-stop-donning-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:41:32.275Z",
+        "id": "queue:30008e0f-be36-4a89-b636-2a75bc9fcb79",
+        "type": "queue-complete",
+        "task": "shop-entry-dochug-adapter-prerequisite-source-proof-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:41:32.275Z",
+        "id": "queue:30008e0f-be36-4a89-b636-2a75bc9fcb79:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:47:12.851Z",
+        "id": "ready-bc87bfb609edb8f5257bcda7a5086e5098ee3696:transport",
+        "type": "assign",
+        "task": "delivery:fix-sink-stop-donning-source-parity-20261017",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-sink-stop-donning-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-bc87bfb609edb8f5257bcda7a5086e5098ee3696",
+        "type": "ready",
+        "at": "2026-10-17T21:47:12.851Z",
+        "task": "delivery:fix-sink-stop-donning-source-parity-20261017",
+        "delivery": "bc87bfb609edb8f5257bcda7a5086e5098ee3696"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:47:12.851Z",
+        "id": "ready-bc87bfb609edb8f5257bcda7a5086e5098ee3696:complete",
+        "type": "queue-complete",
+        "task": "fix-sink-stop-donning-source-parity-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:47:12.851Z",
+        "id": "ready-bc87bfb609edb8f5257bcda7a5086e5098ee3696:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:49:24.399Z",
+        "id": "queue:f0d27875-2167-41f6-8f28-ed04f723a565",
+        "type": "assign",
+        "task": "pet-landmine-scatter-occupation-clone-source-screen-20261017",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:50:20.088Z",
+        "id": "queue:bcfbb7e1-5db2-4704-bbea-6f2454abdaba",
+        "type": "assign",
+        "task": "fix-shop-entry-extra-dochug-source-parity-20261017",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "source-parity-first3-ci-fixture-release-20261017-delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "type": "feedback",
+        "at": "2026-10-17T21:50:33.656Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "source-parity-first3-ci-fixture-release-20261017-delivery:fix-adjacent-travel-crawl-await-source-parity-20261017-released",
+        "type": "ready",
+        "at": "2026-10-17T21:50:33.656Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "source-parity-first3-ci-fixture-release-20261017-delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "type": "feedback",
+        "at": "2026-10-17T21:50:33.656Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "source-parity-first3-ci-fixture-release-20261017-delivery:fix-container-artifact-touch-await-source-parity-20261017-released",
+        "type": "ready",
+        "at": "2026-10-17T21:50:33.656Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "source-parity-first3-ci-fixture-release-20261017-delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "type": "feedback",
+        "at": "2026-10-17T21:50:33.656Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "source-parity-first3-ci-fixture-release-20261017-delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017-released",
+        "type": "ready",
+        "at": "2026-10-17T21:50:33.656Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "integration": "206b86e5dab0ea6165513e1edb01fcd270639259"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-ab2e5787cc5aabf35a0eddc057234414733a4cef2e3e68a05201622cfa5c4365-delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T21:50:55.588Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "integration": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "validationGroup": [
+          "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+          "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+          "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-ab2e5787cc5aabf35a0eddc057234414733a4cef2e3e68a05201622cfa5c4365-delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T21:50:55.588Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "integration": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "validationGroup": [
+          "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+          "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+          "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-ab2e5787cc5aabf35a0eddc057234414733a4cef2e3e68a05201622cfa5c4365-delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "type": "integrating",
+        "at": "2026-10-17T21:50:55.588Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "integration": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+        "validationGroup": [
+          "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+          "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+          "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:52:04.782Z",
+        "id": "queue:ad9ce0b3-57cf-4000-b4d5-0ad80464f449",
+        "type": "assign",
+        "task": "confused-spellbook-tear-trycall-source-screen-20261017",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "sink-source-parity-delivery-received-20261017",
+        "type": "received",
+        "at": "2026-10-17T21:52:28.187Z",
+        "task": "delivery:fix-sink-stop-donning-source-parity-20261017",
+        "delivery": "bc87bfb609edb8f5257bcda7a5086e5098ee3696"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:53:36.890Z",
+        "id": "queue:d4b7d188-c1dc-4016-8364-1c82ed8d50b1",
+        "type": "queue-complete",
+        "task": "pet-landmine-scatter-occupation-clone-source-screen-20261017",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:53:36.890Z",
+        "id": "queue:d4b7d188-c1dc-4016-8364-1c82ed8d50b1:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:56:50.628Z",
+        "id": "queue:1be05ee3-e95b-4580-b9a0-edd8ecc0abba",
+        "type": "queue-complete",
+        "task": "confused-spellbook-tear-trycall-source-screen-20261017",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:56:50.628Z",
+        "id": "queue:1be05ee3-e95b-4580-b9a0-edd8ecc0abba:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:57:59.074Z",
+        "id": "ready-2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf:transport",
+        "type": "assign",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-shop-entry-extra-dochug-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "type": "ready",
+        "at": "2026-10-17T21:57:59.074Z",
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "delivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:57:59.074Z",
+        "id": "ready-2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf:complete",
+        "type": "queue-complete",
+        "task": "fix-shop-entry-extra-dochug-source-parity-20261017",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-17T21:57:59.074Z",
+        "id": "ready-2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-adjacent-travel-crawl-await-source-parity-20261017-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-validated",
+        "type": "validated",
+        "at": "2026-10-17T21:58:44.233Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-container-artifact-touch-await-source-parity-20261017-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-validated",
+        "type": "validated",
+        "at": "2026-10-17T21:58:44.233Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-validated",
+        "type": "validated",
+        "at": "2026-10-17T21:58:44.233Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-adjacent-travel-crawl-await-source-parity-20261017-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T21:59:18.344Z",
+        "task": "delivery:fix-adjacent-travel-crawl-await-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-container-artifact-touch-await-source-parity-20261017-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T21:59:18.344Z",
+        "task": "delivery:fix-container-artifact-touch-await-source-parity-20261017"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017-571d5b4c7d1f2fee43f17618c208a560da4a0d3b-accepted",
+        "type": "accepted",
+        "at": "2026-10-17T21:59:18.344Z",
+        "task": "delivery:fix-shopkeeper-owned-damage-cleanup-source-parity-20261017"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "delivery:fix-sink-stop-donning-source-parity-20261017",
+        "worker": "Worker-3",
+        "goal": "fix-sink-stop-donning-source-parity-20261017",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "bc87bfb609edb8f5257bcda7a5086e5098ee3696",
+        "since": "2026-10-17T21:47:12.851Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "worker": "Worker-1",
+        "goal": "fix-shop-entry-extra-dochug-source-parity-20261017",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+        "since": "2026-10-17T21:57:59.074Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": []
   },
   "workerReservations": {
-    "tasks": {},
-    "reservations": {}
+    "tasks": {
+      "delivery:fix-stronghold-dodown-gotohell-source-parity-20261017": {
+        "id": "delivery:fix-stronghold-dodown-gotohell-source-parity-20261017",
+        "worker": "Worker-2",
+        "status": "parked",
+        "seed": null,
+        "reservations": [
+          "source:do.c:dodown",
+          "source:dungeon.c:goto_hell"
+        ],
+        "reason": "Blocked by existing production control flow: do.c:1226-1228 returns after dotrap(TOOKPLUNGE) whenever uescaped_shaft(trap) is true. trap.c:6659-6664 defines that as every seen HOLE/TRAPDOOR at the hero square; unseen or non-hole traps fail the following validity guard. Therefore the later do.c:1281-1282 Stronghold goto_hell branch cannot run for a valid hole/trapdoor. JS dodown mirrors the earlier return; a constructed D:2 Stronghold-hole case stayed at D:2 through the fall_through path. Reaching goto_hell requires changing the earlier guard/fall-through semantics, outside this frozen tiny helper+caller review and its explicitly distinct automatic-fall-through scope. No source changes retained; runtime parity remains pending."
+      },
+      "delivery:fix-sink-stop-donning-source-parity-20261017": {
+        "id": "delivery:fix-sink-stop-donning-source-parity-20261017",
+        "worker": "Worker-3",
+        "status": "ready",
+        "seed": null,
+        "reservations": [
+          "source:hack.c:dosinkfall"
+        ]
+      },
+      "delivery:fix-shop-entry-extra-dochug-source-parity-20261017": {
+        "id": "delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+        "worker": "Worker-1",
+        "status": "ready",
+        "seed": null,
+        "reservations": [
+          "source:shk.c:u_entered_shop"
+        ]
+      }
+    },
+    "reservations": {
+      "source:hack.c:dosinkfall": {
+        "tasks": [
+          "delivery:fix-sink-stop-donning-source-parity-20261017"
+        ]
+      },
+      "source:shk.c:u_entered_shop": {
+        "tasks": [
+          "delivery:fix-shop-entry-extra-dochug-source-parity-20261017"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
     "readySessions": 0,
     "threshold": 5,
     "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [],
-    "blocked": [],
-    "claimed": [
-      {
-        "task": "stronghold-dodown-gotohell-source-screen-20261017",
-        "worker": "Worker-1"
-      },
-      {
-        "task": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
-        "worker": "Worker-2"
-      }
+    "reason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration",
+    "ready": [
+      "fix-pet-scatter-occupation-clone-source-parity-20261017"
     ],
+    "blocked": [],
+    "claimed": [],
     "counts": {
-      "ready": 0,
-      "claimed": 2,
+      "ready": 1,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 396,
-      "superseded": 65
+      "completed": 407,
+      "superseded": 66
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "stronghold-dodown-gotohell-source-screen-20261017",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
@@ -171451,7 +172143,7 @@
         "id": "stronghold-dodown-gotohell-source-screen-20261017",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -171460,13 +172152,13 @@
         "target": null,
         "readyAt": "2026-10-17T21:20:22.998Z",
         "claimedAt": "2026-10-17T21:21:55.542Z",
-        "completedAt": null
+        "completedAt": "2026-10-17T21:24:06.772Z"
       },
       {
         "id": "dead-shopkeeper-damage-list-cleanup-source-screen-20261017",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -171475,13 +172167,178 @@
         "target": null,
         "readyAt": "2026-10-17T21:22:09.535Z",
         "claimedAt": "2026-10-17T21:22:19.981Z",
+        "completedAt": "2026-10-17T21:24:02.008Z"
+      },
+      {
+        "id": "shop-entry-extra-dochug-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T21:25:58.965Z",
+        "claimedAt": "2026-10-17T21:26:10.888Z",
+        "completedAt": "2026-10-17T21:28:37.376Z"
+      },
+      {
+        "id": "fix-adjacent-travel-crawl-await-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T21:27:10.060Z",
+        "claimedAt": "2026-10-17T21:27:29.574Z",
+        "completedAt": "2026-10-17T21:32:29.872Z"
+      },
+      {
+        "id": "fix-container-artifact-touch-await-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T21:28:33.737Z",
+        "claimedAt": "2026-10-17T21:29:40.442Z",
+        "completedAt": "2026-10-17T21:34:44.585Z"
+      },
+      {
+        "id": "fix-shopkeeper-owned-damage-cleanup-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T21:30:56.368Z",
+        "claimedAt": "2026-10-17T21:31:41.124Z",
+        "completedAt": "2026-10-17T21:35:21.352Z"
+      },
+      {
+        "id": "fix-stronghold-dodown-gotohell-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T21:34:33.065Z",
+        "claimedAt": "2026-10-17T21:34:49.432Z",
+        "completedAt": null
+      },
+      {
+        "id": "shop-entry-dochug-adapter-prerequisite-source-proof-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T21:38:11.564Z",
+        "claimedAt": "2026-10-17T21:38:27.387Z",
+        "completedAt": "2026-10-17T21:41:32.275Z"
+      },
+      {
+        "id": "fix-sink-stop-donning-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T21:40:18.374Z",
+        "claimedAt": "2026-10-17T21:40:45.989Z",
+        "completedAt": "2026-10-17T21:47:12.851Z"
+      },
+      {
+        "id": "pet-landmine-scatter-occupation-clone-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-17T21:47:33.051Z",
+        "claimedAt": "2026-10-17T21:49:24.399Z",
+        "completedAt": "2026-10-17T21:53:36.890Z"
+      },
+      {
+        "id": "fix-shop-entry-extra-dochug-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-17T21:50:10.631Z",
+        "claimedAt": "2026-10-17T21:50:20.088Z",
+        "completedAt": "2026-10-17T21:57:59.074Z"
+      },
+      {
+        "id": "confused-spellbook-tear-trycall-source-screen-20261017",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-17T21:51:54.513Z",
+        "claimedAt": "2026-10-17T21:52:04.782Z",
+        "completedAt": "2026-10-17T21:56:50.628Z"
+      },
+      {
+        "id": "fix-pet-scatter-occupation-clone-source-parity-20261017",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "ready",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-17T22:00:44.474Z",
+        "claimedAt": null,
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "a016c2a65453dca23d9c501086b7d42b85aa6c8e",
-    "measuredAt": "2026-10-17T20:40:17.109Z",
+    "executionCommit": "571d5b4c7d1f2fee43f17618c208a560da4a0d3b",
+    "measuredAt": "2026-10-17T21:56:39.749Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
