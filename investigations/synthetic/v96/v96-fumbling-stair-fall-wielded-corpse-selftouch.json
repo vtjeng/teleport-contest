@@ -1,0 +1,49 @@
+{
+  "session": "synthetic/v96/v96-fumbling-stair-fall-wielded-corpse-selftouch",
+  "remainingScreens": 1,
+  "recordedSteps": 148,
+  "corpus": "synthetic",
+  "batch": "v96",
+  "caseId": "v96-fumbling-stair-fall-wielded-corpse-selftouch",
+  "manifestPath": "challenges/manifests/v96.json",
+  "manifestSha256": "bdde74dc7df7b781b9331b129824e5a202c11a3afd6acdc78927c98976f6e60c",
+  "recordingSha256": "81bd890d56799959e5a9a97ed6cad76034ccf7aa5a398e9c72d254a6d3fee892",
+  "evaluationPath": "challenges/evaluations/admission-8cc2677aab9ae7eabe4981a42c3bde9cf7b0bb50-v96.json",
+  "evaluationCommit": "8cc2677aab9ae7eabe4981a42c3bde9cf7b0bb50",
+  "status": "complete",
+  "commit": "8cc2677aab9ae7eabe4981a42c3bde9cf7b0bb50",
+  "mismatch": {
+    "caseId": "v96-fumbling-stair-fall-wielded-corpse-selftouch",
+    "kind": "screen",
+    "firstMismatch": {
+      "segmentIndex": 0,
+      "stepIndex": 147,
+      "key": ">",
+      "row": 0,
+      "column": 25
+    },
+    "rngMismatch": null,
+    "metrics": {
+      "screens": {"matched": 147, "total": 148},
+      "rng": {"matched": 4892, "total": 4892},
+      "cursors": {"matched": 147, "total": 148}
+    },
+    "owner": "do.c:goto_level ordinary stair fall selftouch caller"
+  },
+  "summary": "On the final downward-stair input, the accepted JavaScript replay misses the C screen after Fumbling makes the hero fall while wielding a cockatrice corpse. C do.c:goto_level calls selftouch(\"Falling, you\") after fall damage; js/do.js:goto_level skips that call with note_unported('trap.c selftouch'). The existing js/trap.js:selftouch implementation already ports trap.c:selftouch, so this is missing caller wiring in goto_level. The C call returns no value; the JavaScript gap marker improperly omits an available source call.",
+  "source": {
+    "file": "do.c",
+    "branch": "After downward stair travel, when excessive burden, punishment, or Fumbling causes a stair fall, goto_level applies fall effects and then calls selftouch(\"Falling, you\") before the arrival tail.",
+    "functions": ["goto_level"],
+    "callers": ["dodown() at do.c:1131-1294 calls goto_level() at do.c:1287; js/do.js:dodown() routes through next_level() to goto_level()."],
+    "dependencies": ["trap.c:selftouch; already implemented in js/trap.js:selftouch"]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The admitted v96 evaluation records 147/148 screens, 147/148 cursors, and 4892/4892 RNG calls for this recording; the saved comparison localizes the first mismatch to segment 0, step 147, the final '>' input, with no RNG mismatch.",
+    "The frozen v96 preparation evidence identifies the planned behavior as a Fumbling downward-stair fall with a gloved wielded cockatrice corpse and records the original comparison against the accepted JavaScript pin. The JS object tree was verified unchanged through the published accepted base.",
+    "Upstream nethack-c/upstream/src/do.c:1796 calls selftouch(\"Falling, you\") after the stair-fall damage branch; nethack-c/upstream/src/trap.c:3883-3910 implements that helper.",
+    "js/do.js:3071-3074 currently substitutes note_unported('trap.c selftouch') at the matching stair-fall call site. js/trap.js:selftouch implements trap.c:selftouch, so this call can be wired without new gameplay behavior or session-specific logic.",
+    "A second matching note_unported('trap.c selftouch') exists in the goto_level random-arrival fall branch at js/do.js:3099, paired with upstream do.c:1808. It is the same discarded-result callee and should be wired consistently if within the claimed caller scope."
+  ]
+}
