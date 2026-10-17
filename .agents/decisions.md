@@ -327,3 +327,49 @@ Observed elapsed phases: initial setup 797.932 seconds; consumer repair 69.130; 
   reason until an explicit current observation. Actual invocation receipts
   remain necessary. Future recurrence reduction and effort savings are
   **unmeasured**; no gameplay or CPU claim.
+
+### 2026-10-17 follow-up — Reason provenance publication and first claim
+
+Integrated/published `b124ef9482e91f7421732608db46e24eb8e1c894` at
+18:40:54.401 UTC. Work lead retained exact passing Checkpoint `39058651350`,
+Dashboard `39059127903`, Lint `39059127894` and the successful ordinary
+publication-CI receipt. This publication also integrates the source-gap,
+recovery-dispatch and stale-reason process records above.
+
+A saved read-only ledger-prefix projection at the next Worker 1 claim,
+18:42:48.399, retains its defensive-amulet assignment with null
+reason/reasonAt/reasonTask. Worker 2/3 completed idle rows are also null;
+the prior mimic reason no longer appears beside these tasks. This establishes
+the corrected projection, not recurrence reduction. That sole new claim after
+publication waited 21.076 seconds from enqueue, inside the earlier
+9.349–25.635-second range. Nine ordinary post-recovery handoffs have median
+12.699 seconds (9.654–21.076); they are different small windows without a
+comparable recovery trial. Causal delay/effort savings and future recurrence
+reduction remain **unmeasured**. PA receipt:
+`.cache/lava-provenance-triage-20261017/post-publication-projection.json`.
+No test, validation or gameplay was repeated for this observation.
+
+## 2026-10-17 — Refresh on closed worker exploration activity
+
+- Change: the Coordinator approved a separate refresh watermark for sanitized
+  closed, claimed Worker 1–3 exploration completion/block activity, including
+  Main support. Independent discovery records and their yield denominator
+  retain their existing meaning. This extends the earlier
+  [checked snapshot coalescer](#2026-10-16--checked-exploration-snapshot-coalescing).
+- Why: [Support completion freshness](friction.md#2026-10-17--support-completions-could-not-refresh-exploration-activity).
+  The 15:12:35.496 UTC snapshot precedes 58 closed worker support explorations
+  through 19:35:31.889. The old discovery-only watermark could not observe
+  those closures; ownership and CI deferrals also constrain publication.
+- Implementation: Work lead owns the scoped snapshot watermark, coalescer
+  consumer/proof updates and focused checks, and records the exact integrated
+  commit and hosted result at the genuine standalone tooling boundary.
+  Implementation and hosted validation are pending at this draft.
+- Benefit/tradeoff: make completed exploration activity eligible for the
+  existing 15-minute refresh while allowing more activity-driven snapshots.
+  Claims, turns, capture/publisher churn and unchanged data do not trigger it.
+  Keep privacy, Main/readiness/CI deferrals, exact snapshot-only history and
+  the original checkpoint proof; no worker claim or discovery count changes.
+- Follow-up: **unmeasured**. Observe the first natural support closure through
+  pending eligibility and checked publication, recording first-seen, deferral,
+  capture and Dashboard/Lint outcome separately. No artificial task, repeated
+  validation or gameplay is needed to manufacture a freshness observation.

@@ -1554,3 +1554,30 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
   The supported next-work projection then shows zero ready, claimed or blocked
   assignments and three workers needing work. This closes the interrupted
   handoff; it does not measure reduced future delay or establish C/JS parity.
+
+### 2026-10-17 — Support completions could not refresh exploration activity
+
+- The retained dashboard snapshot is captured at 15:12:35.496 UTC. The
+  canonical ledger contains 58 later closed, claimed Worker 1–3 exploration
+  assignments through 19:35:31.889, all produced by Main with support purpose;
+  the last closure is 4h22m56.393s beyond the displayed capture. These include
+  source-only support and bounded physical evidence, not 58 independent
+  discoveries. Activity, effort, CPU and discovery yield are separate measures.
+- Accepted `snapshot-publication.mjs` hashes only closed independent discovery
+  records. Main support closures therefore cannot create a pending refresh
+  watermark even after ordinary ownership/CI deferrals clear. This is an
+  eligibility limitation of the existing coalescer; the sample does not assign
+  all observed lag to it because Main leases and other deferrals also occur.
+- The Coordinator approved Work lead's narrow expansion: add a separate
+  watermark of sanitized, closed, claimed Worker 1–3 exploration completion/
+  block activity. Retain the independent discovery denominator, 15-minute
+  coalescing, privacy, no-change suppression, Main ownership/readiness/CI gates,
+  strict snapshot-only proof and original checkpoint identity. Claims, turns,
+  capture timestamps and publisher activity alone still create no refresh.
+  See the [adopted decision](decisions.md#2026-10-17--refresh-on-closed-worker-exploration-activity).
+  First natural refresh and elapsed freshness benefit remain unmeasured.
+- PA read-only receipt:
+  `.cache/process-monitoring-20261017/dashboard-freshness-source-support-1939.json`
+  retains snapshot/ledger hashes, the 58 closure identities and original
+  accepted watermark source. No refresh, publication, gameplay or validation
+  was rerun for this observation; Work lead owns implementation and checks.
