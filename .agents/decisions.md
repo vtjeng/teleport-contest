@@ -199,3 +199,29 @@ and superseded on that point. Independent design, valid C evidence, unchanged
 replay, fixed accepted comparison, distinct source attribution and normal
 acceptance/admission remain required. Expected benefit is earlier feedback from
 a useful case; discovery yield and coordination effects remain unmeasured.
+
+## 2026-10-17 — Explicit continuation after exhausted parked preparation
+
+- Change: Work lead adopted `49babf797` (integrated as `56e0217a5`) after the
+  Coordinator requested a supported fresh Prep97 assignment preserving exhausted
+  Prep96. A Work-lead-only `assign` opt-in names exact `afterParked` predecessor
+  IDs and records a nonempty `continuationReason` on the new task. Only older,
+  unsubmitted preparations explicitly parked from `working` qualify; recorded
+  processes and probes must be reconciled first. See the supported syntax in
+  [architecture](architecture.md).
+- Why: the [parked preparation guard](friction.md#parked-preparation-blocked-fresh-batch-2026-10-17)
+  rejected a fresh independent batch because exhausted Prep96 remained parked.
+  The Coordinator required its exhausted parked status and evidence to remain intact.
+  The default guard remains for assignments without an explicit disposition.
+- Expected benefit/tradeoff: allow useful fresh preparation to proceed while
+  retaining the earlier task, status, evidence, batch identity and budgets.
+  The explicit predecessor list and reason add review and bookkeeping; this is
+  a narrow path for unsubmitted history, not a way to skip submitted deliveries,
+  required corrections, dependencies or live ownership. Resume rechecks current
+  predecessor state, and next-work guidance prefers the fresh active task.
+- Follow-up evidence: 32 focused lifecycle tests, targeted lint and diff checks
+  passed. A read-only in-memory projection of the actual ledger rejected the
+  default assignment and allowed the explicit successor while leaving Prep96
+  and ledger bytes unchanged. Hosted validation, first canonical successor
+  assignment and elapsed handoff benefit are initially unmeasured. Existing
+  C evidence, comparison, replay, acceptance and admission gates remain intact.

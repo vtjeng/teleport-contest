@@ -1266,3 +1266,34 @@ triage decisions or fix references.
   producer confirmation. The tin result `e285af3e` explicitly excludes its
   post-comparison continuation from validated claims. Preserve these stopping
   decisions and their original evidence; neither warrants duplicate replay.
+
+### 2026-10-17 — Toolbar checkpoint exposed a synthetic shutdown race and evidence-access friction
+
+- Evidence: toolbar candidate `09767b78f`, hosted Checkpoint `38982567469` failed Tests—goal lifecycle + shard 1. Log-storage access was unavailable; the Checks annotation contained only exit 1. Work lead ran the exact shard diagnostically: 2,975 passed, one failed at the prompt recorder's crash-after-observer assertion. Preserve that failed run and local log; fixed and synthetic replay checks passed separately but did not make the failed checkpoint acceptable.
+- Cause: the fake child emitted the observer frame and synchronously exited 7 while the recorder intentionally sent SIGTERM on observing completion. The signal could win, so the fixture sometimes produced an expected termination rather than the intended crash. This evidence established a fixture race, not a recorder defect.
+- Correction: PA test-only `ed0a59de4` (integrated `21bb0ffca`) makes only this fake child ignore SIGTERM before emitting frames. Its immediate explicit exit 7 remains authoritative. Assertions now require process-failure, exit 7/no signal, all five journaled frames and observer decision, incomplete capture and one physical invocation/no replay. No sleeps, retries or production behavior changes. Focused 16/16 passed; integrated full Checkpoint `38983628108` passed. Main `21bb0ffca` Lint `38984125417` and Dashboard `38984124888` passed. Future hosted recurrence reduction is unmeasured.
+- Separate bookkeeping friction: a standalone tooling activity event was rejected as unknown task. No fake assignment was added; actual Main ownership/lease remained intact. Existing task-bound activity schema does not represent arbitrary standalone tooling labels. One occurrence does not yet justify a schema/tooling change; use explicit coordinator/lease evidence and preserve the rejection.
+- Follow-up: preserve exact failed-check logs through existing approved evidence channels when available. Do not rerun successful stages solely for bookkeeping. The targeted full checkpoint remains the acceptance gate.
+
+### Parked preparation blocked fresh batch (2026-10-17)
+
+- After toolbar publication `21bb0ffca`, supported Prep97 `assign` was rejected
+  by `worker-state.mjs` ownership checks: exhausted
+  `prep-v96-source-exploration-20261016` was "still pending (parked); resume it
+  before a later batch". Actual Prep96 was parked from `working`, with zero
+  submitted deliveries and no recorded processes. The rejected assign did not
+  persist; its separate earlier case-directory scope rejection was corrected
+  before this guard failure. Both observations remain historical.
+- The guard prevented a fresh independent preparation unless Work lead resumed
+  the exhausted task or misstated its completion. Coordinator explicitly
+  requested a supported transition preserving the old status and evidence.
+  `49babf797` / integrated `56e0217a5` adds the narrow explicit predecessor-list
+  and reason path described in [decisions](decisions.md#2026-10-17--explicit-continuation-after-exhausted-parked-preparation).
+  Working preparation, submitted predecessors, required corrections, exact
+  batch identity and live-process/probe checks remain protected.
+- Focused tests passed 32/32; actual-ledger projection was read-only. No live
+  assignment, evidence mutation, source-owner release or budget reset was made
+  by the Process analyst. First canonical transition and any wait reduction
+  remain unmeasured; no CPU or discovery-yield benefit is claimed.
+
+- Record-draft handoff also exposed a notification mistake: Work lead initially used `send_message` to request new work from an analyst whose turn had completed. That tool does not trigger a completed turn. Work lead corrected the wait with `followup_task` on the same handle; no replacement agent or repeated check was needed. Use `followup_task` for new work at completed-agent boundaries.
