@@ -827,8 +827,9 @@ export async function runSegment(
 // before save.c freedynamicdata() reaches status_finish(). A nonterminal input
 // boundary never releases these banks; panic preserves C's cleanup bypass.
 export async function finishTerminatedSegment(state = game) {
-    if (!state.program_state?.gameover) return false;
-    if (!state.program_state?.in_really_done && state._preNhgetchHook)
+    if (!state.program_state?.gameover || state.program_state?.in_really_done)
+        return false;
+    if (state._preNhgetchHook)
         await state._preNhgetchHook();
     if (!state.program_state?.panicking)
         status_finish(state);
