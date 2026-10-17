@@ -7652,7 +7652,18 @@ test('update_all resets both temporary banks and selects with zero change',
     assert.equal(state.gb.status_hilite_times[0][field], 0);
     assert.equal(state.gb.status_hilite_times[1][field], 0);
     assert.equal(state.gb.status_hilite_rule[0][field], null);
+    assert.equal(state.gb.status_hilite_chg[field], true,
+        'C marks enabled fields even when the value and selected rule stay put');
+    assert.equal(state.gb.status_hilite_chg_banks[1][field], true,
+        'both C chg banks receive the update_all notification');
     assert.equal(state.gu.update_all, false);
+
+    status_eval_next_unhilite(state);
+    assert.equal(state.gb.status_hilite_chg[field], false);
+    assert.equal(state.gb.status_hilite_chg_banks[1][field], false);
+    assert.equal(state.gb.status_hilite_times[0][field], 0);
+    assert.equal(state.disp.botl, true,
+        'the action hook redraws after consuming this C notification');
 });
 
 // C ref: botl.c do_statusline2():140-142 and bot_via_windowport():1036-1037,
