@@ -23,6 +23,11 @@
       "status": "pass",
       "passed": 308,
       "failed": 0
+    },
+    "node --test scripts/status-hilite-lifecycle.test.mjs scripts/allmain-turn.test.mjs scripts/display-symbols.test.mjs scripts/status-hilite-menu.test.mjs scripts/level-arrival.test.mjs scripts/options.test.mjs": {
+      "status": "pass",
+      "passed": 410,
+      "failed": 0
     }
   },
   "unchangedTouristReplay": {
@@ -196,5 +201,34 @@
     "implementationCommitAt": "2026-10-17T04:57:04Z",
     "focusedVerificationAt": "2026-10-17T04:58:42Z",
     "firstMilestoneDeadline": "2026-10-17T05:42:09.248Z"
-  }
+  },
+  "latestImplementationCommit": "9d60fae075ba5c7e11e33bf19dda9ea449cd3588",
+  "reviewContinuation": {
+    "reviewReceipt": "/workspace/teleport-contest/.cache/xp-status-production-feasibility/implementation-milestone-review.json",
+    "reviewReceiptSha256": "0e4eb5f0ee394e1a4026763a34938cf3b446fa8d33b7e963bedfc28589924cfe",
+    "corrections": [
+      "repaint reads cached delivered styles/values; only bot/timebot notification passes advance selector history",
+      "pending status_hilite_chg survives repeated bot passes until status_eval_next_unhilite; update_all uses zero change and resets both timer banks",
+      "exp_percent_changing calls candidate selector with literal chg=0"
+    ],
+    "focusedFollowup": {
+      "lint": "pass",
+      "diffCheck": "pass",
+      "focusedTests": "410/410 pass"
+    },
+    "postCorrectionPublicReplay": {
+      "command": "node scripts/score-challenges.mjs --batch v97 --output challenges/evaluations/worker2-temporary-v97-postfix.json",
+      "evaluatedCommit": "9d60fae075ba5c7e11e33bf19dda9ea449cd3588",
+      "status": "complete",
+      "casePassed": true,
+      "sessions": "1/1",
+      "screens": "5/5",
+      "cursors": "5/5",
+      "orderedRng": "4904/4904",
+      "inputsSha256": "f673fc2563fe95a506246f757f3d8400465a669c50c06fdff29c5a83c864f051",
+      "sanitizedLog": "/tmp/worker2-v97-postfix.log; temporary output file removed after extracting summary"
+    },
+    "sourceReviewMatrix": ".cache/status-highlight-lifecycle-v97/source-review-matrix.json"
+  },
+  "sourceReviewMatrix": ".cache/status-highlight-lifecycle-v97/source-review-matrix.json"
 }
