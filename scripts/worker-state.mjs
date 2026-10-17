@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Shared event log with worktree-scoped writes. Tasks and reservations are rebuilt
 // from these events, so no second hand-maintained status table can drift.
+import {sourceParityScope} from './source-parity.mjs';
 import { spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { closeSync, existsSync, fsyncSync, lstatSync, mkdirSync, openSync,
@@ -601,6 +602,7 @@ function applyLegacyEvent(state, event, at) {
         check(task.kind !== 'investigation', 'claim source scope with implement before expanding an investigation');
         list(event.reservations, 'reservations', sourceReservation);
         list(event.allowedPaths, 'allowedPaths', repoPath);
+        if (task.sourceParity) sourceParityScope(task.sourceParity, event.allowedPaths, event.reservations);
         if (task.sourceTrial) check(isDeepStrictEqual([...event.allowedPaths].sort(), [...SOURCE_TRIAL_PATHS].sort())
             && isDeepStrictEqual([...event.reservations].sort(), SOURCE_TRIAL_UNITS.map(unit => `source:${unit}`).sort()),
         'source trial scope is frozen; stop rather than expand');

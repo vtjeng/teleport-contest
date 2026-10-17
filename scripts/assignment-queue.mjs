@@ -1,5 +1,6 @@
 // Unified execution assignments share the legacy ledger's atomic event log.
 // Legacy state.tasks/deliveries are transport/acceptance records, not dispatch.
+import {validateSourceParityTask} from './source-parity.mjs';
 import assert from 'node:assert/strict';
 import {isAbsolute} from 'node:path';
 import {isDeepStrictEqual} from 'node:util';
@@ -105,6 +106,7 @@ function validateTask(state, event) {
     ensure(task.sessions.every(sessionId),
         'sessions must use canonical corpus/batch IDs');
     ensure(task.dependencies.every(key => state.queue.tasks[key] || state.deliveries[key]), 'unknown assignment dependency');
+    if (task.sourceParity !== undefined) validateSourceParityTask(task);
     if (task.sourceTrial !== undefined) {
         validateSourceTrial(task.sourceTrial);
         ensure(task.output === 'implementation' && task.producer === 'Main' && task.recipient === 'Main'
@@ -118,7 +120,7 @@ function validateTask(state, event) {
         'source trial assignment differs from frozen base/units/write scope');
         ensure(task.checks.includes('focused') && task.checks.includes('lint'), 'source trial needs focused and lint checks');
     }
-    ensure(task.output !== 'implementation' || ((task.sessions.length > 0 || task.sourceTrial) && task.recipient === 'Main'),
+    ensure(task.output !== 'implementation' || ((task.sessions.length > 0 || task.sourceTrial || task.sourceParity) && task.recipient === 'Main'),
         'implementation needs session provenance and recipient Main (Work lead)');
     if (task.output === 'exploration') {
         const support = task.purpose === 'support';
@@ -137,6 +139,7 @@ function validateTask(state, event) {
             'exploration rework needs the exact targetTask as well as its commit');
         if (task.output === 'implementation') {
             const prior = state.tasks[state.deliveries[task.target]?.task];
+            ensure(isDeepStrictEqual(task.sourceParity, prior?.sourceParity), 'rework must retain its source parity review');
             ensure(isDeepStrictEqual(task.sourceTrial, prior?.sourceTrial), 'rework must retain its source trial identity');
             if (task.sourceTrial) ensure(prior?.deliveries.length === 1, 'source trial permits at most one scoped rework');
             ensure(prior?.kind === 'implementation' && prior.status === 'changes-required',
@@ -288,6 +291,7 @@ export function applyQueueEvent(state, event, at, legacy) {
                     reservations: task.reservations, allowedPaths: task.allowedPaths}, at);
                 state.tasks[task.transport].execution = task.id;
                 if (task.sourceTrial) state.tasks[task.transport].sourceTrial = structuredClone(task.sourceTrial);
+                if (task.sourceParity) state.tasks[task.transport].sourceParity = structuredClone(task.sourceParity);
             }
         }
     } else if (event.type === 'queue-processes') {
@@ -329,6 +333,7 @@ export function applyQueueEvent(state, event, at, legacy) {
         ensure(task && ['ready', 'blocked'].includes(task.status) && text(event.reason)
             && task.type !== 'rework' && event.base === state.queue.evidence?.base,
             'reassessment needs a ready/blocked ordinary task and current evidence');
+        ensure(!task.sourceParity, 'source parity base is frozen; stop and re-review instead of reassessing');
         ensure(!task.sourceTrial, 'source trial base is frozen; stop and re-review instead of reassessing');
         if (task.output === 'implementation') ensure(task.sessions.every(session => state.queue.evidence.sessions.includes(session)),
             'reassessment cannot revive resolved sessions');

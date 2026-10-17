@@ -6,6 +6,7 @@
 // 2026-09-05 carry the retired boundary, forecast, and slices fields. Later
 // historical goals may have spans. New goals use one complete task context.
 
+import {validateSourceParityGoal} from './source-parity.mjs';
 import { lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -67,6 +68,7 @@ export function validateGoals(store) {
     const ids = new Set();
     for (const goal of store.goals) {
         if (goal.sourceTrial) validateSourceTrialGoal(goal);
+        if (goal.sourceParity) validateSourceParityGoal(goal);
         if (!nonempty(goal.id)) throw new Error('every goal needs a nonempty id');
         if (ids.has(goal.id)) throw new Error(`duplicate goal id: ${goal.id}`);
         ids.add(goal.id);
@@ -441,6 +443,7 @@ export function taskContext(goal) {
         jsFile: goal.luaFile ? null : jsFileFor(goal.cFile),
         sessions,
         ...(goal.sourceTrial ? {sourceTrial: goal.sourceTrial} : {}),
+        ...(goal.sourceParity ? {sourceParity: goal.sourceParity} : {}),
         ...(goal.step !== undefined ? { step: goal.step } : {}),
         ...(synthetic.length ? { syntheticProvenance: synthetic } : {}),
         evidenceRequired: 'whole source, production callers, tests for pure '
@@ -796,6 +799,12 @@ export function goalFromWorkerContext(task, context) {
         options['required-functions'] = context.requiredFunctions.map(entry =>
             typeof entry === 'string' ? entry : `${entry.sourceFile}:${entry.name}`).join(',');
     const goal = newGoal(options);
+    if (!isDeepStrictEqual(task.sourceParity, context.sourceParity))
+        throw new Error('worker context source parity differs from assigned review');
+    if (task.sourceParity) {
+        goal.sourceParity = structuredClone(task.sourceParity);
+        validateSourceParityGoal(goal);
+    }
     if (!isDeepStrictEqual(task.sourceTrial, context.sourceTrial))
         throw new Error('worker context source trial differs from assigned review');
     if (task.sourceTrial) {
@@ -807,6 +816,7 @@ export function goalFromWorkerContext(task, context) {
 
 /** A name inventory or a unit test alone cannot close a port. */
 export function assertPortComplete(goal) {
+    if (goal.sourceParity) throw new Error('source parity runtime-pending claims do not certify source completion');
     if (goal.sourceTrial) throw new Error('source trial constructed-state claims do not certify source completion');
     if (!isSourcePort(goal)) return;
     const pending = sourceUnits(goal).filter((entry) => !entry.complete);
@@ -826,6 +836,7 @@ export function assertPortComplete(goal) {
 
 /** Merge one span's evidence without discarding evidence for earlier spans. */
 export function recordEvidence(goal, evidence, head) {
+    if (goal.sourceParity) throw new Error('source parity needs separate ordinary runtime certification');
     if (goal.sourceTrial) throw new Error('source trial needs separate ordinary runtime certification; keep constructed-state claims separate');
     const previous = goal.evidence ?? {};
     const functions = new Map((previous.functions ?? []).map((entry) => [sourceUnitKey(goal, entry), entry]));
@@ -1030,6 +1041,8 @@ async function main(args) {
         const store = readGoals();
         const existing = store.goals.find(entry => entry.id === task.goal);
         if (existing) {
+            if (task.sourceParity && !isDeepStrictEqual(existing.sourceParity, task.sourceParity))
+                throw new Error('registered source parity goal differs from its assigned review/base');
             if (task.sourceTrial && !isDeepStrictEqual(existing.sourceTrial, task.sourceTrial))
                 throw new Error('registered source trial goal differs from its assigned review/base');
             console.log(formatGoal(existing)); return;

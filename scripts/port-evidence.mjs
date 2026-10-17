@@ -2,6 +2,7 @@
 // recordings, and synthetic replay ranges. Structural checks here do not prove
 // runtime reachability or parity; goal closure verifies cited synthetic ranges.
 
+import {validateSourceParityGoal, validateSourceParityClaims} from './source-parity.mjs';
 import { lstatSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -300,9 +301,11 @@ function hasSymbol(source, symbol, allowConst) {
  */
 export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, commit, deliveryClaims = false } = {}) {
     if (goal.sourceTrial) validateSourceTrialGoal(goal);
-    const constructedTrial = Boolean(deliveryClaims && goal.sourceTrial);
+    if (goal.sourceParity) validateSourceParityGoal(goal);
+    const constructedTrial = Boolean(deliveryClaims && (goal.sourceTrial || goal.sourceParity));
     const { scope, evidence: result } = evidenceShape(goal, evidence, constructedTrial);
-    if (constructedTrial) {
+    if (deliveryClaims && goal.sourceParity) validateSourceParityClaims(goal, evidence);
+    if (deliveryClaims && goal.sourceTrial) {
         if (result.functions.some(entry => entry.implementation !== 'js/detect.js'
             || entry.symbol !== entry.name || !entry.tests.includes('scripts/detect.test.mjs')))
             throw new Error('source trial claims must use the reviewed detect implementation symbols and focused test');
@@ -391,7 +394,7 @@ export function completedFunctionNames(goal) {
 
 export function completedSourceUnits(goal) {
     // Even accepted constructed-state claims do not certify source coverage.
-    if (goal.sourceTrial) return [];
+    if (goal.sourceTrial || goal.sourceParity) return [];
     try {
         const invalidated = new Set((goal.invalidatedFunctions ?? [])
             .map(entry => sourceUnitKey(goal, entry)));

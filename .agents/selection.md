@@ -34,8 +34,9 @@ This is the explicit-search caller/capability frontier, **not** a new port of
 the already implemented `find_trap`. Main independently closed its source and
 owner review at `0915ed8f939110d89cb36c27465a1e9a51c143de`, review SHA-256
 `c03aba059bc7dc3e7a8a3faa49decfd72ef8b401885417db59ba1b22f2234d87`.
-Only this assignment/goal may have empty `sessions` and constructed-state,
-runtime-pending implementation claims. This grants no general source backlog.
+Only this trial may use its `sourceTrial` opt-in. Explicitly authorized source
+parity corrections use the separate protocol below. This trial grants no
+general source backlog.
 
 Freeze the whole `detect.c:find_trap`, `detect.c:dosearch0`, and
 `detect.c:dosearch` source/caller review; permit writes only to `js/detect.js`,
@@ -94,6 +95,42 @@ regressions, rework, and recorded worker/lead effort including setup and triage;
 mark unmeasured effort unknown and never treat calendar elapsed as CPU. Stop or
 expand only after an explicit review decision; this one trial supplies no
 general effectiveness claim.
+
+### Explicitly authorized source parity corrections
+
+When the user authorizes a source-proved parity repair without a public mismatch,
+Work lead may enqueue a sessionless Main implementation with `sourceParity`.
+Do not invent a session, discovery, runtime witness or score gain. This is a
+correction to existing reachable behavior, not general roadmap selection.
+
+The version-1 object binds its assignment/goal ID, accepted `assignmentBase`,
+`evidenceBasis: "source-parity-runtime-pending"`, and an inline `review` with its
+`reviewSha256` (SHA-256 of its exact JSON serialization). The review records the
+user authorization, reviewed base, exact C `units` (`file.c:function`), allowed
+paths, existing focused regression paths, pinned Git C gitlink and relevant
+JavaScript/test blob identities, real production caller/source traces, and the
+current and expected state/control-flow. Enqueue and claim verify the pins
+against both bases. The reviewed scope and base cannot expand or be reassessed;
+changed prerequisites require a new review. SourceParity and sourceTrial are
+mutually exclusive. Rework retains the exact sourceParity object.
+
+Use the file-port transport/context for the exact reviewed source units, with
+empty sessions and unchanged sourceParity metadata; this records correction
+scope without certifying whole functions. Worker claims retain the explicit
+runtime-pending basis, impure units, production callers, entry points and pinned
+tests. Preserve actual failing focused regression output against the original
+source and passing output for the same command in `regression.before` and
+`regression.after`. The before receipt names `base`, `command`, nonzero
+`exitCode` and `output`; after names the same command, zero exit and output.
+No public gameplay is authorized by this opt-in. Broader recording work still
+needs its own qualified task.
+
+Work lead may mark the user's requested repair urgent under existing priority.
+It adds zero to the count of ready implementation sessions. Use the normal
+immutable submission, exact hosted checkpoint and per-case no-regression
+acceptance/publication path. Runtime-pending claims never become source
+certification or synthetic discovery evidence. Preserve the separate ordinary
+recording requirements for other assignments.
 
 The queue displays measured unmatched screens, first mismatch steps, and
 source groups for diagnosis. Neither screen counts nor first mismatch steps
