@@ -18,6 +18,7 @@ import {
     PLINE_SPEECH,
     PLINE_VERBALIZE,
     ROOMOFFSET,
+    SHARED,
     SHOPBASE,
     TT_PIT,
 } from '../js/const.js';
@@ -55,6 +56,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     append_price_quote,
     addupbill,
+    add_damage,
     contained_gold,
     clear_no_charge_pets,
     costly_adjacent,
@@ -78,6 +80,7 @@ import {
     restshk,
     same_price,
     shop_debt,
+    shkgone,
     shop_keeper,
     shopdig,
     Shk_Your,
@@ -969,6 +972,96 @@ function shopState({ has_shop = true } = {}) {
     };
     return state;
 }
+
+function damageCleanupState({ currentLevel = { dnum: 0, dlevel: 1 } } = {}) {
+    const state = {
+        u: { uz: currentLevel, ushops: [] },
+        moves: 1,
+    };
+    state.level = new GameMap();
+    const shopkeeper = billShopkeeper(SHOP_ROOMNO, []);
+    const shopRoom = { rtype: SHOPBASE, resident: shopkeeper, hx: 10 };
+    const secondRoom = { rtype: SHOPBASE, resident: null, hx: 10 };
+    state.level.rooms = [shopRoom, secondRoom];
+    shopkeeper.mextra.eshk.shoplevel = { dnum: 0, dlevel: 1 };
+    const cells = new Map();
+    state.level.at = (x, y) => cells.get(`${x},${y}`) ?? null;
+    const setCell = (x, y, roomno) => {
+        const cell = { typ: 0, flags: 0, roomno };
+        cells.set(`${x},${y}`, cell);
+        return cell;
+    };
+    setCell(2, 2, SHOP_ROOMNO);
+    setCell(3, 3, SHOP_ROOMNO);
+    setCell(8, 8, SHOP_ROOMNO + 1);
+    setCell(9, 9, SHOP_ROOMNO + 1);
+    setCell(5, 5, SHARED);
+    setCell(4, 4, SHOP_ROOMNO);
+    setCell(6, 6, SHOP_ROOMNO + 1);
+    return { state, shopkeeper, shopRoom };
+}
+
+test('shkgone discards its owned damage records before resident removal', () => {
+    // C shk.c:shkgone() calls discard_damage_owned_by() before clearing the
+    // resident. add_damage() builds the actual level list used by production.
+    const { state, shopkeeper, shopRoom } = damageCleanupState();
+    add_damage(2, 2, 1, state); // Owned tail.
+    add_damage(3, 3, 2, state); // Consecutive owned record.
+    add_damage(8, 8, 3, state); // Unrelated records retain relative order.
+    add_damage(9, 9, 4, state);
+    add_damage(5, 5, 5, state); // Shared square belongs to both shops.
+    const shared = state.level.damagelist;
+    const unrelated = shared.next;
+    const unrelatedLast = unrelated.next;
+    const consecutive = unrelatedLast.next;
+    const tail = consecutive.next;
+    let residentObserved = false;
+    Object.defineProperty(shopRoom, 'resident', {
+        configurable: true,
+        get: () => shopkeeper,
+        set: (resident) => {
+            if (resident === null) {
+                residentObserved = true;
+                assert.equal(state.level.damagelist, unrelated);
+                assert.equal(unrelated.next, unrelatedLast);
+                assert.equal(unrelatedLast.next, null);
+            }
+        },
+    });
+
+    shkgone(shopkeeper, state);
+    assert.equal(residentObserved, true);
+    assert.equal(state.level.damagelist, unrelated);
+    assert.equal(unrelated.next, unrelatedLast);
+    assert.equal(unrelatedLast.next, null);
+    assert.equal(shared.next, null);
+    assert.equal(consecutive.next, null);
+    assert.equal(tail.next, null);
+
+    // All-owned and no-owned lists cover the zero and unchanged boundaries.
+    const allOwned = damageCleanupState();
+    add_damage(2, 2, 1, allOwned.state);
+    add_damage(5, 5, 1, allOwned.state);
+    const removedHead = allOwned.state.level.damagelist;
+    const removedTail = removedHead.next;
+    shkgone(allOwned.shopkeeper, allOwned.state);
+    assert.equal(allOwned.state.level.damagelist, null);
+    assert.equal(removedHead.next, null);
+    assert.equal(removedTail.next, null);
+
+    const noneOwned = damageCleanupState();
+    add_damage(8, 8, 1, noneOwned.state);
+    const unaffected = noneOwned.state.level.damagelist;
+    shkgone(noneOwned.shopkeeper, noneOwned.state);
+    assert.equal(noneOwned.state.level.damagelist, unaffected);
+
+    const offLevel = damageCleanupState({ currentLevel: { dnum: 0, dlevel: 2 } });
+    add_damage(2, 2, 1, offLevel.state);
+    const offLevelRecord = offLevel.state.level.damagelist;
+    shkgone(offLevel.shopkeeper, offLevel.state);
+    assert.equal(offLevel.state.level.damagelist, offLevelRecord);
+    assert.equal(offLevel.shopRoom.resident, offLevel.shopkeeper);
+});
 
 test('make_happy_shk settles hostility before the shopkeeper turn', async () => {
     // This fixture keeps the keeper inside its tended shop so the tested
