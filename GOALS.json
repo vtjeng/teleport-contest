@@ -321831,6 +321831,564 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-sink-stop-donning-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement dosinkfall from hack.c",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-sink-stop-donning-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dosinkfall",
+          "line": 836,
+          "endLine": 922,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 836,
+        "to": 922
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-sink-stop-donning-source-parity-20261017",
+        "assignmentBase": "5aa8270965655e5bd165c053b66924712d753fac",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "5aa8270965655e5bd165c053b66924712d753fac",
+          "authorization": "2026-10-17 user authorized reachable source-proved parity repairs without public mismatch; Coordinator allows sink correction after travel delivery frozen, preserving independent source scope and normal exact validation.",
+          "currentBehavior": "C hack.c dosinkfall invokes existing stop_donning(lev_boots?uarmf:NULL) for ufall||lev_boots then recomputes lev_boots. JS skips helper and keeps const levBoots, leaving pending callback and risking stale uarmf access after real cancellation. Earlier v39 scope only Ring_off/Boots_off/off_msg, not cancellation/reread.",
+          "expectedBehavior": "Await existing do_wear.stop_donning at the exact source call under ufall||levBoots; then recompute levBoots from current nullable uarmf before levitation property and ring/boots cleanup. Preserve callback cancellation/unmul and all damage/selftouch/billing/messaging order. No callee/module expansion.",
+          "units": [
+            "hack.c:dosinkfall"
+          ],
+          "allowedPaths": [
+            "js/hack.js",
+            "scripts/hack.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/hack.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/hack.js",
+              "symbol": "spoteffects",
+              "source": "C spoteffects IS_SINK and Levitation branch invokes dosinkfall; current real JS spoteffects awaits dosinkfall after level arrival."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/hack.js",
+              "object": "ac58c7df369256394d08c9137482b90117c3ed62"
+            },
+            {
+              "path": "js/do_wear.js",
+              "object": "417d4f6e9152c94bd9b93e46fd31d44fb33edb30"
+            },
+            {
+              "path": "js/steal.js",
+              "object": "a8c844558ee3a40a5b4fa25fc976c9e2fd823020"
+            },
+            {
+              "path": "scripts/hack.test.mjs",
+              "object": "d9190b7886566594af145fb4a633d3572866f656"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "packetDigest": "a0e1e7cdd7d9daaa4bf57f8e388577beec98a69cd60687075adcbdbe14faf7a2",
+            "envelopeSha256": "f30e405262ac9681cdfc23fca497edbc1be0d3735d010b5e45fe522cb26838bb",
+            "correction": "C nomul4163 returns when multi<0, so busy teleport does NOT clear multi; donning predicate uses pending callback/slot, not multi. Preserve original packet additively.",
+            "limits": "No public runtime/physical setup or source certification. v39 gear-callback owner/budget retained; earlier source screen erroneous nomul explanation corrected."
+          },
+          "reachability": "Exact chain: passive teleport/safe_teleds→teleds nomul(0) (negative multi returns without callback clearing)→spoteffects IS_SINK&&Levitation→dosinkfall. Its helper guard is ufall||levBoots; one jointly valid constructed state can have pending putting-on levitation boots and flight (ufall=false,levBoots=true), reaching cancellation without unrelated crash/selftouch damage. C stop_donning clears afternmv and may remove incomplete uarmf, so reread is necessary. Earlier spoteffects conditions and stop_donning/donning predicates reviewed in a0e1 source report and CL guard-review correction; worker must verify exact valid production state in red/green regression."
+        },
+        "reviewSha256": "18c01e25bd9598e248e4ae0a346601c893af592be20272d1cf7403132f57a89a"
+      }
+    },
+    {
+      "id": "fix-confused-book-display-trycall-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement confused_book from undefined",
+      "cFile": "spell.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-confused-book-display-trycall-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "confused_book",
+          "line": 189,
+          "endLine": 210,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 189,
+        "to": 210
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-confused-book-display-trycall-source-parity-20261017",
+        "assignmentBase": "aa5537618a889445666232d6201ae4e2438f280b",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "aa5537618a889445666232d6201ae4e2438f280b",
+          "authorization": "2026-10-17 user and Coordinator authorize reachable source-proved parity correction with constructed regression and unchanged exact hosted/no-regression gates.",
+          "currentBehavior": "C confused_book displays pending message at first source site, then when tearing invokes trycall before destruction. JS skips both existing display/naming helpers. Initial public r state satisfies ordered guards; broader parked study owner remains held.",
+          "expectedBehavior": "Wire existing displayPendingTtyMessageWindow at exact earlier WIN_MESSAGE FALSE site and await existing trycall before useup; preserve real input/name/destruction/source RNG order and current shared learn/planning handoff, no helper/module port.",
+          "units": [
+            "spell.c:confused_book"
+          ],
+          "allowedPaths": [
+            "js/spell.js",
+            "scripts/read-command.test.mjs",
+            "scripts/spell.test.mjs",
+            "scripts/tty-message.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/read-command.test.mjs",
+            "scripts/spell.test.mjs",
+            "scripts/tty-message.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/read.js",
+              "symbol": "doread",
+              "source": "Exact initial public r selects inventory unknown blessed force-bolt book under active Confusion, read_ok/doread→study_book→confused_book. Existing shared learn caller must preserve planning/input handoff; C confused_book189-211 displays WIN_MESSAGE FALSE before tear then trycall before useup."
+            },
+            {
+              "path": "js/spell.js",
+              "symbol": "study_book",
+              "source": "Full preceding read/study guards and jointly valid Confused blessed unknown object/type state reviewed; no alternate history or naming-only late-call inference."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/spell.js",
+              "object": "a0721e732aea380ef3c3290c9ab21562b4c8cad5"
+            },
+            {
+              "path": "scripts/read-command.test.mjs",
+              "object": "75a5d56b42202b1758652db33979702683cfc110"
+            },
+            {
+              "path": "scripts/spell.test.mjs",
+              "object": "f38ff7c4bde542d33617eaed88186209ff7e4ef8"
+            },
+            {
+              "path": "scripts/tty-message.test.mjs",
+              "object": "aff59c1b16b6e8c83e88e07c9625d726f798d63c"
+            },
+            {
+              "path": "js/read.js",
+              "object": "a8b4fee3a3275b93cb77c2293ca517f787430ee6"
+            },
+            {
+              "path": "js/tty_message.js",
+              "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+            },
+            {
+              "path": "js/do.js",
+              "object": "eefeb62643f7474e80dc0f1b53186fdebfa315eb"
+            },
+            {
+              "path": "js/do_name.js",
+              "object": "6557f299efab4a165da3258626213d6b64986ada"
+            },
+            {
+              "path": "js/windows.js",
+              "object": "b48b6946edd1550d810dd0a506fb671021f7d751"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceReview": {
+            "updatedAt": "2026-10-17T21:59:21.479602+00:00",
+            "status": "Independently source-reviewed initial public read path positive; earlier display caller gap must be repaired in same confused_book unit; public-runtime-pending",
+            "base": "5aa8270965655e5bd165c053b66924712d753fac",
+            "resultDigest": "6661e535c2e6d977b16a660cd3ddc8a568d7b9b53d0e22a8f41c0b4fe81f1e57",
+            "packet": "/workspace/shared/teleport-loop-20261016/worker-state.json.results/6661e535c2e6d977b16a660cd3ddc8a568d7b9b53d0e22a8f41c0b4fe81f1e57.json",
+            "verification": "Exact outer/envelope bytes/hash and all11 embedded file hashes checked; original packet unchanged.",
+            "CUnit": "spell.c:confused_book189-211 whole function and its two existing study_book/learn callers; wire existing source-backed display/naming helpers, no windows/do_name source port or generalized reading expansion.",
+            "earlierBoundary": {
+              "C": "C wintty.c:tty_display_nhwindow1855-1885 NHW_MESSAGE handles WIN_MESSAGE,FALSE: TOPLINE_NEED_MORE calls more(), then clears; other states retire topline. It is not universally nonblocking, and cannot be skipped before naming.",
+              "JSAlreadyImplemented": "js/tty_message.js309 displayPendingTtyMessageWindow exactly documents and implements WIN_MESSAGE TRUE/FALSE behavior including NEED_MORE input/clear. Old blocked source record and worker phrase separate unported boundary refer to stale confused_book caller wiring, not absent helper.",
+              "disposition": "Wire this existing helper at source position after first confused-action message and before tear message; wire existing trycall after tear and before useup. A naming-only fix cannot claim full selected source ordering. Shared planning callers must reuse established input boundary or named handoff before physical input; no silent default input in clone."
+            },
+            "orderedGuardsJointState": [
+              "Public r selects actual inventory SPBOOK_CLASS via getobj; ordinary sighted unencumbered human Valkyrie and selected object permit read.c guards. The helper read_ok checks class and object selection does not make shared type known. Not special named-object, scroll, clothing, novel or blind reading branch.",
+              "One actual blessed noncursed SPE_FORCE_BOLT with dknown=true, shared oc_name_known=false and oc_uname absent, no learned Force Bolt, Confusion active before initial read, no existing spbook context/delay. This is a legal generated-object state; not a wish prefix that would identify the type.",
+              "Confusion skips dull sleep and nonconfused continuation; nonblank/non-novel valid book level enters delay setup; no known-spell refresh makeknown; blessing skips entire too_hard/readability path. Thus study_book calls confused_book without earlier return/discovery.",
+              "Source chosen rn2(3)=0 and nonBookDead reach tear arm: in_use=true -> first message -> implemented display call boundary -> tear message -> trycall. Display waits can be answered through real input adapter; they do not reject or consume the book.",
+              "trycall shared type unknown/uncalled guards hold; docall dknown guard holds. Existing live docall->flush_screen->name_from_player->windows.getlin->tty_getlin supports actual name input; after response type name is remembered, then useup deletes book. Existing JS cursed failure trycall call is a different branch, not compensation."
+            ],
+            "minimalSourceScope": [
+              {
+                "file": "js/spell.js",
+                "change": "Import/reuse existing displayPendingTtyMessageWindow and call at precise C display site; await existing imported trycall(book,state,{...env,random,message}) before useup. Preserve rn2 order, in_use, messages, true/false return and caller study-delay handling; remove two stale implemented-site note_unported placeholders."
+              }
+            ],
+            "sharedCallerCaveat": "confused_book also runs through learn when Confusion arises during study. Forward current caller env/RNG/message and honor existing requestPlanningInput contract in planned contexts before display/name input. Do not turn a clone into live TTY input or add a silent success stub. If existing hook wiring is insufficient for shared production caller, preserve concrete blocker and ask WL for precise caller scope; no broad windows/occupation rewrite.",
+            "allowedPaths": [
+              "js/spell.js",
+              "scripts/read-command.test.mjs",
+              "scripts/spell.test.mjs",
+              "scripts/tty-message.test.mjs",
+              ".cache/"
+            ],
+            "productionRegression": {
+              "entry": "Use actual initialized global game with the stated valid object/type/hero state and real initial public read selection via doread/command adapter and normal input feeder. Real study_book->confused_book->displayPendingTtyMessageWindow->trycall->docall->getlin->useup; no direct helper-only witness, prompt stub or return-success mock.",
+              "assertions": [
+                "Source-pinned actual RNG state reaches rn2(3)=0; assert draw/order, no readability draw for blessed book. No fresh C game/seed history needed.",
+                "At first actual More/display input boundary, book still in inventory and in_use; first confused-actions message precedes tear.",
+                "At actual naming input boundary, book remains in inventory/in_use, unknown shared type has not been identified; enter a finite name through real input feeder.",
+                "After name response, shared objects[SPE_FORCE_BOLT].oc_uname reflects name; only then book removed and original study delay/multi results returned.",
+                "Known/called shared type negative reaches display/tear/destruction but no name input; nontear branch (rn2!=0) retains book and existing message/return.",
+                "Existing shared learn/clone-input handoff cases must not request live input while planning or mutate live state. If no applicable existing production case, record exact pending boundary instead of claiming coverage."
+              ],
+              "testScope": "Meaningful real initial read input ordering in scripts/read-command.test.mjs; source conditional/shared-caller regression in spell.test as needed; existing tty-message tests protect helper behavior, no implementation change there.",
+              "focusedChecks": [
+                "node --test scripts/read-command.test.mjs scripts/spell.test.mjs scripts/tty-message.test.mjs"
+              ],
+              "failurePolicy": "A real earlier guard/input/refusal or missing planner handoff is a concrete blocker; preserve red assertion and stop rather than bypass r/study or mock naming success.",
+              "limits": "Constructed production state regression under sourceParity, not public C gameplay/session evidence. No new recipe/recording/synthetic case, source certification or physical budget reset."
+            },
+            "retainedOwner": "parked port-spell-study-book-synthetic-v2-20260925 retains broader study/learn history and other blocked evidence; this sourceParity repair does not close/certify it.",
+            "sourcePins": {
+              "nethack-c/upstream/win/tty/wintty.c": "43381180f9dfe41111b0dd34ba2ea0eb02f852b25e696810161c83e8c63745d5",
+              "js/tty_message.js": "d1f9dea2fcbac1b8f760289b2e35191bf5ee8ae450477f42eaf39494d30a8b77",
+              "js/spell.js": "37005eb9883f66854ada9784b1118b63af434d029f0b1713b69d59e318b8fd50",
+              "js/do.js": "79ac434aeca2e1b4958ad78632d590828c0f88dc21cccf06843e6eba86765342",
+              "js/do_name.js": "71939a7cc8aedbd82e1f346aaa7359308ffbd0a300e5deb2dffd7544300bf129",
+              "js/windows.js": "783e1bf677647ee4a77e8c3be87d5267793c5ffdea4b9430c6f979799779d14c"
+            }
+          },
+          "publicationReReview": {
+            "base": "aa5537618a889445666232d6201ae4e2438f280b",
+            "priorTask": "fix-confused-book-display-trycall-source-parity-20261017",
+            "reason": "Published accepted report changed queue base; every C/JS/caller/test Git pin reverified identical, review and dependency unchanged. Original packet unclaimed, no claim cap reset."
+          }
+        },
+        "reviewSha256": "14ec1ac22d60acb8e61bed68c48b3e29868aaf36010b0405544cc7e465026fa5"
+      }
+    },
+    {
+      "id": "fix-shop-entry-extra-dochug-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement u_entered_shop from shk.c",
+      "cFile": "shk.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-shop-entry-extra-dochug-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "u_entered_shop",
+          "line": 751,
+          "endLine": 920,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 751,
+        "to": 920
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-shop-entry-extra-dochug-source-parity-20261017",
+        "assignmentBase": "5aa8270965655e5bd165c053b66924712d753fac",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "5aa8270965655e5bd165c053b66924712d753fac",
+          "authorization": "2026-10-17 user and Coordinator authorize reachable source-proved state/control-flow repairs with runtime-pending evidence and unchanged exact hosted/no-regression gates.",
+          "currentBehavior": "C u_entered_shop should_block calls direct dochug for cardinal shop-edge entry with carried pickaxe; current JS skips this extra action. Existing runSimpleMonsterAction contains actual operations inline but wraps dochugw, whose extra interruption semantics are not the C direct caller.",
+          "expectedBehavior": "Reuse the existing operation bundle via a caller-owned direct-dochug adapter, preserving normal runSimpleMonsterAction dochugw behavior and all providers, state/RNG/planning closures. Supply lazy operation from rooms check_special_room and await exactly one direct action at shk shouldBlock after greeting. No new NPC AI or scheduler call.",
+          "units": [
+            "shk.c:u_entered_shop"
+          ],
+          "allowedPaths": [
+            "js/unported_monster_actions.js",
+            "js/rooms.js",
+            "js/shk.js",
+            "scripts/shk.test.mjs",
+            "scripts/rooms.test.mjs",
+            "scripts/unported-monster-actions.test.mjs",
+            "scripts/level-teleport-arrival.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/shk.test.mjs",
+            "scripts/rooms.test.mjs",
+            "scripts/unported-monster-actions.test.mjs",
+            "scripts/level-teleport-arrival.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/rooms.js",
+              "symbol": "check_special_room",
+              "source": "C check_special_room dispatches u_entered_shop on newly entered shop membership; C shk.c751-917 awaits one direct dochug at should_block before returning. Existing ordinary monster scheduler is subsequent and does not replace this action."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/unported_monster_actions.js",
+              "object": "06ade888f5ed4bd9fa5a58b7575b1e60782bbac8"
+            },
+            {
+              "path": "js/rooms.js",
+              "object": "50b1daf066abb8ce905070a7540d282d972df522"
+            },
+            {
+              "path": "js/shk.js",
+              "object": "63be970a2681e941befab35edafa5706e965402d"
+            },
+            {
+              "path": "scripts/shk.test.mjs",
+              "object": "13855a16910a6dd916b8304797f9526a1c707e86"
+            },
+            {
+              "path": "scripts/rooms.test.mjs",
+              "object": "1ce0cb75a93bb1f6dadaca2d1064755d931b208d"
+            },
+            {
+              "path": "scripts/unported-monster-actions.test.mjs",
+              "object": "230c07852d711d851c507cc0a37b7adf0b3a4b68"
+            },
+            {
+              "path": "scripts/level-teleport-arrival.test.mjs",
+              "object": "1ee86330ddf48894658a07d20da2f11237fdf82b"
+            },
+            {
+              "path": "js/monmove.js",
+              "object": "a4b39dfb7a4e3075db1f07dbb09556a985a0d993"
+            },
+            {
+              "path": "js/hack.js",
+              "object": "ac58c7df369256394d08c9137482b90117c3ed62"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "entryResult": "894b8dff11a941b702e7a8756638a067172c8bdf2e71c8eecc1bc2988c2bd4b4",
+            "adapterResult": "5789974360edc8e405e88e1414f612d5ddb47ac714b8ee9f07c1c40aea64bfc9",
+            "adapterPacket": "/workspace/shared/teleport-loop-20261016/worker-state.json.results/5789974360edc8e405e88e1414f612d5ddb47ac714b8ee9f07c1c40aea64bfc9.json",
+            "verification": "Exact outer and envelope bytes/hash plus all3 embedded file hashes checked; includes unchanged original894b packet."
+          },
+          "orderedGuardAndJointState": [
+            "Ordinary movable grounded visible human, no held/levitation/encumbrance/movement refusal; cardinal direction through open shop entrance so closed-door and dx&&dy block_door arms false. No occupied destination, trap/liquid/recursive-spoteffects transition that diverts entry.",
+            "Previous hero square outside shop membership, destination edge belongs to one real SHOP room: move_update(FALSE) emits nonempty ushops_entered; inside_shop(destination) returns NO_ROOM because edge=true. check_special_room sees enteredShops and dispatches.",
+            "Real shop resident exists and inhishop; keeper calm, awake, canmove, nonmute and not following; customer same hero (or ordinary customer reset pacifies), hero visible. Thus all u_entered_shop early returns are false.",
+            "Keeper greeting executes; destination !inside_shop true; hero carries exactly one ordinary pickaxe, no mattock/steed needed. First pick branch unconditionally sets should_block; direct C dochug occurs before check_special_room returns to spoteffects. No subsequent normal turn is part of this call.",
+            "For regression action choose valid empty-inventory keeper without WAITMASK/sleep/freeze/confusion/flee special cases, no damaging/interrupting environmental state, and source-valid open approach to its guard square; existing preflight and ordinary movement operations then have a consistent state. Explicitly validate these predicates in fixture, not assume the late call exists."
+          ],
+          "providerBoundary": "Reuse preflight/assertSimpleActionState, usePreMoveItems closure, moveSimpleOrdinary, attackHeroWithMattacku, live/planning wake_msg, monflee closure, ordinaryMonsterCanSeeHero, fail-closed unsupported, castmu closure; preserve migration/setApparxy/onscary/quest/weapon/eating/pet providers and explicit state/RNG/message/planning. Wrapper-only canSpotMonster/occupation/range interruption stays only in runSimpleMonsterAction/dochugw. Do not call movemon/movemon_singlemon/dochugw as direct C substitute.",
+          "productionRegression": {
+            "entry": "Call real check_special_room(FALSE,state) on constructed just-entered open edge with picked-up ordinary pickaxe and real resident; lazy adapter -> real direct dochug -> real ordinary movement/shk_move, no success callback or whole scheduler. Source-pinned cardinal test_move guard can be checked separately using same state.",
+            "observable": "Use a valid deterministic room/corridor state with keeper two source-legal steps inward from its guard square and unique open one-step approach. Assert resident advances exactly one actual source-selected step before check_special_room returns, pickaxe greeting precedes action, hero stays at edge and normal movemon is not run. Assert old mux/muy update if used, but coordinates/real action state rather than only a provider-call counter establish effect. Worker must derive exact fixture target from C shk_move/m_move; if claimed source path is unreachable, return negative instead of forcing helper target.",
+            "negative": "Same valid shop entry without carried pick/mattock/steed and no Fast+floorpick causes no extra NPC state change. Strict interior/no entry likewise retains normal behavior.",
+            "adapterCompatibility": "Run existing real runSimpleMonsterAction/dochugw regression coverage unchanged to protect wrapper occupation/planning behavior and normal initialization imports. Update old level-teleport-arrival assertions that expected unported gap with real action/state expectations or explicit direct adapter, not success stubs.",
+            "focusedChecks": [
+              "node --test scripts/shk.test.mjs scripts/rooms.test.mjs scripts/unported-monster-actions.test.mjs scripts/level-teleport-arrival.test.mjs"
+            ],
+            "limits": "Worker implementation/tests under Work lead sourceParity protocol. No new C recorder/play history/seed scan or synthetic batch; public runtime pending. Existing hosted combined validation/acceptance gates remain WL-owned."
+          },
+          "outsideScope": [
+            "New monster AI behavior or fixing unrelated existing missing hooks",
+            "Wholemovemon/scheduler or new static import-cycle redesign",
+            "New public shop discovery/physical setup",
+            "Prior ownership/budget reset or source completeness certification"
+          ],
+          "risks": [
+            "Extra turn can spend RNG, move, use an item, cast or attack; extraction must preserve all current providers and await order, not a shopkeeper-only fake operation.",
+            "Changing raw callback state/random/planning closures can break clone isolation or normal wrapped turns; reuse providers without semantic rewrite.",
+            "New eager import edge can widen cycles; lazy caller-owned injection plus module initialization verification required.",
+            "Existing direct u_entered_shop tests currently assert unported and incomplete actor fixtures; migrate focused fixtures truthfully instead of bypassing action."
+          ]
+        },
+        "reviewSha256": "95da42376004d9f1c647c3fc82dd6bca7352154320a1d9bbec1898c47ade5f32"
+      }
+    },
+    {
+      "id": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement scatter from explode.c",
+      "cFile": "explode.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "scatter",
+          "line": 721,
+          "endLine": 961,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 721,
+        "to": 961
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-pet-scatter-occupation-clone-source-parity-aa5537618-20261017",
+        "assignmentBase": "aa5537618a889445666232d6201ae4e2438f280b",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "aa5537618a889445666232d6201ae4e2438f280b",
+          "authorization": "2026-10-17 user and Coordinator authorize reachable source-proved parity correction with constructed regression and unchanged exact hosted/no-regression gates.",
+          "currentBehavior": "Normal planned monster action closes over selected clone state, but callback expects argument.env.state. scatter passes (cloneState,env); cloneState has no .state; undefined triggers stop_occupation default globalgame. Actual mutation: global game.go.occupation=null and global command_queue cleared while clone separate go/queue not cleared. Live callback can later mask wrong early effect by defaulting to same globalgame.",
+          "expectedBehavior": "Make the normal runSimpleMonsterAction wrapper provider capture its own selected state and ignore callback argument shape: () => stop_occupation(state,{same captured planning/live message and statusRefresh}). Both env-form and state-form callers then target same selected action state; source current-state semantics preserved with no global fallback or duck-typed overload. W1 may move this code; patch exact current provider only after W1 frozen.",
+          "units": [
+            "explode.c:scatter"
+          ],
+          "allowedPaths": [
+            "js/unported_monster_actions.js",
+            "scripts/unported-monster-actions.test.mjs",
+            "scripts/explode.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/unported-monster-actions.test.mjs",
+            "scripts/explode.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/unported_monster_actions.js",
+              "symbol": "runSimpleMonsterAction",
+              "source": "Existing normal preflight planningState→runSimpleMonsterAction→dochugw→tame pet dog_move→postmov→mintrap→landmine→scatter. C explode.c successful thitu calls stop_occupation on its current game; JS provider must target selected planning/live action state."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/unported_monster_actions.js",
+              "object": "06ade888f5ed4bd9fa5a58b7575b1e60782bbac8"
+            },
+            {
+              "path": "scripts/unported-monster-actions.test.mjs",
+              "object": "230c07852d711d851c507cc0a37b7adf0b3a4b68"
+            },
+            {
+              "path": "scripts/explode.test.mjs",
+              "object": "6ce4437fc538f09bb33d6875b6dfe02e56922c6f"
+            },
+            {
+              "path": "js/explode.js",
+              "object": "766da06f8d68e2844ca73d2a2ae7263e6820055a"
+            },
+            {
+              "path": "js/monmove.js",
+              "object": "a4b39dfb7a4e3075db1f07dbb09556a985a0d993"
+            },
+            {
+              "path": "js/trap_effects.js",
+              "object": "9a42313abdae8108496eb61baab0024b58b9d113"
+            },
+            {
+              "path": "js/allmain.js",
+              "object": "ad08141d2b299823bf6ad4a0008feca1c66025c0"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceReview": {
+            "updatedAt": "2026-10-17T21:55:33.835639+00:00",
+            "status": "Independently source-reviewed real clone/live mutation candidate, public-runtime-pending; implementation WAIT for W1 shop adapter frozen delivery",
+            "base": "5aa8270965655e5bd165c053b66924712d753fac",
+            "resultDigest": "91854a449cb06425b0e644a56168ee91203ca81cbe82f91dc80430f26a4ab634",
+            "packet": "/workspace/shared/teleport-loop-20261016/worker-state.json.results/91854a449cb06425b0e644a56168ee91203ca81cbe82f91dc80430f26a4ab634.json",
+            "verification": "Exact result/envelope length/hash and all3 files verified from raw bytes; source provider/caller chain independently checked.",
+            "sourceUnit": "C explode.c:scatter721-947, successful thitu branch876-882 requires current-state stop_occupation; repair only its supplied JS normal-NPC callback provider targeting state. Existing allmain.c stop_occupation implementation reused.",
+            "sourceVerdict": "Normal planned monster action closes over selected clone state, but callback expects argument.env.state. scatter passes (cloneState,env); cloneState has no .state; undefined triggers stop_occupation default globalgame. Actual mutation: global game.go.occupation=null and global command_queue cleared while clone separate go/queue not cleared. Live callback can later mask wrong early effect by defaulting to same globalgame.",
+            "independentGuardReview": [
+              "Normal preflightSimpleMonsterActions creates planningState, clones go and command_queue arrays and executes same runSimpleMonsterAction with planning:true; clone is not globalgame and has no synthetic .state self alias.",
+              "Awake canmove tame starting pony with valid edog, sufficient movement/hunger, not steed/meating/trapped, no WAITMASK; C/JS m_move pet dispatch reaches dog_move. Hero ordinary nonhallucinating with actual unfinished eatfood occupation; peaceful pony makes dochugw threat disjunct false, so occupation not precleared by wrapper.",
+              "One ordinary open corridor can make unknown LANDMINE square next step toward hero; allowed-traps pet flags and unknown trap avoid avoidance guard, grounded pony avoids floor-trigger-in-air guard. Current movement admission no longer refuses actual traps. postmov calls mintrap on newly reached square; mintrap rawEnv overrides defaults without replacing stopOccupation.",
+              "Pony cwt1300, source draw rn2(1301)>=WT_ELF/2=400 triggers mine, not airborne; blow_up_landmine forwards same callback into scatter. One ordinary rock can survive destruction and select legal direction/range to adjacent surviving hero; no monster occupies hero square. Flags MAY_HITYOU true and legal positive thitu hit reach callback.",
+              "Checked current thitu1886+ ordinary-rock path: requires real message/losehp/exercise, spends hit draw and damage, returns hit result; it does not clear occupation first. No generic hit compensation replaces scatter current-state callback. No actual gameplay/draw or public prefix claimed.",
+              "moveSimplePet/normalizePetMoveEnv and m_move/postmov/mintrap/blow_up_landmine preserve callback; separate monsterMissileEnv state-form callback belongs attack/missile route and is not installed for selected pet movement."
+            ],
+            "dualContract": {
+              "envForm": "dochugw calls stopOccupation({...env,state}); dogmove occupation sites also pass env.",
+              "stateForm": "scatter calls stopOccupation(state,env); existing monsterMissileEnv callback(state) explicitly supports state-form projectile consumers.",
+              "doNotChange": "Do not mechanically replace scatter state argument with env, rename common hooks globally, or modify valid monsterMissileEnv state-form provider.",
+              "narrowRepair": "Make the normal runSimpleMonsterAction wrapper provider capture its own selected state and ignore callback argument shape: () => stop_occupation(state,{same captured planning/live message and statusRefresh}). Both env-form and state-form callers then target same selected action state; source current-state semantics preserved with no global fallback or duck-typed overload. W1 may move this code; patch exact current provider only after W1 frozen."
+            },
+            "dependency": "Work lead must sequence after W1 shop-entry delivery is frozen/received, with explicit accepted/dependency base. W1 actively factors same unported_monster_actions action bundle; no competing edit allowed. If W1 provider extraction changes callback placement, rebase source review onto exact frozen revision before scope/claim.",
+            "allowedPaths": [
+              "js/unported_monster_actions.js",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/explode.test.mjs",
+              ".cache/"
+            ],
+            "productionRegression": {
+              "entry": "Use real global game as live state with real unfinished eatfood/victual, nonempty canned queue, grounded tame pony and ordinary rock/mine state. Create clone with real planningState(game), then invoke normal real runSimpleMonsterAction on cloned pony with planning:true and legal source-pinned deterministic RNG; real dog_move->postmov->mintrap->landmine->scatter->thitu, not direct callback unit invocation.",
+              "assertions": [
+                "Actual cloned hero stone hit/HP change confirms target route reached; cloned occupation becomes null and cloned canned queue emptied.",
+                "Live game occupation object identity/victual/HP/canned queue contents and live output remain unchanged by planning action.",
+                "No stopOccupation, hitHero, scatter, movement, trap or success callback stub; assert selected source RNG draws/consumption if injecting deterministic generator.",
+                "Retain normal wrapper occupation-interruption coverage (env-form) and existing real missile hit/scatter state-form coverage to ensure valid monsterMissileEnv contract unchanged."
+              ],
+              "failurePolicy": "If real fixture cannot reach selected hit because earlier predicate, missing prerequisite or different provider, preserve failing assertion/source and block; do not weaken to mocked callback success or invent alternate route.",
+              "focusedChecks": [
+                "node --test scripts/unported-monster-actions.test.mjs scripts/explode.test.mjs"
+              ],
+              "limits": "No new public C witness/recipe/session, seed scan or source completeness claim. Work lead owns sourceParity task, real red/green regression, hosted nonregression/acceptance."
+            },
+            "risks": [
+              "Same provider region as active W1 factoring; must wait frozen dependency.",
+              "A test on custom nonglobal live state alone can miss the incorrect default-global mutation; anchor actual global game and snapshot it.",
+              "Planning may have other refusals on route; real target effect required before calling test a regression witness.",
+              "Clone state separate go/canned arrays is essential; checking final live state after replay masks original planning leak."
+            ]
+          },
+          "frozenDependency": {
+            "delivery": "2a0cf6e69b5a08b45b1b72c1fee49e70ecd2febf",
+            "path": "js/unported_monster_actions.js",
+            "blob": "90cdcf4c6d4dba513c8337da7a161286a0a68c97",
+            "review": "W1 frozen exact extraction inspected; normal wrapper stopOccupation remains env-form closure and is the sole intended provider repair. Real direct-action helper and all other providers unchanged."
+          },
+          "publicationReReview": {
+            "base": "aa5537618a889445666232d6201ae4e2438f280b",
+            "priorTask": "fix-pet-scatter-occupation-clone-source-parity-20261017",
+            "reason": "Published accepted report changed queue base; every C/JS/caller/test Git pin reverified identical, review and dependency unchanged. Original packet unclaimed, no claim cap reset."
+          }
+        },
+        "reviewSha256": "8452de2bef5d7f5d8b3163190709c68fbde547882fbefc0a347b0b8ac05d6981"
+      }
     }
   ]
 }

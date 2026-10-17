@@ -33,6 +33,8 @@ import {
     HEADSTONE,
     ICE,
     IRONBARS,
+    LANDMINE,
+    CQ_CANNED,
     IN_SIGHT,
     I_SPECIAL,
     LADDER,
@@ -148,6 +150,7 @@ import {
 import { cloneu, MonsterDeathPlanningError } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
+import { cmdq_add_key } from '../js/cmd.js';
 import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ARROW,
@@ -3552,6 +3555,113 @@ test('a pet fetching a touchable artifact uses the source gate', async () => {
         );
         assert.equal(target.monster.minvent, null, `attempt ${attempt + 1}`);
     }
+});
+
+test('planned pet landmine scatter interrupts the selected clone', async () => {
+    const target = await prepareStartingPetAction(PM_PONY);
+    // Keep the hero one square beyond the mine. The real scatter path can
+    // then reach the hero with one eastward rock step.
+    game.u.ux = game.u.ux0 = target.destinationX + 1;
+    target.monster.mux = game.u.ux;
+    target.monster.muy = game.u.uy;
+    const trap = {
+        tx: target.destinationX,
+        ty: target.heroY,
+        ttyp: LANDMINE,
+        tseen: false,
+        madeby_u: false,
+    };
+    game.level.traps.push(trap);
+    const rock = floorObject(target.destinationX, target.heroY, 9401, ROCK);
+    installObject(target, rock);
+
+    // Preserve an actual unfinished meal and canned command so C's
+    // stop_occupation effects are visible on both state owners.
+    const occupation = eatfood;
+    game.go.occupation = occupation;
+    game.go.occtxt = 'eating';
+    const ration = newObject({
+        otyp: FOOD_RATION,
+        oclass: game.objects[FOOD_RATION].oc_class,
+        o_id: 9402,
+        quan: 1,
+        owt: game.objects[FOOD_RATION].oc_weight,
+        oeaten: 400,
+        where: OBJ_INVENT,
+        nobj: game.invent,
+    });
+    game.invent = ration;
+    game.context.victual = {
+        ...game.context.victual,
+        piece: ration,
+        o_id: ration.o_id,
+        usedtime: 0,
+        reqtime: 5,
+        eating: 1,
+    };
+    game.command_queue = [[], []];
+    cmdq_add_key(CQ_CANNED, 's'.charCodeAt(0), game);
+    // Keep the source hit on the real path while avoiding the unrelated
+    // post-hit encumbrance message that thitu's current adapter omits.
+    game.moves = 0;
+    const liveMeal = { ...game.context.victual };
+    const liveCanned = structuredClone(game.command_queue[0]);
+    const liveHp = game.u.uhp;
+    const planned = planningState(game);
+    assert.notStrictEqual(planned.context.victual.piece, ration);
+    assert.strictEqual(planned.context.victual.piece, planned.invent);
+    const plannedPony = planned.level.monlist;
+    const draws = [];
+    const random = {
+        rn2(bound) {
+            draws.push(['rn2', bound]);
+            if (bound === 1301) return 400; // dog_move's mine trigger.
+            if (bound === 8) return 4; // scatter east, toward the hero.
+            if (bound === 10) return 1; // retain the ordinary rock.
+            return 0;
+        },
+        rnd(bound) {
+            draws.push(['rnd', bound]);
+            return bound === 20 ? 1 : bound;
+        },
+        rn1(bound, base) { draws.push(['rn1', bound, base]); return base; },
+        rne(bound) { draws.push(['rne', bound]); return 1; },
+        rnl(bound) { draws.push(['rnl', bound]); return 0; },
+        d(number) { draws.push(['d', number]); return number; },
+    };
+
+    await runSimpleMonsterAction(plannedPony, {
+        state: planned,
+        planning: true,
+        random,
+    });
+
+    assert.ok(planned.u.uhp < liveHp, JSON.stringify({
+        message: 'real rock scatter hits the hero',
+        plannedHp: planned.u.uhp,
+        liveHp,
+        pony: { x: plannedPony.mx, y: plannedPony.my, mhp: plannedPony.mhp },
+        trap: planned.level.traps.map(({ tx, ty, ttyp }) => ({ tx, ty, ttyp })),
+        rock: planned.level.objects[target.destinationX][target.heroY]?.otyp,
+        draws,
+    }));
+    assert.deepEqual({
+        plannedOccupation: planned.go.occupation ?? null,
+        plannedCanned: planned.command_queue[0],
+        liveOccupationIsOriginal: game.go.occupation === occupation,
+        liveMeal: game.context.victual,
+        liveCanned: game.command_queue[0],
+        liveHp: game.u.uhp,
+    }, {
+        plannedOccupation: null,
+        plannedCanned: [],
+        liveOccupationIsOriginal: true,
+        liveMeal,
+        liveCanned,
+        liveHp,
+    }, 'scatter interruption belongs only to the selected planning state');
+    assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 1301));
+    assert.ok(draws.some(([kind, bound]) => kind === 'rn2' && bound === 8));
 });
 
 // C ref: dogmove.c:466-470. dog_invent()'s carry arm hands an AT_WEAP pet

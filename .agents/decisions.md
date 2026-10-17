@@ -401,3 +401,20 @@ No test, validation or gameplay was repeated for this observation.
   behavior, rework and total validation effort separately from future public
   reproductions and challenge yield. No standalone publication is needed solely
   for this protocol entry.
+
+- Follow-up: the first three source parity repairs (travel, container extraction
+  and shopkeeper damage cleanup) were accepted at 21:59:18.344 UTC against
+  exact `571d5b4c7` / hosted `39072694151`, then published in `aa5537618`.
+  The initial candidate failed isolated goal-log fixtures missing the new
+  `source-parity.mjs` import; `ae441eaf5` repairs their two copy lists, with
+  saved focused checks 12/12 passing before the replacement exact gate.
+  Three accepted repairs are observed; deployment awaits its saved CI outcome.
+  Public runtime parity, certification and discovery remain separate.
+  Comparative latency, total validation cost and broader yield benefit remain
+  unmeasured.
+- Later saved publication CI result confirms `aa5537618` completed with no
+  pending or failed publication workflows. The compatible observer resumed
+  with preserved journal/watermark; its 22:03:25.121 tick correctly deferred
+  for the shop-entry delivery awaiting Work lead review.
+
+- When a production import is added, review the existing isolated fixture module lists for its importers and run affected checks before the hosted candidate. This follows the observed goal-log fixture failure; it adds no new gate.
