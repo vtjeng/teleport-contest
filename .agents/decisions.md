@@ -360,10 +360,12 @@ No test, validation or gameplay was repeated for this observation.
   The 15:12:35.496 UTC snapshot precedes 58 closed worker support explorations
   through 19:35:31.889. The old discovery-only watermark could not observe
   those closures; ownership and CI deferrals also constrain publication.
-- Implementation: Work lead owns the scoped snapshot watermark, coalescer
-  consumer/proof updates and focused checks, and records the exact integrated
-  commit and hosted result at the genuine standalone tooling boundary.
-  Implementation and hosted validation are pending at this draft.
+- Implementation: `2cb4f1625` adds the scoped public activity watermark and
+  updates its coalescer and proof consumers. All 18 focused dashboard refresh
+  checks passed, including a Main support closure, unchanged discovery yield,
+  claim/status no-ops, privacy and interrupted publication recovery. The final
+  candidate requires exact hosted validation before publication; its receipt
+  records the tested revision and hosted result.
 - Benefit/tradeoff: make completed exploration activity eligible for the
   existing 15-minute refresh while allowing more activity-driven snapshots.
   Claims, turns, capture/publisher churn and unchanged data do not trigger it.
