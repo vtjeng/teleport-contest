@@ -1468,3 +1468,28 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
   checks and normal hosted validation/publication. Future recurrence reduction
   remains unmeasured. The Process analyst did not modify source/tests or claims
   or invoke C/JavaScript gameplay.
+
+### 2026-10-17 — Captured session steps classified as input-only
+
+- Iron-shoes source result at 19:00:08.806 UTC labels selected v8/v56
+  `.session.json` files as input-only and says their original screen receipts
+  are absent. Its own frozen envelope `68bb16dfb6258103b1f4ffc8a069f976df69c5fdb64d1e076fccd44845afb8fd`
+  contains `segments[].moves` and `segments[].steps[].screen/cursor/rng`:
+  both v8 files have 15 complete recorded steps; v56 action2/action3 have
+  253/255. All 538 steps contain nonempty screens, cursors and RNG arrays.
+  The missing-screen statement is therefore a data-classification error;
+  it does not establish exact target overlap or close any prior budget.
+- The earlier [status-lifecycle correction](#2026-10-17--status-lifecycle-correction-and-evidence-retention)
+  also needed offline correction of wrong-field/startup-only assessments.
+  Recurrence warrants a reading practice: inspect actual keys and selected
+  step fields before declaring a named original missing or input-only; do not
+  infer shape from its filename. The exact parser mistake here is unknown.
+  Producers can append a correction using retained bytes while preserving
+  the original result. No C, new claim, cap reset, broad archive survey,
+  source/test change or new evidence tool is needed for this finding.
+- PA saved schema-only receipt:
+  `.cache/session-schema-triage-20261017/iron-shoes-observation.json` records
+  exact file hashes/counts and the conflicting frozen labels. Work lead and
+  Challenge lead own offline source/budget disposition. No independent budget,
+  runtime parity or eligibility verdict is claimed; later reduction in reading
+  rework remains unmeasured.
