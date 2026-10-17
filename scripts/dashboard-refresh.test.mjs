@@ -115,6 +115,14 @@ test('discovery metrics stay independent while closure activity coalesces withou
     assert.equal(refreshDecision(completed,chatter,null,999999).action,'unchanged');
     assert.equal(snapshotWatermark({...completed,activity:{events:[claim,{...closure,type:'queue-block'}]}})
         .closedWorkerExplorations,1);
+    const blocked={...projection,activity:{events:[claim,{...closure,type:'queue-block'}]}};
+    const resume={...claim,id:'recovery-claim',type:'resume',worker:'Worker-3'};
+    const resumed={...projection,activity:{events:[...blocked.activity.events,resume]}};
+    assert.equal(refreshDecision(blocked,resumed,null,1000).action,'unchanged');
+    const recovered={...resumed,activity:{events:[...resumed.activity.events,
+        {...closure,id:'recovered-result',worker:'Worker-3'}]}};
+    assert.equal(refreshDecision(blocked,recovered,null,1000).action,'coalescing');
+    assert.equal(snapshotWatermark(recovered).closedWorkerExplorations,2);
 });
 
 test('closed Main support alone publishes a checked activity snapshot and never changes discovery yield',t=>{

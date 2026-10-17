@@ -39,7 +39,7 @@ export function discoveryWatermark(payload) {
 // cannot advance this watermark. Use only the sanitized public projection.
 export function snapshotWatermark(snapshot) {
     const discovery = discoveryWatermark(snapshot.explorationYield);
-    const claims = new Set((snapshot.activity?.events ?? []).filter(row => row.type === 'assign'
+    const claims = new Set((snapshot.activity?.events ?? []).filter(row => ['assign', 'resume'].includes(row.type)
         && row.kind === 'queue-execution' && row.output === 'exploration'
         && /^Worker-[123]$/u.test(row.worker)).map(row => `${row.runId}/${row.task}/${row.worker}`));
     const closures = (snapshot.activity?.events ?? []).filter(row => ['queue-complete', 'queue-block'].includes(row.type)
