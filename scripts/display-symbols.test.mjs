@@ -8899,6 +8899,37 @@ test('status highlight rules preserve source matching and precedence', async () 
     );
 });
 
+test('title none-of-the-above aliases require a polymorphed form', async () => {
+    const state = statusRenderingState();
+    for (const match of [
+        '"none of the above"',
+        '"(polymorphed)"',
+        '"none of the above (polymorphed)"',
+    ]) {
+        state.u.umonnum = state.u.umonster;
+        state.iflags = {
+            ...parseNethackrc(
+                `OPTIONS=hilite_status:title/${match}/bright-green`,
+            ).iflags,
+            wc2_statuslines: 2,
+        };
+        await bot();
+        assert.equal(
+            state.nhDisplay.grid[22][0].color,
+            NO_COLOR,
+            `${match} is not a title match while the hero is human`,
+        );
+
+        state.u.umonnum = state.u.umonster + 1;
+        await bot();
+        assert.equal(
+            state.nhDisplay.grid[22][0].color,
+            CLR_BRIGHT_GREEN,
+            `${match} matches the special polymorphed-title arm`,
+        );
+    }
+});
+
 // botl.c get_hilite()'s BL_TH_CRITICALHP arm asks critically_low_hp(FALSE) for
 // BL_HP, and on a match sets crit_hp, which its loop head then uses to skip
 // every later rule that is not itself a criticalhp rule.
