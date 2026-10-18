@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { getRngLog } from '../js/rng.js';
 
@@ -43,6 +46,7 @@ import {
     OBJ_INVENT,
     OBJ_LUAFREE,
     OBJ_ONBILL,
+    SHRINK_GLOB,
     PIT,
     TT_PIT,
     ROOM,
@@ -101,6 +105,7 @@ import {
     obj_to_let,
     preflight_addinv,
     preflight_addinv_sequence,
+    mergedRuntime,
     prinv,
     reassign,
     replace_inventory_core,
@@ -4009,4 +4014,144 @@ test('useupall awaits artifact removal before extraction and deallocation', asyn
     assert.equal(saber.where, OBJ_DELETED);
     assert.equal(state.invent, null);
     assert.equal(state.u.uprops[HALLUC].intrinsic, 7);
+});
+
+
+test('regular pickup merges a canonical glob pair through its live default owner', async () => {
+    const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+    const fixturePath = join(repoRoot,
+        '.cache/glob-regular-pickup-main-reviewed-qualification-20261018/attempt.mjs');
+    const runRoot = join(repoRoot,
+        '.cache/glob-regular-pickup-main-reviewed-qualification-20261018/test-runs');
+    mkdirSync(runRoot, { recursive: true });
+    const captureDir = mkdtempSync(join(runRoot, 'primary-'));
+    const child = spawnSync(process.execPath,
+        ['--enable-source-maps', fixturePath], {
+            cwd: repoRoot,
+            encoding: 'utf8',
+            maxBuffer: 8 * 1024 * 1024,
+        });
+    writeFileSync(join(captureDir, 'stdout.log'), child.stdout ?? '');
+    writeFileSync(join(captureDir, 'stderr.log'), child.stderr ?? '');
+    writeFileSync(join(captureDir, 'exit.txt'), `${child.status ?? 'spawn-error'}\n`);
+    assert.equal(child.error, undefined, `qualifier spawn failed; capture: ${captureDir}`);
+    assert.equal(child.status, 0, `qualifier process failed; capture: ${captureDir}`);
+    const stdoutLines = child.stdout.trim().split('\n');
+    assert.ok(stdoutLines.length > 0, `qualifier stdout is empty; capture: ${captureDir}`);
+    const run = JSON.parse(stdoutLines.at(-1));
+    const prefixDir = run.outputDir;
+    const readPrefix = (name) => JSON.parse(readFileSync(
+        join(prefixDir, `${name}.json`), 'utf8'));
+    const result = readPrefix('04-after-target-or-error');
+    const before = readPrefix('03-before-pickup-intent').before;
+    const initial = readPrefix('02-canonical-pair');
+
+    // These target-entry facts pass on the original source, so a red below is
+    // meaningful only after the real exported pickup reached its merge seam.
+    assert.equal(result.callEntered, true);
+    assert.equal(result.invocationCount, 1);
+    assert.equal(result.handlerRestored, true);
+    assert.equal(result.observerError, null);
+    assert.equal(result.primaryError, null,
+        `actual pickup reached the target but did not complete; capture: ${captureDir}`);
+    assert.equal(result.invocation?.phase, 'returned');
+
+    assert.equal(initial.objects.carried.o_id, 65);
+    assert.equal(initial.objects.floorGlob.o_id, 66);
+    assert.equal(before.objects.carried.o_id, 65);
+    assert.equal(before.objects.floorGlob.o_id, 66);
+    const survivor = result.after.objects.carried;
+    const absorbed = result.after.objects.floorGlob;
+    assert.equal(survivor.o_id, 65);
+    assert.equal(survivor.where, OBJ_INVENT);
+    assert.equal(survivor.otyp, GLOB_OF_GRAY_OOZE);
+    assert.equal(survivor.globby, true);
+    assert.equal(survivor.quan, 1);
+    assert.equal(survivor.owt, 40);
+    assert.equal(survivor.age, 1);
+    assert.equal(survivor.inInventory, true);
+    assert.equal(absorbed.o_id, 66);
+    assert.equal(absorbed.where, OBJ_DELETED);
+    assert.equal(absorbed.nobjId, null);
+    assert.equal(absorbed.nexthereId, null);
+    assert.equal(absorbed.inInventory, false);
+    assert.equal(absorbed.inLevelObjlist, false);
+    assert.equal(absorbed.inSquarePile, false);
+    assert.ok(result.after.objects.inventoryIds.includes(65));
+    assert.ok(!result.after.objects.inventoryIds.includes(66));
+    assert.ok(!result.after.objects.levelObjlistIds.includes(66));
+    assert.ok(!result.after.objects.squarePileIds.includes(66));
+    assert.deepEqual(result.after.timers.map(({ o_id }) => o_id), [65]);
+    assert.equal(result.after.timers[0].timeout, 26);
+    assert.equal(result.after.timers[0].func_index, SHRINK_GLOB);
+    assert.equal(result.after.actor.x, before.actor.x);
+    assert.equal(result.after.actor.y, before.actor.y);
+    assert.deepEqual(result.after.actor.level, before.actor.level);
+    assert.equal(result.after.actorStart.sameLevelRef, true);
+    assert.equal(result.after.actorStart.sameLevelDescriptorRef, true);
+    assert.equal(result.after.actorStart.sameHeroX, true);
+    assert.equal(result.after.actorStart.sameHeroY, true);
+    assert.equal(result.after.actor.hp, before.actor.hp);
+    assert.equal(result.after.actor.gameover, false);
+});
+
+test('glob pickup projection has no live merge effects; runtime keeps its non-glob wait hybrid', async () => {
+    const state = initializedState();
+    const carried = instance(GLOB_OF_GRAY_OOZE, state, {
+        globby: true, owt: 20, where: OBJ_INVENT,
+    });
+    const incoming = instance(GLOB_OF_GRAY_OOZE, state, {
+        globby: true, owt: 20, timed: 1, where: OBJ_FREE,
+    });
+    state.invent = carried;
+    let effectCalls = 0;
+    const inputFingerprint = (obj) => ({
+        where: obj.where, o_id: obj.o_id, owt: obj.owt, age: obj.age,
+        quan: obj.quan, timed: obj.timed, nobj: obj.nobj, nexthere: obj.nexthere,
+    });
+    const before = {
+        carried: inputFingerprint(carried), incoming: inputFingerprint(incoming),
+        inventory: state.invent, rng: getRngLog().slice(),
+    };
+    const [plan] = preflight_addinv_sequence([incoming], {
+        state,
+        hooks: {
+            absorbGlob() { effectCalls++; throw new Error('projection invoked absorption'); },
+            message() { effectCalls++; throw new Error('projection invoked message'); },
+            obfreeShopBill() { effectCalls++; throw new Error('projection invoked billing'); },
+            stopObjectTimers() { effectCalls++; throw new Error('projection stopped a timer'); },
+        },
+    });
+    assert.equal(plan.projectedResult.o_id, carried.o_id);
+    assert.equal(plan.projectedResult.owt, 20);
+    assert.equal(plan.projectedResult.quan, 1);
+    assert.equal(effectCalls, 0);
+    assert.deepEqual(inputFingerprint(carried), before.carried);
+    assert.deepEqual(inputFingerprint(incoming), before.incoming);
+    assert.equal(state.invent, before.inventory);
+    assert.deepEqual(getRngLog(), before.rng);
+
+    const syncState = initializedState();
+    const syncTarget = instance(APPLE, syncState);
+    const syncIncoming = instance(APPLE, syncState);
+    addinv(syncTarget, { state: syncState });
+    const eager = mergedRuntime(syncTarget, syncIncoming, { state: syncState });
+    assert.equal(eager, true);
+    assert.equal(syncIncoming.where, OBJ_DELETED);
+
+    const waitingState = initializedState();
+    const waitingTarget = instance(APPLE, waitingState, { known: false });
+    const waitingIncoming = instance(APPLE, waitingState, { known: true });
+    addinv(waitingTarget, { state: waitingState });
+    let resumeMessage;
+    const wait = new Promise((resolve) => { resumeMessage = resolve; });
+    const waiting = mergedRuntime(waitingTarget, waitingIncoming, {
+        state: waitingState,
+        hooks: { inventoryComparisonDiscovered: () => wait },
+    });
+    assert.equal(typeof waiting?.then, 'function');
+    assert.equal(waitingIncoming.where, OBJ_FREE);
+    resumeMessage();
+    assert.equal(await waiting, true);
+    assert.equal(waitingIncoming.where, OBJ_DELETED);
 });

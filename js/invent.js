@@ -324,6 +324,8 @@ import {
     carried,
     unknwn_contnr_contents,
     weight,
+    obj_absorb,
+    pudding_merge_message,
 } from './obj.js';
 import { get_obj_location, obj_merge_light_sources } from './light.js';
 import {
@@ -3838,16 +3840,13 @@ function beginMerged(otmp, obj, env = {}) {
     }
     if (obj.bypass) otmp.bypass = true;
     if (obj.globby) {
-        requiredHook(normalized, 'absorbGlob', obj)(otmp, obj, normalized);
-        const absorbed = obj.where === OBJ_DELETED || obj.where === OBJ_LUAFREE;
-        if (!absorbed || obj.nobj || obj.nexthere || obj.cobj) {
-            throw new Error(
-                'absorbGlob must deallocate the absorbed object',
-            );
-        }
-        if (otmp.where === OBJ_DELETED || otmp.where === OBJ_LUAFREE)
-            throw new Error('absorbGlob must preserve the target object');
-        return { normalized, target: otmp, object: null };
+        return {
+            comparisonDiscovered: false,
+            globby: true,
+            normalized,
+            target: otmp,
+            object: obj,
+        };
     }
     const comparisonDiscovered = discovered
         && otmp.where === OBJ_INVENT
@@ -3867,6 +3866,15 @@ function finishMerged(plan) {
     return true;
 }
 
+function validateGlobAbsorption(target, absorbed) {
+    if ((absorbed.where !== OBJ_DELETED && absorbed.where !== OBJ_LUAFREE)
+        || absorbed.nobj || absorbed.nexthere || absorbed.cobj) {
+        throw new Error('glob absorption must deallocate the absorbed object');
+    }
+    if (target.where === OBJ_DELETED || target.where === OBJ_LUAFREE)
+        throw new Error('glob absorption must preserve the target object');
+}
+
 function isThenable(value) {
     return typeof value?.then === 'function';
 }
@@ -3875,6 +3883,13 @@ function isThenable(value) {
 export function merged(otmp, obj, env = {}) {
     const plan = beginMerged(otmp, obj, env);
     if (!plan) return false;
+    if (plan.globby) {
+        requiredHook(plan.normalized, 'absorbGlob', plan.object)(
+            plan.target, plan.object, plan.normalized,
+        );
+        validateGlobAbsorption(plan.target, plan.object);
+        return true;
+    }
     if (plan.comparisonDiscovered) {
         requiredHook(
             plan.normalized,
@@ -3892,6 +3907,30 @@ export function merged(otmp, obj, env = {}) {
 export function mergedRuntime(otmp, obj, env = {}) {
     const plan = beginMerged(otmp, obj, env);
     if (!plan) return false;
+    if (plan.globby) {
+        return (async () => {
+            const message = plan.normalized.message
+                ?? plan.normalized.hooks?.message;
+            await pudding_merge_message(
+                plan.target,
+                plan.object,
+                plan.normalized.state,
+                message
+                    ? { ...plan.normalized, message }
+                    : plan.normalized,
+            );
+            const survivor = await obj_absorb(
+                plan.target,
+                plan.object,
+                plan.normalized.state,
+                plan.normalized,
+            );
+            if (survivor !== plan.target)
+                throw new Error('glob absorption must preserve its target');
+            validateGlobAbsorption(plan.target, plan.object);
+            return true;
+        })();
+    }
     if (plan.comparisonDiscovered) {
         const wait = requiredHook(
             plan.normalized,
@@ -3914,7 +3953,6 @@ function preflightMerged(otmp, obj, normalized) {
     if (obj.timed) requiredHook(normalized, 'stopObjectTimers', obj);
     if (obj.owornmask && otmp.where === OBJ_INVENT)
         requiredHook(normalized, 'mergeWornMasks', obj);
-    if (obj.globby) requiredHook(normalized, 'absorbGlob', obj);
     if (!obj.globby
         && comparisonWillDiscover(otmp, obj, normalized.state)
         && otmp.where === OBJ_INVENT
