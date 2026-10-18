@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T23:11:39.715Z",
+  "capturedAt": "2026-10-18T23:24:30.415Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T23:11:39.715Z",
+    "asOf": "2026-10-18T23:24:30.415Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 351,
+      "mainSupportAssignments": 352,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -175090,6 +175090,125 @@
         "output": "implementation",
         "target": "4649e972d3e766cef098e377f665a9d11715f3a6",
         "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-quest-leader-return-addinv-await-source-parity-20261018-cf1f351a6c90d11cdb234a5e6f0f0ff5bbdc217f",
+        "type": "published",
+        "at": "2026-10-18T23:11:59.978Z",
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "commit": "cf1f351a6c90d11cdb234a5e6f0f0ff5bbdc217f"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:12:56.295Z",
+        "id": "queue:f04383e9-433d-4b01-8c5b-ca0ce38bcf5d",
+        "type": "assign",
+        "task": "glob-unearth-proposed-fixture-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-9082879cbce6747badfe49320da1904775ac1931",
+        "type": "ready",
+        "at": "2026-10-18T23:13:28.418Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "delivery": "9082879cbce6747badfe49320da1904775ac1931"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:13:28.418Z",
+        "id": "ready-9082879cbce6747badfe49320da1904775ac1931:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:13:28.418Z",
+        "id": "ready-9082879cbce6747badfe49320da1904775ac1931:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "monster-runtime-packaging-review-main-20261018",
+        "type": "activity",
+        "at": "2026-10-18T23:13:40.245Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "phase": "review",
+        "reason": "Reviewing the preserved runtime monster pickup implementation; source and frozen primary reviewed, linked correction commits exact fixture dependency and literal historical evidence without reruns."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-monster-runtime-9082879-20261018",
+        "type": "received",
+        "at": "2026-10-18T23:14:55.057Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "delivery": "9082879cbce6747badfe49320da1904775ac1931"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070-5e15b2ac45af43e6db1eddb842ea79ce07cc96f18b8b75c1c909ce792f089d22-delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T23:15:23.252Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "integration": "c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070",
+        "validationGroup": [
+          "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:18:48.023Z",
+        "id": "queue:f089fb2f-1bac-4d25-bd90-687af5856d79",
+        "type": "queue-complete",
+        "task": "glob-unearth-proposed-fixture-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:18:48.023Z",
+        "id": "queue:f089fb2f-1bac-4d25-bd90-687af5856d79:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:21:47.584Z",
+        "id": "queue:64e50e84-5311-4613-8bab-a18530c62697",
+        "type": "assign",
+        "task": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018-c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070-validated",
+        "type": "validated",
+        "at": "2026-10-18T23:22:50.877Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018-c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T23:23:33.530Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
       }
     ]
   },
@@ -175299,72 +175418,40 @@
           "source:fountain.c:gush"
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
-      },
-      "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018": {
-        "id": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
-        "worker": "Worker-1",
-        "status": "working",
-        "seed": null,
-        "reservations": [
-          "source:mkobj.c:add_to_minv",
-          "source:steal.c:mpickobj",
-          "source:mon.c:mpickstuff"
-        ]
       }
     },
-    "reservations": {
-      "source:mkobj.c:add_to_minv": {
-        "tasks": [
-          "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
-        ]
-      },
-      "source:steal.c:mpickobj": {
-        "tasks": [
-          "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
-        ]
-      },
-      "source:mon.c:mpickstuff": {
-        "tasks": [
-          "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
-    "blocked": [
-      {
-        "task": "glob-unearth-proposed-fixture-source-20261018",
-        "reason": "Waiting for producer or dependencies."
-      }
-    ],
+    "blocked": [],
     "claimed": [
       {
-        "task": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
-        "worker": "Worker-1"
+        "task": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
+        "worker": "Worker-2"
       }
     ],
     "counts": {
-      "ready": 1,
+      "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 615,
+      "completed": 617,
       "superseded": 101
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -186149,22 +186236,22 @@
         "id": "glob-unearth-proposed-fixture-source-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "blocked",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-2",
         "target": null,
         "readyAt": "2026-10-18T23:03:49.433Z",
-        "claimedAt": null,
-        "completedAt": null
+        "claimedAt": "2026-10-18T23:12:56.295Z",
+        "completedAt": "2026-10-18T23:18:48.023Z"
       },
       {
         "id": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
         "type": "rework",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -186173,13 +186260,28 @@
         "target": "4649e972d3e766cef098e377f665a9d11715f3a6",
         "readyAt": "2026-10-18T23:10:55.380Z",
         "claimedAt": "2026-10-18T23:11:07.282Z",
+        "completedAt": "2026-10-18T23:13:28.418Z"
+      },
+      {
+        "id": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T23:21:29.485Z",
+        "claimedAt": "2026-10-18T23:21:47.584Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "1f81d7a6b58f21a8f8512dcafd2abb802582d8a1",
-    "measuredAt": "2026-10-18T23:01:56.062Z",
+    "executionCommit": "c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070",
+    "measuredAt": "2026-10-18T23:20:48.338Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

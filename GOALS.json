@@ -328227,7 +328227,7 @@
     {
       "id": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement add_to_minv from mkobj.c",
       "cFile": "mkobj.c",
       "sessions": [],
@@ -328235,7 +328235,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070",
       "delivered": null,
       "functions": [
         {
@@ -328385,6 +328385,104 @@
           ]
         },
         "reviewSha256": "33061e6834388a214e4e5e43c0af79b41d497abb69d6b0cdd3d5185f81cf5c6b"
+      },
+      "closeStanding": {
+        "sha": "c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "1f81d7a6b58f21a8f8512dcafd2abb802582d8a1",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070/run-hosted-Zgsls4/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "add_to_minv",
+            "sourceFile": "mkobj.c",
+            "implementation": "js/invent.js",
+            "symbol": "addToMinvRuntime",
+            "sourceReview": "Read complete C mkobj.c:add_to_minv (2648-2665): reject non-OBJ_FREE, scan inventory in order with merged, return true as soon as object is merged/freed, otherwise link at head and return false. Runtime counterpart delegates each scan step to accepted mergedRuntime, preserves sequential order across a pending merge result, and only inserts after all candidates report false. Legacy sync export remains unchanged.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "add_to_minv",
+                "source": "Existing source Cmkobj inventory ownership chain and sequentialmerge, runtimecounterpart uses accepted mergedRuntime foundation, preserves lowlevel actualboolean and source next/tail order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monster-pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "mpickobj",
+            "sourceFile": "steal.c",
+            "implementation": "js/steal.js",
+            "symbol": "mpickobjRuntime",
+            "sourceReview": "Read complete C steal.c:mpickobj (618-685): missing/attached cases, thrown/kicked tracking, shop billing, engulf/light predicate and deferred snuff, no_charge, non-pet identify/loss flags, carry_obj_effects before inventory transfer, then snuff only after the actual add result and return the source boolean. Runtime wrapper retains the existing checked plan and ordered prefix, awaits only the hybrid runtime inventory insertion when needed, then runs snuff and returns the boolean. Legacy synchronous mpickobj remains unchanged. The selected nonluminous-glob runtime case does not exercise the snuff/light branch or all pickup-planning branches; those remain source-reviewed only, not runtime-verified here.",
+            "callers": [
+              {
+                "path": "js/steal.js",
+                "symbol": "mpickobj",
+                "source": "Existing checkedPickupPlan/pickupEnv canonical fullenv/carryeffects; new runtimecounterpart samepreflight+prefix, new runtime minv resolvedboolean before snuff/return; old syncinterface unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monster-pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "mpickstuff",
+            "sourceFile": "mon.c",
+            "implementation": "js/mon.js",
+            "symbol": "mpickstuff",
+            "sourceReview": "Read complete C mon.c:mpickstuff (1847-1910), including its caller-side selection semantics. This task changes only the already-existing effect-half entry after actual floor extraction: await the runtime mpickobj counterpart before check_gear_next_turn/newsym/TRUE. Selection remains the existing monmove selector; no other caller family or selector branch is altered.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mpickstuff",
+                "source": "Actual sourceeffecthalf Cmon1888 onward: distance/name/message before floor extraction; mpickobj after extraction; await runtimeboolean before gear/redraw/return. Existing whole selector decisions/prize/reach/carry filters in monmove remain unchanged; actual ce5a selector boundjointstate."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monster-pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "This submitted runtime-pending source-parity stage covers only the selected live path: mon.c:mpickstuff receives the naturally selected floor object, calls steal.c:mpickobj, which calls mkobj.c:add_to_minv; its JS path is js/mon.js:mpickstuff -> js/steal.js:mpickobjRuntime -> js/invent.js:addToMinvRuntime -> accepted mergedRuntime. Other production mpickobj call sites retain the legacy synchronous export and are not migrated by this task. No whole-file/source-completion claim or global runtime equivalence is made.",
+        "entryPoints": [
+          {
+            "name": "mpickstuff",
+            "functions": [
+              {
+                "sourceFile": "mkobj.c",
+                "name": "add_to_minv"
+              },
+              {
+                "sourceFile": "steal.c",
+                "name": "mpickobj"
+              },
+              {
+                "sourceFile": "mon.c",
+                "name": "mpickstuff"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
