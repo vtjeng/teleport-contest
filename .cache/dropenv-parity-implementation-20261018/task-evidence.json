@@ -1,0 +1,57 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "The real exported potionhit call with an ordinary acid potion and POTHIT_OTHER_THROW reached monkilled, mondead, m_detach and relobj. Before the fix it stopped at the dropEnv eager validation before inventory inspection. After the fix the same call completed actual death accounting, map detach and potion cleanup with an empty-inventory goblin.",
+  "functions": [
+    {
+      "name": "relobj",
+      "implementation": "js/steal.js",
+      "symbol": "relobj",
+      "sourceReview": "C steal.c relobj releases creature inventory without an unsupported callback parameter. JS dropEnv previously rejected the ordinary default environment before checking gold or minvent, although neither relobj nor mdrop_obj invokes unsupported. The correction removes only that unused type check and throw while preserving state normalization, raw environment fields, nested branch refusals, and all release operations.",
+      "callers": [
+        {
+          "path": "js/potion.js",
+          "symbol": "potionhit",
+          "source": "Real potionhit nonhero lethal AD_ACID goes through actual monkilled/mondied/mondead/m_detach to relobj; primary test exercises complete real default empty-inventory death and potion ownership, not direct dropEnv or helper-only relobj proof."
+        }
+      ],
+      "tests": [
+        "scripts/potion.test.mjs",
+        "scripts/steal.test.mjs"
+      ],
+      "recordings": [],
+      "pure": false
+    }
+  ],
+  "entryPoints": [
+    {
+      "name": "potionhit ordinary acid death through relobj",
+      "functions": [
+        "relobj"
+      ],
+      "recordings": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+      "command": [
+        "node",
+        "--test",
+        "scripts/potion.test.mjs",
+        "scripts/steal.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": ".cache/dropenv-parity-implementation-20261018/final-original-red.stdout: expected TypeError in dropEnv reached through potionhit→monkilled→mondied→mondead→m_detach→relobj; the direct relobj regression also demonstrated the obsolete gate."
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/potion.test.mjs",
+        "scripts/steal.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": ".cache/dropenv-parity-implementation-20261018/final-green.stdout: all 176 focused tests passed with the same test bytes and command."
+    }
+  }
+}
