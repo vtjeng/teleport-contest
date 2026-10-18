@@ -323673,6 +323673,161 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-direct-mattacku-cold-cast-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement castmu from mcastu.c",
+      "cFile": "mcastu.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "castmu",
+          "line": 130,
+          "endLine": 307,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 130,
+        "to": 307
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "assignmentBase": "dcacee9ac43c57097f6980ed7a4b6544277f51e1",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "dcacee9ac43c57097f6980ed7a4b6544277f51e1",
+          "authorization": "User explicitly authorizes source-proved JS control-flow corrections before public witness. Coordinator/Main explicitly select NEW real mhitu.mattacku production-caller entry using a source-valid initialized snapshot; this bypasses dochug strategy/movement wrapper but retains actual combat/summon/attack/default helper behavior. Old mixed-pin/publicB23/runSimple fixture tasks remain terminal immutable, no retry or public-input requirement.",
+          "currentBehavior": "Pinned C mhitu926-931 dispatches adjacent AT_MAGC to castmu; Asmodeus actual initialized m_lev49/HP198, hostile postconstructor override, source-legal no optional extra items, fullHP STRAT_NONE/no relocation, adjacent monnear skips canonical cold/fire wands, no summon/fumble/nonfatal claw/foundyou/seenCold0 jointly admit AD_COLD. Current mcastu.castmu640 refuses elemental spell type with false ranged-only comment despite normal runSimpleMonsterAction/dochug/mattacku adapter wiring. Source1395362d is conditional valid-state proof, not an observed fixed runtime action.",
+          "expectedBehavior": "Implement ONLY the existing castmu AD_COLD arm from C mcastu129-305: preserve all earlier generic damage rolls, Half_spell_damage, message/order/return semantics; frost message, Cold_resistance shield+resistance message+M_SEEN_COLD set and zero damage, otherwise clear seen cold; await existing mon_spell_hits_spot for cold, then existing mdamageu tail when damage nonzero. Add only existing AD_COLD/COLD_RES/M_SEEN_COLD import bindings as needed. Remove obsolete AD_COLD ranged-only/refusal wording while retaining other missing arms honestly. No AD_FIRE/spell/summon/AI/zap/provider/helper port or changed RNG/state adapter. Dry ordinary ROOM avoids unreviewed terrain prerequisites. State-local clone operations and original valid caller arguments/order remain intact.",
+          "units": [
+            "mcastu.c:castmu"
+          ],
+          "allowedPaths": [
+            "js/mcastu.js",
+            "scripts/mcastu.test.mjs",
+            "scripts/unported-monster-actions.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/mcastu.test.mjs",
+            "scripts/unported-monster-actions.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/mhitu.js",
+              "symbol": "mattacku",
+              "source": "C mhitu.c926-931 actual ordered AT_MAGC adjacent production attack-loop dispatch calls castmu(TRUE,foundyou); source guards and preceding summon/claw retain real behavior. Test calls this actual production owner, not castmu directly."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/mcastu.js",
+              "object": "5a5516b4623c540baa408d5728f1cf31323e52ef"
+            },
+            {
+              "path": "js/mhitu.js",
+              "object": "da937b776a6103d707b29474382bab53a10502b3"
+            },
+            {
+              "path": "js/unported_monster_actions.js",
+              "object": "1fd28ae7e30c4a629dfc01de6fe974a60669055e"
+            },
+            {
+              "path": "js/monmove.js",
+              "object": "7bbcd07786c21b9f1c5c4a06c46622888c86d916"
+            },
+            {
+              "path": "js/muse.js",
+              "object": "251f07dd26f7839c3a1486536cf20f1f5a1b05c3"
+            },
+            {
+              "path": "js/makemon.js",
+              "object": "23d3bc2fc49b3ab51b08f7ce0d9d72ea8c91efa0"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/read.js",
+              "object": "a8b4fee3a3275b93cb77c2293ca517f787430ee6"
+            },
+            {
+              "path": "js/potion.js",
+              "object": "72cf938e6eac813f3f047b1613a8d80a25028d43"
+            },
+            {
+              "path": "js/do_wear.js",
+              "object": "417d4f6e9152c94bd9b93e46fd31d44fb33edb30"
+            },
+            {
+              "path": "js/monsters.js",
+              "object": "1381545113e72cabfbc4c05f1d6f167964ecfcc7"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "scripts/mcastu.test.mjs",
+              "object": "6e63b4b8b6892dcc2f138456b449c8357ab9f265"
+            },
+            {
+              "path": "scripts/unported-monster-actions.test.mjs",
+              "object": "82c1aa936c1a730756c625030acb409e23095e7f"
+            },
+            {
+              "path": "js/monst.js",
+              "object": "5b3d047868d8b40c07416497640bd948ae2c6c93"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "js/worn.js",
+              "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/u_init.js",
+              "object": "9af5eb6748d17869aba0dd67145b5b02b38fca29"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            }
+          ],
+          "sourceEvidence": {
+            "sourceResult": "1395362dcee36fb1b0ab511750ba0499794d5c0672f81e42f6699b3ea92bf1bc",
+            "sourceEnvelopeSHA256": "8cbfa883f04f3281ecf5fc0d7013981f2a67d6611ce593dd1aa45f43724f3db1",
+            "mainSourceReview": ".cache/continuous-run-resume/adjacent-asmodeus-new-source-result-review.json",
+            "independentReview": "CL prospective-real-mattacku-cold-contract-2252.json SHA4896cd5dfc55d81b9dc8453f9216b4d413d80aa4d4ca6716f0833361527fd796 binds source-valid direct real mattacku, actual production cast adapter semantics, seeded RNG, non-summon observed gate, message collector permitted. Earlier source1395/62b7 and canonical constructed683b contracts retained. Main independently read actual mhitu1608/1810-1888 and unported production adapter1477-1530, real exported createCoreRandom, canonical constructor/gear contracts.",
+            "owners": "Main explicitly selects narrow retained closed div-castmu-message-order-seed4500-20260918 correction. Whole castmu message owner and parked port-mcastu-mcast-spell-seed4500-20260918 / port-mcastu-summon-mons-seed4500-20260918, B23 creation and C24 peaceful demon conversation retain original limits/budgets. Original f142/99e mixed-base terminal preserved; its partial inventory ALWAYS inference is superseded by effective newmonhp m_lev49/HP198. No public consumed firstcause or certification/novelty claim, no live reservation overlap. NEW explicitly replaces PUBLIC-SETUP REQUIREMENT with a separately reviewed initialized-state fixture, not reopening old B23 task or changing its frozen test bytes/evidence. Old B23 e383897ff9aecbc2dfa2049fc2a53902a48e7e1dca91a842d4036aa5c7105207 typed exactdraft/log/patch retained and task superseded/transport parked. Invalid PM_HUMAN observer equality is an authoring fault, not cast-source refutation. Old initialized-task terminal2cdde7dddf5f533696d19f93b6737688e9b41fc5f4c071536970f8c1f022bed5 retained, superseded/parked. Its ten-frame mnexto stack does NOT establish constructor nonreturn; additive review withdraws that attribution: exact last phase/normalCallerReached UNKNOWN without marker, source points to normal dochug tactics. This NEW actualmattacku entry deliberately bypasses that unrelated wrapper, not a corrected input run or discarded prior negative.",
+            "regression": "NEW FIRST ONE frozen source-valid initialized-state regression using actual mhitu.mattacku(actor,env) PRODUCTION CALLER, never direct castmu-only. Reuse proven prepareSelectedAction seed2026072503/DATETIME/Healerhuman initialized state and construct canonical adjacent dryROOM actor/gear exactly prior683b contract: coherent empty monlist/grid (remove existing helper placeholder in fixture construction BEFORE actor), canonical makemon_runtime explicitadjacent NO_MINVENT|MM_ADJACENTOK|MM_NOMSG with actual objectGenerationEnv, newmonhp49/198/chamNON_PM; source-hostile snapshot+set_malign; mongets actualcold/fire withcreationEnv; realmksobj/addinv/setworn/Ring_oncoldring andhealup400/+8 so actualhumanHP>16. Preserve roleform !Upolyd/umonnum==umonster==urole.mnum and humanrace separately, no PM_HUMAN assumption/arbitraryHP/property/attack edits. This is transparent source-valid constructed snapshot, not public history. Use actual seeded RNG wrappers (live normalcore, clone createCoreRandom(clone.coreCtx,clone)) and observe genuine draws without changing results. No reseed/search/forcedhit/summon/fumble/skip. mattacku retains summonmu beforeattacks: actual rn2(In_hell?10:16) nonzero MUST be observed; summon/fumble/other target miss terminal. Real adjacent find_offensive rejects rangedcold/fire; no stubbed item decision. Supply canonical production castMonsterSpell adapter semantics from unported1477-1530 delegating to actual castmu with SAME selectedstate/random and real mdamageu/losehp/naming/encumber behavior; not success stub. Other needed operations use real source helpers/failclosed unresolved callbacks, no fake attack/damage/hit/relocation results. Normal message collector is permitted existing mattacku test API to observe output order without publicTTY gameplay; it is not target evidence by itself. No game-source provider export/wrapper changes. Source shieldeff/floor helpers remain real and guarded; dryROOM selected. Actual primary original-source run must reach real mattacku AT_MAGC AD_COLD then specific existing unsupported refusal after actual nonsummon/claw/target gates. Capture sameactor/HP/coords/attacksource/perception and actual RNG/phase before/after every relevant awaited ctor/attack; if phase absent, UNKNOWN, never infer outer caller from truncatedstack. First EXACT node --test scripts/mcastu.test.mjs scripts/unported-monster-actions.test.mjs red must be target omission, not unit-only refusal or setup/assertion/observer/input error. Any earlier miss/dependency terminal with full typed drafts/rawreceipt, no changed seed/actor/input/observer/caller rescue or second baseline target invocation. After target reached, implement mcastuAD_COLD arm only; SAME finaltestbytes/commandgreen+lint. Meaningful final actual live mattacku cold frost/resist output, seenCold set, zero additional coldHPdamage, canonical floorbehavior and legitimate priorclaw effect, plus real planningState/actualmattackuclone leaves live state/core+displayRNG/output/queue unchanged. Complementarysourcearm tests may verify unresisted/halfspell/order but cannot replace actualcaller. Preserve raw original/final commands/base/exit/stdout/stderr/testhashes. No C/public input or fullmovemon/dochug wrapper required for this correction.",
+            "authoring": "Within existing harness authoring: read each new named import against exact exports/reexports; actual return contracts; exact initialized types. GameDisplay.serialize returns string, captureForShell void. Use copied primitive/IDs/coords/inputindex/epoch/RNG with one lossless BigInt encoder and identical before/after schema. Copy arrays at observation, do not retain live aliases; never mask original exception with observer failure. Preserve frozen test/harness/input bytes and any real failure screen/topline/keyepoch before closure. No separate probe/run/phase or seed search.",
+            "limits": "NEW real production attack-loop SOURCE-PARITY-RUNTIME-PENDING task, not oldtaskretry/publicgameplay/recording/discovery/certification. All source/owner/priornegative budgets retained. <=25min original newclaim; first frozen targetmiss terminal/no rescue; then samecommandredgreen/lint +normal exacthosted no-regression gates. Only js/mcastu.js coldarm/imports, existing two tests/cache; no AI/fire/helper/zap/provider edits."
+          }
+        },
+        "reviewSha256": "e7c63cdedb3b436190c134da9907ffc11805cd50014f30554296d9ab32b1ab86"
+      }
     }
   ]
 }
