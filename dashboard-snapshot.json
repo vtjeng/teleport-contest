@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T01:11:08.703Z",
+  "capturedAt": "2026-10-18T01:33:06.842Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T01:11:08.703Z",
+    "asOf": "2026-10-18T01:33:06.842Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 202,
+      "mainSupportAssignments": 204,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -167051,6 +167051,127 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:16:24.089Z",
+        "id": "queue:4e4ef05c-40c9-4f5b-8cf2-f4588fbc376d",
+        "type": "queue-complete",
+        "task": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:16:24.089Z",
+        "id": "queue:4e4ef05c-40c9-4f5b-8cf2-f4588fbc376d:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:17:57.010Z",
+        "id": "queue:0f5083be-effc-4296-89c6-965eca3a5323",
+        "type": "assign",
+        "task": "see-wsegs-three-caller-repaint-contract-source-support-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:18:30.935Z",
+        "id": "queue:9dcfa9be-0598-45c8-83b3-732e8ca53f8b",
+        "type": "assign",
+        "task": "natural-minetown-single-state-builder-runtime-investigation-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:20:58.517Z",
+        "id": "queue:a5120d74-635b-481b-bf22-09f0d81e2886",
+        "type": "queue-complete",
+        "task": "see-wsegs-three-caller-repaint-contract-source-support-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:20:58.517Z",
+        "id": "queue:a5120d74-635b-481b-bf22-09f0d81e2886:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:23:15.036Z",
+        "id": "queue:f7de9fdb-c656-4166-94c3-9df457a51436",
+        "type": "queue-block",
+        "task": "natural-minetown-single-state-builder-runtime-investigation-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:23:15.036Z",
+        "id": "queue:f7de9fdb-c656-4166-94c3-9df457a51436:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "turn-worker3-natural-minetown-blocked-20261018",
+        "type": "turn",
+        "at": "2026-10-18T01:23:21.962Z",
+        "worker": "Worker-3",
+        "state": "blocked",
+        "reason": "Blocked after the one natural builder run selected a different Minetown variant and reached an empty-input display boundary."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:27:25.603Z",
+        "id": "queue:7505331e-8ab1-41ee-b3fd-7d90c6d7affd",
+        "type": "assign",
+        "task": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-turn-egg-source-parity-20261018-0128",
+        "type": "turn",
+        "at": "2026-10-18T01:27:40.441Z",
+        "worker": "Worker-1",
+        "state": "active",
+        "reason": "Working the assigned cockatrice-egg stoning correction."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:28:51.114Z",
+        "id": "queue:6bae4d1f-dbd0-4ec6-8d9a-3ce08e2110f4",
+        "type": "assign",
+        "task": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -167177,9 +167298,56 @@
           "source:pray.c:pleased"
         ],
         "reason": "Selected source-valid initialized state reached, but the frozen normal #pray input .#pray\\ny  exhausted in Terminal.readKey before the actual second-hint receipt; no production source delta or alternate input/state attempted. Recovery commit b6a07599a preserves exact initial state and both raw failed attempts in .cache/pray-second-tune-achievement-source-parity-20261018/blocked-evidence.json (sha256 ff52116c2673105016f3230e21ba53620ced2086fbd25dd5b4599b8f30e04493)."
+      },
+      "delivery:fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018": {
+        "id": "delivery:fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:mthrowu.c:m_throw"
+        ]
+      },
+      "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018": {
+        "id": "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "worker": "Worker-2",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:worm.c:see_wsegs",
+          "source:display.c:see_monsters",
+          "source:worn.c:mon_set_minvis",
+          "source:monmove.c:postmov"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "source:mthrowu.c:m_throw": {
+        "tasks": [
+          "delivery:fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018"
+        ]
+      },
+      "source:worm.c:see_wsegs": {
+        "tasks": [
+          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
+        ]
+      },
+      "source:display.c:see_monsters": {
+        "tasks": [
+          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
+        ]
+      },
+      "source:worn.c:mon_set_minvis": {
+        "tasks": [
+          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
+        ]
+      },
+      "source:monmove.c:postmov": {
+        "tasks": [
+          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
     "readySessions": 0,
@@ -167190,27 +167358,31 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
+        "task": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
         "worker": "Worker-1"
+      },
+      {
+        "task": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "worker": "Worker-2"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 441,
-      "superseded": 77
+      "completed": 443,
+      "superseded": 78
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
+        "assignment": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
         "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -175025,7 +175197,7 @@
         "id": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -175034,6 +175206,66 @@
         "target": null,
         "readyAt": "2026-10-18T01:09:24.449Z",
         "claimedAt": "2026-10-18T01:10:07.051Z",
+        "completedAt": "2026-10-18T01:16:24.089Z"
+      },
+      {
+        "id": "see-wsegs-three-caller-repaint-contract-source-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T01:17:26.305Z",
+        "claimedAt": "2026-10-18T01:17:57.010Z",
+        "completedAt": "2026-10-18T01:20:58.517Z"
+      },
+      {
+        "id": "natural-minetown-single-state-builder-runtime-investigation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T01:17:32.057Z",
+        "claimedAt": "2026-10-18T01:18:30.935Z",
+        "completedAt": null
+      },
+      {
+        "id": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T01:26:53.862Z",
+        "claimedAt": "2026-10-18T01:27:25.603Z",
+        "completedAt": null
+      },
+      {
+        "id": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T01:28:30.194Z",
+        "claimedAt": "2026-10-18T01:28:51.114Z",
         "completedAt": null
       }
     ]
