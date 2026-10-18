@@ -746,3 +746,22 @@ normal publications and its coalesced captures preserve accepted game evidence.
   file reads within the existing audit, with no additional phase, helper or gate.
   Setup and triage effort remain unmeasured. Follow-up: **unmeasured**; observe
   the next comparable moved fixture's module-entry outcome and any path-only miss.
+
+Retained melt repair evidence disposition (2026-10-18):
+
+- Actual original-code timer qualification `8c2b5b86` reached the omitted
+  faint revival call before a later death prompt stopped execution. Exact
+  source review supports whole `eat.c:reset_faint` and its `trap.c:drown` call.
+- Delivery `e821c701` had a genuine target-specific original red before its
+  first production draft. Its final observer changed after that draft to allow
+  removal of the old gap marker; final identical-byte red/green was captured
+  afterward. The first failed-green recovery details beyond its failed marker
+  assertion remain worker attestation unless present in raw projections. The
+  later complete green directly checks revival, crawl and survival.
+- Linked test-only revision `fff50a67` rejects numeric gameover `1` through a
+  Boolean assertion and requires positive HP. Its immutable `ef7aad16` packet
+  retains original and intermediate failures, test hashes, raw chronology and
+  the final original-base red / 144-test green plus lint. No production scope
+  expanded. Work lead selects this exact corrected revision for normal hosted
+  validation under the reviewed observer correction; it is not yet accepted.
+  Prior attempts, runtime-pending basis and public-evidence limits remain.

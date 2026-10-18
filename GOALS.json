@@ -326073,6 +326073,147 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-fainted-melt-reset-faint-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Linked test-only rework of e821: strengthen the real drown/crawl survival assertion; retain original source-parity context and chronology.",
+      "cFile": "eat.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "reset_faint",
+          "line": 3354,
+          "endLine": 3361,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 3354,
+        "to": 3361
+      },
+      "requiredFunctions": [
+        {
+          "name": "drown",
+          "line": 5059,
+          "endLine": 5201,
+          "declared": true,
+          "sourceFile": "trap.c"
+        }
+      ],
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-fainted-melt-reset-faint-source-parity-20261018",
+        "assignmentBase": "985c44b611b79a7b15c3897d8466774cb87aae6b",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "985c44b611b79a7b15c3897d8466774cb87aae6b",
+          "authorization": "Standing explicit user source-parity authorization2026-10-17 and resumed2026-10-18 continuous reviewed revisit instruction. Work lead explicitly selects NEW20min implementation/focusedverification after actual target8c2b and independent complete narrow source review; every prior source/setup/physical allowance remains separately spent.",
+          "currentBehavior": "C eat.c3354-3358 reset_faint conditionally calls unmul(\"You revive.\") iff afternmv equals unfaint. C trap.c5148-49 drown invokes it after usleep handling before multi>=0 crawl gate. Current JS lacks helper and merely notes eat.c reset_faint; exact actual nh_timeout MELT tid1 callback reached marker while multi-9/FAINTED5/afternmvunfaint persisted, then drowned and stopped at possessionsID prompt. No prior helper compensation on selected state.",
+          "expectedBehavior": "Port WHOLE eat.c reset_faint as exported async reset_faint(state=game,env={}) using existing imported unmul: strict afternmv===unfaint then await unmul(\"You revive.\",state,env), else no effect. At exact existing if(is_fainted(state)) trap.drown marker replace with await reset_faint(state), importing it. Preserve drown signature and source branch/RNG/message order; no other source edits. Existing unmul clears multi0 and callback before invoking actual unfaint/Hear_again coinflip; FAINTING4, uhunger unchanged, real default crawl/escape follows. No unconditional waking, wrong callback replacement, forced deafness/RNG/provider/escape or helper-family redesign.",
+          "units": [
+            "eat.c:reset_faint",
+            "trap.c:drown"
+          ],
+          "allowedPaths": [
+            "js/eat.js",
+            "js/trap.js",
+            "scripts/eat.test.mjs",
+            "scripts/trap.test.mjs",
+            "scripts/timeout.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/eat.test.mjs",
+            "scripts/trap.test.mjs",
+            "scripts/timeout.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/timeout.js",
+              "symbol": "nh_timeout",
+              "source": "Actual normal due timer queue tail awaits run_timers, unlinks exact installed MELT_ICE_AWAY timer then actual callback;8c receipt binds exacttid1kind1fn8arg655370timeout1."
+            },
+            {
+              "path": "js/zap.js",
+              "symbol": "melt_ice_away",
+              "source": "C packed timercoord wrapper preserves mon_moving then real melt_ice→spoteffects→drown; exact samefixedinput sourcevalid initialized HealerFAINTED state reached originaltarget."
+            },
+            {
+              "path": "js/trap.js",
+              "symbol": "drown",
+              "source": "C trap5148-49 selected FAINTED calls reset_faint after optional usleep/steed/teleport guards and before multi>=0 crawl. Actual originaltrace establishes no preceding compensation."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/eat.js",
+              "object": "5baec036e73a92faf473897780d949d900b71e99"
+            },
+            {
+              "path": "js/trap.js",
+              "object": "12234b3a2a1b30a13aa35e9c091c53d0803d7820"
+            },
+            {
+              "path": "js/hack.js",
+              "object": "67ec67360eebbaab081ad9faf431ca934d87d7cb"
+            },
+            {
+              "path": "js/allmain.js",
+              "object": "ad08141d2b299823bf6ad4a0008feca1c66025c0"
+            },
+            {
+              "path": "js/timeout.js",
+              "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+            },
+            {
+              "path": "js/zap.js",
+              "object": "3d03ad1932540ca8e89a7dfc0332302b9983d71f"
+            },
+            {
+              "path": "js/potion.js",
+              "object": "72cf938e6eac813f3f047b1613a8d80a25028d43"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "scripts/eat.test.mjs",
+              "object": "7f4237c014f231f8ce4e4058aba1f8ca1fe09bd1"
+            },
+            {
+              "path": "scripts/trap.test.mjs",
+              "object": "1ae290248f9c602bcf8805110df5ab98ba78b8e1"
+            },
+            {
+              "path": "scripts/timeout.test.mjs",
+              "object": "77d95e74d35b8b47106764c8c0a74a3e1ceac5bc"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "actualResult": "8c2b5b86c293256704635d21e24337a9391767464212246a68a0e0fe39d6cf4e",
+            "actualEnvelopeSha256": "65fe94bbd462f0c6ac8758ca9fc1d146aa28ad884766900aa34bf0971c942c89",
+            "actualCaptureSha256": "95c49dd5ec48ce340778c6f68ea03d259aefba066a2deeb86bee7d1cc7cf86ef",
+            "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/melt-actual-target-repair-source-review.json",
+            "independentReviewSha256": "3cd2024cb6b44dcaccadd61a528c76b999287c4c0432199aea3c17c530d010ba",
+            "mainReview": "Main independently read complete C reset_faint/unfaint/unmul, selected drown guard/crawl and JS callback tails; all11 independentpins match accepted985 snapshot descendant. Main verified immutable envelope and exact timeridentity/currentstate actualtarget, preserving later unidentifieddeathpromptstop separately.",
+            "limits": "No public C witness/discovery/score/source certification. Original4d1d/3e169 two setup attempts/8c onequalification and all source budgets stay separatelyspent. Wrong callback/no callback helpercountercases required. Canonical default production timer primary and final samebytes red BEFORE any code then samecommandgreen+lint required; namednewdependency or first primarysetupmiss stops without expansion."
+          }
+        },
+        "reviewSha256": "825c0b371bfc56bbaeb0206a6b128daa7c7db95bc65d6e9e5c604d4ae3f369eb"
+      }
     }
   ]
 }
