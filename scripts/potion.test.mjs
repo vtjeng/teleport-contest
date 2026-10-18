@@ -1019,6 +1019,88 @@ test('potionhit completes an acid-caused canonical monster lifesaving return',
         }
     });
 
+test('potionhit releases an ordinary acid-killed monster with empty inventory',
+    async () => {
+        await startedGame(20261018, 'DropEnvEmptyDeath');
+        clearTopline();
+
+        let position = null;
+        for (let y = 1; y < ROWNO - 1 && !position; y++) {
+            for (let x = 1; x < COLNO - 1; x++) {
+                if (dist2(x, y, game.u.ux, game.u.uy) >= 9
+                    && !m_at(x, y, game) && cansee(x, y, game)) {
+                    position = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(position, 'the initialized level has a visible empty square');
+        const monster = await makemon_runtime(
+            game.mons[PM_GOBLIN], position.x, position.y,
+            NO_MINVENT | MM_ADJACENTOK | MM_NOMSG,
+            { state: game },
+        );
+        assert.ok(monster, 'the ordinary goblin is created by makemon_runtime');
+        assert.equal(monster.data, game.mons[PM_GOBLIN]);
+        assert.equal(monster.mtame, 0);
+        assert.equal(monster.minvent, null,
+            'the selected monster starts with no inventory');
+        monster.mhp = 1;
+
+        const deaths = game.svm.mvitals[PM_GOBLIN].died;
+        const acid = mksobj(POT_ACID, false, false, { state: game });
+        acid.dknown = false;
+        const display = game.nhDisplay;
+        const previousOnEmptyQueue = display.onEmptyQueue;
+        const acknowledgements = [];
+        let namingInputs = 0;
+        display.onEmptyQueue = () => {
+            const screen = display.serialize();
+            if (game._pending_message && screen.includes('--More--')) {
+                if (acknowledgements.length >= 16)
+                    throw new Error('finite TTY acknowledgement budget exhausted');
+                acknowledgements.push({
+                    kind: 'more',
+                    message: game._pending_message,
+                    screen,
+                    waitEpoch: display.waitEpoch,
+                });
+                return 32;
+            }
+            if (screen.includes('Call ') && namingInputs === 0) {
+                namingInputs++;
+                return 13;
+            }
+            throw new Error('unexpected input request in empty-inventory death');
+        };
+
+        try {
+            enableRngLog();
+            await potionhit(monster, acid, POTHIT_OTHER_THROW);
+            const draws = getRngLog();
+            assert.ok(draws.length > 0, 'the real process RNG was used');
+            assert.ok(draws.some(draw => /^d\(/u.test(draw)),
+                'the real acid damage die was rolled');
+            assert.equal(monster.mhp, 0);
+            assert.equal(game.svm.mvitals[PM_GOBLIN].died, deaths + 1,
+                'ordinary death accounting completes');
+            assert.equal(m_at(position.x, position.y, game), null,
+                'the dead monster is removed from its map square');
+            assert.notEqual((monster.mstate ?? 0) & MON_DETACH, 0,
+                'the actual death path detaches the monster');
+            assert.equal(monster.minvent, null,
+                'there is no inventory to release');
+            assert.equal(acid.where, OBJ_DELETED,
+                'potionhit releases the real potion after the effect');
+            assert.ok(acknowledgements.length > 0,
+                'the actual TTY More boundary consumed a bounded key');
+            assert.equal(namingInputs, 1,
+                'the finite empty naming reply belongs to docall');
+        } finally {
+            display.onEmptyQueue = previousOnEmptyQueue;
+        }
+    });
+
 test('blessed polymorph repeats the C min macro duration draw', async () => {
     const recording = JSON.parse(readFileSync(new URL(
         '../challenges/cases/v92/v92-blessed-polymorph-duration-min-rng.session.json',

@@ -1,0 +1,1 @@
+node --test scripts/potion.test.mjs scripts/steal.test.mjs

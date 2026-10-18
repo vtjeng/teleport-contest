@@ -1203,13 +1203,13 @@ test('an unpaid saddle reaches the source no-charge exemption and remains stock'
     assert.equal(unpaid.held.no_charge, false);
 });
 
-test('a monster release needs an unsupported operation', async () => {
-    const { carrier, env } = dropFixture();
+test('a monster release does not require an unused unsupported provider', async () => {
+    const { carrier, held, gameState, env } = dropFixture();
     delete env.unsupported;
-    await assert.rejects(
-        relobj(carrier, 0, true, env),
-        /monster object release requires an unsupported operation/u,
-    );
+    await relobj(carrier, 0, true, env);
+    assert.equal(carrier.minvent, null);
+    assert.equal(held.where, OBJ_FLOOR);
+    assert.equal(gameState.level.objects[DROP_X][DROP_Y], held);
 });
 
 // Ring_gone tests: C ref: do_wear.c Ring_off_or_gone() (1347-1446).

@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/potion.test.mjs",
+      "scripts/steal.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/dropenv-parity-implementation-20261018/final-green.stdout"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/dropenv-parity-implementation-20261018/full-lint.stdout"
+  }
+]

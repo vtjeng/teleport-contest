@@ -951,11 +951,6 @@ export async function stealamulet(mtmp, rawEnv = {}) {
 
 function dropEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    if (typeof rawEnv.unsupported !== 'function') {
-        throw new TypeError(
-            'monster object release requires an unsupported operation',
-        );
-    }
     return { ...rawEnv, state };
 }
 

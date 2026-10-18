@@ -1,0 +1,2 @@
+35cb80d427ab88103c067bebcf74cba1a3635e259d5c64103e123825c25dcc7a  scripts/potion.test.mjs
+2cee3697056564dd6afb760465de533efdcbe80905c2ba5754d96519cc85b8ad  scripts/steal.test.mjs
