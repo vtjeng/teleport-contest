@@ -105,7 +105,9 @@ correction to existing reachable behavior, not general roadmap selection.
 For a distinct, bounded source question, Work lead may first assign a support
 investigation so its worker designs the production-caller fixture and checks
 target reach. The producer's initial handoff needs the source question, safe
-ownership and stopping scope, not a finished fixture. Keep the worker's context
+ownership and stopping scope, not a finished fixture. Include concise references
+to retained same-caller setup failures and entry constraints; the worker still
+owns fixture design. Keep the worker's context
 for a justified follow-on repair where possible. The complete pinned
 `sourceParity` review below is still required before any game-code edit; a
 support result alone neither authorizes the edit nor certifies parity.
