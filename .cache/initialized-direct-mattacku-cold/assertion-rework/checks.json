@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/mcastu.test.mjs",
+      "scripts/unported-monster-actions.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/initialized-direct-mattacku-cold/assertion-rework/corrected-final-green.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/initialized-direct-mattacku-cold/assertion-rework/lint.log"
+  }
+]

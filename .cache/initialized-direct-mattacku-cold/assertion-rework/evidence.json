@@ -1,0 +1,57 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "The test invokes the reviewed real mhitu.mattacku caller and traverses its ordinary adjacent AT_MAGC dispatch into castmu. It uses the initialized selected actor and real seeded RNG; the source arm is exercised after the actual summon/claw gates. The corrected assertion matches the production claw output “It hits!”. The clone is constructed from the source-valid pre-action planning state and cloned RNG before the live action, so its cold resistance has not yet been marked; its real mattacku action completes without changing live state, RNG, queue, or output.",
+  "functions": [
+    {
+      "name": "castmu",
+      "implementation": "js/mcastu.js",
+      "symbol": "castmu",
+      "sourceReview": "Port the pinned mcastu.c castmu AD_COLD branch in js/mcastu.js: preserve existing generic damage and order, emit frost message, use actual cold-resistance shield/message and M_SEEN_COLD, await existing mon_spell_hits_spot, then retain the existing damage tail. AD_FIRE and other effects remain unsupported.",
+      "callers": [
+        {
+          "path": "js/mhitu.js",
+          "symbol": "mattacku",
+          "source": "C mhitu.c926-931 actual ordered AT_MAGC adjacent production attack-loop dispatch calls castmu(TRUE,foundyou); source guards and preceding summon/claw retain real behavior. Test calls this actual production owner, not castmu directly."
+        }
+      ],
+      "pure": false,
+      "tests": [
+        "scripts/mcastu.test.mjs",
+        "scripts/unported-monster-actions.test.mjs"
+      ],
+      "recordings": []
+    }
+  ],
+  "entryPoints": [
+    {
+      "name": "real initialized adjacent Asmodeus attack through mattacku",
+      "functions": [
+        "castmu"
+      ],
+      "recordings": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "dcacee9ac43c57097f6980ed7a4b6544277f51e1",
+      "exitCode": 1,
+      "command": [
+        "node",
+        "--test",
+        "scripts/mcastu.test.mjs",
+        "scripts/unported-monster-actions.test.mjs"
+      ],
+      "output": "Original-source target-specific red: the real seeded mattacku action reaches the existing unsupported AD_COLD refusal after the non-summon/claw path. Full raw output is in corrected-original-source-red.log."
+    },
+    "after": {
+      "exitCode": 0,
+      "command": [
+        "node",
+        "--test",
+        "scripts/mcastu.test.mjs",
+        "scripts/unported-monster-actions.test.mjs"
+      ],
+      "output": "Same focused command and corrected test bytes pass 229/229. The real attack emits “It hits!”, spell announcement, frost, and cold-resistance messages; the regression checks M_SEEN_COLD, clone isolation, and live-state stability. Full raw output is in corrected-final-green.log."
+    }
+  }
+}

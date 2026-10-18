@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -8,6 +8,7 @@ import {
     ARROW_TRAP,
     BEAR_TRAP,
     BLINDED,
+    COLD_RES,
     BURN,
     BURN_OBJECT,
     CONFLICT,
@@ -42,9 +43,13 @@ import {
     LS_MONSTER,
     LS_OBJECT,
     M_AP_OBJECT,
+    M_SEEN_COLD,
     KILLED_BY_AN,
     MMOVE_DONE,
     MMOVE_NOTHING,
+    MM_ADJACENTOK,
+    MM_NOMSG,
+    NO_MINVENT,
     MAX_NUM_WORMS,
     MON_DETACH,
     MOAT,
@@ -82,6 +87,8 @@ import {
     W_ARMS,
     WEB,
     W_WEP,
+    W_RINGR,
+    Upolyd,
 } from '../js/const.js';
 import { eatfood } from '../js/eat.js';
 import { game } from '../js/gstate.js';
@@ -110,6 +117,7 @@ import {
     PM_ALIGNED_CLERIC,
     PM_GENETIC_ENGINEER,
     PM_GIANT_RAT,
+    PM_ASMODEUS,
     PM_GNOME,
     PM_GRID_BUG,
     PM_GREMLIN,
@@ -135,6 +143,9 @@ import {
     PM_VROCK,
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
+    AT_CLAW,
+    AT_MAGC,
+    AD_COLD,
     M1_TPORT,
     NON_PM,
     S_HUMAN,
@@ -149,10 +160,25 @@ import {
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
 } from '../js/unported_monster_actions.js';
-import { cloneu, MonsterDeathPlanningError } from '../js/mhitu.js';
+import {
+    cloneu,
+    mattacku,
+    mdamageu as damageHeroFromMonster,
+    MonsterDeathPlanningError,
+} from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
-import { newmonhp } from '../js/makemon.js';
-import { newObject } from '../js/obj.js';
+import { newmonhp, set_malign } from '../js/makemon.js';
+import { mksobj, newObject } from '../js/obj.js';
+import { addinv } from '../js/invent.js';
+import { makemon_runtime, creationEnv, mongets } from '../js/makemon_create.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { setworn } from '../js/worn.js';
+import { Ring_on, setwornEnv } from '../js/do_wear.js';
+import { healup } from '../js/potion.js';
+import { castmu } from '../js/mcastu.js';
+import { use_offensive } from '../js/muse.js';
+import { capitalizedMonsterName, mon_nam } from '../js/do_name.js';
+import { encumber_msg } from '../js/pickup.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
 import {
@@ -174,8 +200,11 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     WAX_CANDLE,
     STATUE,
+    RIN_COLD_RESISTANCE,
+    WAN_COLD,
+    WAN_FIRE,
 } from '../js/objects.js';
-import { m_avoid_kicked_loc, m_move } from '../js/monmove.js';
+import { m_avoid_kicked_loc, m_move, set_apparxy } from '../js/monmove.js';
 import {
     hideunder,
     minliquid,
@@ -508,6 +537,226 @@ async function prepareSelectedAction({
         replay,
     };
 }
+
+function observedCoreRandom(state) {
+    const core = createCoreRandom(state.coreCtx, state);
+    const draws = [];
+    const random = Object.fromEntries(
+        Object.entries(core).map(([name, operation]) => [name, (...args) => {
+            const value = operation(...args);
+            draws.push({ name, args, value });
+            return value;
+        }]),
+    );
+    return { draws, random };
+}
+
+function directMattackuEnv(state, random, messages, planning = false) {
+    const message = planning ? async () => {} : async text => {
+        messages.push(text);
+    };
+    const unsupported = reason => {
+        throw new UnsupportedSimpleMonsterActionError(reason);
+    };
+    const loseSpellHp = async (amount, killer, format) =>
+        losehp(amount, killer, format, state, {
+            state,
+            fromMonster: true,
+            message,
+        });
+    return {
+        state,
+        random,
+        planning,
+        message,
+        unsupported,
+        useOffensiveItem: use_offensive,
+        castMonsterSpell: (subject, attack, thinksFound, found, spellEnv) => {
+            const spellState = spellEnv.state ?? state;
+            const spellMessage = spellEnv.message ?? message;
+            return castmu(subject, attack, thinksFound, found, {
+                ...spellEnv,
+                state: spellState,
+                random: spellEnv.random ?? random,
+                losehp: loseSpellHp,
+                encumberMessage: planning ? async () => {} : encumber_msg,
+                monsterName: monster =>
+                    capitalizedMonsterName(monster, spellState),
+                monnam: monster => mon_nam(monster, spellState, spellEnv),
+                message: spellMessage,
+                mdamageu: (monster, damage) => damageHeroFromMonster(
+                    monster,
+                    damage,
+                    spellState,
+                    spellEnv,
+                ),
+            });
+        },
+    };
+}
+
+test('initialized adjacent Asmodeus reaches AD_COLD through real mattacku',
+    async () => {
+        const target = await prepareSelectedAction({ adjacentHero: true });
+        // Remove the helper's ordinary placeholder before canonical creation;
+        // the map/list/grid are empty at the selected adjacent ROOM square.
+        game.level.monlist = null;
+        game.level.monsters[target.monsterX][target.heroY] = null;
+        assert.equal(game.level.at(target.monsterX, target.heroY).typ, ROOM);
+        assert.equal(game.level.monsters[target.monsterX][target.heroY], null);
+
+        const asmodeus = await makemon_runtime(
+            game.mons[PM_ASMODEUS],
+            target.monsterX,
+            target.heroY,
+            NO_MINVENT | MM_ADJACENTOK | MM_NOMSG,
+            objectGenerationEnv({ state: game }),
+        );
+        assert.ok(asmodeus);
+        assert.equal(game.level.monlist, asmodeus);
+        assert.equal(game.level.monsters[target.monsterX][target.heroY], asmodeus);
+        assert.equal(asmodeus.m_lev, 49);
+        assert.equal(asmodeus.mhp, 198);
+        assert.equal(asmodeus.mhpmax, 198);
+        assert.equal(asmodeus.cham, NON_PM);
+        asmodeus.mtame = 0;
+        asmodeus.mpeaceful = false;
+        set_malign(asmodeus, game);
+        mongets(asmodeus, WAN_COLD, creationEnv({ state: game }));
+        mongets(asmodeus, WAN_FIRE, creationEnv({ state: game }));
+
+        const ring = mksobj(
+            RIN_COLD_RESISTANCE,
+            true,
+            false,
+            objectGenerationEnv({ state: game }),
+        );
+        addinv(ring, objectGenerationEnv({ state: game }));
+        await setworn(ring, W_RINGR, setwornEnv(game));
+        await Ring_on(ring, game);
+        const hpBeforeHeal = game.u.uhp;
+        const hpmaxBeforeHeal = game.u.uhpmax;
+        await healup(400, 8, true, true, game);
+        assert.equal(Upolyd(game.u), false);
+        assert.equal(game.u.umonnum, game.u.umonster);
+        assert.equal(game.u.umonnum, game.urole.mnum);
+        assert.equal(game.urace.filecode, 'Hum');
+        assert.ok(game.u.uhp > hpBeforeHeal);
+        assert.equal(game.u.uhp, game.u.uhpmax);
+        assert.ok(game.u.uhpmax >= hpmaxBeforeHeal);
+        assert.ok(game.u.uhp > 16);
+        assert.ok(game.u.uprops[COLD_RES].extrinsic);
+        assert.equal(game.uright, ring);
+        assert.ok(asmodeus.data.mattk.some(attack =>
+            attack.aatyp === AT_CLAW && attack.adtyp === AD_PHYS));
+        assert.ok(asmodeus.data.mattk.some(attack =>
+            attack.aatyp === AT_MAGC && attack.adtyp === AD_COLD));
+        const alignmentRandom = createCoreRandom(game.coreCtx, game);
+        set_apparxy(asmodeus, { state: game, random: alignmentRandom });
+        assert.equal(asmodeus.mux, game.u.ux);
+        assert.equal(asmodeus.muy, game.u.uy);
+        game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
+
+        const beforeHp = game.u.uhp;
+        const randomStateBefore = rngSnapshot();
+        const { draws, random } = observedCoreRandom(game);
+        const messages = [];
+        const clone = planningState(game);
+        clone.coreCtx = cloneIsaacContext(game.coreCtx);
+        const { random: cloneRandom } = observedCoreRandom(clone);
+        const cloneActor = clone.level.monlist;
+        let actionError;
+        let actionResult;
+        try {
+            actionResult = await mattacku(
+                asmodeus,
+                directMattackuEnv(game, random, messages),
+            );
+        } catch (error) {
+            actionError = error;
+        }
+        const receipt = {
+            task: 'fix-direct-mattacku-cold-cast-source-parity-20261018',
+            base: 'dcacee9ac43c57097f6980ed7a4b6544277f51e1',
+            phase: actionError?.message?.includes('castmu() elemental spell type')
+                ? 'mattacku reached castmu unsupported AD_COLD'
+                : actionError ? 'action threw before confirmed AD_COLD target'
+                    : 'action returned',
+            error: actionError ? {
+                name: actionError.name,
+                message: actionError.message,
+                stack: actionError.stack,
+            } : null,
+            result: actionResult ?? null,
+            draws,
+            messages,
+            actor: {
+                id: asmodeus.m_id,
+                species: asmodeus.data.pmidx,
+                x: asmodeus.mx,
+                y: asmodeus.my,
+                mux: asmodeus.mux,
+                muy: asmodeus.muy,
+                hp: asmodeus.mhp,
+                seen: asmodeus.seen_resistance,
+            },
+            hero: { hpBefore: beforeHp, hpAfter: game.u.uhp },
+            randomStateBefore,
+            randomStateAfter: rngSnapshot(),
+        };
+        writeFileSync(
+            '.cache/initialized-direct-mattacku-cold/original-source-attempt.json',
+            JSON.stringify(receipt, (_key, value) => typeof value === 'bigint'
+                ? { $bigint: value.toString() } : value, 2) + '\n',
+        );
+        assert.equal(asmodeus.mx, target.monsterX);
+        assert.equal(asmodeus.my, target.heroY);
+        const summonDraw = draws.find(draw =>
+            draw.name === 'rn2' && draw.args[0] === 16);
+        assert.ok(summonDraw, 'real summonmu rn2(16) draw was observed');
+        assert.notEqual(summonDraw.value, 0,
+            'actual seeded RNG must take the non-summon branch');
+        assert.ok(messages.some(text => /casts a spell at you/u.test(text)),
+            'the ordinary attack loop announced its adjacent magical attack');
+        if (actionError) {
+            assert.match(actionError.message,
+                /castmu\(\) elemental spell type/u,
+                'the only accepted red is the omitted AD_COLD arm');
+            assert.fail(
+                'real mattacku reached the existing AD_COLD refusal; source arm is missing',
+            );
+        }
+
+        // Final green path continues here after the original-source target red.
+        assert.ok(game.u.uhp <= beforeHp);
+        assert.ok(messages.some(text => /covered in frost/u.test(text)));
+        assert.ok(messages.some(text => /resist the effects/u.test(text)));
+        assert.ok(asmodeus.seen_resistance & M_SEEN_COLD);
+        assert.equal(game.level.at(game.u.ux, game.u.uy).typ, ROOM);
+        const frostIndex = messages.findIndex(text => /covered in frost/u.test(text));
+        assert.ok(frostIndex > 0);
+        assert.ok(messages.slice(0, frostIndex).some(text =>
+            /It hits!/u.test(text)),
+        'the real prior claw attack must remain before AD_COLD');
+
+        const afterLive = completeSecondTurnSnapshot(game, target.replay);
+        let cloneError;
+        try {
+            await mattacku(
+                cloneActor,
+                directMattackuEnv(clone, cloneRandom, [], true),
+            );
+        } catch (error) {
+            cloneError = error;
+        }
+        assert.equal(cloneError, undefined,
+            'the real planning clone must complete the same attack arm');
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            afterLive,
+            'clone action must not change live hero, monster, RNG, queue, or output',
+        );
+    });
 
 // monmove.c:538/564/499: a non-brave adjacent gremlin fears artifact light.
 // The clone shares the source decision but must never paint/read live output.

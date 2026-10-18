@@ -1,0 +1,2219 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+import {
+    A_STR,
+    ANTIMAGIC,
+    BLND_RES,
+    BLINDED,
+    CONFUSION,
+    COULD_SEE,
+    DIED,
+    KILLED_BY,
+    FROMFORM,
+    FREE_ACTION,
+    HALF_SPDAM,
+    HALLUC,
+    HALLUC_RES,
+    IN_SIGHT,
+    INVIS,
+    M_AP_OBJECT,
+    M_ATTK_HIT,
+    M_ATTK_MISS,
+    M_SEEN_MAGR,
+    MFAST,
+    MM_ANGRY,
+    MM_NOMSG,
+    STUNNED,
+    SEE_INVIS,
+    STRAT_APPEARMSG,
+    STRAT_WAITFORU,
+    TELEPAT,
+    TIMEOUT,
+    ROOM,
+} from '../js/const.js';
+import { GLYPH_INVISIBLE } from '../js/display.js';
+import { GameMap } from '../js/game.js';
+import { buzzmu, castmu, death_inflicted_by, touch_of_death, mcast_death_touch, mcast_destroy_armor, mcast_insects, mcast_summon_mons, mcast_weaken_you } from '../js/mcastu.js';
+import { healmon } from '../js/mon.js';
+import {
+    G_UNIQ,
+    S_GOLEM,
+    M2_DEMON,
+    M2_PNAME,
+    NON_PM,
+    AD_CLRC,
+    AD_COLD,
+    AD_FIRE,
+    AD_MAGM,
+    AD_SPEL,
+    AT_MAGC,
+    monst_globals_init,
+    PM_KOBOLD_SHAMAN,
+    PM_ALIGNED_CLERIC,
+    PM_ANGEL,
+    S_ANT,
+} from '../js/monsters.js';
+import { DAGGER, STRANGE_OBJECT, WEAPON_CLASS } from '../js/objects.js';
+import { newObject } from '../js/obj.js';
+import { has_aggravatables } from '../js/wizard.js';
+
+// -- helpers -----------------------------------------------------------
+
+// Build a mock monster with enough fields for castmu().
+function makeCaster(overrides = {}) {
+    return {
+        m_lev: 7,
+        mcan: false,
+        mspec_used: 0,
+        mconf: 0,
+        mpeaceful: false,
+        minvis: false,
+        invis_blkd: false,
+        permspeed: 0,
+        mhp: 20,
+        mhpmax: 20,
+        mx: 5, my: 5,
+        mux: 4, muy: 5,
+        iswiz: false,
+        seen_resistance: 0,
+        data: { pmnames: [null, null, 'kobold shaman'] },
+        ...overrides,
+    };
+}
+
+// Minimal game state with viz_array that lets couldsee/cansee pass at (5, 5).
+// couldsee() reads viz_array[y][x] & COULD_SEE; cansee() reads IN_SIGHT.
+function makeState(overrides = {}) {
+    const viz_array = [];
+    for (let row = 0; row < 22; row++) {
+        viz_array[row] = new Uint8Array(80);
+    }
+    viz_array[5][5] = COULD_SEE | IN_SIGHT;
+    const level = new GameMap();
+    // castmu floor-effect callers target (4, 5); a room keeps unrelated
+    // terrain effects inert while supplying zap_over_floor's real map owner.
+    level.at(4, 5).typ = ROOM;
+    if (overrides.level) Object.assign(level, overrides.level);
+    return {
+        u: { ux: 4, uy: 5, uprops: {} },
+        level,
+        moves: 100,
+        youmonst: { data: { mlet: 0 } },
+        context: {},
+        viz_array,
+        ...overrides,
+        level,
+    };
+}
+
+// Every castmu() call needs an unsupported operation. A fixture that expects
+// no refusal fails on the first one; a fixture that expects one records it.
+function refuse(what) {
+    assert.fail(`unexpected refusal: ${what}`);
+}
+
+// A random source that hands out `values` in order and records each draw as
+// `rn2(bound)`; d() records too and answers `dice`.
+function scriptedRandom(values, dice = 6, rndValue = 33) {
+    const draws = [];
+    let index = 0;
+    return {
+        draws,
+        rn2: (bound) => {
+            const value = index < values.length ? values[index] : 0;
+            index++;
+            draws.push(`rn2(${bound})`);
+            return value;
+        },
+        d: (n, s) => {
+            draws.push(`d(${n},${s})`);
+            return dice;
+        },
+        rnd: (bound) => {
+            draws.push(`rnd(${bound})`);
+            return rndValue;
+        },
+    };
+}
+
+const AD_CLRC_ATTACK = { aatyp: AT_MAGC, adtyp: AD_CLRC, damn: 0, damd: 0 };
+const AD_SPEL_ATTACK = { aatyp: AT_MAGC, adtyp: AD_SPEL, damn: 0, damd: 0 };
+
+test('clone Wizard spell dispatch reaches clonewiz in source order', () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cStart = c.indexOf('\nmcast_clone_wiz(struct monst *mtmp)');
+    const cEnd = c.indexOf('\nstaticfn void\nmcast_summon_mons', cStart);
+    const cClone = c.slice(cStart, cEnd);
+    const jsStart = js.indexOf('\nasync function mcast_clone_wiz(mtmp, rawEnv = {})');
+    const jsEnd = js.indexOf('\n// C ref: mcastu.c mcast_summon_mons', jsStart);
+    const jsClone = js.slice(jsStart, jsEnd);
+
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cClone, /mtmp->iswiz && svc\.context\.no_of_wizards == 1/u);
+    assert.ok(cClone.indexOf('pline("Double Trouble...")')
+        < cClone.indexOf('clonewiz()'));
+    assert.match(js, /case MCAST_CLONE_WIZ:\s*await mcast_clone_wiz\(mtmp, env\);/u);
+    assert.match(jsClone, /mtmp\?\.iswiz && state\.context\?\.no_of_wizards === 1/u);
+    assert.ok(jsClone.indexOf("await message('Double Trouble...'")
+        < jsClone.indexOf('await clonewiz(state, rawEnv)'));
+    assert.doesNotMatch(js, /case MCAST_CLONE_WIZ:\s*recordMcastGap\('mcastu\.c mcast_clone_wiz'/u);
+});
+
+test('mcast_insects preserves the ant probe, census, and extra spawn iteration', async () => {
+    const state = makeState({ flags: { acoustics: true } });
+    const caster = makeCaster({ m_lev: 1, mux: 4, muy: 5 });
+    const calls = [];
+    const messages = [];
+    const summoned = [];
+
+    await mcast_insects(caster, {
+        state,
+        random: scriptedRandom([]),
+        mkclass: (classSymbol, special) => {
+            calls.push(['mkclass', classSymbol, special]);
+            return { mlet: classSymbol };
+        },
+        monsterCensus: spotted => {
+            calls.push(['census', spotted]);
+            return calls.filter(([name]) => name === 'set-malign').length;
+        },
+        enexto: (x, y, species) => {
+            calls.push(['enexto', x, y, species]);
+            return { x: 6, y: 5 };
+        },
+        makemonRuntime: async (species, x, y, flags) => {
+            calls.push(['makemon', species, x, y, flags]);
+            const monster = { msleeping: 1, mpeaceful: 1, mtame: 1 };
+            summoned.push(monster);
+            return monster;
+        },
+        setMalign: monster => {
+            calls.push(['set-malign', monster]);
+        },
+        canseemon: () => false,
+        tpSensemon: () => false,
+        message: async line => messages.push(line),
+    });
+
+    assert.deepEqual(calls.filter(([name]) => name === 'mkclass')
+        .map(([, classSymbol, special]) => [classSymbol, special]),
+    [[S_ANT, 0], [S_ANT, 0], [S_ANT, 0], [S_ANT, 0], [S_ANT, 0]]);
+    assert.equal(calls.filter(([name]) => name === 'enexto').length, 4,
+        'quan is clamped to three and the inclusive C loop creates four placement attempts');
+    assert.equal(calls.filter(([name]) => name === 'makemon').length, 4);
+    assert.ok(calls.filter(([name]) => name === 'makemon')
+        .every(([, , , , flags]) => flags === (MM_ANGRY | MM_NOMSG)));
+    assert.equal(calls.filter(([name]) => name === 'census').length, 2);
+    assert.ok(summoned.every(monster => monster.msleeping === 0
+        && monster.mpeaceful === 0 && monster.mtame === 0));
+    assert.equal(messages[0], 'You hear someone summoning something, and insects appear.');
+});
+
+test('mcast_insects follows the C helper order and its dispatcher arm', () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cBody = c.match(/mcast_insects\(struct monst \*mtmp\)\s*\{([\s\S]*?)\n\}\n\nstaticfn void\nmcast_blind_you/u)?.[1];
+    const jsBody = js.match(/export async function mcast_insects\(mtmp, rawEnv = \{\}\)\s*\{([\s\S]*?)\n\}\n\n\/\/ C ref: mcastu\.c mcast_stun_you/u)?.[1];
+    assert.ok(cBody, 'the complete upstream mcast_insects body exists');
+    assert.ok(jsBody, 'the complete JavaScript mcast_insects body exists');
+    const cPoints = [
+        'mkclass(S_ANT, 0)', 'monster_census(TRUE)',
+        'rnd((int) mtmp->m_lev / 2)', 'if (quan < 3)',
+        'for (i = 0; i <= quan; i++)',
+        'enexto(&bypos, mtmp->mux, mtmp->muy, mtmp->data)',
+        'mkclass(let, 0)', 'makemon(pm, bypos.x, bypos.y, MM_ANGRY | MM_NOMSG)',
+        'mtmp2->msleeping = mtmp2->mpeaceful = mtmp2->mtame = 0',
+        'set_malign(mtmp2)', 'newseen = monster_census(TRUE)',
+        'seecaster = canseemon(mtmp) || tp_sensemon(mtmp) || Detect_monsters',
+    ];
+    const cIndices = cPoints.map(point => cBody.indexOf(point));
+    assert.ok(cIndices.every((index, i) => index >= 0
+        && (!i || cIndices[i - 1] < index)));
+    assert.match(jsBody, /chooseClass\(S_ANT, 0, env\)[\s\S]*census\(true[\s\S]*random\.rnd[\s\S]*i <= quan[\s\S]*nextTo\([\s\S]*createMonster\([\s\S]*summoned\.msleeping = 0[\s\S]*setMalign[\s\S]*census\(true/u);
+    assert.match(c, /case MCAST_INSECTS:\s*mcast_insects\(mtmp\);\s*dmg = 0;/u);
+    assert.match(js, /case MCAST_INSECTS:\s*await mcast_insects\(mtmp, env\);\s*break;/u);
+});
+
+// -- healmon -----------------------------------------------------------
+
+// C ref: mon.c:4596-4614. Monster healing with optional overheal.
+// Translates the C integer-arithmetic branches faithfully.
+
+test('healmon: heals within mhpmax without changing mhpmax', () => {
+    // amt=5 brings mhp from 10 to 15, which is <= mhpmax=20.
+    const mtmp = { mhp: 10, mhpmax: 20 };
+    const healed = healmon(mtmp, 5, 0);
+    assert.equal(mtmp.mhp, 15, 'mhp should be 10+5=15');
+    assert.equal(mtmp.mhpmax, 20, 'mhpmax unchanged');
+    assert.equal(healed, 5, 'returned heal amount = 5');
+});
+
+test('healmon: clamps mhp to mhpmax when amt overshoots', () => {
+    // amt=15, overheal=0: mhp+amt=25 > mhpmax+0=20, so mhp is clamped.
+    const mtmp = { mhp: 10, mhpmax: 20 };
+    const healed = healmon(mtmp, 15, 0);
+    assert.equal(mtmp.mhp, 20,
+        'mhp clamped to mhpmax when amt exceeds limit');
+    assert.equal(mtmp.mhpmax, 20, 'mhpmax unchanged with overheal=0');
+    assert.equal(healed, 10, 'returned heal = 20-10 = 10');
+});
+
+test('healmon: overheal raises mhpmax when mhp exceeds it', () => {
+    // amt=15, overheal=5: 10+15=25 is not > 20+5=25, so the else branch runs.
+    // mhp=25 > mhpmax=20, so mhpmax is raised to 25.
+    const mtmp = { mhp: 10, mhpmax: 20 };
+    const healed = healmon(mtmp, 15, 5);
+    assert.equal(mtmp.mhp, 25);
+    assert.equal(mtmp.mhpmax, 25);
+    assert.equal(healed, 15);
+});
+
+test('healmon: overheal exceeded clamps mhp and raises mhpmax by overheal', () => {
+    // amt=20, overheal=3: 10+20=30 > 20+3=23, so mhpmax=23, mhp=23.
+    const mtmp = { mhp: 10, mhpmax: 20 };
+    const healed = healmon(mtmp, 20, 3);
+    assert.equal(mtmp.mhpmax, 23, 'mhpmax increased by overheal: 20+3=23');
+    assert.equal(mtmp.mhp, 23, 'mhp clamped to new mhpmax=23');
+    assert.equal(healed, 13, 'returned heal = 23-10 = 13');
+});
+
+// -- has_aggravatables -------------------------------------------------
+
+// C ref: wizard.c has_aggravatables() (472-491). Outside the Wizard's Tower
+// (no wiz levels in state, so In_W_tower() is false for every square) the
+// scan answers TRUE for the first live monster that is waiting for the hero
+// or helpless, and FALSE otherwise.
+
+test('has_aggravatables: a sleeping monster on the level is aggravatable', () => {
+    const state = makeState();
+    // msleeping=1 makes helpless() true; mhp=5 keeps DEADMONSTER() false.
+    state.level = {
+        monlist: { mhp: 5, msleeping: 1, mcanmove: true, mx: 7, my: 7,
+            mstrategy: 0, nmon: null },
+    };
+    assert.equal(has_aggravatables(makeCaster(), state), true);
+});
+
+test('has_aggravatables: STRAT_WAITFORU counts, a dead sleeper does not', () => {
+    const state = makeState();
+    // The first entry is dead (mhp=0) and skipped even though it sleeps; the
+    // second is awake and mobile but carries STRAT_WAITFORU (0x20000000).
+    state.level = {
+        monlist: { mhp: 0, msleeping: 1, mcanmove: true, mx: 7, my: 7,
+            mstrategy: 0,
+            nmon: { mhp: 5, msleeping: 0, mcanmove: true, mx: 8, my: 8,
+                mstrategy: 0x20000000, nmon: null } },
+    };
+    assert.equal(has_aggravatables(makeCaster(), state), true);
+});
+
+test('has_aggravatables: an awake, mobile level has nothing to wake', () => {
+    const state = makeState();
+    state.level = {
+        monlist: { mhp: 5, msleeping: 0, mcanmove: true, mx: 7, my: 7,
+            mstrategy: 0, nmon: null },
+    };
+    assert.equal(has_aggravatables(makeCaster(), state), false);
+    // An empty level answers FALSE too.
+    state.level = { monlist: null };
+    assert.equal(has_aggravatables(makeCaster(), state), false);
+});
+
+// C ref: mcastu.c mcast_summon_mons() (421-448).  The message depends on
+// whether the hero is invisible to the caster and whether the caster's
+// remembered target is displaced from the hero's square.
+test('mcast_summon_mons reports an invisible displaced arrival', async () => {
+    const state = makeState({
+        u: {
+            ux: 4,
+            uy: 5,
+            uprops: {
+                [INVIS]: { intrinsic: 1 },
+            },
+        },
+    });
+    const caster = makeCaster({
+        mux: 5,
+        muy: 5,
+        data: { mflags1: 0 },
+    });
+    const messages = [];
+    const result = await mcast_summon_mons(caster, {
+        state,
+        nasty: async () => 1,
+        message: async (text, owner) => messages.push([text, owner]),
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(messages, [[
+        'A monster appears at a spot near you!',
+        state,
+    ]]);
+});
+
+test('mcast_summon_mons uses the Wizard voice wording for plural summons', async () => {
+    const state = makeState();
+    const wizard = makeCaster({ iswiz: true });
+    const messages = [];
+    const result = await mcast_summon_mons(wizard, {
+        state,
+        nasty: async () => 2,
+        verbalize: async (text, owner) => messages.push([text, owner]),
+    });
+
+    assert.equal(result, 2);
+    assert.deepEqual(messages, [['Destroy the thief, my pets!', state]]);
+});
+
+test('mcast_summon_mons uses canonical quoted verbalize output by default', async () => {
+    const state = makeState({ gp: {} });
+    const wizard = makeCaster({ iswiz: true });
+    const messages = [];
+    const result = await mcast_summon_mons(wizard, {
+        state,
+        nasty: async () => 1,
+        message: async (text) => messages.push(text),
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(messages, ['"Destroy the thief, my pet!"']);
+    assert.equal(state.gp.pline_flags, 0);
+});
+
+// -- choose_monster_spell RNG sequence ---------------------------------
+
+// C ref: mcastu.c:111-113. rn2(m_lev) picks spellval; when it exceeds the
+// list's maxlev, rn2(maxlev) gates a second rn2(maxlev) reroll.
+
+test('choose_monster_spell: rn2(m_lev) is the only draw for a directed pick',
+    async () => {
+        // m_lev=7 cleric: rn2(7)=4 -> spellval 4 <= maxlev 13, so no reroll.
+        // Level 4 in the cleric list is MCAST_PARALYZE, a directed spell, so
+        // castmu(FALSE, FALSE) returns M_ATTK_MISS after the one draw.
+        const random = scriptedRandom([4]);
+        const result = await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, false, false,
+            { state: makeState(), random, unsupported: refuse },
+        );
+        assert.equal(result, M_ATTK_MISS);
+        assert.deepEqual(random.draws, ['rn2(7)']);
+    });
+
+test('choose_monster_spell: spellval above maxlev gates and rerolls', async () => {
+    // m_lev=24 cleric, maxlev=13 (MCAST_GEYSER): rn2(24)=16 > 13, then the
+    // rn2(13)=6 gate is nonzero, so rn2(13)=1 becomes spellval. Level 1 is
+    // MCAST_CURE_SELF, useless at full health, so the loop falls to level 0
+    // MCAST_OPEN_WOUNDS, which is directed: the undirected path misses.
+    const random = scriptedRandom([16, 6, 1]);
+    const result = await castmu(
+        makeCaster({ m_lev: 24 }), AD_CLRC_ATTACK, false, false,
+        { state: makeState(), random, unsupported: refuse },
+    );
+    assert.equal(result, M_ATTK_MISS);
+    assert.deepEqual(random.draws, ['rn2(24)', 'rn2(13)', 'rn2(13)']);
+});
+
+test('castmu: a cancelled caster calls cursetxt and misses', async () => {
+    // mcan=true fails the able-to-cast guard after one rn2(7)=2 pick
+    // (MCAST_CONFUSE_YOU, level 2, directed and not useless). The visible
+    // caster at (5,5) gets cursetxt's "points at you, then curses".
+    const random = scriptedRandom([2]);
+    const messages = [];
+    const result = await castmu(
+        makeCaster({ m_lev: 7, mcan: true }), AD_CLRC_ATTACK, true, true,
+        {
+            state: makeState(), random, unsupported: refuse,
+            message: (m) => messages.push(m),
+        },
+    );
+    assert.equal(result, M_ATTK_MISS);
+    assert.deepEqual(random.draws, ['rn2(7)']);
+    assert.deepEqual(messages, ['Kobold shaman points at you, then curses.']);
+});
+
+test('castmu: mspec_used on cooldown misses without casting', async () => {
+    // mspec_used=5 fails the same guard; the one draw is the spell pick.
+    const random = scriptedRandom([2]);
+    const result = await castmu(
+        makeCaster({ m_lev: 7, mspec_used: 5 }), AD_CLRC_ATTACK, true, true,
+        { state: makeState(), random, unsupported: refuse, message: () => {} },
+    );
+    assert.equal(result, M_ATTK_MISS);
+    assert.deepEqual(random.draws, ['rn2(7)']);
+});
+
+test('castmu: requires an unsupported operation', async () => {
+    // AD_MAGM requires mdamageu for its source-ordered hero damage callback.
+    const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
+    await assert.rejects(
+        castmu(makeCaster(), mattk, true, true,
+            { state: makeState(), random: scriptedRandom([50]) }),
+        /castmu requires a unsupported operation/u,
+    );
+});
+
+test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async () => {
+    // The common castmu damage roll is consumed first; AD_MAGM replaces its
+    // value with its own d(ml/2+1,6) roll before the floor-effect helper.
+    const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
+    const state = makeState();
+    const random = scriptedRandom([50], 8);
+    const events = [];
+    let damageArgs;
+    const result = await castmu(makeCaster(), mattk, true, true, {
+        state, random, unsupported: refuse,
+        message: async (text) => events.push(`message:${text}`),
+        noteUnported: (name) => events.push(`gap:${name}`),
+        mdamageu: async (...args) => {
+            events.push('damage');
+            damageArgs = args;
+        },
+    });
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)', 'd(4,6)']);
+    assert.ok(events.includes('message:You are hit by a shower of missiles!'));
+    assert.deepEqual(events.slice(-2), [
+        'message:You are hit by a shower of missiles!',
+        'damage',
+    ]);
+    assert.equal(damageArgs[0].m_lev, 7);
+    assert.equal(damageArgs[1], 8);
+    assert.equal(damageArgs[2], state);
+});
+
+test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
+    const mattk = { aatyp: AT_MAGC, adtyp: AD_MAGM, damn: 0, damd: 0 };
+    const state = makeState({
+        u: {
+            ux: 4, uy: 5,
+            uprops: { [ANTIMAGIC]: { intrinsic: 1 } },
+        },
+    });
+    const watcher = watcherAt(state, 6, 5, 0);
+    const random = scriptedRandom([50], 8);
+    const messages = [];
+    const gaps = [];
+    const damageCalls = [];
+    const result = await castmu(makeCaster(), mattk, true, true, {
+        state, random, unsupported: refuse,
+        message: async (text) => messages.push(text),
+        noteUnported: (name) => gaps.push(name),
+        mdamageu: (...args) => damageCalls.push(args),
+    });
+
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)']);
+    assert.ok(messages.includes('You are hit by a shower of missiles!'));
+    assert.ok(messages.includes('The missiles bounce off!'));
+    assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
+    assert.deepEqual(gaps, []);
+    assert.deepEqual(damageCalls, []);
+});
+
+// -- spell_would_be_useless --------------------------------------------
+
+test('spell_would_be_useless: MCAST_CURE_SELF at full health', async () => {
+    // rn2(7)=1 would pick MCAST_CURE_SELF (level 1), but mhp=mhpmax rejects
+    // it, so MCAST_OPEN_WOUNDS (level 0, directed) is chosen and the
+    // undirected path misses.
+    const result = await castmu(
+        makeCaster({ m_lev: 7, mhp: 20, mhpmax: 20 }), AD_CLRC_ATTACK,
+        false, false,
+        { state: makeState(), random: scriptedRandom([1]), unsupported: refuse },
+    );
+    assert.equal(result, M_ATTK_MISS);
+});
+
+test('spell_would_be_useless: MCAST_HASTE_SELF when already fast', async () => {
+    // Wizard list: rn2(7)=2 reaches MCAST_HASTE_SELF (level 2), rejected by
+    // permspeed=MFAST; MCAST_CURE_SELF is rejected at full health, so
+    // MCAST_PSI_BOLT (directed) remains and the undirected path misses.
+    const result = await castmu(
+        makeCaster({ m_lev: 7, permspeed: MFAST }), AD_SPEL_ATTACK,
+        false, false,
+        { state: makeState(), random: scriptedRandom([2]), unsupported: refuse },
+    );
+    assert.equal(result, M_ATTK_MISS);
+});
+
+// C ref: mcastu.c:952-953. `if (!has_aggravatables(mtmp)) return rn2(100)
+// ? TRUE : FALSE;` -- the draw happens only when nothing needs waking.
+// Wizard list maxlev is 20 (MCAST_DEATH_TOUCH), so rn2(15)=13 needs no
+// reroll and MCAST_AGGRAVATION (level 13) is the first candidate.
+
+test('MCAST_AGGRAVATION uses the C You_feel prefix before waking monsters',
+    async () => {
+        for (const unaware of [false, true]) {
+            // rn2(15)=13 selects level-13 MCAST_AGGRAVATION; rn2(150)=50
+            // passes castmu's fumble check without adding a random call.
+            const random = scriptedRandom([13, 50]);
+            const state = makeState();
+            if (unaware) {
+                // C Unaware requires negative multi plus unconscious(); use
+                // the source's sleeping state to reach its dream prefix.
+                state.multi = -1;
+                state.u.usleep = 1;
+            }
+            // Aggravation clears the waiting strategy without extra draws.
+            const waiting = {
+                mhp: 5, msleeping: 1, mcanmove: true, mx: 7, my: 7,
+                mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG, nmon: null,
+            };
+            state.level = { monlist: waiting };
+            const refusals = [];
+            const messages = [];
+            const result = await castmu(
+                makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
+                {
+                    state, random, message: (message) => messages.push(message),
+                    unsupported: refuse,
+                    noteUnported: (what) => refusals.push(what),
+                },
+            );
+            // C mcastu.c:mcast_spell calls You_feel before aggravate().
+            assert.equal(result, M_ATTK_HIT);
+            assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)']);
+            assert.deepEqual(messages, [
+                'Kobold shaman casts a spell!',
+                `${unaware ? 'You dream that you feel ' : 'You feel '}`
+                    + 'that monsters are aware of your presence.',
+            ]);
+            assert.deepEqual(refusals, []);
+            assert.equal(waiting.msleeping, false);
+            assert.equal(waiting.mstrategy, 0);
+        }
+    });
+
+test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing sleeps',
+    async () => {
+        // rn2(100)=1 is nonzero, so the spell is useless and the search
+        // continues down the list: MCAST_CURSE_ITEMS (level 10) is directed,
+        // so castmu(FALSE, FALSE) misses.
+        const random = scriptedRandom([13, 1]);
+        const state = makeState();
+        state.level = {
+            monlist: { mhp: 5, msleeping: 0, mcanmove: true, mx: 7, my: 7,
+                mstrategy: 0, nmon: null },
+        };
+        const result = await castmu(
+            makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
+            { state, random, unsupported: refuse },
+        );
+        assert.equal(result, M_ATTK_MISS);
+        assert.deepEqual(random.draws, ['rn2(15)', 'rn2(100)']);
+    });
+
+test('castmu curses clone inventory through the planning environment', async () => {
+    // mcastu.c:831-835. Spell level10 selects curse items; the level11
+    // caster passes its fumble gate99, then the curse selects the sole item.
+    const random = scriptedRandom([10, 99], 6, 1);
+    const item = newObject({ otyp: DAGGER, oclass: WEAPON_CLASS, quan: 1 });
+    const state = makeState({ invent: item });
+    const result = await castmu(makeCaster({ m_lev: 11 }), AD_SPEL_ATTACK,
+        true, true, { state, random, planning: true, unsupported: refuse });
+    assert.equal(result, M_ATTK_HIT);
+    assert.equal(item.cursed, true, 'planned curse changes the supplied clone');
+    assert.deepEqual(random.draws, ['rn2(11)', 'rn2(110)', 'd(6,6)', 'rnd(6)', 'rnd(1)']);
+});
+
+test('mcast_spell dispatches the summon branch and its production message',
+    async () => {
+        // mcastu.c:821-825. A level-16 wizard can select the level-15
+        // summon spell; mcast_summon_mons consumes nasty() and emits the
+        // source appearance line without passing a damage result onward.
+        const random = scriptedRandom([15, 50]);
+        const gaps = [];
+        const messages = [];
+        const result = await castmu(
+            makeCaster({ m_lev: 16 }), AD_SPEL_ATTACK, false, false,
+            {
+                state: makeState(), random,
+                message: (text) => messages.push(text),
+                nasty: async () => 1,
+                unsupported: refuse,
+                noteUnported: (what) => gaps.push(what),
+            },
+        );
+        assert.equal(result, M_ATTK_HIT);
+        assert.deepEqual(random.draws, ['rn2(16)', 'rn2(160)']);
+        assert.deepEqual(messages, [
+            'Kobold shaman casts a spell!',
+            'A monster appears from nowhere!',
+        ]);
+        assert.deepEqual(gaps, []);
+    });
+
+// C ref: mcastu.c:978 and youprop.h:92. MCAST_BLIND_YOU is useless under
+// `Blinded` (HBlinded && !BBlinded), not under the wider `Blind`. Cleric
+// rn2(7)=6 reaches MCAST_BLIND_YOU (level 6, effect 8) first; when it is
+// rejected, MCAST_PARALYZE (level 4, effect 7) is chosen instead. rn2(70)=50
+// passes the fumble check and d()=6 gives a positive dmg so mcast_spell()
+// reaches the source blindness case and records its discarded helper gap.
+
+async function blindYouEffect(blinded) {
+    const state = makeState();
+    state.u.uprops[BLINDED] = blinded;
+    const refusals = [];
+    await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+        state, random: scriptedRandom([6, 50]), message: () => {},
+        unsupported: refuse,
+        noteUnported: (what) => refusals.push(what),
+        mdamageu: () => {},
+    });
+    return refusals;
+}
+
+test('spell_would_be_useless: a blindfold does not make MCAST_BLIND_YOU useless',
+    async () => {
+        // A worn blindfold sets only EBlinded (W_TOOL in extrinsic).
+        assert.deepEqual(await blindYouEffect({ intrinsic: 0, extrinsic: 1 }),
+            []);
+    });
+
+test('spell_would_be_useless: blocked blindness keeps MCAST_BLIND_YOU useful',
+    async () => {
+        // Artifact lenses set BBlinded, which defeats HBlinded.
+        assert.deepEqual(
+            await blindYouEffect({ intrinsic: 1, extrinsic: 0, blocked: 1 }),
+            []);
+    });
+
+test('spell_would_be_useless: intrinsic blindness makes MCAST_BLIND_YOU useless',
+    async () => {
+        assert.deepEqual(await blindYouEffect({ intrinsic: 1, extrinsic: 0 }), []);
+    });
+
+test('MCAST_BLIND_YOU reports scales before applying the spell timeout',
+    async () => {
+        for (const { halfDamage, blocked, timeout, clearsVision } of [
+            { halfDamage: false, blocked: 0, timeout: 200, clearsVision: false },
+            { halfDamage: true, blocked: 0, timeout: 100, clearsVision: false },
+            { halfDamage: false, blocked: 1, timeout: 200, clearsVision: true },
+        ]) {
+            const state = makeState();
+            state.disp = { botl: false };
+            state.u.uprops[BLINDED] = {
+                intrinsic: 0, extrinsic: 0, blocked,
+            };
+            state.u.uprops[HALF_SPDAM] = {
+                intrinsic: halfDamage ? 1 : 0, extrinsic: 0, blocked: 0,
+            };
+            const messages = [];
+            const gaps = [];
+            const random = scriptedRandom([6, 50]);
+            const visionCalls = [];
+
+            await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+                state, random,
+                message: (line) => messages.push(line),
+                noteUnported: (what) => gaps.push(what),
+                visionRecalc: (...args) => visionCalls.push(args),
+                unsupported: refuse,
+                mdamageu: () => assert.fail('blindness clears spell damage'),
+            });
+
+            const scalesIndex = messages.indexOf('Scales cover your eyes!');
+            const clearsIndex = messages.indexOf('Your vision clears.');
+            assert.ok(scalesIndex >= 0);
+            assert.equal(clearsIndex >= 0, clearsVision);
+            if (clearsVision) assert.ok(scalesIndex < clearsIndex);
+            assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, timeout);
+            assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+            assert.deepEqual(gaps, []);
+            assert.equal(visionCalls.length, blocked ? 0 : 1,
+                'make_blinded owns the visibility transition');
+        }
+    });
+
+test('MCAST_BLIND_YOU source keeps message, timeout, and post-effect order', () => {
+    const source = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const body = source.match(/mcast_blind_you\(void\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(body, 'mcastu.c:mcast_blind_you definition exists');
+    const scales = body.indexOf('pline("Scales cover your %s!"');
+    const timeout = body.indexOf('make_blinded(Half_spell_damage ? 100L : 200L, FALSE)');
+    const clears = body.indexOf('if (!Blind)');
+    assert.ok(scales >= 0 && scales < timeout && timeout < clears,
+        'C prints scales, applies blindness, then checks whether vision clears');
+    assert.match(body, /eyecount\(gy\.youmonst\.data\)/u);
+    assert.match(source,
+        /case MCAST_BLIND_YOU:\s*mcast_blind_you\(\);\s*dmg = 0;/u);
+    assert.match(js,
+        /case MCAST_BLIND_YOU:\s*await mcast_blind_you\(env\);\s*break;/u);
+});
+
+// -- cursetxt ----------------------------------------------------------
+
+// C ref: mcastu.c cursetxt() (62-85). A cancelled caster (mcan) reaches it
+// after the rn2(7)=2 pick of directed MCAST_CONFUSE_YOU.
+
+test('cursetxt: a hero mimicking a strange object gets the general-direction line',
+    async () => {
+        // monst.h:243 is_obj_mappear(): M_AP_OBJECT (2) and STRANGE_OBJECT
+        // (0). The hero is where the caster thinks (mux,muy == ux,uy), so the
+        // Invis clause is false and only this clause selects the line.
+        const state = makeState({
+            youmonst: {
+                data: { mlet: 0 },
+                m_ap_type: M_AP_OBJECT,
+                mappearance: STRANGE_OBJECT,
+            },
+        });
+        const messages = [];
+        await castmu(makeCaster({ mcan: true }), AD_CLRC_ATTACK, true, true, {
+            state, random: scriptedRandom([2]), unsupported: refuse,
+            message: (m) => messages.push(m),
+        });
+        assert.deepEqual(messages,
+            ['Kobold shaman points and curses in your general direction.']);
+    });
+
+// The unseen arm: with IN_SIGHT clear at (5,5) canseemon() is false, and
+// moves=100 satisfies !(moves % 4) without an rn2(4) draw.
+async function mumbledCurse(u, { planning = false, injectNorep = true } = {}) {
+    const state = makeState({ u });
+    state.viz_array[5][5] = COULD_SEE;
+    const messages = [];
+    const norepMessages = [];
+    const random = scriptedRandom([2]);
+    const env = {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        planning,
+    };
+    if (injectNorep)
+        env.norepMessage = (m) => norepMessages.push(m);
+    await castmu(makeCaster({ mcan: true }), AD_CLRC_ATTACK, true, true, env);
+    assert.deepEqual(random.draws, ['rn2(7)']);
+    return { messages, norepMessages };
+}
+
+test('cursetxt: an unseen caster is heard mumbling', async () => {
+    assert.deepEqual(await mumbledCurse({ ux: 4, uy: 5, uprops: {} }), {
+        messages: [],
+        norepMessages: ['You hear a mumbled curse.'],
+    });
+});
+
+test('cursetxt: the deaf roleplay option silences the mumbled curse', async () => {
+    // youprop.h:125 Deaf includes u.uroleplay.deaf; no DEAF property is set.
+    assert.deepEqual(await mumbledCurse({
+        ux: 4, uy: 5, uprops: {}, uroleplay: { deaf: true },
+    }), { messages: [], norepMessages: [] });
+});
+
+test('cursetxt: planned unseen curses use a silent Norep operation', async () => {
+    assert.deepEqual(await mumbledCurse(
+        { ux: 4, uy: 5, uprops: {} },
+        { planning: true, injectNorep: false },
+    ), { messages: [], norepMessages: [] });
+});
+
+test('castmu awaits the spell announcement before damage work', async () => {
+    const events = [];
+    let release;
+    const gate = new Promise((resolve) => { release = resolve; });
+    const draws = [];
+    let firstMessage = true;
+    const random = {
+        rn2: (bound) => {
+            const value = bound === 7 ? 2 : 50;
+            draws.push(`rn2(${bound})`);
+            events.push(`rn2(${bound})`);
+            return value;
+        },
+        d: (n, sides) => {
+            draws.push(`d(${n},${sides})`);
+            events.push(`d(${n},${sides})`);
+            return 34;
+        },
+    };
+    const pending = castmu(
+        makeCaster(), AD_SPEL_ATTACK, true, true,
+        {
+            state: makeState(),
+            random,
+            unsupported: refuse,
+            message: async (text) => {
+                events.push(`message-start:${text}`);
+                if (firstMessage) {
+                    firstMessage = false;
+                    await gate;
+                }
+                events.push('message-end');
+            },
+        },
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(events, [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell!',
+    ]);
+    assert.deepEqual(draws, ['rn2(7)', 'rn2(70)']);
+
+    release();
+    await pending;
+    assert.deepEqual(events.slice(0, 5), [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell!',
+        'message-end',
+        'd(4,6)',
+    ]);
+    assert.deepEqual(draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+});
+
+
+test('castmu awaits a result-valued effect message before mdamageu', async () => {
+    const events = [];
+    let releaseAnnouncement;
+    let releaseEffect;
+    const announcementGate = new Promise((resolve) => {
+        releaseAnnouncement = resolve;
+    });
+    const effectGate = new Promise((resolve) => { releaseEffect = resolve; });
+    let messageNumber = 0;
+    const draws = [];
+    const random = {
+        rn2: (bound) => {
+            const value = bound === 7 ? 0 : 50;
+            draws.push(`rn2(${bound})`);
+            events.push(`rn2(${bound})`);
+            return value;
+        },
+        d: (n, sides) => {
+            draws.push(`d(${n},${sides})`);
+            events.push(`d(${n},${sides})`);
+            return 34;
+        },
+    };
+    const pending = castmu(
+        makeCaster(), AD_SPEL_ATTACK, true, true,
+        {
+            state: makeState(),
+            random,
+            unsupported: refuse,
+            message: async (text) => {
+                const number = messageNumber++;
+                events.push(`message-start:${text}`);
+                if (number === 0) {
+                    await announcementGate;
+                } else {
+                    await effectGate;
+                }
+                events.push('message-end');
+            },
+            mdamageu: (_monster, damage) => {
+                events.push(`mdamageu:${damage}`);
+            },
+        },
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(events, [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell at you!',
+    ]);
+
+    releaseAnnouncement();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(events.slice(0, 6), [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell at you!',
+        'message-end',
+        'd(4,6)',
+        'message-start:Your head suddenly aches very painfully!',
+    ]);
+    assert.ok(!events.includes('mdamageu:34'),
+        'effect damage waits for its asynchronous message');
+
+    releaseEffect();
+    await pending;
+    assert.equal(events.at(-2), 'message-end');
+    assert.equal(events.at(-1), 'mdamageu:34');
+    assert.deepEqual(draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+});
+
+// -- castmu fumble check -----------------------------------------------
+
+// C ref: mcastu.c:208 rn2(ml * 10) < (mtmp->mconf ? 100 : 20).
+// A monster with m_lev=2 always fumbles because rn2(20) returns 0-19,
+// and 0-19 < 20 is always true. This matches the development case
+// seed0042 where a gnomish wizard (adj_lev=2 on dungeon level 1) fumbles.
+
+test('castmu fumble: m_lev=2 always fumbles (rn2(20) is always < 20)', async () => {
+    // Return values matching seed0042: rn2(2)=0 (spellval), rn2(20)=0 (fumble).
+    const random = scriptedRandom([0, 0]);
+    const messages = [];
+
+    const result = await castmu(
+        makeCaster({ m_lev: 2 }), AD_SPEL_ATTACK, true, true,
+        {
+            state: makeState(), random, unsupported: refuse,
+            message: (m) => messages.push(m),
+        },
+    );
+
+    assert.equal(result, M_ATTK_MISS);
+    assert.deepEqual(random.draws, ['rn2(2)', 'rn2(20)']);
+    assert.deepEqual(messages, ['The air crackles around the kobold shaman.']);
+});
+
+test('castmu fumble names priests and minions through mon_nam', async () => {
+    const state = makeState({
+        u: {
+            ux: 4, uy: 5, uprops: {},
+            ualign: { align: 0, type: 0 },
+            uz: { dnum: 0, dlevel: 1 },
+        },
+        urole: { lgod: 'Law', ngod: 'Balance', cgod: 'Chaos' },
+    });
+    monst_globals_init(state);
+
+    const namedCasters = [
+        [makeCaster({
+            m_lev: 2,
+            data: state.mons[PM_ALIGNED_CLERIC],
+            ispriest: true,
+            mextra: { epri: { shralign: 0 } },
+        }), 'the priest of Balance'],
+        [makeCaster({
+            m_lev: 2,
+            data: state.mons[PM_ANGEL],
+            isminion: true,
+            mextra: { emin: { min_align: 0 } },
+        }), 'the Angel of Balance'],
+    ];
+
+    for (const [caster, name] of namedCasters) {
+        const messages = [];
+        const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
+            state, random: scriptedRandom([0, 0]), unsupported: refuse,
+            message: (text) => messages.push(text),
+        });
+        assert.equal(result, M_ATTK_MISS);
+        assert.deepEqual(messages, [`The air crackles around ${name}.`]);
+    }
+});
+
+test('castmu fumble preserves the injected monnam provider', async () => {
+    const messages = [];
+    const result = await castmu(makeCaster({ m_lev: 2 }),
+        AD_SPEL_ATTACK, true, true, {
+            state: makeState(), random: scriptedRandom([0, 0]),
+            unsupported: refuse, monnam: () => 'the injected curate',
+            message: (text) => messages.push(text),
+        });
+    assert.equal(result, M_ATTK_MISS);
+    assert.deepEqual(messages, ['The air crackles around the injected curate.']);
+});
+
+test('castmu fumble formatter follows C mon_nam at the same message point', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/mcastu.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/mcastu.js', import.meta.url), 'utf8');
+    const cStart = c.indexOf('if (rn2(ml * 10)');
+    const jsStart = js.indexOf('if (random.rn2(ml * 10)');
+    const cBody = c.slice(cStart, c.indexOf('return M_ATTK_MISS;', cStart));
+    const jsBody = js.slice(jsStart, js.indexOf('return M_ATTK_MISS;', jsStart));
+    assert.ok(cBody);
+    assert.ok(jsBody);
+    assert.match(cBody, /canseemon\(mtmp\) && !Deaf[\s\S]*set_msg_xy\(mtmp->mx, mtmp->my\)[\s\S]*mon_nam\(mtmp\)/u);
+    assert.match(jsBody, /canseemon\(mtmp, state\) && !Deaf\(state\)[\s\S]*env\.monnam\?\.\(mtmp\)\s*\?\?\s*mon_nam\(mtmp, state, env\)/u);
+});
+
+test('castmu fumble: the deaf roleplay option silences the crackle', async () => {
+    // Same fumble as above; youprop.h:125 Deaf includes u.uroleplay.deaf.
+    const state = makeState({
+        u: { ux: 4, uy: 5, uprops: {}, uroleplay: { deaf: true } },
+    });
+    const messages = [];
+    const result = await castmu(
+        makeCaster({ m_lev: 2 }), AD_SPEL_ATTACK, true, true,
+        {
+            state, random: scriptedRandom([0, 0]), unsupported: refuse,
+            message: (m) => messages.push(m),
+        },
+    );
+    assert.equal(result, M_ATTK_MISS);
+    assert.deepEqual(messages, []);
+});
+
+test('castmu fumble: m_lev=7 passes when rn2(70) >= 20', async () => {
+    // spellval=2 selects MCAST_CONFUSE_YOU; fumble=50 is above 20, so the
+    // test reaches the spell effect rather than the fumble message.
+    const random = scriptedRandom([2, 50]);
+    const messages = [];
+    const mtmp = makeCaster({ m_lev: 7 });
+
+    await castmu(
+        mtmp, AD_CLRC_ATTACK, true, true,
+        {
+            state: makeState(), random,
+            message: (m) => messages.push(m),
+            unsupported: () => {},
+        },
+    );
+
+    assert.equal(mtmp.mspec_used, 3, 'mspec_used = 10 - 7 = 3');
+    assert.ok(!messages.some(m => m.includes('air crackles')),
+        'should not produce fumble message');
+});
+
+test('MCAST_CONFUSE_YOU halves its own caster level with C integer rounding',
+    async () => {
+        const visibleMonster = {
+            // This live monster occupies makeState's visible (5,5) square;
+            // M_SEEN_MAGR is its existing resistance-memory bit.
+            mhp: 10,
+            mx: 5,
+            my: 5,
+            data: {},
+            seen_resistance: M_SEEN_MAGR,
+            nmon: null,
+        };
+        const state = makeState({
+            disp: {},
+            level: { monlist: visibleMonster },
+        });
+        // Existing HConfusion=3 and m_lev=7 make the source formula
+        // 3 + (7+1)/2 = 7, pinning the odd-level Half_spell_damage branch.
+        state.u.uprops[CONFUSION] = { intrinsic: 3, extrinsic: 0 };
+        state.u.uprops[HALF_SPDAM] = { intrinsic: 1, extrinsic: 0 };
+        const random = scriptedRandom([2, 50]);
+        const messages = [];
+        const damageCalls = [];
+
+        const result = await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random,
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+                mdamageu: async (...args) => damageCalls.push(args),
+            },
+        );
+
+        assert.equal(result, M_ATTK_HIT);
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, 7,
+            'HConfusion becomes the seven-turn timeout from the source sum');
+        assert.equal(state.disp.botl, true,
+            'starting confusion marks the status line for redraw');
+        assert.deepEqual(messages.slice(-1), ['You feel more confused!']);
+        assert.equal(visibleMonster.seen_resistance & M_SEEN_MAGR, 0,
+            'the ordinary branch clears remembered magic resistance');
+        assert.deepEqual(damageCalls, [],
+            'the MCAST_CONFUSE_YOU arm clears damage before mdamageu');
+        assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+    });
+
+test('MCAST_CONFUSE_YOU adds raw HConfusion flags before timeout clamping',
+    async () => {
+        const state = makeState({ disp: {} });
+        // FROMFORM is a high packed-property flag. C adds the raw HConfusion
+        // integer to caster level, so make_confused clamps it to TIMEOUT while
+        // preserving FROMFORM in the packed intrinsic value.
+        state.u.uprops[CONFUSION] = {
+            intrinsic: FROMFORM | 2, extrinsic: 0,
+        };
+        const random = scriptedRandom([2, 50]);
+        const messages = [];
+
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random,
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+            },
+        );
+
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, FROMFORM | TIMEOUT);
+        assert.deepEqual(messages.slice(-1), ['You feel more confused!']);
+    });
+
+test('MCAST_CONFUSE_YOU uses raw Hallucination and resistance properties',
+    async () => {
+        const state = makeState({ disp: {} });
+        // HALLUC extrinsic alone is not HHallucination, so with prior
+        // Confusion the C message remains "more confused".
+        state.u.uprops[CONFUSION] = { intrinsic: 2, extrinsic: 0 };
+        state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 5 };
+        const messages = [];
+
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+            },
+        );
+
+        assert.deepEqual(messages.slice(-1), ['You feel more confused!']);
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, 9,
+            'raw prior HConfusion=2 is extended by caster level 7');
+
+        // Intrinsic Hallucination plus extrinsic resistance selects the
+        // ordinary confusion wording, matching Hallucination's C macro.
+        const resistantState = makeState({ disp: {} });
+        resistantState.u.uprops[CONFUSION] = {
+            intrinsic: 2, extrinsic: 0,
+        };
+        resistantState.u.uprops[HALLUC] = {
+            intrinsic: 5, extrinsic: 0,
+        };
+        resistantState.u.uprops[HALLUC_RES] = {
+            intrinsic: 0, extrinsic: 1,
+        };
+        const resistantMessages = [];
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state: resistantState,
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => resistantMessages.push(text),
+            },
+        );
+        assert.deepEqual(resistantMessages.slice(-1), [
+            'You feel more confused!',
+        ]);
+
+        // Raw intrinsic HHallucination with no resistance selects "trippier".
+        const hallucinatedMessages = [];
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state: makeState({
+                    disp: {},
+                    u: {
+                        ux: 4,
+                        uy: 5,
+                        uprops: {
+                            [CONFUSION]: { intrinsic: 2, extrinsic: 0 },
+                            [HALLUC]: { intrinsic: 5, extrinsic: 0 },
+                        },
+                    },
+                }),
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => hallucinatedMessages.push(text),
+            },
+        );
+        assert.deepEqual(hallucinatedMessages.slice(-1), ['You feel trippier!']);
+    });
+
+test('MCAST_CONFUSE_YOU Antimagic remembers resistance and leaves Confusion alone',
+    async () => {
+        const visibleMonster = {
+            mhp: 10,
+            mx: 5,
+            my: 5,
+            data: {},
+            seen_resistance: 0,
+            nmon: null,
+        };
+        const state = makeState({
+            disp: {},
+            flags: { sparkle: false },
+            level: { monlist: visibleMonster },
+        });
+        // Antimagic is active while pre-existing Confusion is zero; disabling
+        // sparkle keeps the shield routine headless but still exercises the
+        // Antimagic branch's source-ordered call.
+        state.u.uprops[ANTIMAGIC] = { intrinsic: 1, extrinsic: 0 };
+        state.u.uprops[CONFUSION] = { intrinsic: 0, extrinsic: 0 };
+        const messages = [];
+        const damageCalls = [];
+
+        await castmu(
+            makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
+            {
+                state,
+                random: scriptedRandom([2, 50]),
+                unsupported: refuse,
+                message: async (text) => messages.push(text),
+                mdamageu: async (...args) => damageCalls.push(args),
+            },
+        );
+
+        assert.equal(visibleMonster.seen_resistance & M_SEEN_MAGR, M_SEEN_MAGR,
+            'monstseesu records that the visible monster saw Antimagic');
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, 0,
+            'the Antimagic branch does not call make_confused');
+        assert.deepEqual(messages.slice(-1), ['You feel momentarily dizzy.']);
+        assert.deepEqual(damageCalls, [],
+            'the caller clears spell damage after this void effect');
+    });
+
+// -- the cast announcement ---------------------------------------------
+
+// C ref: mcastu.c:217-226 names the caster through canspotmon(), which is
+// canseemon() || sensemon(): a hero who cannot see the caster but senses it
+// still reads its name.
+
+test('castmu: a blind telepath reads the name of the caster it senses', async () => {
+    // IN_SIGHT is cleared at (5,5) so canseemon() is false; intrinsic
+    // blindness plus intrinsic telepathy make sensemon() true (display.h
+    // tp_sensemon: Blind && telepathic). mflags1=0 keeps the caster mindful.
+    const state = makeState({
+        u: {
+            ux: 4, uy: 5,
+            uprops: {
+                [BLINDED]: { intrinsic: 1 },
+                [TELEPAT]: { intrinsic: 1 },
+            },
+        },
+    });
+    state.viz_array[5][5] = COULD_SEE;
+    const messages = [];
+    // rn2(7)=0 picks MCAST_PSI_BOLT; rn2(70)=50 passes the fumble check.
+    await castmu(
+        makeCaster({ m_lev: 7, data: { mflags1: 0, pmnames: [null, null, 'kobold shaman'] } }),
+        AD_SPEL_ATTACK, true, true,
+        {
+            state, random: scriptedRandom([0, 50], 10), unsupported: refuse,
+            message: (m) => messages.push(m),
+            mdamageu: () => {},
+            monsterName: () => 'The kobold shaman',
+        },
+    );
+    assert.equal(messages[0], 'The kobold shaman casts a spell at you!');
+});
+
+test('castmu: an unsensed, unseen caster is "Something"', async () => {
+    // Same fixture without telepathy: neither seen nor sensed.
+    const state = makeState({
+        u: { ux: 4, uy: 5, uprops: { [BLINDED]: { intrinsic: 1 } } },
+    });
+    state.viz_array[5][5] = COULD_SEE;
+    const messages = [];
+    await castmu(
+        makeCaster({ m_lev: 7, data: { mflags1: 0, pmnames: [null, null, 'kobold shaman'] } }),
+        AD_SPEL_ATTACK, true, true,
+        {
+            state, random: scriptedRandom([0, 50], 10), unsupported: refuse,
+            message: (m) => messages.push(m),
+            mdamageu: () => {},
+            monsterName: () => 'The kobold shaman',
+        },
+    );
+    assert.equal(messages[0], 'Something casts a spell at you!');
+});
+
+// -- psi_bolt via castmu -----------------------------------------------
+
+// C ref: mcastu.c mcast_psi_bolt() (600-621).
+// AD_SPEL wizard list: MCAST_PSI_BOLT is index 0 (level 0).
+// The Antimagic arm calls monstseesu(M_SEEN_MAGR) and the other arm
+// monstunseesu(M_SEEN_MAGR); both walk the level's monsters and touch every
+// one that m_canseeu(): a second monster at (6,5) with COULD_SEE set there.
+
+function watcherAt(state, x, y, seen_resistance) {
+    state.viz_array[y][x] |= COULD_SEE;
+    const watcher = {
+        mhp: 10, mx: x, my: y, data: { mflags1: 0 }, seen_resistance,
+        nmon: null,
+    };
+    state.level.monlist = watcher;
+    return watcher;
+}
+
+test('psi_bolt: headache message, mdamageu called, resistance forgotten', async () => {
+    // spellval=0, fumble=50; d(4,6)=10 -> "brain is on fire" range.
+    const random = scriptedRandom([0, 50], 10);
+    const state = makeState();
+    // Starts believing the hero resists magic; monstunseesu() clears it.
+    const watcher = watcherAt(state, 6, 5, M_SEEN_MAGR);
+    const messages = [];
+    let damageAmount = 0;
+
+    const result = await castmu(
+        makeCaster({ m_lev: 7 }), AD_SPEL_ATTACK, true, true,
+        {
+            state, random, unsupported: refuse,
+            message: (m) => messages.push(m),
+            mdamageu: (mon, dmg) => { damageAmount = dmg; },
+            monsterName: (m) => 'The kobold shaman',
+        },
+    );
+
+    assert.equal(result, M_ATTK_HIT);
+    assert.ok(messages.some(m => m.includes('brain is on fire')),
+        `Expected "brain is on fire" for dmg=10; got: ${messages.join('; ')}`);
+    assert.equal(damageAmount, 10, 'full damage without ANTIMAGIC');
+    assert.equal(watcher.seen_resistance, 0, 'monstunseesu(M_SEEN_MAGR)');
+});
+
+test('psi_bolt: ANTIMAGIC halves damage and tracks resistance', async () => {
+    // d(4,6)=8 -> (8+1)/2=4 after ANTIMAGIC -> "slight headache".
+    const random = scriptedRandom([0, 50], 8);
+    const state = makeState({
+        u: {
+            ux: 4, uy: 5,
+            uprops: { [ANTIMAGIC]: { intrinsic: 1 } },
+        },
+    });
+    const watcher = watcherAt(state, 6, 5, 0);
+    const messages = [];
+    let damageAmount = 0;
+
+    await castmu(makeCaster({ m_lev: 7 }), AD_SPEL_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: (mon, dmg) => { damageAmount = dmg; },
+        monsterName: (m) => 'The kobold shaman',
+    });
+
+    assert.equal(damageAmount, 4, 'ANTIMAGIC halves damage: (8+1)/2=4');
+    assert.ok(messages.some(m => m.includes('slight') && m.includes('ache')),
+        `Expected slight headache for dmg=4; got: ${messages.join('; ')}`);
+    assert.equal(watcher.seen_resistance, M_SEEN_MAGR,
+        'monstseesu(M_SEEN_MAGR)');
+});
+
+// -- open_wounds via castmu --------------------------------------------
+
+// C ref: mcastu.c mcast_open_wounds() (623-642).
+// AD_CLRC cleric list: MCAST_OPEN_WOUNDS is index 0 (level 0).
+
+test('open_wounds: wound message for dmg in 6-10 range', async () => {
+    const random = scriptedRandom([0, 50], 8);
+    const state = makeState();
+    const watcher = watcherAt(state, 6, 5, M_SEEN_MAGR);
+    const messages = [];
+    let damageAmount = 0;
+
+    await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: (mon, dmg) => { damageAmount = dmg; },
+        monsterName: (m) => 'The kobold shaman',
+    });
+
+    assert.ok(messages.some(m => m === 'Wounds appear on your body!'),
+        `Expected "Wounds appear on your body!"; got: ${messages.join('; ')}`);
+    assert.equal(damageAmount, 8);
+    assert.equal(watcher.seen_resistance, 0, 'monstunseesu(M_SEEN_MAGR)');
+});
+
+test('open_wounds: ANTIMAGIC halves damage and tracks resistance', async () => {
+    // d(4,6)=8 -> (8+1)/2=4 -> "skin itches" range (<= 5).
+    const random = scriptedRandom([0, 50], 8);
+    const state = makeState({
+        u: { ux: 4, uy: 5, uprops: { [ANTIMAGIC]: { intrinsic: 1 } } },
+    });
+    const watcher = watcherAt(state, 6, 5, 0);
+    const messages = [];
+    let damageAmount = 0;
+
+    await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: (mon, dmg) => { damageAmount = dmg; },
+        monsterName: (m) => 'The kobold shaman',
+    });
+
+    assert.equal(damageAmount, 4);
+    assert.ok(messages.some(m => m === 'Your skin itches badly for a moment.'),
+        `Expected the itch line for dmg=4; got: ${messages.join('; ')}`);
+    assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
+});
+
+// -- mcast_spell elemental and paralysis effects ----------------------
+
+// These are production castmu paths, rather than direct helper calls.  The
+// scripted source draws pin the spell selector, fumble gate, damage, and each
+// effect's own RNG in C order.
+test('geyser: production cleric cast applies its own physical damage', async () => {
+    // choose_monster_spell checks geyser once while selecting it and again
+    // after the selection; both rn2(5) calls must be nonzero before castmu's
+    // fumble gate.
+    const random = scriptedRandom([13, 1, 1, 50], 6);
+    const state = makeState({ level: { monlist: null } });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A sudden geyser slams into you from nowhere!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(5)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
+    ]);
+    assert.deepEqual(gaps, []);
+});
+
+test('fire pillar: production cleric cast applies fire damage and item effects', async () => {
+    // rn2(5)=0 rejects geyser, so level 12 selects fire pillar. The next
+    // rn2(5) lets burnarmor take its cloak/armor slot with an empty inventory;
+    // the final rn2(5) is destroy_items' remainder comparison.
+    const random = scriptedRandom([13, 0, 50, 1, 4], 6);
+    const state = makeState({ level: { monlist: null }, invent: null });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A pillar of fire strikes all around you!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
+        'rn2(5)', 'rn2(5)',
+    ]);
+    assert.deepEqual(gaps, []);
+});
+
+test('lightning: production cast preserves rnd(100) before flashburn', async () => {
+    const random = scriptedRandom([11, 50, 4], 6, 33);
+    const mattk = Array.from({ length: 6 }, () => ({ adtyp: 0, aatyp: 0 }));
+    const state = makeState({
+        level: { monlist: null }, invent: null,
+        u: { ux: 4, uy: 5, uprops: {
+            [BLINDED]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            [BLND_RES]: { intrinsic: 1, extrinsic: 0, blocked: 0 },
+        } },
+        youmonst: { data: { mlet: 0, mattk } },
+    });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A bolt of lightning strikes down at you from above!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(140)', 'd(8,6)', 'd(8,6)', 'rn2(5)', 'rnd(100)',
+    ]);
+    assert.deepEqual(gaps, []);
+});
+
+test('paralyze: production cleric cast applies nomul damage', async () => {
+    const random = scriptedRandom([4, 50, 6], 6);
+    const state = makeState({ level: { monlist: null }, multi: 0 });
+    const messages = [];
+    let damage = null;
+    await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 11);
+    assert.ok(messages.includes('You are frozen in place!'));
+    assert.equal(state.multi, -11);
+    assert.equal(state.multi_reason, 'paralyzed by a monster');
+    assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+});
+
+test('stun spell: free action uses the resistant branch without a stun roll',
+    async () => {
+        const random = scriptedRandom([3, 115], 29);
+        const state = makeState({
+            disp: {},
+            level: { monlist: null },
+            u: {
+                ux: 4, uy: 5,
+                uprops: {
+                    [FREE_ACTION]: { intrinsic: 1, extrinsic: 0 },
+                    [STUNNED]: { intrinsic: 0, extrinsic: 0 },
+                },
+            },
+        });
+        const messages = [];
+        const gaps = [];
+        await castmu(makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, true, true, {
+            state, random, unsupported: refuse,
+            message: (text) => messages.push(text),
+            noteUnported: (gap) => gaps.push(gap),
+        });
+        assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)', 'd(8,6)']);
+        assert.ok(messages.includes('You feel momentarily disoriented.'));
+        assert.equal(state.u.uprops[STUNNED].intrinsic, 1);
+        assert.deepEqual(gaps, []);
+    });
+
+test('stun spell: unresisted damage extends the timeout after its own roll',
+    async () => {
+        const random = scriptedRandom([3, 115], 4);
+        const state = makeState({
+            disp: {},
+            level: { monlist: null },
+            u: {
+                ux: 4, uy: 5,
+                uprops: {
+                    [HALF_SPDAM]: { intrinsic: 1, extrinsic: 0 },
+                    [STUNNED]: { intrinsic: 3, extrinsic: 0 },
+                },
+            },
+        });
+        const messages = [];
+        await castmu(makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, true, true, {
+            state, random, unsupported: refuse,
+            message: (text) => messages.push(text),
+        });
+        assert.deepEqual(random.draws, [
+            'rn2(15)', 'rn2(150)', 'd(8,6)', 'd(6,4)',
+        ]);
+        assert.ok(messages.includes('You struggle to keep your balance.'));
+        assert.equal(state.u.uprops[STUNNED].intrinsic, 5);
+    });
+
+// -- cure_self via castmu ----------------------------------------------
+
+// C ref: mcastu.c m_cure_self() (307-318).
+// Cleric with mhp < mhpmax: heals d(3,6), prints "looks better", dmg=0.
+
+test('cure_self: heals monster and produces no hero damage', async () => {
+    const dResults = [12, 9]; // d(4,6)=12 (castmu dmg), d(3,6)=9 (healmon)
+    let di = 0;
+    const random = {
+        rn2: (n) => (n === 7 ? 1 : 50), // spellval=1 picks CURE_SELF; fumble=50
+        d: () => { const v = di < dResults.length ? dResults[di] : 6; di++; return v; },
+    };
+
+    const mtmp = makeCaster({ m_lev: 7, mhp: 10, mhpmax: 20 });
+    const messages = [];
+    let damageCalled = false;
+
+    await castmu(mtmp, AD_CLRC_ATTACK, true, true, {
+        state: makeState(),
+        random,
+        unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: () => { damageCalled = true; },
+        monsterName: (m) => 'The kobold shaman',
+    });
+
+    // healmon(mtmp, 9, 0): mhp=10+9=19, mhpmax stays 20
+    assert.equal(mtmp.mhp, 19, 'healmon adds d(3,6)=9: 10+9=19');
+    assert.equal(mtmp.mhpmax, 20, 'mhpmax unchanged (19 < 20)');
+    assert.ok(messages.some(m => m.includes('looks better')));
+    assert.ok(!damageCalled, 'cure_self sets dmg=0, no mdamageu');
+});
+
+test('cure_self: is not chosen when the monster is at full health', async () => {
+    // rn2(7)=1 reaches MCAST_CURE_SELF, which spell_would_be_useless()
+    // rejects at mhp=mhpmax; MCAST_OPEN_WOUNDS (level 0) is cast instead.
+    const random = scriptedRandom([1, 50], 6);
+    const mtmp = makeCaster({ m_lev: 7, mhp: 20, mhpmax: 20 });
+    const messages = [];
+    let damageAmount = 0;
+
+    await castmu(mtmp, AD_CLRC_ATTACK, true, true, {
+        state: makeState(),
+        random,
+        unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: (mon, dmg) => { damageAmount = dmg; },
+        monsterName: (m) => 'The kobold shaman',
+    });
+
+    assert.ok(!messages.some(m => m.includes('looks better')),
+        'no "looks better" at full health');
+    assert.equal(mtmp.mhp, 20, 'monster hp unchanged');
+    assert.equal(damageAmount, 6, 'open_wounds delivers d(4,6)=6');
+});
+
+// -- haste_self via castmu ---------------------------------------------
+
+// C ref: mcastu.c mcast_spell() (801-897), MCAST_HASTE_SELF (852-855).
+// The spell calls mon_adjust_speed(mtmp, 1, NULL), clears damage, and makes
+// no random-number calls of its own.
+
+test('haste_self: speeds the caster without damage or extra RNG', async () => {
+    // Wizard rn2(7)=2 selects MCAST_HASTE_SELF; rn2(70)=50 passes fumble;
+    // d(4,6)=12 supplies the damage that mcast_spell() then discards.
+    const random = scriptedRandom([2, 50], 12);
+    const mtmp = makeCaster({
+        data: { mmove: 12, pmnames: [null, null, 'kobold shaman'] },
+    });
+    const messages = [];
+    let damageCalled = false;
+
+    const result = await castmu(mtmp, AD_SPEL_ATTACK, true, true, {
+        state: makeState(),
+        random,
+        unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: () => { damageCalled = true; },
+    });
+
+    assert.equal(result, M_ATTK_HIT);
+    assert.equal(mtmp.permspeed, MFAST,
+        'mon_adjust_speed(+1) grants permanent fast speed');
+    assert.equal(mtmp.mspeed, MFAST,
+        'active speed follows the permanent fast speed');
+    assert.deepEqual(messages, [
+        'Kobold shaman casts a spell!',
+        'The kobold shaman is suddenly moving faster.',
+    ]);
+    assert.equal(damageCalled, false,
+        'MCAST_HASTE_SELF sets damage to zero before mdamageu');
+    assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)'],
+        'haste has no random draw after cast damage');
+});
+
+// -- buzzmu ---------------------------------------------------------------
+
+// C ref: mcastu.c buzzmu() (988-1012). "monster uses spell (ranged)"
+// Returns M_ATTK_MISS when the adtyp is not a valid buzz type, the monster
+// is cancelled, or lined_up/rn2(3) fails. Returns M_ATTK_HIT when the
+// spell fires.
+
+// Build an attack mattk for buzzmu. adtyp must be in the BZ_VALID_ADTYP
+// range (AD_MAGM=1 through AD_SPC2=10) for the spell to fire.
+function makeBuzzAttack(adtyp, damn = 4) {
+    return { aatyp: AT_MAGC, adtyp, damn, damd: 0 };
+}
+
+test('buzzmu returns M_ATTK_MISS for an invalid adtyp', async () => {
+    // AD_PHYS(0) is below AD_MAGM(1), so BZ_VALID_ADTYP rejects it.
+    const mtmp = makeCaster();
+    const result = await buzzmu(mtmp, makeBuzzAttack(0), {
+        state: makeState(),
+        random: scriptedRandom([]),
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'adtyp 0 is outside the valid buzz range');
+});
+
+test('buzzmu returns M_ATTK_MISS for a cancelled monster', async () => {
+    // A cancelled monster calls cursetxt() and returns MISS.
+    const mtmp = makeCaster({ mcan: true });
+    const messages = [];
+    const result = await buzzmu(mtmp, makeBuzzAttack(AD_FIRE), {
+        state: makeState(),
+        random: scriptedRandom([]),
+        message: (m) => messages.push(m),
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'cancelled monster returns MISS');
+    // cursetxt() produces a message when the monster is visible.
+    assert.ok(messages.length > 0,
+        'cursetxt produces a message');
+});
+
+test('buzzmu returns M_ATTK_MISS for a monster with seen resistance', async () => {
+    // m_seenres checks mtmp.seen_resistance against the adtyp mask.
+    // cvt_adtyp_to_mseenres(AD_COLD=3) is M_SEEN_COLD=0x100 (bit 8).
+    const M_SEEN_COLD = 0x100;
+    const mtmp = makeCaster({ seen_resistance: M_SEEN_COLD });
+    const messages = [];
+    const result = await buzzmu(mtmp, makeBuzzAttack(AD_COLD), {
+        state: makeState(),
+        random: scriptedRandom([]),
+        message: (m) => messages.push(m),
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'seen resistance returns MISS');
+});
+
+test('buzzmu returns M_ATTK_MISS when rn2(3) returns 0', async () => {
+    // Even when lined_up succeeds, rn2(3)=0 prevents the spell from firing.
+    // State: monster at (5,5), hero at (4,5), couldsee(5,5) true. linedup
+    // returns true immediately (orthogonal, within BOLT_LIM, couldsee passes)
+    // without consuming any rn2 calls. The only rn2 buzzmu itself calls is
+    // rn2(3), whose 0 result makes the `&& rn2(3)` falsy.
+    const state = makeState();
+    state.u.upolyd = false;
+    state.youmonst.m_ap_type = 0;
+    state.youmonst.mappearance = 0;
+    const mtmp = makeCaster({ mx: 5, my: 5, mux: 4, muy: 5 });
+    // The only rn2 consumed is buzzmu's own rn2(3)=0.
+    const random = scriptedRandom([0]);
+    const result = await buzzmu(mtmp, makeBuzzAttack(AD_FIRE), {
+        state,
+        random,
+    });
+    assert.equal(result, M_ATTK_MISS,
+        'rn2(3)=0 prevents the spell from firing');
+});
+
+test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
+    async () => {
+        const remembered = {};
+        const state = makeState({
+            level: {
+                flags: { hero_memory: true },
+                at: () => remembered,
+            },
+        });
+        const caster = makeCaster({ m_lev: 20, mx: 5, my: 5 });
+        const random = scriptedRandom([4, 45]);
+        const messages = [];
+        const gaps = [];
+
+        // makeState and makeCaster place the hero at (4,5) and the monster at
+        // visible square (5,5). In C's wizard list, spellval 4 selects
+        // MCAST_DISAPPEAR; m_lev=20 makes the fumble limit 20, so rn2(200)=45
+        // lets the effect resolve and exercise its invisible-memory update.
+        const result = await castmu(caster, AD_SPEL_ATTACK, false, false, {
+            state,
+            planning: true,
+            random,
+            unsupported: refuse,
+            monsterName: () => 'The Archon',
+            message: async (text) => messages.push(text),
+            noteUnported: (name) => gaps.push(name),
+        });
+
+        assert.equal(result, M_ATTK_HIT);
+        assert.equal(caster.perminvis, 1);
+        assert.equal(caster.minvis, 1);
+        assert.equal(remembered.remembered_glyph?.glyph, GLYPH_INVISIBLE);
+        assert.deepEqual(random.draws, ['rn2(20)', 'rn2(200)']);
+        assert.deepEqual(messages, [
+            'The Archon casts a spell!',
+            'The Archon suddenly disappears!',
+        ]);
+        assert.deepEqual(gaps, ['display.c newsym'],
+            'planning keeps the discarded live redraw off the cloned state');
+    });
+
+test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
+    async () => {
+        const state = makeState({
+            level: { flags: { hero_memory: false }, at: () => ({}) },
+        });
+        // intrinsic=1 activates SEE_INVIS and selects C's transparent wording.
+        state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
+        const caster = makeCaster({ m_lev: 20, mx: 5, my: 5 });
+        const messages = [];
+
+        // The same spellval 4 and rn2(200)=45 as the primary case select and
+        // resolve MCAST_DISAPPEAR at the visible (5,5) square.
+        await castmu(caster, AD_SPEL_ATTACK, false, false, {
+            state,
+            planning: true,
+            random: scriptedRandom([4, 45]),
+            unsupported: refuse,
+            monsterName: () => 'The Archon',
+            message: async (text) => messages.push(text),
+            noteUnported: () => {},
+        });
+
+        assert.equal(caster.minvis, 1);
+        assert.deepEqual(messages, [
+            'The Archon casts a spell!',
+            'The Archon suddenly becomes transparent!',
+        ]);
+    });
+
+test('MCAST_DISAPPEAR uses Monnam and pline_mon coordinates', async () => {
+    // PM_KOBOLD_SHAMAN is an ordinary nonunique species, so C Monnam uses a
+    // definite article; this catches the old capitalized-species fallback.
+    const state = makeState();
+    monst_globals_init(state);
+    const caster = makeCaster({
+        m_lev: 20,
+        data: state.mons[PM_KOBOLD_SHAMAN],
+    });
+    const messages = [];
+    const gaps = [];
+
+    // The visible square (5,5) is east of the hero at (4,5); spell value 4
+    // selects MCAST_DISAPPEAR and rn2(200)=45 passes the fumble gate.
+    await castmu(caster, AD_SPEL_ATTACK, false, false, {
+        state,
+        planning: true,
+        random: scriptedRandom([4, 45]),
+        unsupported: refuse,
+        message: async (text) => messages.push(text),
+        noteUnported: (name) => gaps.push(name),
+    });
+
+    assert.equal(
+        messages.at(-1),
+        'The kobold shaman suddenly disappears!',
+        'Monnam supplies the source article for an ordinary species',
+    );
+
+    // accessiblemsg makes pline_mon attach the same monster square; the
+    // fresh caster repeats the source route with location output enabled.
+    const accessibleState = makeState({
+        a11y: { accessiblemsg: true },
+    });
+    monst_globals_init(accessibleState);
+    const accessibleCaster = makeCaster({
+        m_lev: 20,
+        data: accessibleState.mons[PM_KOBOLD_SHAMAN],
+    });
+    const accessibleMessages = [];
+    await castmu(accessibleCaster, AD_SPEL_ATTACK, false, false, {
+        state: accessibleState,
+        planning: true,
+        random: scriptedRandom([4, 45]),
+        unsupported: refuse,
+        message: async (text) => accessibleMessages.push(text),
+        noteUnported: () => {},
+    });
+
+    assert.equal(
+        accessibleMessages.at(-1),
+        '(east): The kobold shaman suddenly disappears!',
+        'messageAt uses pline_mon coordinates when accessiblemsg is enabled',
+    );
+    assert.deepEqual(gaps, ['display.c newsym']);
+});
+
+test('MCAST_DISAPPEAR is not selected when invisibility is already blocked',
+    async () => {
+        // Each pair independently triggers C's useless-spell gate: either
+        // minvis is already true or invis_blkd prevents a new invisible state.
+        for (const overrides of [
+            { minvis: true, invis_blkd: false },
+            { minvis: false, invis_blkd: true },
+        ]) {
+            // Spell value 4 selects MCAST_DISAPPEAR; the fumble draw value 45
+            // remains unused because C rejects the spell before that draw.
+            const caster = makeCaster({ m_lev: 20, ...overrides });
+            const random = scriptedRandom([4, 45]);
+            const result = await castmu(
+                caster,
+                AD_SPEL_ATTACK,
+                false,
+                false,
+                {
+                    state: makeState(),
+                    random,
+                    unsupported: refuse,
+                },
+            );
+
+            // spell_would_be_useless() skips MCAST_DISAPPEAR; the next
+            // directed candidate cannot cast when the monster is not aiming
+            // at the hero, so neither input mutates minvis.
+            assert.equal(result, M_ATTK_MISS);
+            assert.equal(caster.perminvis, undefined);
+            assert.equal(caster.minvis, overrides.minvis);
+            assert.deepEqual(random.draws, ['rn2(20)']);
+        }
+    });
+
+// mcastu.c:358-382 writes a caller-local string, chooses Mgender names,
+// and uses the original cham species while describing imitation separately.
+test('death_inflicted_by pins the complete pure source formatter', () => {
+    const ordinary = { geno: 0, mflags2: 0,
+        pmnames: ['kobold lord', 'kobold lady', 'kobold noble'] };
+    const fake = { geno: 0, mflags2: 0,
+        pmnames: ['orc', null, 'orc'] };
+    const named = { geno: 0, mflags2: M2_PNAME,
+        pmnames: ['Medusa', null, 'Medusa'] };
+    const unique = { geno: G_UNIQ, mflags2: 0,
+        pmnames: ['Wizard of Yendor', null, 'Wizard of Yendor'] };
+    // Slot zero is a valid cham index; NON_PM (-1) is the source sentinel.
+    const state = { mons: [ordinary, named], youmonst: {} };
+    const monster = (data, female = false, cham = NON_PM) =>
+        ({ data, female, cham });
+    const cases = [
+        [null, 'bolt of cold'],
+        [monster(ordinary), 'bolt of cold inflicted by a kobold lord'],
+        [monster(ordinary, true), 'bolt of cold inflicted by a kobold lady'],
+        [monster(named), 'bolt of cold inflicted by Medusa'],
+        [monster(unique), 'bolt of cold inflicted by the Wizard of Yendor'],
+        [monster(fake, true, 0),
+            'bolt of cold inflicted by a kobold lady imitating an orc'],
+        // Article suppression uses the current form's uniqueness, while the
+        // actual name still comes from the original cham species (source369).
+        [monster(unique, true, 0),
+            'bolt of cold inflicted by the kobold lady imitating a Wizard of Yendor'],
+        [monster(fake, false, 1),
+            'bolt of cold inflicted by Medusa imitating an orc'],
+    ];
+    const before = JSON.stringify({ state, cases });
+    for (const [subject, expected] of cases)
+        assert.equal(death_inflicted_by('bolt of cold', subject, state), expected);
+    assert.equal(JSON.stringify({ state, cases }), before,
+        'the helper changes neither the monster nor global state');
+});
+
+// mcastu.c323-408: these source pins keep the draw, drained message, saved
+// HP, clamp/remaining loss and final killer clear in their C order.
+test('Death touch family preserves source damage and dispatcher order', () => {
+    const c = readFileSync(new URL('../nethack-c/upstream/src/mcastu.c', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/mcastu.js', import.meta.url), 'utf8');
+    const body = c.slice(c.indexOf('touch_of_death(struct monst *mtmp)'), c.indexOf('/* give a reason for death'));
+    const points = ['50 + d(8, 6)', 'dmg / 2', 'You_feel("drained...")', 'death_inflicted_by(kbuf', 'if (Upolyd)', 'u.mh = 0', 'drain >= u.uhpmax', 'done(DIED)', 'int olduhp = u.uhp', 'minuhpmax(3)', 'setuhpmax(max(newuhpmax, uhpmin), FALSE)', 'adjuhploss(dmg, olduhp)', 'losehp(dmg, kbuf, KILLED_BY)', "svk.killer.name[0] = '\\0'"];
+    const indices = points.map(point => body.indexOf(point));
+    assert.ok(indices.every((index, i) => index >= 0 && (!i || indices[i - 1] < index)));
+    assert.match(js, /case MCAST_DEATH_TOUCH:\s*await mcast_death_touch\(mtmp, env\);/u);
+});
+
+test('weakening spell source and dispatcher preserve branch and caller order', () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cBody = c.match(/mcast_weaken_you\(struct monst \*mtmp, int dmg\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    const jsBody = js.match(/export async function mcast_weaken_you\(mtmp, dmg, rawEnv = \{\}\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(cBody, 'mcastu.c:mcast_weaken_you definition exists');
+    assert.ok(jsBody, 'js/mcastu.js:mcast_weaken_you definition exists');
+    const cPoints = [
+        'if (Antimagic)', 'shieldeff(u.ux, u.uy)',
+        'monstseesu(M_SEEN_MAGR)', 'You_feel("momentarily weakened.")',
+        'You("suddenly feel weaker!")', 'dmg = mtmp->m_lev - 6',
+        'if (dmg < 1)', 'if (Half_spell_damage)', 'rnd(dmg)',
+        'death_inflicted_by(kbuf, "strength loss", mtmp)', 'KILLED_BY',
+        'svk.killer.name[0] =', 'monstunseesu(M_SEEN_MAGR)',
+    ];
+    const cIndices = cPoints.map(point => cBody.indexOf(point));
+    assert.ok(cIndices.every((index, i) => index >= 0
+        && (!i || cIndices[i - 1] < index)));
+    assert.match(jsBody, /if \(heroProperty\(state, ANTIMAGIC\)\)/u);
+    assert.match(jsBody, /dmg = mtmp\.m_lev - 6;[\s\S]*if \(dmg < 1\)/u);
+    assert.match(jsBody, /await losestr\([\s\S]*death_inflicted_by\('strength loss', mtmp, state\)[\s\S]*KILLED_BY/u);
+    assert.match(jsBody, /state\.killer\.name = '';[\s\S]*monstunseesu\(M_SEEN_MAGR, state\)/u);
+    assert.match(js, /case MCAST_WEAKEN_YOU:\s*await mcast_weaken_you\(mtmp, dmg, env\);\s*break;/u);
+});
+
+function deathTouchState(hp, maxhp = 200) {
+    // ulevel18 is above altmin3, so minuhpmax(3) must return18.
+    return makeState({ u: { ux: 4, uy: 5, uprops: {}, uhp: hp,
+        uhpmax: maxhp, uhppeak: maxhp, ulevel: 18, umonnum: 0, umonster: 0 },
+        disp: {}, killer: { name: 'old reason' } });
+}
+
+test('Death touch accounts for HP already lost to the maximum clamp', async () => {
+    for (const [hp, pending, final] of [[200, 37, 126], [100, 74, 26]]) {
+        // d(8,6)=24 gives damage74 and drain37: full HP is clamped first,
+        // but HP100 is below the new maximum163 and loses all74 afterwards.
+        const state = deathTouchState(hp);
+        const calls = [];
+        await touch_of_death(makeCaster(), { state,
+            random: { d: (n, sides) => { calls.push(['d', n, sides]); return 24; } },
+            message: async text => { calls.push(['message', text]); },
+            losehp: async (loss, reason, format, owner) => {
+                calls.push(['losehp', loss, reason, format]);
+                assert.equal(owner, state);
+                assert.equal(state.u.uhpmax, 163);
+                state.u.uhp -= loss;
+            },
+        });
+        assert.deepEqual(calls, [['d', 8, 6], ['message', 'You feel drained...'],
+            ['losehp', pending, 'the touch of death inflicted by a kobold shaman', KILLED_BY]]);
+        assert.equal(state.u.uhp, final);
+        assert.equal(state.killer.name, '');
+    }
+});
+
+test('Death touch direct-death return clears the killer only after recovery', async () => {
+    // Damage74 drains37, exactly the maximum37: C uses >= for direct done.
+    const state = deathTouchState(37, 37);
+    const calls = [];
+    await touch_of_death(makeCaster(), { state, random: { d: () => 24 },
+        message: async text => calls.push(text),
+        done: async (how, owner) => {
+            assert.equal(owner, state);
+            assert.equal(state.killer.name, 'the touch of death inflicted by a kobold shaman');
+            assert.equal(state.killer.format, KILLED_BY);
+            calls.push(how);
+        },
+        losehp: () => assert.fail('direct death must not enter losehp'),
+    });
+    assert.deepEqual(calls, ['You feel drained...', DIED]);
+    assert.equal(state.u.uhpmax, 37);
+    assert.equal(state.killer.name, '');
+});
+
+test('Death touch planning stops before the direct-death terminal callback', async () => {
+    // The same equality boundary as the live recovery test, on a separate
+    // state. The existing planner callback identifies the attacking monster.
+    const state = deathTouchState(37, 37), caster = makeCaster();
+    const stop = new Error('planned death boundary');
+    let announced = false;
+    await assert.rejects(touch_of_death(caster, { state, planning: true,
+        random: { d: () => 24 }, message: async text => { announced = text === 'You feel drained...'; },
+        planningDeath: monster => { assert.equal(monster, caster); return stop; },
+        done: () => assert.fail('planning must not read live recovery input'),
+    }), error => error === stop);
+    assert.equal(announced, true);
+    assert.equal(state.killer.name, 'the touch of death inflicted by a kobold shaman');
+});
+
+test('Death touch polymorphed arm sets mh to zero before rehumanize', async () => {
+    const state = deathTouchState(200);
+    // Different form indices select Upolyd; the human HP pool is unchanged.
+    state.u.umonnum = 1; state.u.mh = 40;
+    const events = [];
+    await touch_of_death(makeCaster(), { state, planning: true,
+        random: { d: () => 24 }, message: async () => {},
+        rehumanize: async (owner, env) => {
+            assert.equal(owner, state);
+            assert.equal(owner.u.mh, 0);
+            assert.equal(env.planning, true);
+            events.push('rehumanize');
+        },
+        done: () => assert.fail('the polymorphed arm delegates death to rehumanize'),
+        losehp: () => assert.fail('the polymorphed arm does not drain human HP'),
+    });
+    assert.deepEqual(events, ['rehumanize']);
+    assert.equal(state.u.uhp, 200);
+    assert.equal(state.killer.name, '');
+});
+
+test('death-touch spell respects nonliving, demon, Antimagic and low-roll gates', async () => {
+    for (const [form, antimagic, rolls, text] of [
+        // mondata.h nonliving includes the entire golem class.
+        [{ mlet: S_GOLEM }, 0, [], 'You seem no deader than before.'],
+        [{ mflags2: M2_DEMON }, 0, [], 'You seem no deader than before.'],
+        [{ mflags2: 0 }, 1, [], "Lucky for you, it didn't work!"],
+        // rn2(level)=12 is C's last unsuccessful result (>12 succeeds).
+        [{ mflags2: 0 }, 0, [12], "Lucky for you, it didn't work!"],
+    ]) {
+        const state = deathTouchState(200);
+        state.youmonst.data = form;
+        state.u.uprops[ANTIMAGIC] = { intrinsic: antimagic };
+        const random = scriptedRandom(rolls), messages = [];
+        await mcast_death_touch(makeCaster({ m_lev: 20 }), { state, random,
+            message: async line => messages.push(line) });
+        assert.equal(messages.at(-1), text);
+        assert.deepEqual(random.draws, rolls.length ? ['rn2(20)'] : []);
+        assert.equal(state.u.uhpmax, 200);
+    }
+});
+
+test('death-touch hallucination consumes its chance but no damage draw', async () => {
+    const state = deathTouchState(200);
+    state.u.uprops[HALLUC] = { intrinsic: 1 };
+    state.youmonst.data = { mflags2: 0 };
+    // mhe first draws rn2(4)=3 for the hallucinated pronoun; the spell
+    // chance then draws rn2(20)=13. A source caller can choose the spell; >12 gives
+    // the out-of-body message rather than invoking the HP effect.
+    const random = scriptedRandom([3, 13]), messages = [];
+    await mcast_death_touch(makeCaster({ m_lev: 20 }), { state, random,
+        message: async line => messages.push(line) });
+    assert.equal(messages.at(-1), 'You have an out of body experience.');
+    assert.deepEqual(random.draws, ['rn2(4)', 'rn2(20)']);
+    assert.equal(state.u.uhpmax, 200);
+});
+
+test('castmu death spell reaches the shared touch with source-ordered RNG', async () => {
+    const state = deathTouchState(200), caster = makeCaster({ m_lev: 25 });
+    // Spell level20 selects MCAST_DEATH_TOUCH. The fumble roll200 is above
+    // C's20 threshold; chance13 succeeds and damage24 gives the74-point hit.
+    const random = scriptedRandom([20, 200, 13], 24), messages = [], losses = [];
+    const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
+        state, random, unsupported: refuse, canSpotMonster: () => true,
+        message: async text => messages.push(text),
+        losehp: async (loss, reason, format, owner) => {
+            assert.equal(owner, state);
+            losses.push([loss, reason, format]);
+            owner.u.uhp -= loss;
+        },
+        mdamageu: () => assert.fail('the void death spell clears ordinary spell damage'),
+    });
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(25)', 'rn2(250)', 'd(13,6)', 'rn2(25)', 'd(8,6)']);
+    assert.ok(messages.some(text => text.includes("using the touch of death!")));
+    assert.equal(messages.at(-1), 'You feel drained...');
+    assert.deepEqual(losses, [[37, 'the touch of death inflicted by a kobold shaman', KILLED_BY]]);
+    assert.equal(state.u.uhpmax, 163);
+    assert.equal(state.u.uhp, 126);
+    assert.equal(state.killer.name, '');
+});
+
+test('mcast_weaken_you follows source damage, half-spell rounding, and losestr order', async () => {
+    const state = deathTouchState(200);
+    state.urace = { attrmin: [3, 3, 3, 3, 3, 3], attrmax: [18, 18, 18, 18, 18, 18] };
+    state.u.acurr = { a: [18, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [18, 10, 10, 10, 10, 10] };
+    state.u.abon = [0, 0, 0, 0, 0, 0];
+    state.u.atemp = [0, 0, 0, 0, 0, 0];
+    state.u.aexe = [0, 0, 0, 0, 0, 0];
+    state.u.uprops[HALF_SPDAM] = { intrinsic: 1 };
+    state.flags = {};
+    state.program_state = {};
+    state.disp = {};
+    state.killer.name = 'previous cause';
+    const random = scriptedRandom([6, 20], 6, 3);
+    const caster = makeCaster({ m_lev: 11 });
+    const messages = [];
+
+    const result = await castmu(caster, AD_SPEL_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: async text => messages.push(text),
+        losehp: () => assert.fail('ordinary three-point loss does not reach the HP-loss arm'),
+        encumberMessage: async () => {},
+        mdamageu: () => assert.fail('the void weaken spell clears spell damage'),
+    });
+
+    assert.equal(result, M_ATTK_HIT);
+    assert.deepEqual(random.draws, ['rn2(11)', 'rn2(110)', 'd(6,6)', 'rnd(3)']);
+    assert.equal(state.u.acurr.a[A_STR], 15);
+    assert.equal(state.killer.name, '');
+    assert.ok(messages.includes('You suddenly feel weaker!'));
+});
+
+test('mcast_weaken_you Antimagic arm shields and marks the spell seen without RNG', async () => {
+    const state = deathTouchState(200);
+    state.u.uprops[ANTIMAGIC] = { intrinsic: 1 };
+    const random = scriptedRandom([]), messages = [];
+    await mcast_weaken_you(makeCaster({ m_lev: 11 }), 9, {
+        state, random, message: async text => messages.push(text),
+    });
+    assert.deepEqual(random.draws, []);
+    assert.deepEqual(messages, ['You feel momentarily weakened.']);
+});
+
+test('mcast_destroy_armor follows the consumed destroy_arm result and source order', async () => {
+    const c = readFileSync('nethack-c/upstream/src/mcastu.c', 'utf8');
+    const js = readFileSync('js/mcastu.js', 'utf8');
+    const cBody = c.match(/mcast_destroy_armor\(void\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    const jsBody = js.match(/export async function mcast_destroy_armor\(rawEnv = \{\}\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(cBody, 'the complete upstream armor spell helper exists');
+    assert.ok(jsBody, 'the complete JavaScript armor spell helper exists');
+    const cPoints = [
+        'if (Antimagic)', 'shieldeff(u.ux, u.uy)',
+        'monstseesu(M_SEEN_MAGR)', 'A field of force surrounds you!',
+        '} else if (!destroy_arm())', 'Your("skin itches.")',
+        'monstunseesu(M_SEEN_MAGR)',
+    ];
+    const cIndices = cPoints.map(point => cBody.indexOf(point));
+    assert.ok(cIndices.every((index, i) => index >= 0
+        && (!i || cIndices[i - 1] < index)));
+    assert.match(jsBody, /if \(heroProperty\(state, ANTIMAGIC\)\)[\s\S]*await shieldeff[\s\S]*monstseesu\(M_SEEN_MAGR, state\)[\s\S]*A field of force surrounds you!/u);
+    assert.match(jsBody, /await destroy_arm\(state, random,\s*\{[\s\S]*?message,[\s\S]*?\}\)[\s\S]*Your skin itches\.[\s\S]*monstunseesu\(M_SEEN_MAGR, state\)/u);
+    assert.match(js, /case MCAST_DESTRY_ARMR:\s*await mcast_destroy_armor\(env\);\s*break;/u);
+
+    // No worn armor makes destroy_arm return false after its source-first hit-count draw.
+    const state = makeState();
+    const random = scriptedRandom([2]);
+    const messages = [];
+    await mcast_destroy_armor({ state, random,
+        message: async text => messages.push(text) });
+    assert.deepEqual(random.draws, ['rn2(4)']);
+    assert.deepEqual(messages, ['Your skin itches.']);
+});
+
+test('mcast_destroy_armor shields under Antimagic without calling destroy_arm', async () => {
+    const state = makeState();
+    state.u.uprops[ANTIMAGIC] = { intrinsic: 1 };
+    const random = scriptedRandom([]), messages = [];
+    await mcast_destroy_armor({ state, random,
+        message: async text => messages.push(text) });
+    assert.deepEqual(random.draws, []);
+    assert.deepEqual(messages, ['A field of force surrounds you!']);
+});

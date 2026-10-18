@@ -1,0 +1,68 @@
+diff --git a/js/mcastu.js b/js/mcastu.js
+index 5a5516b46..ba285149f 100644
+--- a/js/mcastu.js
++++ b/js/mcastu.js
+@@ -11,6 +11,7 @@ import {
+     A_DEX,
+     ANTIMAGIC,
+     BLINDED,
++    COLD_RES,
+     BZ_M_SPELL,
+     BZ_OFS_AD,
+     BZ_VALID_ADTYP,
+@@ -34,6 +35,7 @@ import {
+     M_ATTK_HIT,
+     M_ATTK_MISS,
+     M_SEEN_ELEC,
++    M_SEEN_COLD,
+     M_SEEN_FIRE,
+     M_SEEN_MAGR,
+     M_SEEN_REFL,
+@@ -83,6 +85,7 @@ import {
+     haseyes,
+ } from './mondata.js';
+ import {
++    AD_COLD,
+     AD_CLRC,
+     AD_ELEC,
+     AD_FIRE,
+@@ -499,9 +502,8 @@ export async function castmu(
+ ) {
+     const state = rawEnv.state ?? game;
+     const random = rawEnv.random ?? { rn2, d, rnd };
+-    // The unported arms below -- AD_FIRE and AD_COLD here, and most
+-    // spell effects in mcast_spell() -- refuse through this rather than
+-    // running as a spell that quietly does nothing.
++    // The remaining AD_FIRE arm and most mcast_spell() effects still refuse
++    // through this boundary rather than running as spells that quietly do nothing.
+     const unsupported = requireCastmuOperation(rawEnv, 'unsupported');
+     const message = rawEnv.message;
+     const env = { ...rawEnv, state, random, unsupported };
+@@ -634,9 +636,25 @@ export async function castmu(
+             mtmp, mattk.adtyp, state.u.ux, state.u.uy, { ...env, state, random },
+         );
+         break;
++    case AD_COLD:
++        if (message)
++            await message("You're covered in frost.", state, env);
++        if (heroProperty(state, COLD_RES)) {
++            await shieldeff(state.u.ux, state.u.uy, state);
++            if (message)
++                await message('But you resist the effects.', state, env);
++            monstseesu(M_SEEN_COLD, state);
++            dmg = 0;
++        } else {
++            monstunseesu(M_SEEN_COLD, state);
++        }
++        await mon_spell_hits_spot(
++            mtmp, mattk.adtyp, state.u.ux, state.u.uy,
++            { ...env, state, random },
++        );
++        break;
+     default:
+-        // AD_FIRE and AD_COLD are ranged-only attack types.
+-        // Adjacent AT_MAGC attacks always carry AD_SPEL or AD_CLRC.
++        // AD_FIRE remains unported; adjacent AT_MAGC attacks carry AD_SPEL/AD_CLRC.
+         unsupported('castmu() elemental spell type');
+         break;
+     }
