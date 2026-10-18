@@ -509,4 +509,3 @@ After two source-supported repair tasks stopped before production edits—earthq
   These heterogeneous outcomes establish useful accepted work, not a causal
   speedup or yield estimate; all-in effort, CPU and overall benefit remain
   unmeasured. Continue ordinary monitoring without another reporting form.
-
