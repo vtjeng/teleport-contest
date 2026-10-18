@@ -327339,7 +327339,7 @@
     {
       "id": "fix-pay-damage-outside-room-buffer-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement pay_for_damage from shk.c",
       "cFile": "shk.c",
       "sessions": [],
@@ -327347,7 +327347,7 @@
       "detail": "Source-parity-runtime-pending whole pay_for_damage parent review, exact predicate correction only. Canonical ushops is fixed5/zero-terminated, original length test misroutes outside state. Actual67185 completed default parent with hero67,4/zero5/resident79 home5,10/open owneddoor6,10/current400 record. Frozen07ff test genuine original home-vs-door red preceded code, same bytes green after first-slot predicate; raw source/test/freeze/projections committed44f/c4f75. Existing getcad and relocation helper gaps remain explicit; no new helper, broader shop certificate, public witness or prior-budget release. Pending next exact hosted gate.",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "1f476061c22b9cfd6c4923fa4af10fd8c7a22e63",
       "delivered": null,
       "functions": [
         {
@@ -327462,6 +327462,56 @@
           }
         },
         "reviewSha256": "72fa136c26bf36b64e6d951e03572e667360091419c2200f9eab1f27cbb13f14"
+      },
+      "closeStanding": {
+        "sha": "1f476061c22b9cfd6c4923fa4af10fd8c7a22e63",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "28b64ea6689e4428050f855833972026bac02028",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/1f476061c22b9cfd6c4923fa4af10fd8c7a22e63/run-hosted-MWC26z/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "pay_for_damage",
+            "implementation": "js/shk.js",
+            "symbol": "pay_for_damage",
+            "sourceReview": "Reviewed whole C shk.c:pay_for_damage against the JS implementation and changed only the inShop predicate to test the first zero-terminated ushops slot, matching C. Kept all existing parent behavior, ordering, defaults, and helper calls; no helper/caller edits.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "pay_for_damage",
+                "source": "Actual exported67185 default call with genuine canonical add_damage record qualifies parent branch."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "zap_dig",
+                "source": "Normal lateral wall/door source caller records actual add_damage and awaits pay_for_damage; no public route gate for coherent initialized before-call state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "The regression creates a source-valid initialized game using the actual startup, canonical room/keeper creation, and canonical add_damage writer. It calls the exported pay_for_damage action once through its real default behavior, retaining actual first-slot-zero five-entry ushops. The actual zap_dig production caller is the reviewed normal caller that records canonical damage and awaits pay_for_damage. This is a narrow runtime regression, not source certification or a claim that unrelated getcad/relocation helper gaps are closed.",
+        "entryPoints": [
+          {
+            "name": "default pay_for_damage after canonical add_damage",
+            "functions": [
+              "pay_for_damage"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

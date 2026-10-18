@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T19:33:47.367Z",
+  "capturedAt": "2026-10-18T19:58:57.920Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T19:33:47.367Z",
+    "asOf": "2026-10-18T19:58:57.920Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 317,
+      "mainSupportAssignments": 321,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -173396,23 +173396,173 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-floor-figurine-stone-flesh-billing-source-parity-20261018-c21297a3bb6e92f37750fc8d8d1bd9f6e37693d1",
+        "type": "published",
+        "at": "2026-10-18T19:34:11.902Z",
+        "task": "delivery:fix-floor-figurine-stone-flesh-billing-source-parity-20261018",
+        "commit": "c21297a3bb6e92f37750fc8d8d1bd9f6e37693d1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:36:07.440Z",
+        "id": "queue:294921df-6885-4793-8878-b42ed77cd978",
+        "type": "assign",
+        "task": "mimic-see-invis-transition-callers-planning-cache-scope-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "outside44f-received-20261018",
+        "type": "received",
+        "at": "2026-10-18T19:38:09.098Z",
+        "task": "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
+        "delivery": "44f7af1ae2c14e1a9e22d6ef5622b6746c333aa9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:38:54.406Z",
+        "id": "queue:5620abfa-4315-4e4d-bf43-d45f7e7db4a2",
+        "type": "queue-complete",
+        "task": "invisible-mimic-see-invis-cached-path-default-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:38:54.406Z",
+        "id": "queue:5620abfa-4315-4e4d-bf43-d45f7e7db4a2:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-1f476061c22b9cfd6c4923fa4af10fd8c7a22e63-a6cc1e11035e328f098a56763ddb8df5fa701531afad865f38be1f5a72bd343e-delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T19:40:35.288Z",
+        "task": "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
+        "integration": "1f476061c22b9cfd6c4923fa4af10fd8c7a22e63",
+        "validationGroup": [
+          "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:41:43.531Z",
+        "id": "queue:f43efa22-6547-436e-b246-76cf66a57661",
+        "type": "queue-complete",
+        "task": "mimic-see-invis-transition-callers-planning-cache-scope-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:41:43.531Z",
+        "id": "queue:f43efa22-6547-436e-b246-76cf66a57661:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:46:33.177Z",
+        "id": "queue:75686f89-f161-42af-927f-0009e084cfc5",
+        "type": "assign",
+        "task": "invisible-mimic-reviewed-fixture-default-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:47:21.301Z",
+        "id": "queue:04f6d206-7e12-4ea1-92fe-070059715cd7",
+        "type": "assign",
+        "task": "mimic-polyman-producer-provider-boundary-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:49:12.734Z",
+        "id": "queue:37464f60-e4ca-4a33-ab2b-69a46900fb52",
+        "type": "queue-complete",
+        "task": "invisible-mimic-reviewed-fixture-default-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:49:12.734Z",
+        "id": "queue:37464f60-e4ca-4a33-ab2b-69a46900fb52:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018-1f476061c22b9cfd6c4923fa4af10fd8c7a22e63-validated",
+        "type": "validated",
+        "at": "2026-10-18T19:50:55.309Z",
+        "task": "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:51:48.235Z",
+        "id": "queue:457ad30e-f827-4a5b-ad2d-2afa9471f360",
+        "type": "queue-complete",
+        "task": "mimic-polyman-producer-provider-boundary-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:51:48.235Z",
+        "id": "queue:457ad30e-f827-4a5b-ad2d-2afa9471f360:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018-1f476061c22b9cfd6c4923fa4af10fd8c7a22e63-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T19:57:10.504Z",
+        "task": "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T19:58:46.060Z",
+        "id": "queue:435234c6-32ef-4977-8efd-7791347c9997",
+        "type": "assign",
+        "task": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
-        "worker": "Worker-2",
-        "goal": "fix-pay-damage-outside-room-buffer-source-parity-20261018",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "44f7af1ae2c14e1a9e22d6ef5622b6746c333aa9",
-        "since": "2026-10-18T19:31:29.025Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -173617,24 +173767,9 @@
           "source:fountain.c:gush"
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
-      },
-      "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018": {
-        "id": "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
-        "worker": "Worker-2",
-        "status": "ready",
-        "seed": null,
-        "reservations": [
-          "source:shk.c:pay_for_damage"
-        ]
       }
     },
-    "reservations": {
-      "source:shk.c:pay_for_damage": {
-        "tasks": [
-          "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
@@ -173645,22 +173780,22 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "invisible-mimic-see-invis-cached-path-default-qualification-20261018",
-        "worker": "Worker-1"
+        "task": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
+        "worker": "Worker-3"
       }
     ],
     "counts": {
       "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 574,
+      "completed": 578,
       "superseded": 100
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "invisible-mimic-see-invis-cached-path-default-qualification-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
@@ -173669,8 +173804,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -183820,7 +183955,7 @@
         "id": "invisible-mimic-see-invis-cached-path-default-qualification-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -183829,13 +183964,73 @@
         "target": null,
         "readyAt": "2026-10-18T19:33:08.114Z",
         "claimedAt": "2026-10-18T19:33:38.314Z",
+        "completedAt": "2026-10-18T19:38:54.406Z"
+      },
+      {
+        "id": "mimic-see-invis-transition-callers-planning-cache-scope-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T19:35:50.287Z",
+        "claimedAt": "2026-10-18T19:36:07.440Z",
+        "completedAt": "2026-10-18T19:41:43.531Z"
+      },
+      {
+        "id": "invisible-mimic-reviewed-fixture-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T19:46:05.482Z",
+        "claimedAt": "2026-10-18T19:46:33.177Z",
+        "completedAt": "2026-10-18T19:49:12.734Z"
+      },
+      {
+        "id": "mimic-polyman-producer-provider-boundary-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T19:46:59.504Z",
+        "claimedAt": "2026-10-18T19:47:21.301Z",
+        "completedAt": "2026-10-18T19:51:48.235Z"
+      },
+      {
+        "id": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T19:58:33.760Z",
+        "claimedAt": "2026-10-18T19:58:46.060Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "28b64ea6689e4428050f855833972026bac02028",
-    "measuredAt": "2026-10-18T19:27:39.108Z",
+    "executionCommit": "1f476061c22b9cfd6c4923fa4af10fd8c7a22e63",
+    "measuredAt": "2026-10-18T19:46:26.280Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
