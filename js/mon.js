@@ -4686,10 +4686,8 @@ export function dealloc_monst(mon) {
 // level due to migration [relmon from keepdogs or migrate_to_level] or due to
 // death [m_detach from mondead or mongone]".
 //
-// 2721-2722's seemimic() stops. A monster whose appearance is neither
-// M_AP_NOTHING nor M_AP_MONSTER is showing a false object or piece of
-// furniture, and revealing it needs mon.c seemimic(), which wakeup() above
-// already records as unported.
+// 2721-2722 reveal a disguised mimic after its grid slot is removed. The
+// departure adapter keeps that redraw on the caller-selected owner.
 //
 // js/dog.js relmon() calls this same lifecycle before transferring the
 // monster between the level and migration lists.
@@ -4722,8 +4720,13 @@ export function mon_leaving_level(mon, state = game, env = {}) {
             /* "unhide mimic in case its shape has been blocking line of sight
                or it is accompanying the hero to another level" */
             if (M_AP_TYPE(mon) !== M_AP_NOTHING
-                && M_AP_TYPE(mon) !== M_AP_MONSTER)
-                requiredKillOperation(env, 'unsupported')('unhiding a mimic');
+                && M_AP_TYPE(mon) !== M_AP_MONSTER) {
+                seemimic(mon, state, {
+                    ...env,
+                    state,
+                    newsym: (x, y) => killRedraw(x, y, { ...env, state }),
+                });
+            }
             /* "if mon is pinned by a boulder, removing mon lets boulder drop" */
             const settling = fill_pit(mx, my, state, env);
             if (settling && typeof settling.then === 'function')

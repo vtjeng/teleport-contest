@@ -10,12 +10,20 @@ import {
     ROWNO,
     MON_MIGRATING,
     MON_STILL_ARRIVING,
+    M_AP_FURNITURE,
+    M_AP_NOTHING,
+    M_AP_OBJECT,
+    M_AP_TYPE,
+    MM_ADJACENTOK,
+    MM_NOMSG,
+    NO_MINVENT,
     ROOM,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
 import {
     keep_mon_accessible,
     keepdogs,
+    tamedog,
     losedogs,
     migrate_to_level,
     mon_arrive,
@@ -23,10 +31,13 @@ import {
 } from '../js/dog.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { newMonster, place_monster } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { runSegment } from '../js/jsmain.js';
+import { makemon_runtime } from '../js/makemon_create.js';
 import { maketrap } from '../js/trap.js';
-import { newObject, place_object } from '../js/obj.js';
+import { mksobj_at, newObject, place_object } from '../js/obj.js';
 import {
+    PM_SMALL_MIMIC,
     PM_KITTEN,
     PM_SEWER_RAT,
     PM_YELLOW_LIGHT,
@@ -41,6 +52,11 @@ import {
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
+import {
+    block_point,
+    does_block,
+    is_lightblocker_mappear,
+} from '../js/vision.js';
 
 const CURRENT_LEVEL = Object.freeze({ dnum: 0, dlevel: 2 });
 const CROSS_DUNGEON_DESTINATION = Object.freeze({ dnum: 1, dlevel: 2 });
@@ -712,3 +728,64 @@ test('keep_mon_accessible matches the pure Wizard and level-home branches', () =
         assert.equal(keep_mon_accessible(local, state), false, `${flag} home`);
     }
 });
+
+test('keepdogs reveals its canonical disguised mimic before transferring it',
+    async () => {
+        const input = {
+            seed: 2026101805,
+            datetime: '20551018050000',
+            nethackrc: 'OPTIONS=name:MimicKeepdogs05,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n',
+            moves: '',
+        };
+        await runSegment(input);
+
+        const state = game;
+        state.gm.mydogs = null;
+        const x = state.u.ux + 1;
+        const y = state.u.uy;
+        const cell = state.level.at(x, y);
+        assert.ok(cell, 'fixed east-adjacent cell exists');
+        assert.equal(m_at(x, y, state), null);
+
+        const boulder = mksobj_at(BOULDER, x, y, true, false, {
+            state,
+            hooks: {
+                blockPoint: (bx, by, env) => block_point(bx, by, env.state),
+            },
+        });
+        const mimic = await makemon_runtime(
+            state.mons[PM_SMALL_MIMIC], x, y,
+            NO_MINVENT | MM_ADJACENTOK | MM_NOMSG,
+            { state },
+        );
+        assert.ok(mimic, 'canonical explicit-coordinate constructor succeeds');
+        assert.ok([M_AP_OBJECT, M_AP_FURNITURE].includes(M_AP_TYPE(mimic)));
+        assert.ok(is_lightblocker_mappear(mimic));
+        assert.equal(m_at(x, y, state), mimic);
+        assert.equal(does_block(x, y, cell, state), true);
+
+        assert.equal(await tamedog(mimic, null, false, { state }), true);
+        const sameId = mimic.m_id;
+        assert.ok(mimic.mtame > 0);
+        assert.notEqual(mimic.m_ap_type, M_AP_NOTHING);
+
+        await keepdogs(false, { state });
+
+        assert.equal(state.gm.mydogs, mimic, 'the same actor joins mydogs');
+        let stillOnLevel = false;
+        for (let current = state.level.monlist; current; current = current.nmon)
+            stillOnLevel ||= current.m_id === sameId;
+        assert.equal(stillOnLevel, false, 'the transferred actor leaves monlist');
+        assert.equal(m_at(x, y, state), null, 'the actor leaves its grid square');
+        assert.equal(mimic.m_id, sameId);
+        assert.equal(mimic.m_ap_type, M_AP_NOTHING);
+        assert.equal(mimic.mappearance, 0);
+        assert.equal(mimic.mx, 0);
+        assert.equal(mimic.my, 0);
+        assert.equal(mimic.wormno, 0);
+        assert.equal(mimic.mlstmv, state.moves);
+        assert.equal(state.level.objects[x][y], boulder,
+            'the real floor boulder remains; this is not an unblock witness');
+        assert.equal(does_block(x, y, cell, state), true,
+            'the floor boulder continues to block the square');
+    });

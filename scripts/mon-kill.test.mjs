@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import { adjalign, ALIGNLIM } from '../js/attrib.js';
 import { experience } from '../js/exper.js';
+import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog } from '../js/rng.js';
@@ -74,6 +75,7 @@ import {
     M1_SEE_INVIS,
     M1_TPORT,
     M1_TPORT_CNTRL,
+    PM_SMALL_MIMIC,
     monst_globals_init,
     NON_PM,
     PM_ERINYS,
@@ -123,6 +125,8 @@ import {
 import {
     LS_MONSTER,
     MAGICAL_BREATHING,
+    M_AP_NOTHING,
+    M_AP_OBJECT,
     MON_DETACH,
     OBJ_FLOOR,
     OBJ_DELETED,
@@ -1089,6 +1093,78 @@ test('mon_leaving_level leaves a square another monster occupies',
         await mon_leaving_level(standing, game, killEnv());
         assert.equal(game.context.polearm.hitmon, null, 'forgotten');
     });
+
+test('mimic departure redraw stays on the selected clone owner', async () => {
+    await hero();
+    const state = {
+        ...game,
+        level: new GameMap(),
+        u: { ...game.u, ustuck: null },
+        gm: { ...game.gm },
+        context: { polearm: { hitmon: null } },
+    };
+    const x = 5;
+    const y = 5;
+    const mimic = newMonster({
+        data: game.mons[PM_SMALL_MIMIC],
+        m_id: 9001,
+        mhp: 4,
+        mhpmax: 4,
+        m_ap_type: M_AP_OBJECT,
+        mappearance: BOULDER,
+    });
+    state.level.monlist = mimic;
+    place_monster(mimic, x, y, state);
+    const liveTargetBefore = m_at(x, y, game);
+    const liveListBefore = game.level.monlist;
+    const redraws = [];
+
+    await mon_leaving_level(mimic, state, {
+        hooks: {
+            newsym: (rx, ry, env) => redraws.push({
+                x: rx, y: ry, stateOwned: env.state === state,
+            }),
+        },
+        unblockPoint: () => {},
+    });
+
+    assert.equal(mimic.m_ap_type, M_AP_NOTHING);
+    assert.equal(mimic.mappearance, 0);
+    assert.equal(m_at(x, y, state), null);
+    assert.equal(redraws.length, 2,
+        'seemimic and the existing final cleanup use the selected redraw seam');
+    assert.deepEqual(redraws, [
+        { x, y, stateOwned: true },
+        { x, y, stateOwned: true },
+    ]);
+    assert.equal(m_at(x, y, game), liveTargetBefore,
+        'clone departure does not remove a live-grid monster');
+    assert.equal(game.level.monlist, liveListBefore,
+        'clone departure does not mutate the live monster list');
+
+    const ordinary = newMonster({
+        data: game.mons[PM_SEWER_RAT],
+        m_id: 9002,
+        mhp: 4,
+        mhpmax: 4,
+        m_ap_type: M_AP_NOTHING,
+    });
+    state.level.monlist = ordinary;
+    place_monster(ordinary, x + 1, y, state);
+    await mon_leaving_level(ordinary, state, {
+        hooks: {
+            newsym: (rx, ry, env) => redraws.push({
+                x: rx, y: ry, stateOwned: env.state === state,
+            }),
+        },
+    });
+    assert.equal(ordinary.m_ap_type, M_AP_NOTHING);
+    assert.equal(redraws.length, 3,
+        'an ordinary no-disguise departure uses only final cleanup redraw');
+    assert.deepEqual(redraws[2], {
+        x: x + 1, y, stateOwned: true,
+    });
+});
 
 test('replmon transfers inventory and live monster references', async () => {
     await hero();
