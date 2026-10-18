@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import test from 'node:test';
+import { tmpdir } from 'node:os';
 
 import {
     bhito,
@@ -40,6 +42,22 @@ import {
     d, rn1, rn2, rnd, rne, rnl, rnz, initRng, enableRngLog, getRngLog,
 } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
+import { NethackGame } from '../js/jsmain.js';
+import { GameDisplay } from '../js/game_display.js';
+import { do_mkroom } from '../js/mkroom.js';
+import { fill_special_room } from '../js/mklev.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { mksobj_at, set_corpsenm } from '../js/obj.js';
+import { FIGURINE, MINERAL } from '../js/objects.js';
+import { PM_FLESH_GOLEM } from '../js/monsters.js';
+import { costly_spot, get_cost, inside_shop } from '../js/shk.js';
+import { teleds } from '../js/teleport.js';
+import { m_at } from '../js/monst.js';
+import {
+    OBJ_FLOOR, SHOPBASE, TELEDS_TELEPORT, TOPLINE_NEED_MORE,
+} from '../js/const.js';
+import { dead_species, is_golem } from '../js/mondata.js';
+import { vegetarian } from '../js/eat.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
 const C_TRAP_SOURCE = readFileSync('nethack-c/upstream/src/trap.c', 'utf8');
@@ -351,6 +369,244 @@ test('Stone to Flesh animates a statue through the canonical runtime owner', asy
     assert.ok(monster);
     assert.equal(statue.where, OBJ_DELETED);
     assert.match(messages.join(' '), /comes to life|moves|turns into flesh/u);
+});
+
+test('stone-to-flesh charges a successful floor figurine before deletion', async () => {
+    const projectionDir = mkdtempSync(join(tmpdir(), 'stone-flesh-floor-figurine-billing-'));
+    process.stderr.write(`figurine billing projection directory: ${projectionDir}\n`);
+    const fixedInput = {
+        seed: 2026101801,
+        datetime: '20261018120000',
+        nethackrc: 'OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+        moves: '',
+    };
+    const safe = value => JSON.parse(JSON.stringify(value, (_key, item) =>
+        typeof item === 'bigint' ? `${item}n` : item));
+    const monsterRows = state => {
+        const result = [];
+        const visited = new Set();
+        for (let monster = state.level.monlist; monster && !visited.has(monster);
+            monster = monster.nmon) {
+            visited.add(monster);
+            result.push({ id: monster.m_id, species: monster.data?.pmidx,
+                x: monster.mx, y: monster.my, hp: monster.mhp,
+                peaceful: monster.mpeaceful, tame: monster.mtame });
+        }
+        return result;
+    };
+    const floorRows = (state, x, y) => {
+        const result = [];
+        const visited = new Set();
+        for (let object = state.level.objects[x]?.[y]; object && !visited.has(object);
+            object = object.nexthere) {
+            visited.add(object);
+            result.push({ id: object.o_id, type: object.otyp, where: object.where,
+                quantity: object.quan });
+        }
+        return result;
+    };
+    const inventoryRows = state => {
+        const result = [];
+        const visited = new Set();
+        for (let object = state.invent; object && !visited.has(object);
+            object = object.nobj) {
+            visited.add(object);
+            result.push({ id: object.o_id, type: object.otyp, where: object.where,
+                quantity: object.quan });
+        }
+        return result;
+    };
+    const billRows = eshk => (Array.isArray(eshk.bill_p)
+        ? eshk.bill_p.slice(0, eshk.billct) : []).map(bill => ({
+        objectId: bill?.bo_id ?? null,
+        quantity: bill?.bquan ?? null,
+        price: bill?.price ?? null,
+        useup: bill?.useup ?? null,
+    }));
+    const stateMarker = state => {
+        assert.ok(state.unported instanceof Set,
+            'the source-owned unported marker collection is a Set');
+        return [...state.unported];
+    };
+    const actorErrorBoundary = (display, moreCount) => ({
+        screen: display.serialize(), topline: display.toplines,
+        queueLength: display.inputQueueLength, epoch: display.waitEpoch,
+        pending: display.terminal?._inputResolver != null, moreCount,
+    });
+
+    const display = new GameDisplay(null);
+    const oldOnEmptyQueue = display.onEmptyQueue;
+    let moreCount = 0;
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        if (display.toplin === TOPLINE_NEED_MORE && screen.includes('--More--')) {
+            if (++moreCount > 16)
+                throw new Error(`More limit exceeded: ${JSON.stringify(
+                    actorErrorBoundary(display, moreCount),
+                )}`);
+            return ' '.charCodeAt(0);
+        }
+        throw new Error(`unrecognized empty-queue input boundary: ${JSON.stringify(
+            actorErrorBoundary(display, moreCount),
+        )}`);
+    };
+
+    let primaryError = null;
+    let gameInstance;
+    let figurine;
+    let spellObject;
+    let callbackValue;
+    let before;
+    let after;
+    let expectedPrice;
+    let newMonsters;
+    let markerAdded;
+    try {
+        gameInstance = new NethackGame(fixedInput);
+        gameInstance._pendingDisplay = display;
+        const started = await gameInstance.start();
+        if (!started) throw new Error('NethackGame.start returned false');
+        const state = game;
+        const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
+        do_mkroom(SHOPBASE, state, random);
+        const shop = state.level.rooms.slice(0, state.level.nroom)
+            .find(room => room && room.rtype >= SHOPBASE && room.needfill != null);
+        if (!shop) throw new Error('canonical do_mkroom produced no shop');
+        const objectEnv = objectGenerationEnv({ state, random });
+        await fill_special_room(shop, objectEnv);
+        const keeper = shop.resident;
+        if (!keeper?.isshk || !keeper.mextra?.eshk || !keeper.mpeaceful)
+            throw new Error('canonical shop fill produced no peaceful resident');
+        const eshk = keeper.mextra.eshk;
+        if (eshk.credit !== 0 || eshk.debit !== 0 || eshk.robbed !== 0
+            || eshk.billct !== 0)
+            throw new Error('natural source keeper does not start with zero billing state');
+
+        const keeperRoom = eshk.shoproom;
+        const candidates = [];
+        for (let x = shop.lx; x <= shop.hx; ++x) {
+            for (let y = shop.ly; y <= shop.hy; ++y) {
+                if (inside_shop(x, y, state) !== keeperRoom
+                    || !costly_spot(x, y, state)
+                    || (x === keeper.mx && y === keeper.my)
+                    || (x === state.u.ux && y === state.u.uy)) continue;
+                candidates.push({ x, y });
+            }
+        }
+        const target = candidates[0];
+        const heroSpot = candidates.find(({ x, y }) => x !== target?.x || y !== target?.y);
+        if (!target || !heroSpot)
+            throw new Error('fixed canonical costly target/hero squares unavailable');
+        if (target.x !== 3 || target.y !== 7
+            || heroSpot.x !== 3 || heroSpot.y !== 8)
+            throw new Error('fixed input no longer selects the reviewed target/hero coordinates');
+        await teleds(heroSpot.x, heroSpot.y, TELEDS_TELEPORT, state, { random });
+        if (state.u.ux !== heroSpot.x || state.u.uy !== heroSpot.y
+            || inside_shop(state.u.ux, state.u.uy, state) !== keeperRoom
+            || !costly_spot(state.u.ux, state.u.uy, state))
+            throw new Error('canonical teleds did not reach the fixed other shop square');
+        if (m_at(target.x, target.y, state))
+            throw new Error('first canonical target square already has a monster');
+
+        figurine = mksobj_at(FIGURINE, target.x, target.y, true, false, objectEnv);
+        set_corpsenm(figurine, PM_NEWT, objectEnv);
+        const species = state.mons[PM_NEWT];
+        const vital = state.svm?.mvitals?.[PM_NEWT];
+        if (!figurine || figurine.where !== OBJ_FLOOR
+            || state.objects[FIGURINE]?.oc_material !== MINERAL
+            || figurine.oartifact || figurine.no_charge || figurine.unpaid
+            || !species || dead_species(PM_NEWT, true, { state })
+            || vegetarian(species) || is_golem(species)
+            || species === state.mons[PM_FLESH_GOLEM]
+            || !vital || !Number.isInteger(vital.mvflags))
+            throw new Error('natural FIGURINE/PM_NEWT target failed source predicates');
+        if (state.unported.has('shk.c stolen_value'))
+            throw new Error('source billing marker already present before callback');
+        spellObject = mksobj(SPE_STONE_TO_FLESH, true, false, objectEnv);
+        expectedPrice = get_cost(figurine, keeper, state);
+        if (!(expectedPrice > 0)) throw new Error('actual keeper price is not positive');
+
+        const actorsBefore = monsterRows(state);
+        const floorBefore = floorRows(state, target.x, target.y);
+        if (!floorBefore.some(row => row.id === figurine.o_id))
+            throw new Error('original FIGURINE absent from canonical floor chain');
+        before = safe({ input: fixedInput, hero: { x: state.u.ux, y: state.u.uy,
+            level: state.u.uz, moves: state.moves }, keeper: { id: keeper.m_id,
+            peaceful: keeper.mpeaceful, shoproom: eshk.shoproom, credit: eshk.credit,
+            debit: eshk.debit, robbed: eshk.robbed, billct: eshk.billct,
+            bills: billRows(eshk) }, target, actualPrice: expectedPrice,
+            figurine: { id: figurine.o_id, where: figurine.where,
+                no_charge: figurine.no_charge, unpaid: figurine.unpaid,
+                quantity: figurine.quan, type: figurine.otyp,
+                corpsenm: figurine.corpsenm, material: state.objects[FIGURINE].oc_material,
+                artifact: figurine.oartifact, timed: figurine.timed },
+            species: { id: species.pmidx, name: species.mname, geno: species.geno,
+                vegetarian: vegetarian(species), golem: is_golem(species), vital },
+            marker: stateMarker(state), actors: actorsBefore, floor: floorBefore,
+            inventory: inventoryRows(state), rng: gameInstance.getRngLog().slice(),
+            screen: display.serialize(), topline: display.toplines,
+            input: actorErrorBoundary(display, moreCount) });
+        const beforePath = join(projectionDir, 'before.json');
+        writeFileSync(beforePath, JSON.stringify(before, null, 2) + '\n', { flag: 'wx' });
+
+        await (async () => {
+            callbackValue = await bhito(figurine, spellObject, state, random);
+        })();
+    } catch (error) {
+        primaryError = error;
+    } finally {
+        display.onEmptyQueue = oldOnEmptyQueue;
+    }
+    if (primaryError) throw primaryError;
+    assert.equal(display.onEmptyQueue, oldOnEmptyQueue,
+        'the original input handler is restored before post-action observers');
+
+    const state = game;
+    const keeper = state.level.rooms.find(room => room?.resident?.m_id
+        === before.keeper.id).resident;
+    const eshk = keeper.mextra.eshk;
+    const target = before.target;
+    const actorsAfter = monsterRows(state);
+    newMonsters = actorsAfter.filter(monster =>
+        !before.actors.some(old => old.id === monster.id));
+    const floorAfter = floorRows(state, target.x, target.y);
+    markerAdded = !before.marker.includes('shk.c stolen_value')
+        && state.unported.has('shk.c stolen_value');
+    after = safe({ callbackValue, hero: { x: state.u.ux, y: state.u.uy,
+        level: state.u.uz, moves: state.moves }, keeper: { id: keeper.m_id,
+        peaceful: keeper.mpeaceful, shoproom: eshk.shoproom, credit: eshk.credit,
+        debit: eshk.debit, robbed: eshk.robbed, billct: eshk.billct,
+        bills: billRows(eshk) }, figurine: { originalId: before.figurine.id,
+        where: figurine.where, nobj: figurine.nobj?.o_id ?? null,
+        nexthere: figurine.nexthere?.o_id ?? null,
+        stillOnFloor: floorAfter.some(row => row.id === before.figurine.id) },
+        newMonsters, actors: actorsAfter, floor: floorAfter,
+        inventory: inventoryRows(state), marker: stateMarker(state), markerAdded,
+        messages: display.messages, topline: display.toplines,
+        screen: display.serialize(), rng: gameInstance.getRngLog().slice(),
+        input: actorErrorBoundary(display, moreCount) });
+    const outputName = markerAdded ? 'original-red.json' : 'candidate-green.json';
+    const outputPath = join(projectionDir, outputName);
+    writeFileSync(outputPath, JSON.stringify({ before, after }, null, 2) + '\n', { flag: 'wx' });
+
+    assert.equal(callbackValue, 1);
+    assert.equal(newMonsters.length, 1,
+        'the actual callback creates exactly one new actor');
+    assert.equal(newMonsters[0].species, PM_NEWT);
+    assert.deepEqual([newMonsters[0].x, newMonsters[0].y], [target.x, target.y]);
+    assert.equal(figurine.where, OBJ_DELETED,
+        'successful source path unlinks and deletes the original floor FIGURINE');
+    assert.equal(after.figurine.stillOnFloor, false);
+    assert.equal(eshk.credit, before.keeper.credit);
+    assert.equal(eshk.debit - before.keeper.debit, expectedPrice,
+        'successful floor FIGURINE animation charges its actual source price');
+    assert.equal(eshk.robbed, before.keeper.robbed);
+    assert.equal(eshk.billct, before.keeper.billct);
+    assert.equal(markerAdded, false,
+        'the implemented path no longer records the missing stolen_value gap');
+    const text = `${display.toplines}\n${JSON.stringify(display.messages)}\n${display.serialize()}`;
+    assert.match(text, /owe .* for it/u,
+        'the ordinary peaceful-keeper debt message is retained');
 });
 
 test('statue animation removes a wielded statue before deleting it', async () => {

@@ -2677,7 +2677,12 @@ export async function stone_to_flesh_obj(obj, state = game,
                 if (monster) {
                     if (costly_spot(ox, oy, state)
                         && (carried(obj) ? obj.unpaid : !obj.no_charge)) {
-                        note_unported('shk.c stolen_value');
+                        const roomno = in_rooms(ox, oy, SHOPBASE, state)[0] ?? 0;
+                        const keeper = shop_keeper(roomno, state);
+                        await stolen_value(
+                            obj, ox, oy, Boolean(keeper && keeper.mpeaceful),
+                            false, state,
+                        );
                     }
                     if (obj.timed) obj_stop_timers(obj, state, env);
                     if (carried(obj)) await useup(obj, env);
