@@ -5972,7 +5972,6 @@ function monsterDigests(species) {
 //              ordinary pet -- one killed by neither fire, rust nor decay --
 //              passes through without it.
 export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
-    const unsupported = requiredKillOperation(env, 'unsupported');
     const message = requiredKillOperation(env, 'message');
     const mptr = mdef.data;
 
@@ -6014,7 +6013,10 @@ export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
             : (how === AD_RUST && completelyrusts(mptr)) ? 'rust'
                 : (how === AD_DCAY && completelyrots(mptr)) ? 'rot'
                     : null;
-        if (rxt) unsupported('the farewell for a destroyed pet golem');
+        if (rxt)
+            requiredKillOperation(env, 'unsupported')(
+                'the farewell for a destroyed pet golem',
+            );
     }
 }
 

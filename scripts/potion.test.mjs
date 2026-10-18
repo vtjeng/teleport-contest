@@ -11,13 +11,16 @@ import { setuhpmax } from '../js/attrib.js';
 
 import {
     A_CON, A_DEX, A_MAX, A_STR, A_WIS, ACID_RES, BLINDED, BURN_OBJECT,
+    COLNO,
     CONFUSION, DEAF,
     DETECT_MONSTERS, FAST, FREE_ACTION,
     FAINTED, FIRE_RES, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
-    HALLUC_RES, INVIS, IN_SIGHT, I_SPECIAL, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
-    OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
-    SATIATED, SICK, SLEEP_RES, WEAK, STRAT_APPEARMSG, STRAT_WAITFORU,
+    HALLUC_RES, INVIS, IN_SIGHT, I_SPECIAL, LEVITATION, NOT_HUNGRY,
+    MM_ADJACENTOK, MM_NOMSG, MON_DETACH, NO_MINVENT, POTHIT_HERO_THROW,
+    OBJ_DELETED, POTHIT_MONST_THROW, POTHIT_OTHER_THROW, SEE_INVIS,
+    ROWNO, SATIATED, SICK, SLEEP_RES, W_AMUL, WEAK, STRAT_APPEARMSG,
+    STRAT_WAITFORU,
     KILLED_BY, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, SLIMED, STONED,
     STUNNED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
     TT_WEB, WOUNDED_LEGS, W_RINGL,
@@ -26,17 +29,19 @@ import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
-import { PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
-import { newMonster } from '../js/monst.js';
+import { PM_GOBLIN, PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
+import { m_at, newMonster } from '../js/monst.js';
+import { makemon_runtime, m_dowear } from '../js/makemon_create.js';
 import { runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 import { discover_object } from '../js/o_init.js';
-import { addinv } from '../js/invent.js';
+import { add_to_minv, addinv } from '../js/invent.js';
 import { dipfountain, dipsink } from '../js/fountain.js';
 import { inaccessible_equipment } from '../js/do_wear.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { dist2 } from '../js/hacklib.js';
+import { cansee } from '../js/vision.js';
 import {
     begin_burn, burn_away_slime, peek_timer,
 } from '../js/timeout.js';
@@ -75,6 +80,7 @@ import {
     SPE_INVISIBILITY,
     SPE_RESTORE_ABILITY,
     TOWEL,
+    AMULET_OF_LIFE_SAVING,
     COIN_CLASS,
     RING_CLASS,
     SPE_DETECT_MONSTERS,
@@ -919,6 +925,99 @@ async function startedGame(seed, name, role = 'Healer') {
         moves: ' ',
     });
 }
+
+test('potionhit completes an acid-caused canonical monster lifesaving return',
+    async () => {
+        await startedGame(20261018, 'LazyKillProviderLifeSave');
+        clearTopline();
+
+        let position = null;
+        for (let y = 1; y < ROWNO - 1 && !position; y++) {
+            for (let x = 1; x < COLNO - 1; x++) {
+                if (dist2(x, y, game.u.ux, game.u.uy) >= 9
+                    && !m_at(x, y, game) && cansee(x, y, game)) {
+                    position = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(position, 'the initialized level has a visible empty square');
+        const monster = await makemon_runtime(
+            game.mons[PM_GOBLIN], position.x, position.y,
+            NO_MINVENT | MM_ADJACENTOK | MM_NOMSG,
+            { state: game },
+        );
+        assert.ok(monster, 'the ordinary goblin is created by makemon_runtime');
+        assert.equal(monster.data, game.mons[PM_GOBLIN]);
+        assert.equal(monster.mtame, 0);
+        monster.mhp = 1;
+
+        const amulet = mksobj(AMULET_OF_LIFE_SAVING, false, false,
+                              { state: game });
+        add_to_minv(monster, amulet, { state: game });
+        m_dowear(monster, true, { state: game });
+        assert.equal(amulet.owornmask & W_AMUL, W_AMUL,
+            'canonical inventory logic wears the lifesaving amulet');
+
+        const deaths = game.svm.mvitals[PM_GOBLIN].died;
+        const acid = mksobj(POT_ACID, false, false, { state: game });
+        acid.dknown = false;
+        const display = game.nhDisplay;
+        const previousOnEmptyQueue = display.onEmptyQueue;
+        const acknowledgements = [];
+        let namingInputs = 0;
+        display.onEmptyQueue = () => {
+            const screen = display.serialize();
+            if (game._pending_message && screen.includes('--More--')) {
+                if (acknowledgements.length >= 16)
+                    throw new Error('finite TTY acknowledgement budget exhausted');
+                acknowledgements.push({
+                    kind: 'more',
+                    message: game._pending_message,
+                    screen,
+                    waitEpoch: display.waitEpoch,
+                });
+                return 32;
+            }
+            if (screen.includes('Call ') && namingInputs === 0) {
+                namingInputs++;
+                return 13; // The one declared empty reply to docall's prompt.
+            }
+            throw new Error('unexpected input request in lifesaving potionhit');
+        };
+
+        try {
+            enableRngLog();
+            await potionhit(monster, acid, POTHIT_OTHER_THROW);
+            const draws = getRngLog();
+            assert.ok(draws.length > 0, 'the real process RNG was used');
+            assert.ok(draws.some(draw => /^d\(/u.test(draw)),
+                'the real acid damage die was rolled');
+            assert.ok(monster.mhp >= 1);
+            assert.equal(monster.mhpmax, 10);
+            assert.equal(game.svm.mvitals[PM_GOBLIN].died, deaths,
+                'lifesaving returns before death accounting');
+            assert.equal(m_at(position.x, position.y, game), monster,
+                'the saved monster remains on-map');
+            assert.equal((monster.mstate ?? 0) & MON_DETACH, 0,
+                'the saved monster was not detached');
+            assert.equal(monster.minvent, null,
+                'the actual amulet was consumed from inventory');
+            assert.equal(amulet.where, OBJ_DELETED);
+            assert.equal(amulet.ocarry, null);
+            assert.equal(amulet.owornmask, 0);
+            assert.equal(monster.misc_worn_check & W_AMUL, 0);
+            assert.equal(monster.misc_worn_check & I_SPECIAL, I_SPECIAL);
+            assert.equal(acid.where, OBJ_DELETED,
+                'potionhit released the real potion after the effect');
+            assert.ok(acknowledgements.length > 0,
+                'the actual TTY More boundary consumed a bounded key');
+            assert.equal(namingInputs, 1,
+                'the finite empty naming reply belongs to docall');
+        } finally {
+            display.onEmptyQueue = previousOnEmptyQueue;
+        }
+    });
 
 test('blessed polymorph repeats the C min macro duration draw', async () => {
     const recording = JSON.parse(readFileSync(new URL(
