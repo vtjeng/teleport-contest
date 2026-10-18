@@ -1,0 +1,122 @@
+diff --git a/scripts/dothrow.test.mjs b/scripts/dothrow.test.mjs
+index 27f22cb1b..e135e3ef7 100644
+--- a/scripts/dothrow.test.mjs
++++ b/scripts/dothrow.test.mjs
+@@ -3081,6 +3081,10 @@ async function questLeaderReturnFixture({ touchedArtifact }) {
+     const state = game;
+     assert.equal(state.urole.mnum, PM_KNIGHT);
+     assert.equal(state.urole.questarti, ART_MAGIC_MIRROR_OF_MERLIN);
++    const originalInventory = state.invent;
++    const originalItems = [];
++    for (let object = originalInventory; object; object = object.nobj)
++        originalItems.push(object);
+     state.u.ualign = { type: A_LAWFUL, record: 0 };
+     state.svq.quest_status.leader_m_id = 9107;
+     state.svq.quest_status.touched_artifact = touchedArtifact;
+@@ -3109,14 +3113,23 @@ async function questLeaderReturnFixture({ touchedArtifact }) {
+         oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
+     });
+     assert.equal(mirror.where, OBJ_FREE);
+-    assert.equal(state.invent, null);
+     assert.equal(mirror.oartifact, state.urole.questarti);
+-    return { state, leader, mirror };
++    assert.equal(originalItems.includes(mirror), false);
++    return { state, leader, mirror, originalInventory, originalItems };
++}
++
++function inventoryItems(state) {
++    const items = [];
++    for (let object = state.invent; object; object = object.nobj)
++        items.push(object);
++    return items;
+ }
+ 
+ test('quest leader return waits for the actual first-touch pager before encumbering',
+     async () => {
+-        const { state, leader, mirror } = await questLeaderReturnFixture({
++        const {
++            state, leader, mirror, originalInventory, originalItems,
++        } = await questLeaderReturnFixture({
+             touchedArtifact: false,
+         });
+         let enterPager;
+@@ -3155,38 +3168,54 @@ test('quest leader return waits for the actual first-touch pager before encumber
+             assert.equal(state.svq.quest_status.touched_artifact, true);
+             assert.equal(mirror.where, OBJ_FREE,
+                 'addinv must not insert the quest artifact before the pager completes');
+-            assert.equal(state.invent, null);
++            assert.equal(state.invent, originalInventory);
++            assert.deepEqual(inventoryItems(state), originalItems,
++                'the hero inventory must remain unchanged while the pager is pending');
++            releasePager();
++            assert.equal(await returned, 1);
++            assert.equal(mirror.where, OBJ_INVENT);
++            const afterItems = inventoryItems(state);
++            assert.ok(afterItems.includes(mirror));
++            for (const item of originalItems)
++                assert.ok(afterItems.includes(item),
++                    'returning the quest artifact preserves each original inventory object');
++            assert.equal(afterItems.length, originalItems.length + 1);
++            assert.equal(state.u.uhave.questart, 1);
++            assert.equal(state.svq.quest_status.got_thanks, true);
+         } finally {
+             releasePager();
++            await returned.catch(() => {});
++            resetGame();
+         }
+-        assert.equal(await returned, 1);
+-        assert.equal(mirror.where, OBJ_INVENT);
+-        assert.equal(state.invent, mirror);
+-        assert.equal(state.u.uhave.questart, 1);
+-        assert.equal(state.svq.quest_status.got_thanks, true);
+-        resetGame();
+     });
+ 
+ test('quest leader return on an already-touched artifact completes eagerly',
+     async () => {
+-        const { state, leader, mirror } = await questLeaderReturnFixture({
++        const { state, leader, mirror, originalItems } = await questLeaderReturnFixture({
+             touchedArtifact: true,
+         });
+-        const result = await thitmonst(leader, mirror, state, {
+-            message: async () => {},
+-            commonPager: async () => {},
+-            output: {
+-                pline: async () => {},
+-                window: async () => {},
+-            },
+-            questPagerOutput: {
+-                pline: async () => {},
+-                window: async () => {},
+-            },
+-        });
+-        assert.equal(result, 1);
+-        assert.equal(mirror.where, OBJ_INVENT);
+-        assert.equal(state.invent, mirror);
+-        assert.equal(state.u.uhave.questart, 1);
+-        resetGame();
++        try {
++            const result = await thitmonst(leader, mirror, state, {
++                message: async () => {},
++                commonPager: async () => {},
++                output: {
++                    pline: async () => {},
++                    window: async () => {},
++                },
++                questPagerOutput: {
++                    pline: async () => {},
++                    window: async () => {},
++                },
++            });
++            assert.equal(result, 1);
++            assert.equal(mirror.where, OBJ_INVENT);
++            const afterItems = inventoryItems(state);
++            assert.ok(afterItems.includes(mirror));
++            for (const item of originalItems)
++                assert.ok(afterItems.includes(item));
++            assert.equal(afterItems.length, originalItems.length + 1);
++            assert.equal(state.u.uhave.questart, 1);
++        } finally {
++            resetGame();
++        }
+     });
