@@ -3966,11 +3966,8 @@ function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
         requiredHook(normalized, 'mergeWornMasks', obj);
     if (obj.globby && globMode === 'sync')
         requiredHook(normalized, 'absorbGlob', obj);
-    if (obj.globby && globMode !== 'sync'
-        && (typeof pudding_merge_message !== 'function'
-            || typeof obj_absorb !== 'function')) {
-        throw new UnsupportedObjectOperationError('runtime glob absorption', obj);
-    }
+    // Runtime and projection modes use the canonical owners statically
+    // imported above; module linking guarantees both dependencies exist.
     if (!obj.globby
         && comparisonWillDiscover(otmp, obj, normalized.state)
         && otmp.where === OBJ_INVENT
