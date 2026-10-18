@@ -145,6 +145,9 @@ tests. Preserve actual failing focused regression output against the original
 source and passing output for the same command in `regression.before` and
 `regression.after`. The before receipt names `base`, `command`, nonzero
 `exitCode` and `output`; after names the same command, zero exit and output.
+When replacing an explicit refusal, search existing tests for its exact message
+or symbol and review the affected fixtures' canonical initialization before
+freezing the candidate.
 No public gameplay is authorized by this opt-in. Broader recording work still
 needs its own qualified task.
 

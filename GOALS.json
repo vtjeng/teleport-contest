@@ -324268,6 +324268,141 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete the reviewed eat.c:newuhs faint selftouch call and fatal-return correction; retain runtime-pending source-parity scope.",
+      "cFile": "eat.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "newuhs",
+          "line": 3362,
+          "endLine": 3516,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 3362,
+        "to": 3516
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "assignmentBase": "952eeebd907e246b6c6a3b1c5feeddc015eb8620",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "952eeebd907e246b6c6a3b1c5feeddc015eb8620",
+          "authorization": "User authorizes direct source-proved control-flow corrections through real production callers with runtime parity pending and no public witness/history gate. Coordinator explicitly requests same W3 fixture/repair after decisive CL d3d4588 and actual49cc missingcaller qualification. Early worker ownership retains W3 context; frozen Main scope precedes code. Closedv30/trap/stoning owners/budgets retained, no melt/ray/Sokoban retry.",
+          "currentBehavior": "C eat.newuhs actual firstfaint after message/deafness/nomul/afternmv/unfaint setup calls selftouch(\"Falling, you\") when notLevitation. Current JS skips canonicaltrap.selftouch. Actual49cc initialized legal gloves/real cockatrice species10weight30 wielded, humanrole343, noStoneResistance/Levitation, realgethungry tick1→0 reaches FAINTED/multi-10/unfaint/skippedmarker/gameoverfalse. Existing selftouch→instapetrify→done(STONING) source path applies despitegloves. After a real terminaldeath JS returns gameover; current enclosing newuhs normal status/HP tail would continue withoutguard. Actual postfatal discriminator notyetobserved, must be proved in focused test.",
+          "expectedBehavior": "Only js/eat.js newuhs selected faintsite: add existing trap import selftouch, await selftouch(\"Falling, you\",state,env) under existing !Levitation guard, then immediately return if state.gameover. Preserve C continuation for actual lifesaving/stoneform survival. No gethungry edit (only returns nutritionLoss after awaiting newuhs), no trap/end/timeout/allmain rewrite, no invented death/status/RNG. Remove selectednote_unported. Require actual default fatal test of same qualifiedgethungry route: originalmissingcall red, actual selftouch-call-only postfatal red on a source-valid discriminating later-status/killer/mortality observable, then samefinaltestbytes/command greenwithguard. No static regex/mock selftouch/sourceposition-only guardproof or presumed message discriminator. New dependency/survival/inputstate failure stayshonest/source re-review; no broadcallee scope.",
+          "units": [
+            "eat.c:newuhs"
+          ],
+          "allowedPaths": [
+            "js/eat.js",
+            "scripts/hunger-faint.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/hunger-faint.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/eat.js",
+              "symbol": "gethungry",
+              "source": "Real exported gethungry applies normal nutrition tick then awaits newuhs; actual49cc qualified this initialized hunger1/WEAK/nooccupation realRNG path. Test must use actualgethungry with defaultnear_capacity/ttyPline/endRunning/bot, not directselftouch or forcedfaint. Source gethungry afterawait only returnsnutritionLoss, so no new calleredit."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/eat.js",
+              "object": "9c9d503835402304c6e61725666f1775355304e7"
+            },
+            {
+              "path": "js/trap.js",
+              "object": "12234b3a2a1b30a13aa35e9c091c53d0803d7820"
+            },
+            {
+              "path": "js/end.js",
+              "object": "5ad2886b492558907c77ce96c366c9af90aaada6"
+            },
+            {
+              "path": "js/allmain.js",
+              "object": "ad08141d2b299823bf6ad4a0008feca1c66025c0"
+            },
+            {
+              "path": "scripts/hunger-faint.test.mjs",
+              "object": "c1508b9cc7ba6730dc1803fd7d3ab0b50f27ae33"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/u_init.js",
+              "object": "9af5eb6748d17869aba0dd67145b5b02b38fca29"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/storage.js",
+              "object": "a7854b69a4cdea21b4fed11cd8ba1f7c26ff977d"
+            },
+            {
+              "path": "js/worn.js",
+              "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+            },
+            {
+              "path": "js/wield.js",
+              "object": "a28b5f4ba0ff35f11489fe33a1a1a35dfc1fca43"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "result": "49cc592d44184707a424ec8a80205c1d43b9c5e1b1287a32e8d77ea889b2e983",
+            "verified": {
+              "outer": true,
+              "envelopeBytes": 1578323,
+              "envelopeSha256": "7d693965384193e2a27d9fcb7e4c6ae159c5b113f7d3f184109f4ef4bf3b3844",
+              "all23EmbeddedFiles": true
+            },
+            "independent": "/workspace/teleport-contest-challenge-recovery/.cache/hunger-faint-corpse-selftouch-caller-inquiry-20261018/independent-source-parity-review-2252.json",
+            "independentSha256": "d3d4588f8c0ac631c42c920505c4cb3b33d9214fef55bac239c76a5bfd0b8b0e",
+            "owners": "Retain closedv30 hunger and trapselftouch/stoning owners; prior melt4d1d/Sokoban7a43/raye522 negatives not witnesses or reset budgets.",
+            "jointState": "Actual humanrole343, legal gloves and canonical cockatricecorpse species10/weight30/ready_weapon, noStoneResistance/Levitation, hunger1/WEAK/multi0/nooccupation. Real tick1→0, FAINTED5,multi-10,unfaint, missingtrap.selftouch/gameoverfalse. GenuineRNG/default near_capacity/ttyPline/endRunning/bot.",
+            "fatalSource": "Canonical selftouch no glovesafety guard, sets corpse death through instapetrify/doneSTONING; actual terminaldone returns gameover in JS. Without immediate return atnewuhs site, later hungerstatus/statusRefresh/HPcheck may cause exhaustion message/killer/STARVING continuation. Need ACTUAL selftouch-only postfatal red vs correctedgreen observer, no staticregex or guessedmessage claim. Lifesaving/stoneformreturn shouldcontinue C.",
+            "knownNegatives": "Same helper4d1d requiredenv.message, correctedSokoban7a43 realcorpseweight/noinvalidcapacityobserver; W3ray e522 wrongexport and terrainwishTTY AFTERrunSegment (notpreinit); splitaddf startupMore/roleinventorymerge. Exactnegative refs already read in W3qualification. Successfullifesavinga989 mon-kill withPendingMessageAcks/actualgame.nhDisplay is provider precedent only, not currentdeathwitness.",
+            "fixture": "Reuse worker actual49cc successful sourcevalid gethungry fixture/real corpse/equipment/effective state and canonicaldefault providers. Worker owns focused test/defaultdeath finiteinput design; minimumsource-derived entry snapshot, no optionalpublichistory/wish/teleport helper surfaces. Bind all new namedimports/requiredargs/writer-owner-accessor-shapes/observerreturns beforefreeze, copiedlosslessRNG/state/phase; preserve every authoringnegative separately. Actualselftouch mustrun defaultinstapetrify/done with genuine corpseSTONING killer, no deathstub/successhook/forcedRNG. Defaultdeath/disclosure input must be declared via actualsource/receipt and finiteactualMore acknowledgements; real privateVFS only ifneeded, no externaluserstorage. Protect baseline/final inputs/testbytes and retain actual selftouch-only postfatal failure; if no validdiscriminator, do not claim guardproof. Normal sourcevalid no-corpse/resistant control should continue normalFAINTEDtail. No wholehunger/end/pet/publiccertification."
+          }
+        },
+        "reviewSha256": "85c3f7e2f3d26a8f315ae8c4f88d375c3e62f9127f638bf823508cbc7af3fc5e"
+      }
     }
   ]
 }
