@@ -323877,7 +323877,7 @@
     {
       "id": "fix-empty-entry-bones-amulet-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement resetobjs from bones.c",
       "cFile": "bones.c",
       "sessions": [],
@@ -323885,7 +323885,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "eddab4df9e3830e8a8ff3a1410e600003b3f4003",
       "delivered": null,
       "functions": [
         {
@@ -324024,6 +324024,53 @@
           }
         },
         "reviewSha256": "8eeb9d1ae110cbd0286abb6cfbb7a09540f6ef763a66bc26eced39ee8b0a3878"
+      },
+      "closeStanding": {
+        "sha": "eddab4df9e3830e8a8ff3a1410e600003b3f4003",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "02a91c81d2942b738af2a9f7855066b6210f30bb",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/eddab4df9e3830e8a8ff3a1410e600003b3f4003/run-hosted-09PVfz/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "resetobjs",
+            "sourceFile": "bones.c",
+            "implementation": "js/bones.js",
+            "symbol": "resetobjs",
+            "pure": false,
+            "sourceReview": "C bones.c:170-174 changes AMULET_OF_YENDOR to FAKE_AMULET_OF_YENDOR and calls curse in the restore=false chain after prior save-object normalization. JS previously ended after the TIN arm. The added branch changes only type then calls existing synchronous curse(otmp,{state}); the exercised ordinary floor Amulet is not carried, lit, coin, bag, figurine, or spellbook. No RNG or async effects are added by this selected branch.",
+            "callers": [
+              {
+                "path": "js/bones.js",
+                "symbol": "savebones",
+                "source": "C bones.c savebones iterates monster inventories, floor fobj and buried chains through resetobjs(FALSE); actual exported JS savebones creates normal ghost then invokes private resetobjs on canonical floor objlist before serializeBonesLevel/vfsWriteFile. Test actual savebones, never export/call private helper."
+              }
+            ],
+            "tests": [
+              "scripts/bones.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "The selected C bones.c:resetobjs save branch is reached through exported savebones in js/bones.js, which creates the default ghost, resets the canonical floor object chain, then serializes the same level to the actual private VFS. Evidence is limited to the real Amulet arm; runtime parity for other resetobjs branches and public input parity remain pending.",
+        "entryPoints": [
+          {
+            "name": "savebones",
+            "functions": [
+              "resetobjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
