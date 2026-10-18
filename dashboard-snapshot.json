@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T18:40:52.941Z",
+  "capturedAt": "2026-10-18T18:48:45.760Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T18:40:52.941Z",
+    "asOf": "2026-10-18T18:48:45.760Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 310,
+      "mainSupportAssignments": 311,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -173078,6 +173078,44 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-dig-drawbridge-callers-source-parity-20261018-bd26c47591f5a9f7b5917ecffdc98971f9d7b11e",
+        "type": "published",
+        "at": "2026-10-18T18:41:15.378Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "commit": "bd26c47591f5a9f7b5917ecffdc98971f9d7b11e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:44:16.597Z",
+        "id": "queue:35bffcee-6edd-4652-af02-7928d4dc7ad9",
+        "type": "queue-complete",
+        "task": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:44:16.597Z",
+        "id": "queue:35bffcee-6edd-4652-af02-7928d4dc7ad9:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:47:09.812Z",
+        "id": "queue:b3a3321a-cd9e-49ce-8220-249e37e3d351",
+        "type": "assign",
+        "task": "billed-boulder-door-exit-default-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -173300,22 +173338,22 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
-        "worker": "Worker-3"
+        "task": "billed-boulder-door-exit-default-qualification-20261018",
+        "worker": "Worker-1"
       }
     ],
     "counts": {
       "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 566,
+      "completed": 567,
       "superseded": 99
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "billed-boulder-door-exit-default-qualification-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -173324,8 +173362,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -183340,7 +183378,7 @@
         "id": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -183349,6 +183387,21 @@
         "target": null,
         "readyAt": "2026-10-18T18:40:25.750Z",
         "claimedAt": "2026-10-18T18:40:45.869Z",
+        "completedAt": "2026-10-18T18:44:16.597Z"
+      },
+      {
+        "id": "billed-boulder-door-exit-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T18:46:47.067Z",
+        "claimedAt": "2026-10-18T18:47:09.812Z",
         "completedAt": null
       }
     ]
