@@ -722,3 +722,27 @@ Retained-source attribution and execution closure (2026-10-18):
 Chest, EGG and melt keep their previously recorded unresolved dispositions and
 spent budgets. The existing dashboard watcher remains the sole refresh owner;
 normal publications and its coalesced captures preserve accepted game evidence.
+
+
+### 2026-10-18 — Resolve fixture imports from the final file
+
+- Change selected for the combined validation candidate: clarify the existing
+  queue-worker fixture audit to resolve literal relative imports and file URLs
+  from the final fixture path and inspect those exact targets before freezing.
+  Implementation commit: `11f68c756308ccd24ea528c361b93f6619ddf816`; hosted validation and publication pending. Active tasks and gates stay
+  governed by their recorded scope.
+- Why: fountain result `9287095c` consumed its one allowed qualification
+  invocation before module entry. Its nested fixture retained `../js/const.js`,
+  resolving to absent `.cache/js/const.js`. The retained preflight regex discarded
+  `../` and read intended `js/...` files from repository cwd; its 97-name PASS
+  therefore did not establish actual final-path resolution. Earlier melt
+  `3e1693e3` also stopped at a relative import. See the matching
+  [friction entry](friction.md#2026-10-18--fixture-export-audit-checked-the-repository-instead-of-the-final-import-path).
+- Preserve the immutable failed fixture, invocation and prior spent budgets.
+  The static-audit prose contains a retrospective explanation despite its
+  frozen-before heading; it is not independent proof of a pre-run path check.
+  No target, RNG or TTY was reached, and no retry follows from this clarification.
+- Expected benefit/tradeoff: prevent relocation-only misses using ordinary
+  file reads within the existing audit, with no additional phase, helper or gate.
+  Setup and triage effort remain unmeasured. Follow-up: **unmeasured**; observe
+  the next comparable moved fixture's module-entry outcome and any path-only miss.
