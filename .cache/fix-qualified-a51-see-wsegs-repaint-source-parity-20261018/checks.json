@@ -1,0 +1,25 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/worm.test.mjs",
+      "scripts/display-visibility.test.mjs",
+      "scripts/worn.test.mjs",
+      "scripts/monmove-items.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-qualified-a51-see-wsegs-repaint-source-parity-20261018/green.stdout"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-qualified-a51-see-wsegs-repaint-source-parity-20261018/lint.stdout"
+  }
+]

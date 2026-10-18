@@ -425,7 +425,7 @@ import { quest_stat_check, quest_talk } from './quest.js';
 import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { worm_move, worm_nomove, wormhitu } from './worm.js';
+import { see_wsegs, worm_move, worm_nomove, wormhitu } from './worm.js';
 import { add_damage, after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj, mpickobj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
@@ -3615,14 +3615,13 @@ export async function postmov(
                 // gate, where MMOVE_DONE then suppresses the attack.
                 if (picked) outcome = MMOVE_DONE;
             }
-            // C ref: monmove.c:1683-1687.  Object consumption or pickup can
-            // leave an invisible monster needing a second repaint.  Worm
-            // tails have their own display owner; keep its discarded-result
-            // dependency explicit until worm.c see_wsegs() is ported.
+            // C ref: monmove.c:1683-1687. Object consumption or pickup can
+            // leave an invisible monster needing a second repaint; a worm's
+            // tail is synchronously repainted after its head by see_wsegs().
             if (monster.minvis) {
                 redraw(monster.mx, monster.my);
                 if (monster.wormno)
-                    note_unported('worm.c see_wsegs');
+                    see_wsegs(monster, { ...env, redraw });
             }
         }
         // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts

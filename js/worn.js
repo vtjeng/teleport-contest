@@ -67,6 +67,7 @@ import {
     Stone_resistance,
 } from './artifacts.js';
 import { game } from './gstate.js';
+import { see_wsegs } from './worm.js';
 import { newsym } from './display.js';
 import { Monnam, mon_nam, hcolor } from './do_name.js';
 import { obj_extract_self, update_inventory } from './invent.js';
@@ -497,13 +498,21 @@ export function mon_set_minvis(monster, cursedPotion, state = game, rawEnv = {})
         monster.minvis = monster.perminvis;
         if (state === game) {
             newsym(monster.mx, monster.my);
+        } else if (typeof rawEnv.redraw === 'function') {
+            rawEnv.redraw(monster.mx, monster.my, state);
         } else {
             const noteUnported = rawEnv.noteUnported ?? note_unported;
             noteUnported('display.c newsym');
         }
         if (monster.wormno) {
-            const noteUnported = rawEnv.noteUnported ?? note_unported;
-            noteUnported('worm.c see_wsegs');
+            if (state === game) {
+                see_wsegs(monster, { state });
+            } else if (typeof rawEnv.redraw === 'function') {
+                see_wsegs(monster, { ...rawEnv, state });
+            } else {
+                const noteUnported = rawEnv.noteUnported ?? note_unported;
+                noteUnported('worm.c see_wsegs');
+            }
         }
     }
 }

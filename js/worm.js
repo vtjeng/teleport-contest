@@ -109,6 +109,29 @@ export function count_wsegs(monster, state = game) {
     return Math.max(0, (segments?.length ?? 0) - 1);
 }
 
+// C ref: worm.c see_wsegs() (487-495). Repaint every visible tail node in
+// tail-to-head list order; the final stored node is the hidden head tracker.
+// The source loop neither filters occupancy nor changes the worm list/RNG.
+export function see_wsegs(worm, rawEnv = {}) {
+    const env = wormEnvironment(rawEnv);
+    const state = env.state;
+    const segments = state.level?.worms?.[worm?.wormno]?.segments ?? [];
+    for (let index = 0; index < segments.length - 1; ++index) {
+        const { x, y } = segments[index];
+        if (typeof env.hooks?.newsym === 'function') {
+            env.hooks.newsym(x, y, env);
+        } else if (typeof env.newsym === 'function') {
+            env.newsym(x, y, state);
+        } else if (typeof env.redraw === 'function') {
+            env.redraw(x, y, state);
+        } else if (state === game) {
+            newsym(x, y);
+        } else {
+            (env.noteUnported ?? note_unported)('display.c newsym');
+        }
+    }
+}
+
 // C ref: worm.c get_wormno(). Slot zero remains reserved.
 export function get_wormno(state = game) {
     for (let wormno = 1; wormno < MAX_NUM_WORMS; ++wormno) {

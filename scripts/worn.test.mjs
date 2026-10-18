@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -26,11 +27,13 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
-import { PM_KITTEN, monst_globals_init } from '../js/monsters.js';
+import { PM_KITTEN, PM_LONG_WORM, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
 import { newObject } from '../js/obj.js';
 import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { moveloop_core } from '../js/allmain.js';
 import { initUnported } from '../js/unported.js';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
@@ -53,6 +56,7 @@ import {
     POT_SPEED,
     SPEED_BOOTS,
     TIN_OPENER,
+    WAN_MAKE_INVISIBLE,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -870,6 +874,127 @@ test('mon_set_minvis preserves blocked state and names discarded display gaps',
             'invis_blkd prevents copying perminvis into current minvis');
         assert.deepEqual(gaps, [],
             'blocked invisibility skips both redraw calls');
+    });
+
+test('mon_set_minvis redraws a clone worm head then each tail through its explicit callback',
+    () => {
+        const state = { level: { worms: [] } };
+        const worm = {
+            id: 42,
+            perminvis: 0,
+            minvis: 0,
+            invis_blkd: false,
+            wormno: 1,
+            mx: 7,
+            my: 6,
+        };
+        state.level.worms[1] = { segments: [
+            { x: 4, y: 5 }, { x: 5, y: 5 }, { x: 6, y: 5 },
+            { x: 6, y: 6 }, { x: 7, y: 6 },
+        ] };
+        const calls = [];
+
+        mon_set_minvis(worm, false, state, {
+            planning: true,
+            redraw: (x, y, actualState) => calls.push([x, y, actualState]),
+        });
+
+        assert.equal(worm.perminvis, 1);
+        assert.equal(worm.minvis, 1);
+        assert.deepEqual(calls.map(([x, y]) => [x, y]), [
+            [7, 6], [4, 5], [5, 5], [6, 5], [6, 6],
+        ]);
+        assert.ok(calls.every(([, , actualState]) => actualState === state));
+    });
+
+const a51WormRecipe = JSON.parse(readFileSync(new URL(
+    '../recipes/display.c/newsym-long-worm-tail-independent-a51.session.json',
+    import.meta.url,
+), 'utf8'));
+
+test('ordinary make-invisible zap clears every long-worm tail at its command boundary',
+    async () => {
+        // Reuse the exact independent public-prefix recipe and natural input
+        // continuation qualified for this caller: free Ctrl-W wish, then one
+        // ordinary NE zap with the actual new inventory letter.
+        const session = await runSegment(a51WormRecipe.segments[0]);
+        const worms = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon)
+            if (monster.mnum === PM_LONG_WORM) worms.push(monster);
+        assert.equal(worms.length, 1);
+        const worm = worms[0];
+        assert.equal(worm.m_id, 56);
+        assert.equal(worm.mhp, 40);
+        assert.deepEqual([worm.mx, worm.my], [67, 11]);
+        const segments = game.level.worms[worm.wormno].segments
+            .map(({ x, y }) => ({ x, y }));
+        assert.equal(segments.length - 1, 4);
+        assert.equal(worm.minvis, false);
+        assert.equal(worm.perminvis, false);
+        assert.equal(worm.invis_blkd, false);
+        const before = {
+            id: worm.m_id,
+            species: worm.mnum,
+            hp: worm.mhp,
+            position: [worm.mx, worm.my],
+            segments,
+        };
+
+        for (const byte of [0x17, ...Buffer.from(
+            'blessed wand of make invisible named TailWitness\n', 'utf8',
+        )]) game.nhDisplay.pushKey(byte);
+        await moveloop_core();
+
+        const named = [];
+        for (let object = game.invent; object; object = object.nobj)
+            if (object.oextra?.oname === 'TailWitness') named.push(object);
+        assert.equal(named.length, 1);
+        const wand = named[0];
+        assert.equal(wand.otyp, WAN_MAKE_INVISIBLE);
+        assert.equal(wand.blessed, true);
+        assert.equal(wand.cursed, false);
+        assert.ok(wand.spe > 0);
+        const chargeBefore = wand.spe;
+        const invlet = Number.isInteger(wand.invlet)
+            ? wand.invlet : wand.invlet.charCodeAt(0);
+        for (const byte of [0x7a, invlet, 0x75]) game.nhDisplay.pushKey(byte);
+        await moveloop_core();
+
+        const afterWorm = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon)
+            if (monster.mnum === PM_LONG_WORM) afterWorm.push(monster);
+        assert.deepEqual(afterWorm, [worm]);
+        assert.equal(worm.minvis, 1);
+        assert.equal(worm.perminvis, 1);
+        assert.equal(worm.invis_blkd, false);
+        assert.equal(wand.spe, chargeBefore - 1);
+        assert.deepEqual({
+            id: worm.m_id,
+            species: worm.mnum,
+            hp: worm.mhp,
+            position: [worm.mx, worm.my],
+            segments: game.level.worms[worm.wormno].segments
+                .map(({ x, y }) => ({ x, y })),
+        }, before);
+
+        // C calls see_wsegs() after clearing the hidden head. Every visible
+        // tail square must therefore be repainted as its underlying remembered
+        // terrain before this same full moveloop_core call returns.
+        const tailTiles = segments.slice(0, -1);
+        const tailGlyphs = tailTiles.map(({ x, y }) => {
+            const loc = game.level.at(x, y);
+            return {
+                x, y,
+                remembered: loc.remembered_glyph?.glyph ?? null,
+                presented: loc.disp_glyph?.glyph ?? null,
+            };
+        });
+        const finalScreen = game.nhDisplay.serialize();
+        assert.equal(typeof finalScreen, 'string');
+        assert.equal(tailGlyphs.length, 4);
+        for (const tile of tailGlyphs)
+            assert.equal(tile.presented, tile.remembered,
+                `stale worm glyph at (${tile.x}, ${tile.y}) in immediate full-command display`);
     });
 
 import { setuwep } from '../js/wield.js';

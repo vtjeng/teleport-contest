@@ -7,13 +7,15 @@ import {
     DETECT_MONSTERS,
     IN_SIGHT,
     INFRAVISION,
+    MON_STILL_ARRIVING,
     POOL,
     SEE_INVIS,
     TELEPAT,
     WARN_OF_MON,
 } from '../js/const.js';
 import { canseemon, canspotmon, mon_visible, see_with_infrared,
-    sensemon, sensemonWithoutDetection, tp_sensemon, warningMatches,
+    see_monsters, sensemon, sensemonWithoutDetection, tp_sensemon,
+    warningMatches,
 } from '../js/display.js';
 import { M1_MINDLESS, M3_INFRAVISIBLE } from '../js/monsters.js';
 
@@ -143,4 +145,42 @@ test('display.c MATCH_WARN_OF_MON and worm_known feed the canonical callers', ()
     state.level.worms[1] = { segments: [{ x: 3, y: 2 }] };
     state.viz_array[2][3] = IN_SIGHT;
     assert.equal(canseemon(worm, state), true);
+});
+
+test('see_monsters repaints a live worm head then each tail without touching dead or arriving monsters', () => {
+    const state = stateForVisibility();
+    const worm = monsterAt(4, 2);
+    worm.mhp = 10;
+    worm.mstate = 0;
+    worm.wormno = 1;
+    worm.nmon = null;
+    const dead = monsterAt(1, 1);
+    dead.mhp = 0;
+    dead.mstate = 0;
+    dead.nmon = null;
+    const arriving = monsterAt(1, 2);
+    arriving.mhp = 10;
+    arriving.mstate = MON_STILL_ARRIVING;
+    arriving.nmon = dead;
+    worm.nmon = arriving;
+    state.level.monlist = worm;
+    state.level.worms[1] = { segments: [
+        { x: 3, y: 1 }, { x: 3, y: 2 }, { x: 3, y: 3 },
+        { x: 4, y: 3 }, { x: 4, y: 2 },
+    ] };
+
+    const calls = [];
+    const redraw = (x, y, actualState) => calls.push([x, y, actualState]);
+    see_monsters(state, { redraw, planning: true });
+
+    assert.deepEqual(calls.map(([x, y]) => [x, y]), [
+        [4, 2], [3, 1], [3, 2], [3, 3], [4, 3], [2, 2],
+    ]);
+    assert.ok(calls.every(([, , actualState]) => actualState === state),
+        'explicit clone repaint stays on the selected state');
+    const beforeDeferred = calls.length;
+    state.gd = { defer_see_monsters: true };
+    see_monsters(state, { redraw, planning: true });
+    assert.equal(calls.length, beforeDeferred,
+        'gd.defer_see_monsters suppresses the whole head-and-tail repaint');
 });

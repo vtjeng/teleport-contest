@@ -1,0 +1,1000 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+import {
+    COULD_SEE,
+    IN_SIGHT,
+    I_SPECIAL,
+    LAST_PROP,
+    LS_OBJECT,
+    MFAST,
+    MSLOW,
+    NEED_WEAPON,
+    OBJ_FREE,
+    OBJ_MINVENT,
+    W_AMUL,
+    W_ARM,
+    W_ARMC,
+    W_ARMF,
+    W_ARMG,
+    W_ARMH,
+    W_ARMS,
+    W_ARMU,
+    W_QUIVER,
+    W_SADDLE,
+    W_SWAPWEP,
+    W_WEP,
+} from '../js/const.js';
+import { newMonster } from '../js/monst.js';
+import { PM_KITTEN, PM_LONG_WORM, monst_globals_init } from '../js/monsters.js';
+import { init_objects } from '../js/o_init.js';
+import { light_globals_init, new_light_source } from '../js/light.js';
+import { newObject } from '../js/obj.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { moveloop_core } from '../js/allmain.js';
+import { initUnported } from '../js/unported.js';
+import { ART_SUNSWORD } from '../js/artifacts.js';
+import {
+    AMULET_OF_GUARDING,
+    ARROW,
+    BOW,
+    CLOAK_OF_PROTECTION,
+    CROSSBOW,
+    DART,
+    GOLD_DRAGON_SCALE_MAIL,
+    HAWAIIAN_SHIRT,
+    KATANA,
+    LEATHER_GLOVES,
+    LOW_BOOTS,
+    LONG_SWORD,
+    ORCISH_HELM,
+    PARTISAN,
+    SLING,
+    SMALL_SHIELD,
+    POT_SPEED,
+    SPEED_BOOTS,
+    TIN_OPENER,
+    WAN_MAKE_INVISIBLE,
+    objects_globals_init,
+} from '../js/objects.js';
+import {
+    bypass_obj,
+    clear_bypass,
+    clear_bypasses,
+    extract_from_minvent,
+    find_mac,
+    mon_adjust_speed,
+    mon_set_minvis,
+    wearslot,
+    which_armor,
+} from '../js/worn.js';
+
+// A kitten is monsters.h:381-388, `LVL(2, 18, 6, 0, 0)`, so its base armor
+// class is 6. An orcish helm is objects.h:448, whose HELM `ac` argument is 9
+// and whose a_ac is therefore `10 - 9`, that is 1.
+const KITTEN_AC = 6;
+const ORCISH_HELM_AC = 1;
+
+function catalogState() {
+    const state = {};
+    objects_globals_init(state);
+    // A zero random leaves the description shuffle in source order. find_mac()
+    // reads a_ac, which the shuffle never moves, so the choice only keeps the
+    // setup deterministic.
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    return state;
+}
+
+function kitten(state, overrides = {}) {
+    return newMonster({
+        data: state.mons[PM_KITTEN],
+        mnum: PM_KITTEN,
+        ...overrides,
+    });
+}
+
+function wornObject(state, otyp, mask, overrides = {}) {
+    return newObject({
+        otyp,
+        oclass: state.objects[otyp].oc_class,
+        quan: 1,
+        owornmask: mask,
+        ...overrides,
+    });
+}
+
+test('mon_adjust_speed applies every permanent case and worn FAST override',
+    async () => {
+        const state = catalogState();
+        const quiet = { state, canseemon: () => false };
+        const monster = kitten(state);
+
+        // worn.c:512-514, a monster-creation speed increase is permanent
+        // MFAST and never emits the ordinary speed message.
+        await mon_adjust_speed(monster, 2, null, state, quiet);
+        assert.equal(monster.permspeed, MFAST);
+        assert.equal(monster.mspeed, MFAST);
+
+        // worn.c:519-522, -1 removes MFAST, and a second -1 applies MSLOW.
+        await mon_adjust_speed(monster, -1, null, state, quiet);
+        assert.equal(monster.permspeed, 0);
+        await mon_adjust_speed(monster, -1, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+
+        // worn.c:516-518, +1 toggles MSLOW off and then grants MFAST.
+        await mon_adjust_speed(monster, 1, null, state, quiet);
+        assert.equal(monster.permspeed, 0);
+        await mon_adjust_speed(monster, 1, null, state, quiet);
+        assert.equal(monster.permspeed, MFAST);
+
+        // worn.c:524-532, -2 forces MSLOW and -4 removes only MFAST.
+        await mon_adjust_speed(monster, -2, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+        await mon_adjust_speed(monster, -4, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+
+        // worn.c:526-529, -3 also preserves an existing MSLOW intrinsic.
+        await mon_adjust_speed(monster, -3, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+
+        // objects.h:701 SPEED_BOOTS supplies FAST while worn, even when the
+        // permanent speed state is MSLOW; adjust 0 only performs this check.
+        monster.minvent = wornObject(state, SPEED_BOOTS, W_ARMF);
+        await mon_adjust_speed(monster, 0, null, state, quiet);
+        assert.equal(monster.permspeed, MSLOW);
+        assert.equal(monster.mspeed, MFAST);
+    });
+
+test('mon_adjust_speed messages witnessed changes and learns their object',
+    async () => {
+        const state = catalogState();
+        state.flags = { verbose: true };
+        state.u = {
+            ux: 0,
+            uy: 0,
+            uprops: [],
+            uinwater: false,
+            uswallow: false,
+            ustuck: null,
+        };
+        // canSpotMonster() needs one visible map cell for Monnam(); the
+        // focused caller hook below still controls mon_adjust_speed's guard.
+        state.viz_array = [[IN_SIGHT | COULD_SEE]];
+        const monster = kitten(state, { permspeed: 0, mspeed: 0 });
+        const object = wornObject(state, POT_SPEED, 0);
+        const messages = [];
+        const learned = [];
+        const env = {
+            state,
+            canseemon: () => true,
+            message: async (text) => messages.push(text),
+            learnwand: (obj) => learned.push(obj),
+        };
+
+        // worn.c:554-559, a visible +1 from normal speed says "suddenly"
+        // and passes the observed object to learnwand().
+        await mon_adjust_speed(monster, 1, object, state, env);
+        assert.deepEqual(messages, ['The kitten is suddenly moving faster.']);
+        assert.deepEqual(learned, [object]);
+
+        // worn.c:562-568, a fast-to-slow transition is the only "much"
+        // message; it also learns the object after the message.
+        monster.permspeed = 0;
+        monster.mspeed = MFAST;
+        await mon_adjust_speed(monster, -1, object, state, env);
+        assert.equal(messages.at(-1),
+            'The kitten seems to be moving much slower.');
+        assert.equal(learned.length, 2);
+
+        // worn.c:547-551, petrification says "is slowing down" only when
+        // verbose is enabled, even if speed boots keep active speed FAST.
+        monster.permspeed = MFAST;
+        monster.mspeed = MFAST;
+        await mon_adjust_speed(monster, -3, null, state, env);
+        assert.equal(messages.at(-1), 'The kitten is slowing down.');
+        assert.equal(monster.permspeed, 0);
+
+        // worn.c:539-542, non-verbose petrification suppresses only its
+        // message; the source still reaches learnwand() after that branch.
+        state.flags.verbose = false;
+        monster.permspeed = MFAST;
+        monster.mspeed = MFAST;
+        await mon_adjust_speed(monster, -3, object, state, env);
+        assert.equal(messages.at(-1), 'The kitten is slowing down.');
+        assert.equal(learned.length, 3);
+        assert.equal(monster.permspeed, 0);
+    });
+
+test('find_mac answers the species armor class for a bare monster', () => {
+    const state = catalogState();
+    assert.equal(find_mac(kitten(state), state), KITTEN_AC);
+});
+
+test('find_mac subtracts ARM_BONUS for each slot misc_worn_check names', () => {
+    const state = catalogState();
+    // Plain helm: a_ac + spe - min(greatest_erosion, a_ac) is 1 + 0 - 0.
+    const plain = kitten(state, {
+        minvent: wornObject(state, ORCISH_HELM, W_ARMH),
+        misc_worn_check: W_ARMH,
+    });
+    assert.equal(find_mac(plain, state), KITTEN_AC - ORCISH_HELM_AC);
+
+    // Enchanted and eroded: 1 + 2 - min(3, 1) is 2. greatest_erosion takes the
+    // larger of oeroded and oeroded2, and min() caps the loss at a_ac.
+    const enchanted = kitten(state, {
+        minvent: wornObject(state, ORCISH_HELM, W_ARMH, {
+            spe: 2,
+            oeroded: 1,
+            oeroded2: 3,
+        }),
+        misc_worn_check: W_ARMH,
+    });
+    assert.equal(find_mac(enchanted, state), KITTEN_AC - 2);
+});
+
+// worn.c:724. The loop tests each object's owornmask against the monster's
+// misc_worn_check, so gear the monster carries but does not use in one of
+// those slots changes nothing.
+test('find_mac ignores inventory outside misc_worn_check', () => {
+    const state = catalogState();
+    const carrying = kitten(state, {
+        minvent: wornObject(state, ORCISH_HELM, W_ARMH),
+        misc_worn_check: 0,
+    });
+    assert.equal(find_mac(carrying, state), KITTEN_AC);
+});
+
+// worn.c:725-726. An amulet of guarding is worth a flat 2 whatever its
+// enchantment or erosion, which is why C spells it out beside ARM_BONUS().
+test('find_mac gives an amulet of guarding a fixed two points', () => {
+    const state = catalogState();
+    const guarded = kitten(state, {
+        minvent: wornObject(state, AMULET_OF_GUARDING, W_AMUL, {
+            spe: 5,
+            oeroded: 2,
+        }),
+        misc_worn_check: W_AMUL,
+    });
+    assert.equal(find_mac(guarded, state), KITTEN_AC - 2);
+});
+
+// worn.c:724. Every other case here carries a single object, so the loop runs
+// once and its two control statements do nothing observable: replacing the
+// `continue` with a `break`, or `obj = obj.nobj` with `obj = null`, leaves them
+// all green. This case chains three objects with an unworn one in the middle,
+// so a `break` stops before the amulet and the advance has somewhere to go.
+test('find_mac sums every worn slot across a chained inventory', () => {
+    const state = catalogState();
+    const amulet = wornObject(state, AMULET_OF_GUARDING, W_AMUL);
+    // Between the two worn objects, and named by neither slot, so reaching the
+    // amulet requires the loop to continue rather than stop.
+    const carried = wornObject(state, ORCISH_HELM, 0, { spe: 50 });
+    carried.nobj = amulet;
+    const helm = wornObject(state, ORCISH_HELM, W_ARMH);
+    helm.nobj = carried;
+    const layered = kitten(state, {
+        minvent: helm,
+        misc_worn_check: W_ARMH | W_AMUL,
+    });
+    // Helm 1 + 0 - 0 is 1; the amulet is a flat 2; the carried helm's 51 is
+    // not counted. 6 - 1 - 2.
+    assert.equal(find_mac(layered, state), KITTEN_AC - 3);
+});
+
+// worn.c:733-734, the same cap do_wear.c find_ac() applies to the hero.
+test('find_mac caps the result at AC_MAX', () => {
+    const state = catalogState();
+    // 1 + 200 - 0 is 201, so the uncapped answer would be 6 - 201.
+    const overloaded = kitten(state, {
+        minvent: wornObject(state, ORCISH_HELM, W_ARMH, { spe: 200 }),
+        misc_worn_check: W_ARMH,
+    });
+    assert.equal(find_mac(overloaded, state), -99);
+
+    // The negative side alone leaves Math.sign() untested: replacing
+    // `Math.sign(base) * AC_MAX` with the constant `-AC_MAX` passes. A
+    // strongly negative enchantment drives base positive instead. ARM_BONUS is
+    // 1 - 200 - min(0, 1), so 6 - (-199) is 205 before the cap.
+    const cursed = kitten(state, {
+        minvent: wornObject(state, ORCISH_HELM, W_ARMH, { spe: -200 }),
+        misc_worn_check: W_ARMH,
+    });
+    assert.equal(find_mac(cursed, state), 99);
+});
+
+// worn.c:1031-1034, the monster branch. The loop answers the first minvent
+// object whose owornmask carries a queried bit, and falls out to null when no
+// object does. Every case below chains three objects so that the walk has
+// somewhere to go past its first link.
+test('which_armor answers the first minvent object worn in a queried slot',
+    () => {
+        const state = catalogState();
+        const mail = wornObject(state, GOLD_DRAGON_SCALE_MAIL, W_ARM);
+        const amulet = wornObject(state, AMULET_OF_GUARDING, W_AMUL);
+        amulet.nobj = mail;
+        const helm = wornObject(state, ORCISH_HELM, W_ARMH);
+        helm.nobj = amulet;
+        const dressed = kitten(state, {
+            minvent: helm,
+            misc_worn_check: W_ARMH | W_AMUL | W_ARM,
+        });
+
+        // Two links in: the mask test must reject the helm and the amulet,
+        // whose owornmask shares no bit with W_ARM.
+        assert.equal(which_armor(dressed, W_ARM), mail);
+        // The first link answers, which is the case the walk must not skip.
+        assert.equal(which_armor(dressed, W_ARMH), helm);
+        // Nothing is wielded, so the walk runs off the end and returns null.
+        // C's `obj->owornmask & flag` rejects each object; an inclusive test
+        // would accept the helm and answer it instead.
+        assert.equal(which_armor(dressed, W_WEP), null);
+        // A monster carrying nothing never enters the loop at all.
+        assert.equal(which_armor(kitten(state, { minvent: null }), W_ARM),
+            null);
+    });
+
+// worn.c:1007-1029, the hero branch. C answers one of the uarm* globals by
+// slot and never looks at minvent, which the hero does not use for worn
+// armor. One object per slot, each the kind of armor that slot holds.
+const HERO_SLOTS = [
+    // objects.h:505 DRGN_ARMR("gold dragon scale mail", ...), ARM_SUIT.
+    { mask: W_ARM, field: 'uarm', otyp: GOLD_DRAGON_SCALE_MAIL },
+    // objects.h:637 CLOAK("cloak of protection", ...), ARM_CLOAK.
+    { mask: W_ARMC, field: 'uarmc', otyp: CLOAK_OF_PROTECTION },
+    // objects.h:448 HELM("orcish helm", ...), ARM_HELM.
+    { mask: W_ARMH, field: 'uarmh', otyp: ORCISH_HELM },
+    // objects.h:653 SHIELD("small shield", ...), ARM_SHIELD.
+    { mask: W_ARMS, field: 'uarms', otyp: SMALL_SHIELD },
+    // objects.h:686 GLOVES("leather gloves", ...), ARM_GLOVES.
+    { mask: W_ARMG, field: 'uarmg', otyp: LEATHER_GLOVES },
+    // objects.h:700 BOOTS("low boots", ...), ARM_BOOTS.
+    { mask: W_ARMF, field: 'uarmf', otyp: LOW_BOOTS },
+    // objects.h:603 ARMOR("Hawaiian shirt", ...), ARM_SHIRT.
+    { mask: W_ARMU, field: 'uarmu', otyp: HAWAIIAN_SHIRT },
+];
+
+test('which_armor answers the hero from the uarm* slots, not from minvent',
+    () => {
+        const state = catalogState();
+        // The hero's own object list holds a helm worn in W_ARMH that is not
+        // the one in state.uarmh, so falling through to the monster walk
+        // would answer this object for W_ARMH and null for every other mask.
+        const decoy = wornObject(state, ORCISH_HELM, W_ARMH);
+        const hero = { minvent: decoy };
+        state.youmonst = hero;
+        for (const { mask, field, otyp } of HERO_SLOTS)
+            state[field] = wornObject(state, otyp, mask);
+
+        // Every case of C's switch. Dropping one, or routing two masks to the
+        // same global, fails here.
+        for (const { mask, field } of HERO_SLOTS)
+            assert.equal(which_armor(hero, mask, state), state[field]);
+
+        // A slot the hero is not using. C returns the global itself, which is
+        // empty when nothing is worn there.
+        state.uarms = null;
+        assert.equal(which_armor(hero, W_ARMS, state), null);
+
+        // worn.c:1027-1028, the default arm: `impossible("bad flag in
+        // which_armor"); return 0;`. W_SADDLE reaches which_armor() for a
+        // steed (artifact.c:2675, sit.c:624) and so is a mask the function
+        // really sees, but never for the hero.
+        initUnported();
+        assert.equal(which_armor(hero, W_SADDLE, state), null);
+        assert.equal(game.unported.has('pline.c impossible'), true);
+        assert.equal(which_armor(hero, W_ARM | W_ARMC, state), null);
+        assert.equal(game.unported.has('pline.c impossible'), true);
+        initUnported();
+
+        // The monster branch still runs for anything that is not the hero,
+        // even with the same state in hand.
+        const helm = wornObject(state, ORCISH_HELM, W_ARMH);
+        assert.equal(
+            which_armor(kitten(state, { minvent: helm }), W_ARMH, state),
+            helm,
+        );
+    });
+
+// ── worn.c extract_from_minvent() ──
+
+// A hit point count that DEADMONSTER() rejects and one it accepts. C's macro
+// is `mhp < 1`, so 1 is the lowest living value and 0 the highest dead one.
+const ALIVE_HP = 1;
+const DEAD_HP = 0;
+
+// Build a monster carrying `held` in minvent, plus a recorder for each hook
+// extract_from_minvent() can reach.
+function carrier(state, held, overrides = {}) {
+    const mon = kitten(state, { mhp: ALIVE_HP, minvent: held, ...overrides });
+    held.where = OBJ_MINVENT;
+    held.ocarry = mon;
+    const calls = { updateMonExtrinsics: [], mwepgone: [], endArtifactLight: [] };
+    const env = {
+        state,
+        hooks: {
+            updateMonExtrinsics: (...args) => {
+                calls.updateMonExtrinsics.push(args.slice(0, 4));
+            },
+            mwepgone: (subject) => { calls.mwepgone.push(subject); },
+            endArtifactLight: (obj) => { calls.endArtifactLight.push(obj); },
+        },
+    };
+    return { mon, env, calls };
+}
+
+test('extract_from_minvent frees an unequipped object and leaves gear alone',
+    async () => {
+        const state = catalogState();
+        // owornmask 0 is the only case steal.c mdrop_obj() reaches: it refuses
+        // an equipped object before calling this.
+        const held = wornObject(state, ORCISH_HELM, 0);
+        const { mon, env, calls } = carrier(state, held, {
+            misc_worn_check: W_AMUL,
+        });
+
+        await extract_from_minvent(mon, held, false, true, env);
+
+        assert.equal(mon.minvent, null);
+        assert.equal(held.where, OBJ_FREE);
+        assert.equal(held.ocarry, null);
+        assert.equal(held.owornmask, 0);
+        // worn.c:1404-1412 sits behind `if (unwornmask)`, so an unequipped
+        // object neither clears a slot nor schedules the gear recheck.
+        assert.equal(mon.misc_worn_check, W_AMUL);
+        assert.deepEqual(calls.updateMonExtrinsics, []);
+        assert.deepEqual(calls.mwepgone, []);
+        assert.deepEqual(calls.endArtifactLight, []);
+    });
+
+test('extract_from_minvent clears an equipped slot and reschedules gear',
+    async () => {
+        const state = catalogState();
+        const held = wornObject(state, ORCISH_HELM, W_ARMH);
+        const { mon, env, calls } = carrier(state, held, {
+            misc_worn_check: W_ARMH | W_AMUL,
+        });
+
+        // worn.c:1408 clears only the bits the object itself wore; the amulet
+        // slot survives. worn.c:1411 then sets I_SPECIAL.
+        await extract_from_minvent(mon, held, true, true, env);
+
+        assert.equal(held.owornmask, 0);
+        assert.equal(mon.misc_worn_check, W_AMUL | I_SPECIAL);
+        // worn.c:1406 passes on=FALSE and the caller's own `silently`.
+        assert.deepEqual(
+            calls.updateMonExtrinsics,
+            [[mon, held, false, true]],
+        );
+        assert.deepEqual(calls.mwepgone, []);
+
+        // The same slot with the caller's other `silently` value. worn.c:1406
+        // forwards the parameter rather than choosing the flag itself, and
+        // steal.c mdrop_obj()'s hardcoded TRUE is unreachable through that
+        // function, so this call is the port's only cover for the FALSE side.
+        const loud = catalogState();
+        const spoken = wornObject(loud, ORCISH_HELM, W_ARMH);
+        const noisy = carrier(loud, spoken, {
+            misc_worn_check: W_ARMH | W_AMUL,
+        });
+        await extract_from_minvent(noisy.mon, spoken, true, false, noisy.env);
+        assert.deepEqual(
+            noisy.calls.updateMonExtrinsics,
+            [[noisy.mon, spoken, false, false]],
+        );
+    });
+
+test('extract_from_minvent skips update_mon_extrinsics on two conditions',
+    async () => {
+        const state = catalogState();
+        // steal.c mdrop_obj() passes do_extrinsics=FALSE precisely so that
+        // removing a steed's saddle cannot throw its rider before the drop.
+        const deferred = catalogState();
+        const saddleLike = wornObject(deferred, ORCISH_HELM, W_ARMH);
+        const withoutExtrinsics = carrier(deferred, saddleLike, {
+            misc_worn_check: W_ARMH,
+        });
+        await extract_from_minvent(
+            withoutExtrinsics.mon, saddleLike, false, true, withoutExtrinsics.env,
+        );
+        assert.deepEqual(withoutExtrinsics.calls.updateMonExtrinsics, []);
+        // The rest of the equipped arm still runs.
+        assert.equal(withoutExtrinsics.mon.misc_worn_check, I_SPECIAL);
+
+        // worn.c:1405's other term is !DEADMONSTER(mon), which is `mhp < 1`.
+        const held = wornObject(state, ORCISH_HELM, W_ARMH);
+        const dead = carrier(state, held, {
+            mhp: DEAD_HP,
+            misc_worn_check: W_ARMH,
+        });
+        await extract_from_minvent(dead.mon, held, true, true, dead.env);
+        assert.deepEqual(dead.calls.updateMonExtrinsics, []);
+        assert.equal(dead.mon.misc_worn_check, I_SPECIAL);
+    });
+
+test('extract_from_minvent uses the canonical extrinsic owner by default',
+    async () => {
+        // worn.c:1405-1406 calls update_mon_extrinsics() directly.  A caller
+        // may still supply a hook for a deliberately unported owner, but the
+        // production default must use worn.js's canonical implementation.
+        const state = catalogState();
+        state.u = { ux: 0, uy: 0, uprops: [] };
+        const boots = wornObject(state, SPEED_BOOTS, W_ARMF);
+        boots.where = OBJ_MINVENT;
+        const mon = kitten(state, {
+            mhp: ALIVE_HP,
+            mx: 0,
+            my: 0,
+            minvent: boots,
+            misc_worn_check: W_ARMF,
+            mspeed: MFAST,
+            permspeed: 0,
+        });
+        boots.ocarry = mon;
+
+        await extract_from_minvent(mon, boots, true, true, {
+            state,
+            canseemon: () => false,
+        });
+
+        assert.equal(boots.where, OBJ_FREE);
+        assert.equal(boots.owornmask, 0);
+        assert.equal(mon.mspeed, 0);
+        assert.equal(mon.misc_worn_check, I_SPECIAL);
+    });
+
+test('extract_from_minvent unwields a weapon and ends an armor artifact light',
+    async () => {
+        const state = catalogState();
+        // worn.c:1414 is a bit test on W_WEP alone, so a monster wielding and
+        // wearing the same mask value still gets exactly one mwepgone().
+        const wielded = wornObject(state, ORCISH_HELM, W_WEP);
+        const weapon = carrier(state, wielded, { misc_worn_check: W_WEP });
+        await extract_from_minvent(weapon.mon, wielded, false, true, weapon.env);
+        assert.deepEqual(weapon.calls.mwepgone, [weapon.mon]);
+
+        // worn.c:1399-1400 runs before owornmask is cleared, because
+        // artifact_light() expects W_ARM to still be set. Gold dragon scale
+        // mail is artifact_light()'s non-artifact case.
+        const lit = catalogState();
+        const scales = wornObject(lit, GOLD_DRAGON_SCALE_MAIL, W_ARM, {
+            lamplit: true,
+        });
+        const burning = carrier(lit, scales, { misc_worn_check: W_ARM });
+        await extract_from_minvent(burning.mon, scales, false, true, burning.env);
+        assert.deepEqual(burning.calls.endArtifactLight, [scales]);
+        assert.deepEqual(burning.calls.mwepgone, []);
+
+        // The same armor unlit takes no end_burn().
+        const dark = catalogState();
+        const cold = wornObject(dark, GOLD_DRAGON_SCALE_MAIL, W_ARM);
+        const quiet = carrier(dark, cold, { misc_worn_check: W_ARM });
+        await extract_from_minvent(quiet.mon, cold, false, true, quiet.env);
+        assert.deepEqual(quiet.calls.endArtifactLight, []);
+
+        // With no override, the W_ARM arm reaches timeout.c end_burn() before
+        // detaching the object.  Register the source so the canonical light
+        // owner can prove that it was removed rather than merely clearing the
+        // object's lamplit bit.
+        const canonical = catalogState();
+        light_globals_init(canonical);
+        const source = wornObject(canonical, GOLD_DRAGON_SCALE_MAIL, W_ARM, {
+            lamplit: true,
+        });
+        const sourceMon = kitten(canonical, {
+            minvent: source,
+            misc_worn_check: W_ARM,
+        });
+        source.where = OBJ_MINVENT;
+        source.ocarry = sourceMon;
+        new_light_source(0, 0, 1, LS_OBJECT, source, canonical);
+        await extract_from_minvent(sourceMon, source, false, true, {
+            state: canonical,
+        });
+        assert.equal(source.lamplit, false);
+        assert.equal(canonical.gl.light_base, null);
+    });
+
+test('extract_from_minvent waits for canonical wielded-light cleanup', async () => {
+    // C worn.c:1413-1415 calls mwepgone() after obj_no_longer_held().  The
+    // source mwepgone/setmnotwielded pair must finish its light cleanup before
+    // the caller can free, merge, or reuse the extracted object.
+    const state = catalogState();
+    const sword = wornObject(state, LONG_SWORD, W_WEP, {
+        oartifact: ART_SUNSWORD,
+        lamplit: true,
+    });
+    const mon = kitten(state, {
+        mhp: ALIVE_HP,
+        minvent: sword,
+        misc_worn_check: W_WEP,
+    });
+    sword.where = OBJ_MINVENT;
+    sword.ocarry = mon;
+    mon.mw = sword;
+
+    const events = [];
+    let release;
+    const lightFinished = new Promise((resolve) => { release = resolve; });
+    const extraction = extract_from_minvent(mon, sword, false, true, {
+        state,
+        hooks: {
+            endArtifactLight: async (obj) => {
+                events.push(`started:${obj.where}`);
+                await lightFinished;
+                events.push('finished');
+                obj.lamplit = false;
+            },
+        },
+    });
+
+    // Dynamic import of weapon.c's canonical owner is part of the production
+    // path, so yield through the event loop before observing the delayed hook.
+    // The production extraction path dynamically loads weapon.c before it can
+    // invoke mwepgone(); wait for that module turn without sleeping on a fixed
+    // timing assumption.
+    for (let turn = 0; turn < 8 && events.length === 0; turn++)
+        await new Promise((resolve) => setImmediate(resolve));
+    assert.deepEqual(events, [`started:${OBJ_FREE}`]);
+    assert.equal(mon.mw, sword);
+    assert.equal(mon.weapon_check, 0);
+
+    release();
+    await extraction;
+    assert.deepEqual(events, [`started:${OBJ_FREE}`, 'finished']);
+    assert.equal(mon.mw, null);
+    assert.equal(sword.owornmask, 0);
+    assert.equal(mon.weapon_check, NEED_WEAPON);
+});
+
+test('extract_from_minvent rejects an object outside a monster inventory',
+    async () => {
+        const state = catalogState();
+        const held = wornObject(state, ORCISH_HELM, 0);
+        const { mon, env } = carrier(state, held);
+        // C reports impossible() and returns; the port has no caller that can
+        // arrive this way, so it stops.
+        held.where = OBJ_FREE;
+        await assert.rejects(
+            extract_from_minvent(mon, held, false, true, env),
+            /not in minvent/u,
+        );
+    });
+
+// wield.c:128-134 computes gu.unweapon. Its WEAPON_CLASS arm (:129-131) leaves
+// the hero "not really wielding a weapon" for a launcher, ammunition, a
+// missile, or a polearm on foot, and calls any other weapon a real one.
+// js/wield.js setuwep() owns the same expression, so each of those four terms
+// gets a case below. Its non-weapon arm (:132) and the Snickersnee exception
+// inside the polearm term have none.
+function heroWieldState() {
+    const state = catalogState();
+    state.invent = null;
+    state.uwep = null;
+    state.u = {
+        uroleplay: {},
+        // setworn() reads every property slot it clears, so the hero needs a
+        // full uprops table rather than the sparse ones the monster cases use.
+        uprops: Array.from(
+            { length: LAST_PROP + 1 },
+            () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
+        ),
+    };
+    return state;
+}
+
+test('setuwep marks a launcher, ammunition and a missile as no weapon', async () => {
+    // obj.h:235-237 makes is_launcher() the closed window P_BOW..P_CROSSBOW,
+    // and objects.c puts the bow, the sling and the crossbow on its bottom,
+    // middle and top. All three are wieldable starts: u_init.c:252 gives a
+    // gnome the crossbow where another race gets the bow. The arrow's -P_BOW
+    // and the dart's -P_DART reach is_ammo() and is_missile() instead.
+    for (const otyp of [BOW, SLING, CROSSBOW, ARROW, DART]) {
+        const state = heroWieldState();
+        await setuwep(wornObject(state, otyp, 0), { state });
+        assert.equal(state.unweapon, true);
+    }
+    // A katana matches none of the five, so it is a real melee weapon.
+    const melee = heroWieldState();
+    await setuwep(wornObject(melee, KATANA, 0), { state: melee });
+    assert.equal(melee.unweapon, false);
+});
+
+test('setuwep marks a polearm as no weapon only while the hero is afoot', async () => {
+    // wield.c:131 is the only term that reads state outside the object, and a
+    // partisan is is_pole() by its P_POLEARMS oc_skill. The same pair runs
+    // through steed.c mounting in scripts/dismount-steed.test.mjs; these two
+    // cases cover setuwep()'s own term directly.
+    const afoot = heroWieldState();
+    await setuwep(wornObject(afoot, PARTISAN, 0), { state: afoot });
+    assert.equal(afoot.unweapon, true);
+
+    const mounted = heroWieldState();
+    mounted.u.usteed = kitten(mounted);
+    await setuwep(wornObject(mounted, PARTISAN, 0), { state: mounted });
+    assert.equal(mounted.unweapon, false);
+});
+
+test('wearslot preserves every source equipment category mask', () => {
+    const state = catalogState();
+    // worn.c:300-303, an armor category maps to its single armor slot.
+    assert.equal(wearslot(wornObject(state, ORCISH_HELM, 0), state), W_ARMH);
+    // worn.c:305-309, mergeable weapons can occupy both hands or the quiver.
+    const arrowMask = wearslot(wornObject(state, ARROW, 0), state);
+    assert.equal(arrowMask & (W_WEP | W_SWAPWEP), W_WEP | W_SWAPWEP);
+    assert.equal(arrowMask & W_QUIVER, W_QUIVER);
+    // worn.c:325-345, a tool weapon and a special tool share the two weapon
+    // slots, while armor accessories occupy their dedicated masks.
+    assert.equal(
+        wearslot(wornObject(state, TIN_OPENER, 0), state),
+        W_WEP | W_SWAPWEP,
+    );
+    assert.equal(
+        wearslot(wornObject(state, SPEED_BOOTS, 0), state),
+        W_ARMF,
+    );
+});
+
+test('clear_bypasses walks nested and floating object owners', () => {
+    const nested = { bypass: true, nobj: null, cobj: null };
+    const container = { bypass: true, nobj: null, cobj: nested };
+    const inventory = { bypass: true, nobj: null, cobj: null };
+    const ball = { bypass: true };
+    const chain = { bypass: true };
+    const state = {
+        context: { bypasses: true },
+        level: { objlist: container, buriedobjlist: null, monlist: null },
+        invent: inventory,
+        gm: { migrating_objs: null, migrating_mons: null, mydogs: null },
+        gb: { billobjs: null },
+        go: { objs_deleted: null },
+        u: { uball: ball, uchain: chain },
+        uball: ball,
+        uchain: chain,
+    };
+
+    // worn.c:1118-1123 sets both the object bit and the context marker.
+    bypass_obj(inventory, state);
+    assert.equal(state.context.bypasses, true);
+    clear_bypasses(state);
+    assert.equal(container.bypass, false);
+    assert.equal(nested.bypass, false);
+    assert.equal(inventory.bypass, false);
+    assert.equal(ball.bypass, false);
+    assert.equal(chain.bypass, false);
+    assert.equal(state.context.bypasses, false);
+
+    // The recursive primitive is source-visible independently of the global
+    // owner and must clear a later sibling as well as container contents.
+    const sibling = { bypass: true, nobj: null, cobj: null };
+    const head = { bypass: true, nobj: sibling, cobj: null };
+    clear_bypass(head);
+    assert.equal(head.bypass, false);
+    assert.equal(sibling.bypass, false);
+});
+
+test('clear_bypasses without an argument uses the canonical game state', () => {
+    const previous = {
+        invent: game.invent,
+        context: game.context,
+    };
+    const object = { bypass: true, nobj: null, cobj: null };
+    try {
+        game.invent = object;
+        game.context = { bypasses: true };
+        clear_bypasses();
+        assert.equal(object.bypass, false);
+        assert.equal(game.context.bypasses, false);
+    } finally {
+        if (previous.invent === undefined) delete game.invent;
+        else game.invent = previous.invent;
+        if (previous.context === undefined) delete game.context;
+        else game.context = previous.context;
+    }
+});
+
+// wield.c setuwep() reaches end_burn() only for
+// `olduwep && artifact_light(olduwep) && olduwep->lamplit`. The leading term
+// merely rejects a swap out of an empty hand; the two behind it decide whether
+// a light has to be put out. The two cases below hold the leading term true and
+// vary only the pair behind it.
+test('setuwep ends an old artifact light only when that weapon burns', async () => {
+    // setworn() needs these two owners for any outgoing wielded object.
+    // Use the canonical end_burn owner without the obsolete light hook.
+    const swapHooks = () => ({
+        cancelDoff: () => {},
+        monsterUnseesProperty: () => {},
+    });
+
+    const dark = heroWieldState();
+    // A katana carries no artifact index and is unlit, so artifact_light() and
+    // lamplit are both false while olduwep itself is a real object.
+    const unlit = wornObject(dark, KATANA, W_WEP);
+    dark.uwep = unlit;
+    const replacement = wornObject(dark, DART, 0);
+    await setuwep(replacement, { state: dark, hooks: swapHooks() });
+    assert.equal(dark.uwep, replacement);
+    assert.equal(unlit.owornmask, 0);
+
+    // Gold dragon scale mail worn in W_ARM is artifact_light()'s non-artifact
+    // case, and removing W_WEP keeps W_ARM set: end_burn must darken it.
+    const lit = heroWieldState();
+    light_globals_init(lit);
+    const burning = wornObject(lit, GOLD_DRAGON_SCALE_MAIL, W_ARM | W_WEP, {
+        lamplit: true,
+    });
+    lit.uwep = burning;
+    new_light_source(1, 1, 2, LS_OBJECT, burning, lit); // The source light exists before end_burn deletes it.
+    const messages = [];
+    await setuwep(wornObject(lit, DART, 0), {
+        state: lit,
+        hooks: swapHooks(),
+        message: text => { messages.push(text); },
+    });
+    assert.equal(burning.lamplit, false);
+    assert.equal(burning.owornmask, W_ARM);
+    assert.equal(messages.length, 1);
+
+});
+
+test('mon_set_minvis preserves blocked state and names discarded display gaps',
+    () => {
+        const gaps = [];
+        const planning = { noteUnported: (name) => gaps.push(name) };
+        const worm = {
+            perminvis: 0,
+            minvis: 0,
+            invis_blkd: false,
+            wormno: 1,
+            mx: 5,
+            my: 5,
+        };
+
+        // worn.c stores permanent invisibility before copying it to minvis;
+        // the live newsym and worm-tail redraw are void callees in this clone.
+        mon_set_minvis(worm, false, {}, planning);
+        assert.equal(worm.perminvis, 1);
+        assert.equal(worm.minvis, 1);
+        assert.deepEqual(gaps, ['display.c newsym', 'worm.c see_wsegs']);
+
+        const blocked = {
+            perminvis: 1,
+            minvis: 0,
+            invis_blkd: true,
+            wormno: 0,
+            mx: 5,
+            my: 5,
+        };
+        gaps.length = 0;
+        mon_set_minvis(blocked, true, {}, planning);
+        assert.equal(blocked.perminvis, 0);
+        assert.equal(blocked.minvis, 0,
+            'invis_blkd prevents copying perminvis into current minvis');
+        assert.deepEqual(gaps, [],
+            'blocked invisibility skips both redraw calls');
+    });
+
+test('mon_set_minvis redraws a clone worm head then each tail through its explicit callback',
+    () => {
+        const state = { level: { worms: [] } };
+        const worm = {
+            id: 42,
+            perminvis: 0,
+            minvis: 0,
+            invis_blkd: false,
+            wormno: 1,
+            mx: 7,
+            my: 6,
+        };
+        state.level.worms[1] = { segments: [
+            { x: 4, y: 5 }, { x: 5, y: 5 }, { x: 6, y: 5 },
+            { x: 6, y: 6 }, { x: 7, y: 6 },
+        ] };
+        const calls = [];
+
+        mon_set_minvis(worm, false, state, {
+            planning: true,
+            redraw: (x, y, actualState) => calls.push([x, y, actualState]),
+        });
+
+        assert.equal(worm.perminvis, 1);
+        assert.equal(worm.minvis, 1);
+        assert.deepEqual(calls.map(([x, y]) => [x, y]), [
+            [7, 6], [4, 5], [5, 5], [6, 5], [6, 6],
+        ]);
+        assert.ok(calls.every(([, , actualState]) => actualState === state));
+    });
+
+const a51WormRecipe = JSON.parse(readFileSync(new URL(
+    '../recipes/display.c/newsym-long-worm-tail-independent-a51.session.json',
+    import.meta.url,
+), 'utf8'));
+
+test('ordinary make-invisible zap clears every long-worm tail at its command boundary',
+    async () => {
+        // Reuse the exact independent public-prefix recipe and natural input
+        // continuation qualified for this caller: free Ctrl-W wish, then one
+        // ordinary NE zap with the actual new inventory letter.
+        const session = await runSegment(a51WormRecipe.segments[0]);
+        const worms = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon)
+            if (monster.mnum === PM_LONG_WORM) worms.push(monster);
+        assert.equal(worms.length, 1);
+        const worm = worms[0];
+        assert.equal(worm.m_id, 56);
+        assert.equal(worm.mhp, 40);
+        assert.deepEqual([worm.mx, worm.my], [67, 11]);
+        const segments = game.level.worms[worm.wormno].segments
+            .map(({ x, y }) => ({ x, y }));
+        assert.equal(segments.length - 1, 4);
+        assert.equal(worm.minvis, false);
+        assert.equal(worm.perminvis, false);
+        assert.equal(worm.invis_blkd, false);
+        const before = {
+            id: worm.m_id,
+            species: worm.mnum,
+            hp: worm.mhp,
+            position: [worm.mx, worm.my],
+            segments,
+        };
+
+        for (const byte of [0x17, ...Buffer.from(
+            'blessed wand of make invisible named TailWitness\n', 'utf8',
+        )]) game.nhDisplay.pushKey(byte);
+        await moveloop_core();
+
+        const named = [];
+        for (let object = game.invent; object; object = object.nobj)
+            if (object.oextra?.oname === 'TailWitness') named.push(object);
+        assert.equal(named.length, 1);
+        const wand = named[0];
+        assert.equal(wand.otyp, WAN_MAKE_INVISIBLE);
+        assert.equal(wand.blessed, true);
+        assert.equal(wand.cursed, false);
+        assert.ok(wand.spe > 0);
+        const chargeBefore = wand.spe;
+        const invlet = Number.isInteger(wand.invlet)
+            ? wand.invlet : wand.invlet.charCodeAt(0);
+        for (const byte of [0x7a, invlet, 0x75]) game.nhDisplay.pushKey(byte);
+        await moveloop_core();
+
+        const afterWorm = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon)
+            if (monster.mnum === PM_LONG_WORM) afterWorm.push(monster);
+        assert.deepEqual(afterWorm, [worm]);
+        assert.equal(worm.minvis, 1);
+        assert.equal(worm.perminvis, 1);
+        assert.equal(worm.invis_blkd, false);
+        assert.equal(wand.spe, chargeBefore - 1);
+        assert.deepEqual({
+            id: worm.m_id,
+            species: worm.mnum,
+            hp: worm.mhp,
+            position: [worm.mx, worm.my],
+            segments: game.level.worms[worm.wormno].segments
+                .map(({ x, y }) => ({ x, y })),
+        }, before);
+
+        // C calls see_wsegs() after clearing the hidden head. Every visible
+        // tail square must therefore be repainted as its underlying remembered
+        // terrain before this same full moveloop_core call returns.
+        const tailTiles = segments.slice(0, -1);
+        const tailGlyphs = tailTiles.map(({ x, y }) => {
+            const loc = game.level.at(x, y);
+            return {
+                x, y,
+                remembered: loc.remembered_glyph?.glyph ?? null,
+                presented: loc.disp_glyph?.glyph ?? null,
+            };
+        });
+        const finalScreen = game.nhDisplay.serialize();
+        assert.equal(typeof finalScreen, 'string');
+        assert.equal(tailGlyphs.length, 4);
+        for (const tile of tailGlyphs)
+            assert.equal(tile.presented, tile.remembered,
+                `stale worm glyph at (${tile.x}, ${tile.y}) in immediate full-command display`);
+    });
+
+import { setuwep } from '../js/wield.js';

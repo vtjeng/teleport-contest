@@ -313,7 +313,7 @@ import {
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
 import { heroIsBlind, noteGlyphBufferMutation, queueGlyphUpdateNotice } from './startup_a11y.js';
-import { worm_known } from './worm.js';
+import { see_wsegs, worm_known } from './worm.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
 // _tp_sensemon() macro. This is only the telepathy predicate; underwater,
@@ -4078,7 +4078,7 @@ export function see_monsters(state = game, env = {}) {
         if ((mon.mstate & MON_STILL_ARRIVING) !== 0) continue;
         repaint(mon.mx, mon.my, state);
         if (mon.wormno)
-            note_unported('worm.c see_wsegs');
+            see_wsegs(mon, { ...env, state, redraw: repaint });
         if (warn_of_mon
             && (state.context?.warntype?.obj & mon.data.mflags2) !== 0) {
             ++new_warn_obj_cnt;

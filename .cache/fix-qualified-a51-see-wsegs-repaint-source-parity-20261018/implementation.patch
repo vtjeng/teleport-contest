@@ -1,0 +1,124 @@
+diff --git a/js/display.js b/js/display.js
+index 48816b4ee..3fcfc9ed8 100644
+--- a/js/display.js
++++ b/js/display.js
+@@ -313,7 +313,7 @@ import {
+ } from './monsters.js';
+ import { rn2_on_display_rng } from './rng.js';
+ import { heroIsBlind, noteGlyphBufferMutation, queueGlyphUpdateNotice } from './startup_a11y.js';
+-import { worm_known } from './worm.js';
++import { see_wsegs, worm_known } from './worm.js';
+ 
+ // C ref: display.c tp_sensemon() (166-168), through display.h's
+ // _tp_sensemon() macro. This is only the telepathy predicate; underwater,
+@@ -4078,7 +4078,7 @@ export function see_monsters(state = game, env = {}) {
+         if ((mon.mstate & MON_STILL_ARRIVING) !== 0) continue;
+         repaint(mon.mx, mon.my, state);
+         if (mon.wormno)
+-            note_unported('worm.c see_wsegs');
++            see_wsegs(mon, { ...env, state, redraw: repaint });
+         if (warn_of_mon
+             && (state.context?.warntype?.obj & mon.data.mflags2) !== 0) {
+             ++new_warn_obj_cnt;
+diff --git a/js/monmove.js b/js/monmove.js
+index a4b39dfb7..7bbcd0778 100644
+--- a/js/monmove.js
++++ b/js/monmove.js
+@@ -425,7 +425,7 @@ import { quest_stat_check, quest_talk } from './quest.js';
+ import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.js';
+ import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+ import { in_rooms } from './rooms.js';
+-import { worm_move, worm_nomove, wormhitu } from './worm.js';
++import { see_wsegs, worm_move, worm_nomove, wormhitu } from './worm.js';
+ import { add_damage, after_shk_move, inhishop, shk_move } from './shk.js';
+ import { findgold, mdrop_obj, mpickobj } from './steal.js';
+ import { stairway_at, stairway_find_dir } from './stairs.js';
+@@ -3615,14 +3615,13 @@ export async function postmov(
+                 // gate, where MMOVE_DONE then suppresses the attack.
+                 if (picked) outcome = MMOVE_DONE;
+             }
+-            // C ref: monmove.c:1683-1687.  Object consumption or pickup can
+-            // leave an invisible monster needing a second repaint.  Worm
+-            // tails have their own display owner; keep its discarded-result
+-            // dependency explicit until worm.c see_wsegs() is ported.
++            // C ref: monmove.c:1683-1687. Object consumption or pickup can
++            // leave an invisible monster needing a second repaint; a worm's
++            // tail is synchronously repainted after its head by see_wsegs().
+             if (monster.minvis) {
+                 redraw(monster.mx, monster.my);
+                 if (monster.wormno)
+-                    note_unported('worm.c see_wsegs');
++                    see_wsegs(monster, { ...env, redraw });
+             }
+         }
+         // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts
+diff --git a/js/worm.js b/js/worm.js
+index 65c183dfa..312a2166d 100644
+--- a/js/worm.js
++++ b/js/worm.js
+@@ -109,6 +109,29 @@ export function count_wsegs(monster, state = game) {
+     return Math.max(0, (segments?.length ?? 0) - 1);
+ }
+ 
++// C ref: worm.c see_wsegs() (487-495). Repaint every visible tail node in
++// tail-to-head list order; the final stored node is the hidden head tracker.
++// The source loop neither filters occupancy nor changes the worm list/RNG.
++export function see_wsegs(worm, rawEnv = {}) {
++    const env = wormEnvironment(rawEnv);
++    const state = env.state;
++    const segments = state.level?.worms?.[worm?.wormno]?.segments ?? [];
++    for (let index = 0; index < segments.length - 1; ++index) {
++        const { x, y } = segments[index];
++        if (typeof env.hooks?.newsym === 'function') {
++            env.hooks.newsym(x, y, env);
++        } else if (typeof env.newsym === 'function') {
++            env.newsym(x, y, state);
++        } else if (typeof env.redraw === 'function') {
++            env.redraw(x, y, state);
++        } else if (state === game) {
++            newsym(x, y);
++        } else {
++            (env.noteUnported ?? note_unported)('display.c newsym');
++        }
++    }
++}
++
+ // C ref: worm.c get_wormno(). Slot zero remains reserved.
+ export function get_wormno(state = game) {
+     for (let wormno = 1; wormno < MAX_NUM_WORMS; ++wormno) {
+diff --git a/js/worn.js b/js/worn.js
+index 44e12f138..0e8c922d7 100644
+--- a/js/worn.js
++++ b/js/worn.js
+@@ -67,6 +67,7 @@ import {
+     Stone_resistance,
+ } from './artifacts.js';
+ import { game } from './gstate.js';
++import { see_wsegs } from './worm.js';
+ import { newsym } from './display.js';
+ import { Monnam, mon_nam, hcolor } from './do_name.js';
+ import { obj_extract_self, update_inventory } from './invent.js';
+@@ -497,13 +498,21 @@ export function mon_set_minvis(monster, cursedPotion, state = game, rawEnv = {})
+         monster.minvis = monster.perminvis;
+         if (state === game) {
+             newsym(monster.mx, monster.my);
++        } else if (typeof rawEnv.redraw === 'function') {
++            rawEnv.redraw(monster.mx, monster.my, state);
+         } else {
+             const noteUnported = rawEnv.noteUnported ?? note_unported;
+             noteUnported('display.c newsym');
+         }
+         if (monster.wormno) {
+-            const noteUnported = rawEnv.noteUnported ?? note_unported;
+-            noteUnported('worm.c see_wsegs');
++            if (state === game) {
++                see_wsegs(monster, { state });
++            } else if (typeof rawEnv.redraw === 'function') {
++                see_wsegs(monster, { ...rawEnv, state });
++            } else {
++                const noteUnported = rawEnv.noteUnported ?? note_unported;
++                noteUnported('worm.c see_wsegs');
++            }
+         }
+     }
+ }

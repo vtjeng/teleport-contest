@@ -1,0 +1,88 @@
+✔ display.c visibility helpers preserve invisibility and infrared rules (1.779444ms)
+✔ display.c telepathy and sensemon retain range and source gates (0.755349ms)
+✔ display.c MATCH_WARN_OF_MON and worm_known feed the canonical callers (0.388035ms)
+✔ see_monsters repaints a live worm head then each tail without touching dead or arriving monsters (1.788122ms)
+✔ monster item preference preserves carry, identity, and material gates (7.12468ms)
+✔ monster corpse consumption excludes petrifying corpses (3.034786ms)
+✔ postmov object selection follows consume then pickup order (4.919063ms)
+✔ postmov object selection reports the carryable amount, not the stack (2.163664ms)
+✔ postmov object selection preserves inert object and shop draws (2.52624ms)
+✖ postmov redraws invisible worm tails after eligible object handling only (10.770989ms)
+✔ m_search_items ignores rocks and reports an own-square selection (3.260612ms)
+✔ m_search_items retains the last equal-distance x-major candidate (2.723579ms)
+✔ m_search_items skips prize and charged shop merchandise (2.899693ms)
+✔ m_search_items clears a known trapped goal before line filtering (2.569352ms)
+✔ m_search_items reverses flight after its source radius reduction (2.372604ms)
+✔ m_search_items spends the shop draw before the shopkeeper check (2.146023ms)
+✔ get_wormno skips slot zero and returns the first free tail slot (1.408422ms)
+✔ count_wsegs excludes the hidden head node stored at the list end (0.214582ms)
+✔ worm_move exposes the old head, grows, and applies segment HP growth (1.186411ms)
+✔ worm_move scales later growth time by source monster movement speed (0.444835ms)
+✔ worm_move shifts the tail and redraws it when the growth clock is ahead (0.341066ms)
+✔ create_worm_tail makes num_segs plus one zeroed linked-list nodes (0.276771ms)
+✔ initworm owns its default and injected level state and resets its clock (0.721656ms)
+✔ wseg_at counts from the hidden head toward the tail only on worm occupancy (0.301074ms)
+✔ cutworm shrinks the first segment after the source cut chance passes (0.807791ms)
+✔ cutworm discards a split tail when no worm slot remains (1.195929ms)
+✔ wormhitu attacks every nearby visible tail and excludes distant tail and head (0.489453ms)
+✔ wormhitu propagates attacker death and stops before another nearby tail (0.169069ms)
+✔ mon_adjust_speed applies every permanent case and worn FAST override (5.457561ms)
+✔ mon_adjust_speed messages witnessed changes and learns their object (3.558282ms)
+✔ find_mac answers the species armor class for a bare monster (1.586351ms)
+✔ find_mac subtracts ARM_BONUS for each slot misc_worn_check names (1.533787ms)
+✔ find_mac ignores inventory outside misc_worn_check (1.186797ms)
+✔ find_mac gives an amulet of guarding a fixed two points (1.346442ms)
+✔ find_mac sums every worn slot across a chained inventory (1.452371ms)
+✔ find_mac caps the result at AC_MAX (1.665658ms)
+✔ which_armor answers the first minvent object worn in a queried slot (1.706682ms)
+✔ which_armor answers the hero from the uarm* slots, not from minvent (1.645891ms)
+✔ extract_from_minvent frees an unequipped object and leaves gear alone (1.897741ms)
+✔ extract_from_minvent clears an equipped slot and reschedules gear (2.696222ms)
+✔ extract_from_minvent skips update_mon_extrinsics on two conditions (2.206683ms)
+✔ extract_from_minvent uses the canonical extrinsic owner by default (1.821267ms)
+✔ extract_from_minvent unwields a weapon and ends an armor artifact light (7.645887ms)
+✔ extract_from_minvent waits for canonical wielded-light cleanup (11.330048ms)
+✔ extract_from_minvent rejects an object outside a monster inventory (3.737792ms)
+✔ setuwep marks a launcher, ammunition and a missile as no weapon (24.155899ms)
+✔ setuwep marks a polearm as no weapon only while the hero is afoot (2.316551ms)
+✔ wearslot preserves every source equipment category mask (1.329329ms)
+✔ clear_bypasses walks nested and floating object owners (0.339582ms)
+✔ clear_bypasses without an argument uses the canonical game state (0.09986ms)
+✔ setuwep ends an old artifact light only when that weapon burns (3.745819ms)
+✔ mon_set_minvis preserves blocked state and names discarded display gaps (0.234847ms)
+✔ mon_set_minvis redraws a clone worm head then each tail through its explicit callback (0.336015ms)
+✔ ordinary make-invisible zap clears every long-worm tail at its command boundary (137.007849ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 53
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1440.070828
+
+✖ failing tests:
+
+test at scripts/monmove-items.test.mjs:342:1
+✖ postmov redraws invisible worm tails after eligible object handling only (10.770989ms)
+  AssertionError [ERR_ASSERTION]: mcanmove false prevents object handling and its worm-tail refresh
+  + actual - expected
+  
+    [
+      [
+  +     9,
+        10,
+  -     10
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/monmove-items.test.mjs:387:16)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 9, 10 ] ],
+    expected: [ [ 10, 10 ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

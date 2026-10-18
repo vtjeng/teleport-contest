@@ -3,6 +3,9 @@ import test from 'node:test';
 
 import {
     COLNO,
+    MMOVE_DONE,
+    MMOVE_MOVED,
+    OBJ_MINVENT,
     PIT,
     ROOM,
     ROOMOFFSET,
@@ -14,6 +17,7 @@ import {
     mon_would_take_item,
     m_search_items,
     select_postmove_object_action,
+    postmov,
 } from '../js/monmove.js';
 import {
     PM_COCKATRICE,
@@ -335,6 +339,90 @@ test('postmov object selection preserves inert object and shop draws', () => {
     assert.deepEqual(calls, [25]);
     assert.equal(ignored, null);
 });
+
+test('postmov redraws invisible worm tails after eligible object handling only',
+    async () => {
+        async function run(status, mcanmove = true, planning = false) {
+            const state = makeState();
+            const worm = makeMonster(state, PM_PURPLE_WORM, {
+                mx: 10,
+                my: 10,
+                minvis: 1,
+                wormno: 1,
+            });
+            state.level.worms = [];
+            state.level.worms[1] = { segments: [
+                { x: 7, y: 9 }, { x: 8, y: 9 }, { x: 9, y: 9 },
+                { x: 9, y: 10 }, { x: 10, y: 10 },
+            ] };
+            placeMonster(state, worm);
+            placeObject(state, makeObject(state, ROCK, 10, 10));
+            const redraws = [];
+            const outcome = await postmov(
+                worm, 9, 10, status, 0, false, false, false,
+                {
+                    state,
+                    planning,
+                    couldReachItem: () => false,
+                    message: async () => {},
+                    norepMessage: async () => {},
+                    random: { rn2: bound => assert.fail(`unexpected rn2(${bound})`) },
+                    redraw: (x, y) => redraws.push([x, y]),
+                    unsupported: () => assert.fail('unexpected unsupported operation'),
+                },
+            );
+            return { outcome, redraws, state, worm };
+        }
+
+        for (const status of [MMOVE_MOVED, MMOVE_DONE]) {
+            const { outcome, redraws, worm, state } = await run(status);
+            assert.equal(outcome, status);
+            assert.deepEqual(redraws.slice(-5), [
+                [10, 10], [7, 9], [8, 9], [9, 9], [9, 10],
+            ], 'postmov repaints the head and linked tail after checking objects');
+            assert.equal(state.level.objects[10][10].otyp, ROCK,
+                'the source-shaped reach guard leaves the selected object in place');
+            assert.equal(worm.minvis, 1);
+        }
+
+        const immobile = await run(MMOVE_MOVED, false);
+        assert.deepEqual(immobile.redraws.slice(-1), [[9, 10]],
+            'mcanmove false retains the old-square redraw but skips object and tail refresh');
+
+        const planned = await run(MMOVE_MOVED, true, true);
+        assert.deepEqual(planned.redraws, [],
+            'postmov planning keeps its caller-owned repaint noop');
+
+        // Exercise the same source caller through a real selected pickup: the
+        // object leaves the floor before postmov returns its MMOVE_DONE result
+        // and before the final invisible-monster repaint callback.
+        const state = makeState();
+        const gnome = makeMonster(state, PM_GNOME, { minvis: 1 });
+        const dagger = placeObject(state, makeObject(state, DAGGER, 10, 10));
+        state.level.objlist = dagger;
+        const repaintPhases = [];
+        const outcome = await postmov(
+            gnome, 9, 10, MMOVE_MOVED, 0, false, false, false,
+            {
+                state,
+                couldReachItem: () => true,
+                message: async () => {},
+                norepMessage: async () => {},
+                redraw: (x, y) => repaintPhases.push({
+                    position: [x, y],
+                    pickedUp: dagger.where === OBJ_MINVENT,
+                }),
+                unsupported: () => assert.fail('unexpected unsupported operation'),
+            },
+        );
+        assert.equal(outcome, MMOVE_DONE);
+        assert.equal(gnome.minvent, dagger);
+        assert.equal(state.level.objects[10][10], null);
+        assert.equal(repaintPhases[0].pickedUp, false,
+            'movement paints the old square before pickup processing');
+        assert.equal(repaintPhases.at(-1).pickedUp, true,
+            'the later caller redraw observes the completed pickup');
+    });
 
 test('m_search_items ignores rocks and reports an own-square selection',
     () => {
