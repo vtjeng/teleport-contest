@@ -5765,7 +5765,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
             const other = obj_nexto(obj, state, objectEnv.random);
             if (!other) break;
             await pudding_merge_message(obj, other, state, objectEnv);
-            obj = obj_meld(obj, other, state, {
+            obj = await obj_meld(obj, other, state, {
                 ...objectEnv,
                 newsym: (sx, sy) => killRedraw(sx, sy, { ...env, state }),
             });

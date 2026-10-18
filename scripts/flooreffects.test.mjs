@@ -23,10 +23,16 @@ import {
 import { boulder_hits_pool, flooreffects } from '../js/do.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { objects_globals_init } from '../js/objects.js';
 import { init_objects } from '../js/o_init.js';
 import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
-import { newObject, place_object } from '../js/obj.js';
+import { addinv_runtime, freeinv } from '../js/invent.js';
+import { addtobill, shop_keeper } from '../js/shk.js';
+import { mksobj, newObject, place_object } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { dismissPendingTtyMessage } from '../js/tty_message.js';
 import { start_glob_timeout, timeout_globals_init } from '../js/timeout.js';
 import {
     BOULDER,
@@ -195,6 +201,57 @@ test('globby flooreffects discards the meld survivor and consumes the incoming p
         assert.equal(state.level.objects[DROP_X][DROP_Y], floor);
         assert.equal(messages.length, 1); // No second neighbor scan or message.
         assert.deepEqual(getRngLog(), []); // Local match, no weight tie or rescan.
+    }
+});
+
+test('exported flooreffects merges the actual shop bill before deleting the incoming glob', async () => {
+    const recipe = JSON.parse(readFileSync(
+        'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json', 'utf8',
+    ));
+    const nhGame = await runSegment(recipe.segments[0]);
+    const state = game;
+    const roomNo = state.level.at(state.u.ux, state.u.uy).roomno;
+    const keeper = shop_keeper(roomNo, state);
+    assert.ok(keeper?.isshk && keeper.mextra?.eshk);
+    const target = { x: keeper.mx, y: keeper.my };
+    const display = state.nhDisplay;
+    assert.ok(display && typeof display.serialize === 'function');
+    const oldOnEmptyQueue = display.onEmptyQueue;
+    const acknowledgements = [];
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        assert.match(screen, /--More--/u);
+        assert.ok(acknowledgements.length < 16, 'finite rendered-More budget');
+        acknowledgements.push(screen);
+        return 32;
+    };
+    try {
+        if (state._pending_message) await dismissPendingTtyMessage(state);
+        const env = objectGenerationEnv({ state });
+        const absorber = mksobj(GLOB_OF_GRAY_OOZE, true, false, env);
+        absorber.ox = target.x;
+        absorber.oy = target.y;
+        place_object(absorber, target.x, target.y, env);
+        await addtobill(absorber, false, false, true, state, env);
+        const incoming = mksobj(GLOB_OF_GRAY_OOZE, true, false, env);
+        incoming.ox = target.x;
+        incoming.oy = target.y;
+        await addtobill(incoming, true, false, true, state, env);
+        await addinv_runtime(incoming, env);
+        await freeinv(incoming, env);
+        const beforeRng = nhGame.getRngLog().length;
+        assert.equal(keeper.mextra.eshk.billct, 2);
+        assert.equal(await flooreffects(incoming, target.x, target.y, 'drop', { state }), true);
+        assert.equal(keeper.mextra.eshk.billct, 1);
+        assert.deepEqual(keeper.mextra.eshk.bill_p.slice(0, 1).map((row) => ({
+            bo_id: row.bo_id, price: row.price,
+        })), [{ bo_id: absorber.o_id, price: 18 }]);
+        assert.equal(absorber.owt, 40);
+        assert.equal(incoming.where, OBJ_DELETED);
+        assert.equal(incoming.unpaid, 1, 'the inactive deleted row is not found by clear_unpaid_obj');
+        assert.equal(nhGame.getRngLog().length, beforeRng);
+    } finally {
+        display.onEmptyQueue = oldOnEmptyQueue;
     }
 });
 

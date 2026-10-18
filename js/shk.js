@@ -295,7 +295,7 @@ import { Monnam, x_monnam, y_monnam } from './do_name.js';
 import { rn2, rnd } from './rng.js';
 import { obj_stop_timers } from './timeout.js';
 import { ansimpleoname, Doname2, donameFresh, paydoname, safe_qbuf,
-    simpleonames, the_unique_pm, thesimpleoname, The, the, xnameFresh } from './objnam.js';
+    obj_typename, simpleonames, the_unique_pm, thesimpleoname, The, the, xnameFresh } from './objnam.js';
 import { hidden_gold } from './vault.js';
 import { cansee } from './vision.js';
 import { add_menu_heading, select_menu } from './windows.js';
@@ -4388,6 +4388,112 @@ export function is_unpaid(obj) {
 function clear_unpaid_obj(shopkeeper, otmp) {
     if (hasContents(otmp)) clear_unpaid(shopkeeper, otmp.cobj);
     if (onbill(otmp, shopkeeper, true)) otmp.unpaid = 0;
+}
+
+// C ref: shk.c globby_bill_fixup() (5976-6120). Keep this helper async so
+// callers cannot free the absorbed object before billing and its messages
+// have completed. Bill rows are fixed slots; callers retain row references.
+export async function globby_bill_fixup(obj_absorber, obj_absorbed, state = game, env = {}) {
+    let x = 0, y = 0;
+    let bp, bp_absorber = null, shkp = null;
+    const floor_absorber = obj_absorber.where === OBJ_FLOOR;
+
+    if (!obj_absorber.globby) {
+        note_unported('shk.c impossible: globby_bill_fixup called for non-globby object');
+    }
+    if (floor_absorber) {
+        x = obj_absorber.ox;
+        y = obj_absorber.oy;
+    }
+    if (obj_absorber.unpaid) {
+        for (shkp = next_shkp(state.level?.monlist ?? null, true, state); shkp;
+            shkp = next_shkp(shkp.nmon, true, state)) {
+            if (onbill(obj_absorber, shkp, true)) break;
+        }
+    } else if (obj_absorbed.unpaid) {
+        if (obj_absorbed.where === OBJ_FREE && floor_absorber
+            && costly_spot(x, y, state)) {
+            const room = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+            shkp = shop_keeper(room, state);
+        }
+    }
+    // C's first-ushops fallback is explicitly a sanity check when bill state
+    // and the unpaid flag disagree.
+    if (!shkp) shkp = shop_keeper(firstRoom(state.u?.ushops), state);
+    if (!shkp) return;
+
+    bp_absorber = onbill(obj_absorber, shkp, false);
+    bp = onbill(obj_absorbed, shkp, false);
+    const eshk = shkp.mextra?.eshk;
+    if (!eshk) return;
+    const per_unit_cost = set_cost(obj_absorbed, shkp, state);
+
+    // Scenario 1: a billed glob is absorbed by a billable glob. Preserve the
+    // C fixed-slot copy and captured-pointer ordering, including its reverse
+    // order behavior when bp_absorber aliases the former last slot.
+    if (bp && (!obj_absorber.no_charge
+        || billable({ value: shkp }, obj_absorber, eshk.shoproom, false, state))) {
+        const amount = bp.price;
+        eshk.billct--;
+        Object.assign(bp, eshk.bill_p[eshk.billct]);
+        clear_unpaid_obj(shkp, obj_absorbed);
+        if (bp_absorber) bp_absorber.price += amount;
+        return;
+    }
+
+    // Scenario 2: player-owned glob absorbed by a shop-owned glob.
+    if (!bp_absorber && !bp && !obj_absorber.no_charge) {
+        const amount = get_pricing_units(obj_absorbed, state) * per_unit_cost;
+        if (saleable(shkp, obj_absorbed, state)) {
+            const name = The(obj_typename(obj_absorbed.otyp, state), state);
+            if (eshk.debit >= amount) {
+                if (eshk.loan) eshk.loan = Math.max(0, eshk.loan - amount);
+                eshk.debit -= amount;
+                await (env.message ?? ttyPline)(
+                    `The donated ${obj_typename(obj_absorbed.otyp, state)} `
+                    + `${eshk.debit ? 'partially ' : ''}pays off your debt.`, state,
+                );
+            } else {
+                const delta = amount - eshk.debit;
+                eshk.credit += delta;
+                if (eshk.debit) {
+                    eshk.debit = 0;
+                    eshk.loan = 0;
+                    await (env.message ?? ttyPline)('Your debt is paid off.', state);
+                }
+                if (eshk.credit === delta) {
+                    await (env.message ?? ttyPline)(
+                        `${name} established ${delta} ${currency(delta, state)} credit.`, state,
+                    );
+                } else {
+                    await (env.message ?? ttyPline)(
+                        `${name} added ${delta} ${currency(delta, state)} to your credit; `
+                        + `total is now ${eshk.credit} ${currency(eshk.credit, state)}.`, state,
+                    );
+                }
+            }
+        }
+        return;
+    } else if (bp_absorber) {
+        bp_absorber.price += per_unit_cost * get_pricing_units(obj_absorbed, state);
+        return;
+    }
+
+    // Scenario 3: a billed shop glob is absorbed into a non-billable glob.
+    if (bp && (obj_absorber.no_charge
+        || (floor_absorber && !costly_spot(x, y, state)))) {
+        const amount = bp.price;
+        await bill_dummy_object(obj_absorbed, { ...env, state });
+        set_voice(shkp, 0, 80, 0, state);
+        await verbalize(
+            `You owe me ${amount} ${currency(amount, state)} for my `
+            + `${obj_typename(obj_absorbed.otyp, state)} that you `
+            + `${NOTANGRY(shkp) ? 'just mixed with yours.' : 'had the audacity to mix with your stinking batch!'}`,
+            state,
+            { message: env.message ?? ttyPline },
+        );
+    }
+    // Scenario 4 is intentionally a no-op.
 }
 
 function clear_unpaid(shopkeeper, list) {

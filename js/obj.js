@@ -209,6 +209,7 @@ import {
     costly_adjacent,
     costly_spot,
     find_objowner,
+    globby_bill_fixup,
     onshopbill,
     shop_keeper,
     splitbill,
@@ -3946,10 +3947,9 @@ export function obj_nexto_xy(obj, x, y, recurs, state = game, random = null) {
 // C ref: mkobj.c obj_absorb() (3695-3748). Causes one glob object to
 // absorb another, increasing weight and averaging ages. Frees the second
 // object and returns the augmented first one.
-export function obj_absorb(otmp1, otmp2, state = game, env = {}) {
+export async function obj_absorb(otmp1, otmp2, state = game, env = {}) {
     if (otmp1 && otmp2 && otmp1 !== otmp2) {
-        // C: globby_bill_fixup(otmp1, otmp2) -- void, result discarded
-        note_unported('shk.c globby_bill_fixup');
+        await globby_bill_fixup(otmp1, otmp2, state, env);
         if (otmp1.bknown !== otmp2.bknown)
             otmp1.bknown = otmp2.bknown = 0;
         if (otmp1.rknown !== otmp2.rknown)
@@ -3995,7 +3995,7 @@ export function obj_absorb(otmp1, otmp2, state = game, env = {}) {
 // chooses which glob absorbs which (heavier wins, coin flip on tie), then
 // updates the display and unhides monsters where the absorbed glob stood.
 // C takes struct obj **; JS takes the objects directly and returns the survivor.
-export function obj_meld(otmp1, otmp2, state = game, env = {}) {
+export async function obj_meld(otmp1, otmp2, state = game, env = {}) {
     const random = env.random ?? { rn2: coreRn2 };
     let result = null;
     if (otmp1 && otmp2) {
@@ -4015,13 +4015,13 @@ export function obj_meld(otmp1, otmp2, state = game, env = {}) {
                     ox = otmp2.ox;
                     oy = otmp2.oy;
                 }
-                result = obj_absorb(otmp1, otmp2, state, env);
+                result = await obj_absorb(otmp1, otmp2, state, env);
             } else {
                 if (otmp1.where === OBJ_FLOOR) {
                     ox = otmp1.ox;
                     oy = otmp1.oy;
                 }
-                result = obj_absorb(otmp2, otmp1, state, env);
+                result = await obj_absorb(otmp2, otmp1, state, env);
             }
             /* callers really ought to take care of this; glob melding is
                a bookkeeping issue rather than a display one */

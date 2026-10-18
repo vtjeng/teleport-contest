@@ -12,6 +12,7 @@ import {
     MS_SELL,
     MAXNROFROOMS,
     OBJ_CONTAINED,
+    OBJ_FREE,
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
@@ -26,6 +27,7 @@ import {
 import { init_objects } from '../js/o_init.js';
 import {
     COIN_CLASS,
+    GLOB_OF_GRAY_OOZE,
     objects_globals_init,
     POT_WATER,
     DIAMOND,
@@ -50,7 +52,9 @@ import {
     STRANGE_OBJECT,
     WEAPON_CLASS,
 } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { mksobj, newObject } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { currency } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -80,6 +84,7 @@ import {
     record_price_quote,
     restshk,
     same_price,
+    set_cost,
     shop_debt,
     shkgone,
     shop_keeper,
@@ -599,6 +604,104 @@ function pickState(shopkeeper) {
     shopkeeper.my = 2;
     return state;
 }
+
+test('globby billing preserves all four source scenarios and fixed-slot pointers', async () => {
+    const { globby_bill_fixup } = await import('../js/shk.js');
+    const recipe = JSON.parse(readFileSync(
+        'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json', 'utf8',
+    ));
+    await runSegment(recipe.segments[0]);
+    const state = game;
+    const roomNo = state.level.at(state.u.ux, state.u.uy).roomno;
+    const keeper = shop_keeper(roomNo, state);
+    assert.ok(keeper?.isshk && keeper.mextra?.eshk);
+    const eshk = keeper.mextra.eshk;
+    const env = objectGenerationEnv({ state });
+    const glob = () => mksobj(GLOB_OF_GRAY_OOZE, true, false, env);
+    const messages = [];
+    const message = async (line) => messages.push(line);
+
+    // Scenario 1 reverse row order: the captured absorber pointer remains on
+    // the now-inactive old last slot, while the fixed active slot is copied.
+    const absorbed = glob();
+    const absorber = glob();
+    absorbed.unpaid = absorber.unpaid = 1;
+    absorber.where = OBJ_FLOOR;
+    const absorbedRow = { bo_id: absorbed.o_id, bquan: 1, price: 9, useup: false };
+    const absorberRow = { bo_id: absorber.o_id, bquan: 1, price: 9, useup: false };
+    eshk.bill_p = [absorbedRow, absorberRow];
+    eshk.billct = 2;
+    await globby_bill_fixup(absorber, absorbed, state, { ...env, message });
+    assert.equal(eshk.billct, 1);
+    assert.equal(eshk.bill_p[0].bo_id, absorber.o_id);
+    assert.equal(eshk.bill_p[0].price, 9);
+    assert.equal(absorberRow.price, 18, 'captured pointer updates the inactive old last slot');
+    assert.equal(absorbed.unpaid, 1, 'deleted row cannot be found by conditional clear');
+
+    // Scenario 2: a saleable player-owned glob pays down debt/creates credit.
+    eshk.bill_p = [];
+    eshk.billct = 0;
+    eshk.debit = eshk.loan = eshk.credit = 0;
+    const donation = glob();
+    const shopGlob = glob();
+    donation.where = OBJ_FREE;
+    shopGlob.where = OBJ_FREE;
+    donation.unpaid = shopGlob.unpaid = 0;
+    donation.no_charge = shopGlob.no_charge = 0;
+    const amount = get_pricing_units(donation, state) * set_cost(donation, keeper, state);
+    await globby_bill_fixup(shopGlob, donation, state, { ...env, message });
+    assert.equal(eshk.credit, amount);
+    assert.equal(messages[0], `The glob of gray ooze established ${amount} `
+        + `${currency(amount, state)} credit.`);
+
+    messages.length = 0;
+    eshk.debit = amount;
+    eshk.loan = amount + 3;
+    eshk.credit = 0;
+    await globby_bill_fixup(shopGlob, donation, state, { ...env, message });
+    assert.equal(eshk.debit, 0);
+    assert.equal(eshk.loan, 3, 'loan is reduced by the same amount and not below zero');
+    assert.equal(messages[0], 'The donated glob of gray ooze pays off your debt.');
+
+    messages.length = 0;
+    eshk.debit = amount - 1;
+    eshk.loan = amount + 7;
+    eshk.credit = 0;
+    await globby_bill_fixup(shopGlob, donation, state, { ...env, message });
+    assert.equal(eshk.debit, 0);
+    assert.equal(eshk.loan, 0);
+    assert.equal(eshk.credit, 1);
+    assert.equal(messages[0], 'Your debt is paid off.');
+    assert.ok(messages[1]?.includes('established 1'));
+
+    // Scenario 3 awaits bill_dummy_object and verbalize before returning.
+    messages.length = 0;
+    eshk.bill_p = [];
+    eshk.billct = 0;
+    const billedGlob = glob();
+    const freeGlob = glob();
+    billedGlob.unpaid = 1;
+    freeGlob.unpaid = 0;
+    freeGlob.no_charge = 1;
+    eshk.bill_p = [{ bo_id: billedGlob.o_id, bquan: 1, price: 7, useup: false }];
+    eshk.billct = 1;
+    await globby_bill_fixup(freeGlob, billedGlob, state, { ...env, message });
+    assert.equal(messages[0], `"You owe me 7 ${currency(7, state)} for my glob of gray ooze that you just mixed with yours."`);
+    assert.ok(eshk.billct >= 1, 'dummy bill is installed before the message completes');
+    assert.equal(billedGlob.unpaid, false);
+
+    // Scenario 4 is the no-bill player/player case.
+    messages.length = 0;
+    eshk.bill_p = [];
+    eshk.billct = 0;
+    const playerAbsorber = glob();
+    const playerAbsorbed = glob();
+    playerAbsorber.no_charge = 1;
+    playerAbsorber.unpaid = playerAbsorbed.unpaid = 0;
+    await globby_bill_fixup(playerAbsorber, playerAbsorbed, state, { ...env, message });
+    assert.equal(eshk.billct, 0);
+    assert.deepEqual(messages, []);
+});
 
 test('cost_per_charge follows the complete shk.c item-rate formula', () => {
     const keeper = ownershipShopkeeper(ROOMOFFSET, []);

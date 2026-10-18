@@ -1163,7 +1163,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                 // C discards obj_meld's survivor and tests its original
                 // incoming pointer, which obj_absorb nulls when consumed.
                 // The JS lifecycle marks deletion, including Lua retention.
-                obj_meld(globbyobj, other, state, rawEnv);
+                await obj_meld(globbyobj, other, state, rawEnv);
                 if (globbyobj.where === OBJ_DELETED
                     || globbyobj.where === OBJ_LUAFREE) globbyobj = null;
             }

@@ -41,6 +41,7 @@ import { initworm } from '../js/worm.js';
 
 import { accessible } from '../js/monmove.js';
 import { maketrap } from '../js/trap.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     IN_SIGHT,
     MAX_NUM_WORMS,
@@ -48,12 +49,14 @@ import {
     RLOC_NOMSG,
     WEB,
 } from '../js/const.js';
+import { addtobill, shop_keeper } from '../js/shk.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import {
     AMULET_OF_LIFE_SAVING,
     BOULDER,
     CORPSE,
     GOLD_PIECE,
+    GLOB_OF_BLACK_PUDDING,
     ORCISH_DAGGER,
     SCR_BLANK_PAPER,
 } from '../js/objects.js';
@@ -88,6 +91,7 @@ import {
     PM_GHOUL,
     PM_ARCHEOLOGIST,
     PM_GOBLIN,
+    PM_BLACK_PUDDING,
     PM_FIRE_ANT,
     PM_GIANT_EEL,
     PM_GLASS_PIERCER,
@@ -249,6 +253,56 @@ function killEnv(rolls = [], fallback = 1) {
         unsupported: (reason) => { throw new Error(reason); },
     };
 }
+
+test('real black-pudding death awaits make_corpse glob billing merge', async () => {
+    const recipe = JSON.parse(readFileSync(
+        'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
+        'utf8',
+    ));
+    await runSegment(recipe.segments[0]);
+    const state = game;
+    const mon = spawn(PM_BLACK_PUDDING);
+    const { mx: x, my: y } = mon;
+    const roomNo = state.level.at(x, y)?.roomno;
+    const keeper = shop_keeper(roomNo, state);
+    assert.ok(keeper?.isshk && keeper.mextra?.eshk);
+    assert.equal(roomNo, state.u.ushops[0], 'death square is in the actual generated shop');
+
+    const env = objectGenerationEnv({ state });
+    const floorGlob = mksobj(GLOB_OF_BLACK_PUDDING, true, false, env);
+    floorGlob.ox = x;
+    floorGlob.oy = y;
+    place_object(floorGlob, x, y, env);
+    await addtobill(floorGlob, false, false, true, state, env);
+    assert.ok(floorGlob.unpaid && keeper.mextra.eshk.billct > 0,
+        'real bill row owns the pre-existing floor glob');
+
+    const startWeight = floorGlob.owt;
+    const lines = [];
+    await monkilled(mon, null, AD_PHYS, state, {
+        ...env,
+        message: async (line) => { lines.push(line); },
+    });
+    let pileCount = 0;
+    let survivor = null;
+    const pileRows = [];
+    for (let obj = state.level.objects[x][y]; obj; obj = obj.nexthere) {
+        ++pileCount;
+        survivor = obj;
+        pileRows.push({ o_id: obj.o_id, otyp: obj.otyp, globby: obj.globby,
+            owt: obj.owt, unpaid: obj.unpaid, where: obj.where });
+    }
+    assert.equal(mon.mhp, 0, 'normal monkilled death completed');
+    const globSurvivor = pileRows.find((obj) => obj.globby);
+    assert.ok(pileCount > 0 && globSurvivor,
+        `make_corpse target evidence: ${JSON.stringify({ pileCount, pileRows, lines, mhp: mon.mhp, x, y })}`);
+    assert.ok(globSurvivor.owt > startWeight,
+        'the corpse glob was absorbed before the async death caller returned');
+    assert.ok(keeper.mextra.eshk.billct > 0,
+        'shop billing completed before monkilled returned');
+    assert.ok(lines.some((line) => line.includes('coalesce')),
+        'real corpse merge message completed');
+});
 
 function refuses(fn, reason, label) {
     return assert.throws(fn, (error) => {
