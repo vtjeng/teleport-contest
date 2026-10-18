@@ -326077,7 +326077,7 @@
     {
       "id": "fix-fainted-melt-reset-faint-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Linked test-only rework of e821: strengthen the real drown/crawl survival assertion; retain original source-parity context and chronology.",
       "cFile": "eat.c",
       "sessions": [],
@@ -326085,7 +326085,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "129730c0d5cf2d367e7d1d81eb119e307ae0fd5a",
       "delivered": null,
       "functions": [
         {
@@ -326213,6 +326213,85 @@
           }
         },
         "reviewSha256": "825c0b371bfc56bbaeb0206a6b128daa7c7db95bc65d6e9e5c604d4ae3f369eb"
+      },
+      "closeStanding": {
+        "sha": "129730c0d5cf2d367e7d1d81eb119e307ae0fd5a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "36b0e523172d9f45059dbb5893ef3feecdd74bc5",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/129730c0d5cf2d367e7d1d81eb119e307ae0fd5a/run-hosted-DLDtBu/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "reset_faint",
+            "implementation": "js/eat.js",
+            "symbol": "reset_faint",
+            "sourceReview": "C eat.c:reset_faint only acts when ga.afternmv is the exact unfaint callback; it calls unmul(\"You revive.\"), which clears multi and the callback before invoking unfaint. The JS helper uses that strict identity and existing unmul owner with the same state/env.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "C trap5148-49 selected FAINTED calls reset_faint after optional usleep/steed/teleport guards and before multi>=0 crawl. Actual originaltrace establishes no preceding compensation."
+              }
+            ],
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/trap.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "drown",
+            "sourceFile": "trap.c",
+            "implementation": "js/trap.js",
+            "symbol": "drown",
+            "sourceReview": "C trap.c:drown calls reset_faint after its sleeping-unmul path and before the multi>=0 movement/crawl gate. JS now awaits that same helper at the exact is_fainted branch, preserving subsequent default RNG, crawl relocation, and escape handling.",
+            "pure": false,
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "Actual normal due timer queue tail awaits run_timers, unlinks exact installed MELT_ICE_AWAY timer then actual callback;8c receipt binds exacttid1kind1fn8arg655370timeout1."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "melt_ice_away",
+                "source": "C packed timercoord wrapper preserves mon_moving then real melt_ice→spoteffects→drown; exact samefixedinput sourcevalid initialized HealerFAINTED state reached originaltarget."
+              }
+            ],
+            "tests": [
+              "scripts/eat.test.mjs",
+              "scripts/trap.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Linked test-only correction to e821c7014164796f1923c7ec998a90d3b1d77565. No production source changed. Strengthened survival observation rejects any truthy gameover value (including numeric 1) using Boolean(gameover) === false, and independently requires actual uhp > 0. The gameover property is undefined on the live candidate and therefore Boolean(false); the first strict-equality attempt was preserved as an intermediate failed run. Final frozen 3-test bytes failed against original assignment base 985 at the expected target-specific multi -9 !== 0 assertion after the real timer unlink and POOL effect, and passed unchanged on e821 candidate: 144 passed, 0 failed, 0 skipped. This does not alter the source-parity claims or imply source/public-C certification.",
+        "entryPoints": [
+          {
+            "name": "normal due MELT_ICE_AWAY timeout into drowning",
+            "functions": [
+              {
+                "sourceFile": "eat.c",
+                "name": "reset_faint"
+              },
+              {
+                "sourceFile": "trap.c",
+                "name": "drown"
+              }
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

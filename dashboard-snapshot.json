@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T15:05:06.387Z",
+  "capturedAt": "2026-10-18T15:51:26.902Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T15:05:06.387Z",
+    "asOf": "2026-10-18T15:51:26.902Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 268,
+      "mainSupportAssignments": 276,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -171039,6 +171039,442 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:05:02.946Z",
+        "id": "queue:4b6cda19-a00b-4130-9af9-0a73893dc5bb",
+        "type": "queue-complete",
+        "task": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:05:02.946Z",
+        "id": "queue:4b6cda19-a00b-4130-9af9-0a73893dc5bb:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:05:31.025Z",
+        "id": "queue:56346f45-64cb-422a-9fbc-7b1811e17045",
+        "type": "queue-complete",
+        "task": "retained-whip-selection-request-owner-source-residual-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:05:31.025Z",
+        "id": "queue:56346f45-64cb-422a-9fbc-7b1811e17045:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:08:02.262Z",
+        "id": "queue:344dc63c-8b79-4073-aaf7-9ebec1c7a465",
+        "type": "assign",
+        "task": "resident-shopkeeper-relocation-anger-caller-source-inquiry-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:11:06.280Z",
+        "id": "queue:a6f786fa-da86-462c-a106-c2d34fd4a543",
+        "type": "queue-complete",
+        "task": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:11:06.280Z",
+        "id": "queue:a6f786fa-da86-462c-a106-c2d34fd4a543:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:11:09.382Z",
+        "id": "queue:e677c571-7fa7-4072-a4f6-726daf7164e9",
+        "type": "queue-complete",
+        "task": "resident-shopkeeper-relocation-anger-caller-source-inquiry-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:11:09.382Z",
+        "id": "queue:e677c571-7fa7-4072-a4f6-726daf7164e9:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:12:02.133Z",
+        "id": "queue:b81a409a-bc95-4d41-bf84-f06e559d05a0",
+        "type": "assign",
+        "task": "fix-fainted-melt-reset-faint-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:14:06.950Z",
+        "id": "queue:95801b98-b8dc-4813-9686-182b47bdf75d",
+        "type": "assign",
+        "task": "thrown-object-shopkeeper-pursuit-caller-source-inquiry-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-melt-repair-waiting",
+        "type": "activity",
+        "at": "2026-10-18T15:14:53.624Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "phase": "waiting",
+        "reason": "The worker is preparing the required original-code regression for the reviewed faint revival repair."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:18:14.245Z",
+        "id": "queue:d14bbe78-7592-48c2-ba74-e96014463636",
+        "type": "queue-complete",
+        "task": "thrown-object-shopkeeper-pursuit-caller-source-inquiry-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:18:14.245Z",
+        "id": "queue:d14bbe78-7592-48c2-ba74-e96014463636:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:19:30.054Z",
+        "id": "queue:a139739d-ca50-4223-9395-a92eddab651f",
+        "type": "assign",
+        "task": "retained-whip-default-action-entry-source-residual-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:19:56.005Z",
+        "id": "ready-e821c7014164796f1923c7ec998a90d3b1d77565:transport",
+        "type": "assign",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-fainted-melt-reset-faint-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-e821c7014164796f1923c7ec998a90d3b1d77565",
+        "type": "ready",
+        "at": "2026-10-18T15:19:56.005Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "delivery": "e821c7014164796f1923c7ec998a90d3b1d77565"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:19:56.005Z",
+        "id": "ready-e821c7014164796f1923c7ec998a90d3b1d77565:complete",
+        "type": "queue-complete",
+        "task": "fix-fainted-melt-reset-faint-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:19:56.005Z",
+        "id": "ready-e821c7014164796f1923c7ec998a90d3b1d77565:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:22:11.877Z",
+        "id": "queue:e298a6eb-8512-4eb0-9a90-1f0edfbd0575",
+        "type": "queue-complete",
+        "task": "retained-whip-default-action-entry-source-residual-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:22:11.877Z",
+        "id": "queue:e298a6eb-8512-4eb0-9a90-1f0edfbd0575:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-melt-e821-received",
+        "type": "received",
+        "at": "2026-10-18T15:23:23.975Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "delivery": "e821c7014164796f1923c7ec998a90d3b1d77565"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-melt-e821-survival-rework",
+        "type": "feedback",
+        "at": "2026-10-18T15:23:25.736Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "delivery": "e821c7014164796f1923c7ec998a90d3b1d77565"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:24:01.230Z",
+        "id": "queue:8dd44153-b01f-466b-9fb6-6175b4d51639",
+        "type": "assign",
+        "task": "rework:delivery:fix-fainted-melt-reset-faint-source-parity-20261018:e821c7014164796f1923c7ec998a90d3b1d77565",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "e821c7014164796f1923c7ec998a90d3b1d77565",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-fff50a672eb853117bc0a54bbce6ee70e4533fbd",
+        "type": "ready",
+        "at": "2026-10-18T15:27:14.310Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "delivery": "fff50a672eb853117bc0a54bbce6ee70e4533fbd"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:27:14.310Z",
+        "id": "ready-fff50a672eb853117bc0a54bbce6ee70e4533fbd:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-fainted-melt-reset-faint-source-parity-20261018:e821c7014164796f1923c7ec998a90d3b1d77565",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:27:14.310Z",
+        "id": "ready-fff50a672eb853117bc0a54bbce6ee70e4533fbd:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:29:22.346Z",
+        "id": "queue:b5bd8465-cd04-4b5d-9437-d39ef35204cf",
+        "type": "assign",
+        "task": "thrown-hostile-shopkeeper-pursuit-default-qualification-20261018-1526",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:29:49.689Z",
+        "id": "queue:f20a6919-8a6d-4795-81eb-4173a6cdbaf4",
+        "type": "assign",
+        "task": "retained-whip-inventoryless-default-action-qualification-20261018-1526",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:31:07.796Z",
+        "id": "queue:ef38ab86-6872-437d-8460-789e358b90d4",
+        "type": "assign",
+        "task": "lifesaved-mounted-centaur-warydog-dismount-source-inquiry-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-melt-fff-received",
+        "type": "received",
+        "at": "2026-10-18T15:32:52.717Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "delivery": "fff50a672eb853117bc0a54bbce6ee70e4533fbd"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-129730c0d5cf2d367e7d1d81eb119e307ae0fd5a-32ec91c277069ddce8c55f015f70e2e360ee557a3fd76825c696942552edd124-delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T15:35:11.463Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "integration": "129730c0d5cf2d367e7d1d81eb119e307ae0fd5a",
+        "validationGroup": [
+          "delivery:fix-fainted-melt-reset-faint-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:36:22.091Z",
+        "id": "queue:3bb79593-4bbc-46c2-9458-965b0cd4fe1d",
+        "type": "queue-complete",
+        "task": "retained-whip-inventoryless-default-action-qualification-20261018-1526",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:36:22.091Z",
+        "id": "queue:3bb79593-4bbc-46c2-9458-965b0cd4fe1d:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:36:38.324Z",
+        "id": "queue:bc6bdbed-75aa-4516-9695-3ae7a5c68fed",
+        "type": "queue-complete",
+        "task": "thrown-hostile-shopkeeper-pursuit-default-qualification-20261018-1526",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:36:38.324Z",
+        "id": "queue:bc6bdbed-75aa-4516-9695-3ae7a5c68fed:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:37:01.946Z",
+        "id": "queue:36725152-11f1-4283-94c9-ca5b35d369f3",
+        "type": "queue-complete",
+        "task": "lifesaved-mounted-centaur-warydog-dismount-source-inquiry-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:37:01.946Z",
+        "id": "queue:36725152-11f1-4283-94c9-ca5b35d369f3:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:38:00.328Z",
+        "id": "queue:20070b33-3bd6-4925-8048-1ca27ed89ec3",
+        "type": "assign",
+        "task": "outsider-burned-shop-floor-useupf-billing-source-inquiry-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:41:29.013Z",
+        "id": "queue:2e9aa2de-e6ff-470a-85a1-3e0e8a29d021",
+        "type": "queue-complete",
+        "task": "outsider-burned-shop-floor-useupf-billing-source-inquiry-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:41:29.013Z",
+        "id": "queue:2e9aa2de-e6ff-470a-85a1-3e0e8a29d021:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:42:19.501Z",
+        "id": "queue:3cf147fa-74a6-45bf-b98c-b9903c29a35e",
+        "type": "assign",
+        "task": "keepdogs-accessible-wizard-migration-caller-source-inquiry-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-fainted-melt-reset-faint-source-parity-20261018-129730c0d5cf2d367e7d1d81eb119e307ae0fd5a-validated",
+        "type": "validated",
+        "at": "2026-10-18T15:43:52.299Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-fainted-melt-reset-faint-source-parity-20261018-129730c0d5cf2d367e7d1d81eb119e307ae0fd5a-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T15:44:31.127Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:46:37.579Z",
+        "id": "queue:48ca4014-5338-4ea2-91c8-a3e5fbd95617",
+        "type": "queue-complete",
+        "task": "keepdogs-accessible-wizard-migration-caller-source-inquiry-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:46:37.579Z",
+        "id": "queue:48ca4014-5338-4ea2-91c8-a3e5fbd95617:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -171259,42 +171695,29 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
-        "worker": "Worker-3"
-      },
-      {
-        "task": "retained-whip-selection-request-owner-source-residual-20261018",
-        "worker": "Worker-2"
-      },
-      {
-        "task": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
-        "worker": "Worker-1"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 3,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 512,
+      "completed": 525,
       "superseded": 98
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "retained-whip-selection-request-owner-source-residual-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
-        "assignment": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -180484,7 +180907,7 @@
         "id": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -180493,13 +180916,13 @@
         "target": null,
         "readyAt": "2026-10-18T14:58:59.381Z",
         "claimedAt": "2026-10-18T14:59:36.613Z",
-        "completedAt": null
+        "completedAt": "2026-10-18T15:05:02.946Z"
       },
       {
         "id": "retained-whip-selection-request-owner-source-residual-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -180508,13 +180931,13 @@
         "target": null,
         "readyAt": "2026-10-18T15:02:13.381Z",
         "claimedAt": "2026-10-18T15:02:26.485Z",
-        "completedAt": null
+        "completedAt": "2026-10-18T15:05:31.025Z"
       },
       {
         "id": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -180523,13 +180946,163 @@
         "target": null,
         "readyAt": "2026-10-18T15:03:33.446Z",
         "claimedAt": "2026-10-18T15:04:09.509Z",
-        "completedAt": null
+        "completedAt": "2026-10-18T15:11:06.280Z"
+      },
+      {
+        "id": "resident-shopkeeper-relocation-anger-caller-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T15:07:51.082Z",
+        "claimedAt": "2026-10-18T15:08:02.262Z",
+        "completedAt": "2026-10-18T15:11:09.382Z"
+      },
+      {
+        "id": "fix-fainted-melt-reset-faint-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T15:11:40.887Z",
+        "claimedAt": "2026-10-18T15:12:02.133Z",
+        "completedAt": "2026-10-18T15:19:56.005Z"
+      },
+      {
+        "id": "thrown-object-shopkeeper-pursuit-caller-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T15:13:53.427Z",
+        "claimedAt": "2026-10-18T15:14:06.950Z",
+        "completedAt": "2026-10-18T15:18:14.245Z"
+      },
+      {
+        "id": "retained-whip-default-action-entry-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T15:19:15.226Z",
+        "claimedAt": "2026-10-18T15:19:30.054Z",
+        "completedAt": "2026-10-18T15:22:11.877Z"
+      },
+      {
+        "id": "rework:delivery:fix-fainted-melt-reset-faint-source-parity-20261018:e821c7014164796f1923c7ec998a90d3b1d77565",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": "e821c7014164796f1923c7ec998a90d3b1d77565",
+        "readyAt": "2026-10-18T15:23:25.736Z",
+        "claimedAt": "2026-10-18T15:24:01.230Z",
+        "completedAt": "2026-10-18T15:27:14.310Z"
+      },
+      {
+        "id": "thrown-hostile-shopkeeper-pursuit-default-qualification-20261018-1526",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T15:28:10.358Z",
+        "claimedAt": "2026-10-18T15:29:22.346Z",
+        "completedAt": "2026-10-18T15:36:38.324Z"
+      },
+      {
+        "id": "retained-whip-inventoryless-default-action-qualification-20261018-1526",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T15:28:12.261Z",
+        "claimedAt": "2026-10-18T15:29:49.689Z",
+        "completedAt": "2026-10-18T15:36:22.091Z"
+      },
+      {
+        "id": "lifesaved-mounted-centaur-warydog-dismount-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T15:30:51.098Z",
+        "claimedAt": "2026-10-18T15:31:07.796Z",
+        "completedAt": "2026-10-18T15:37:01.946Z"
+      },
+      {
+        "id": "outsider-burned-shop-floor-useupf-billing-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T15:37:47.538Z",
+        "claimedAt": "2026-10-18T15:38:00.328Z",
+        "completedAt": "2026-10-18T15:41:29.013Z"
+      },
+      {
+        "id": "keepdogs-accessible-wizard-migration-caller-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T15:42:04.309Z",
+        "claimedAt": "2026-10-18T15:42:19.501Z",
+        "completedAt": "2026-10-18T15:46:37.579Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "36b0e523172d9f45059dbb5893ef3feecdd74bc5",
-    "measuredAt": "2026-10-18T09:48:02.368Z",
+    "executionCommit": "129730c0d5cf2d367e7d1d81eb119e307ae0fd5a",
+    "measuredAt": "2026-10-18T15:41:13.503Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
