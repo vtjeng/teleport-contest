@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T02:36:56.225Z",
+  "capturedAt": "2026-10-18T02:41:08.049Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T02:36:56.225Z",
+    "asOf": "2026-10-18T02:41:08.049Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -167565,6 +167565,31 @@
         "type": "accepted",
         "at": "2026-10-18T02:35:33.159Z",
         "task": "delivery:fix-qualified-a51-see-wsegs-repaint-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-qualified-a51-see-wsegs-repaint-source-parity-20261018-dcacee9ac43c57097f6980ed7a4b6544277f51e1",
+        "type": "published",
+        "at": "2026-10-18T02:37:21.669Z",
+        "task": "delivery:fix-qualified-a51-see-wsegs-repaint-source-parity-20261018",
+        "commit": "dcacee9ac43c57097f6980ed7a4b6544277f51e1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T02:37:27.619Z",
+        "id": "queue:2577af43-3fac-4358-9f76-fb0d8081db23",
+        "type": "queue-block",
+        "task": "adjacent-asmodeus-cold-cast-source-screen-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T02:37:27.619Z",
+        "id": "queue:2577af43-3fac-4358-9f76-fb0d8081db23:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
       }
     ]
   },
@@ -167725,24 +167750,19 @@
     "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "adjacent-asmodeus-cold-cast-source-screen-20261018",
-        "worker": "Worker-1"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 0,
       "blocked": 0,
       "completed": 447,
-      "superseded": 85
+      "superseded": 86
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "adjacent-asmodeus-cold-cast-source-screen-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
@@ -175772,7 +175792,7 @@
         "id": "adjacent-asmodeus-cold-cast-source-screen-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
