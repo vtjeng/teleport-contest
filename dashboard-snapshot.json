@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T22:53:32.926Z",
+  "capturedAt": "2026-10-18T23:11:39.715Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T22:53:32.926Z",
+    "asOf": "2026-10-18T23:11:39.715Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 350,
+      "mainSupportAssignments": 351,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -174970,23 +174970,131 @@
         "worker": "Worker-3",
         "state": "idle",
         "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-regular-pickup-runtime-source-parity-20261018-a4a3afb7f30ca072e55ad186fa513e75e511e606",
+        "type": "published",
+        "at": "2026-10-18T22:53:52.591Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "commit": "a4a3afb7f30ca072e55ad186fa513e75e511e606"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-dothrow-7a2b-20261018",
+        "type": "received",
+        "at": "2026-10-18T22:54:57.496Z",
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "delivery": "7a2bc9413317f7642947b0873622b3da1142ccfd"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-1f81d7a6b58f21a8f8512dcafd2abb802582d8a1-e8f115cfcf8bba2a90d2f4e77e61f1298440243e6709fd92a272954c21d38ed6-delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T22:56:29.412Z",
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "integration": "1f81d7a6b58f21a8f8512dcafd2abb802582d8a1",
+        "validationGroup": [
+          "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:59:01.988Z",
+        "id": "queue:78044e86-38c1-400c-8232-0dfef40b6423",
+        "type": "assign",
+        "task": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker-2-wait-accepted-publication-refresh-20261018-2239",
+        "type": "turn",
+        "at": "2026-10-18T23:04:54.383Z",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Waiting on Main’s accepted publication and queue refresh before claiming the reviewed source proposal."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:06:45.109Z",
+        "id": "ready-4649e972d3e766cef098e377f665a9d11715f3a6:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-4649e972d3e766cef098e377f665a9d11715f3a6",
+        "type": "ready",
+        "at": "2026-10-18T23:06:45.109Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "delivery": "4649e972d3e766cef098e377f665a9d11715f3a6"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:06:45.109Z",
+        "id": "ready-4649e972d3e766cef098e377f665a9d11715f3a6:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:06:45.109Z",
+        "id": "ready-4649e972d3e766cef098e377f665a9d11715f3a6:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-quest-leader-return-addinv-await-source-parity-20261018-1f81d7a6b58f21a8f8512dcafd2abb802582d8a1-validated",
+        "type": "validated",
+        "at": "2026-10-18T23:09:20.242Z",
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-quest-leader-return-addinv-await-source-parity-20261018-1f81d7a6b58f21a8f8512dcafd2abb802582d8a1-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T23:10:00.316Z",
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "monster-4649-fixture-evidence-feedback-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T23:10:55.380Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "delivery": "4649e972d3e766cef098e377f665a9d11715f3a6"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:11:07.282Z",
+        "id": "queue:fa3309fc-f7dc-49c5-9386-316d6c2f5c81",
+        "type": "assign",
+        "task": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "4649e972d3e766cef098e377f665a9d11715f3a6",
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
-        "worker": "Worker-3",
-        "goal": "fix-quest-leader-return-addinv-await-source-parity-20261018",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "7a2bc9413317f7642947b0873622b3da1142ccfd",
-        "since": "2026-10-18T22:52:27.844Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -175192,44 +175300,66 @@
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
       },
-      "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018": {
-        "id": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
-        "worker": "Worker-3",
-        "status": "ready",
+      "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018": {
+        "id": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "working",
         "seed": null,
         "reservations": [
-          "source:dothrow.c:thitmonst"
+          "source:mkobj.c:add_to_minv",
+          "source:steal.c:mpickobj",
+          "source:mon.c:mpickstuff"
         ]
       }
     },
     "reservations": {
-      "source:dothrow.c:thitmonst": {
+      "source:mkobj.c:add_to_minv": {
         "tasks": [
-          "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018"
+          "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
+        ]
+      },
+      "source:steal.c:mpickobj": {
+        "tasks": [
+          "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
+        ]
+      },
+      "source:mon.c:mpickstuff": {
+        "tasks": [
+          "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
         ]
       }
     }
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
-    "blocked": [],
-    "claimed": [],
+    "blocked": [
+      {
+        "task": "glob-unearth-proposed-fixture-source-20261018",
+        "reason": "Waiting for producer or dependencies."
+      }
+    ],
+    "claimed": [
+      {
+        "task": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
+        "worker": "Worker-1"
+      }
+    ],
     "counts": {
-      "ready": 0,
-      "claimed": 0,
+      "ready": 1,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 614,
+      "completed": 615,
       "superseded": 101
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -185999,12 +186129,57 @@
         "readyAt": "2026-10-18T22:49:21.071Z",
         "claimedAt": "2026-10-18T22:49:59.486Z",
         "completedAt": "2026-10-18T22:51:19.075Z"
+      },
+      {
+        "id": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T22:58:33.149Z",
+        "claimedAt": "2026-10-18T22:59:01.988Z",
+        "completedAt": "2026-10-18T23:06:45.109Z"
+      },
+      {
+        "id": "glob-unearth-proposed-fixture-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-18T23:03:49.433Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "rework:delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018:4649e972d3e766cef098e377f665a9d11715f3a6",
+        "type": "rework",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": "4649e972d3e766cef098e377f665a9d11715f3a6",
+        "readyAt": "2026-10-18T23:10:55.380Z",
+        "claimedAt": "2026-10-18T23:11:07.282Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "acbb428389cb989d226c33b9cb19b213d6343c72",
-    "measuredAt": "2026-10-18T22:47:06.755Z",
+    "executionCommit": "1f81d7a6b58f21a8f8512dcafd2abb802582d8a1",
+    "measuredAt": "2026-10-18T23:01:56.062Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

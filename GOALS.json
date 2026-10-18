@@ -328078,7 +328078,7 @@
     {
       "id": "fix-quest-leader-return-addinv-await-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement thitmonst from dothrow.c",
       "cFile": "dothrow.c",
       "sessions": [],
@@ -328086,7 +328086,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "1f81d7a6b58f21a8f8512dcafd2abb802582d8a1",
       "delivered": null,
       "functions": [
         {
@@ -328176,6 +328176,52 @@
           ]
         },
         "reviewSha256": "e840a29da4aa81182bcc43ff5e1901b472f76ef64e47e047445b05d99117837a"
+      },
+      "closeStanding": {
+        "sha": "1f81d7a6b58f21a8f8512dcafd2abb802582d8a1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "acbb428389cb989d226c33b9cb19b213d6343c72",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/1f81d7a6b58f21a8f8512dcafd2abb802582d8a1/run-hosted-ErjNbB/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "thitmonst",
+            "sourceFile": "dothrow.c",
+            "implementation": "js/dothrow.js",
+            "symbol": "thitmonst",
+            "sourceReview": "Whole dothrow.c thitmonst (2011-2304) selected quest-leader return branch orders finish_quest, message, addinv completion, encumber_msg, then return 1. The implementation now awaits the real addinv result before encumber_msg and return.",
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "Existing caller awaits thitmonst in source throwit/wrapper path; function thitmonst alreadyasync, so awaiting addinv adds required in-function completion boundary before encumber and return without outward API changes."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The focused regression invokes the real async thitmonst on an initialized Knight state with a real Magic Mirror of Merlin registered through artifact_exists, a peaceful matching leader, and an OBJ_FREE object absent from the original inventory. finish_quest and addinv are real. The real first-touch artitouch/qt_pager chain is delayed through the existing questPagerOutput.window seam. Before the repair, thitmonst resolves while that pager is pending; after the repair it remains pending until the pager is released, then the mirror enters inventory while every original inventory object remains. A separate source-real already-touched case verifies eager completion.",
+        "entryPoints": [
+          {
+            "name": "actual thitmonst special quest leader return with first-touch and eager control",
+            "functions": [
+              "thitmonst"
+            ],
+            "test": "scripts/dothrow.test.mjs"
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
