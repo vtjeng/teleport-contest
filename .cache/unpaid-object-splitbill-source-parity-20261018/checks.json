@@ -1,0 +1,24 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/shk.test.mjs",
+      "scripts/object-substrate.test.mjs",
+      "scripts/apply-cream-pie.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/unpaid-object-splitbill-source-parity-20261018/final-focused-green.stdout"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/unpaid-object-splitbill-source-parity-20261018/lint.log"
+  }
+]

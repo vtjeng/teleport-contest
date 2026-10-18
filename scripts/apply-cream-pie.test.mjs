@@ -9,17 +9,22 @@ import {
     HALLUC,
     OBJ_DELETED,
     OBJ_INVENT,
+    OBJ_ONBILL,
+    ROOMOFFSET,
     TIMEOUT,
     W_TOOL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { addinv } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { can_blnd, haseyes } from '../js/mondata.js';
 import { AT_WEAP, M1_NOEYES } from '../js/monsters.js';
 import { CREAM_PIE } from '../js/objects.js';
-import { splitobj, weight } from '../js/obj.js';
+import { mksobj, splitobj, weight } from '../js/obj.js';
 import { make_blinded } from '../js/potion.js';
 import { getRngLog } from '../js/rng.js';
+import { addtobill, onbill, shop_keeper, unpaid_cost } from '../js/shk.js';
+import { dismissPendingTtyMessage } from '../js/tty_message.js';
 import {
     loadApplyCreamPieRecipe,
     WISH_ONLY,
@@ -168,25 +173,37 @@ test('doapply splits a cream-pie stack and consumes only the returned child',
     assert.deepEqual(calls, ['rnd(2)', 'rnd(25)', 'rn2(100)']);
 });
 
-test('splitobj preserves the returned child and names C splitbill as a void gap',
+test('splitobj preserves the returned child and explicit splitBill hook',
     async () => {
     const pie = await wishForPie();
     pie.quan = 2;
     pie.unpaid = true;
     pie.owt = weight(pie, { state: game });
+    let splitBillCalls = 0;
 
-    const child = splitobj(pie, 1, { state: game });
+    const child = splitobj(pie, 1, {
+        state: game,
+        hooks: {
+            splitBill(parent, split, normalized) {
+                splitBillCalls++;
+                assert.equal(parent, pie);
+                assert.equal(split.quan, 1);
+                assert.equal(normalized.state, game);
+            },
+        },
+    });
 
     // mkobj.c splitobj returns the child after setting context IDs and placing
-    // it immediately after its parent. shk.c splitbill is void and absent, so
-    // the call is recorded as a gap rather than replaced with a fake bill.
+    // it immediately after its parent. An explicit provider remains
+    // authoritative over the canonical default billing implementation.
     assert.equal(pie.quan, 1);
     assert.equal(child.quan, 1);
     assert.equal(child.unpaid, true);
+    assert.equal(splitBillCalls, 1);
     assert.equal(pie.nobj, child);
     assert.equal(game.context.objsplit.parent_oid, pie.o_id);
     assert.equal(game.context.objsplit.child_oid, child.o_id);
-    assert.ok(game.unported.has('shk.c splitbill'));
+    assert.ok(!game.unported.has('shk.c splitbill'));
 });
 
 test('doapply follows the hallucinated cream-pie message branch', async () => {
@@ -263,4 +280,108 @@ test('doapply still consumes a pie when can_blnd rejects the eyes', async () => 
         (entry) => entry.slice(0, entry.indexOf('=')),
     );
     assert.deepEqual(calls, ['rn2(100)']);
+});
+
+test('doapply keeps a split unpaid cream pie fully billed through consumption',
+    async () => {
+    const shopRecipe = JSON.parse(readFileSync(new URL(
+        '../recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    await runSegment(shopRecipe.segments[0]);
+    const state = game;
+    const display = state.nhDisplay;
+    const input = { startupMore: [], actionMore: [] };
+    const screen = () => display.serialize();
+
+    if (state._pending_message) {
+        const previousOnEmptyQueue = display.onEmptyQueue;
+        display.onEmptyQueue = () => {
+            const promptedScreen = screen();
+            assert.ok(state._pending_message
+                && promptedScreen.includes('--More--'));
+            input.startupMore.push({ message: state._pending_message,
+                screen: promptedScreen, waitEpoch: display.waitEpoch });
+            return 32;
+        };
+        try {
+            await dismissPendingTtyMessage(state);
+        } finally {
+            display.onEmptyQueue = previousOnEmptyQueue;
+        }
+    }
+
+    const roomNo = state.level.at(state.u.ux, state.u.uy).roomno;
+    assert.ok(roomNo >= ROOMOFFSET && state.level.flags.has_shop
+        && state.u.ushops?.[0] === roomNo);
+    const keeper = shop_keeper(roomNo, state);
+    assert.ok(keeper?.isshk && keeper.mextra?.eshk);
+    assert.equal(keeper.mextra.eshk.shoproom, roomNo);
+    const pieCount = () => {
+        let count = 0;
+        for (let obj = state.invent; obj; obj = obj.nobj)
+            if (obj.otyp === CREAM_PIE) count += obj.quan;
+        return count;
+    };
+    assert.equal(pieCount(), 0,
+        'the selected non-Valkyrie startup has no initial pie to merge');
+
+    const env = { state };
+    const first = mksobj(CREAM_PIE, true, false, env);
+    addinv(first, env);
+    const second = mksobj(CREAM_PIE, true, false, env);
+    addinv(second, env);
+    const pie = Array.from((function* inventory() {
+        for (let obj = state.invent; obj; obj = obj.nobj) yield obj;
+    })()).find(obj => obj.otyp === CREAM_PIE);
+    assert.ok(pie);
+    assert.equal(pie.quan, 2);
+    await addtobill(pie, true, false, true, state);
+    const originalBill = onbill(pie, keeper, true);
+    assert.equal(pie.unpaid, 1);
+    assert.equal(originalBill?.bquan, 2);
+    assert.ok(originalBill?.price > 0);
+    const unitPrice = originalBill.price;
+
+    const previousOnEmptyQueue = display.onEmptyQueue;
+    display.onEmptyQueue = () => {
+        const promptedScreen = screen();
+        assert.ok(state._pending_message
+            && promptedScreen.includes('--More--'));
+        assert.ok(input.actionMore.length < 16,
+            'acknowledges only a finite set of actual More prompts');
+        input.actionMore.push({ message: state._pending_message,
+            screen: promptedScreen, waitEpoch: display.waitEpoch });
+        return 32;
+    };
+    display.pushKey(pie.invlet.charCodeAt(0));
+    try {
+        assert.equal(await doapply(state), ECMD_OK);
+    } finally {
+        display.onEmptyQueue = previousOnEmptyQueue;
+    }
+
+    assert.equal(pie.quan, 1);
+    assert.equal(pie.where, OBJ_INVENT);
+    assert.equal(pie.unpaid, 1);
+    const parentBill = onbill(pie, keeper, true);
+    assert.equal(parentBill?.bquan, 1);
+    assert.equal(parentBill?.price, unitPrice);
+    const usedBill = keeper.mextra.eshk.bill_p
+        .slice(0, keeper.mextra.eshk.billct)
+        .find(entry => entry.useup && entry.bquan === 1);
+    assert.ok(usedBill,
+        'the consumed child remains represented by its useup bill entry');
+    assert.equal(usedBill.price, unitPrice);
+    const billobj = state.gb?.billobjs;
+    assert.ok(billobj && billobj.where === OBJ_ONBILL && billobj.unpaid,
+        JSON.stringify({ billobj: billobj && {
+            id: billobj.o_id, where: billobj.where, unpaid: billobj.unpaid,
+        }, usedBill, billct: keeper.mextra.eshk.billct }));
+    assert.equal(billobj.o_id, usedBill.bo_id);
+    assert.equal(unpaid_cost(pie, 0, state)
+        + usedBill.price * usedBill.bquan, 2 * unitPrice,
+    'parent and used-child bill rows preserve the full original debt');
+    assert.equal(pieCount(), 1);
+    assert.deepEqual(input.startupMore.length + input.actionMore.length > 0, true);
 });

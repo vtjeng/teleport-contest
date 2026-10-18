@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    BILLSZ,
     BUFSZ,
     HUNGRY,
     HALLUC,
@@ -132,6 +133,45 @@ test('addupbill sums exactly the active bill entries', () => {
     assert.equal(addupbill(shopkeeper), 40);
     shopkeeper.mextra.eshk.billct = 0;
     assert.equal(addupbill(shopkeeper), 0);
+});
+
+test('splitbill divides the active row and handles a full bill table', async () => {
+    const { splitbill } = await import('../js/shk.js');
+    assert.equal(typeof splitbill, 'function');
+    const recipe = JSON.parse(readFileSync(
+        'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
+        'utf8',
+    ));
+    await runSegment(recipe.segments[0]);
+    const roomNo = game.level.at(game.u.ux, game.u.uy).roomno;
+    const keeper = shop_keeper(roomNo, game);
+    assert.ok(keeper?.isshk && keeper.mextra?.eshk);
+    const eshk = keeper.mextra.eshk;
+
+    const parent = { o_id: 91001, quan: 2, unpaid: 1 };
+    const child = { o_id: 91002, quan: 1, unpaid: 1 };
+    eshk.bill_p = [{ bo_id: parent.o_id, bquan: 2,
+        useup: false, price: 17 }];
+    eshk.billct = 1;
+    splitbill(parent, child, game);
+    assert.deepEqual(eshk.bill_p.slice(0, eshk.billct), [
+        { bo_id: parent.o_id, bquan: 1, useup: false, price: 17 },
+        { bo_id: child.o_id, bquan: 1, useup: false, price: 17 },
+    ]);
+    assert.equal(child.unpaid, 1);
+
+    const fullParent = { o_id: 91003, quan: 2, unpaid: 1 };
+    const fullChild = { o_id: 91004, quan: 1, unpaid: 1 };
+    eshk.bill_p = Array.from({ length: BILLSZ }, (_, index) => index === 0
+        ? { bo_id: fullParent.o_id, bquan: 2, useup: false, price: 23 }
+        : { bo_id: 92000 + index, bquan: 1,
+            useup: false, price: 1 });
+    eshk.billct = BILLSZ;
+    splitbill(fullParent, fullChild, game);
+    assert.equal(eshk.bill_p[0].bquan, 1);
+    assert.equal(fullChild.unpaid, 0,
+        'C clears child.unpaid when the active bill table is full');
+    assert.equal(eshk.billct, BILLSZ);
 });
 
 test('shop_debt includes only the active bill entries', () => {

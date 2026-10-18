@@ -40,6 +40,7 @@ import {
     ECMD_TIME,
     D_BROKEN,
     D_CLOSED,
+    ESHK,
     FAINTED,
     EYE,
     FAST,
@@ -4085,6 +4086,42 @@ export function onbill(obj, shopkeeper, silent) {
         throw new UnsupportedShopError('onbill() reporting a stray unpaid item');
     }
     return null;
+}
+
+// C ref: shk.c splitbill() (3623-3658). mkobj.c splitobj() calls this only
+// after reducing the parent and creating its child; keep the bill mutation
+// synchronous and in that source position.
+export function splitbill(obj, child, state = game) {
+    const shopkeeper = shop_keeper(firstRoom(state.u?.ushops), state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) {
+        note_unported('shk.c impossible splitbill: no resident shopkeeper');
+        return;
+    }
+    const bill = onbill(obj, shopkeeper, true);
+    if (!bill) {
+        note_unported('shk.c impossible splitbill: parent not on bill');
+        return;
+    }
+    if (bill.bquan < child.quan)
+        note_unported('shk.c impossible splitbill: negative bill quantity');
+    if (bill.bquan === child.quan)
+        note_unported('shk.c impossible splitbill: zero bill quantity');
+    bill.bquan -= child.quan;
+
+    const eshk = ESHK(shopkeeper);
+    if (eshk.billct === BILLSZ) {
+        child.unpaid = 0;
+        return;
+    }
+    const childBill = {
+        bo_id: child.o_id,
+        bquan: child.quan,
+        useup: false,
+        price: bill.price,
+    };
+    eshk.bill_p ??= eshk.bill ?? [];
+    eshk.bill_p[eshk.billct] = childBill;
+    eshk.billct++;
 }
 
 // C ref: shk.c obfree() (1207-1258), the billing branch of the lifecycle

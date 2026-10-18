@@ -211,6 +211,7 @@ import {
     find_objowner,
     onshopbill,
     shop_keeper,
+    splitbill,
     subfrombill,
     stolen_value,
     unpaid_cost,
@@ -947,12 +948,11 @@ export function splitobj(obj, quantity, env = {}) {
 
     if (obj.unpaid) {
         // C ref: mkobj.c splitobj() calls shk.c splitbill() here and discards
-        // its void result. Preserve an established implementation; otherwise
-        // record the exact source gap after the preceding split mutations.
+        // its void result. Preserve explicit provider hooks, then use the
+        // canonical synchronous shop billing implementation by default.
         if (typeof normalized.hooks.splitBill === 'function')
             normalized.hooks.splitBill(obj, child, normalized);
-        else if (normalized.state === game)
-            note_unported('shk.c splitbill');
+        else splitbill(obj, child, normalized.state);
     }
     copy_oextra(child, obj);
     // C: if (has_omid(otmp)) free_omid(otmp); /* only one association */
