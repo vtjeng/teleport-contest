@@ -23,6 +23,8 @@ import {
     PLINE_VERBALIZE,
     ROOMOFFSET,
     D_ISOPEN,
+    CORR,
+    TELEDS_TELEPORT,
     SHOP_DOOR_COST,
     IS_DOOR,
     TOPLINE_NEED_MORE,
@@ -60,7 +62,7 @@ import {
 } from '../js/objects.js';
 import { mksobj, newObject } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { currency } from '../js/invent.js';
+import { currency, money_cnt } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { NethackGame, runSegment } from '../js/jsmain.js';
@@ -68,7 +70,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { getRngLog } from '../js/rng.js';
 import { do_mkroom } from '../js/mkroom.js';
 import { fill_special_room } from '../js/mklev.js';
-import { goodpos } from '../js/teleport.js';
+import { goodpos, teleds } from '../js/teleport.js';
 import { MORE_PROMPT } from '../js/tty_message.js';
 import { in_rooms } from '../js/rooms.js';
 import { t_at } from '../js/trap.js';
@@ -1800,4 +1802,223 @@ test('pay_for_damage outside first-slot buffer relocates keeper to its owned doo
     assert.deepEqual(after.hero.ushops, before.hero.ushops, 'zero-terminated room buffer unchanged');
     assert.deepEqual(after.currentDoorDamage, before.currentDoorDamage,
         'the source-owned current entrance damage record remains unchanged');
+});
+
+test('pay_for_damage default near-door getcad completes the source pursuit', async () => {
+    const runDir = mkdtempSync(join(process.cwd(), '.cache', 'getcad-default-'));
+    const input = {
+        seed: 2026101801,
+        datetime: '20261018120000',
+        nethackrc: 'OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+        moves: '',
+    };
+    const writeEvidence = (name, value) => writeFileSync(join(runDir, name),
+        `${JSON.stringify(value, (_key, v) => typeof v === 'bigint'
+            ? { $bigint: v.toString() }
+            : v === undefined ? { $undefined: true } : v, 2)}\n`,
+        { flag: 'wx' });
+    let display, previousHandler, harness;
+    let room = null, keeper = null, door = null, startup = null;
+    let before = null, after = null, primaryError = null, inputBoundary = null;
+    let invocationCount = 0, targetCallReturned = false, moreCount = 0;
+    const damageRows = () => {
+        const rows = [], seen = new Set();
+        for (let d = game.level?.damagelist ?? null; d; d = d.next ?? null) {
+            if (seen.has(d)) { rows.push({ cycle: true }); break; }
+            seen.add(d);
+            rows.push({ x: d.place?.x ?? null, y: d.place?.y ?? null,
+                when: d.when ?? null, cost: d.cost ?? null,
+                typ: d.typ ?? null, flags: d.flags ?? null });
+        }
+        return rows;
+    };
+    const snapshot = () => {
+        const coords = keeper ? { x: keeper.mx, y: keeper.my } : null;
+        const eshk = keeper?.mextra?.eshk;
+        const roomno = room ? room.roomnoidx + ROOMOFFSET : null;
+        const monlist = [], seen = new Set();
+        for (let m = game.level?.monlist ?? null; m; m = m.nmon ?? null) {
+            if (seen.has(m)) { monlist.push({ cycle: true }); break; }
+            seen.add(m);
+            monlist.push({ id: m.m_id ?? null, x: m.mx ?? null, y: m.my ?? null,
+                mstate: m.mstate ?? null, isKeeper: Boolean(m.isshk),
+                nextId: m.nmon?.m_id ?? null });
+        }
+        const currentDamage = damageRows().filter(d => d.x === door?.x && d.y === door?.y
+            && d.when === (game.moves ?? game.svm?.moves ?? 0));
+        return {
+            moves: game.moves ?? game.svm?.moves ?? null,
+            hero: { x: game.u?.ux ?? null, y: game.u?.uy ?? null,
+                hp: game.u?.uhp ?? null, startup,
+                ushops: [...(game.u?.ushops ?? [])],
+                firstShop: game.u?.ushops?.[0] ?? null,
+                cash: money_cnt(game.invent),
+                chebyshevToKeeper: coords ? Math.max(Math.abs(game.u.ux - coords.x), Math.abs(game.u.uy - coords.y)) : null },
+            selectedShop: room ? { index: room.roomnoidx, roomno, type: room.rtype,
+                residentId: room.resident?.m_id ?? null,
+                canonicalOwnerId: shop_keeper(roomno, game)?.m_id ?? null,
+                keeperCoordinates: coords,
+                gridKeeperId: coords ? game.level?.monsters?.[coords.x]?.[coords.y]?.m_id ?? null : null,
+                isResident: room.resident === keeper,
+                inShop: Boolean(keeper && inhishop(keeper, game)) } : null,
+            keeper: keeper ? { id: keeper.m_id, x: keeper.mx, y: keeper.my,
+                peaceful: Boolean(keeper.mpeaceful), following: Boolean(eshk?.following),
+                surcharge: Boolean(eshk?.surcharge), customer: eshk?.customer ?? null,
+                home: eshk?.shk ?? null, door: eshk?.shd ?? null,
+                robbed: eshk?.robbed ?? null, debit: eshk?.debit ?? null,
+                credit: eshk?.credit ?? null, billct: eshk?.billct ?? null } : null,
+            gridAtDoor: door ? game.level?.monsters?.[door.x]?.[door.y]?.m_id ?? null : null,
+            gridAtHome: eshk?.shk ? game.level?.monsters?.[eshk.shk.x]?.[eshk.shk.y]?.m_id ?? null : null,
+            monlist, damageRows: damageRows(), currentDamage,
+            unported: [...(game.unported ?? [])], rng: [...(getRngLog() ?? [])],
+            display: { messages: [...(display?.messages ?? [])],
+                screen: display?.serialize?.() ?? null,
+                topMessage: display?.topMessage ?? null, toplin: display?.toplin ?? null,
+                isWaitingForInput: Boolean(display?.isWaitingForInput),
+                inputQueueLength: display?.inputQueueLength ?? null,
+                waitEpoch: display?.waitEpoch ?? null,
+                pendingMessage: game._pending_message ?? null },
+        };
+    };
+    const inputState = () => ({ screen: display?.serialize?.() ?? null,
+        topMessage: display?.topMessage ?? null, toplin: display?.toplin ?? null,
+        isWaitingForInput: Boolean(display?.isWaitingForInput),
+        inputQueueLength: display?.inputQueueLength ?? null,
+        waitEpoch: display?.waitEpoch ?? null,
+        pendingMessage: game._pending_message ?? null });
+    class UnexpectedInput extends Error {
+        constructor(message, state) { super(message); this.state = state; }
+    }
+    writeEvidence('input.json', input);
+    try {
+        display = new GameDisplay(null);
+        previousHandler = display.onEmptyQueue;
+        display.onEmptyQueue = () => {
+            const state = inputState();
+            if (display.toplin === TOPLINE_NEED_MORE
+                && String(display.serialize?.() ?? '').includes(MORE_PROMPT)) {
+                if (moreCount >= 16) {
+                    inputBoundary = { reason: 'rendered More cap 16', state };
+                    throw new UnexpectedInput(inputBoundary.reason, state);
+                }
+                ++moreCount;
+                return 32;
+            }
+            inputBoundary = { reason: 'unknown empty-queue input requested', state };
+            throw new UnexpectedInput(inputBoundary.reason, state);
+        };
+        harness = new NethackGame({ seed: input.seed,
+            datetime: input.datetime, nethackrc: input.nethackrc });
+        harness._pendingDisplay = display;
+        await harness.start();
+        startup = { x: game.u?.ux ?? null, y: game.u?.uy ?? null,
+            ushops: [...(game.u?.ushops ?? [])] };
+        assert.deepEqual({ x: startup.x, y: startup.y }, { x: 67, y: 4 });
+        assert.deepEqual(startup.ushops, [0, 0, 0, 0, 0]);
+        assert.equal(Boolean(game.program_state?.gameover), false);
+        let shops = game.level.rooms.filter(r => r && r.rtype >= SHOPBASE);
+        if (!shops.length) {
+            do_mkroom(SHOPBASE, game);
+            shops = game.level.rooms.filter(r => r && r.rtype >= SHOPBASE);
+            const newest = shops.at(-1);
+            if (newest && newest.needfill !== 0) await fill_special_room(newest, { state: game });
+        }
+        room = shops[0] ?? null;
+        assert.ok(room, 'first canonical shop exists');
+        const roomno = room.roomnoidx + ROOMOFFSET;
+        keeper = room.resident ?? shop_keeper(roomno, game);
+        if (!keeper && room.needfill !== 0) {
+            await fill_special_room(room, { state: game });
+            keeper = room.resident ?? shop_keeper(roomno, game);
+        }
+        assert.ok(keeper && room.resident === keeper && keeper.isshk && keeper.mextra?.eshk);
+        assert.equal(room.roomnoidx, 0);
+        assert.equal(room.rtype, SHOPBASE);
+        assert.equal(keeper.m_id, 79);
+        assert.deepEqual({ x: keeper.mx, y: keeper.my }, { x: 5, y: 10 });
+        assert.equal(keeper.mpeaceful, true);
+        assert.equal(keeper.mextra.eshk.following, false);
+        assert.equal(shop_keeper(roomno, game), keeper);
+        assert.equal(inhishop(keeper, game), true);
+        door = { x: keeper.mextra.eshk.shd.x, y: keeper.mextra.eshk.shd.y };
+        assert.deepEqual(door, { x: 6, y: 10 });
+        const doorLoc = game.level.at(door.x, door.y);
+        assert.ok(IS_DOOR(doorLoc.typ));
+        assert.equal(doorLoc.doormask, D_ISOPEN);
+        assert.deepEqual(in_rooms(door.x, door.y, SHOPBASE, game), [roomno]);
+        assert.equal(game.level.monsters?.[door.x]?.[door.y] ?? null, null);
+        assert.equal(t_at(door.x, door.y, game), null);
+        assert.equal(goodpos(door.x, door.y, keeper, 0, { state: game }), true);
+        const exterior = game.level.at(7, 10);
+        assert.equal(exterior?.typ, CORR);
+        assert.equal(inside_shop(7, 10, game), 0);
+        assert.equal(game.level.monsters?.[7]?.[10] ?? null, null);
+        assert.equal(t_at(7, 10, game), null);
+        await teleds(7, 10, TELEDS_TELEPORT, game);
+        assert.deepEqual({ x: game.u.ux, y: game.u.uy }, { x: 7, y: 10 });
+        assert.deepEqual(game.u.ushops, [0, 0, 0, 0, 0]);
+        assert.equal(Math.max(Math.abs(game.u.ux - door.x), Math.abs(game.u.uy - door.y)), 1);
+        assert.equal(keeper.mx, 5);
+        assert.equal(keeper.my, 10);
+        assert.equal(keeper.mpeaceful, true);
+        assert.equal(keeper.mextra.eshk.following, false);
+        assert.equal(goodpos(door.x, door.y, keeper, 0, { state: game }), true);
+        assert.equal(money_cnt(game.invent), 0);
+        assert.equal(keeper.mextra.eshk.credit ?? 0, 0);
+        assert.deepEqual(damageRows(), []);
+        add_damage(door.x, door.y, SHOP_DOOR_COST, game);
+        const move = Math.trunc(game.moves ?? game.svm?.moves ?? 0);
+        before = snapshot();
+        assert.equal(before.rng.length, 2575);
+        assert.equal(before.hero.x, 7);
+        assert.equal(before.hero.y, 10);
+        assert.equal(before.hero.firstShop, 0);
+        assert.equal(before.selectedShop.roomno, 3);
+        assert.equal(before.selectedShop.canonicalOwnerId, keeper.m_id);
+        assert.equal(before.selectedShop.gridKeeperId, keeper.m_id);
+        assert.equal(before.selectedShop.inShop, true);
+        assert.equal(before.keeper.credit, 0);
+        assert.deepEqual(before.currentDamage, [{ x: 6, y: 10,
+            when: move, cost: SHOP_DOOR_COST, typ: doorLoc.typ, flags: doorLoc.flags }]);
+        writeEvidence('before-call.json', before);
+        writeEvidence('invocation-start.json', { invocationCount: 1,
+            call: "await pay_for_damage('break', false, game)", before });
+        invocationCount = 1;
+        await pay_for_damage('break', false, game);
+        targetCallReturned = true;
+        after = snapshot();
+        writeEvidence('after-call.json', after);
+    } catch (error) {
+        primaryError = { name: error?.name ?? 'Error', message: error?.message ?? String(error),
+            stack: error?.stack ?? null, inputBoundary: error?.state ?? inputBoundary };
+        try { writeEvidence('primary-error.json', primaryError); } catch {}
+    } finally {
+        if (display) display.onEmptyQueue = previousHandler;
+    }
+    const receipt = { task: 'fix-shop-damage-getcad-pursuit-source-parity-20261018', input,
+        runDir, invocationCount, targetCallReturned, before, after, primaryError,
+        inputBoundary, moreCount, handlerRestored: display?.onEmptyQueue === previousHandler,
+        finalMessages: display?.messages ?? [], screens: harness?.getScreens?.() ?? [],
+        rng: getRngLog() ?? [] };
+    writeEvidence('receipt.json', receipt);
+    console.log(`GETCAD_CAPTURE_DIR=${runDir}`);
+    assert.equal(receipt.handlerRestored, true, 'input handler restored before assertions');
+    assert.equal(primaryError, null, primaryError?.stack ?? 'primary call completed without exception');
+    assert.equal(invocationCount, 1, 'one real default parent call was invoked');
+    assert.equal(targetCallReturned, true, 'the default parent call returned');
+    assert.deepEqual({ x: after.hero.x, y: after.hero.y }, { x: 7, y: 10 });
+    assert.equal(after.keeper.id, before.keeper.id, 'same canonical keeper identity');
+    assert.deepEqual({ x: after.keeper.x, y: after.keeper.y }, door,
+        'the parent path moved the same real keeper to the owned door');
+    assert.equal(after.gridAtDoor, keeper.m_id);
+    assert.equal(after.gridAtHome, null);
+    assert.equal(after.monlist.filter(m => m.id === keeper.m_id).length, 1);
+    assert.deepEqual(after.currentDamage, before.currentDamage);
+    assert.equal(after.hero.cash, 0);
+    assert.equal(after.keeper.credit, 0);
+    assert.equal(after.keeper.peaceful, false, 'getcad must finish with hot_pursuit anger');
+    assert.equal(after.keeper.following, true, 'hot_pursuit must set following');
+    assert.equal(after.keeper.surcharge, true, 'hot_pursuit must set surcharge');
+    assert.equal(after.display.topMessage, '"How dare you break my door?"',
+        'the hearing keeper must deliver the source getcad reproach');
 });

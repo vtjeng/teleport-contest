@@ -282,7 +282,7 @@ import { m_next2u } from './mhitu.js';
 import { mbodypart, poly_gender } from './polyself.js';
 import { livelog_printf, verbalize, youHear } from './pline.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { growl, set_voice } from './sounds.js';
+import { growl, set_voice, yelp } from './sounds.js';
 import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
@@ -4851,6 +4851,34 @@ export function add_damage(x, y, cost, state = game) {
     if (cansee(x, y, state)) location.seenv = SVALL;
 }
 
+// C ref: shk.c getcad() (5138-5176). Reproach the hero for damage before the
+// unconditional pursuit transition, preserving the source's sound/RNG order.
+async function getcad(shopkeeper, dmgstr, x, y, uinshp, animal, pursue, state, env) {
+    const dugwall = dmgstr === 'dig into' || dmgstr === 'damage';
+    const message = env.message ?? ttyPline;
+    const roll = env.random?.rn2 ?? rn2;
+    if (muteshk(shopkeeper)) {
+        if (animal && !helpless(shopkeeper))
+            await yelp(shopkeeper, state, env.random ?? { rn2: roll });
+    } else if (pursue || uinshp || !um_dist(x, y, 1, state)) {
+        if (!heroIsDeaf(state)) {
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await verbalize(`How dare you ${dmgstr} my ${dugwall ? 'shop' : 'door'}?`, state, env);
+        } else {
+            const angrytexts = ['quite upset', 'ticked off', 'furious'];
+            await message(`${Shknam(shopkeeper, state)} is ${angrytexts[roll(angrytexts.length)]} that you decided to ${dmgstr} ${noitPronoun(shopkeeper, 'his', state, roll)} ${dugwall ? 'shop' : 'door'}!`, state);
+        }
+    } else if (!heroIsDeaf(state)) {
+        await message(`${Shknam(shopkeeper, state)} shouts:`, state);
+        set_voice(shopkeeper, 0, 80, 0, state);
+        await verbalize(`Who dared ${dmgstr} my ${dugwall ? 'shop' : 'door'}?`, state, env);
+    } else {
+        const angrytexts = ['quite upset', 'ticked off', 'furious'];
+        await message(`${Shknam(shopkeeper, state)} is ${angrytexts[roll(angrytexts.length)]} that someone decided to ${dmgstr} ${noitPronoun(shopkeeper, 'his', state, roll)} ${dugwall ? 'shop' : 'door'}!`, state);
+    }
+    await hot_pursuit(shopkeeper, state);
+}
+
 // C ref: shk.c pay_for_damage() (5174-5346). Damage records are charged to
 // the nearest shopkeeper who is still inside their shop; movement, payment,
 // and pursuit then follow the source branch order.
@@ -4930,9 +4958,7 @@ export async function pay_for_damage(
     if (!in_rooms(shopkeeper.mx, shopkeeper.my, SHOPBASE, state).length) {
         if (!cansee(shopkeeper.mx, shopkeeper.my, state)) return;
         pursue = true;
-        // getcad()'s result is discarded by C; its text-generation branch is
-        // still an explicit gap until that source function is ported.
-        note_unported('shk.c getcad');
+        await getcad(shopkeeper, dmgstr, x, y, inShop, animal, pursue, state, env);
         return;
     }
 
@@ -4944,7 +4970,7 @@ export async function pay_for_damage(
         }
         pursue = Boolean(um_dist(shopkeeper.mx, shopkeeper.my, 1, state));
         if (pursue) {
-            note_unported('shk.c getcad');
+            await getcad(shopkeeper, dmgstr, x, y, inShop, animal, pursue, state, env);
             return;
         }
     } else {
@@ -4969,7 +4995,7 @@ export async function pay_for_damage(
         || cant_mollify
         || money_cnt(state.invent) + shopkeeper.mextra.eshk.credit < damageCost
         || !roll(50)) {
-        note_unported('shk.c getcad');
+        await getcad(shopkeeper, dmgstr, x, y, inShop, animal, pursue, state, env);
         return;
     }
 
