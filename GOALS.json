@@ -323178,7 +323178,7 @@
     {
       "id": "fix-longworm-monkilled-visibility-source-parity-20261017",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement monkilled from mon.c",
       "cFile": "mon.c",
       "sessions": [],
@@ -323186,7 +323186,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "7c4ec039bc5ffbfd65a23ad09e92ed55389f6daa",
       "delivered": null,
       "functions": [
         {
@@ -323292,6 +323292,63 @@
           }
         },
         "reviewSha256": "4c2a30b494eb950b43f1415448a7adc42670ae91fe589bf19f827027e8a00ead"
+      },
+      "closeStanding": {
+        "sha": "7c4ec039bc5ffbfd65a23ad09e92ed55389f6daa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "464a42193329f7515854896891f584bfc40b7df6",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/7c4ec039bc5ffbfd65a23ad09e92ed55389f6daa/run-hosted-xqVIA2/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "mon.c",
+            "name": "monkilled",
+            "implementation": "js/mon.js",
+            "symbol": "monkilled",
+            "pure": false,
+            "sourceReview": "Compared mon.c:3377-3416. C prints only when fltxt is non-null and either worm_known succeeds for a worm or cansee succeeds for other monsters; otherwise it defers the sad feeling. JS now uses the same conditional, preserving the empty-string versus null distinction and the existing mondied/mondead order. This is a narrow caller-parity correction, not whole-function certification or public input parity.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "Real planningState+normal runSimpleMonsterAction provider→dochug→m_move normal worm movement→postmov/mintrap fresh arrow, source-valid HP1 and future growtime avoid healing before hit."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "thitm",
+                "source": "Actual arrow trap lethal nonhero hit awaits monkilled(mon,emptystring,AD_PHYS,state,env), emptystring is nonnull C pointer, then real death/segment cleanup."
+              }
+            ],
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/worm.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "The fixed seed initializes a normal long worm through the test harness. The fixture corrects its source initialization to cham=NON_PM and calls existing newmonhp with a cloned standard RNG context, then uses a real planningState and normal runSimpleMonsterAction movement to establish allocated segments and future growtime. The selected route starts from a constructed injured HP-1 state; the packet makes no claim of a separately executed prior attack or public history. A second normal action reaches one fresh arrow trap; real thitm calls monkilled with non-null empty-string fltxt, and default death handling increments the long-worm death count, creates a long-worm corpse, detaches the monster, and releases/clears the tail. The live game remains unchanged. Same final focused test files fail against the original source at the worm visibility refusal and pass with the correction. Visibility controls cover visible tail/unseen head and all-unseen cases. Runtime remains pending; there is no C recording, admitted synthetic range, public input recipe, or public parity claim.",
+        "entryPoints": [
+          {
+            "name": "runSimpleMonsterAction → dochug → m_move → postmov/mintrap → arrow thitm → monkilled",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "monkilled"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
