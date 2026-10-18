@@ -51,6 +51,7 @@ import {
     POOL,
     REFLECTING,
     ROOM,
+    SDOOR,
     SYM_UNEXPLORED,
     STONE,
     TIMEOUT,
@@ -73,12 +74,16 @@ import {
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
+import { assign_level } from '../js/dungeon.js';
+import { dismissPendingTtyMessage } from '../js/tty_message.js';
 import { create_drawbridge } from '../js/dbridge.js';
 import { add_to_minv } from '../js/invent.js';
 import { mksobj, newObject } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { find_delayed_killer } from '../js/end.js';
-import { make_stoned } from '../js/potion.js';
+import {
+    make_blinded, make_hallucinated, make_stoned,
+} from '../js/potion.js';
 import { relocate_monster } from '../js/monst.js';
 import {
     AD_ACID, AD_COLD, AD_DISN, AD_DRLI, AD_DRST, AD_ELEC, AD_FIRE, AD_PHYS,
@@ -2754,4 +2759,153 @@ test('fatal drawbridge destruction returns from zap_map before wand learning', a
         'the imported default death path must actually end the game');
     assert.equal(game.objects[WAN_STRIKING].oc_name_known, 0,
         'zap_map returns before its post-helper learnwand tail on fatal completion');
+});
+
+test('dobuzz reveals a secret door and drafts on the initialized Rogue level',
+    async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    assert.notEqual(game.program_state.gameover, true,
+        'the frozen Wizard initialization reaches a live game');
+    assert.ok(game.u.uhp > 0,
+        'the normal initialization reaches the caller with a living hero');
+
+    const rogueDescriptor = structuredClone(game.rogue_level);
+    assert.ok(rogueDescriptor && Number.isInteger(rogueDescriptor.dlevel));
+    assign_level(game.u.uz, rogueDescriptor);
+    assert.deepEqual(game.u.uz, rogueDescriptor,
+        'the canonical current-level writer copies the initialized descriptor');
+    assert.deepEqual(game.rogue_level, rogueDescriptor,
+        'the initialized Rogue descriptor remains unchanged');
+
+    const display = game.nhDisplay;
+    game.u.uhp = game.u.uhpmax = 100;
+    const acknowledgements = [];
+    const restoreCallbacks = [];
+    const installDisplayedMoreAcknowledgement = (activeDisplay) => {
+        const previous = activeDisplay.onEmptyQueue;
+        activeDisplay.onEmptyQueue = () => {
+            const screen = activeDisplay.serialize();
+            assert.ok(screen.includes('--More--'),
+                'only acknowledge an actually displayed More prompt');
+            assert.ok(acknowledgements.length < 16,
+                'finite startup/ray terminal acknowledgement budget');
+            acknowledgements.push(screen);
+            return 32;
+        };
+        restoreCallbacks.push(() => {
+            activeDisplay.onEmptyQueue = previous;
+        });
+    };
+    installDisplayedMoreAcknowledgement(display);
+    try {
+        if (game._pending_message)
+            await dismissPendingTtyMessage(game);
+        assert.equal(game._pending_message, '',
+            'startup TTY messages are dismissed through the real reader');
+
+        await make_blinded(10, false, game);
+        const x = game.u.ux - 1;
+        const y = game.u.uy;
+        for (let xx = x - 1; xx >= x - 18; --xx) {
+            const floor = game.level.at(xx, y);
+            assert.ok(floor, 'the frozen ray corridor stays inside the map');
+            assert.equal(game.level.monsters[xx][y], null,
+                'the frozen ray corridor has no actor preemption');
+            floor.typ = ROOM;
+            floor.flags = 0;
+            floor.doormask = 0;
+        }
+        const secretDoor = game.level.at(x, y);
+        assert.ok(secretDoor);
+        secretDoor.typ = SDOOR;
+        secretDoor.flags = 0;
+        secretDoor.doormask = 0;
+
+        await dobuzz(2, 6, game.u.ux, game.u.uy, -1, 0,
+            true, false, false, game);
+
+        assert.equal(game.level.at(x, y).typ, DOOR,
+            'the real ray converts its first adjacent secret door');
+        assert.match(game._pending_message, /You feel a draft\./u,
+            'the source caller reports the actual draft through ttyPline');
+        await dismissPendingTtyMessage(game);
+        assert.ok(display.serialize().includes('You feel a draft.'),
+            'the default TTY reader renders the draft on the initialized live terminal');
+
+        // The visible Rogue-level branch still reveals the door without the
+        // blind-only draft. This is the actual caller and actual TTY again.
+        await runSegment({
+            ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+        });
+        installDisplayedMoreAcknowledgement(game.nhDisplay);
+        game.u.uhp = game.u.uhpmax = 100;
+        if (game._pending_message)
+            await dismissPendingTtyMessage(game);
+        const visibleRogue = structuredClone(game.rogue_level);
+        assign_level(game.u.uz, visibleRogue);
+        const visibleX = game.u.ux - 1;
+        const visibleY = game.u.uy;
+        game.level.at(visibleX, visibleY).typ = SDOOR;
+        game.level.at(visibleX, visibleY).flags = 0;
+        game.level.at(visibleX, visibleY).doormask = 0;
+        await dobuzz(2, 6, game.u.ux, game.u.uy, -1, 0,
+            true, false, false, game);
+        assert.equal(game.level.at(visibleX, visibleY).typ, DOOR);
+        assert.match(game._pending_message, /Your bolt reveals a secret door\./u);
+        assert.doesNotMatch(game._pending_message, /draft/u,
+            'visible Rogue-level conversion does not emit the blind draft');
+
+        // On an ordinary initialized level, blindness alone is insufficient
+        // to call the Rogue-only draft helper.
+        await runSegment({
+            ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+        });
+        installDisplayedMoreAcknowledgement(game.nhDisplay);
+        game.u.uhp = game.u.uhpmax = 100;
+        if (game._pending_message)
+            await dismissPendingTtyMessage(game);
+        const ordinaryLevel = structuredClone(game.u.uz);
+        const rogueLevel = structuredClone(game.rogue_level);
+        assert.notDeepEqual(ordinaryLevel, rogueLevel);
+        await make_blinded(10, false, game);
+        const ordinaryX = game.u.ux - 1;
+        const ordinaryY = game.u.uy;
+        game.level.at(ordinaryX, ordinaryY).typ = SDOOR;
+        game.level.at(ordinaryX, ordinaryY).flags = 0;
+        game.level.at(ordinaryX, ordinaryY).doormask = 0;
+        await dobuzz(2, 6, game.u.ux, game.u.uy, -1, 0,
+            true, false, false, game);
+        assert.equal(game.level.at(ordinaryX, ordinaryY).typ, DOOR);
+        assert.doesNotMatch(game._pending_message, /draft/u,
+            'an ordinary blind level does not emit the Rogue-only draft');
+
+        // The existing helper's partial default RNG bundle lacks rn1. Keep
+        // the primary witness above on real dobuzz; this secondary caller
+        // pins the imported helper's canonical rn1 fallback under hallucination.
+        await runSegment({
+            ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+        });
+        installDisplayedMoreAcknowledgement(game.nhDisplay);
+        game.u.uhp = game.u.uhpmax = 100;
+        if (game._pending_message)
+            await dismissPendingTtyMessage(game);
+        assign_level(game.u.uz, game.rogue_level);
+        await make_blinded(10, false, game);
+        await make_hallucinated(10, false, 0, game);
+        const hallucX = game.u.ux - 1;
+        const hallucY = game.u.uy;
+        game.level.at(hallucX, hallucY).typ = SDOOR;
+        game.level.at(hallucX, hallucY).flags = 0;
+        game.level.at(hallucX, hallucY).doormask = 0;
+        await zap_over_floor(
+            hallucX, hallucY, 2, { value: false }, true, 0,
+            game, { rn2, rnd },
+        );
+        assert.match(game._pending_message, /You feel like (enlisting|marching|protesting|fleeing)\./u,
+            'hallucinated draft uses the imported rn1 fallback with a partial bundle');
+    } finally {
+        for (const restore of restoreCallbacks.reverse()) restore();
+    }
 });

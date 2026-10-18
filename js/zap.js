@@ -5477,7 +5477,12 @@ export async function zap_over_floor(
                 state, env,
             );
         } else if (Is_rogue_level(state.u?.uz)) {
-            note_unported('dig.c draft_message');
+            await draft_message(false, {
+                ...env,
+                state,
+                random: { ...random, rn1: random.rn1 ?? rn1 },
+                message,
+            });
         }
     }
 
