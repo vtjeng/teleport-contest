@@ -324901,6 +324901,116 @@
         },
         "reviewSha256": "3a36bc701c93eceaeab63a0c9536ee117d1f8f19c11e09bac568ebb58d2fa9ee"
       }
+    },
+    {
+      "id": "fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement monkilled from mon.c",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "monkilled",
+          "line": 3377,
+          "endLine": 3420,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 3377,
+        "to": 3420
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "assignmentBase": "1f3d5ff2389186dcbab0e0ba5bda1abe7bf8210c",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "1f3d5ff2389186dcbab0e0ba5bda1abe7bf8210c",
+          "authorization": "User explicitly asks to align this JS control-flow difference even though selected ordinary missile missing-provider hypothesis is refuted. Root selects NEW bounded correction for free existing W1. Full Main independent source review precedes code; direct sourceParity with real production caller red/green and runtime pending is authorized. Original acid6d920 interruption and e988 source refutation remain distinct and spent; acid-bars/other owners and caps untouched. Explicit fresh linked expectation review after immutable062a41525c60caa89d083e9803e3fd40f98f00ad423cd9146933cda9c49600a0: root approved source-valid canonical lifesaving branch instead of completed-death expectation. Original deadline06:52:39.681 UTC remains absolute, all elapsed time and two genuine original/deeper failure logs retained. No new source scope or cap reset.",
+          "currentBehavior": "C mon.c3376-3418 monkilled performs ordinary death first and only formats the special farewell under mtame and nonnull rxt (fire/rust/decay destroyed golem). JS mon.js5975 eagerly requires env.unsupported before any branch, even ordinary AD_ACID. Normal monsterMissileEnv supplies this provider, so e988 refutes a failure in the ordinary m_throw route. However exported real potionhit defaults message/RNG and spreads rawEnv without adding unsupported; its genuine nonhero lethal acid branch calls monkilled. The unconditional irrelevant provider lookup therefore imposes an extra source-inconsistent precondition on that valid production entry.",
+          "expectedBehavior": "ONLY move existing unsupported lookup to guarded rxt as original review. Primary actual real potionhit nonhero lethal AD_ACID fixture uses canonical ordinary living untame goblin, real mksobj AoL/add_to_minv/m_dowear W_AMUL, !G_GENOD/no vampire, no unsupported provided. Original eager lookup must still be SAME finalbytes/command red. Afterdelta real mondied→mondead→lifesaved_monster consumes actual AoL with canonical m_useup/extract/obfree, clears owner/worn slot, restoresHP, and mondead/mondied/monkilled all return alive before unrelated relobj/dropEnv. Assert actual consumed OBJ_DELETED item, cleared ownership/worn, restored HP, no deathcount/detach, real potion ownership cleanup. No fake life/death/item helpers, forcedRNG, unsupported insertion or default provider change. Exact existing guarded farewell unsupported control remains required. This proves legitimate acid-caused lifesaving return, NOT ordinary completed death/default relobj repair. Keep original deadvictim postdelta dropEnv prerequisite intact. All other original behavior/scope/order limits apply. Worker freezes corrected final fixture, originalsource target-red before reapplying delta then samegreen+lint, no source change beyond lazylookup.",
+          "units": [
+            "mon.c:monkilled"
+          ],
+          "allowedPaths": [
+            "js/mon.js",
+            "scripts/mon-kill.test.mjs",
+            "scripts/potion.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/mon-kill.test.mjs",
+            "scripts/potion.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/potion.js",
+              "symbol": "potionhit",
+              "source": "Actual exported potionhit ordinary nonhero POT_ACID branch, after resistance and lethal damage, awaits real monkilled(mon, empty fltxt, AD_ACID,state,env). Primary proof must use this real production caller without invented unsupported or direct monkilled-only proof."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/mon.js",
+              "object": "ecbeffd16ce103d36421705dc039e739cf6cbd4b"
+            },
+            {
+              "path": "js/potion.js",
+              "object": "72cf938e6eac813f3f047b1613a8d80a25028d43"
+            },
+            {
+              "path": "js/unported_monster_actions.js",
+              "object": "1fd28ae7e30c4a629dfc01de6fe974a60669055e"
+            },
+            {
+              "path": "js/mthrowu.js",
+              "object": "aefe9fd13461fa42388c6b901af892a5f91a620c"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/monst.js",
+              "object": "5b3d047868d8b40c07416497640bd948ae2c6c93"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "scripts/mon-kill.test.mjs",
+              "object": "a70293bfb89397fbae18c029bd81add8ab5582e9"
+            },
+            {
+              "path": "scripts/potion.test.mjs",
+              "object": "280f73ff61aa6a7a38745e53a5bc641e980eb443"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "prior": "e988a35f4fea013057ea9965726e950c09c6e5abc25b93bd3456e9cc82a8577b",
+            "mainReview": ".cache/continuous-run-resume/acid-provider-continuation-main-review.json",
+            "independent": "CL independently verified e98865,091B/c1366aa0/all6files and same exact C/JS distinction; ordinary missile provider is present. New user-selected control-flow alignment is separate.",
+            "knownSetup": "Reuse successful same-helper initialized fixture references before modifying args: mimic7bb/9e444 species pointer plus NO_MINVENT|MM_ADJACENTOK|MM_NOMSG, singleton game after runSegment (not its recorder return). Actual live display game.nhDisplay.serialize and a989 mon-kill withPendingMessageAcks finite actual pending/displayedMore-only callback. MM_NOGRP and private pendingDisplay failures are retained negatives. Worker owns minimal fixture, no optional public/history builders. Audit exact exports/args/providers/writer-owner-accessor-shape before freeze; copied primitive/losslessRNG/phase receipts.",
+            "tests": "Main rg monkilled/unsupported in mon-kill and potion tests identifies existing guarded farewell test around mon-kill1996 and ordinary kill tests; preserve source-valid fixture semantics and scoped refusal expectations. Source-only proposed entry remains runtime unknown until actual original target-red; no public witness required.",
+            "linkedBlock": "062a41525c60caa89d083e9803e3fd40f98f00ad423cd9146933cda9c49600a0",
+            "independentLife": "CL exact49 source review: canonical living goblin AoL admitted; mlifesaver→m_useup→extract clears worn; ordinary untimed/unlit/nonartifact/nonunpaid AoL obfree defaults suffice; !G_GENOD restores HP and all3 caller returns precede relobj. Accepted a989 mon-kill1337 canonical gear/default precedents. Main independently checked listed life-return source; no extra provider."
+          }
+        },
+        "reviewSha256": "0ffeb913e9f535d17163655964498954cf267a5cb5ecd61263357a4cfd73bab9"
+      }
     }
   ]
 }
