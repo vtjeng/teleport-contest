@@ -15,10 +15,12 @@ import {discoveryWatermark, snapshotWatermark, requireNoSnapshotRefresh, snapsho
     validatePublicSnapshot, verifySnapshotPublication, snapshotRefreshLock} from './snapshot-publication.mjs';
 import {verifyToolingPublication} from './worker-delivery.mjs';
 import {withMainWork} from './main-work.mjs';
+import {corpusDigest} from './challenge-results.mjs';
+import {executionTree} from './checkpoint-reuse.mjs';
 
 const read = file => JSON.parse(readFileSync(file));
 const save = (file,value) => writeFileSync(file,JSON.stringify(value,null,2)+'\n');
-function fixture(t) {
+function fixture(t, {acceptedReports = false, unsafePublication = false} = {}) {
     const root=mkdtempSync(join(tmpdir(),'dashboard-refresh-'));
     t.after(()=>rmSync(root,{recursive:true,force:true}));
     const git=args=>execFileSync('git',['-c','core.hooksPath=/dev/null',...args],
@@ -31,6 +33,12 @@ function fixture(t) {
     writeFileSync(join(root,'execution.txt'),'unchanged execution\n');
     save(join(root,'dashboard-snapshot.json'),{});
     git(['add','.gitignore','scripts/exploration-yield-audit.json','execution.txt','dashboard-snapshot.json']);
+    const cases = [{id:'sample',recordingSha256:'a'.repeat(64)}];
+    if (acceptedReports) {
+        mkdirSync(join(root,'challenges'));
+        save(join(root,'challenges/manifest.json'),{version:1,cases});
+        git(['add','challenges/manifest.json']);
+    }
     git(['commit','-qm','execution fixture']); const tested=git(['rev-parse','HEAD']);
     const artifacts=join(root,'.git/checkpoint-results',tested,'run-fixture'); mkdirSync(artifacts,{recursive:true});
     const results={results:Array.from({length:44},(_,i)=>({session:`session${i}.session.json`,passed:true,
@@ -50,6 +58,21 @@ function fixture(t) {
         explorationYield:buildExplorationYieldPayload(ledger,{asOf:'2000-01-01T00:00:01Z'}),
         activity:{events:[]},pendingMainWork:{},workerReservations:{},assignmentQueue:{},
         development:developmentFromCheckpoint(summary,results,readFileSync(join(artifacts,'session-results.json')))};
+    if (acceptedReports) {
+        const count={matched:1,total:1};
+        mkdirSync(join(root,'challenges/evaluations'));
+        save(join(root,'challenges/evaluations/accepted-fixture.json'),{
+            version:1,sha:tested,utc:'2000-01-01T00:00:00Z',status:'complete',
+            manifestSha256:corpusDigest(cases),scorerSha256:'b'.repeat(64),
+            cases:[{...cases[0],passed:true,metrics:{screens:count,rng:count,cursors:count}}],
+            totals:{sessions:count,screens:count,rng:count,cursors:count},
+        });
+        git(['add','challenges/evaluations/accepted-fixture.json']);
+    }
+    if (unsafePublication) {
+        writeFileSync(join(root,'execution.txt'),'unvalidated execution change\n');
+        git(['add','execution.txt']);
+    }
     save(join(root,'dashboard-snapshot.json'),initial);git(['add','dashboard-snapshot.json']);
     git(['commit','-qm','first accepted snapshot']);const anchor=git(['rev-parse','HEAD']);
     send({type:'tooling-published',tested,commit:anchor,checkpoint});
@@ -88,6 +111,23 @@ function runDue(f,hooks={}) {
     assert.equal(refreshOnce(options,{...f.hooks,...hooks}).status,'coalescing');
     return ()=>refreshOnce({...options,now:now+REFRESH_INTERVAL_MS+1},{...f.hooks,...hooks});
 }
+
+test('snapshot refresh accepts verified evaluation reports in the accepted publication suffix',t=>{
+    const f=fixture(t,{acceptedReports:true});
+    assert.notEqual(executionTree(f.root,f.tested),executionTree(f.root,f.anchor),
+        'normal accepted reports do not qualify for checkpoint execution reuse');
+    const receipt=runDue(f)();
+    assert.equal(receipt.status,'published');
+    assert.equal(receipt.proof.tested,f.tested);
+    assert.equal(receipt.proof.anchor,f.anchor);
+    assert.equal(executionTree(f.root,f.anchor),executionTree(f.root,receipt.commit));
+});
+
+test('accepted report suffix cannot hide unvalidated execution changes',t=>{
+    const f=fixture(t,{acceptedReports:true,unsafePublication:true});
+    assert.throws(runDue(f),/unvalidated changes: execution.txt/);
+    assert.deepEqual(f.counts(),{pushes:0,refreshes:0});
+});
 
 test('discovery metrics stay independent while closure activity coalesces without claim or timestamp churn',()=>{
     const row={id:'a',kind:'discovery',claimedAt:'2026-10-16T00:00:00Z',closedAt:'2026-10-16T00:01:00Z'};

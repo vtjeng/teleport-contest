@@ -12,6 +12,7 @@ import {checkpointResultsDirectory, readCheckpointResult} from './checkpoint-res
 import {buildDashboardSnapshot, developmentFromCheckpoint} from './dashboard-snapshot.mjs';
 import {mainWorkLock, requireMainWorkAccess} from './main-work.mjs';
 import {summarizeLedger} from './worker-state.mjs';
+import {verifyPublicationChanges} from './worker-delivery.mjs';
 
 const ensure = (value, message) => {if (!value) throw new Error(message);};
 export const snapshotDigest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -112,8 +113,10 @@ export function verifySnapshotPublication(root, state, proof, {published = false
     ensure(isDeepStrictEqual(summary, readCheckpointResult(root, proof.tested)), 'snapshot checkpoint differs from imported proof');
     ensure(ancestor(root, proof.tested, proof.anchor) && ancestor(root, proof.anchor, proof.commit)
         && proof.anchor !== proof.commit, 'snapshot history must descend from proof and distinct accepted anchor');
-    ensure(executionTree(root, proof.tested) === executionTree(root, proof.anchor)
-        && executionTree(root, proof.anchor) === executionTree(root, proof.commit),
+    // Acceptance can append checked evaluation/investigation reports. Reuse
+    // its existing publication verifier without broadening checkpoint reuse.
+    verifyPublicationChanges(root, proof.tested, proof.anchor);
+    ensure(executionTree(root, proof.anchor) === executionTree(root, proof.commit),
     'snapshot refresh execution tree changed');
     // Check EVERY commit as well as the final diff; reverted unrelated changes
     // and merges cannot smuggle unaccepted source or bookkeeping into Main.
