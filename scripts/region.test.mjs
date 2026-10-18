@@ -9,6 +9,7 @@ import {
     DRAWBRIDGE_UP,
     BLINDED,
     MAGICAL_BREATHING,
+    MON_DETACH,
     POISON_RES,
     ROOM,
     TIMEOUT,
@@ -16,8 +17,10 @@ import {
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { newMonster, place_monster } from '../js/monst.js';
+import { makemon_runtime } from '../js/makemon_create.js';
+import { runSegment } from '../js/jsmain.js';
 import {
-    M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD, S_GOLEM,
+    M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD, PM_LONG_WORM, S_GOLEM,
 } from '../js/monsters.js';
 import { S_cloud, S_poisoncloud } from '../js/symbols.js';
 import {
@@ -542,17 +545,23 @@ test('inside_gas_cloud treats the null callback subject as the hero monster', as
     assert.equal(cloud.ttl, 4);
 });
 
-test('inside_gas_cloud records a void monkilled gap with injected state', async () => {
-    const state = regionState();
-    const monster = newMonster({
-        data: { mflags1: 0, mflags2: 0, mresists: 0, msound: 0 },
-        m_id: 31,
-        mhp: 1,
-        mcansee: false,
-        mx: 9,
-        my: 9,
-        wormno: 1,
+test('inside_gas_cloud completes a nonhero long-worm death with initialized state', async () => {
+    await runSegment({
+        seed: 7710044,
+        datetime: '20000101120000',
+        nethackrc: 'OPTIONS=name:RegionDeath,role:Healer,race:human,'
+            + 'gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none',
+        moves: '',
     });
+    const state = game;
+    state.level = new GameMap();
+    for (let x = 7; x <= 11; x++)
+        for (let y = 7; y <= 11; y++) state.level.at(x, y).typ = ROOM;
+    const monster = await makemon_runtime(state.mons[PM_LONG_WORM], 9, 9, 0, { state });
+    assert.ok(monster?.wormno, 'canonical creation allocated the worm record');
+    const wormno = monster.wormno;
+    const deathsBefore = state.svm.mvitals[PM_LONG_WORM].died;
+    monster.mhp = 1; // A living, already injured ordinary worm.
     const cloud = pointRegion(5, 5, {
         arg: 1,
         heros_fault: false,
@@ -561,21 +570,23 @@ test('inside_gas_cloud records a void monkilled gap with injected state', async 
     game.unported = new Set();
 
     try {
-        await assert.rejects(
-            inside_gas_cloud(cloud, monster, {
+        assert.equal(await inside_gas_cloud(cloud, monster, {
                 state,
-                random: { rnd: () => 1 },
                 async message() {},
                 canSee: () => false,
                 unsupported(reason) {
                     throw new Error(`blocked at ${reason}`);
                 },
-            }),
-            /blocked at a long worm's death by another monster/,
-        );
-        assert.ok(game.unported.has(
+            }), true);
+        assert.equal(monster.mhp, 0);
+        assert.equal(monster.wormno, 0);
+        assert.equal(state.level.worms[wormno], null);
+        assert.ok(monster.mstate & MON_DETACH);
+        assert.equal(state.svm.mvitals[PM_LONG_WORM].died, deathsBefore + 1);
+        assert.equal(state.level.monsters[9][9], null);
+        assert.equal(game.unported.has(
             "mon.c a long worm's death by another monster",
-        ));
+        ), false);
     } finally {
         if (previousUnported === undefined) delete game.unported;
         else game.unported = previousUnported;
