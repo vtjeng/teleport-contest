@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T10:13:25.273Z",
+  "capturedAt": "2026-10-18T15:05:06.387Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T10:13:25.273Z",
+    "asOf": "2026-10-18T15:05:06.387Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 260,
+      "mainSupportAssignments": 268,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -170773,6 +170773,272 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-observe-worker-1",
+        "type": "observe",
+        "at": "2026-10-18T14:41:53.690Z",
+        "worker": "Worker-1",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-observe-worker-2",
+        "type": "observe",
+        "at": "2026-10-18T14:41:55.429Z",
+        "worker": "Worker-2",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-observe-worker-3",
+        "type": "observe",
+        "at": "2026-10-18T14:41:57.857Z",
+        "worker": "Worker-3",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker1-recovery-idle-20261018",
+        "type": "turn",
+        "at": "2026-10-18T14:42:20.685Z",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Challenge lead and Work lead are selecting bounded next tasks."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "w2-resume-1445-idle-20261018",
+        "type": "turn",
+        "at": "2026-10-18T14:42:22.943Z",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Challenge lead and Work lead are selecting bounded next tasks."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker3-idle-recovery-20261018",
+        "type": "turn",
+        "at": "2026-10-18T14:42:36.129Z",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Challenge lead and Work lead are selecting bounded next tasks."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:43:56.473Z",
+        "id": "queue:b29f31a8-b030-4d44-90bd-659ac6e9874a",
+        "type": "assign",
+        "task": "monster-striking-drawbridge-mbhit-source-inquiry-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "resume-1439-prep-observe",
+        "type": "observe",
+        "at": "2026-10-18T14:45:05.940Z",
+        "worker": "Prep",
+        "live": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "turn-prep-resume-1439-source-screen-20261018",
+        "type": "turn",
+        "at": "2026-10-18T14:45:46.635Z",
+        "worker": "Prep",
+        "state": "active",
+        "reason": "Reviewing bounded source prerequisites for retained investigations; prior attempts and deferrals preserved."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:47:59.553Z",
+        "id": "queue:c61afdac-5dec-476f-9c30-956e573a4fe0",
+        "type": "assign",
+        "task": "retained-whip-constructor-binding-source-residual-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:48:05.948Z",
+        "id": "queue:3b050429-c06f-4992-a734-48f1cba85f46",
+        "type": "assign",
+        "task": "retained-melt-form-timer-binding-source-residual-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:49:08.559Z",
+        "id": "queue:e4ece04a-2048-40c8-8f36-a68389d4d28e",
+        "type": "queue-complete",
+        "task": "monster-striking-drawbridge-mbhit-source-inquiry-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:49:08.559Z",
+        "id": "queue:e4ece04a-2048-40c8-8f36-a68389d4d28e:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:51:39.439Z",
+        "id": "queue:ed0cf5df-4f74-49c2-83a0-686a9cab0909",
+        "type": "queue-complete",
+        "task": "retained-whip-constructor-binding-source-residual-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:51:39.439Z",
+        "id": "queue:ed0cf5df-4f74-49c2-83a0-686a9cab0909:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:52:17.981Z",
+        "id": "queue:1e5a1bbd-b3dd-4744-8e25-82fad0055c7c",
+        "type": "assign",
+        "task": "retained-fountain-constructor-import-binding-source-residual-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:53:14.965Z",
+        "id": "queue:e0f5f216-5bf4-41cb-81e3-3d3d4631eb15",
+        "type": "queue-complete",
+        "task": "retained-melt-form-timer-binding-source-residual-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:53:14.965Z",
+        "id": "queue:e0f5f216-5bf4-41cb-81e3-3d3d4631eb15:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker3-idle-after-melt-binding-20261018",
+        "type": "turn",
+        "at": "2026-10-18T14:53:41.881Z",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "No eligible assignment is available; Work lead owns the next dispatch."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:55:13.065Z",
+        "id": "queue:ad53b580-8658-4441-9a7f-141632063b62",
+        "type": "queue-complete",
+        "task": "retained-fountain-constructor-import-binding-source-residual-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:55:13.065Z",
+        "id": "queue:ad53b580-8658-4441-9a7f-141632063b62:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:58:03.304Z",
+        "id": "queue:772c8219-cdce-4318-8937-ded427c5e7aa",
+        "type": "assign",
+        "task": "retained-fountain-fixed-input-target-qualification-20261018-1457",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:59:36.613Z",
+        "id": "queue:b16a21ab-c148-450f-a1de-9b481c844fab",
+        "type": "assign",
+        "task": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:59:43.310Z",
+        "id": "queue:4c364ff1-5c42-47a2-b221-a738ebdacc52",
+        "type": "queue-complete",
+        "task": "retained-fountain-fixed-input-target-qualification-20261018-1457",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T14:59:43.310Z",
+        "id": "queue:4c364ff1-5c42-47a2-b221-a738ebdacc52:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:02:26.485Z",
+        "id": "queue:ce611635-989c-4952-8844-bce5f509d587",
+        "type": "assign",
+        "task": "retained-whip-selection-request-owner-source-residual-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:04:09.509Z",
+        "id": "queue:bf13f808-588e-47d8-ac4f-5e6496056b72",
+        "type": "assign",
+        "task": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -170993,29 +171259,42 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
+        "worker": "Worker-3"
+      },
+      {
+        "task": "retained-whip-selection-request-owner-source-residual-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "task": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
+        "worker": "Worker-1"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 3,
       "blocked": 0,
-      "completed": 507,
+      "completed": 512,
       "superseded": 98
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "retained-whip-selection-request-owner-source-residual-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -180125,6 +180404,126 @@
         "readyAt": "2026-10-18T09:53:35.868Z",
         "claimedAt": "2026-10-18T09:53:50.750Z",
         "completedAt": "2026-10-18T09:55:31.830Z"
+      },
+      {
+        "id": "monster-striking-drawbridge-mbhit-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T14:43:24.899Z",
+        "claimedAt": "2026-10-18T14:43:56.473Z",
+        "completedAt": "2026-10-18T14:49:08.559Z"
+      },
+      {
+        "id": "retained-whip-constructor-binding-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T14:47:42.943Z",
+        "claimedAt": "2026-10-18T14:47:59.553Z",
+        "completedAt": "2026-10-18T14:51:39.439Z"
+      },
+      {
+        "id": "retained-melt-form-timer-binding-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T14:47:44.882Z",
+        "claimedAt": "2026-10-18T14:48:05.948Z",
+        "completedAt": "2026-10-18T14:53:14.965Z"
+      },
+      {
+        "id": "retained-fountain-constructor-import-binding-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T14:51:41.709Z",
+        "claimedAt": "2026-10-18T14:52:17.981Z",
+        "completedAt": "2026-10-18T14:55:13.065Z"
+      },
+      {
+        "id": "retained-fountain-fixed-input-target-qualification-20261018-1457",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T14:57:28.029Z",
+        "claimedAt": "2026-10-18T14:58:03.304Z",
+        "completedAt": "2026-10-18T14:59:43.310Z"
+      },
+      {
+        "id": "retained-melt-fixed-input-timeout-qualification-20261018-1459",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T14:58:59.381Z",
+        "claimedAt": "2026-10-18T14:59:36.613Z",
+        "completedAt": null
+      },
+      {
+        "id": "retained-whip-selection-request-owner-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T15:02:13.381Z",
+        "claimedAt": "2026-10-18T15:02:26.485Z",
+        "completedAt": null
+      },
+      {
+        "id": "monster-striking-drawbridge-default-caller-qualification-20261018-1503",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T15:03:33.446Z",
+        "claimedAt": "2026-10-18T15:04:09.509Z",
+        "completedAt": null
       }
     ]
   },
