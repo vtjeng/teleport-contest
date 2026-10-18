@@ -323873,6 +323873,158 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-empty-entry-bones-amulet-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement resetobjs from bones.c",
+      "cFile": "bones.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "resetobjs",
+          "line": 51,
+          "endLine": 197,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 51,
+        "to": 197
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-empty-entry-bones-amulet-source-parity-20261018",
+        "assignmentBase": "41f729c6eb0e5c1d08b8921baac852bbd18de1e9",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "41f729c6eb0e5c1d08b8921baac852bbd18de1e9",
+          "authorization": "User explicitly authorizes direct source-proved JS control-flow corrections before public witness. Coordinator requested narrow retained-owner bones sourceParity selection after independent e950fc46 review. Work lead selects actual exported savebones production caller with source-valid initialized singleton/private real VFS; no public death/acquisition requirement. NEW user authorization04:11: move testsetup design to workers early; worker designs/validates bounded fixture and retains ownership through justified repair. Coordinator explicitly selects NEW minimal entrysnapshot after immutable oldc208 optionalhelper rejection, no oldtaskretry; original overall deadline04:30:00.480 retained.",
+          "currentBehavior": "Pinned C bones.c170-174 resetobjs restoreFALSE changes real AMULET_OF_YENDOR to FAKE_AMULET_OF_YENDOR and curse. Current JS save resetobjs has no matching branch. Ordinary same floor object survives prior inventory drop and reaches this helper if normal save eligibility/no existing file/ghost success. Source394a and independent e950 prove coherent conditional jointstate; runtime target not yet observed.",
+          "expectedBehavior": "Only js/bones.js resetobjs restoreFALSE AMULET_OF_YENDOR arm: after earlier source branches assign otyp=FAKE_AMULET_OF_YENDOR and invoke existing imported curse(otmp,{state}). Add the two object constant imports from objects.js. curse on this ordinary unlit floor noncoin/nonartifact/no specialfig/book object is synchronous; no need broad async resetobjs/restore path/caller rewrite. Preserve C source order and no unsolicited weight/ID/unique/other-field rewriting. No Bell/Candelabrum/Book/tin/corpse conversion scope.",
+          "units": [
+            "bones.c:resetobjs"
+          ],
+          "allowedPaths": [
+            "js/bones.js",
+            "scripts/bones.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/bones.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/bones.js",
+              "symbol": "savebones",
+              "source": "C bones.c savebones iterates monster inventories, floor fobj and buried chains through resetobjs(FALSE); actual exported JS savebones creates normal ghost then invokes private resetobjs on canonical floor objlist before serializeBonesLevel/vfsWriteFile. Test actual savebones, never export/call private helper."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/bones.js",
+              "object": "8bf4dec1b830788f3584646c0e2bfda59ae45147"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/storage.js",
+              "object": "a7854b69a4cdea21b4fed11cd8ba1f7c26ff977d"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/game.js",
+              "object": "adf4337c84bc56c6d80ac75978219e18a81c99be"
+            },
+            {
+              "path": "js/calendar.js",
+              "object": "2921cba4356a246bf4346fe9309175e81114e142"
+            },
+            {
+              "path": "js/u_init.js",
+              "object": "9af5eb6748d17869aba0dd67145b5b02b38fca29"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "scripts/bones.test.mjs",
+              "object": "dcf994cbc8ebbca348fb61d07235b1aab9a6fc13"
+            },
+            {
+              "path": "scripts/do-revive.test.mjs",
+              "object": "5f22bcc1aa0b895961dcbf453f97fe24ba2d6370"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            },
+            {
+              "path": "js/dungeon.js",
+              "object": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/worn.js",
+              "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+            },
+            {
+              "path": "js/u_init_inventory_attrs.js",
+              "object": "2f7116bb4ffa8027c610141e5a782f7cf13a21f8"
+            }
+          ],
+          "sourceEvidence": {
+            "packetDigest": "394a55df7082b2cefb41a0a9c9df4ecf039bc3641802036496468061d23e1a70",
+            "envelopeSha256": "5ecc6eb57e0a65807e3c27b4f0643f1acd1a2a15394ea81d9ef0f40a2f05391f",
+            "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/bones-real-amulet-save-conversion-source-20261018/independent-source-parity-contract-2252.json",
+            "independentReviewSha256": "e950fc46c7c7ea730040f85fdd644b955d1584d5126c27d8494a18e30ecdc819",
+            "baseEquivalence": "All10 selected contract hashes read from immutable accepted41f match original6bb; normal cold publication bookkeeping only. Original394a/1cbe/714d preserved.",
+            "owners": "Closed really-done-bones-creation plus really-done-bones-prompt/savebones-and-game-termination slices retain identity/budgets. Closing prose/stale comments do not certify this arm. No exact consumed public realAmulet cause or live reservation found by selected source review; Main selects retained supporting correction, no novelty/full resetobjs/savebones/end certification.",
+            "entry": "Actual initialized singleton game (state===imported gstate.game), not a detached raw object. Use exact established runSegment boot parameters/options/imports, no optional really_done/kill/quest acquisition. Transparently construct only the coherent documented eligible ordinary-level savebones entry snapshot: correct dungeon/ledger/boneid/flags, bones enabled, notdiscover/notswallowed/noportal/disallowed-special/botlevel, no mount/punishment/leashes/othermonsters or inventory/equipment to add unrelated drop branches. Ordinary human role form and ugrave_arise=NON_PM, valid initialized hero name/role/race/flags/realtime/killer fields. Existing unmodified can_make_bones may establish eligibility using real RNG (wizard debug mode is a valid source configuration if selected); no successful eligibility hook or state-forced RNG. No existing bones file at actual level path.",
+            "floorObject": "Canonical exported obj.mksobj_at(AMULET_OF_YENDOR,x,y,true,false,objectGenerationEnv({state:game})) creates actual object and calls place_object. Real constructor sets context.made_amulet and actual type/weight/IDs/BUC. Select actual legal floor square, no retyped fake payload. Canonical ownership is level.objects[x][y]→nexthere plus level.objlist→nobj; at(x,y) is terrain only. Assert exact same object identity/ID/whereOBJ_FLOOR/coords in both chains. No optional addinv/drop/history.",
+            "ghost": "savebones ordinary ghost branch sets game.in_mklev=true itself, calls bare makemon(PM_GHOST,heroX,heroY,MM_NONAME) WITHOUT env, then sets in_mklevfalse and christens. Therefore game must be actual singleton for default binding. Fixture does not set in_mklev or inject a maker. Use unoccupied coherent hero square and actual mvitals PM_GHOST notgenocided/extinct; actual normal ghost success is a first-run guard, no fake/force result. Existing names/metadata/default imports may still block; preserve any actual blocker, no scope expansion.",
+            "storage": "Use actual storage.InMemoryStorage and storage.setStorageForTesting(mock) AFTER boot initialization (decl init clears game.mockStorage). Actual vfs reads/writes bind singleton game.mockStorage. Empty fresh private VFS means openBonesFile returnsnull and no replacementprompt; do not stub open/read/write or persist actual user files. Real output key is bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}, read with exported vfsReadFile(path), which returns string|null. JSON.parse only actual nonnull string. Production serializeBonesLevel clones floorObjects array and nulls nobj/nexthere; observer finds same object ID in floorObjects and checks otyp/cursed/blessed/coords. Storage setter/getter exact exports verified, no storage.js production edit.",
+            "limits": "Only selected real-Amulet save branch supporting retained owner. Source-parity-runtime-pending, no full resetobjs/savebones/end/storage certification, discovery or score. Destructive singleton savebones has no planning caller, do not invent clone/global isolation claim.",
+            "priorTerminal": "c20814df11146ef41cc831fa1a5f47a3e928b0e0af7a73848cfe3164e3182dd0",
+            "emptyEntryReview": "/workspace/teleport-contest-challenge-recovery/.cache/bones-real-amulet-save-conversion-source-20261018/prospective-empty-entry-contract-2252.json",
+            "emptyEntrySha": "4f05e816296dc838fb9db22c3de17841b49f46fced37ed2c066b7ec4df62f2d9",
+            "snapshot": "After actual initialized singleton boot, transparently initialize the documented pre-save entry snapshot (not replay item destruction): game.invent=null; every WORN_SLOTS hero field null: uarm,uarmc,uarmh,uarms,uarmg,uarmf,uarmu,uleft,uright,uwep,uswapwep,uquiver,uamul,ublindf,uball,uchain. Player u.uskin=null,u.twoweap=false,u.usteed=null,u.ustuck=null,u.uswallow=false. No item is owned by inventory/equipment; excluded initial items are not part of this fixture world. Do not retain stale slot refs, nobj inventory roots or object pointers from pre-snapshot helper arrays. Preserve real ID counters; do not recycle.",
+            "properties": "For ordinary nonpolymorphed empty-equipment/noartifact/noexternalproperty source snapshot, preserve initialized role/race INTRINSIC fields, zero each u.uprops[index].extrinsic and .blocked (u_init zeroProperties shape). Set moreluck0 with no luckconferrers; actual armor slots allnull and actual ordinary roleform imply source find_ac base formula without armor/rings/amulet. Any active spell/natural protection must either be preserved coherently or excluded explicitly in the selected empty-equipment snapshot; never invent literal HP/form or clear role intrinsic values. No setnotworn/setqorn/setworn/resetInventory/useupall/useup/freeinv/takeoff/unwear/curse-removal operation. These replay helpers are unnecessary and explicitly prohibited in this NEW fixture construction.",
+            "world": "Same valid initialized terrain/dungeon metadata and actual singleton; source-valid empty level monlist/grid, objlist/grid/buried roots/no traps/regions if selected, then canonical mksobj_at realAmulet on actual legal floor. Keep canonical level.objects[x][y] linked pile and objlist nobj in sync; terrain at(x,y) has no inventory/object array. Do not add fake tile.objects alias. Minimal single floor Amulet and default ghost created by savebones are enough. No source history simulation needed for this transparent snapshot.",
+            "originalOverallDeadline": "2026-10-18T04:30:00.480Z",
+            "workerOwnership": "Worker designs/validates minimal source-valid fixture and keeps selected repair; no additional lead fixture stage/gate. Keep all failed setup/observer attempts, safe bounded source-only production scope."
+          }
+        },
+        "reviewSha256": "8eeb9d1ae110cbd0286abb6cfbb7a09540f6ef763a66bc26eced39ee8b0a3878"
+      }
     }
   ]
 }

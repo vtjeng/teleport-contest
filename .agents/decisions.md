@@ -470,3 +470,32 @@ After two source-supported repair tasks stopped before production edits—earthq
 - Change: verify the tested-to-accepted suffix with the existing publication report verifier. Keep the accepted-anchor-to-snapshot execution tree equal and every subsequent commit snapshot-only, with the existing checkpoint, ancestry, immutable-prefix, projection, mode and privacy checks. Checkpoint reuse remains unchanged.
 - Why: normal rolling acceptance appended 98 checked evaluation JSON reports after tested commit `464a4219`; accepted publication `3e6cc6ae9` passed its publication checks, but the snapshot observer's stricter tree comparison rejected the report suffix before the workspace outage.
 - Verification and limits: a disposable full refresh reproduces the rejection, then accepts checked reports while rejecting unrelated execution edits. Exact hosted validation and normal publication checks still govern this correction. The pending coalesced watermark and original due time are retained; no new capture or deployment is claimed until its receipt passes.
+
+## 2026-10-18 — Give workers earlier ownership of bounded source investigations
+
+- Approval/change: the user explicitly approved earlier worker ownership.
+  Once a distinct source question has clear ownership, safe scope,
+  prerequisites and a bounded stop, hand it off with concise source context
+  and genuine uncertainties. The worker owns fixture design and validation;
+  a complete lead-authored fixture is no longer an enqueue prerequisite.
+- Why: [qualification gaps before enqueue](friction.md#2026-10-17--source-qualification-gaps-and-stale-recovery-ownership)
+  and recent setup/provider failures show that quick queue claims do not
+  measure candidate-to-worker delay. The adjacent cold correction eventually
+  reached its actual production target and acceptance through a narrower
+  caller fixture; earlier negative packets remain distinct and preserved.
+- Continuity/gates: retain worker context and reservation for a justified
+  repair where the protocol permits, or link a reviewed implementation and
+  prefer the same worker. Do not duplicate a live claim or reset a spent
+  attempt. Complete sourceParity review and allowed edit scope still precede
+  game-code changes. Preserve independent review, original target failure,
+  corrected target success, applicable C evidence and normal acceptance and
+  publication gates; support results alone do not certify parity.
+- Tradeoff/follow-up: some source or fixture uncertainty moves into worker
+  ownership. Benefit is **unmeasured**. For the first new assignments, reuse
+  existing candidate and queue timestamps to measure candidate identification
+  to first worker ownership, then fixture success/rework and accepted useful
+  outcomes. Enqueue-to-claim and busy-worker counts alone are insufficient.
+  Missing starts, all-in effort and CPU remain unknown; add no reporting
+  pipeline. Current claimed and terminal work is not retrospectively counted
+  as a new-policy result. Integrate this entry with the procedure edits at a
+  natural boundary, without a standalone publication.
