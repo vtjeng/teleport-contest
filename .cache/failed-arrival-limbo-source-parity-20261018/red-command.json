@@ -1,0 +1,1 @@
+{"exitCode":1,"command":["node","--test","scripts/dog-migrate.test.mjs"]}

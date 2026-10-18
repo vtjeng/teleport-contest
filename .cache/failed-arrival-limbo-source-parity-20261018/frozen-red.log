@@ -1,0 +1,329 @@
+✔ ordinary migration clears charges and transfers the live monster (6.533628ms)
+✔ migration uses canonical mon_leaving_level boulder landing effects (12.826079ms)
+✔ exact upward migration stores coordinates and the upward flag (1.891378ms)
+✔ migration releases a leashed monster before moving it (1.922499ms)
+✔ migration rejects other future lifecycle owners before item mutation (6.633001ms)
+✔ dog.c mon_catchup_elapsed_time updates conditions, healing, and last move (1.66709ms)
+✔ dog.c mon_arrive preserves the mounted-steed early return state (2.487117ms)
+✔ failed Wizard arrival records the void limbo gap without throwing (17.85331ms)
+✔ dog.c losedogs places exact and random migrants in source order (6.767097ms)
+✖ ordinary failed arrival returns through limbo migration (161.579603ms)
+✖ failed dog arrivals migrate off-map through source limbo transfer (11.45899ms)
+✔ a migrating light invalidates vision after leaving the map (1.632643ms)
+✔ keepdogs takes an adjacent pet off the level onto gm.mydogs (1.756529ms)
+✔ keepdogs leaves an ordinary monster on the level (1.661187ms)
+✔ keepdogs records the partial migration of an accessible shopkeeper (1.557671ms)
+✔ keepdogs leaves a shopkeeper standing in her own shop (1.673026ms)
+✔ keepdogs tries a trapped follower before deciding whether it stays (2.307221ms)
+✔ keepdogs leaves a follower behind while it is eating (2.013238ms)
+✔ keepdogs releases a stray leash from a follower left on the level (2.605224ms)
+✔ keepdogs clears pet movement blockers for a pets-only transfer (3.771818ms)
+✔ migration clears the trapped and undetected flags (1.945784ms)
+✔ keepdogs reads both halves of helpless() (5.403355ms)
+✔ keepdogs still takes a follower down to its last hit point (2.853405ms)
+✔ keepdogs leaves distant accessible monsters to the migration port (1.913498ms)
+✔ keepdogs migrates a vault guard who is away from his vault (1.770754ms)
+✔ keep_mon_accessible matches the pure Wizard and level-home branches (0.410631ms)
+✔ keepdogs reveals its canonical disguised mimic before transferring it (56.344242ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 25
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 891.788836
+
+✖ failing tests:
+
+test at scripts/dog-migrate.test.mjs:439:1
+✖ ordinary failed arrival returns through limbo migration (161.579603ms)
+  AssertionError [ERR_ASSERTION]: C failed-arrival migration expected; before={"actorId":37,"levelIds":[7],"migratingIds":[37],"failedIds":[],"actor":{"mx":0,"my":0,"mstate":4,"mtrack":[{"x":0,"y":0},{"x":41,"y":15},{"x":0,"y":1}],"mux":0,"muy":1}} after={"actorId":37,"levelIds":[37,7],"migratingIds":[],"failedIds":[],"actor":{"mx":0,"my":0,"mstate":0,"mtrack":[{"x":0,"y":0},{"x":0,"y":0},{"x":0,"y":0}],"mux":40,"muy":14,"mlstmv":1,"gridOwns":false},"failedListDrained":true,"otherLevelHeadPreserved":false,"marker":true,"rngCalls":457,"inputPrompts":0}
+  + actual - expected
+  
+  + []
+  - [
+  -   37
+  - ]
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/dog-migrate.test.mjs:557:16)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 37 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/dog-migrate.test.mjs:585:1
+✖ failed dog arrivals migrate off-map through source limbo transfer (11.45899ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be reference-equal to "expected":
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      cham: 0,
+      data: {
+  +     ac: 7,
+  +     cnutrit: 12,
+  +     cwt: 20,
+  +     difficulty: 1,
+  +     geno: 161,
+  -     ac: 6,
+  -     cnutrit: 150,
+  -     cwt: 150,
+  -     difficulty: 3,
+  -     geno: 33,
+        maligntyp: 0,
+        mattk: [
+          {
+            aatyp: 2,
+            adtyp: 0,
+  +         damd: 3,
+  -         damd: 6,
+            damn: 1
+          },
+          {
+            aatyp: 0,
+            adtyp: 0,
+  ...
+        ],
+  +     mcolor: 3,
+  -     mcolor: 15,
+        mconveys: 0,
+        mflags1: 537141248,
+  +     mflags2: 1048576,
+  +     mflags3: 512,
+  +     mlet: 18,
+  +     mlevel: 0,
+  +     mmove: 12,
+  -     mflags2: 12582912,
+  -     mflags3: 768,
+  -     mlet: 6,
+  -     mlevel: 2,
+  -     mmove: 18,
+        mr: 0,
+        mresists: 0,
+  +     msize: 0,
+  +     msound: 6,
+  +     pmidx: 88,
+  -     msize: 1,
+  -     msound: 2,
+  -     pmidx: 32,
+        pmnames: [
+          null,
+          null,
+  +       'sewer rat'
+  -       'kitten'
+        ]
+      },
+      female: false,
+      invis_blkd: false,
+      isgd: false,
+  ...
+      mleashed: false,
+  +   mlstmv: 79,
+  -   mlstmv: 0,
+      mnum: 0,
+      movement: 0,
+      mpeaceful: false,
+      mrevived: false,
+      msleeping: false,
+  ...
+      mstate: 0,
+  +   mstrategy: 1073741824,
+  -   mstrategy: 0,
+      mstun: false,
+      mtame: 0,
+      mtemplit: false,
+      mtrack: [
+        {
+  ...
+      ],
+  +   mtrapped: 0,
+  -   mtrapped: false,
+      mtrapseen: 0,
+  +   mundetected: 0,
+  +   mux: 10,
+  +   muy: 10,
+  -   mundetected: false,
+  -   mux: 0,
+  -   muy: 0,
+      mw: null,
+      mwandexp: false,
+      mx: 0,
+      my: 0,
+  +   nmon: {
+  +     cham: 0,
+  +     data: {
+  +       ac: 6,
+  +       cnutrit: 150,
+  +       cwt: 150,
+  +       difficulty: 3,
+  +       geno: 33,
+  +       maligntyp: 0,
+  +       mattk: [
+  +         {
+  +           aatyp: 2,
+  +           adtyp: 0,
+  +           damd: 6,
+  +           damn: 1
+  +         },
+  +         {
+  +           aatyp: 0,
+  +           adtyp: 0,
+  +           damd: 0,
+  +           damn: 0
+  +         },
+  +         {
+  +           aatyp: 0,
+  +           adtyp: 0,
+  +           damd: 0,
+  +           damn: 0
+  +         },
+  +         {
+  +           aatyp: 0,
+  +           adtyp: 0,
+  +           damd: 0,
+  +           damn: 0
+  +         },
+  +         {
+  +           aatyp: 0,
+  +           adtyp: 0,
+  +           damd: 0,
+  +           damn: 0
+  +         },
+  +         {
+  +           aatyp: 0,
+  +           adtyp: 0,
+  +           damd: 0,
+  +           damn: 0
+  +         }
+  +       ],
+  +       mcolor: 15,
+  +       mconveys: 0,
+  +       mflags1: 537141248,
+  +       mflags2: 12582912,
+  +       mflags3: 768,
+  +       mlet: 6,
+  +       mlevel: 2,
+  +       mmove: 18,
+  +       mr: 0,
+  +       mresists: 0,
+  +       msize: 1,
+  +       msound: 2,
+  +       pmidx: 32,
+  +       pmnames: [
+  +         null,
+  +         null,
+  +         'kitten'
+  +       ]
+  +     },
+  +     female: false,
+  +     invis_blkd: false,
+  +     isgd: false,
+  +     isminion: false,
+  +     ispriest: false,
+  +     isshk: false,
+  +     iswiz: false,
+  +     m_ap_type: 0,
+  +     m_id: 0,
+  +     m_lev: 0,
+  +     malign: 0,
+  +     mappearance: 0,
+  +     mavenge: false,
+  +     mblinded: 0,
+  +     mburied: false,
+  +     mcan: false,
+  +     mcanmove: false,
+  +     mcansee: false,
+  +     mcloned: false,
+  +     mconf: false,
+  +     meating: 0,
+  +     meverseen: false,
+  +     mextra: null,
+  +     mextrinsics: 0,
+  +     mflee: false,
+  +     mfleetim: 0,
+  +     mfrozen: 0,
+  +     mgenmklev: false,
+  +     mgoal: {
+  +       x: 0,
+  +       y: 0
+  +     },
+  +     mhp: 4,
+  +     mhpmax: 4,
+  +     migflags: 0,
+  +     mintrinsics: 0,
+  +     minvent: null,
+  +     minvis: false,
+  +     misc_worn_check: 0,
+  +     mleashed: false,
+  +     mlstmv: 0,
+  +     mnum: 0,
+  +     movement: 0,
+  +     mpeaceful: false,
+  +     mrevived: false,
+  +     msleeping: false,
+  +     mspare1: 0,
+  +     mspec_used: 0,
+  +     mspeed: 0,
+  +     mspotted: false,
+  +     mstate: 0,
+  +     mstrategy: 0,
+  +     mstun: false,
+  +     mtame: 0,
+  +     mtemplit: false,
+  +     mtrack: [
+  +       {
+  +         x: 0,
+  +         y: 0
+  +       },
+  +       {
+  +         x: 0,
+  +         y: 0
+  +       },
+  +       {
+  +         x: 0,
+  +         y: 0
+  +       },
+  +       {
+  +         x: 0,
+  +         y: 0
+  +       }
+  +     ],
+  +     mtrapped: false,
+  +     mtrapseen: 0,
+  +     mundetected: false,
+  +     mux: 0,
+  +     muy: 0,
+  +     mw: null,
+  +     mwandexp: false,
+  +     mx: 0,
+  +     my: 0,
+  +     nmon: null,
+  +     perminvis: false,
+  +     permspeed: 0,
+  +     seen_resistance: 0,
+  +     weapon_check: 0,
+  +     wormno: 0
+  +   },
+  -   nmon: null,
+      perminvis: false,
+      permspeed: 0,
+      seen_resistance: 0,
+      weapon_check: 0,
+      wormno: 0
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/dog-migrate.test.mjs:604:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { nmon: { nmon: null, data: [Object], m_id: 0, mnum: 0, cham: 0, movement: 0, m_lev: 0, malign: 0, mx: 0, my: 0, mux: 0, muy: 0, mtrack: [Array], mhp: 4, mhpmax: 4, mappearance: 0, m_ap_type: 0, mtame: 0, mintrinsics: 0, mextrinsics: 0, seen_resistance: 0, mspec_used: 0, female: false, minvis: false, invis_blkd: false, perminvis: false, mcan: false, mburied: false, mundetected: false, mcansee: false, mspeed: 0, permspeed: 0, mrevived: false, mcloned: false, mavenge: false, mflee: false, mfleetim: 0, msleeping: false, mblinded: 0, mstun: false, mfrozen: 0, mcanmove: false, mconf: false, mpeaceful: false, mtrapped: false, mleashed: false, isshk: false, isminion: false, isgd: false, ispriest: false, iswiz: false, wormno: 0, mtemplit: false, meverseen: false, mspotted: false, mwandexp: false, mgenmklev: false, mstrategy: 0, mgoal: [Object], mtrapseen: 0, mlstmv: 0, mstate: 0, migflags: 0, mspare1: 0, minvent: null, mw: null, misc_worn_check: 0, weapon_check: 0, meating: 0, mextra: null }, data: { pmidx: 88, mlet: 18, mlevel: 0, mmove: 12, ac: 7, mr: 0, maligntyp: 0, geno: 161, cwt: 20, cnutrit: 12, msound: 6, msize: 0, mresists: 0, mconveys: 0, mflags1: 537141248, mflags2: 1048576, mflags3: 512, difficulty: 1, mcolor: 3, pmnames: [Array], mattk: [Array] }, m_id: 0, mnum: 0, cham: 0, movement: 0, m_lev: 0, malign: 0, mx: 0, my: 0, mux: 10, muy: 10, mtrack: [ [Object], [Object], [Object], [Object] ], mhp: 4, mhpmax: 4, mappearance: 0, m_ap_type: 0, mtame: 0, mintrinsics: 0, mextrinsics: 0, seen_resistance: 0, mspec_used: 0, female: false, minvis: false, invis_blkd: false, perminvis: false, mcan: false, mburied: false, mundetected: 0, mcansee: false, mspeed: 0, permspeed: 0, mrevived: false, mcloned: false, mavenge: false, mflee: false, mfleetim: 0, msleeping: false, mblinded: 0, mstun: false, mfrozen: 0, mcanmove: false, mconf: false, mpeaceful: false, mtrapped: 0, mleashed: false, isshk: false, isminion: false, isgd: false, ispriest: false, iswiz: false, wormno: 0, mtemplit: false, meverseen: false, mspotted: false, mwandexp: false, mgenmklev: false, mstrategy: 1073741824, mgoal: { x: 0, y: 0 }, mtrapseen: 0, mlstmv: 79, mstate: 0, migflags: 0, mspare1: 0, minvent: null, mw: null, misc_worn_check: 0, weapon_check: 0, meating: 0, mextra: null },
+    expected: { nmon: null, data: { pmidx: 32, mlet: 6, mlevel: 2, mmove: 18, ac: 6, mr: 0, maligntyp: 0, geno: 33, cwt: 150, cnutrit: 150, msound: 2, msize: 1, mresists: 0, mconveys: 0, mflags1: 537141248, mflags2: 12582912, mflags3: 768, difficulty: 3, mcolor: 15, pmnames: [Array], mattk: [Array] }, m_id: 0, mnum: 0, cham: 0, movement: 0, m_lev: 0, malign: 0, mx: 0, my: 0, mux: 0, muy: 0, mtrack: [ [Object], [Object], [Object], [Object] ], mhp: 4, mhpmax: 4, mappearance: 0, m_ap_type: 0, mtame: 0, mintrinsics: 0, mextrinsics: 0, seen_resistance: 0, mspec_used: 0, female: false, minvis: false, invis_blkd: false, perminvis: false, mcan: false, mburied: false, mundetected: false, mcansee: false, mspeed: 0, permspeed: 0, mrevived: false, mcloned: false, mavenge: false, mflee: false, mfleetim: 0, msleeping: false, mblinded: 0, mstun: false, mfrozen: 0, mcanmove: false, mconf: false, mpeaceful: false, mtrapped: false, mleashed: false, isshk: false, isminion: false, isgd: false, ispriest: false, iswiz: false, wormno: 0, mtemplit: false, meverseen: false, mspotted: false, mwandexp: false, mgenmklev: false, mstrategy: 0, mgoal: { x: 0, y: 0 }, mtrapseen: 0, mlstmv: 0, mstate: 0, migflags: 0, mspare1: 0, minvent: null, mw: null, misc_worn_check: 0, weapon_check: 0, meating: 0, mextra: null },
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
