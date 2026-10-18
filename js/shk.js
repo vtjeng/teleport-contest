@@ -503,6 +503,33 @@ export function addupbill(shopkeeper) {
     return total;
 }
 
+// C ref: shk.c make_angry_shk() (1470-1490).  The caller supplies the
+// shopkeeper's former coordinates for C compatibility; the source marks both
+// unused, so settlement and pursuit depend only on the initialized ESHK.
+export async function make_angry_shk(
+    shopkeeper, ox, oy, state = game, rawEnv = {},
+) {
+    void ox;
+    void oy;
+    const eshk = shopkeeper.mextra.eshk;
+    if (eshk.billct || eshk.debit || eshk.loan || eshk.credit) {
+        eshk.robbed += addupbill(shopkeeper) + eshk.debit + eshk.loan;
+        eshk.robbed -= eshk.credit;
+        if (eshk.robbed < 0) eshk.robbed = 0;
+        setpaid(shopkeeper, state);
+    }
+
+    const env = { ...rawEnv, state };
+    const message = rawEnv.message ?? ttyPline;
+    await message(
+        `${Shknam(shopkeeper, state, env)} ${NOTANGRY(shopkeeper)
+            ? 'gets angry' : 'is furious'}!`,
+        state,
+        env,
+    );
+    hot_pursuit(shopkeeper, state);
+}
+
 // C ref: shk.c call_kops() (510-567). Soundeffect() is a no-op with the
 // recorder's nosound backend; Kops generation is implemented by makekops().
 async function call_kops(

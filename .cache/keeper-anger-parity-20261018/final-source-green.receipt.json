@@ -1,0 +1,23 @@
+{
+  "task": "fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
+  "assignmentBase": "885c83ce00a49481770bbab785de45b74dd9cbbb",
+  "redTestCommit": "cde8bbc14",
+  "command": ["node", "--test", "scripts/shk.test.mjs", "scripts/dig.test.mjs"],
+  "exitCode": 0,
+  "testBytes": {
+    "scripts/dig.test.mjs": "79ce3afcbb3809fa4a2bc1cfbf88ed98edd7385d1cb6afa57a96e1106e6591fc",
+    "scripts/shk.test.mjs": "08d3efd5d88771ccafb6e7d4fefa1057c82072f9f807dd96bc5fc0859af73b7a"
+  },
+  "productionBytes": {
+    "js/dig.js": "98efa8ba1023e9eabef7c27ee51a1b6a3ac0f9d9cab577f2c8aaa7b212102e60",
+    "js/shk.js": "7855afb171c8dc456a89c3a4b1ff40d2cac3c2f2c9cc0e1944f75ac44b579d38"
+  },
+  "redReceipt": ".cache/keeper-anger-parity-20261018/original-source-red.receipt.json",
+  "greenSummary": "72 tests passed, 0 failed. The actual real digactualhole caller settled the real pending bill, cleared the unpaid bit, updated robbed/anger/customer/following, emitted both source-ordered messages, then caught the exact expected unchanged shopkeeper migration refusal.",
+  "lint": {
+    "command": ["npm", "run", "lint"],
+    "exitCode": 0,
+    "log": ".cache/keeper-anger-parity-20261018/lint.raw.log"
+  },
+  "runtimeClassification": "source-parity-runtime-pending; constructed direct-HOLE prefix only; no C comparison or public parity/certification claim"
+}

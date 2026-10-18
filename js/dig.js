@@ -177,7 +177,10 @@ import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, update_i
 import { bury_an_obj } from './bury.js';
 import { punish } from './read.js';
 import { stop_timer, obj_stop_timers } from './timeout.js';
-import { add_damage, costly_spot, pay_for_damage, shop_keeper, shopdig, stolen_value } from './shk.js';
+import {
+    add_damage, costly_spot, make_angry_shk, pay_for_damage,
+    shop_keeper, shopdig, stolen_value,
+} from './shk.js';
 import { shkname } from './shknam.js';
 import {
     dmgtype_fromattack, grounded, hides_under, is_flyer, is_floater,
@@ -1642,7 +1645,8 @@ export async function digactualhole(
                         await message(`${Monnam(monster, state, rawEnv)} avoids the trap.`, state, rawEnv);
                     return;
                 } else get_level(toLevel, depth(state.u.uz, state) + 1, state);
-                if (monster.isshk) note_unported('shk.c make_angry_shk');
+                if (monster.isshk)
+                    await make_angry_shk(monster, x, y, state, env);
                 await migrate_to_level(
                     monster,
                     ledger_no(toLevel, state),
