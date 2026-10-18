@@ -2,7 +2,15 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { resetGhostlyMonsterAttitudes } from '../js/bones.js';
+import { can_make_bones, resetGhostlyMonsterAttitudes, savebones } from '../js/bones.js';
+import { DIED, KILLED_BY_AN, NON_PM, OBJ_FLOOR } from '../js/const.js';
+import { getnow } from '../js/calendar.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { bless, mksobj_at } from '../js/obj.js';
+import { AMULET_OF_YENDOR, FAKE_AMULET_OF_YENDOR } from '../js/objects.js';
+import { InMemoryStorage, setStorageForTesting, vfsReadFile } from '../js/storage.js';
+import { runSegment } from '../js/jsmain.js';
+import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
 import { PM_DWARF, monst_globals_init, reset_mvitals } from '../js/monsters.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
@@ -99,4 +107,136 @@ test('ghostly restoration recomputes monster attitude for the new hero', () => {
 
     assert.equal(dwarf.mpeaceful, false);
     assert.equal(dwarf.malign, Math.abs(dwarf.data.maligntyp));
+});
+
+function jsonWithBigInts(value) {
+    return JSON.stringify(value, (_key, entry) => typeof entry === 'bigint'
+        ? { $bigint: entry.toString() } : entry);
+}
+
+test('savebones converts a real floor Amulet to its fake cursed bones form', async () => {
+    const runner = await runSegment({
+        seed: 12310633,
+        datetime: '20910317101200',
+        nethackrc: 'OPTIONS=name:RevivalSchedule,role:Wizard,race:human,'
+            + 'gender:female,align:neutral,playmode:debug\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+            + '!autopickup,!acoustics,!debug_mongen\n',
+        moves: '',
+    });
+    const storage = new InMemoryStorage();
+    setStorageForTesting(storage);
+    try {
+        assert.equal(game.wizard, true);
+        assert.ok(game.u.uz && Number.isInteger(game.u.uz.dnum)
+            && Number.isInteger(game.u.uz.dlevel));
+        // end.done initializes svk.killer and fills an unnamed DIED cause
+        // from deaths[how] before it reaches savebones.
+        game.killer = { name: 'died', format: KILLED_BY_AN };
+        game.flags.bones = true;
+        game.discover = false;
+        game.u.uswallow = 0;
+        game.u.usteed = null;
+        game.uball = null;
+        game.u.ugrave_arise = NON_PM;
+
+        // This is the reviewed pre-save entry snapshot, not a simulation of
+        // inventory removal. Preserve initialized role/race intrinsic fields.
+        game.invent = null;
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg',
+            'uarmf', 'uarmu', 'uleft', 'uright', 'uwep', 'uswapwep',
+            'uquiver', 'uamul', 'ublindf', 'uball', 'uchain'])
+            game[slot] = null;
+        game.u.twoweap = false;
+        for (const property of game.u.uprops) {
+            property.extrinsic = 0;
+            property.blocked = 0;
+        }
+        game.u.moreluck = 0;
+        assert.equal(game.u.uspellprot ?? 0, 0, 'no active spell protection in the entry snapshot');
+        assert.equal(game.u.umonnum, game.urole.mnum, 'retain the initialized human role form');
+        assert.equal(game.invent, null);
+
+        // The reviewed snapshot has empty canonical level object/monster
+        // owners. Clear their roots and grids together before object creation.
+        game.level.monlist = null;
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.objlist = null;
+        for (const column of game.level.objects) column.fill(null);
+        game.level.buriedobjlist = null;
+        game.level.traps = [];
+        assert.equal(game.level.monlist, null);
+        assert.ok(can_make_bones(game), 'the actual can_make_bones guards accept this initialized level');
+
+        const x = game.u.ux;
+        const y = game.u.uy;
+        const amulet = mksobj_at(AMULET_OF_YENDOR, x, y, true, false,
+            objectGenerationEnv({ state: game }));
+        assert.equal(amulet.where, OBJ_FLOOR);
+        assert.equal(amulet.otyp, AMULET_OF_YENDOR);
+        assert.equal(amulet.ox, x);
+        assert.equal(amulet.oy, y);
+        assert.equal(game.level.objects[x][y], amulet);
+        assert.equal(game.level.objlist, amulet);
+        assert.equal(amulet.nexthere, null);
+        // Make the source's curse effect observable independently of the
+        // Amulet type while preserving a canonical ordinary floor object.
+        bless(amulet, { state: game });
+        assert.equal(amulet.blessed, true);
+        assert.equal(amulet.cursed, false);
+
+        const path = `bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}`;
+        assert.equal(vfsReadFile(path), null, 'private VFS starts without a bones file');
+        const snapshot = () => ({
+            id: amulet.o_id,
+            otyp: amulet.otyp,
+            cursed: amulet.cursed,
+            blessed: amulet.blessed,
+            where: amulet.where,
+            ox: amulet.ox,
+            oy: amulet.oy,
+            inObjlist: game.level.objlist === amulet,
+            inSquare: game.level.objects[x][y] === amulet,
+            rng: structuredClone(runner.getRngLog()),
+            input: {
+                queueLength: game.nhDisplay.inputQueueLength,
+                waitEpoch: game.nhDisplay.waitEpoch,
+                waiting: game.nhDisplay.isWaitingForInput,
+            },
+            screen: game.nhDisplay.serialize(),
+        });
+        const before = snapshot();
+        const phase = 'before savebones';
+        try {
+            await savebones(DIED, getnow(game), null, game);
+        } catch (error) {
+            console.log(`BONES_AMULET_RECEIPT ${jsonWithBigInts({ phase,
+                before, error: { name: error?.name, message: error?.message },
+                after: snapshot() })}`);
+            throw error;
+        }
+        const savedText = vfsReadFile(path);
+        assert.equal(typeof savedText, 'string', 'production savebones wrote the private VFS file');
+        const savedData = JSON.parse(savedText);
+        const saved = savedData.floorObjects.find(object => object.o_id === amulet.o_id);
+        const after = snapshot();
+        console.log(`BONES_AMULET_RECEIPT ${jsonWithBigInts({ phase: 'after savebones',
+            before, after, saved: saved && { o_id: saved.o_id, otyp: saved.otyp,
+                cursed: saved.cursed, blessed: saved.blessed, ox: saved.ox, oy: saved.oy },
+            inputExhausted: runner._inputExhausted })}`);
+        assert.ok(saved, 'serialized floor list contains the same canonical object ID');
+        assert.equal(saved.otyp, FAKE_AMULET_OF_YENDOR,
+            'C save normalization converts the real Amulet before serialization');
+        assert.equal(saved.cursed, true);
+        assert.equal(saved.blessed, false);
+        assert.equal(saved.ox, x);
+        assert.equal(saved.oy, y);
+        assert.equal(amulet.otyp, FAKE_AMULET_OF_YENDOR);
+        assert.equal(amulet.cursed, true);
+        assert.equal(amulet.blessed, false);
+        assert.equal(amulet.where, OBJ_FLOOR);
+        assert.equal(game.level.objects[x][y], amulet);
+    } finally {
+        setStorageForTesting(null);
+    }
 });

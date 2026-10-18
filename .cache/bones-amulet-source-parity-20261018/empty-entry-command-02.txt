@@ -1,0 +1,1 @@
+node --test scripts/bones.test.mjs

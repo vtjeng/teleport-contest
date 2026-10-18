@@ -66,6 +66,8 @@ import { end_burn } from './timeout.js';
 import {
     CORPSE,
     EGG,
+    AMULET_OF_YENDOR,
+    FAKE_AMULET_OF_YENDOR,
     SLIME_MOLD,
     SPE_NOVEL,
     STATUE,
@@ -230,6 +232,11 @@ function resetobjs(ochain, restore, state) {
                 otmp.spe = 0; // not "laid by you" in next game
             } else if (otmp.otyp === TIN) {
                 // make tins of unique monster's meat empty (simplified)
+            } else if (otmp.otyp === AMULET_OF_YENDOR) {
+                // C ref: bones.c:170-174. A bones level never keeps the
+                // unique real Amulet; the replacement is cursed.
+                otmp.otyp = FAKE_AMULET_OF_YENDOR;
+                curse(otmp, { state });
             }
         }
     }
