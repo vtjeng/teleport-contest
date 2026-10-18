@@ -886,10 +886,9 @@ test('keepdogs still takes a follower down to its last hit point', async () => {
     assert.equal(state.gm.mydogs, pet);
 });
 
-test('keepdogs leaves distant accessible monsters to the migration port', async () => {
-    // dog.c:811-812 and keep_mon_accessible():770-771. Without the Amulet the
-    // hero does not drag the Wizard along, but he stays reachable so that his
-    // next harassment finds the same instance.
+test('keepdogs keeps a non-Wizard with a spoofed iswiz flag on its level', async () => {
+    // The marker is retained for states outside the reviewed canonical
+    // Wizard caller domain; a lone iswiz flag does not authorize migration.
     const state = migrationState();
     state.gm.mydogs = null;
     state.u.uhave = { amulet: false };
@@ -919,6 +918,7 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
         };
         let display = null;
         let previousEmptyHandler = null;
+        const moreReceipts = [];
         try {
             // This is the exact source-owned initializer/input used by the
             // retained e6fee qualification. The only added actor is the one
@@ -926,9 +926,20 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
             display = new GameDisplay(null);
             previousEmptyHandler = display.onEmptyQueue;
             display.onEmptyQueue = () => {
-                assert.equal(display.toplin, TOPLINE_NEED_MORE,
+                const snapshot = {
+                    topline: display.toplin,
+                    serialized: display.serialize(),
+                    inputQueueLength: display.inputQueueLength,
+                    waitEpoch: display.waitEpoch,
+                    pendingMessage: game._pending_message,
+                    inputState: game.program_state?.input_state ?? null,
+                };
+                assert.equal(snapshot.topline, TOPLINE_NEED_MORE,
                     'only a real rendered --More-- may receive input');
-                assert.ok(display.serialize().includes('--More--'));
+                assert.ok(snapshot.serialized.includes('--More--'));
+                assert.ok(moreReceipts.length < 16,
+                    'acknowledge no more than 16 actual rendered More prompts');
+                moreReceipts.push(snapshot);
                 return 32;
             };
             const harness = new NethackGame(input);
@@ -946,7 +957,7 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
             assert.deepEqual(hero, { x: 12, y: 7, level: { dnum: 0, dlevel: 1 } });
             assert.equal(isok(targetX, targetY), true);
             assert.equal(m_at(targetX, targetY, state), null);
-            assert.equal(state.u.uhave?.amulet ?? false, false);
+            assert.equal(state.u.uhave?.amulet ?? 0, 0);
             assert.equal([state.wiz1_level, state.wiz2_level, state.wiz3_level]
                 .some(level => level?.dnum === hero.level.dnum
                     && level?.dlevel === hero.level.dlevel), false);
@@ -975,7 +986,9 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
                 && state.unported.has('dog.c migrate_to_level');
             assert.equal(state.unported instanceof Set, true,
                 'capture the actual pre-entry gap state');
-            const rngBefore = harness.getRngLog();
+            assert.equal(originalMarker, false,
+                'the target-specific gap marker is absent before keepdogs');
+            const rngBefore = harness.getRngLog().slice();
             const ttyBefore = {
                 topline: display.toplin,
                 serialized: display.serialize(),
@@ -983,6 +996,7 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
                 waitEpoch: display.waitEpoch,
                 pendingMessage: state._pending_message,
                 inputState: state.program_state?.input_state ?? null,
+                promptCount: moreReceipts.length,
             };
             const targetBefore = {
                 id: targetId, x: wizard.mx, y: wizard.my,
@@ -1022,11 +1036,11 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
                 gridActor: m_at(old.x, old.y, state)?.m_id ?? null,
                 x: wizard.mx, y: wizard.my,
                 mstate: wizard.mstate,
-                mtrack: wizard.mtrack.slice(0, 3),
+                mtrack: structuredClone(wizard.mtrack.slice(0, 3)),
                 mux: wizard.mux, muy: wizard.muy,
                 mlstmv: wizard.mlstmv,
                 inventory: [],
-                rng: harness.getRngLog(),
+                rng: harness.getRngLog().slice(),
                 tty: {
                     topline: display.toplin,
                     serialized: display.serialize(),
@@ -1034,6 +1048,7 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
                     waitEpoch: display.waitEpoch,
                     pendingMessage: state._pending_message,
                     inputState: state.program_state?.input_state ?? null,
+                    promptCount: moreReceipts.length,
                 },
                 marker: state.unported.has('dog.c migrate_to_level'),
                 otherActorIds: ids(state.level.monlist)
@@ -1047,7 +1062,7 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
             const mismatchContext = JSON.stringify({
                 before: targetBefore, after,
                 hero, targetPremise: { targetX, targetY },
-                originalMarker, ttyBefore,
+                originalMarker, ttyBefore, moreReceipts,
             });
             assert.ok(after.migratingIds.includes(targetId),
                 `actual source-created Wizard did not migrate: ${mismatchContext}`);
@@ -1073,9 +1088,58 @@ test('keepdogs migrates the canonical distant Wizard through the original caller
                 mismatchContext);
             assert.equal(after.marker, originalMarker, mismatchContext);
             assert.deepEqual(after.rng, rngBefore, mismatchContext);
-            assert.deepEqual(after.tty, ttyBefore, mismatchContext);
+            assert.equal(after.tty.inputQueueLength,
+                ttyBefore.inputQueueLength, mismatchContext);
+            assert.equal(after.tty.waitEpoch, ttyBefore.waitEpoch,
+                mismatchContext);
+            assert.equal(after.tty.promptCount, ttyBefore.promptCount,
+                mismatchContext);
         } finally {
             if (display) display.onEmptyQueue = previousEmptyHandler;
+        }
+        assert.equal(display.onEmptyQueue, previousEmptyHandler,
+            'restore the exact original More handler after the test');
+    });
+
+test('keepdogs retains explicit migration gaps for unsupported Wizard states',
+    async () => {
+        const cases = [
+            ['Wizard Tower level', state => {
+                state.wiz1_level = { ...CURRENT_LEVEL };
+            }],
+            ['unsupported disguise', (_state, monster) => {
+                monster.m_ap_type = M_AP_FURNITURE;
+            }],
+            ['long worm', (_state, monster) => {
+                monster.wormno = 1;
+            }],
+            ['hero-stuck actor', (state, monster) => {
+                state.u.ustuck = monster;
+            }],
+        ];
+        for (const [label, configure] of cases) {
+            const state = migrationState();
+            state.gm.mydogs = null;
+            state.u.uhave = { amulet: 0 };
+            const monster = newMonster({
+                data: state.mons[PM_WIZARD_OF_YENDOR],
+                mhp: 12,
+                mhpmax: 12,
+                mcanmove: true,
+            });
+            monster.iswiz = true;
+            state.level.monlist = monster;
+            place_monster(monster, MONSTER_X, MONSTER_Y, state);
+            configure(state, monster);
+            game.unported?.delete('dog.c migrate_to_level');
+
+            await keepdogs(false, { newsym: () => {}, state });
+
+            assert.equal(state.level.monlist, monster, label);
+            assert.equal(m_at(MONSTER_X, MONSTER_Y, state), monster, label);
+            assert.equal(state.gm.migrating_mons, null, label);
+            assert.equal(state.unported.has('dog.c migrate_to_level'), true,
+                label);
         }
     });
 

@@ -1,0 +1,49 @@
+{
+  "task": "fix-accessible-wizard-keepdogs-source-parity-20261018",
+  "attempt": 2,
+  "base": "2f856577d4a61ff0c3c3db1fbf30f51eab9a9e2a",
+  "frozenAt": "2026-10-18T17:33:34.339Z",
+  "command": [
+    "node",
+    "--test",
+    "scripts/dog-migrate.test.mjs"
+  ],
+  "exit": 1,
+  "rawOutput": {
+    "path": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/attempt2-original-red.log",
+    "bytes": 46622,
+    "sha256": "ce8621fc74c9e87739a0596d8eb0e4e6932d3770e2fe2e48a51654af98fd4b24"
+  },
+  "frozenTest": {
+    "path": "scripts/dog-migrate.test.mjs",
+    "bytes": 47980,
+    "sha256": "0503d34e2eae35bcd3870f5295cf88123946597bb0fc5893044f313559bcceb4",
+    "baseBlob": "3b54860454b4f1a9958769749e8f890801709ed8"
+  },
+  "productionBefore": {
+    "path": "js/dog.js",
+    "workingBlob": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+    "baseBlob": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+    "unchanged": true
+  },
+  "primaryResult": {
+    "reached": true,
+    "expectedOriginalSourceRed": true,
+    "actual": "canonical Wizard ID 134 remained in original map/level list with no migrating entry; target-specific note_unported changed from measured false before call to true after call",
+    "failedAssertion": "actual source-created Wizard did not migrate",
+    "errorCategory": "purposeful behavior mismatch in untouched production source"
+  },
+  "secondaryFailure": {
+    "test": "keepdogs retains explicit migration gaps for unsupported Wizard states",
+    "location": "scripts/dog-migrate.test.mjs:1141",
+    "message": "TypeError reading state.unported.has; migrationState() does not populate state.unported",
+    "classification": "separate guard-test fixture defect after the primary target red; breaks same-final-test completion until a new reviewed bounded attempt"
+  },
+  "decision": "No test edits after freeze, no second run, no production edit. Preserve for Work lead inspection and block under current stop condition.",
+  "priorAttempt1": {
+    "recoveryCommit": "1e076eecad659740415a36fe2c6920bd6347bf1b",
+    "rawSetupMiss": "state.u.uhave.amulet was numeric 0; previous final test expected boolean false; remains immutable"
+  },
+  "currentDogJsSha256": "f205a9234f31e83ff265a25a84b76417c4c7cfe3f91e5ed6c6235cdc30b8953c",
+  "currentDogJsBlob": "a3e952de0804b908436bd6eb3386f5a8d1955928"
+}

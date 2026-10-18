@@ -1,0 +1,116 @@
+{
+  "task": "fix-accessible-wizard-keepdogs-source-parity-20261018",
+  "attempt": 2,
+  "base": "2f856577d4a61ff0c3c3db1fbf30f51eab9a9e2a",
+  "frozenAt": "2026-10-18T17:33:34.339Z",
+  "finalTest": {
+    "path": "scripts/dog-migrate.test.mjs",
+    "bytes": 47980,
+    "sha256": "0503d34e2eae35bcd3870f5295cf88123946597bb0fc5893044f313559bcceb4",
+    "baseBlob": "3b54860454b4f1a9958769749e8f890801709ed8"
+  },
+  "productionBefore": {
+    "path": "js/dog.js",
+    "workingBlob": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+    "baseBlob": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+    "unchanged": true
+  },
+  "command": [
+    "node",
+    "--test",
+    "scripts/dog-migrate.test.mjs"
+  ],
+  "rawOutput": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/attempt2-original-red.log",
+  "exitReceipt": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/attempt2-original-red.exit",
+  "priorFixture": {
+    "path": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/prior-attempt.mjs",
+    "bytes": 14599,
+    "sha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002",
+    "requiredSha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002"
+  },
+  "priorCapture": {
+    "path": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/prior-capture.json",
+    "sha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e",
+    "requiredSha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e"
+  },
+  "sourcePins": [
+    {
+      "path": "js/dog.js",
+      "expected": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+      "actual": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+      "match": true
+    },
+    {
+      "path": "scripts/dog-migrate.test.mjs",
+      "expected": "3b54860454b4f1a9958769749e8f890801709ed8",
+      "actual": "3b54860454b4f1a9958769749e8f890801709ed8",
+      "match": true
+    },
+    {
+      "path": "js/mon.js",
+      "expected": "a8967364ab0b77bdc92d76208b806e832792b914",
+      "actual": "a8967364ab0b77bdc92d76208b806e832792b914",
+      "match": true
+    },
+    {
+      "path": "js/monst.js",
+      "expected": "5b3d047868d8b40c07416497640bd948ae2c6c93",
+      "actual": "5b3d047868d8b40c07416497640bd948ae2c6c93",
+      "match": true
+    },
+    {
+      "path": "js/mondata.js",
+      "expected": "a2ed0919963fc18468d0a5ff0b02ee388157afa6",
+      "actual": "a2ed0919963fc18468d0a5ff0b02ee388157afa6",
+      "match": true
+    },
+    {
+      "path": "js/dungeon.js",
+      "expected": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7",
+      "actual": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7",
+      "match": true
+    },
+    {
+      "path": "js/makemon_create.js",
+      "expected": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400",
+      "actual": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400",
+      "match": true
+    },
+    {
+      "path": "js/jsmain.js",
+      "expected": "9705fb797cacba0c3a999a38abdae9bc93ad1559",
+      "actual": "9705fb797cacba0c3a999a38abdae9bc93ad1559",
+      "match": true
+    },
+    {
+      "path": "js/game_display.js",
+      "expected": "5e478cf3994629186bcdb1c97ee97ed3faf7928c",
+      "actual": "5e478cf3994629186bcdb1c97ee97ed3faf7928c",
+      "match": true
+    },
+    {
+      "path": "js/const.js",
+      "expected": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8",
+      "actual": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8",
+      "match": true
+    },
+    {
+      "path": "js/objects.js",
+      "expected": "20b37cda407137c5a2bedb88a26a229f2ac62d36",
+      "actual": "20b37cda407137c5a2bedb88a26a229f2ac62d36",
+      "match": true
+    },
+    {
+      "path": "js/rng.js",
+      "expected": "76efef3acbed3922b6a7d235a5420c43080538b0",
+      "actual": "76efef3acbed3922b6a7d235a5420c43080538b0",
+      "match": true
+    },
+    {
+      "path": "nethack-c/upstream",
+      "expected": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "actual": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "match": true
+    }
+  ]
+}
