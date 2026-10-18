@@ -324786,6 +324786,121 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement fix_ghostly_obj from undefined",
+      "cFile": "bones.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "fix_ghostly_obj",
+          "line": 796,
+          "endLine": 817,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 796,
+        "to": 817
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "assignmentBase": "49bbe159a22ce3181a853a642839966035f4a620",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "49bbe159a22ce3181a853a642839966035f4a620",
+          "authorization": "Standing user direct sourceParity authorization permits source-valid initialized state through real production caller, target-red first and same-command green; no public witness/history. Main explicitly selects retained supporting helper/caller correction after W3 e840 and independent e4995fec. Known closed v13 pickup_object, v98 partial stacks and general really-done-bones ownership remain retained; producer closedboneshelper shorthand was not an established separate hold. This selection does not claim historical absence, novelty, release or reset any old physical budget. No active source reservation overlaps bones/pickup.",
+          "currentBehavior": "C bones.c795–816 fix_ghostly_obj returns on unmarked object; for five asymmetric weapon types emits adjustment using the(xname(obj)) and URIGHTY, then clears ghostly on every marked type. C pickup_object calls it after pick_obj returns actual merged inventory object and pickup_prinv completes. JS savebones writes/serializes ghostly and getbones restores it; pickup_object currently only notes unported after pickup_prinv. No compensation clears this returned markedobject. C/JS mergable omit ghostly and do not propagate merged-away source marker; that behavior is preserved.",
+          "expectedBehavior": "Implement WHOLE async exported bones.fix_ghostly_obj using actual state, source five types BOW/ELVEN_BOW/ORCISH_BOW/YUMI/BOOMERANG, existing xname/the canonical naming and RIGHT_HANDED comparison, awaited actual selected message with canonical tty default; message before ghostly0. Unmarked immediate return and marked other-type silent clear. Add only required canonical imports. Replace only selected pickup_object marker with awaited canonical helper on actual returned obj AFTER pickup_prinv and BEFORE clearing mrg_to_wielded. Preserve supplied state/message ownership, await order and all pickup/merge/rejection/billing logic. No bones save/restore/NPC conversion/storage changes. Worker actual exported pickup_object through pick_obj/addinv production fixture must first fail original code on retained marker/message/flag with source-valid canonical floor object and no matching inventory merge; no direct helper-only proof, fake naming/pickup providers/RNG, optional savebuilder/publicdeath/history. Source-derived postrestore ghostly state is allowed. Same final tests/command red then green. Meaningful right/left asymmetric, marked ordinary silent and unmarked controls at helper or production seam, while primary proof remains actual pickup caller.",
+          "units": [
+            "bones.c:fix_ghostly_obj"
+          ],
+          "allowedPaths": [
+            "js/bones.js",
+            "js/pickup.js",
+            "scripts/bones.test.mjs",
+            "scripts/pickup.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/bones.test.mjs",
+            "scripts/pickup.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/pickup.js",
+              "symbol": "pickup_object",
+              "source": "Real exported pickup_object calls real lift_object→pick_obj/addinv→pickup_prinv, then fixes actual returned object if marked. Primary regression must preserve canonical floor/grid/inventory and returned same-ID object with no compatible inventory stack; no helper-only or merged-away marker witness."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/bones.js",
+              "object": "b7b1beeeabce40829ff279be79023c731e4a6eca"
+            },
+            {
+              "path": "js/pickup.js",
+              "object": "4906414b6a4cabe72359cbb3f977b1783f0c76e1"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "js/objnam.js",
+              "object": "cff691875b79c9f0328e954337567988ddb94d16"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/u_init.js",
+              "object": "9af5eb6748d17869aba0dd67145b5b02b38fca29"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "scripts/bones.test.mjs",
+              "object": "6c8ccbc79c8b441fc86245358d86e64cb82b7f41"
+            },
+            {
+              "path": "scripts/pickup.test.mjs",
+              "object": "2a1a29b7e95dbc4d24d06590591124d8452b6345"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "targetSource": "e8408f8c13ee112be22d64aa140367b4c5760e3a43e39232af5b3204dbc1ffa5",
+            "envelope": "b6e938c0a93c9b6cf6cd441c29fd48ac3c3bd96067dd7499099ccb1a3660ce51",
+            "independent": "/workspace/teleport-contest-challenge-recovery/.cache/ghostly-object-pickup-adjustment-source-inquiry-20261018/independent-disposition-2252.json",
+            "independentSha256": "e4995fecce90b3abbf06709dc9d5b871116df32dbed53857bdc0d648b756fffe",
+            "ownership": "Main reconciles explicit retained supporting source scope now; broad known owners stay closed and no exact separate helper cap absence is asserted. Existing source-only8min remains spent; this is new reviewed implementation ownership.",
+            "knownSetup": "Worker owns minimal entry, not full save/history. Read exact exports/args/defaults/canonical writer-owner-accessor-shape before freeze. runSegment recorder return is not game; actual singleton game and game.nhDisplay.serialize. withPendingMessageAcks in accepted a989 mon-kill supplies finite actual pending/displayedMore-only acknowledgements. Copy primitive/losslessRNG/input/phase before writes. Do not invoke optional resetInventory/newuhs/savebones history surfaces. Actual returned addinv object, not premerge pointer, owns flag.",
+            "limits": "Runtime target unknown until original target-red. No storage, public death, new C runs/recordings/scoring or broad pickup/bones certification. Whole helper plus one selected awaited caller only."
+          }
+        },
+        "reviewSha256": "3a36bc701c93eceaeab63a0c9536ee117d1f8f19c11e09bac568ebb58d2fa9ee"
+      }
     }
   ]
 }
