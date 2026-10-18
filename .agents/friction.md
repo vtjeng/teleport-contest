@@ -1688,3 +1688,34 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
 - Retry outcome: the ledger records limbo publication `2f856577` at
   17:16:57.215 UTC. Normal CI is a separate follow-up, not independently
   rerun or certified by PA. Pending notes stay for the next full checkpoint.
+
+
+### 2026-10-18 — Boolean assertion rejected a source numeric flag
+
+- Wizard repair task blocked at 17:25:19.917 UTC after its first regression
+  setup assertion compared actual `state.u.uhave.amulet === 0` with expected
+  boolean `false`. No Wizard constructor, `keepdogs`, meaningful target red,
+  production edit or retry occurred. Recovery commit `1e076eec` preserves
+  frozen test and raw receipt; prior positive qualification `e6fee` is separate.
+- Production `u_init.js:171` builds `uhave` with `zeroRecord`; line 84 fills
+  every field with numeric zero. `invent.js:3196` also clears the Amulet flag
+  to zero. This is an observer/type mismatch, not a failed game precondition.
+  It joins the existing wrong state-owner, fixed-array membership and nested
+  observer-path misses; import/name checks do not establish state types.
+- Existing state audit should preserve the source-shaped numeric assertion
+  (strict zero for this known initialized field) in any separately selected
+  continuation. No new rule, helper, gate, pipeline or allowance is proposed;
+  Main owns further selection and original stop/caps remain preserved. Record
+  this at a future unfrozen candidate boundary, not after an exact checkpoint.
+
+- Full-diff review by Main/Challenge subsequently found additional unreached
+  test defects: `getRngLog()` was retained by mutable reference rather than
+  copied; the rendered-More handler lacked the requested 16-response count/cap;
+  full TTY equality would forbid the source's legitimate removal redraw;
+  the preexisting marker was not asserted false; and after-`finally` handler
+  restoration equality was missing. Numeric zero remained the actual first
+  observed miss. Do not claim those later assertions ran or that fixing only
+  the first mismatch validates the whole regression. Existing whole-fixture
+  state/provider/observer review applies; explicit supported unblock retains
+  recovery `1e076eec`, original history, frozen sourceParity pins/base/scope
+  and spent stop. No new tooling or gate was introduced.
