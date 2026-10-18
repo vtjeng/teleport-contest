@@ -24,6 +24,13 @@ Execute the bounded source-based plan and return evidence to Challenge lead. A W
 `purpose: "support"` exploration instead follows its bounded survey or validation
 plan and returns to Work lead; it does not need a batch. Do not
 claim batch ownership, implement game fixes, admit cases, or score batches.
+For an early source-grounded investigation, own fixture design and validation
+within the assigned scope: check exact imports, canonical state writers and
+accessors, required helper providers, and the real production caller before
+freezing a limited attempt. Preserve reached and missed attempts. If evidence
+supports a repair, retain the context and reservation for the reviewed
+implementation handoff where the queue protocol permits; do not edit game code
+until its complete source scope and required review are recorded.
 
 For an **implementation** assignment, follow
 `.claude/agents/implementation-worker.md` for source investigation, implementation, and

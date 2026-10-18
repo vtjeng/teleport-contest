@@ -49,7 +49,12 @@ work, using saved evidence rather than interrupting workers or repeating checks.
 Record observations in [friction.md](friction.md), develop small evidence-backed
 changes in [proposals.md](proposals.md), and report actionable findings to the
 Coordinator. Measure adopted changes against the observed friction when comparable
-evidence becomes available; leave unknown benefits explicitly unmeasured.
+evidence becomes available; leave unknown benefits explicitly unmeasured. For
+earlier worker ownership, use existing queue and evidence timestamps to compare
+candidate identification to first worker ownership, then record fixture success
+or rework and accepted useful outcomes. Enqueue-to-claim time and busy-worker
+counts alone do not measure this change. Keep missing timestamps and unmeasured
+effort explicit; do not add a reporting pipeline.
 
 The Process analyst drafts concise adopted-change entries in
 [decisions.md](decisions.md). The Work lead integrates approved changes and their
@@ -110,6 +115,19 @@ retain a live block only for a named unresolved dependency. Work lead reviews
 and executes the supported queue transitions and retains dispatch authority.
 These dispositions preserve immutable history and all validation, admission,
 and acceptance gates.
+
+Assign a distinct source-grounded question to a worker as soon as its owner,
+safe scope, prerequisites, and bounded stop are clear. The producer supplies
+concise source context and names genuine uncertainties; the worker designs and
+validates the test setup, including imports, state owners, required providers,
+and the actual production entry. Do not make a complete lead-authored fixture
+a prerequisite to enqueue. Keep the worker's source reservation and context
+through a justified repair when the queue protocol permits; otherwise link a
+reviewed implementation task to the investigation and prefer the same worker
+without duplicating a live claim or resetting a spent attempt. Source-parity
+review and complete allowed edit scope precede game-code changes. Preserve
+independent review, original-code failure and corrected-code success at the
+target, applicable C evidence, and normal acceptance and publication gates.
 
 Every task identifies its immutable ID, type, producer/result recipient,
 batch or target deliverable when applicable, question or desired result,

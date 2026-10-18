@@ -102,6 +102,13 @@ When the user authorizes a source-proved parity repair without a public mismatch
 Work lead may enqueue a sessionless Main implementation with `sourceParity`.
 Do not invent a session, discovery, runtime witness or score gain. This is a
 correction to existing reachable behavior, not general roadmap selection.
+For a distinct, bounded source question, Work lead may first assign a support
+investigation so its worker designs the production-caller fixture and checks
+target reach. The producer's initial handoff needs the source question, safe
+ownership and stopping scope, not a finished fixture. Keep the worker's context
+for a justified follow-on repair where possible. The complete pinned
+`sourceParity` review below is still required before any game-code edit; a
+support result alone neither authorizes the edit nor certifies parity.
 
 Producer and Main review trace every preceding branch, return, helper predicate
 and state change on the exact entry-to-target path, and establish one jointly

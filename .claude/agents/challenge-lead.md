@@ -40,6 +40,12 @@ do not inspect or change individual worker dispatch. Inspect returned packets,
 deduplicate causes, and queue focused follow-ups only when evidence is missing
 or suspect. Retain reached, missed, deferred, and unselected results with the
 batch plan. Do not repeat every worker investigation during assembly.
+Hand off a distinct source-grounded question once its ownership, safe scope,
+prerequisites and bounded stop are clear. Give concise source context and the
+observation needed, then let the worker design and validate the exact fixture.
+Review real source uncertainty and returned evidence; do not finish fixture
+design serially before asking Work lead to enqueue. Preserve C evidence and
+the separate source-parity review before any resulting game-code change.
 
 Maintain one active plan and reserve its version. Submit finished included
 recordings and hashes as one batch deliverable. Pending investigations remain
