@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     COLNO,
     CORR,
+    DB_LAVA,
+    DB_MOAT,
+    DB_NORTH,
+    DB_UNDER,
     DBWALL,
     AM_LAWFUL,
     ALTAR,
@@ -38,7 +42,6 @@ import {
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     DB_FLOOR,
-    DB_UNDER,
     FUMBLING,
     FLYING,
     FORCETRAP,
@@ -55,6 +58,7 @@ import {
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_INVENT,
+    OROOM,
     POOL,
     MOAT,
     LAVAPOOL,
@@ -77,6 +81,7 @@ import {
     VWALL,
     W_NONDIGGABLE,
     THRONE,
+    TOPLINE_NEED_MORE,
     TIMER_OBJECT,
 } from '../js/const.js';
 import {
@@ -87,7 +92,13 @@ import {
 } from '../js/dig.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { NethackGame, runSegment } from '../js/jsmain.js';
+import { GameDisplay } from '../js/game_display.js';
+import { create_drawbridge, drawbridgeFlags, drawbridgeUnder,
+    find_drawbridge, get_wall_for_db } from '../js/dbridge.js';
+import { getRngLog } from '../js/rng.js';
+import { engr_at } from '../js/engrave.js';
+import { t_at } from '../js/trap.js';
 import { m_at, newMonster } from '../js/monst.js';
 import { newObject, mksobj, place_object, weight } from '../js/obj.js';
 import { add_to_buried, addinv, sobj_at } from '../js/invent.js';
@@ -519,6 +530,268 @@ test('dighole returns the drawbridge refusal after source-ordered spot checks', 
     assert.equal(result, false);
     assert.deepEqual(messages, ['The ground here is too hard to dig in.']);
     assert.deepEqual(effects, ['time-left', 'stop-timer', 'ice-effects']);
+});
+
+const DRAWBRIDGE_PARITY_RC = 'OPTIONS=name:AccessibleWizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n';
+const DRAWBRIDGE_PARITY_INPUT = Object.freeze({
+    seed: 671903,
+    datetime: '20261018120000',
+    nethackrc: DRAWBRIDGE_PARITY_RC,
+    moves: '',
+});
+const DRAWBRIDGE_DESTRUCTION_MARKER = 'dbridge.c destroy_drawbridge';
+const DRAWBRIDGE_PARITY_CACHE = '.cache/dighole-lowered-bridge-default-qualification-20261018';
+
+function drawbridgePile(head) {
+    const items = [];
+    const seen = new Set();
+    for (let obj = head, i = 0; obj && i < 64 && !seen.has(obj); obj = obj.nexthere, i++) {
+        seen.add(obj);
+        items.push({ id: obj.o_id ?? null, type: obj.otyp ?? null,
+            where: obj.where ?? null, quantity: obj.quan ?? null });
+    }
+    return items;
+}
+
+function drawbridgeTestCell(state, x, y) {
+    const cell = state.level.at(x, y);
+    const actor = state.level.monsters[x]?.[y] ?? null;
+    const trap = t_at(x, y, state);
+    const engraving = engr_at(x, y, state);
+    return { x, y, typ: cell?.typ ?? null, flags: cell?.flags ?? null,
+        horizontal: cell?.horizontal ?? null, doormask: cell?.doormask ?? null,
+        wallInfo: cell?.wall_info ?? null,
+        actor: actor ? { id: actor.m_id ?? null, species: actor.data?.pmidx ?? null,
+            hp: actor.mhp ?? null } : null,
+        floorObjects: drawbridgePile(state.level.objects[x]?.[y]),
+        trap: trap ? { type: trap.ttyp ?? null, id: trap.t_id ?? null } : null,
+        engraving: engraving?.engr_txt ?? null };
+}
+
+async function withCanonicalDrawbridgeFixture(name, exercise) {
+    mkdirSync(DRAWBRIDGE_PARITY_CACHE, { recursive: true });
+    const receipt = { name, input: { ...DRAWBRIDGE_PARITY_INPUT }, phase: 'startup',
+        acknowledgements: [], rng: [], targetInvocationCount: 0, errors: [] };
+    const nhGame = new NethackGame(DRAWBRIDGE_PARITY_INPUT);
+    const display = new GameDisplay(null);
+    nhGame._pendingDisplay = display;
+    const previousOnEmptyQueue = display.onEmptyQueue;
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        if (display.toplin !== TOPLINE_NEED_MORE || !screen.includes('--More--')
+            || receipt.acknowledgements.length >= 16) {
+            receipt.unexpectedInput = { toplin: display.toplin, screen,
+                topMessage: display.topMessage ?? null,
+                waitEpoch: display.waitEpoch, inputQueueLength: display.inputQueueLength };
+            throw new Error('input boundary was not an in-budget rendered More prompt');
+        }
+        receipt.acknowledgements.push({ toplin: display.toplin, screen,
+            topMessage: display.topMessage ?? null,
+            waitEpoch: display.waitEpoch, inputQueueLength: display.inputQueueLength });
+        return 32;
+    };
+    let state = null;
+    let bridge = null;
+    let wall = null;
+    let fixture = null;
+    try {
+        receipt.startReturned = await nhGame.start();
+        state = game;
+        receipt.phase = 'fixed canonical fixture';
+        const rooms = state.level.rooms;
+        const roomIndex = rooms.map((room, i) => room?.rtype === OROOM ? i : -1)
+            .filter(i => i >= 0).at(-1);
+        assert.notEqual(roomIndex, undefined, 'fixed start has a normal OROOM');
+        const room = rooms[roomIndex];
+        const x = room.lx + 1;
+        const y = room.ly;
+        const wallX = x;
+        const wallY = y - 1;
+        const hero = { x: state.u.ux, y: state.u.uy };
+        bridge = state.level.at(x, y);
+        wall = state.level.at(wallX, wallY);
+        fixture = { state, x, y, wallX, wallY, bridge, wall,
+            originalLevel: state.level,
+            originalUz: { dnum: state.u.uz?.dnum ?? null,
+                dlevel: state.u.uz?.dlevel ?? null },
+            roomIndex, room: { lx: room.lx, hx: room.hx, ly: room.ly,
+                hy: room.hy, rtype: room.rtype ?? null,
+                irregular: room.irregular ?? null }, hero, display, nhGame };
+        receipt.start = { started: receipt.startReturned, hero,
+            hp: state.u.uhp ?? null,
+            uz: fixture.originalUz, rooms: rooms.map((r, i) => ({ i,
+                lx: r.lx, hx: r.hx, ly: r.ly, hy: r.hy,
+                rtype: r.rtype ?? null, irregular: r.irregular ?? null })),
+            initialScreen: display.serialize(), topMessage: display.topMessage ?? null,
+            pendingMessage: state._pending_message ?? null,
+            waitEpoch: display.waitEpoch, inputQueueLength: display.inputQueueLength };
+        const bridgeBefore = drawbridgeTestCell(state, x, y);
+        const wallBefore = drawbridgeTestCell(state, wallX, wallY);
+        receipt.fixture = { policy: 'fixed final OROOM in source array order; top edge; bridge=(lx+1,ly); north wall=(lx+1,ly-1)',
+            selectedRoomIndex: roomIndex, room: fixture.room, hero,
+            bridgeBefore, wallBefore, sourceWall: IS_WALL(wallBefore.typ),
+            heroOnEither: (hero.x === x && hero.y === y)
+                || (hero.x === wallX && hero.y === wallY) };
+        assert.equal(receipt.startReturned, true, 'fixed initialized game start');
+        assert.equal(roomIndex, 7, 'same retained final normal room');
+        assert.deepEqual([x, y, wallX, wallY], [66, 13, 66, 12],
+            'same retained fixed bridge and north wall coordinates');
+        assert.equal(room.irregular, false, 'fixed source-normal room is rectangular');
+        assert.equal(bridgeBefore.typ, ROOM);
+        assert.equal(IS_WALL(wallBefore.typ), true);
+        assert.equal(receipt.fixture.heroOnEither, false);
+        for (const cell of [bridgeBefore, wallBefore]) {
+            assert.equal(cell.actor, null, 'fixed target square has no actor');
+            assert.equal(cell.trap, null, 'fixed target square has no trap');
+            assert.deepEqual(cell.floorObjects, [], 'fixed target square has no floor object');
+        }
+        assert.equal(create_drawbridge(x, y, DB_NORTH, true, state), true,
+            'canonical constructor accepts the source-normal wall');
+        const normalizedBridge = { x, y };
+        const normalizedFound = find_drawbridge(normalizedBridge, state);
+        const normalizedWall = { ...normalizedBridge };
+        get_wall_for_db(normalizedWall, state);
+        receipt.fixture.constructed = { bridge: drawbridgeTestCell(state, x, y),
+            wall: drawbridgeTestCell(state, wallX, wallY), normalizedFound,
+            normalizedBridge, normalizedWall, flags: drawbridgeFlags(bridge),
+            underBits: drawbridgeUnder(bridge), underIsMoat: drawbridgeUnder(bridge) === DB_MOAT,
+            underIsLava: drawbridgeUnder(bridge) === DB_LAVA };
+        assert.equal(bridge.typ, DRAWBRIDGE_DOWN);
+        assert.equal(wall.typ, DOOR);
+        assert.equal(wall.doormask, D_NODOOR);
+        assert.equal(normalizedFound, true);
+        assert.deepEqual(normalizedBridge, { x, y });
+        assert.deepEqual(normalizedWall, { x: wallX, y: wallY });
+        assert.equal(drawbridgeUnder(bridge), DB_MOAT,
+            'actual normal-floor constructor stores zero-valued DB_MOAT');
+        receipt.preTarget = { bridge: drawbridgeTestCell(state, x, y),
+            wall: drawbridgeTestCell(state, wallX, wallY),
+            markerPresent: Boolean(state.unported?.has(DRAWBRIDGE_DESTRUCTION_MARKER)),
+            rng: (getRngLog() ?? []).slice(),
+            uz: { dnum: state.u.uz?.dnum ?? null, dlevel: state.u.uz?.dlevel ?? null },
+            currentLevelReference: state.level === fixture.originalLevel };
+        assert.equal(receipt.preTarget.markerPresent, false);
+        await exercise(fixture, receipt);
+    } catch (error) {
+        receipt.errors.push({ phase: receipt.phase, name: error?.name ?? null,
+            message: String(error?.message ?? error), stack: String(error?.stack ?? '') });
+        throw error;
+    } finally {
+        display.onEmptyQueue = previousOnEmptyQueue;
+        receipt.finallyRestoredInputHandler = display.onEmptyQueue === previousOnEmptyQueue;
+        try {
+            receipt.final = { rng: (getRngLog() ?? []).slice(),
+                bridge: state && fixture ? drawbridgeTestCell(state, fixture.x, fixture.y) : null,
+                wall: state && fixture ? drawbridgeTestCell(state, fixture.wallX, fixture.wallY) : null,
+                markerPresent: Boolean(state?.unported?.has(DRAWBRIDGE_DESTRUCTION_MARKER)),
+                uz: state ? { dnum: state.u.uz?.dnum ?? null,
+                    dlevel: state.u.uz?.dlevel ?? null } : null,
+                sameUz: state && fixture ? state.u.uz?.dnum === fixture.originalUz.dnum
+                    && state.u.uz?.dlevel === fixture.originalUz.dlevel : null,
+                sameLevelReference: state && fixture ? state.level === fixture.originalLevel : null,
+                hp: state?.u?.uhp ?? null,
+                gameover: state?.program_state?.gameover ?? null,
+                currentBooleanGameover: Boolean(state?.program_state?.gameover),
+                screen: display.serialize(), topMessage: display.topMessage ?? null,
+                pendingMessage: state?._pending_message ?? null,
+                waitEpoch: display.waitEpoch, inputQueueLength: display.inputQueueLength,
+                completeRng: nhGame.getRngLog().slice(),
+                screenCount: nhGame.getScreens().length };
+        } catch (error) {
+            receipt.finalCaptureError = String(error?.message ?? error);
+        }
+        writeFileSync(`${DRAWBRIDGE_PARITY_CACHE}/${name}-receipt.json`,
+            `${JSON.stringify(receipt, null, 2)}\n`);
+    }
+}
+
+test('drawbridge source parity: real dighole destroys the fixed lowered bridge', async () => {
+    await withCanonicalDrawbridgeFixture('original-target-dighole', async (fixture, receipt) => {
+        const { state, x, y, bridge, wall } = fixture;
+        receipt.phase = 'actual dighole entry';
+        receipt.targetInvocationCount++;
+        receipt.target = { call: 'await dighole(false, true, {x,y}, {state})',
+            inputCoordinates: { x, y },
+            returnValue: await dighole(false, true, { x, y }, { state }) };
+        const normalizedBridge = { x, y };
+        receipt.target.normalizedFindReturned = find_drawbridge(normalizedBridge, state);
+        receipt.target.normalizedCoordinates = { ...normalizedBridge };
+        const normalizedWall = { ...normalizedBridge };
+        get_wall_for_db(normalizedWall, state);
+        receipt.target.normalizedWallCoordinates = normalizedWall;
+        receipt.target.after = { bridge: drawbridgeTestCell(state, x, y),
+            wall: drawbridgeTestCell(state, x, y - 1),
+            markerPresent: Boolean(state.unported?.has(DRAWBRIDGE_DESTRUCTION_MARKER)),
+            rng: (getRngLog() ?? []).slice(),
+            uz: { dnum: state.u.uz?.dnum ?? null, dlevel: state.u.uz?.dlevel ?? null },
+            sameLevelReference: state.level === fixture.originalLevel };
+        assert.equal(receipt.target.returnValue, true,
+            'original C dighole reports successful drawbridge destruction');
+        assert.equal(bridge.typ, MOAT,
+            'canonical DB_MOAT bridge collapses into actual moat terrain');
+        assert.equal(receipt.target.after.markerPresent, false,
+            'the production call no longer leaves the drawbridge destroy marker');
+        assert.equal(drawbridgeFlags(bridge) & DB_UNDER, DB_MOAT);
+        assert.equal(wall.typ, DOOR);
+        assert.equal(wall.doormask, D_NODOOR);
+        assert.equal(receipt.target.after.sameLevelReference, true);
+        assert.deepEqual(receipt.target.after.uz, fixture.originalUz);
+        assert.equal(state.u.uhp > 0, true, 'hero remains alive after fixed target');
+        assert.equal(Boolean(state.program_state?.gameover), false,
+            'full boolean gameover field is false after target');
+        assert.equal(receipt.targetInvocationCount, 1);
+    });
+});
+
+test('drawbridge source parity: pit-only refuses and furniture caller normalizes the portcullis', async () => {
+    await withCanonicalDrawbridgeFixture('original-target-furniture', async (fixture, receipt) => {
+        const { state, x, y, wallX, wallY, bridge, wall, display } = fixture;
+        receipt.phase = 'pit-only portcullis control';
+        const refusal = await dighole(true, true, { x: wallX, y: wallY }, { state });
+        receipt.pitOnlyControl = { call: 'await dighole(true, true, {x:wallX,y:wallY}, {state})',
+            originalCoordinates: { x: wallX, y: wallY }, returnValue: refusal,
+            bridgeAfter: drawbridgeTestCell(state, x, y),
+            wallAfter: drawbridgeTestCell(state, wallX, wallY),
+            markerPresent: Boolean(state.unported?.has(DRAWBRIDGE_DESTRUCTION_MARKER)),
+            topMessage: display.topMessage ?? null };
+        assert.equal(refusal, false, 'pitOnly drawbridge wall keeps the source refusal');
+        assert.equal(bridge.typ, DRAWBRIDGE_DOWN, 'pitOnly did not destroy the bridge');
+        assert.equal(receipt.pitOnlyControl.markerPresent, false);
+        receipt.phase = 'actual digactualhole to furniture_handled entry';
+        const trapsBefore = (state.level.traps ?? []).filter(t =>
+            (t.tx === x && t.ty === y) || (t.tx === wallX && t.ty === wallY)).length;
+        receipt.targetInvocationCount++;
+        receipt.target = { call: 'await digactualhole(wallX, wallY, state.youmonst, PIT, state)',
+            originalCoordinates: { x: wallX, y: wallY },
+            preNormalized: { x: wallX, y: wallY } };
+        receipt.target.normalizedFindReturned = find_drawbridge(receipt.target.preNormalized, state);
+        receipt.target.normalizedCoordinates = { ...receipt.target.preNormalized };
+        receipt.target.result = await digactualhole(wallX, wallY, state.youmonst, PIT, state);
+        const trapsAfter = (state.level.traps ?? []).filter(t =>
+            (t.tx === x && t.ty === y) || (t.tx === wallX && t.ty === wallY)).length;
+        receipt.target.after = { bridge: drawbridgeTestCell(state, x, y),
+            wall: drawbridgeTestCell(state, wallX, wallY),
+            markerPresent: Boolean(state.unported?.has(DRAWBRIDGE_DESTRUCTION_MARKER)),
+            trapsBefore, trapsAfter,
+            rng: (getRngLog() ?? []).slice(),
+            sameLevelReference: state.level === fixture.originalLevel,
+            uz: { dnum: state.u.uz?.dnum ?? null, dlevel: state.u.uz?.dlevel ?? null } };
+        assert.equal(receipt.target.normalizedFindReturned, true,
+            'actual portcullis input resolves through the production coordinate owner');
+        assert.deepEqual(receipt.target.normalizedCoordinates, { x, y });
+        assert.equal(receipt.target.result, undefined,
+            'digactualhole preserves its furniture early return');
+        assert.equal(bridge.typ, MOAT,
+            'furniture_handled destroys the actual normalized bridge');
+        assert.equal(receipt.target.after.markerPresent, false);
+        assert.equal(trapsAfter, trapsBefore,
+            'furniture early return does not create a pit trap');
+        assert.equal(receipt.target.after.sameLevelReference, true);
+        assert.deepEqual(receipt.target.after.uz, fixture.originalUz);
+        assert.equal(state.u.uhp > 0, true);
+        assert.equal(Boolean(state.program_state?.gameover), false);
+        assert.equal(receipt.targetInvocationCount, 1);
+    });
 });
 
 test('dighole removes a settled floor boulder through the object lifecycle', async () => {

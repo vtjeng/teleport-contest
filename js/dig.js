@@ -283,6 +283,7 @@ import {
 } from './monsters.js';
 import { dogushforth, dryup, breaksink } from './fountain.js';
 import {
+    destroy_drawbridge,
     find_drawbridge,
     is_db_wall,
     is_drawbridge_wall,
@@ -1482,8 +1483,8 @@ export async function pit_flow(
 }
 
 // C ref: dig.c furniture_handled() (570-594). Its Boolean is consumed by
-// dighole() and digactualhole(); the bridge destroyer is a void dependency and
-// remains an explicit gap after the coordinate lookup.
+// dighole() and digactualhole(); preserve C's coordinate normalization before
+// destroying the bridge.
 export async function furniture_handled(
     x, y, madebyU, state = game, rawEnv = {},
 ) {
@@ -1498,7 +1499,7 @@ export async function furniture_handled(
         || is_drawbridge_wall(x, y, state) >= 0) {
         const position = { x, y };
         find_drawbridge(position, state);
-        note_unported('dbridge.c destroy_drawbridge');
+        await destroy_drawbridge(position.x, position.y, state, rawEnv);
     } else {
         return false;
     }
@@ -1831,7 +1832,7 @@ export async function dighole(
         } else {
             const position = { x, y };
             find_drawbridge(position, state);
-            note_unported('dbridge.c destroy_drawbridge');
+            await destroy_drawbridge(position.x, position.y, state, rawEnv);
             retval = true;
         }
     } else if (sobj_at(BOULDER, x, y, state)) {
