@@ -607,3 +607,36 @@ its own explicit additional allowance; this audit authorizes neither blanket
 reopening nor relaxed source, original-red/green, independent review or hosted
 acceptance gates. Mounted legal-entry evidence remains a separate current
 question; a failed optional mount builder does not refute its valid entry.
+
+
+Retained-audit follow-up (2026-10-18):
+
+- NPC numeric filtering and unpaid split billing now have accepted successors
+  published in 7f025f440baf38bfb9dffac9eee049576f222655 after exact candidate
+  4c6dcd022287cc807fc1e49442d1b060bc2f4398 passed hosted Checkpoint
+  39109485442, per-case no-regression acceptance and normal publication CI.
+  Actual savebones bytes exclude both quest actor IDs; actual doapply preserves
+  the parent and used-child debt. Review required one split silent-flag
+  correction, retaining its prior revision and discriminating red/green.
+- Ray e7fccf8c reached its real caller under an explicit D15-to-D1 metadata
+  abstraction. Its reviewed successor 13d35d01 preserves the canonical Rogue
+  descriptor and uses real dobuzz and rendered TTY draft output, with exact
+  original-source red and same-final-test 74/74 green plus lint. Acceptance
+  and publication remain pending; this is no public-play or clone certification.
+- Melt 3e1693e3 spent two new setup attempts before start_timer/nh_timeout:
+  an import path failure, then an invalid string class guard after startup.
+  The actual mlet value was not retained. Main deliberately defers the still
+  unresolved valid minimal timer-entry question pending explicit finite review;
+  the older 4d1d attempt and both new slots remain spent, with no third implied.
+- Glob 4f7b2a86 now reached real flooreffects and its scenario-one bill target.
+  Whole-helper closure ff1c3212 supports a separately reviewed repair, still
+  unaccepted. Preserve C fixed bill-slot copy/captured-pointer order: this
+  fixture's row order supports count one and active absorber price 18, while
+  reverse ordering can update an inactive slot. Conditional clear_unpaid after
+  row removal does not promise to clear the deleted object's unpaid bit.
+  Every old source and physical attempt stays preserved; the synchronous
+  inventory hook remains guarded and outside the selected async caller family.
+
+Chest and EGG retain their explicit Main-owned deferrals and have no automatic
+reroll. These are concrete accepted outcomes and remaining-question dispositions,
+not measured causal speedup, yield or CPU evidence.

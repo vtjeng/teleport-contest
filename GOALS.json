@@ -325721,6 +325721,116 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement zap_over_floor from undefined",
+      "cFile": "zap.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "zap_over_floor",
+          "line": 5141,
+          "endLine": 5500,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 5141,
+        "to": 5500
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "assignmentBase": "7f025f440baf38bfb9dffac9eee049576f222655",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "7f025f440baf38bfb9dffac9eee049576f222655",
+          "authorization": "Standing user direct sourceParity opt-in and retained-source audit. Main explicitly selects NEW sameW3 supporting caller correction after accepted/published drawbridge7f; no public witness/history gate, original source production targetred before any edit. Exact old v67 downward probing and parked dobuzz owners remain closed/retained; no novelty or budget release. This is additional15min implementation allowance, not reset of olde522 two attempts/10min or newe7fcc one invocation/10min.",
+          "currentBehavior": "C zap5400–5408 snapshots see_it before SDOOR conversion/recalc/redraw and calls draft_message(FALSE) when blind/unseen on Rogue level. Current JS zap_over_floor matches terrain/order but marker skips existing canonical dig.draft_message. Real default dobuzz ordinary lateral cold calls zap_over_floor before actors, Rogue conversion D_NODOOR avoids closed-door tail. e7fcc actual genuine caller converted SDOOR and marked omission with welcome-only TTY, but changed canonical Rogue descriptorD15→D1, so this remains an explicit local condition abstraction NOT canonical source-valid topology proof. New actual originalred must use initialized canonical descriptor and coherent level/hero identity.",
+          "expectedBehavior": "Replace ONLY zap_over_floor missing dig.c draft_message marker with awaited existing draft_message(false,{...env,state,random:{...random,rn1:random.rn1??rn1},message}) or source-equivalent explicit normalized owners. Existing imported helper and rn1 already present; no helper/dig/dobuzz/vision/terrain/RNG provider implementation edits. Preserve preconversion seeIt snapshot, conversion/recalc/redraw order, exact !seeIt&&Is_rogue_level guard, chosen parent message/planning no-op, selected random overrides with canonical rn1 fallback because default local bundle lacks it. dig helper defaults message to NOOP, so rawEnv alone is insufficient. Primary real exported dobuzz lateral cold normal seeded stream through source-valid blind/nonhallucinating Rogue-level SDOOR, actual default ttyPline; FIRST final-test original source red on missing actual draft text before edit, then same finalbytes/command green with actual pending/rendered TTY draft plus terrain and real caller receipt. Preserve canonical initialized game.rogue_level descriptor, do NOT rewrite it to D1; worker constructs smallest coherent hero/current-level identity at that real descriptor from canonical writers/invariants, no public travel or optional blindfold/terrainwish helper history. No direct helper/zap_over_floor-only primary, fake visibility/RNG/message/death/success or hardcoded altered descriptor. Meaningful ordinary nonRogue/visible guards, planning message suppression/state-owner limits, and hallucinating partial RNG bundle coverage as needed to bind newly wired helper semantics; retain genuine draws. No blanket global-cache/clone source certification. New callee/provider prerequisite stops and Main dispositions question; no expansion.",
+          "units": [
+            "zap.c:zap_over_floor"
+          ],
+          "allowedPaths": [
+            "js/zap.js",
+            "scripts/zap-ray.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/zap-ray.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/zap.js",
+              "symbol": "dobuzz",
+              "source": "Real exported dobuzz ordinary hero cold ray calls zap_over_floor before actors; primary normal source-valid canonical Rogue descriptor/level with adjacent SDOOR and timed blindness, actual live TTY message default."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/zap.js",
+              "object": "1434c9b4dc39b26c9314ff692abc16df57a11e76"
+            },
+            {
+              "path": "js/dig.js",
+              "object": "5eef1f0b51f9cc10e5cf7593271dee434cc93959"
+            },
+            {
+              "path": "js/dungeon.js",
+              "object": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7"
+            },
+            {
+              "path": "js/detect.js",
+              "object": "b6536ddedaabbc0c522aa7e8bb439045f6d2c110"
+            },
+            {
+              "path": "js/vision.js",
+              "object": "f8d278fc3103d2cb430afe356935d3b1f98f11d7"
+            },
+            {
+              "path": "js/game.js",
+              "object": "adf4337c84bc56c6d80ac75978219e18a81c99be"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "scripts/zap-ray.test.mjs",
+              "object": "48459bf6b226729901a47f000d1a98b89d5d8263"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "original": "e52298d468c7a16c62fa4746c9aa305bd0c39cbbc9a4d6db6e7fd23f9a845bdc TWO setupmisses; first wrongexport, second terrainwish TTY AFTER runSegment, exactwish unknown; df097 additivecorrection.",
+            "current": "e7fccf8cfc993082dd1f3c333e019135fc552baf1f66907ace01e04f4cc66b48 ONE defaultdobuzz targetprefix under explicit D15→D1 metadata abstraction; Main/CL verified28321B7733ad04/all7, no public/canonicaltopology claim.",
+            "independent": "CL ray-actual-target-independent-review.json f89c98ac0934502dc93a683a03f7e7889ec318d07b842264448156815bd8e3b9; exact source scope/helper defaultnoop/partialrn1/planning supported.",
+            "Main": "Main read exact current zap_over_floor normalization/guard, accepted zap_map draft wiring, complete dig.draft_message branch semantics and Csource. All11 pins from oneimmutable accepted7f, drawbridge edits accepted/deconflicted; no new zap helper changes from sourcecontext.",
+            "knownSetup": "Resolve each import from FINAL script directory to exact targetfile/export; compare actual args/flags/defaultenv/state writers/accessors against pinnedsource. Real runSegment returns recorder, singletongame ownsstate; actual game.nhDisplay.serialize string; pendingstartup needs actual dismissPendingTtyMessage render before finite16 displayedMore/onEmptyQueue acknowledgments, restore callbackfinally. e7fcc sourceaudit incorrectly called helper defaulttty—it is NOOP. Preserve all prior script/rawphase/RNG/screens. Worker owns fixture, no lead complete harness prerequisite."
+          }
+        },
+        "reviewSha256": "a20a51f34b9831af3469d3f74ade38b872a1442d71244fa220b013e0fa7adbde"
+      }
     }
   ]
 }
