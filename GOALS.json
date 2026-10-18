@@ -327335,6 +327335,134 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-pay-damage-outside-room-buffer-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement pay_for_damage from shk.c",
+      "cFile": "shk.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
+      "detail": "Source-parity-runtime-pending whole pay_for_damage parent review, exact predicate correction only. Canonical ushops is fixed5/zero-terminated, original length test misroutes outside state. Actual67185 completed default parent with hero67,4/zero5/resident79 home5,10/open owneddoor6,10/current400 record. Frozen07ff test genuine original home-vs-door red preceded code, same bytes green after first-slot predicate; raw source/test/freeze/projections committed44f/c4f75. Existing getcad and relocation helper gaps remain explicit; no new helper, broader shop certificate, public witness or prior-budget release. Pending next exact hosted gate.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pay_for_damage",
+          "line": 5174,
+          "endLine": 5349,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 5174,
+        "to": 5349
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-pay-damage-outside-room-buffer-source-parity-20261018",
+        "assignmentBase": "d4eb863f57c8e2479e6f00789cd53db6c2000778",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "d4eb863f57c8e2479e6f00789cd53db6c2000778",
+          "authorization": "Standing source-parity runtime-pending authorization. Main explicitly selects NEW <=12min narrow implementation after actual67185 qualification, exact4daa parent representation source result, priorca6 reused and complete independent CL actual/whole parent/default helper review. All v53/v65/Healer/getcad and physical caps remain held/spent; no new discovery or helper port.",
+          "currentBehavior": "Canonical u_init/rooms writers maintain a five-slot zero-terminated ushops buffer; outside first0 but array length5. C pay_for_damage uses first byte, JS Boolean(length) always chooses inShop. Actual67185 fixed original startup hero67,4/zero5, peaceful resident79 at5,10/current real entrance6,10 open DOOR23/mask2/goodpostrue/400record at move1; actual pay_for_damage returned without moving keeper, exact linked list/grid preserved, getcad marker new, no errors/RNG2575 unchanged/restored handler. Optional opening/teleds branch was NOT executed. Current wrong inShop path skips mnexto because distance62 then pursue returns; C outside branch first mnearto exactdoor.",
+          "expectedBehavior": "Within WHOLE existing pay_for_damage use source first-slot truthiness Boolean(state.u?.ushops?.[0]) instead of length, preserving full damage aggregation/owner/customer/anger, in-shop leap/pursue, outside mnearto await and common guard, credit/payment/decline/home/pacify ordering/defaults. Existing helper/default and named getcad/relocation gaps remain separate and explicit, no helper edits or source certification. Correct outside actual snapshot moves same keeper79 to exact open door6,10 via real mnearto BEFORE later getcad marker. Same actor linked once, door grid owns actor, original home cleared, hero/buffer/damage record unchanged; source relocation messages/RNG/default tails permitted. Do not demand disappearance of getcad marker or following effects from this predicate-only repair.",
+          "units": [
+            "shk.c:pay_for_damage"
+          ],
+          "allowedPaths": [
+            "js/shk.js",
+            "scripts/shk.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/shk.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/shk.js",
+              "symbol": "pay_for_damage",
+              "source": "Actual exported67185 default call with genuine canonical add_damage record qualifies parent branch."
+            },
+            {
+              "path": "js/dig.js",
+              "symbol": "zap_dig",
+              "source": "Normal lateral wall/door source caller records actual add_damage and awaits pay_for_damage; no public route gate for coherent initialized before-call state."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/shk.js",
+              "object": "b34f0bd8e2ef05038e107e5eba141a544898e8a7"
+            },
+            {
+              "path": "scripts/shk.test.mjs",
+              "object": "99d7dec9d00acf765bf9fb04e755b867621b429f"
+            },
+            {
+              "path": "js/rooms.js",
+              "object": "d35e27a3d2d100dbd69b1d4e2f92192dc91dae39"
+            },
+            {
+              "path": "js/u_init.js",
+              "object": "9af5eb6748d17869aba0dd67145b5b02b38fca29"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "a8967364ab0b77bdc92d76208b806e832792b914"
+            },
+            {
+              "path": "js/teleport.js",
+              "object": "eb7790101224158e28ada929eff408139a71aadd"
+            },
+            {
+              "path": "js/mkroom.js",
+              "object": "8e6d10b8dd5ca1dbdbc6b8062af950da7d23c778"
+            },
+            {
+              "path": "js/mklev.js",
+              "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/dig.js",
+              "object": "a80e2b7a2734c6a400972a664d9dfa1d63978fbd"
+            }
+          ],
+          "sourceEvidence": {
+            "sourceResult": "4daa6e98ff31405a070c4b1fa38fcd950f1f0c6368e97f965ebb8b74b386b3ae",
+            "prior": "ca6abc3a61cda3fb45d50aaa03a43dd3f2ba1c1826b9f1432177857c4b03d865",
+            "actual": "67185d0c9e19795292555abdb0eae745dd59aa44383b0ad76b273b7de57ae2c5",
+            "commit": "27605688e305713c20267b8b036fdd09a6f93b4d",
+            "fixture": "/workspace/teleport-contest/.cache/resume-1439/outside-67185/shop-damage-outside-room-buffer-default-qualification-20261018__attempt.mjs",
+            "limits": "Main verified outer/all10 files/read full18086B fixture, exact C/JS whole parent/helpers; CL independently verified same actual/fullsource. Raw label door.costly was merely ownership, not costly_spot; target needs room ownership only. Literal offmap bit observer is not source state authority. No public parity/source certificate/gain or getcad implementation."
+          }
+        },
+        "reviewSha256": "72fa136c26bf36b64e6d951e03572e667360091419c2200f9eab1f27cbb13f14"
+      }
     }
   ]
 }

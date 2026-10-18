@@ -785,3 +785,21 @@ Retained floor figurine charge evidence disposition (2026-10-18):
 - Main and Challenge lead reviewed exact code/test/35 literal artifacts and
   raw projections. Select this exact delivery for normal hosted validation;
   it is not yet accepted. Runtime-pending/public/source limits remain.
+
+
+Outside shop-damage room-buffer disposition (2026-10-18):
+
+- Reuse ca6abc3a zero-money/getcad source finding and retained v53/v65/Healer
+  scopes. Unclaimed duplicate survey was superseded without an attempt. New
+  source4daa isolates the canonical fixed-five first-slot predicate.
+- Actual67185 uses a real default pay_for_damage call after canonical
+  add_damage, with the unchanged outside hero and live resident. Original
+  keeper79 stays home5,10 although source requires owned open door6,10.
+- Delivery44f7af1 changes only Boolean(ushops[0]) in the whole reviewed
+  parent. Frozen07ff target-specific original red preceded production;
+  identical bytes passed after the fix, with raw grid/list/damage/input
+  projections preserved as committed cache artifacts and lint0.
+- Main/CL found no source/test/evidence blocker. Select the exact delivery
+  for hosted validation after figurinec212 publication CI is fully green.
+  Existing getcad/helper gaps, runtime-pending basis, old caps and public
+  evidence limits remain; no broader shop source certificate is claimed.
