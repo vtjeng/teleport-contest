@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T15:51:26.902Z",
+  "capturedAt": "2026-10-18T16:17:20.613Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T15:51:26.902Z",
+    "asOf": "2026-10-18T16:17:20.613Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 276,
+      "mainSupportAssignments": 284,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -171475,6 +171475,250 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-fainted-melt-reset-faint-source-parity-20261018-08e74eedda57182b79fb6ae321afc6b2795bbd5e",
+        "type": "published",
+        "at": "2026-10-18T15:51:47.533Z",
+        "task": "delivery:fix-fainted-melt-reset-faint-source-parity-20261018",
+        "commit": "08e74eedda57182b79fb6ae321afc6b2795bbd5e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:55:03.627Z",
+        "id": "queue:54e1aaa4-8688-4741-8dae-db23c9a30818",
+        "type": "assign",
+        "task": "keepdogs-accessible-wizard-default-target-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:55:11.505Z",
+        "id": "queue:ec57d415-4719-4ef4-8077-7600688fecd2",
+        "type": "assign",
+        "task": "outsider-fire-floor-useupf-default-target-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T15:55:36.096Z",
+        "id": "queue:8b6e9657-17af-489d-b2ca-c794ca482e21",
+        "type": "assign",
+        "task": "lifesaved-mounted-centaur-default-target-qualification-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:01:23.465Z",
+        "id": "queue:9d1f4393-c378-48aa-b35c-ce57d1acc3ed",
+        "type": "queue-complete",
+        "task": "outsider-fire-floor-useupf-default-target-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:01:23.465Z",
+        "id": "queue:9d1f4393-c378-48aa-b35c-ce57d1acc3ed:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:01:39.073Z",
+        "id": "queue:8e1f7c1e-eb17-44b3-8223-845897dbca7e",
+        "type": "queue-complete",
+        "task": "keepdogs-accessible-wizard-default-target-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:01:39.073Z",
+        "id": "queue:8e1f7c1e-eb17-44b3-8223-845897dbca7e:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:01:44.849Z",
+        "id": "queue:b49629bb-5c32-40d4-965d-52e5835e6252",
+        "type": "assign",
+        "task": "failed-arrival-limbo-offmap-migration-source-inquiry-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:02:21.952Z",
+        "id": "queue:9639de18-64f6-41f6-a835-c0c57db94149",
+        "type": "queue-complete",
+        "task": "lifesaved-mounted-centaur-default-target-qualification-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:02:21.952Z",
+        "id": "queue:9639de18-64f6-41f6-a835-c0c57db94149:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:03:37.031Z",
+        "id": "queue:6d489f72-e530-4d76-8302-326ef6e6c747",
+        "type": "assign",
+        "task": "outside-shop-polymorph-shock-theft-source-residual-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:03:44.971Z",
+        "id": "queue:3ef50931-246c-4527-9f49-3bcd38b09a99",
+        "type": "queue-complete",
+        "task": "failed-arrival-limbo-offmap-migration-source-inquiry-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:03:44.971Z",
+        "id": "queue:3ef50931-246c-4527-9f49-3bcd38b09a99:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:07:12.245Z",
+        "id": "queue:989a103c-77ea-4670-9368-73081e2848c5",
+        "type": "queue-complete",
+        "task": "outside-shop-polymorph-shock-theft-source-residual-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:07:12.245Z",
+        "id": "queue:989a103c-77ea-4670-9368-73081e2848c5:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:07:19.270Z",
+        "id": "queue:c5866c03-a6e8-4339-9d30-93a34aedc95a",
+        "type": "assign",
+        "task": "correct-failed-arrival-source-owner-entry-evidence-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "exploration",
+        "target": "08e74eedda57182b79fb6ae321afc6b2795bbd5e",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:09:22.103Z",
+        "id": "queue:3d57ebea-374c-457b-b2e6-ebac9262843d",
+        "type": "assign",
+        "task": "terminal-entry-discard-migrants-source-inquiry-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:11:15.393Z",
+        "id": "queue:b86d4669-a51c-40a5-a267-ee724e36460b",
+        "type": "queue-complete",
+        "task": "correct-failed-arrival-source-owner-entry-evidence-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:11:15.393Z",
+        "id": "queue:b86d4669-a51c-40a5-a267-ee724e36460b:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:13:21.391Z",
+        "id": "queue:41151583-78cc-4e15-8354-947c1544275f",
+        "type": "queue-complete",
+        "task": "terminal-entry-discard-migrants-source-inquiry-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:13:21.391Z",
+        "id": "queue:41151583-78cc-4e15-8354-947c1544275f:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:14:09.200Z",
+        "id": "queue:5d96c21a-77c7-4ad9-83c9-4a9072ac20eb",
+        "type": "assign",
+        "task": "outsider-fire-floor-canonical-fill-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T16:15:35.923Z",
+        "id": "queue:0afc214e-f65d-468f-b674-44806a8d14e7",
+        "type": "assign",
+        "task": "failed-arrival-limbo-default-target-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -171695,24 +171939,33 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "outsider-fire-floor-canonical-fill-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "task": "failed-arrival-limbo-default-target-qualification-20261018",
+        "worker": "Worker-2"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 525,
+      "completed": 532,
       "superseded": 98
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "outsider-fire-floor-canonical-fill-qualification-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "failed-arrival-limbo-default-target-qualification-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -181097,6 +181350,141 @@
         "readyAt": "2026-10-18T15:42:04.309Z",
         "claimedAt": "2026-10-18T15:42:19.501Z",
         "completedAt": "2026-10-18T15:46:37.579Z"
+      },
+      {
+        "id": "keepdogs-accessible-wizard-default-target-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T15:54:24.755Z",
+        "claimedAt": "2026-10-18T15:55:03.627Z",
+        "completedAt": "2026-10-18T16:01:39.073Z"
+      },
+      {
+        "id": "outsider-fire-floor-useupf-default-target-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T15:54:27.086Z",
+        "claimedAt": "2026-10-18T15:55:11.505Z",
+        "completedAt": "2026-10-18T16:01:23.465Z"
+      },
+      {
+        "id": "lifesaved-mounted-centaur-default-target-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T15:54:29.405Z",
+        "claimedAt": "2026-10-18T15:55:36.096Z",
+        "completedAt": "2026-10-18T16:02:21.952Z"
+      },
+      {
+        "id": "failed-arrival-limbo-offmap-migration-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T15:56:08.714Z",
+        "claimedAt": "2026-10-18T16:01:44.849Z",
+        "completedAt": "2026-10-18T16:03:44.971Z"
+      },
+      {
+        "id": "outside-shop-polymorph-shock-theft-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T16:02:51.995Z",
+        "claimedAt": "2026-10-18T16:03:37.031Z",
+        "completedAt": "2026-10-18T16:07:12.245Z"
+      },
+      {
+        "id": "correct-failed-arrival-source-owner-entry-evidence-20261018",
+        "type": "rework",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "08e74eedda57182b79fb6ae321afc6b2795bbd5e",
+        "readyAt": "2026-10-18T16:06:52.018Z",
+        "claimedAt": "2026-10-18T16:07:19.270Z",
+        "completedAt": "2026-10-18T16:11:15.393Z"
+      },
+      {
+        "id": "terminal-entry-discard-migrants-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T16:08:44.418Z",
+        "claimedAt": "2026-10-18T16:09:22.103Z",
+        "completedAt": "2026-10-18T16:13:21.391Z"
+      },
+      {
+        "id": "outsider-fire-floor-canonical-fill-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T16:13:24.636Z",
+        "claimedAt": "2026-10-18T16:14:09.200Z",
+        "completedAt": null
+      },
+      {
+        "id": "failed-arrival-limbo-default-target-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T16:14:52.887Z",
+        "claimedAt": "2026-10-18T16:15:35.923Z",
+        "completedAt": null
       }
     ]
   },
