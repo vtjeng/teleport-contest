@@ -143,8 +143,6 @@
     {
       "name": "actual exported test_move DO_MOVE shop-exit push",
       "functions": [
-        "test_move",
-        "moverock_core",
         "dopush"
       ],
       "recordings": [],
