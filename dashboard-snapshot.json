@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T03:06:26.942Z",
+  "capturedAt": "2026-10-18T03:50:28.794Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T03:06:26.942Z",
+    "asOf": "2026-10-18T03:50:28.794Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 213,
+      "mainSupportAssignments": 218,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -167650,6 +167650,335 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:12:44.517Z",
+        "id": "queue:921028bb-769e-4db0-a081-bf0c42553d98",
+        "type": "assign",
+        "task": "fix-initialized-adjacent-cold-cast-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:16:29.798Z",
+        "id": "queue:17fe0285-8641-4a4f-bf02-33672f88fdab",
+        "type": "queue-block",
+        "task": "fix-initialized-adjacent-cold-cast-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:16:29.798Z",
+        "id": "queue:17fe0285-8641-4a4f-bf02-33672f88fdab:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:18:26.811Z",
+        "id": "queue:ac0047e4-e904-4904-be7a-0359fed938b0",
+        "type": "assign",
+        "task": "shop-insider-chest-explosion-debt-source-screen-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:22:36.204Z",
+        "id": "queue:67c83f92-e475-4066-b769-b7f9379fdba0",
+        "type": "queue-complete",
+        "task": "shop-insider-chest-explosion-debt-source-screen-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:22:36.204Z",
+        "id": "queue:67c83f92-e475-4066-b769-b7f9379fdba0:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:23:45.114Z",
+        "id": "queue:13713e0c-d242-49b1-9adc-9b41581005f8",
+        "type": "assign",
+        "task": "fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:28:02.517Z",
+        "id": "queue:f5f84d3b-10a7-4c56-9c75-061e8436e434",
+        "type": "assign",
+        "task": "fainted-melt-ice-drowning-reset-source-screen-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:29:39.333Z",
+        "id": "queue:19663943-6f76-4b40-9cb6-3bba6d35ebea",
+        "type": "queue-block",
+        "task": "fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:29:39.333Z",
+        "id": "queue:19663943-6f76-4b40-9cb6-3bba6d35ebea:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:32:10.015Z",
+        "id": "queue:4615f34b-ded8-49c7-a1c9-810e5ec0a58e",
+        "type": "queue-complete",
+        "task": "fainted-melt-ice-drowning-reset-source-screen-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:32:10.015Z",
+        "id": "queue:4615f34b-ded8-49c7-a1c9-810e5ec0a58e:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:33:42.448Z",
+        "id": "queue:c04f30d8-f610-4a31-bb57-eb9893f1f0b0",
+        "type": "resume",
+        "task": "fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:35:26.784Z",
+        "id": "queue:927d1bda-f707-4afb-b553-7d90e4164e3e",
+        "type": "assign",
+        "task": "shop-insider-chest-luck13-target-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:36:51.679Z",
+        "id": "ready-7cad196bb98598b878653bae4e49601edf789c3c:transport",
+        "type": "assign",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-direct-mattacku-cold-cast-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-7cad196bb98598b878653bae4e49601edf789c3c",
+        "type": "ready",
+        "at": "2026-10-18T03:36:51.679Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "delivery": "7cad196bb98598b878653bae4e49601edf789c3c"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:36:51.679Z",
+        "id": "ready-7cad196bb98598b878653bae4e49601edf789c3c:complete",
+        "type": "queue-complete",
+        "task": "fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:36:51.679Z",
+        "id": "ready-7cad196bb98598b878653bae4e49601edf789c3c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-direct-mattacku-cold-7cad196b-20261018",
+        "type": "received",
+        "at": "2026-10-18T03:37:56.431Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "delivery": "7cad196bb98598b878653bae4e49601edf789c3c"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-direct-mattacku-cold-comment-7cad196b-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T03:37:57.760Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "delivery": "7cad196bb98598b878653bae4e49601edf789c3c"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:38:07.446Z",
+        "id": "queue:abd018cc-24c9-4b18-9cc7-9516bbc4f6d2",
+        "type": "assign",
+        "task": "rework:delivery:fix-direct-mattacku-cold-cast-source-parity-20261018:7cad196bb98598b878653bae4e49601edf789c3c",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "7cad196bb98598b878653bae4e49601edf789c3c",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-a229b3ee5af7e2838620cd551d0854ada17d1bf9",
+        "type": "ready",
+        "at": "2026-10-18T03:38:51.500Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "delivery": "a229b3ee5af7e2838620cd551d0854ada17d1bf9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:38:51.500Z",
+        "id": "ready-a229b3ee5af7e2838620cd551d0854ada17d1bf9:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-direct-mattacku-cold-cast-source-parity-20261018:7cad196bb98598b878653bae4e49601edf789c3c",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:38:51.500Z",
+        "id": "ready-a229b3ee5af7e2838620cd551d0854ada17d1bf9:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:39:06.228Z",
+        "id": "queue:8df6233c-086c-4061-add8-49e9b1e12b79",
+        "type": "assign",
+        "task": "fainted-melt-timeout-target-qualification-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-direct-mattacku-cold-a229b3ee-20261018",
+        "type": "received",
+        "at": "2026-10-18T03:39:51.889Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "delivery": "a229b3ee5af7e2838620cd551d0854ada17d1bf9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-6bbf8f7795e622ffd455cad33890ba0cf1575fa6-c4b822f896dc0becb6e610fd84955a990d6a7a4bdae08f9f3708bde2805e7913-delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T03:40:18.317Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "integration": "6bbf8f7795e622ffd455cad33890ba0cf1575fa6",
+        "validationGroup": [
+          "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:43:33.214Z",
+        "id": "queue:7a9f4627-82fc-4965-b6d7-68e426ce4d22",
+        "type": "queue-block",
+        "task": "shop-insider-chest-luck13-target-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:43:33.214Z",
+        "id": "queue:7a9f4627-82fc-4965-b6d7-68e426ce4d22:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:45:41.452Z",
+        "id": "queue:8bd994c0-acc5-4466-b5e1-a9dc951ad7ce",
+        "type": "queue-block",
+        "task": "fainted-melt-timeout-target-qualification-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:45:41.452Z",
+        "id": "queue:8bd994c0-acc5-4466-b5e1-a9dc951ad7ce:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-direct-mattacku-cold-cast-source-parity-20261018-6bbf8f7795e622ffd455cad33890ba0cf1575fa6-validated",
+        "type": "validated",
+        "at": "2026-10-18T03:47:15.644Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-direct-mattacku-cold-cast-source-parity-20261018-6bbf8f7795e622ffd455cad33890ba0cf1575fa6-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T03:48:01.427Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:50:21.114Z",
+        "id": "queue:c5f2ff79-45d4-4567-bf0c-6d5cb97b370c",
+        "type": "assign",
+        "task": "bones-real-amulet-save-conversion-source-screen-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -167809,6 +168138,16 @@
           "source:mcastu.c:castmu"
         ],
         "reason": "Fixed no-production-edit target attempt terminated before setup input: the initial actual hero-form observer asserted game.u.umonnum===PM_HUMAN and observed 343!==260 immediately after the B23 opening-space startup. No ring, potion, hostile genesis, wait, or AD_COLD action was executed; no runtime parity or repair result. Preserve the one exit-1 command and frozen test/input drafts in typed evidence; no retry or observer correction."
+      },
+      "delivery:fix-initialized-adjacent-cold-cast-source-parity-20261018": {
+        "id": "delivery:fix-initialized-adjacent-cold-cast-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "parked",
+        "seed": null,
+        "reservations": [
+          "source:mcastu.c:castmu"
+        ],
+        "reason": "The single frozen no-edit focused command failed during canonical makemon_runtime placement: mnexto reached awaited rloc_to_flag while dismissing a pending tty message, and the empty initialized input queue raised Input queue empty before the constructor returned. No normal action or AD_COLD target was reached; no source change or retry was made. Exact drafts, patch and raw output are retained in typed evidence."
       }
     },
     "reservations": {}
@@ -167820,19 +168159,24 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "bones-real-amulet-save-conversion-source-screen-20261018",
+        "worker": "Worker-1"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 448,
-      "superseded": 87
+      "completed": 452,
+      "superseded": 90
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "bones-real-amulet-save-conversion-source-screen-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -175902,12 +176246,132 @@
         "readyAt": "2026-10-18T02:59:19.715Z",
         "claimedAt": "2026-10-18T02:59:44.082Z",
         "completedAt": null
+      },
+      {
+        "id": "fix-initialized-adjacent-cold-cast-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T03:12:21.503Z",
+        "claimedAt": "2026-10-18T03:12:44.517Z",
+        "completedAt": null
+      },
+      {
+        "id": "shop-insider-chest-explosion-debt-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T03:18:14.784Z",
+        "claimedAt": "2026-10-18T03:18:26.811Z",
+        "completedAt": "2026-10-18T03:22:36.204Z"
+      },
+      {
+        "id": "fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T03:23:19.781Z",
+        "claimedAt": "2026-10-18T03:33:42.448Z",
+        "completedAt": "2026-10-18T03:36:51.679Z"
+      },
+      {
+        "id": "fainted-melt-ice-drowning-reset-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T03:27:46.689Z",
+        "claimedAt": "2026-10-18T03:28:02.517Z",
+        "completedAt": "2026-10-18T03:32:10.015Z"
+      },
+      {
+        "id": "shop-insider-chest-luck13-target-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T03:35:06.015Z",
+        "claimedAt": "2026-10-18T03:35:26.784Z",
+        "completedAt": null
+      },
+      {
+        "id": "rework:delivery:fix-direct-mattacku-cold-cast-source-parity-20261018:7cad196bb98598b878653bae4e49601edf789c3c",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": "7cad196bb98598b878653bae4e49601edf789c3c",
+        "readyAt": "2026-10-18T03:37:57.760Z",
+        "claimedAt": "2026-10-18T03:38:07.446Z",
+        "completedAt": "2026-10-18T03:38:51.500Z"
+      },
+      {
+        "id": "fainted-melt-timeout-target-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T03:38:53.774Z",
+        "claimedAt": "2026-10-18T03:39:06.228Z",
+        "completedAt": null
+      },
+      {
+        "id": "bones-real-amulet-save-conversion-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T03:48:35.047Z",
+        "claimedAt": "2026-10-18T03:50:21.114Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "05c0588db52af337d663ef6687768b17a4b9fc5d",
-    "measuredAt": "2026-10-18T02:33:54.075Z",
+    "executionCommit": "6bbf8f7795e622ffd455cad33890ba0cf1575fa6",
+    "measuredAt": "2026-10-18T03:45:53.223Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

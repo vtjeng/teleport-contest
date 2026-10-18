@@ -323677,7 +323677,7 @@
     {
       "id": "fix-direct-mattacku-cold-cast-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement castmu from mcastu.c",
       "cFile": "mcastu.c",
       "sessions": [],
@@ -323685,7 +323685,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "6bbf8f7795e622ffd455cad33890ba0cf1575fa6",
       "delivered": null,
       "functions": [
         {
@@ -323827,6 +323827,51 @@
           }
         },
         "reviewSha256": "e7c63cdedb3b436190c134da9907ffc11805cd50014f30554296d9ab32b1ab86"
+      },
+      "closeStanding": {
+        "sha": "6bbf8f7795e622ffd455cad33890ba0cf1575fa6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "05c0588db52af337d663ef6687768b17a4b9fc5d",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/6bbf8f7795e622ffd455cad33890ba0cf1575fa6/run-hosted-jAB8I6/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "castmu",
+            "implementation": "js/mcastu.js",
+            "symbol": "castmu",
+            "sourceReview": "Port the pinned mcastu.c castmu AD_COLD branch in js/mcastu.js: preserve existing generic damage and order, emit frost message, use actual cold-resistance shield/message and M_SEEN_COLD, await existing mon_spell_hits_spot, then retain the existing damage tail. AD_FIRE and other effects remain unsupported.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "C mhitu.c926-931 actual ordered AT_MAGC adjacent production attack-loop dispatch calls castmu(TRUE,foundyou); source guards and preceding summon/claw retain real behavior. Test calls this actual production owner, not castmu directly."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The test invokes the reviewed real mhitu.mattacku caller and traverses its ordinary adjacent AT_MAGC dispatch into castmu. It uses the initialized selected actor and real seeded RNG; the source arm is exercised after the actual summon/claw gates. The corrected assertion matches the production claw output “It hits!”. The clone is constructed from the source-valid pre-action planning state and cloned RNG before the live action, so its cold resistance has not yet been marked; its real mattacku action completes without changing live state, RNG, queue, or output.",
+        "entryPoints": [
+          {
+            "name": "real initialized adjacent Asmodeus attack through mattacku",
+            "functions": [
+              "castmu"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
