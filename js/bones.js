@@ -81,6 +81,8 @@ import {
     TIN,
 } from './objects.js';
 import {
+    MS_LEADER,
+    MS_NEMESIS,
     PM_GHOST,
     SPECIAL_PM,
 } from './monsters.js';
@@ -345,8 +347,8 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
 // level) before saving bones.
 function remove_mon_from_bones(mtmp, mongone_fn) {
     const mptr = mtmp.data;
-    if (mtmp.iswiz || mptr?.msound === 'MS_NEMESIS'
-        || mptr?.msound === 'MS_LEADER') {
+    if (mtmp.iswiz || mptr?.msound === MS_NEMESIS
+        || mptr?.msound === MS_LEADER) {
         mongone_fn(mtmp);
     }
     // Oracle fixup and other special monsters are simplified for now.

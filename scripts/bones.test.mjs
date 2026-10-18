@@ -3,7 +3,10 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { can_make_bones, resetGhostlyMonsterAttitudes, savebones } from '../js/bones.js';
-import { DIED, KILLED_BY_AN, NON_PM, OBJ_FLOOR } from '../js/const.js';
+import {
+    DIED, KILLED_BY_AN, MM_ADJACENTOK, MM_NOMSG, NO_MINVENT,
+    NON_PM, OBJ_FLOOR,
+} from '../js/const.js';
 import { getnow } from '../js/calendar.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { bless, mksobj_at } from '../js/obj.js';
@@ -12,7 +15,12 @@ import { InMemoryStorage, setStorageForTesting, vfsReadFile } from '../js/storag
 import { runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
-import { PM_DWARF, monst_globals_init, reset_mvitals } from '../js/monsters.js';
+import {
+    MS_LEADER, MS_NEMESIS, PM_DWARF, PM_GHOST,
+    PM_LORD_CARNARVON, PM_MINION_OF_HUHETOTL,
+    monst_globals_init, reset_mvitals,
+} from '../js/monsters.js';
+import { makemon_runtime } from '../js/makemon_create.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 
 test('drop_upon_death uses the canonical burning-object predicate', async () => {
@@ -236,6 +244,111 @@ test('savebones converts a real floor Amulet to its fake cursed bones form', asy
         assert.equal(amulet.blessed, false);
         assert.equal(amulet.where, OBJ_FLOOR);
         assert.equal(game.level.objects[x][y], amulet);
+    } finally {
+        setStorageForTesting(null);
+    }
+});
+
+test('savebones removes numeric quest leaders and nemeses before serialization', async () => {
+    const runner = await runSegment({
+        seed: 2026101804,
+        datetime: '20261018071700',
+        nethackrc: 'OPTIONS=name:CarnarvonAudit,role:Archeologist,race:human,'
+            + 'gender:male,align:lawful,playmode:debug\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+            + '!autopickup,!acoustics,!debug_mongen\n',
+        moves: '',
+    });
+    setStorageForTesting(new InMemoryStorage());
+    try {
+        assert.equal(game.urole?.name?.m, 'Archeologist');
+        assert.equal(game.urole?.ldrnum, PM_LORD_CARNARVON);
+        assert.equal(game.urace?.noun, 'human');
+        assert.equal(game.flags.female, false);
+        assert.equal(game.u.ualign.type, 1);
+        assert.equal(game.wizard, true);
+        assert.ok(game.u.uz && Number.isInteger(game.u.uz.dnum)
+            && Number.isInteger(game.u.uz.dlevel));
+        game.killer = { name: 'died', format: KILLED_BY_AN };
+        game.flags.bones = true;
+        game.discover = false;
+        game.u.uswallow = 0;
+        game.u.usteed = null;
+        game.uball = null;
+        game.u.ugrave_arise = NON_PM;
+
+        // Reuse the accepted minimal bones-entry snapshot while preserving
+        // initialized role/race state; clear list roots and grids together.
+        game.invent = null;
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg',
+            'uarmf', 'uarmu', 'uleft', 'uright', 'uwep', 'uswapwep',
+            'uquiver', 'uamul', 'ublindf', 'uball', 'uchain'])
+            game[slot] = null;
+        game.u.twoweap = false;
+        for (const property of game.u.uprops) {
+            property.extrinsic = 0;
+            property.blocked = 0;
+        }
+        game.u.moreluck = 0;
+        game.level.monlist = null;
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.objlist = null;
+        for (const column of game.level.objects) column.fill(null);
+        game.level.buriedobjlist = null;
+        game.level.traps = [];
+        assert.ok(can_make_bones(game));
+
+        const flags = NO_MINVENT | MM_ADJACENTOK | MM_NOMSG;
+        const leaderSpecies = game.mons[PM_LORD_CARNARVON];
+        const nemesisSpecies = game.mons[PM_MINION_OF_HUHETOTL];
+        assert.equal(leaderSpecies?.msound, MS_LEADER);
+        assert.equal(nemesisSpecies?.msound, MS_NEMESIS);
+        const leader = await makemon_runtime(
+            leaderSpecies, game.u.ux, game.u.uy, flags, { state: game },
+        );
+        const nemesis = await makemon_runtime(
+            nemesisSpecies, game.u.ux, game.u.uy, flags, { state: game },
+        );
+        assert.ok(leader && nemesis);
+        assert.equal(leader.minvent, null);
+        assert.equal(nemesis.minvent, null);
+        assert.equal(game.level.monsters[leader.mx][leader.my], leader);
+        assert.equal(game.level.monsters[nemesis.mx][nemesis.my], nemesis);
+
+        const path = `bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}`;
+        assert.equal(vfsReadFile(path), null);
+        await savebones(DIED, getnow(game), null, game);
+        const savedText = vfsReadFile(path);
+        assert.equal(typeof savedText, 'string');
+        const saved = JSON.parse(savedText);
+        const savedIds = new Set(saved.monsters.map(monster => monster.m_id));
+        const state = [savedIds.has(leader.m_id), savedIds.has(nemesis.m_id),
+            saved.monsters.some(monster => monster.mnum === PM_GHOST)];
+        console.log(`BONES_QUEST_FILTER_RECEIPT ${jsonWithBigInts({
+            phase: 'after actual savebones', seed: 2026101804,
+            datetime: '20261018071700', flags,
+            roleLeader: game.urole.ldrnum,
+            actors: [leader, nemesis].map(monster => ({
+                m_id: monster.m_id, mnum: monster.mnum,
+                msound: monster.data.msound, mhp: monster.mhp,
+                mx: monster.mx, my: monster.my, minvent: monster.minvent,
+            })),
+            serialized: { path, bytes: savedText.length,
+                monsterCount: saved.monsters.length,
+                actors: saved.monsters.map(monster => ({
+                    m_id: monster.m_id, mnum: monster.mnum,
+                    mhp: monster.mhp, mx: monster.mx, my: monster.my,
+                })) },
+            expected: [false, false, true], observed: state,
+            rngCount: runner.getRngLog().length,
+            input: { queueLength: game.nhDisplay.inputQueueLength,
+                waitEpoch: game.nhDisplay.waitEpoch,
+                waiting: game.nhDisplay.isWaitingForInput },
+            screen: game.nhDisplay.serialize(),
+            inputExhausted: runner._inputExhausted,
+        })}`);
+        assert.deepEqual(state, [false, false, true],
+            'remove both numeric-sound quest actors while retaining savebones ghost');
     } finally {
         setStorageForTesting(null);
     }
