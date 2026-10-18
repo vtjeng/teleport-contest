@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T01:33:06.842Z",
+  "capturedAt": "2026-10-18T01:59:56.541Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T01:33:06.842Z",
+    "asOf": "2026-10-18T01:59:56.541Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 204,
+      "mainSupportAssignments": 209,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -167172,6 +167172,173 @@
         "output": "implementation",
         "target": null,
         "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:35:22.741Z",
+        "id": "queue:dcd109c5-06ea-40e4-96ed-2bf713d60084",
+        "type": "queue-block",
+        "task": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:35:22.741Z",
+        "id": "queue:dcd109c5-06ea-40e4-96ed-2bf713d60084:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:35:54.360Z",
+        "id": "queue:0c269022-f9eb-4388-a6b2-f76a266b6315",
+        "type": "queue-block",
+        "task": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:35:54.360Z",
+        "id": "queue:0c269022-f9eb-4388-a6b2-f76a266b6315:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:37:45.067Z",
+        "id": "queue:bfe28420-fd84-444c-bbec-5db76a3d8146",
+        "type": "assign",
+        "task": "egg-normal-provider-target-setup-prerequisite-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:39:01.614Z",
+        "id": "queue:8063f1c8-7b57-4f36-ab58-6c7c0b46afdb",
+        "type": "assign",
+        "task": "worm-repaint-initialized-caller-setup-prerequisite-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:39:36.730Z",
+        "id": "queue:c6e736b5-ecb0-49d2-8317-432ae8c59311",
+        "type": "assign",
+        "task": "natural-minetn6-door-watch-movement-setup-prerequisite-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:44:11.921Z",
+        "id": "queue:aa6dcec3-4570-43dd-83b8-2baeec946b41",
+        "type": "queue-block",
+        "task": "worm-repaint-initialized-caller-setup-prerequisite-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:44:11.921Z",
+        "id": "queue:aa6dcec3-4570-43dd-83b8-2baeec946b41:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:45:02.753Z",
+        "id": "queue:cbe06795-eb70-48ca-8344-79107cbb4a69",
+        "type": "queue-block",
+        "task": "natural-minetn6-door-watch-movement-setup-prerequisite-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:45:02.753Z",
+        "id": "queue:cbe06795-eb70-48ca-8344-79107cbb4a69:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:46:22.662Z",
+        "id": "queue:dd1f936a-dec6-461f-91e5-3ca32de8a022",
+        "type": "queue-block",
+        "task": "egg-normal-provider-target-setup-prerequisite-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:46:22.662Z",
+        "id": "queue:dd1f936a-dec6-461f-91e5-3ca32de8a022:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:48:26.516Z",
+        "id": "queue:46f218cc-5d61-4cd8-8ee1-2ecfc9581803",
+        "type": "assign",
+        "task": "retained-a51-public-worm-prefix-snapshot-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:50:48.233Z",
+        "id": "queue:76e125fc-d848-4ba0-9ea5-f1022206d1bc",
+        "type": "queue-complete",
+        "task": "retained-a51-public-worm-prefix-snapshot-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:50:48.233Z",
+        "id": "queue:76e125fc-d848-4ba0-9ea5-f1022206d1bc:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:56:54.146Z",
+        "id": "queue:68b925ab-c771-40d8-b69c-711142f8b630",
+        "type": "assign",
+        "task": "public-a51-wand-invisibility-repaint-caller-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -167302,52 +167469,28 @@
       "delivery:fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018": {
         "id": "delivery:fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
         "worker": "Worker-1",
-        "status": "working",
+        "status": "parked",
         "seed": null,
         "reservations": [
           "source:mthrowu.c:m_throw"
-        ]
+        ],
+        "reason": "Terminal first frozen normal AT_WEAP probe reached actual thitu near-miss branch ('You are almost hit by …') before test input queue exhaustion; no confirmed EGG hit, no alternate fixture or production edits. Recovery packet preserves raw receipt and typed envelope."
       },
       "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018": {
         "id": "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018",
         "worker": "Worker-2",
-        "status": "working",
+        "status": "parked",
         "seed": null,
         "reservations": [
           "source:worm.c:see_wsegs",
           "source:display.c:see_monsters",
           "source:worn.c:mon_set_minvis",
           "source:monmove.c:postmov"
-        ]
+        ],
+        "reason": "Frozen source-parity fixture reached only startup boundary: game.level and hero coordinates were absent after the single authorized seed/input, so the canonical worm constructor and all three production callers were unreachable. No retries or alternate state were attempted."
       }
     },
-    "reservations": {
-      "source:mthrowu.c:m_throw": {
-        "tasks": [
-          "delivery:fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018"
-        ]
-      },
-      "source:worm.c:see_wsegs": {
-        "tasks": [
-          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
-        ]
-      },
-      "source:display.c:see_monsters": {
-        "tasks": [
-          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
-        ]
-      },
-      "source:worn.c:mon_set_minvis": {
-        "tasks": [
-          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
-        ]
-      },
-      "source:monmove.c:postmov": {
-        "tasks": [
-          "delivery:fix-see-wsegs-three-caller-repaint-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
@@ -167358,30 +167501,26 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
-        "worker": "Worker-1"
-      },
-      {
-        "task": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "task": "public-a51-wand-invisibility-repaint-caller-qualification-20261018",
         "worker": "Worker-2"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 2,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 443,
-      "superseded": 78
+      "completed": 444,
+      "superseded": 83
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
+        "assignment": "public-a51-wand-invisibility-repaint-caller-qualification-20261018",
         "state": "active"
       },
       {
@@ -175242,7 +175381,7 @@
         "id": "fix-monster-thrown-cockatrice-egg-stoning-source-parity-20261018",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -175257,7 +175396,7 @@
         "id": "fix-see-wsegs-three-caller-repaint-source-parity-20261018",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -175266,6 +175405,81 @@
         "target": null,
         "readyAt": "2026-10-18T01:28:30.194Z",
         "claimedAt": "2026-10-18T01:28:51.114Z",
+        "completedAt": null
+      },
+      {
+        "id": "egg-normal-provider-target-setup-prerequisite-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T01:37:09.638Z",
+        "claimedAt": "2026-10-18T01:37:45.067Z",
+        "completedAt": null
+      },
+      {
+        "id": "worm-repaint-initialized-caller-setup-prerequisite-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T01:37:16.303Z",
+        "claimedAt": "2026-10-18T01:39:01.614Z",
+        "completedAt": null
+      },
+      {
+        "id": "natural-minetn6-door-watch-movement-setup-prerequisite-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T01:38:40.444Z",
+        "claimedAt": "2026-10-18T01:39:36.730Z",
+        "completedAt": null
+      },
+      {
+        "id": "retained-a51-public-worm-prefix-snapshot-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T01:48:01.428Z",
+        "claimedAt": "2026-10-18T01:48:26.516Z",
+        "completedAt": "2026-10-18T01:50:48.233Z"
+      },
+      {
+        "id": "public-a51-wand-invisibility-repaint-caller-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T01:56:30.199Z",
+        "claimedAt": "2026-10-18T01:56:54.146Z",
         "completedAt": null
       }
     ]
