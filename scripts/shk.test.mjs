@@ -260,6 +260,67 @@ test('hot_pursuit angers the keeper and clears floor and pet no-charge flags', (
     assert.equal(nonKeeper.mpeaceful, true);
 });
 
+test('make_angry_shk clears net debt with credit and chooses its message before hot pursuit', async () => {
+    const recipe = JSON.parse(readFileSync(
+        'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
+        'utf8',
+    ));
+    await runSegment(recipe.segments[0]);
+    const roomNo = game.level.at(game.u.ux, game.u.uy).roomno;
+    const keeper = shop_keeper(roomNo, game);
+    assert.ok(keeper?.isshk && keeper.mextra?.eshk);
+    const { make_angry_shk } = await import('../js/shk.js');
+    assert.equal(typeof make_angry_shk, 'function');
+
+    const eshk = keeper.mextra.eshk;
+    eshk.billct = 0;
+    eshk.bill_p = [];
+    eshk.debit = 2;
+    eshk.loan = 1;
+    eshk.credit = 7;
+    eshk.robbed = 3;
+    eshk.following = false;
+    eshk.surcharge = false;
+    keeper.mpeaceful = true;
+    const messages = [];
+    const peacefulAtMessage = [];
+    await make_angry_shk(keeper, keeper.mx, keeper.my, game, {
+        message: async (line) => {
+            messages.push(line);
+            peacefulAtMessage.push(keeper.mpeaceful);
+        },
+    });
+    assert.equal(eshk.robbed, 0,
+        'bill + debit + loan - credit is clamped at zero');
+    assert.equal(eshk.debit, 0);
+    assert.equal(eshk.loan, 0);
+    assert.equal(eshk.credit, 0);
+    assert.equal(eshk.following, true);
+    assert.equal(eshk.customer, game.plname);
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(peacefulAtMessage[0], true,
+        'the message is formatted before hot_pursuit changes peacefulness');
+    assert.match(messages[0], /gets angry!$/u);
+
+    messages.length = 0;
+    peacefulAtMessage.length = 0;
+    eshk.billct = 0;
+    eshk.debit = 0;
+    eshk.loan = 0;
+    eshk.credit = 0;
+    eshk.robbed = 0;
+    keeper.mpeaceful = false;
+    await make_angry_shk(keeper, keeper.mx, keeper.my, game, {
+        message: async (line) => {
+            messages.push(line);
+            peacefulAtMessage.push(keeper.mpeaceful);
+        },
+    });
+    assert.match(messages[0], /is furious!$/u,
+        'a keeper already angry before hot_pursuit gets the furious wording');
+    assert.deepEqual(peacefulAtMessage, [false]);
+});
+
 test('shk_move keeps C distu avoidance threshold in squared-distance units', () => {
     const cBody = C_SHK.match(
         /shk_move\(struct monst \*shkp\)\s*\{([\s\S]*?)\n\}/u,

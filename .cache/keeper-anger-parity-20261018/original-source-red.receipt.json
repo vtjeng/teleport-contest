@@ -1,0 +1,11 @@
+{
+  "task": "fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
+  "base": "885c83ce00a49481770bbab785de45b74dd9cbbb",
+  "command": ["node", "--test", "scripts/shk.test.mjs", "scripts/dig.test.mjs"],
+  "exitCode": 1,
+  "testBytes": {
+    "scripts/dig.test.mjs": "79ce3afcbb3809fa4a2bc1cfbf88ed98edd7385d1cb6afa57a96e1106e6591fc",
+    "scripts/shk.test.mjs": "08d3efd5d88771ccafb6e7d4fefa1057c82072f9f807dd96bc5fc0859af73b7a"
+  },
+  "observed": "72 tests, 70 passed, 2 failed. Actual caller failed its first expected effects assertion: ESHK billct remained 1 instead of settling to 0, after exact migration refusal was observed. Source-local helper test failed because make_angry_shk is not yet exported."
+}

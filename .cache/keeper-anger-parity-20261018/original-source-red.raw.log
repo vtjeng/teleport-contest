@@ -1,0 +1,118 @@
+✔ dig_typ answers what each tool would break (36.679063ms)
+✔ dig_typ answers undiggable for a square off the map (1.127984ms)
+✔ pick_can_reach follows pit, bimanual, and flight rules (2.077858ms)
+✔ dig_typ prefers reachable statues and boulders before terrain (1.575344ms)
+✔ fillholetyp preserves liquid counts, weighting and draw order (3.119143ms)
+✔ digactualhole preserves the old visible furniture label in its fall message (10.61947ms)
+✔ digactualhole calls desecrate_altar after hero-caused altar damage (0.922212ms)
+✔ dig_up_grave keeps the C selector values for zombie and mummy creation (0.93595ms)
+✔ dighole returns the drawbridge refusal after source-ordered spot checks (2.863657ms)
+✔ dighole removes a settled floor boulder through the object lifecycle (3.666113ms)
+✔ dighole runs magical-trap explosions before deleting and redrawing the trap (0.630784ms)
+✔ adj_pit_checks reports hard foundations and supporting structures (2.482882ms)
+✔ ROT_ORGANIC buries container contents before freeing the container (5.553459ms)
+✔ rot_corpse deletes a floor corpse and redraws its square (4.721218ms)
+✔ rot_corpse exposes a hider only once nothing is left to hide under (4.486089ms)
+✔ unportedRotCorpseReason names the arm each corpse is waiting on (1.602514ms)
+✔ unportedRotCorpseReason demands the newsym seam it will draw through (1.655879ms)
+✔ the corpse rot matrix rests long enough for a corpse to come due (0.674281ms)
+✔ the crashing-rock line of a dug wall prints under the default options (137.90609ms)
+✔ the crashing-rock line of a dug wall stays silent under !acoustics (42.359165ms)
+✔ mdig_tunnel supplies object hooks for a boulder on stone (31.661788ms)
+✔ digcheck_result values match the C enum and failure alias (0.777299ms)
+✔ dig_check follows C's ordered terrain, trap, and actor tests (2.890364ms)
+✔ dig preserves the C fumbling gate and outcome-selection draw (2.804232ms)
+✔ dig uses the second fumbling draw to select the C swing-miss arm (2.835929ms)
+✔ lateral digging breaks a secret door and finishes the occupation (1.851038ms)
+✔ tree chopping wires the canonical fruit generator after clearing terrain (15.026502ms)
+✔ dig triggers a set trap with the C FORCETRAP flag (0.800839ms)
+✔ digging into a pit schedules the flattened vision recalculation (148.514295ms)
+✔ is_digging compares the active occupation with dig (0.183507ms)
+✔ digactualhole creates a hole before the levitation fall check (2.343209ms)
+✔ digactualhole downgrades forbidden holes but honors candig (3.368971ms)
+✔ digactualhole keeps unseen object-created adjacent pits out of hero trap state (1.742495ms)
+✔ digactualhole releases solid-floor entrapment before trapping the hero in a pit (2.138058ms)
+✖ real nonhero HOLE settles the shopkeeper before the unchanged migration refusal (120.533384ms)
+✔ addupbill sums exactly the active bill entries (2.082354ms)
+✔ shop_debt includes only the active bill entries (0.282865ms)
+✔ shop_keeper applies the anger surcharge once to active bill entries (1.898977ms)
+✔ hot_pursuit angers the keeper and clears floor and pet no-charge flags (1.770371ms)
+✖ make_angry_shk clears net debt with credit and chooses its message before hot pursuit (290.179426ms)
+✔ shk_move keeps C distu avoidance threshold in squared-distance units (0.815197ms)
+✔ nested shop identity reaches keeper and deserted-shop handling (1.377281ms)
+✔ restshk pacifies a ghostly keeper for a different customer (0.386962ms)
+✔ find_objowner checks every bill and falls back to the first room keeper (0.616191ms)
+✔ onshopbill preserves the silent onbill boolean contract (0.302258ms)
+✔ costly_adjacent keeps only tended shop edges and the free spot (0.376319ms)
+✔ is_unpaid includes unpaid objects nested inside containers (0.228351ms)
+✔ same_price requires one shopkeeper and one quoted price (0.295724ms)
+✔ cost_per_charge follows the complete shk.c item-rate formula (3.685713ms)
+✔ unpaid novel use speaks the C library fee and increments debt (4.082935ms)
+✔ pick_pick warns once per move and preserves speech formatting (2.204117ms)
+✔ append_price_quote formats the buy and sell halves shk.c writes (6.882174ms)
+✔ append_price_quote drops the whole suffix when it would overrun (1.431798ms)
+✔ gem_learned reprices matching bill entries and all gems for STRANGE_OBJECT (2.037213ms)
+✔ ordinary charge helpers preserve source quantity and id partitions (1.870428ms)
+✔ get_cost pins every charisma boundary and C integer rounding (23.06061ms)
+✔ getprice preserves reached class adjustments (1.439565ms)
+✔ record_price_quote updates one partition without changing the other (1.361757ms)
+✔ clear_no_charge_pets clears only tame monster inventories (0.171258ms)
+✔ contained_gold sums nested piles by shk.c's rules (0.18569ms)
+✔ hidden_gold walks the pack the way vault.c does (0.12944ms)
+✔ shkgone discards its owned damage records before resident removal (1.714325ms)
+✔ make_happy_shk settles hostility before the shopkeeper turn (2.137992ms)
+✔ angry_shk_exists uses next_shkp and restores a missing surcharge (0.146195ms)
+✔ shopdig warns in source order and all active callers use the owner (1.53556ms)
+✔ shopdig takes only inventory the source leaves eligible (40.83974ms)
+✔ inhishop checks the keeper level before the current room (0.427279ms)
+✔ shk_your prefixes what the hero holds and what she does not (0.70771ms)
+✔ Shk_Your capitalizes the source owner prefix (0.498268ms)
+✔ shk_your returns the source owner for shop and monster inventories (0.476563ms)
+✔ shk_your handles personal, unique, and ordinary corpse prefixes (0.39207ms)
+✔ shkcatch waits for mnearto before source speech and catch effects (0.267954ms)
+ℹ tests 72
+ℹ suites 0
+ℹ pass 70
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1171.344968
+
+✖ failing tests:
+
+test at scripts/dig.test.mjs:1329:1
+✖ real nonhero HOLE settles the shopkeeper before the unchanged migration refusal (120.533384ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/dig.test.mjs:1428:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/shk.test.mjs:263:1
+✖ make_angry_shk clears net debt with credit and chooses its message before hot pursuit (290.179426ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/shk.test.mjs:273:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

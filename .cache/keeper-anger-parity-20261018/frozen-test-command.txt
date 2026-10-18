@@ -1,0 +1,1 @@
+node --test scripts/shk.test.mjs scripts/dig.test.mjs

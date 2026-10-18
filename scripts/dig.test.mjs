@@ -62,6 +62,10 @@ import {
     PIT,
     HOLE,
     ROOM,
+    IS_ROOM,
+    IS_FURNITURE,
+    ROOMOFFSET,
+    u_at,
     ROT_ORGANIC,
     ROWNO,
     SDOOR,
@@ -84,9 +88,12 @@ import {
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { newMonster } from '../js/monst.js';
-import { newObject, place_object, weight } from '../js/obj.js';
-import { add_to_buried, sobj_at } from '../js/invent.js';
+import { m_at, newMonster } from '../js/monst.js';
+import { newObject, mksobj, place_object, weight } from '../js/obj.js';
+import { add_to_buried, addinv, sobj_at } from '../js/invent.js';
+import { addtobill, shop_keeper } from '../js/shk.js';
+import { Can_dig_down, dunlevs_in_dungeon, on_level } from '../js/dungeon.js';
+import { grounded } from '../js/mondata.js';
 import {
     PM_CAVE_SPIDER,
     PM_DWARF,
@@ -1317,4 +1324,125 @@ test('digactualhole releases solid-floor entrapment before trapping the hero in 
     assert.deepEqual(calls, [[4, 2]]);
     assert.deepEqual([state.u.utrap, state.u.utraptype], [2, TT_PIT]);
     assert.equal(state.vision_full_recalc, 1);
+});
+
+test('real nonhero HOLE settles the shopkeeper before the unchanged migration refusal', async () => {
+    const recipe = JSON.parse(readFileSync(
+        'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
+        'utf8',
+    ));
+    await runSegment(recipe.segments[0]);
+    const state = game;
+    const roomNo = state.level.at(state.u.ux, state.u.uy).roomno;
+    assert.ok(roomNo >= ROOMOFFSET);
+    assert.ok(state.level.flags.has_shop);
+    assert.equal(state.u.ushops[0], roomNo);
+    const keeper = shop_keeper(roomNo, state);
+    assert.ok(keeper?.isshk && keeper.mextra?.eshk);
+    const eshk = keeper.mextra.eshk;
+    const target = { x: keeper.mx, y: keeper.my };
+    const location = state.level.at(target.x, target.y);
+    assert.ok(IS_ROOM(location.typ) && !IS_FURNITURE(location.typ));
+    assert.equal(state.level.objects?.[target.x]?.[target.y] ?? null, null);
+    assert.equal((state.level.traps ?? []).some((trap) =>
+        trap.tx === target.x && trap.ty === target.y), false);
+    assert.equal(Can_dig_down(state.u.uz, state), true);
+    assert.ok(state.u.uz.dlevel < dunlevs_in_dungeon(state.u.uz, state));
+    assert.equal(on_level(state.u.uz, state.stronghold_level), false);
+    assert.equal(u_at(target.x, target.y, state), false);
+    assert.equal(state.u.ustuck ?? null, null);
+    assert.equal(state.u.usteed ?? null, null);
+    assert.equal(state.youmonst.mleashed ?? false, false);
+
+    const targetMonster = m_at(target.x, target.y, state);
+    assert.equal(targetMonster, keeper);
+    assert.ok(grounded(keeper.data, state));
+    assert.equal(keeper.wormno ?? 0, 0);
+    assert.ok(keeper.data.msize < 4);
+    assert.notEqual(keeper, state.u.ustuck);
+    assert.notEqual(keeper, state.u.usteed);
+    assert.equal(keeper.mleashed ?? false, false);
+    const maker = (() => {
+        for (let y = 0; y < 21; y++) for (let x = 0; x < 80; x++) {
+            const candidate = m_at(x, y, state);
+            if (candidate && candidate !== keeper) return candidate;
+        }
+        return null;
+    })();
+    assert.ok(maker, 'the initialized level supplies an actual nonhero maker');
+
+    const item = mksobj(DAGGER, false, false, { state });
+    await addtobill(item, true, false, true, state);
+    addinv(item, { state });
+    const bill = eshk.bill_p[0];
+    assert.equal(item.unpaid, 1);
+    assert.equal(eshk.billct, 1);
+    assert.equal(bill.bo_id, item.o_id);
+    assert.equal(bill.bquan, 1);
+    assert.equal(bill.price, 6);
+    assert.equal(item.no_charge ?? false, false);
+
+    const before = {
+        billct: eshk.billct,
+        bill: eshk.bill_p.slice(0, eshk.billct).map(({ bo_id, bquan, price }) =>
+            ({ bo_id, bquan, price })),
+        debit: eshk.debit, credit: eshk.credit, loan: eshk.loan,
+        robbed: eshk.robbed, peaceful: keeper.mpeaceful,
+        customer: eshk.customer, following: eshk.following,
+        unpaid: item.unpaid, noCharge: item.no_charge ?? false,
+        inventory: (() => {
+            const ids = [];
+            for (let it = state.invent; it; it = it.nobj) ids.push(it.o_id);
+            return ids;
+        })(),
+        gameUnported: [...(state.unported ?? [])],
+    };
+    const display = state.nhDisplay;
+    const oldOnEmptyQueue = display.onEmptyQueue;
+    const acknowledgements = [];
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        assert.ok(state._pending_message);
+        assert.ok(screen.includes('--More--'));
+        assert.ok(acknowledgements.length < 16);
+        acknowledgements.push({ message: state._pending_message,
+            screen, waitEpoch: display.waitEpoch });
+        return 32;
+    };
+    let refusal;
+    try {
+        await assert.rejects(
+            digactualhole(target.x, target.y, maker, HOLE, state),
+            (error) => {
+                refusal = { name: error.name, message: error.message };
+                return error instanceof RangeError
+                    && error.message === 'shopkeeper migration is future work';
+            },
+        );
+    } finally {
+        display.onEmptyQueue = oldOnEmptyQueue;
+    }
+    assert.deepEqual(refusal, {
+        name: 'RangeError', message: 'shopkeeper migration is future work',
+    });
+    assert.equal(eshk.billct, 0);
+    assert.equal(eshk.robbed, before.robbed + 6);
+    assert.equal(eshk.debit, 0);
+    assert.equal(eshk.credit, 0);
+    assert.equal(eshk.loan, 0);
+    assert.equal(item.unpaid, 0);
+    assert.equal(item.no_charge ?? false, false);
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(eshk.customer, state.plname);
+    assert.equal(eshk.following, true);
+    assert.equal(eshk.surcharge, true);
+    const inventory = [];
+    for (let it = state.invent; it; it = it.nobj) inventory.push(it.o_id);
+    assert.deepEqual(inventory, before.inventory);
+    assert.equal(state.unported.has('shk.c make_angry_shk'), false);
+    assert.match(state._ttyToplines, /gets angry!/u);
+    assert.match(state._ttyToplines, /A hole appears in the floor/u);
+    assert.equal((state.level.traps ?? []).filter((trap) =>
+        trap.tx === target.x && trap.ty === target.y).length, 1);
+    assert.ok(Array.isArray(acknowledgements));
 });
