@@ -60,7 +60,6 @@ import {
     DOGFOOD,
     FULL_MOON,
     MANFOOD,
-    In_endgame,
     LS_MONSTER,
     OBJ_FREE,
     RLOC_NOMSG,
@@ -1452,13 +1451,17 @@ export async function migrate_to_level(
 // its global chain and passed through its normal owner cleanup.
 export function discard_migrations(state = game, rawEnv = {}) {
     const env = objectGenerationEnv({ ...rawEnv, state });
+    const isEndgameDestination = destination => Boolean(
+        state.astral_level
+        && destination?.dnum === state.astral_level.dnum,
+    );
 
     let previousMonster = null;
     let monster = state.gm.migrating_mons;
     while (monster) {
         const next = monster.nmon;
         const keep = monster.iswiz
-            || In_endgame({ dnum: monster.mux, dlevel: monster.muy });
+            || isEndgameDestination({ dnum: monster.mux, dlevel: monster.muy });
         if (keep) {
             previousMonster = monster;
         } else {
@@ -1477,7 +1480,7 @@ export function discard_migrations(state = game, rawEnv = {}) {
     let object = state.gm.migrating_objs;
     while (object) {
         const next = object.nobj;
-        const keep = In_endgame({ dnum: object.ox, dlevel: object.oy });
+        const keep = isEndgameDestination({ dnum: object.ox, dlevel: object.oy });
         if (keep) {
             previousObject = object;
         } else {

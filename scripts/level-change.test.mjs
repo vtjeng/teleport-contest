@@ -363,6 +363,43 @@ test('terminal entry discards unreachable migrant lists through canonical lifecy
         assert.equal(helperAfter.lampLightPresent, false);
         assert.equal(minventApple.where, OBJ_DELETED);
         assert.equal(helperAfter.minventAppleLink, null);
+
+        // The C predicate compares against the caller state's Astral dungeon,
+        // not the process-global game state. Retarget a canonical migrated
+        // pair to the hero's Earth dungeon in a shallow state view; both must
+        // survive that pass even though global game.astral_level is still
+        // Astral. An otherwise identical state view with global Astral then
+        // discards them.
+        const originalMonsterHead = state.gm.migrating_mons;
+        const originalObjectHead = state.gm.migrating_objs;
+        const alternateStateDog = await toMigration(PM_LITTLE_DOG, abandoned);
+        const alternateStateApple = mksobj(APPLE, true, false, lifecycle);
+        add_to_migration(alternateStateApple, state);
+        alternateStateApple.ox = abandoned.dnum;
+        alternateStateApple.oy = abandoned.dlevel;
+        alternateStateDog.nmon = null;
+        alternateStateApple.nobj = null;
+        state.gm.migrating_mons = originalMonsterHead;
+        state.gm.migrating_objs = originalObjectHead;
+        const alternateAstralState = {
+            ...state,
+            gm: {
+                ...state.gm,
+                migrating_mons: alternateStateDog,
+                migrating_objs: alternateStateApple,
+            },
+            astral_level: abandoned,
+        };
+        await discard_migrations(alternateAstralState, lifecycle);
+        assert.equal(alternateAstralState.gm.migrating_mons, alternateStateDog);
+        assert.equal(alternateAstralState.gm.migrating_objs, alternateStateApple);
+        assert.equal(alternateStateApple.where, OBJ_MIGRATING);
+        await discard_migrations({
+            ...alternateAstralState,
+            astral_level: state.astral_level,
+        }, lifecycle);
+        assert.equal(alternateStateDog.m_id, 0);
+        assert.equal(alternateStateApple.where, OBJ_DELETED);
     } finally {
         display.onEmptyQueue = previousOnEmptyQueue;
     }
