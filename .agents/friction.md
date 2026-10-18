@@ -1719,3 +1719,10 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
   state/provider/observer review applies; explicit supported unblock retains
   recovery `1e076eec`, original history, frozen sourceParity pins/base/scope
   and spent stop. No new tooling or gate was introduced.
+
+
+### 2026-10-18 — Repeated fixture predicate and capture failures
+
+- Saddle47a71be9 stopped before mount because a normal Knight role form335 was compared with generic PM_HUMAN260. The prior melt source receipt21c55c11 already identified the source Upolyd predicate (u.umonnum versus u.umonster). Imports resolved; this was a state predicate error. Its separately selected same-input continuation62f775a9 introduced Set.includes in both a pre-action observer and catch snapshot. The catch masked the original exception, leaving the actual reached stage unknown. Preserve both spent invocations; no source refutation or automatic retry follows.
+- Dig a0b6 retained a literal target-specific original red log and unchanged-test green, but fixed receipt filenames allowed green to overwrite the full original red state/RNG JSON. Those bytes remain unavailable; their hashes and compact summaries are not raw proof. Metadata-only624b preserves the existing logs/freeze/full green bytes without rerunning or reconstructing. Its noncontiguous context also needed the already documented primary/requiredFunctions representation.
+- Existing final-script state-owner, catch/finally and evidence-preservation requirements apply. No new helper, rule, pipeline or gate is proposed; preventive benefit remains unmeasured.

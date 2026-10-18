@@ -326919,6 +326919,147 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-dig-drawbridge-callers-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Wire normalized drawbridge destruction in both dig callers",
+      "cFile": "dig.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+      "detail": "Source-parity runtime-pending caller repair for exact noncontiguous dig.c:dighole and dig.c:furniture_handled. Actual0f54 canonical dighole target is separately immutable; old v43/e898 two-physical family, v54 and muse misses remain spent. First frozen focused run stopped on test-only DB_LAVA reference before target; Main+CL full-diff review allowed missing import and clean-checkout receipt directory creation within original15min claim, without resetting allowance. Final test9032498f16fa4454c8b110d73244be0f5014fff7090badd00e2384ecd421e160 frozen before production. Literal original raw red99f8c6aa830945f7bcb456b5721776a4f2aa14a8f5b34d549956ef49976b2962 shows both actual target34!==17 failures, unchanged final test green5d880e2e8274664c736fbb3d5c24effe169ebbbb9bd38a833082106d44b8b5a2 passes2/2 plus lint0. Full original red state/RNG receipt JSON bytes were overwritten by fixed output paths and are UNAVAILABLE; hashes/compact summary do not recreate them. Final linked metadata624b1b86c391ff65125efed5747f3edcd9bf171a packetf48001ac6c17e55a7f45ff4c58d8ff43c010cd6f58607c33543b405a476405af embeds19 exact existing artifacts (finalfreeze/diff/rawlogs/fullgreenreceipts). No rerun/reconstruction; actual entry was exported dighole, not executed zap_dig. Corrected primary functions=[dighole], requiredFunctions=[dig.c:furniture_handled] preserves scope; game/test bytes unchanged. Main selects exact retained literal target-specific red/finalgreen evidence for normal hosted no-regression gate, with lost projections explicitly outside proof. No whole source/public C/synthetic gain certification.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dighole",
+          "line": 885,
+          "endLine": 1026,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 885,
+        "to": 1026
+      },
+      "requiredFunctions": [
+        {
+          "name": "furniture_handled",
+          "line": 571,
+          "endLine": 596,
+          "declared": true,
+          "sourceFile": "dig.c"
+        }
+      ],
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-dig-drawbridge-callers-source-parity-20261018",
+        "assignmentBase": "720448d8bfa5acc1b207540979e868795b74e7e9",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "720448d8bfa5acc1b207540979e868795b74e7e9",
+          "authorization": "Standing explicit source-parity authorization and continuous useful-work instruction. Main selects NEW<=15min focused implementation after actual0f54 dighole target, whole464 source review and independent CL actual/full2site review. Existing v43/e898 two-physicalfamily cap, v54 misses and muse da790 remain spent; the separately selected one qualification has completed. No new discovery/runtime allowance or helper expansion.",
+          "currentBehavior": "C furniture_handled571-594 normalizes input through find_drawbridge then invokes destroy and returnsTRUE; digactualhole consumesTRUE beforetrapcreation. C dighole885-1022 loweredbridge/wall branch separately normalizes, destroys, setsretvalTRUE then spot_checks at originalx/y. JS both exactcalls onlymark missingcallee. Actual0f54 canonical start671903, hero12,7 and fixedlastOROOM7 realcreate_drawbridge66,13/northwall66,12 wroteDB_MOAT0; ONE actualdighole returnedTRUE, genuinepremarkerfalse→true while loweredbridge34 and openDOOR23 unchanged, noerrors/RNG3018→3018/oneMore/restoredhandler/samelevelREF.",
+          "expectedBehavior": "Within WHOLE existing furniture_handled and dighole functions replace BOTH exact omittedcalls with await existing destroy_drawbridge(position.x,position.y,state,rawEnv) after existingfind_drawbridge normalization; import existingcanonicalhelper, update inaccuratevoidgapcomments. Preserve originalinputcoordinates, furnitureTRUE earlyreturn into digactualhole, dighole retvalTRUE and finalspot_checks(originalx,y,oldType), allpitOnly/digcheck/liquid/trap/otherbranchordering and defaults. No edits to destroyhelper or unrelatedsource. Existinghelper owns actualMOATconversion, canonicaldebris/scatter/wake/vision/objects/occupanttails; no rescue, forcedRNG or inventedcompensation. DirectCsourceexpected MOAT with flags0 (notDRY); wallalreadyDOOR so no requiredtypechange. Retain allother namedgaps/sourcependinglimits.",
+          "units": [
+            "dig.c:dighole",
+            "dig.c:furniture_handled"
+          ],
+          "allowedPaths": [
+            "js/dig.js",
+            "scripts/dig.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/dig.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/dig.js",
+              "symbol": "dighole",
+              "source": "C loweredbridge/wall branch calls normalizeddestroy, preservesretval and sourceorderedspot_checks originalcoords; actual0f54 exportedentry qualifies."
+            },
+            {
+              "path": "js/dig.js",
+              "symbol": "digactualhole",
+              "source": "C early furniture_handled consumesTRUE beforetrapconversion; bind production supporting regression through this existingcaller to normalizedbridge/wall destruction."
+            },
+            {
+              "path": "js/dig.js",
+              "symbol": "furniture_handled",
+              "source": "C normalizeddestroy beforeTRUE; coordinates may be portcullis rather than bridge, preserve sourcefind_drawbridge mutation."
+            },
+            {
+              "path": "js/dig.js",
+              "symbol": "zap_dig",
+              "source": "Existing default downward nonpit path awaits dighole; no wand/UI/publichistory gate added."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/dig.js",
+              "object": "5eef1f0b51f9cc10e5cf7593271dee434cc93959"
+            },
+            {
+              "path": "scripts/dig.test.mjs",
+              "object": "66e841f5f71a6f49b327a5e28ebd1379655c481e"
+            },
+            {
+              "path": "js/dbridge.js",
+              "object": "48343dfd12932d75b086dbfd5e90c0abc35aef4c"
+            },
+            {
+              "path": "js/zap.js",
+              "object": "3d03ad1932540ca8e89a7dfc0332302b9983d71f"
+            },
+            {
+              "path": "js/hack.js",
+              "object": "67ec67360eebbaab081ad9faf431ca934d87d7cb"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/trap.js",
+              "object": "4747a0667ddc8fba45209367c5c69ff5f91dd170"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "sourceResult": "464bf5e50713b145e95aa8cf70e8555588e4392a5058808f9bc926695a2755a3",
+            "actualResult": "0f54a97c6eeb496766ae6c242c7e4591eb9c37d79658b9bc2d7ba869b08a665a",
+            "actualCommit": "f46eef683cd50992c98c9ff473c140547f8cc151",
+            "actualFixtureSha256": "c964df31f9b91350c149f0772a8097dc0ffd96a8db58ae67c8de704d7f079054",
+            "actualCaptureSha256": "ce5e412e8b0a546c229f9f0668f006efcd0d0a0331b382fdb5dce5f15417182c",
+            "mainFixtureCopy": "/workspace/teleport-contest/.cache/resume-1439/dighole-0f54/runner.mjs",
+            "mainReview": "Main verified outer/envelope/all10file hashes and read entire11923B fixture/captureprimitives and exactC/JS2seams/defaultcanonicalhelper. CL independentlyverified sameactual/full2site closure. ActuallevelIdentity observer wasnull (wrongproperties), not realledger; sameactuallevelREF and complete initializedsourceentry remainvalid. Newtests must capturecanonicalu.uz for meaningfullevelidentity. No C/publicwitness/syntheticgain/wholehelpersourcecertification."
+          }
+        },
+        "reviewSha256": "e400ebc33f8f1b31549d44a8d2b340c358c73cedf0d45d8d984af959d0983e01"
+      }
     }
   ]
 }
