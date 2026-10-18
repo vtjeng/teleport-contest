@@ -4,7 +4,6 @@
   "previousContextSha256": "f23d12eef7a9447b9cabb024bbc93d23651838c8f15ff7689c9400b2fcb7b7dc",
   "correctedContextSha256": "cf98ca5c97bf8b2d98390e1e20e36e3553b4f71abc50e2b4d22b3d7f51b01fa5",
   "evidenceSha256Unchanged": "41bbb615c9135bc082e1bcabb205ec199c375a15aeb017887a5b445f70a53883",
-  "checksSha256Unchanged": "4e6524224a995672eabc5465d85bba4f5dcac6d185afae0bac8cb8c70d645dfe",
   "chronologySha256Unchanged": "f2f4074bf085e6847eca73d2e520b506f59f828ba96f6e959a3e1c471e8698bb",
   "productionAndTestSha256": {
     "js/dog.js": "f205a9234f31e83ff265a25a84b76417c4c7cfe3f91e5ed6c6235cdc30b8953c",
@@ -52,5 +51,13 @@
     }
   ],
   "checksRerun": false,
-  "gameSourceOrTestChanged": false
+  "gameSourceOrTestChanged": false,
+  "originalChecksSha256": "4e6524224a995672eabc5465d85bba4f5dcac6d185afae0bac8cb8c70d645dfe",
+  "correctedChecksSha256": "d4fbd155eecdadd4e4fa9baf1b1fb0f926adea7fe9396526551df78f1213297d",
+  "checksCommandAndExitValuesPreserved": true,
+  "focusedAndLintLogSha256Preserved": {
+    "focused": "e83edbecabdb54ecf66c659255248a4aab7ddebce4363cae465059622eacd42e",
+    "lint": "f8b045212c87825355f5fd99462819427f5f9af4ecbc9ca4ca0e824521bebe6c"
+  },
+  "focusedAndLintLogPathsReboundToCurrentCheckout": true
 }
