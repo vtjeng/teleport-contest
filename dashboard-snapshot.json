@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T09:19:40.970Z",
+  "capturedAt": "2026-10-18T09:53:20.419Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T09:19:40.970Z",
+    "asOf": "2026-10-18T09:53:20.419Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 258,
+      "mainSupportAssignments": 259,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -170653,6 +170653,96 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:26:30.186Z",
+        "id": "queue:bbf90ad6-c5a0-4e4d-b831-4586205c1c86",
+        "type": "assign",
+        "task": "fix-fountain-survivor-overcrowding-default-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:31:03.741Z",
+        "id": "queue:956270b9-0457-47b6-98e9-80d721e84ba7",
+        "type": "queue-block",
+        "task": "fix-fountain-survivor-overcrowding-default-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:31:03.741Z",
+        "id": "queue:956270b9-0457-47b6-98e9-80d721e84ba7:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:36:41.277Z",
+        "id": "queue:fc808d31-5973-4bac-8cb7-412ad344b3f8",
+        "type": "assign",
+        "task": "fix-fountain-survivor-admitted-constructor-continuation-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:39:42.801Z",
+        "id": "queue:3b2737bf-54b5-4dce-ba4b-30d7020a7415",
+        "type": "queue-block",
+        "task": "fix-fountain-survivor-admitted-constructor-continuation-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:39:42.801Z",
+        "id": "queue:3b2737bf-54b5-4dce-ba4b-30d7020a7415:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:43:47.527Z",
+        "id": "queue:8ecc0a2b-0b2f-4116-b09e-9add0dabb457",
+        "type": "assign",
+        "task": "inventory-glob-default-absorb-boundary-source-inquiry-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:46:50.034Z",
+        "id": "queue:5cd40c81-6757-4f18-bfaa-832ee5f61313",
+        "type": "queue-complete",
+        "task": "inventory-glob-default-absorb-boundary-source-inquiry-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:46:50.034Z",
+        "id": "queue:5cd40c81-6757-4f18-bfaa-832ee5f61313:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -170842,6 +170932,26 @@
           "source:mon.c:monkilled"
         ],
         "reason": "The intended lazy monkilled lookup reaches real death, but completion then requires the out-of-scope relobj/dropEnv unsupported provider; a lifesaving-return variant needs a new linked review."
+      },
+      "delivery:fix-fountain-survivor-overcrowding-default-source-parity-20261018": {
+        "id": "delivery:fix-fountain-survivor-overcrowding-default-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "parked",
+        "seed": null,
+        "reservations": [
+          "source:fountain.c:gush"
+        ],
+        "reason": "First fixed-seed setup stopped before source target: the attempted canonical constructor flags were rejected as outside mklev; no production code changed and no behavior red was observed. Main owns continuation/reassessment."
+      },
+      "delivery:fix-fountain-survivor-admitted-constructor-continuation-20261018": {
+        "id": "delivery:fix-fountain-survivor-admitted-constructor-continuation-20261018",
+        "worker": "Worker-3",
+        "status": "parked",
+        "seed": null,
+        "reservations": [
+          "source:fountain.c:gush"
+        ],
+        "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
       }
     },
     "reservations": {}
@@ -170858,8 +170968,8 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 505,
-      "superseded": 96
+      "completed": 506,
+      "superseded": 98
     },
     "workers": [
       {
@@ -179925,12 +180035,57 @@
         "readyAt": "2026-10-18T09:15:14.856Z",
         "claimedAt": "2026-10-18T09:15:33.291Z",
         "completedAt": "2026-10-18T09:19:11.249Z"
+      },
+      {
+        "id": "fix-fountain-survivor-overcrowding-default-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T09:25:40.867Z",
+        "claimedAt": "2026-10-18T09:26:30.186Z",
+        "completedAt": null
+      },
+      {
+        "id": "fix-fountain-survivor-admitted-constructor-continuation-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T09:35:55.799Z",
+        "claimedAt": "2026-10-18T09:36:41.277Z",
+        "completedAt": null
+      },
+      {
+        "id": "inventory-glob-default-absorb-boundary-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T09:43:32.425Z",
+        "claimedAt": "2026-10-18T09:43:47.527Z",
+        "completedAt": "2026-10-18T09:46:50.034Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "61e16f304b6a2fa4427ff6d14f7c8a4820ca9de2",
-    "measuredAt": "2026-10-18T08:52:09.074Z",
+    "executionCommit": "36b0e523172d9f45059dbb5893ef3feecdd74bc5",
+    "measuredAt": "2026-10-18T09:48:02.368Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
