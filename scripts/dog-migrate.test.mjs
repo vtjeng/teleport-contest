@@ -1138,7 +1138,7 @@ test('keepdogs retains explicit migration gaps for unsupported Wizard states',
             assert.equal(state.level.monlist, monster, label);
             assert.equal(m_at(MONSTER_X, MONSTER_Y, state), monster, label);
             assert.equal(state.gm.migrating_mons, null, label);
-            assert.equal(state.unported.has('dog.c migrate_to_level'), true,
+            assert.equal(game.unported.has('dog.c migrate_to_level'), true,
                 label);
         }
     });

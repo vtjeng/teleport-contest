@@ -75,6 +75,7 @@ import {
 import { isok } from './cmd_isok.js';
 import {
     depth,
+    ledger_no,
     ledger_to_dlev,
     ledger_to_dnum,
     builds_up,
@@ -139,6 +140,7 @@ import {
     PM_RANGER,
     PM_SAMURAI,
     PM_SHOCKING_SPHERE,
+    PM_WIZARD_OF_YENDOR,
     S_LIGHT,
     S_DOG,
 } from './monsters.js';
@@ -994,10 +996,52 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             mtmp.wormno = num_segs;
             mtmp.mlstmv = state.moves;
         } else if (keep_mon_accessible(mtmp, state)) {
-            // dog.c discards migrate_to_level()'s result. That separate
-            // function is still partial in this port, so preserve the gap
-            // without calling its refusal through keepdogs().
-            note_unported('dog.c migrate_to_level');
+            const appearance = mtmp.m_ap_type & M_AP_TYPMASK;
+            let onLevelChain = false;
+            const seen = new Set();
+            for (let current = state.level.monlist;
+                current && !seen.has(current);
+                current = current.nmon) {
+                seen.add(current);
+                if (current === mtmp) {
+                    onLevelChain = true;
+                    break;
+                }
+            }
+            const onWizardTowerLevel = [
+                state.wiz1_level,
+                state.wiz2_level,
+                state.wiz3_level,
+            ].some(level => sameLevel(level, u.uz));
+            const trackAvailable = Array.isArray(mtmp.mtrack)
+                && mtmp.mtrack.length >= 3
+                && mtmp.mtrack.slice(0, 3).every(Boolean);
+            const ordinaryWizard = mtmp.iswiz === true
+                && mtmp.data === state.mons?.[PM_WIZARD_OF_YENDOR]
+                && !mtmp.isshk
+                && !mtmp.wormno
+                && (appearance === M_AP_NOTHING
+                    || appearance === M_AP_MONSTER)
+                && mtmp !== u.ustuck
+                && !onWizardTowerLevel
+                && onLevelChain
+                && m_at(mtmp.mx, mtmp.my, state) === mtmp
+                && trackAvailable
+                && (mtmp.mstate & (MON_LIMBO | MON_MIGRATING
+                    | MON_STILL_ARRIVING)) === 0;
+            if (ordinaryWizard) {
+                await migrate_to_level(
+                    mtmp,
+                    ledger_no(u.uz, state),
+                    MIGR_EXACT_XY,
+                    null,
+                    env,
+                );
+            } else {
+                // Preserve the discarded C call marker where the existing
+                // migration adapter does not yet support this state.
+                note_unported('dog.c migrate_to_level');
+            }
         } else if (mtmp.mleashed) {
             const message = env.message ?? (env.planning ? async () => {}
                 : ttyPline);
