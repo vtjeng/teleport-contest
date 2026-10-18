@@ -9,7 +9,10 @@ import {
     COLNO,
     ROWNO,
     MON_MIGRATING,
+    MON_LIMBO,
     MON_STILL_ARRIVING,
+    MIGR_APPROX_XY,
+    NO_MM_FLAGS,
     M_AP_FURNITURE,
     M_AP_NOTHING,
     M_AP_OBJECT,
@@ -18,6 +21,7 @@ import {
     MM_NOMSG,
     NO_MINVENT,
     ROOM,
+    ZAP_POS,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
 import {
@@ -32,12 +36,15 @@ import {
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { runSegment } from '../js/jsmain.js';
+import { NethackGame, runSegment } from '../js/jsmain.js';
+import { GameDisplay } from '../js/game_display.js';
 import { makemon_runtime } from '../js/makemon_create.js';
 import { maketrap } from '../js/trap.js';
 import { mksobj_at, newObject, place_object } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     PM_SMALL_MIMIC,
+    PM_LITTLE_DOG,
     PM_KITTEN,
     PM_SEWER_RAT,
     PM_YELLOW_LIGHT,
@@ -57,6 +64,7 @@ import {
     does_block,
     is_lightblocker_mappear,
 } from '../js/vision.js';
+import { goodpos } from '../js/teleport.js';
 
 const CURRENT_LEVEL = Object.freeze({ dnum: 0, dlevel: 2 });
 const CROSS_DUNGEON_DESTINATION = Object.freeze({ dnum: 1, dlevel: 2 });
@@ -428,10 +436,156 @@ test('dog.c losedogs places exact and random migrants in source order', async ()
     assert.notEqual(second.mstate & MON_STILL_ARRIVING, MON_STILL_ARRIVING);
 });
 
-test('failed dog arrivals record the void limbo boundary without map access', async () => {
+test('ordinary failed arrival returns through limbo migration', async () => {
+    const display = new GameDisplay(null);
+    const previousOnEmptyQueue = display.onEmptyQueue;
+    const prompts = [];
+    let gameInstance;
+    const safe = (value) => typeof value === 'bigint' ? value.toString() : value;
+    const chain = (head) => {
+        const result = [];
+        for (let current = head; current; current = current.nmon)
+            result.push(safe(current.m_id));
+        return result;
+    };
+    display.onEmptyQueue = () => {
+        const fullScreen = display.serialize();
+        const pendingMessage = game._pending_message ?? '';
+        if (fullScreen.includes('--More--') && pendingMessage
+            && display.toplin === 1 && prompts.length < 16) {
+            prompts.push({ fullScreen, pendingMessage });
+            return 32;
+        }
+        throw new Error(`unexpected empty input boundary: ${JSON.stringify({
+            fullScreen,
+            topline: display.toplines,
+            pendingMessage,
+            queueLength: display.inputQueueLength,
+            waitEpoch: display.waitEpoch,
+        })}`);
+    };
+    try {
+        gameInstance = new NethackGame({
+            seed: 83201971,
+            datetime: '20261018162030',
+            recorderIsDst: true,
+            nethackrc: 'OPTIONS=name:ArrivalProbe,role:Ranger,race:elf,gender:male,align:chaotic,pettype:dog,!legacy,!tutorial,!splash_screen,!acoustics,!autopickup\n',
+        });
+        gameInstance._pendingDisplay = display;
+        assert.equal(await gameInstance.start(), true);
+        const actorId = game.context.startingpet_mid;
+        let actor = null;
+        for (let current = game.level.monlist; current; current = current.nmon) {
+            if (current.m_id === actorId) actor = current;
+        }
+        assert.ok(actor);
+        assert.equal(actor.data.pmidx, PM_LITTLE_DOG);
+        assert.ok(actor.mhp > 0 && actor.mtame > 0);
+
+        await migrate_to_level(actor, ledger_no(game.u.uz, game), MIGR_RANDOM,
+            null, { state: game });
+        const objects = objectGenerationEnv({ state: game });
+        let canonicalBouldersAdded = 0;
+        for (let x = 1; x < COLNO; x++) {
+            for (let y = 0; y < ROWNO; y++) {
+                const location = game.level.at(x, y);
+                if (!location || !ZAP_POS(location.typ)
+                    || (x === game.u.ux && y === game.u.uy)
+                    || m_at(x, y, game)
+                    || !goodpos(x, y, actor, NO_MM_FLAGS, { state: game }))
+                    continue;
+                await mksobj_at(BOULDER, x, y, true, false, objects);
+                canonicalBouldersAdded++;
+            }
+        }
+        assert.equal(canonicalBouldersAdded, 350,
+            'the reviewed canonical setup adds exactly 350 boulders');
+        const remaining = [];
+        for (let x = 1; x < COLNO; x++) {
+            for (let y = 0; y < ROWNO; y++) {
+                if (ZAP_POS(game.level.at(x, y).typ)
+                    && goodpos(x, y, actor, NO_MM_FLAGS, { state: game }))
+                    remaining.push([x, y]);
+            }
+        }
+        assert.deepEqual(remaining, [], 'canonical setup must leave no legal arrival square');
+        assert.equal(game.gm.migrating_mons, actor);
+        const otherLevelHead = game.level.monlist;
+        const otherLevelIds = chain(otherLevelHead);
+        const beforeRng = gameInstance.getRngLog().slice();
+        const currentLevel = { ...game.u.uz };
+        assert.equal(game.unported?.has('dog.c migrate_to_level'), false,
+            'the expected marker must be absent before actual losedogs entry');
+        const before = {
+            actorId: safe(actor.m_id),
+            levelIds: chain(game.level.monlist),
+            migratingIds: chain(game.gm.migrating_mons),
+            failedIds: chain(game.gm.failed_arrivals),
+            actor: {
+                mx: actor.mx,
+                my: actor.my,
+                mstate: actor.mstate,
+                mtrack: actor.mtrack.slice(0, 3).map((track) => ({ ...track })),
+                mux: actor.mux,
+                muy: actor.muy,
+            },
+        };
+        await losedogs({ state: game });
+        const after = {
+            actorId: safe(actor.m_id),
+            levelIds: chain(game.level.monlist),
+            migratingIds: chain(game.gm.migrating_mons),
+            failedIds: chain(game.gm.failed_arrivals),
+            actor: {
+                mx: actor.mx,
+                my: actor.my,
+                mstate: actor.mstate,
+                mtrack: actor.mtrack.slice(0, 3).map((track) => ({ ...track })),
+                mux: actor.mux,
+                muy: actor.muy,
+                mlstmv: actor.mlstmv,
+                gridOwns: Boolean(actor.mx && actor.my
+                    && m_at(actor.mx, actor.my, game) === actor),
+            },
+            failedListDrained: game.gm.failed_arrivals == null,
+            otherLevelHeadPreserved: game.level.monlist === otherLevelHead,
+            marker: (game.unported ?? new Set()).has('dog.c migrate_to_level'),
+            rngCalls: gameInstance.getRngLog().length - beforeRng.length,
+            inputPrompts: prompts.length,
+        };
+
+        assert.deepEqual(chain(game.gm.migrating_mons), [safe(actor.m_id)],
+            `C failed-arrival migration expected; before=${JSON.stringify(before)} after=${JSON.stringify(after)}`);
+        assert.equal(game.level.monlist, otherLevelHead,
+            `the prior level list must remain intact: ${JSON.stringify(after)}`);
+        assert.deepEqual(chain(game.level.monlist), otherLevelIds);
+        assert.equal(game.gm.failed_arrivals, null);
+        assert.equal(actor.mstate & (MON_LIMBO | MON_MIGRATING),
+            MON_LIMBO | MON_MIGRATING, JSON.stringify(after));
+        assert.equal(actor.mstate & MON_STILL_ARRIVING, 0, JSON.stringify(after));
+        assert.deepEqual([actor.mx, actor.my], [0, 0], JSON.stringify(after));
+        assert.equal(m_at(actor.mx, actor.my, game), null, JSON.stringify(after));
+        assert.deepEqual(actor.mtrack.slice(0, 3), [
+            { x: MIGR_APPROX_XY, y: 0 },
+            { x: 0, y: 0 },
+            { x: currentLevel.dnum, y: currentLevel.dlevel },
+        ], JSON.stringify(after));
+        assert.deepEqual([actor.mux, actor.muy],
+            [currentLevel.dnum, currentLevel.dlevel], JSON.stringify(after));
+        assert.equal(actor.mlstmv, game.moves, JSON.stringify(after));
+        assert.equal(after.gridOwns, false);
+        assert.equal(after.marker, false, JSON.stringify(after));
+        assert.equal(after.rngCalls, 457, JSON.stringify(after));
+    } finally {
+        display.onEmptyQueue = previousOnEmptyQueue;
+        assert.equal(display.onEmptyQueue, previousOnEmptyQueue);
+    }
+});
+
+test('failed dog arrivals migrate off-map through source limbo transfer', async () => {
     const state = migrationState();
     state.gm.mydogs = null;
-    const { monster } = onMapMonster(state);
+    const { follower, monster } = onMapMonster(state);
     const destinationLedger = ledger_no(CURRENT_LEVEL, state);
     await migrate_to_level(monster, destinationLedger, MIGR_EXACT_XY,
         { x: MONSTER_X, y: MONSTER_Y }, { state, newsym: () => {} });
@@ -447,11 +601,22 @@ test('failed dog arrivals record the void limbo boundary without map access', as
         },
     }));
 
-    assert.equal(state.level.monlist, monster);
+    assert.equal(state.level.monlist, follower);
+    assert.equal(state.gm.migrating_mons, monster);
     assert.equal(state.gm.failed_arrivals, null);
-    assert.equal(state.level.monsters[0][monster.my], null);
+    assert.equal(m_at(0, 0, state), null);
+    assert.equal(monster.mstate & (MON_LIMBO | MON_MIGRATING),
+        MON_LIMBO | MON_MIGRATING);
     assert.equal(monster.mstate & MON_STILL_ARRIVING, 0);
-    assert.equal(game.unported.has('dog.c migrate_to_level'), true);
+    assert.deepEqual(monster.mtrack.slice(0, 3), [
+        { x: MIGR_APPROX_XY, y: 0 },
+        { x: 0, y: 0 },
+        { x: CURRENT_LEVEL.dnum, y: CURRENT_LEVEL.dlevel },
+    ]);
+    assert.deepEqual([monster.mux, monster.muy],
+        [CURRENT_LEVEL.dnum, CURRENT_LEVEL.dlevel]);
+    assert.equal(monster.mlstmv, state.moves);
+    assert.equal(game.unported.has('dog.c migrate_to_level'), false);
 });
 
 test('a migrating light invalidates vision after leaving the map', async () => {
