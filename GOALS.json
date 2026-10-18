@@ -327909,7 +327909,7 @@
     {
       "id": "fix-glob-regular-pickup-runtime-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement the reviewed regular live-pickup glob merge path through the existing mergedRuntime owner, preserving synchronous merged behavior and effect-free pickup projection.",
       "cFile": "invent.c",
       "sessions": [],
@@ -327917,7 +327917,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "acbb428389cb989d226c33b9cb19b213d6343c72",
       "delivered": null,
       "functions": [
         {
@@ -328024,6 +328024,55 @@
           ]
         },
         "reviewSha256": "673b480869f3a0f1c31377a2d0db507bf54c3149b610817104c6c506d95affa7"
+      },
+      "closeStanding": {
+        "sha": "acbb428389cb989d226c33b9cb19b213d6343c72",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "b8355d2f228fe5c398fff74103e92d529cad5df0",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/acbb428389cb989d226c33b9cb19b213d6343c72/run-hosted-7BMPHu/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "merged",
+            "implementation": "js/invent.js",
+            "symbol": "merged",
+            "sourceReview": "C invent.c:merged 814–948 orders quantity/weight/name handling, incoming extraction, light merge, incoming timer stop, knowledge propagation, worn-mask merge, bypass propagation, then the globby message and awaited obj_absorb path; non-globby comparison discovery precedes obfree, while ordinary non-waiting merges remain synchronous. JS mergedRuntime now returns an awaited promise only for the globby branch, calls canonical pudding_merge_message once with state/environment, then obj_absorb(target,incoming,state,environment), and validates survivor/deallocation lifecycle. The shared C mutation prefix is preserved. Synchronous merged continues using its existing explicit absorbGlob adapter. preflightMerged no longer mistakes effectful absorbGlob for a projection-time dependency; projection remains effect-free. Existing non-glob eager and comparison-wait behavior remains covered. Scope stops before global transfer wrappers or caller migrations.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_runtime",
+                "source": "Existing actual addinv_core0_runtime awaits/then-chains mergedRuntime at inventory/uquiver scan, then finish inventory effects. Source pickup actual pickup->preflightPickupObjects->sequence->projectAddinv is effect-free capability/slot planning, actual pick_obj later extracts/bills then addinv_runtime consumes prepared object/state/dependency token and scans live inventory."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "Existing post-stone-to-flesh inventory mergedRuntime1496 is already awaited with mergeEnv; preserve this existing canonical non-glob/message behavior. No zap edit or claim that this mergeEnv already forwards every planning provider."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The appended primary regression runs the exact unchanged 17,775-byte qualification dependency at its required path and calls actual exported pickup(-1,state) once on the fixed canonical pair. The same final test bytes and focused command failed against assignment base after entering the real call, restoring the observer, and surfacing UnsupportedObjectOperationError: absorbGlob is not available for otyp 271 via preflightMerged→projectAddinv→preflight_addinv_sequence→preflightPickupObjects→pickup. After the scoped mergedRuntime and projection-dependency change, the same bytes pass and assert survivor ID 65 in inventory (mass 40, quantity 1, age 1), deleted/unlinked ID 66, no absorbed timer and exactly the survivor SHRINK_GLOB deadline 26, with actor survival/position/level references preserved. The original attempt-1 import SyntaxError is retained separately at first-harness-miss.stdout/stderr/exit and is not counted as the target red. This is focused JavaScript source-parity evidence only; no C recording, aggregate run, global wrapper/caller migration, or source-completion certification is claimed. Rework contract verification is recorded in the compact immutable byte envelope, including exact raw stdout/stderr/exit bytes and deduplicated base64 for every preserved task run capture. The control-extended final test freeze is after the first production draft 829b and before rework source edits; it is not represented as pre-first-edit. Original d076 target red remains the separate pre-first-edit pair. The intermediate 20a970 setup-miss raw logs and hash record are retained, but its test bytes were overwritten and are explicitly unavailable; no reconstruction is claimed.",
+        "entryPoints": [
+          {
+            "name": "regular pickup glob merge through actual exported pickup",
+            "functions": [
+              "merged"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

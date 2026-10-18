@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T22:04:45.364Z",
+  "capturedAt": "2026-10-18T22:53:32.926Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T22:04:45.364Z",
+    "asOf": "2026-10-18T22:53:32.926Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 346,
+      "mainSupportAssignments": 350,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -174552,11 +174552,441 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:12:42.404Z",
+        "id": "queue:51b33875-2a89-404d-9862-d8bd7ba1e747",
+        "type": "assign",
+        "task": "glob-regular-pickup-main-reviewed-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:14:37.162Z",
+        "id": "queue:03390218-1179-434f-aa62-3c997124a677",
+        "type": "queue-complete",
+        "task": "glob-regular-pickup-main-reviewed-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:14:37.162Z",
+        "id": "queue:03390218-1179-434f-aa62-3c997124a677:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:20:36.449Z",
+        "id": "queue:c6199dd9-d160-43b1-a414-07f0e3e867e9",
+        "type": "assign",
+        "task": "fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:26:05.952Z",
+        "id": "queue:223549e3-b74d-4b16-845e-72b2a5d989a1",
+        "type": "assign",
+        "task": "glob-monster-pickup-proposed-fixture-static-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:26:56.205Z",
+        "id": "ready-829b38453e5c64999efbf9b3b52a83cc306f0cbf:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-glob-regular-pickup-runtime-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-829b38453e5c64999efbf9b3b52a83cc306f0cbf",
+        "type": "ready",
+        "at": "2026-10-18T22:26:56.205Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "829b38453e5c64999efbf9b3b52a83cc306f0cbf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:26:56.205Z",
+        "id": "ready-829b38453e5c64999efbf9b3b52a83cc306f0cbf:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:26:56.205Z",
+        "id": "ready-829b38453e5c64999efbf9b3b52a83cc306f0cbf:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-glob-829b-20261018",
+        "type": "received",
+        "at": "2026-10-18T22:29:58.916Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "829b38453e5c64999efbf9b3b52a83cc306f0cbf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-glob-829b-preflight-planning-evidence-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T22:30:01.385Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "829b38453e5c64999efbf9b3b52a83cc306f0cbf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:30:26.269Z",
+        "id": "queue:f55653b6-271b-43f0-a7db-e6ebb9bc9a9a",
+        "type": "assign",
+        "task": "rework:delivery:fix-glob-regular-pickup-runtime-source-parity-20261018:829b38453e5c64999efbf9b3b52a83cc306f0cbf",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "829b38453e5c64999efbf9b3b52a83cc306f0cbf",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:30:34.761Z",
+        "id": "queue:5ef96627-28a1-4961-8e4e-b3e2ff666993",
+        "type": "queue-complete",
+        "task": "glob-monster-pickup-proposed-fixture-static-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:30:34.761Z",
+        "id": "queue:5ef96627-28a1-4961-8e4e-b3e2ff666993:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-4c092350c9973e18b056e99d448bc6f4b5db1b25",
+        "type": "ready",
+        "at": "2026-10-18T22:35:09.036Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "4c092350c9973e18b056e99d448bc6f4b5db1b25"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:35:09.036Z",
+        "id": "ready-4c092350c9973e18b056e99d448bc6f4b5db1b25:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-glob-regular-pickup-runtime-source-parity-20261018:829b38453e5c64999efbf9b3b52a83cc306f0cbf",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:35:09.036Z",
+        "id": "ready-4c092350c9973e18b056e99d448bc6f4b5db1b25:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:35:24.563Z",
+        "id": "queue:bbfdf3bb-21c9-4fa4-878e-a8446a5a59e5",
+        "type": "assign",
+        "task": "glob-monster-floor-pickup-caller-proposed-fixture-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-glob-4c09-20261018",
+        "type": "received",
+        "at": "2026-10-18T22:36:43.270Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "4c092350c9973e18b056e99d448bc6f4b5db1b25"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-glob-4c09-remove-dead-unsupported-guard-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T22:36:45.333Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "4c092350c9973e18b056e99d448bc6f4b5db1b25"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:37:11.200Z",
+        "id": "queue:f6c8079e-b571-413d-a2b3-1a54c5249854",
+        "type": "assign",
+        "task": "rework:delivery:fix-glob-regular-pickup-runtime-source-parity-20261018:4c092350c9973e18b056e99d448bc6f4b5db1b25",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "4c092350c9973e18b056e99d448bc6f4b5db1b25",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:37:34.151Z",
+        "id": "queue:c05bafea-fd19-4a9b-82a2-bb81f4ff0808",
+        "type": "queue-complete",
+        "task": "glob-monster-floor-pickup-caller-proposed-fixture-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:37:34.151Z",
+        "id": "queue:c05bafea-fd19-4a9b-82a2-bb81f4ff0808:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-732ce30eebc792d274fe1a371c52468a641505b8",
+        "type": "ready",
+        "at": "2026-10-18T22:39:00.448Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "732ce30eebc792d274fe1a371c52468a641505b8"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:39:00.448Z",
+        "id": "ready-732ce30eebc792d274fe1a371c52468a641505b8:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-glob-regular-pickup-runtime-source-parity-20261018:4c092350c9973e18b056e99d448bc6f4b5db1b25",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:39:00.448Z",
+        "id": "ready-732ce30eebc792d274fe1a371c52468a641505b8:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-glob-732ce3-20261018",
+        "type": "received",
+        "at": "2026-10-18T22:39:59.121Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "delivery": "732ce30eebc792d274fe1a371c52468a641505b8"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-acbb428389cb989d226c33b9cb19b213d6343c72-b9e647efb06ff508796694450aba2ddb9bc0dc54d911ab22fe107bfd17d2dbe2-delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T22:41:32.519Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "integration": "acbb428389cb989d226c33b9cb19b213d6343c72",
+        "validationGroup": [
+          "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:43:19.290Z",
+        "id": "queue:978b9202-c3d5-4172-8376-23b23a982553",
+        "type": "assign",
+        "task": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:46:04.069Z",
+        "id": "queue:fb9bf5ce-44e5-4856-8907-9903a2e155a8",
+        "type": "queue-block",
+        "task": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:46:04.069Z",
+        "id": "queue:fb9bf5ce-44e5-4856-8907-9903a2e155a8:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:46:53.589Z",
+        "id": "queue:ba769f99-8f0e-49cb-9acc-40e3518800eb",
+        "type": "resume",
+        "task": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:47:57.371Z",
+        "id": "queue:844aa393-a126-4734-a4eb-5085d5ef6ec5",
+        "type": "queue-block",
+        "task": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:47:57.371Z",
+        "id": "queue:844aa393-a126-4734-a4eb-5085d5ef6ec5:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:48:36.663Z",
+        "id": "queue:b789354f-c03d-447e-9319-662aaf6f0460",
+        "type": "resume",
+        "task": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:49:59.486Z",
+        "id": "queue:fda65e70-d822-45f3-bd56-3a40faa12f28",
+        "type": "assign",
+        "task": "glob-monster-floor-pickup-main-reviewed-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:51:19.075Z",
+        "id": "queue:109360d8-8ef8-4e42-8ae1-6f5e510c2368",
+        "type": "queue-complete",
+        "task": "glob-monster-floor-pickup-main-reviewed-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:51:19.075Z",
+        "id": "queue:109360d8-8ef8-4e42-8ae1-6f5e510c2368:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-regular-pickup-runtime-source-parity-20261018-acbb428389cb989d226c33b9cb19b213d6343c72-validated",
+        "type": "validated",
+        "at": "2026-10-18T22:51:34.663Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-regular-pickup-runtime-source-parity-20261018-acbb428389cb989d226c33b9cb19b213d6343c72-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T22:52:22.376Z",
+        "task": "delivery:fix-glob-regular-pickup-runtime-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:52:27.844Z",
+        "id": "ready-7a2bc9413317f7642947b0873622b3da1142ccfd:transport",
+        "type": "assign",
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-quest-leader-return-addinv-await-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-7a2bc9413317f7642947b0873622b3da1142ccfd",
+        "type": "ready",
+        "at": "2026-10-18T22:52:27.844Z",
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "delivery": "7a2bc9413317f7642947b0873622b3da1142ccfd"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:52:27.844Z",
+        "id": "ready-7a2bc9413317f7642947b0873622b3da1142ccfd:complete",
+        "type": "queue-complete",
+        "task": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T22:52:27.844Z",
+        "id": "ready-7a2bc9413317f7642947b0873622b3da1142ccfd:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3",
+        "goal": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "7a2bc9413317f7642947b0873622b3da1142ccfd",
+        "since": "2026-10-18T22:52:27.844Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -174761,15 +175191,30 @@
           "source:fountain.c:gush"
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
+      },
+      "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018": {
+        "id": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "worker": "Worker-3",
+        "status": "ready",
+        "seed": null,
+        "reservations": [
+          "source:dothrow.c:thitmonst"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "source:dothrow.c:thitmonst": {
+        "tasks": [
+          "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
     "claimed": [],
@@ -174777,7 +175222,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 606,
+      "completed": 614,
       "superseded": 101
     },
     "workers": [
@@ -185434,12 +185879,132 @@
         "readyAt": "2026-10-18T21:59:44.503Z",
         "claimedAt": "2026-10-18T22:00:04.719Z",
         "completedAt": "2026-10-18T22:02:41.143Z"
+      },
+      {
+        "id": "glob-regular-pickup-main-reviewed-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T22:12:09.199Z",
+        "claimedAt": "2026-10-18T22:12:42.404Z",
+        "completedAt": "2026-10-18T22:14:37.162Z"
+      },
+      {
+        "id": "fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T22:20:24.540Z",
+        "claimedAt": "2026-10-18T22:20:36.449Z",
+        "completedAt": "2026-10-18T22:26:56.205Z"
+      },
+      {
+        "id": "glob-monster-pickup-proposed-fixture-static-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T22:25:45.397Z",
+        "claimedAt": "2026-10-18T22:26:05.952Z",
+        "completedAt": "2026-10-18T22:30:34.761Z"
+      },
+      {
+        "id": "rework:delivery:fix-glob-regular-pickup-runtime-source-parity-20261018:829b38453e5c64999efbf9b3b52a83cc306f0cbf",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "829b38453e5c64999efbf9b3b52a83cc306f0cbf",
+        "readyAt": "2026-10-18T22:30:01.385Z",
+        "claimedAt": "2026-10-18T22:30:26.269Z",
+        "completedAt": "2026-10-18T22:35:09.036Z"
+      },
+      {
+        "id": "glob-monster-floor-pickup-caller-proposed-fixture-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T22:35:02.612Z",
+        "claimedAt": "2026-10-18T22:35:24.563Z",
+        "completedAt": "2026-10-18T22:37:34.151Z"
+      },
+      {
+        "id": "rework:delivery:fix-glob-regular-pickup-runtime-source-parity-20261018:4c092350c9973e18b056e99d448bc6f4b5db1b25",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "4c092350c9973e18b056e99d448bc6f4b5db1b25",
+        "readyAt": "2026-10-18T22:36:45.333Z",
+        "claimedAt": "2026-10-18T22:37:11.200Z",
+        "completedAt": "2026-10-18T22:39:00.448Z"
+      },
+      {
+        "id": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T22:43:02.567Z",
+        "claimedAt": "2026-10-18T22:48:36.663Z",
+        "completedAt": "2026-10-18T22:52:27.844Z"
+      },
+      {
+        "id": "glob-monster-floor-pickup-main-reviewed-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T22:49:21.071Z",
+        "claimedAt": "2026-10-18T22:49:59.486Z",
+        "completedAt": "2026-10-18T22:51:19.075Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "b8355d2f228fe5c398fff74103e92d529cad5df0",
-    "measuredAt": "2026-10-18T21:18:41.382Z",
+    "executionCommit": "acbb428389cb989d226c33b9cb19b213d6343c72",
+    "measuredAt": "2026-10-18T22:47:06.755Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
