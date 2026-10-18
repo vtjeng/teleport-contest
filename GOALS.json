@@ -326297,7 +326297,7 @@
     {
       "id": "fix-failed-arrival-limbo-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Return actual failed monster arrivals through canonical limbo migration",
       "cFile": "dog.c",
       "sessions": [],
@@ -326305,7 +326305,7 @@
       "detail": "Runtime-pending source-parity repair selected from actual f585 default failed-arrival target, complete frozen two-unit source/caller review. Immutable a93a retains initial genuine pre-edit target red, first production draft and observer assertion failure; final dcec57 test bytes (correct after.actor.gridOwns plus rejecting admission controls) were frozen AFTER that draft and paired unchanged against original source (26/28, actual missing transfer) and repair (28/28), with lint passing. Main explicitly permits the narrow observer correction under Coordinator instruction; no final-bytes-pre-first-edit claim. Linked 027a corrects only noncontiguous goal context and same-byte log paths, removes accidental process stdout from current tree, preserves all game/test bytes and checks without rerun. Existing Wizard/keepdogs gaps and old investigation caps remain separate; no C/public-input parity, whole-source certification or synthetic gain claim.",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "43bbcb33f9bc14768c01dd9679d5892d52293347",
       "delivered": null,
       "functions": [
         {
@@ -326446,6 +326446,117 @@
           }
         },
         "reviewSha256": "579545ba520f1c99b4403f8e93e3c18d62a77a17ba22dd92dbab6869a54361aa"
+      },
+      "closeStanding": {
+        "sha": "43bbcb33f9bc14768c01dd9679d5892d52293347",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "129730c0d5cf2d367e7d1d81eb119e307ae0fd5a",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/43bbcb33f9bc14768c01dd9679d5892d52293347/run-hosted-yT8Kb7/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "losedogs",
+            "sourceFile": "dog.c",
+            "implementation": "js/dog.js",
+            "symbol": "losedogs",
+            "pure": false,
+            "sourceReview": "C dog.c losedogs403-415 pops each actual failed_arrival, re-adds it to fmon and invokes mon.m_into_limbo. C mon.c3834-3865 sets LIMBO and specifically admits mx0 failed arrivals through migrate_mon, skipping map-dependent unstuck/specialdrop prefix, then migrate_to_level. Current JS readds then records a marker; its existing migration helper also rejects mx0 at m_at identity guard. Actual f585 reached the real default failure after350 canonical boulders, zero legal goodpos backup and457 additional RNG calls; actor37 left in level[37,7] at0,0/no grid, flags0, zeroed tracks, bad mux/muy40,14, no migrant. This is not Wizard/keepdogs or old elemental-clog evidence. At the exact whole losedogs failed_arrivals loop, preserve pop/re-add order and await existing m_into_limbo(monster,state,env). Import the existing helper from mon.js. In migrate_to_level preserve current on-map identity validation; admit only the source-valid off-map failed-arrival state mx===0, linked current level-list actor, MON_LIMBO set by canonical wrapper, valid track. Keep all current shop/worm/disguise/stuck/coordinate/track/other guards and exact mon_leave→await relmon→MIGRATING→track/destination/mxmy order. Existing levelMonsterPredecessor may validate list ownership without mutation. No blanket mx0 bypass, placement, map synthesis or helper/API expansion. Same actor must return to gm.migrating_mons only, LIMBO|MIGRATING and not STILL_ARRIVING, MIGR_APPROX_XY, track1 old0,0, track2 currentlevel, mux/muy currentlevel, mxmy0, mlstmv currentmoves, no grid, failedlist drained and other level actor unchanged. No new RNG or input/placement attempt.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "losedogs",
+                "source": "C failed-arrivals loop after actual ordinary mon_arrive/default rloc failure re-adds then calls m_into_limbo; targetf585 binds this normal exported entry and exact actor state."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_into_limbo",
+                "source": "Existing whole C wrapper sets MON_LIMBO then migrate_mon with currentledger/MIGR_APPROX_XY."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "migrate_mon",
+                "source": "Existing C wrapper skips unstuck/mdrop_special_objs when mx0, delegates to dog.migrate_to_level; default helper sufficient for the selected ordinary actor."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "migrate_to_level",
+                "source": "C complete ordinary migration lifecycle mon_leave/relmon, flags, source/destination tracks and mxmy reset applies also to actual mx0 failed arrival. Preserve current guards outside this reviewed admission."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mon_leaving_level",
+                "source": "Existing offmap-safe teardown has no grid/redraw/fillpit when no onmap identity; ordinary unstuck no effect. No changes to this helper."
+              }
+            ],
+            "tests": [
+              "scripts/dog-migrate.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "migrate_to_level",
+            "sourceFile": "dog.c",
+            "implementation": "js/dog.js",
+            "symbol": "migrate_to_level",
+            "pure": false,
+            "sourceReview": "C dog.c losedogs403-415 pops each actual failed_arrival, re-adds it to fmon and invokes mon.m_into_limbo. C mon.c3834-3865 sets LIMBO and specifically admits mx0 failed arrivals through migrate_mon, skipping map-dependent unstuck/specialdrop prefix, then migrate_to_level. Current JS readds then records a marker; its existing migration helper also rejects mx0 at m_at identity guard. Actual f585 reached the real default failure after350 canonical boulders, zero legal goodpos backup and457 additional RNG calls; actor37 left in level[37,7] at0,0/no grid, flags0, zeroed tracks, bad mux/muy40,14, no migrant. This is not Wizard/keepdogs or old elemental-clog evidence. At the exact whole losedogs failed_arrivals loop, preserve pop/re-add order and await existing m_into_limbo(monster,state,env). Import the existing helper from mon.js. In migrate_to_level preserve current on-map identity validation; admit only the source-valid off-map failed-arrival state mx===0, linked current level-list actor, MON_LIMBO set by canonical wrapper, valid track. Keep all current shop/worm/disguise/stuck/coordinate/track/other guards and exact mon_leave→await relmon→MIGRATING→track/destination/mxmy order. Existing levelMonsterPredecessor may validate list ownership without mutation. No blanket mx0 bypass, placement, map synthesis or helper/API expansion. Same actor must return to gm.migrating_mons only, LIMBO|MIGRATING and not STILL_ARRIVING, MIGR_APPROX_XY, track1 old0,0, track2 currentlevel, mux/muy currentlevel, mxmy0, mlstmv currentmoves, no grid, failedlist drained and other level actor unchanged. No new RNG or input/placement attempt.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "losedogs",
+                "source": "C failed-arrivals loop after actual ordinary mon_arrive/default rloc failure re-adds then calls m_into_limbo; targetf585 binds this normal exported entry and exact actor state."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_into_limbo",
+                "source": "Existing whole C wrapper sets MON_LIMBO then migrate_mon with currentledger/MIGR_APPROX_XY."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "migrate_mon",
+                "source": "Existing C wrapper skips unstuck/mdrop_special_objs when mx0, delegates to dog.migrate_to_level; default helper sufficient for the selected ordinary actor."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "migrate_to_level",
+                "source": "C complete ordinary migration lifecycle mon_leave/relmon, flags, source/destination tracks and mxmy reset applies also to actual mx0 failed arrival. Preserve current guards outside this reviewed admission."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mon_leaving_level",
+                "source": "Existing offmap-safe teardown has no grid/redraw/fillpit when no onmap identity; ordinary unstuck no effect. No changes to this helper."
+              }
+            ],
+            "tests": [
+              "scripts/dog-migrate.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The exact final focused-test bytes (SHA-256 dcec57abcfa0eac7964a340fbf32f7f4c785a194eadaddd2f19c67b05f1bba68) and command were paired once against the assignment-base dog.js bytes and once against the repaired dog.js bytes. The final test freeze was made after the first production draft: it corrected the observer from after.gridOwns to after.actor.gridOwns and added explicit invalid offmap/onmap admission controls. The earlier initial red, first code draft, and first green observer failure remain preserved separately in the task cache; this final red is not represented as pre-first-edit. The red demonstrates the exact ordinary f585 failed-arrival lifecycle losing its actor from the migration list and retaining flags/tracks/destination inconsistently, with 457 default RNG calls; the same bytes pass after the narrow source repair. This is focused JS source-parity evidence only, not C gameplay/public-parity or certification.",
+        "entryPoints": [
+          {
+            "name": "exported losedogs default-arrival failed_arrivals path",
+            "functions": [
+              {
+                "sourceFile": "dog.c",
+                "name": "losedogs"
+              },
+              {
+                "sourceFile": "dog.c",
+                "name": "migrate_to_level"
+              }
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
