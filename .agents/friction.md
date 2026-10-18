@@ -1832,3 +1832,18 @@ pager proves the source await order; normal-history runtime remains unknown.
 Delivery at 22:52:27.844 preceded the original 22:55:19 deadline. This was
 Vincent's explicit source fix; no challenge prerequisite or new allowance.
 No new checks, helpers, rules, gates or causal benefit claim.
+
+## 2026-10-18 — Monster regression dependency and raw chronology
+
+Frozen `0c48` stopped at a non-async callback's `await import`, before execution.
+Main's narrow wrapper/observer corrections stayed within the original limit.
+Final `20f6` freeze and actual target red preceded production code; the first
+coded run's ReferenceError and repaired green remain separate raw outcomes.
+A success-shaped filename does not change the failed run's actual result.
+The unchanged 19,191-byte `e0ebb` fixture was required at the test's literal
+ignored `.cache/.../attempt.mjs` path. Packaging-only rework requires those exact
+dependency bytes committed plus an immutable deduplicated envelope of existing unique
+raw outputs, captures, prefixes and frozen bytes; it changes no game or test
+and runs no replacement trial. Any unavailable bytes stay explicit.
+Optional controls not run remain distinct from source-reviewed behavior;
+no broader snuff/planning runtime claim, new rule, gate or benefit claim.

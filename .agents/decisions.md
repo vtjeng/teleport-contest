@@ -909,3 +909,30 @@ play or source-completion certification. Exact hosted acceptance and publication
 are pending at this record. The accepted glob stage changes separate runtime
 merge/projection behavior; its diff preserves this ordinary non-glob `addinv`
 quest pager contract.
+
+### 2026-10-18 — Stage runtime monster floor pickup
+
+The first live hero pickup stage is published as a4a3afb7; the separate requested
+quest-return await is published as cf1f351a with normal publication CI passing.
+Main now selects the reviewed whole source contracts of mkobj.c:add_to_minv,
+steal.c:mpickobj and mon.c:mpickstuff for the existing monster floor pickup path.
+Delivery 9082879c adds runtime inventory/pickup companions and awaits only the
+existing mpickstuff transfer before its gear/redraw tail. Legacy synchronous
+exports and all other transfer caller families remain pending. Carry effects
+precede transfer; the actual freed boolean and optional snuff follow completion.
+
+The final frozen 20f6e95 test reached missing absorbGlob on the original path
+before production edits, then passed unchanged after the implementation. The
+initial syntax miss and first coded ReferenceError are separate literal runs.
+The actual callback now leaves survivor 67 in actor 65 inventory with mass 40,
+quantity one and one shrink timer at deadline 26; incoming 68 is deleted and
+unlinked. The exact e0ebb fixture and deduplicated literal historical evidence
+are committed by packaging-only correction; no game or test bytes changed in
+that correction and no game test was repeated.
+
+Optional eager, light/snuff and additional planning controls were not run; their
+contracts were source-reviewed. The selected nonluminous-glob target does not
+prove a positive snuff branch. No global caller migration, public recording,
+whole-source completion or C parity is claimed; operational benefit remains
+unmeasured. Hosted checkpoint, saved acceptance and publication of this stage
+remain pending at this record.

@@ -328223,6 +328223,169 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement add_to_minv from mkobj.c",
+      "cFile": "mkobj.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "add_to_minv",
+          "line": 2648,
+          "endLine": 2675,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2648,
+        "to": 2675
+      },
+      "requiredFunctions": [
+        {
+          "name": "mpickobj",
+          "line": 618,
+          "endLine": 688,
+          "declared": true,
+          "sourceFile": "steal.c"
+        },
+        {
+          "name": "mpickstuff",
+          "line": 1847,
+          "endLine": 1912,
+          "declared": true,
+          "sourceFile": "mon.c"
+        }
+      ],
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "assignmentBase": "a4a3afb7f30ca072e55ad186fa513e75e511e606",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "a4a3afb7f30ca072e55ad186fa513e75e511e606",
+          "authorization": "Standing explicit source-parity correction authorization. Main selects SECOND bounded MONSTER FLOOR PICKUP runtime stage after accepted/published firststagea4a and actualce5a exacte0ebb once. Whole C add_to_minv/mpickobj/mpickstuff source/default/caller and existing masterarchitecture reviewed Main+CL. NEW<=20min implementation including packaging, no oldbudgetreset or unrelated callerstage. Old syncexports preserved, global othercaller groups pending, no fullsource/public parity certification.",
+          "currentBehavior": "Actualce5a source-equivalent acceptedb032 invocation: canonical goblin65 at75,2 peacefulfalse/tame0 carries67mass20, exactreadonlyselector choosesfloor68carry1. Sole mpickstuff extracts68 intoFREE then mpickobj/add_to_minv/syncmergedpreflight throws absentabsorbGlob271. Actorstillminv67,68FREE/unlinked,floorempty; timers67deadline25/68deadline27 unchanged, RNG2423 unchanged, hero/map/restore true/noobservererror. Currentpublisheda4a now provides canonical awaited mergedRuntime foundation for hero stage but oldsyncmpickobj path remains same refusal.",
+          "expectedBehavior": "Implement WHOLE C mkobj.c:add_to_minv as new addToMinvRuntime hybrid boolean|Promise<boolean> using sourceordered sequential existing mergedRuntime scan; true only absorbed/freed, false only linked and carrier/minventory exact. Implement WHOLE steal.c:mpickobj as mpickobjRuntime hybrid, preserving missing/attached, transitclear, bill/unpaid, objectoutmessage, nocharge/unknown/loss and carrying effects BEFORE transfer, snuff AFTER resolvedboolean. Wire ONLY actual existing mon.mpickstuff effecthalf to await runtimewrapper before check_gear_next_turn/redraw/return. Preserve complete mon.c:mpickstuff selector in monmove unchanged. Same realcallback now completes actor65 retains67mass40/quan1/age1,68deleted/unlinked/no68timer/single67timerdeadline26, actualgear/redraw after transfer, samehero/level/survival. Positive snuff/light not claimed from nonluminousglobs. All oldexports/otheractualcallers remain explicitly pending/preserved.",
+          "units": [
+            "mkobj.c:add_to_minv",
+            "steal.c:mpickobj",
+            "mon.c:mpickstuff"
+          ],
+          "allowedPaths": [
+            "js/invent.js",
+            "js/steal.js",
+            "js/mon.js",
+            "scripts/monster-pickup.test.mjs",
+            "scripts/inventory-substrate.test.mjs",
+            "scripts/mon.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/monster-pickup.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/mon.js",
+              "symbol": "mpickstuff",
+              "source": "Actual sourceeffecthalf Cmon1888 onward: distance/name/message before floor extraction; mpickobj after extraction; await runtimeboolean before gear/redraw/return. Existing whole selector decisions/prize/reach/carry filters in monmove remain unchanged; actual ce5a selector boundjointstate."
+            },
+            {
+              "path": "js/steal.js",
+              "symbol": "mpickobj",
+              "source": "Existing checkedPickupPlan/pickupEnv canonical fullenv/carryeffects; new runtimecounterpart samepreflight+prefix, new runtime minv resolvedboolean before snuff/return; old syncinterface unchanged."
+            },
+            {
+              "path": "js/invent.js",
+              "symbol": "add_to_minv",
+              "source": "Existing source Cmkobj inventory ownership chain and sequentialmerge, runtimecounterpart uses accepted mergedRuntime foundation, preserves lowlevel actualboolean and source next/tail order."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "9b48caf79a606240a465c0f19a17996a47b15fa3"
+            },
+            {
+              "path": "js/steal.js",
+              "object": "d3ab43ce164756770f53d05a20a4659768d7a68b"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "a8967364ab0b77bdc92d76208b806e832792b914"
+            },
+            {
+              "path": "scripts/monster-pickup.test.mjs",
+              "object": "3f64fd16263df6d396d4c3f8f9806562566ce3b8"
+            },
+            {
+              "path": "scripts/inventory-substrate.test.mjs",
+              "object": "9848c72498f8244fa5cb7ca55b57e0ee04670006"
+            },
+            {
+              "path": "scripts/mon.test.mjs",
+              "object": "b558a046aa8de29da623318479dc0d0e7c48fe75"
+            },
+            {
+              "path": "js/monmove.js",
+              "object": "7bbcd07786c21b9f1c5c4a06c46622888c86d916"
+            },
+            {
+              "path": "js/moncarry.js",
+              "object": "a4dbeaf9f7adb87c34390227b97f9987e0934d42"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/timeout.js",
+              "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            }
+          ]
+        },
+        "reviewSha256": "33061e6834388a214e4e5e43c0af79b41d497abb69d6b0cdd3d5185f81cf5c6b"
+      }
     }
   ]
 }
