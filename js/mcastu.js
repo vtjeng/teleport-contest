@@ -654,7 +654,7 @@ export async function castmu(
         );
         break;
     default:
-        // AD_FIRE remains unported; adjacent AT_MAGC attacks carry AD_SPEL/AD_CLRC.
+        // AD_FIRE remains unported.
         unsupported('castmu() elemental spell type');
         break;
     }
