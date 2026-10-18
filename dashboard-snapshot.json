@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T06:17:21.551Z",
+  "capturedAt": "2026-10-18T06:37:43.063Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T06:17:21.551Z",
+    "asOf": "2026-10-18T06:37:43.063Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 241,
+      "mainSupportAssignments": 244,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -169220,6 +169220,130 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018-49bbe159a22ce3181a853a642839966035f4a620",
+        "type": "published",
+        "at": "2026-10-18T06:17:42.900Z",
+        "task": "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
+        "commit": "49bbe159a22ce3181a853a642839966035f4a620"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:26:48.258Z",
+        "id": "queue:54629d88-9684-4a73-8825-1b705208a874",
+        "type": "assign",
+        "task": "nonhero-acid-potion-provider-chain-continuation-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:27:47.656Z",
+        "id": "queue:9aa214c4-d275-4aef-bd31-cec459523ab6",
+        "type": "assign",
+        "task": "chest-explosion-floor-billing-combined-target-continuation-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:28:49.194Z",
+        "id": "queue:840feaf5-3ee4-4b8b-9d8c-2be46e7d92df",
+        "type": "assign",
+        "task": "ghostly-object-pickup-adjustment-source-inquiry-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:29:47.031Z",
+        "id": "queue:6f9e5ae0-d819-4596-9bc8-3fabe878aeb6",
+        "type": "queue-complete",
+        "task": "nonhero-acid-potion-provider-chain-continuation-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:29:47.031Z",
+        "id": "queue:6f9e5ae0-d819-4596-9bc8-3fabe878aeb6:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:32:39.681Z",
+        "id": "queue:adc7c8c8-7ab0-4a49-b678-cf839fe21506",
+        "type": "assign",
+        "task": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:33:14.842Z",
+        "id": "queue:da6899b8-c0f0-4f32-9f45-dc929f309e50",
+        "type": "queue-complete",
+        "task": "ghostly-object-pickup-adjustment-source-inquiry-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:33:14.842Z",
+        "id": "queue:da6899b8-c0f0-4f32-9f45-dc929f309e50:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:35:14.934Z",
+        "id": "queue:f0535e69-6df0-456d-a3cb-e61f7c29ff0e",
+        "type": "queue-complete",
+        "task": "chest-explosion-floor-billing-combined-target-continuation-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:35:14.934Z",
+        "id": "queue:f0535e69-6df0-456d-a3cb-e61f7c29ff0e:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:36:26.631Z",
+        "id": "queue:43ccc5b5-e3a9-4d21-bbcb-f911ddd9ba4e",
+        "type": "assign",
+        "task": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -169399,30 +169523,68 @@
           "source:bones.c:resetobjs"
         ],
         "reason": "Terminal first-run setup blocker: resetInventory cannot clear a worn boot Wizard item because the canonical setworn path requires an unprovided cancelDoff hook; no real savebones target receipt occurred. Frozen draft and exact raw output are retained in typed evidence; no retry or fixture repair."
+      },
+      "delivery:fix-monkilled-guarded-farewell-provider-source-parity-20261018": {
+        "id": "delivery:fix-monkilled-guarded-farewell-provider-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:mon.c:monkilled"
+        ]
+      },
+      "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018": {
+        "id": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "worker": "Worker-3",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:bones.c:fix_ghostly_obj"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "source:mon.c:monkilled": {
+        "tasks": [
+          "delivery:fix-monkilled-guarded-farewell-provider-source-parity-20261018"
+        ]
+      },
+      "source:bones.c:fix_ghostly_obj": {
+        "tasks": [
+          "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "task": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "worker": "Worker-3"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 478,
+      "completed": 481,
       "superseded": 94
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -169431,8 +169593,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -178047,12 +178209,87 @@
         "readyAt": "2026-10-18T06:11:49.455Z",
         "claimedAt": "2026-10-18T06:12:22.116Z",
         "completedAt": "2026-10-18T06:16:27.866Z"
+      },
+      {
+        "id": "nonhero-acid-potion-provider-chain-continuation-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T06:26:35.001Z",
+        "claimedAt": "2026-10-18T06:26:48.258Z",
+        "completedAt": "2026-10-18T06:29:47.031Z"
+      },
+      {
+        "id": "chest-explosion-floor-billing-combined-target-continuation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T06:27:24.715Z",
+        "claimedAt": "2026-10-18T06:27:47.656Z",
+        "completedAt": "2026-10-18T06:35:14.934Z"
+      },
+      {
+        "id": "ghostly-object-pickup-adjustment-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T06:28:29.242Z",
+        "claimedAt": "2026-10-18T06:28:49.194Z",
+        "completedAt": "2026-10-18T06:33:14.842Z"
+      },
+      {
+        "id": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T06:32:18.741Z",
+        "claimedAt": "2026-10-18T06:32:39.681Z",
+        "completedAt": null
+      },
+      {
+        "id": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T06:36:16.276Z",
+        "claimedAt": "2026-10-18T06:36:26.631Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "20ff7999e70b958a1a19a805fbd636c8ec78804b",
-    "measuredAt": "2026-10-18T06:10:58.429Z",
+    "executionCommit": "746cdb156fc6859b02a85cfb4846e57fce2be3e1",
+    "measuredAt": "2026-10-18T06:34:37.595Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
