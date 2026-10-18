@@ -118,7 +118,19 @@
         "scripts/hero-boulder-push.test.mjs"
       ],
       "recordings": [],
-      "synthetic": []
+      "synthetic": [],
+      "callers": [
+        {
+          "path": "js/hack.js",
+          "symbol": "moverock_core",
+          "source": "Both source C moverock dopush calls already await current private dopush in same JS owner; no signature/helper expansion."
+        },
+        {
+          "path": "js/hack.js",
+          "symbol": "test_move",
+          "source": "Actual exported be4ee call with DO_MOVE and canonical set_move_cmd owns full default movement/vision/billing entry before hero coordinate commit."
+        }
+      ]
     }
   ],
   "recordings": [],
