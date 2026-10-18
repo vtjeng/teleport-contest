@@ -324272,7 +324272,7 @@
     {
       "id": "fix-qualified-hunger-faint-selftouch-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Complete the reviewed eat.c:newuhs faint selftouch call and fatal-return correction; retain runtime-pending source-parity scope.",
       "cFile": "eat.c",
       "sessions": [],
@@ -324280,7 +324280,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "fa902cc5f8e27e8c22b5bc00b757da5a673aa6d9",
       "delivered": null,
       "functions": [
         {
@@ -324402,6 +324402,55 @@
           }
         },
         "reviewSha256": "85c3f7e2f3d26a8f315ae8c4f88d375c3e62f9127f638bf823508cbc7af3fc5e"
+      },
+      "closeStanding": {
+        "sha": "fa902cc5f8e27e8c22b5bc00b757da5a673aa6d9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "5aca66388caceac99b12a2a75b7a6c016536f4a3",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/fa902cc5f8e27e8c22b5bc00b757da5a673aa6d9/run-hosted-ZaRnuo/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "newuhs",
+            "sourceFile": "eat.c",
+            "implementation": "js/eat.js",
+            "symbol": "newuhs",
+            "pure": false,
+            "sourceReview": "Traced complete assigned C eat.c:newuhs (3362-3513), including first-faint entry guards and ordering, source selftouch(\"Falling, you\") under !Levitation, the direct terminal-death consequence, and the later status/HP tail that must not continue after terminal gameover. JavaScript now awaits its existing real trap.selftouch implementation and returns immediately on state.program_state.gameover; a surviving/lifesaved selftouch continues the ordinary C tail.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "gethungry",
+                "source": "Real exported gethungry applies normal nutrition tick then awaits newuhs; actual49cc qualified this initialized hunger1/WEAK/nooccupation realRNG path. Test must use actualgethungry with defaultnear_capacity/ttyPline/endRunning/bot, not directselftouch or forcedfaint. Source gethungry afterawait only returnsnutritionLoss, so no new calleredit."
+              }
+            ],
+            "tests": [
+              "scripts/hunger-faint.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Traced eat.c:newuhs faint branch and its real js/eat.js:gethungry caller against the frozen sourceParity review. The focused test uses the actual initialized runSegment game, real canonical cockatrice corpse, ordinary ready_weapon setup, actual global RNG, real gethungry/newuhs and default selftouch→instapetrify→done(STONING), with actual TTY input. Evidence covers this bounded selected caller only; it makes no C gameplay, public parity, discovery, score, or whole-source certification claim.",
+        "entryPoints": [
+          {
+            "name": "gethungry elapsed nutrition update reaches newuhs first-faint branch",
+            "functions": [
+              {
+                "sourceFile": "eat.c",
+                "name": "newuhs"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
