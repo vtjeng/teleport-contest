@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T07:44:14.091Z",
+  "capturedAt": "2026-10-18T08:04:07.872Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T07:44:14.091Z",
+    "asOf": "2026-10-18T08:04:07.872Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 251,
+      "mainSupportAssignments": 253,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -170022,34 +170022,260 @@
         "type": "accepted",
         "at": "2026-10-18T07:44:02.823Z",
         "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-monster-dropenv-unused-provider-source-parity-20261018-c6896549e39e032987254a35935a7634f4801102",
+        "type": "published",
+        "at": "2026-10-18T07:44:34.095Z",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "commit": "c6896549e39e032987254a35935a7634f4801102"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:44:40.597Z",
+        "id": "ready-2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2:transport",
+        "type": "assign",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-unpaid-object-splitbill-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+        "type": "ready",
+        "at": "2026-10-18T07:44:40.597Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "delivery": "2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:44:40.597Z",
+        "id": "ready-2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2:complete",
+        "type": "queue-complete",
+        "task": "fix-unpaid-object-splitbill-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:44:40.597Z",
+        "id": "ready-2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-npc-numeric-9505432e9ac71bdd676dd8610fa5f4791848bc0b",
+        "type": "received",
+        "at": "2026-10-18T07:45:57.624Z",
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "delivery": "9505432e9ac71bdd676dd8610fa5f4791848bc0b"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-splitbill-onbill-source-false-2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+        "type": "feedback",
+        "at": "2026-10-18T07:48:14.298Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "delivery": "2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:48:45.156Z",
+        "id": "queue:572fff52-23b6-423e-b32f-132d55a6d620",
+        "type": "assign",
+        "task": "rework:delivery:fix-unpaid-object-splitbill-source-parity-20261018:2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:50:14.596Z",
+        "id": "queue:8fa1f9f2-6116-4e0a-99ae-8a5b0e67a336",
+        "type": "queue-complete",
+        "task": "rogue-blind-lateral-ray-target-continuation-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:50:14.596Z",
+        "id": "queue:8fa1f9f2-6116-4e0a-99ae-8a5b0e67a336:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:51:06.991Z",
+        "id": "queue:87fe0709-73d2-47af-bf6e-230bbc1a16a3",
+        "type": "assign",
+        "task": "fainted-melt-minimal-timeout-target-continuation-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-70abdb10a0cb269606b1c25bb14c69a06ad275a3",
+        "type": "ready",
+        "at": "2026-10-18T07:51:09.744Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "delivery": "70abdb10a0cb269606b1c25bb14c69a06ad275a3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:51:09.744Z",
+        "id": "ready-70abdb10a0cb269606b1c25bb14c69a06ad275a3:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-unpaid-object-splitbill-source-parity-20261018:2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:51:09.744Z",
+        "id": "ready-70abdb10a0cb269606b1c25bb14c69a06ad275a3:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-splitbill-rework-70abdb10a0cb269606b1c25bb14c69a06ad275a3",
+        "type": "received",
+        "at": "2026-10-18T07:52:40.467Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "delivery": "70abdb10a0cb269606b1c25bb14c69a06ad275a3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:54:51.056Z",
+        "id": "queue:414484ad-960d-49a7-8154-5ea3a85bba62",
+        "type": "queue-complete",
+        "task": "fainted-melt-minimal-timeout-target-continuation-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:54:51.056Z",
+        "id": "queue:414484ad-960d-49a7-8154-5ea3a85bba62:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-4c6dcd022287cc807fc1e49442d1b060bc2f4398-951a93d5b12442b6a8ec4af60a102a13a14b843be1612a13d4b3f5d326dd60f4-delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T07:54:58.096Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "integration": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+        "validationGroup": [
+          "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+          "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+          "delivery:fix-unpaid-object-splitbill-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-4c6dcd022287cc807fc1e49442d1b060bc2f4398-951a93d5b12442b6a8ec4af60a102a13a14b843be1612a13d4b3f5d326dd60f4-delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T07:54:58.096Z",
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "integration": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+        "validationGroup": [
+          "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+          "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+          "delivery:fix-unpaid-object-splitbill-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-4c6dcd022287cc807fc1e49442d1b060bc2f4398-951a93d5b12442b6a8ec4af60a102a13a14b843be1612a13d4b3f5d326dd60f4-delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T07:54:58.096Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "integration": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+        "validationGroup": [
+          "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+          "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+          "delivery:fix-unpaid-object-splitbill-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:00:50.482Z",
+        "id": "queue:6f741c1f-80b7-4662-9ad3-80eb07c3ae5d",
+        "type": "assign",
+        "task": "glob-scenario1-flooreffects-target-continuation-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-drawbridge-striking-destruction-source-parity-20261018-4c6dcd022287cc807fc1e49442d1b060bc2f4398-validated",
+        "type": "validated",
+        "at": "2026-10-18T08:02:16.520Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018-4c6dcd022287cc807fc1e49442d1b060bc2f4398-validated",
+        "type": "validated",
+        "at": "2026-10-18T08:02:16.520Z",
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-unpaid-object-splitbill-source-parity-20261018-4c6dcd022287cc807fc1e49442d1b060bc2f4398-validated",
+        "type": "validated",
+        "at": "2026-10-18T08:02:16.520Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-drawbridge-striking-destruction-source-parity-20261018-4c6dcd022287cc807fc1e49442d1b060bc2f4398-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T08:02:59.386Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018-4c6dcd022287cc807fc1e49442d1b060bc2f4398-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T08:02:59.386Z",
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-unpaid-object-splitbill-source-parity-20261018-4c6dcd022287cc807fc1e49442d1b060bc2f4398-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T08:02:59.386Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
-        "worker": "Worker-3",
-        "goal": "fix-drawbridge-striking-destruction-source-parity-20261018",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "0df878a8641ab32a697005c0b17e568eeef61054",
-        "since": "2026-10-18T07:30:58.553Z",
-        "blockedBy": [],
-        "unblocks": 0
-      },
-      {
-        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
-        "worker": "Worker-2",
-        "goal": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "9505432e9ac71bdd676dd8610fa5f4791848bc0b",
-        "since": "2026-10-18T07:41:08.763Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -170234,52 +170460,9 @@
           "source:mon.c:monkilled"
         ],
         "reason": "The intended lazy monkilled lookup reaches real death, but completion then requires the out-of-scope relobj/dropEnv unsupported provider; a lifesaving-return variant needs a new linked review."
-      },
-      "delivery:fix-drawbridge-striking-destruction-source-parity-20261018": {
-        "id": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
-        "worker": "Worker-3",
-        "status": "ready",
-        "seed": null,
-        "reservations": [
-          "source:dbridge.c:destroy_drawbridge"
-        ]
-      },
-      "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018": {
-        "id": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
-        "worker": "Worker-2",
-        "status": "ready",
-        "seed": null,
-        "reservations": [
-          "source:bones.c:remove_mon_from_bones"
-        ]
-      },
-      "delivery:fix-unpaid-object-splitbill-source-parity-20261018": {
-        "id": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
-        "worker": "Worker-1",
-        "status": "working",
-        "seed": null,
-        "reservations": [
-          "source:shk.c:splitbill"
-        ]
       }
     },
-    "reservations": {
-      "source:dbridge.c:destroy_drawbridge": {
-        "tasks": [
-          "delivery:fix-drawbridge-striking-destruction-source-parity-20261018"
-        ]
-      },
-      "source:bones.c:remove_mon_from_bones": {
-        "tasks": [
-          "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018"
-        ]
-      },
-      "source:shk.c:splitbill": {
-        "tasks": [
-          "delivery:fix-unpaid-object-splitbill-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": null,
@@ -170290,36 +170473,32 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "fix-unpaid-object-splitbill-source-parity-20261018",
-        "worker": "Worker-1"
-      },
-      {
-        "task": "rogue-blind-lateral-ray-target-continuation-20261018",
-        "worker": "Worker-3"
+        "task": "glob-scenario1-flooreffects-target-continuation-20261018",
+        "worker": "Worker-2"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 2,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 493,
+      "completed": 497,
       "superseded": 96
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "fix-unpaid-object-splitbill-source-parity-20261018",
-        "state": "active"
-      },
-      {
-        "worker": "Worker-2",
         "assignment": null,
         "state": "idle"
       },
       {
-        "worker": "Worker-3",
-        "assignment": "rogue-blind-lateral-ray-target-continuation-20261018",
+        "worker": "Worker-2",
+        "assignment": "glob-scenario1-flooreffects-target-continuation-20261018",
         "state": "active"
+      },
+      {
+        "worker": "Worker-3",
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -179194,7 +179373,7 @@
         "id": "fix-unpaid-object-splitbill-source-parity-20261018",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -179203,13 +179382,13 @@
         "target": null,
         "readyAt": "2026-10-18T07:37:02.809Z",
         "claimedAt": "2026-10-18T07:38:19.282Z",
-        "completedAt": null
+        "completedAt": "2026-10-18T07:44:40.597Z"
       },
       {
         "id": "rogue-blind-lateral-ray-target-continuation-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -179218,13 +179397,58 @@
         "target": null,
         "readyAt": "2026-10-18T07:42:36.508Z",
         "claimedAt": "2026-10-18T07:42:55.472Z",
+        "completedAt": "2026-10-18T07:50:14.596Z"
+      },
+      {
+        "id": "rework:delivery:fix-unpaid-object-splitbill-source-parity-20261018:2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": "2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+        "readyAt": "2026-10-18T07:48:14.298Z",
+        "claimedAt": "2026-10-18T07:48:45.156Z",
+        "completedAt": "2026-10-18T07:51:09.744Z"
+      },
+      {
+        "id": "fainted-melt-minimal-timeout-target-continuation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T07:50:06.188Z",
+        "claimedAt": "2026-10-18T07:51:06.991Z",
+        "completedAt": "2026-10-18T07:54:51.056Z"
+      },
+      {
+        "id": "glob-scenario1-flooreffects-target-continuation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T08:00:12.235Z",
+        "claimedAt": "2026-10-18T08:00:50.482Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
-    "measuredAt": "2026-10-18T07:41:37.880Z",
+    "executionCommit": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+    "measuredAt": "2026-10-18T08:00:42.830Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

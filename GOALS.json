@@ -325258,7 +325258,7 @@
     {
       "id": "fix-drawbridge-striking-destruction-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement destroy_drawbridge from undefined",
       "cFile": "dbridge.c",
       "sessions": [],
@@ -325266,7 +325266,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
       "delivered": null,
       "functions": [
         {
@@ -325386,12 +325386,58 @@
           }
         },
         "reviewSha256": "4cab3958147ee271a705fc171c6030d8a4624e3bcfc896b65caa56a50ffa43be"
+      },
+      "closeStanding": {
+        "sha": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/4c6dcd022287cc807fc1e49442d1b060bc2f4398/run-hosted-Scop0f/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "dbridge.c",
+            "name": "destroy_drawbridge",
+            "implementation": "js/dbridge.js",
+            "symbol": "destroy_drawbridge",
+            "pure": false,
+            "sourceReview": "Retains the reviewed full C dbridge.c:destroy_drawbridge order. Corrected both visible moat arms to use literal `moat`; hliquid is now called only for lava, preserving its display RNG. The selected zap_map caller now returns immediately after awaited helper completion when actual gameover is set, while lifesaving that clears gameover continues to caller learning/return behavior. Existing scatter, late occupant capture, RNG, terrain and fatal ordering are retained.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_map",
+                "source": "Real exported zap_map lateral WAN_STRIKING/SPE_FORCE_BOLT, find_drawbridge canonical position and originalType!=DRAWBRIDGE_UP branch. Primary actual initialized target test calls this production entry, not helper-only destroy; no public wand acquisition/history requirement."
+              }
+            ],
+            "tests": [
+              "scripts/dbridge.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Rework adds two source parity corrections within the reviewed helper/caller boundary. Both moat messages use the literal source string and consume no display RNG; only lava calls hliquid. After awaiting the full helper, zap_map returns immediately if the actual default fatal path set gameover, before learnwand or later caller tail. The tests use real zap_map, canonical drawbridge creation, actual hallucination state/RNG and real end-of-game processing. No C gameplay, public parity or certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "actual zap_map lateral striking destruction of a canonical lowered drawbridge",
+            "functions": [
+              "destroy_drawbridge"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Correct the two numeric quest-sound comparisons in the existing savebones pre-serialization filter, preserving all other behavior and the existing sourceParity scope.",
       "cFile": "bones.c",
       "sessions": [],
@@ -325399,7 +325445,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
       "delivered": null,
       "functions": [
         {
@@ -325474,12 +325520,60 @@
           "sourceEvidence": "Retain source22aa232a0b36179345e433fee0b855aadd8fbf85bb8033ccfa42b0248dcf1baf; old522bbc5528b708f4430ed79718a9dc14716031e31afc6dd6a701da2abb92227a TWO killer failures, old8min source+20min/max2 fixture. NEW e18b27c979645e0d8c35bd75dbb8e6d1200894cc598e842d51f731155eae8e38 ONE actual target invocation under15min allowance, no second consumed. Main verified730160B/ac629a50/all9 files; CL52e096af actual-target independent review. Reuse e18b exact singleton/ptr+131089/correct nonempty killer DIED/privateVFS/minimal empty equipment while retaining role intrinsics; successful23d0cf4014e77debf36358d1d5cb04b9b5086713 fixture. Exact imports/args/provider/writer-owner-accessor checks beforefreeze; finite actual More only. Old v13/generalbones owners retained without novelty or budget release."
         },
         "reviewSha256": "0a8c0b8c0c997c8f0ad35d7558038443e139af6bdacf1ecc4e62752709fddc8c"
+      },
+      "closeStanding": {
+        "sha": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/4c6dcd022287cc807fc1e49442d1b060bc2f4398/run-hosted-Scop0f/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "remove_mon_from_bones",
+            "implementation": "js/bones.js",
+            "symbol": "remove_mon_from_bones",
+            "pure": false,
+            "sourceReview": "Only the existing MS_NEMESIS and MS_LEADER predicates changed from string labels to their imported numeric constants. C bones.c:390-399 compares the numeric msound field to those constants. Actual production savebones bytes demonstrate the two numeric quest actors are removed before serialization and the generated ordinary ghost remains. Existing simplified Medusa/Vlad/Oracle behavior and all other branches are unchanged and outside this correction; this does not certify the whole C function.",
+            "callers": [
+              {
+                "path": "js/bones.js",
+                "symbol": "savebones",
+                "source": "Actual exported savebones applies filter then dmonsfree before serializing real private VFS bytes; primary actual canonical inventoryless Carnarvon numeric sound36 serialized id54 in e18b."
+              }
+            ],
+            "tests": [
+              "scripts/bones.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The actual exported savebones(DIED,getnow(game),null,game) applies remove_mon_from_bones across the real linked monster list, then dmonsfree removes marked zero-HP actors before serializeBonesLevel writes the real private VFS file. The test uses the accepted singleton initialization and empty-entry fixture, creates the canonical Archeologist leader (Carnarvon, mnum 344/msound 36) and numeric nemesis (Minion of Huhetotl, mnum 357/msound 37) through actual source-admitted makemon_runtime calls, and checks the actual serialized actor identities. The original-source run retained both quest actors and the generated ghost; the fixed run excludes both quest identities while retaining the generated ghost. No public death/quest history, C run, broader filter behavior, or whole-function certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "production savebones(DIED) → remove_mon_from_bones → dmonsfree → serializeBonesLevel",
+            "functions": [
+              {
+                "sourceFile": "bones.c",
+                "name": "remove_mon_from_bones"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-unpaid-object-splitbill-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement splitbill from shk.c",
       "cFile": "shk.c",
       "sessions": [],
@@ -325487,7 +325581,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
       "delivered": null,
       "functions": [
         {
@@ -325579,6 +325673,53 @@
           "sourceEvidence": "Retain oldaddf28ceac2259b6d275fe02cd1862e6d9c6ba0cae72e2bbd65eb644b5c6249f TWO More/startupmerge setup attempts/15min allowance and exact closed v16 whole use_cream_pie owner. New9f5e90aa0ff894da74425682dbd725ea314da15566bdfd290aa53c16724e2232 TWO more attempts under15min, first pending message before renderedMore; second actualtarget. Main source-read complete Csplitbill and current unpaid_cost validrow path; CL2f810e1913452e1c34d629ccd1edf832d9ffb4cb57f92a84f69d9f42732409e7 verified154060B/c2f3b209/all27 files and fullscope. Same worker minimal successful fixture uses actual shop recipe9701133/fb747, nonValkyrie/no compatible initialpie, canonical addtobill parent2. Reuse actual dismissPendingTtyMessage then finite renderedMore/onEmptyQueue; do not treat unrendered pending as More. Exact exports/args/defaults/writer-owner-accessor checks beforefreeze. No public shop/history or fake unpaid/bill/provider/RNG."
         },
         "reviewSha256": "ec5b081f7349327b6772623690255b7c2e574e87a23e0394ae7230a93c9da14f"
+      },
+      "closeStanding": {
+        "sha": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/4c6dcd022287cc807fc1e49442d1b060bc2f4398/run-hosted-Scop0f/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "shk.c",
+            "name": "splitbill",
+            "implementation": "js/shk.js",
+            "symbol": "splitbill",
+            "pure": false,
+            "sourceReview": "Read the complete upstream shk.c splitbill body (3623–3658). It selects shop_keeper(*u.ushops), requires an in-shop keeper, finds the parent bill row with onbill, emits the source diagnostics for missing/invalid bill quantities, decrements parent bquan by the child quantity, and then clears child.unpaid when billct == BILLSZ or appends the child row with child oid/quantity, useup false, and the original unit price before incrementing billct. The JS port preserves this order and state-local APIs. The source-mandated onbill call is nonsilent (FALSE); the port now uses onbill(obj, shopkeeper, false), preserving the existing UnsupportedShopError refusal if an unpaid parent has no active bill row before splitbill changes either billing row or child state.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_cream_pie",
+                "source": "Real doapply selector→use_cream_pie→synchronous splitobj unpaid default→costly_alteration/bill_dummy_object; actual9f5e reaches child missing-bill refusal."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/object-substrate.test.mjs",
+              "scripts/apply-cream-pie.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The actual source caller is apply.c doapply selecting the CREAM_PIE, then use_cream_pie splits a carried stack through mkobj.c splitobj. The JS unpaid default now calls the whole synchronous shk.c splitbill port immediately after parent quantity reduction and child creation, before copy_oextra, timers, and light handling; an explicit hooks.splitBill provider still takes precedence. splitbill resolves the active hero shop using state-local shop_keeper and inhishop, finds the parent through onbill, decrements the active bill quantity, then either clears child.unpaid at BILLSZ or appends a same-price child row. The real generated-shop test first produces the original missing-child-bill refusal in costly_alteration/bill_dummy_object, and after the fix completes doapply with the parent billed at quantity one and a used-up child dummy bill preserving total debt. Scoped controls exercise the full-table clear and explicit hook precedence. This is focused source-parity runtime-pending evidence, not full source certification or gameplay recording parity. The linked correction also preserves the source non-silent onbill boundary: an unpaid parent without a row raises the existing UnsupportedShopError before bill table/child mutation; this is captured by a dedicated control red on the prior delivery and green after the correction.",
+        "entryPoints": [
+          {
+            "name": "real unpaid cream-pie split billing",
+            "functions": [
+              "splitbill"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
