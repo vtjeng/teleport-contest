@@ -640,3 +640,35 @@ Retained-audit follow-up (2026-10-18):
 Chest and EGG retain their explicit Main-owned deferrals and have no automatic
 reroll. These are concrete accepted outcomes and remaining-question dispositions,
 not measured causal speedup, yield or CPU evidence.
+
+
+Retained ray publication and glob evidence disposition (2026-10-18):
+
+- The blind Rogue ray successor passed Checkpoint 39111680049, normal
+  no-regression acceptance and publication CI, and is published in
+  31a4880d259629c58ae02f90ac02cbebaa7d0835. The canonical descriptor,
+  actual dobuzz/TTY evidence and earlier setup/metadata limitations remain
+  distinct; this is supporting source parity, not public-play certification.
+- Whole glob billing delivery f03494e2 implements the reviewed four scenarios
+  and the complete selected async caller family. Independent review caught
+  and the worker corrected two message formats and an extra call guard before
+  immutable submission. The genuine pre-edit 4f7b2a86 target mismatch remains
+  separate from the new final-test original-source red, which was captured
+  after the first production draft. That assigned chronology was not met.
+  The worker disclosed it; the immutable packet omitted the requested explicit
+  chronology field. Neither omission is treated as evidence of pre-edit proof.
+- Final same-test pairing is supported by the worker's factual attestation of
+  a sequential original-source/candidate comparison and retained immutable
+  logs: original 7f025f red 0b52ff0b, candidate 108/108 green 7d1786b0, lint
+  passed. Final shop-test SHA faeed698 differs from the stale 1c9309f6
+  manifest; no saved pre-run final hash freeze is claimed. Floor and monster
+  test hashes agree with their manifests. The additive Main and independent
+  reviews preserve this binding limit rather than changing old receipts.
+- Work lead selects this exact delivery for normal hosted validation on its
+  source merits, genuine earlier target and disclosed same-test comparison.
+  This is an explicit task-level evidence disposition under standing source
+  parity authority, not inferred parent approval, a retrospective chronology
+  claim, a general rule change, or acceptance. All source, independent review,
+  exact hosted and per-case no-regression gates remain. All prior attempts and
+  the original twenty-minute cap stay spent. The unbound synchronous inventory
+  hook, public dropx behavior and broad billing certification stay outside scope.

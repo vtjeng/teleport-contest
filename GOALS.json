@@ -325876,6 +325876,148 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-whole-globby-billing-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the reviewed complete shk.c globby_bill_fixup behavior through the actual async obj_absorb/obj_meld production callers.",
+      "cFile": "shk.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-whole-globby-billing-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "globby_bill_fixup",
+          "line": 5976,
+          "endLine": 6100,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 5976,
+        "to": 6100
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-whole-globby-billing-source-parity-20261018",
+        "assignmentBase": "7f025f440baf38bfb9dffac9eee049576f222655",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "7f025f440baf38bfb9dffac9eee049576f222655",
+          "authorization": "Standing explicit user sourceParity opt-in and retained-source audit. Main selects NEW sameW2 wholehelper supporting repair after actual4f7b target and completeff1c sourceclosure/independent93b410 review. Additional20min implementation allowance approved by Main/CL for this newly reviewed scope; ALL earlier a0d7source8min/a793twoattempts15min/4f7boneinvocation10min/ff1csource6min retained, no capreset. Old mkobj/closedglobby/v92/v95/dropx/v83 owners retained; no freshcause/physicalbudget release/publicdrop claim.",
+          "currentBehavior": "Complete C shk5976–6120 globby_bill_fixup owns four scenarios of glob shop/player ownership, correct resident/bill lookup, set_cost before dispatch, fixedbill slots and captured pointers, conditional clear_unpaid, price/debit/loan/credit mutations and actual messages. Current obj_absorb only marks missinghelper then changes knowledge/mass/age/timers/extract/dealloc, so real flooreffects4f7b on same-shop canonical FREE incoming139 plus FLOOR absorber138 kept two active9 rows instead of one absorber18. Current selected roworder supports that exact result; incoming unpaid1 on deletedobject is NOT a source divergence. Existing obj_absorb/obj_meld APIs synchronous while C helper scenarios2/3 need async message/bill_dummy_object. Only production obj_meld calls are alreadyasync do.flooreffects and mon.make_corpse; no canonical obj_absorb inventoryhook binding exists.",
+          "expectedBehavior": "Port WHOLE exported async globby_bill_fixup in shk.js, exact C5976–6120 four scenarios and guards/order. Preserve non-globby diagnostic (do not invent early return), coordinates only for floorabsorber, next_shkp owningbill scan, FREEabsorbed/floorcostlyspot shop lookup, fallback firstushops keeper, onbill FALSE for both preserving existing namedrefusals; capture ESHK and ALWAYS call canonical set_cost before branch even where unused. Scenario1: amount=absorbedrow.price; decrement billct; COPY last bill row VALUE into removed existing fixed SLOT via Object.assign or equivalent fixed-slot preservation, do NOT replace row references/splice/normalize. THEN canonical clear_unpaid_obj (only clears if ACTIVE onbill still findsrow), THEN update previously captured absorberrow pointer ifnonnull. For primary row0absorber/row1incoming count1/activeprice18; reverse order can update inactive oldlastrow—preserve Caccidental semantics, not idealized conservation or unpaid0 assertion. Scenario2 preserve get_pricing_units*set_cost arithmetic (no correcting doubleunit semantics), saleable guard, exact loan/debit/credit branches and exact The/Your messages/order. Existing absorberrow branch priceaddition/sourceunits retained. Scenario3 await actual bill_dummy_object BEFORE synchronous set_voice(...,state) and awaited canonical verbalize with exact angry/polite wording/currency/type names and selected state/message owner; scenario4 no operation. Use existing helpers, no helper/callee/broadbilling ports. Wire awaited helper at exact obj_absorb marker BEFORE every knowledge/mass/age/timer/extraction/dealloc effect; make obj_absorb and obj_meld async and await BOTH internal absorb calls. Await obj_meld at ONLY do.flooreffects and mon.make_corpse production sites, preserving selected env/random/message/redraw owners and complete originalbody/order. Keep invent.beginMerged required SYNCHRONOUS absorbGlob hook untouched/unbound; no implicit Promise adapter/inventory port. Parent message provider/state must carry through all paths; no fallback to livegame paint for clone or unqualified allclone certification. Primary NEW finaltest original7f real exported flooreffects canonical knownshop FREE/onbill incoming139/FLOORabsorber138 original billingfailure red BEFORE gameedit, then same finalbytes/commandgreen actual oneactivebill/price18/timer/mass/floor+deleted ownership; genuine RNG only. Worker reuses successful4f7b fixture and actual finiteMore/live display. Add meaningful source scenarios2/3/4, reverse fixedslot/conditionalunpaid/refusal controls and actual real mon death→make_corpse glob merge awaitedcompletion; directhelper-only is supplementary, no fake billing/deletion/corpse/random/success primary. Stop new named provider/callee dependency without source expansion.",
+          "units": [
+            "shk.c:globby_bill_fixup"
+          ],
+          "allowedPaths": [
+            "js/shk.js",
+            "js/obj.js",
+            "js/do.js",
+            "js/mon.js",
+            "scripts/shk.test.mjs",
+            "scripts/flooreffects.test.mjs",
+            "scripts/mon-kill.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/shk.test.mjs",
+            "scripts/flooreffects.test.mjs",
+            "scripts/mon-kill.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/do.js",
+              "symbol": "flooreffects",
+              "source": "Real exported flooreffects admits canonical OBJ_FREE incoming and matching FLOORglob, awaits actual pudding_merge_message then source obj_meld→obj_absorb; primary4f7b target repeats as finaltest originalred and billing/lifecycle green."
+            },
+            {
+              "path": "js/mon.js",
+              "symbol": "mondied",
+              "source": "Actual ordinary monster death flows to private alreadyasync make_corpse puddingglob branch, existing obj_meld assignment must await before continuation; meaningful real caller control with canonical state, no fakecorpse helper."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/shk.js",
+              "object": "b1a5e8dbd37c0e65a11760add237e23dc66207b2"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b1a685fb30cc9cce523b41ffa3ee5d157c44f1e3"
+            },
+            {
+              "path": "js/do.js",
+              "object": "eefeb62643f7474e80dc0f1b53186fdebfa315eb"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "d5aa9b39abc1f361e63f7219546c9e90977ca428"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/pline.js",
+              "object": "c5c26cb6018f9096441cce80559ae1c47d29e3d1"
+            },
+            {
+              "path": "js/sounds.js",
+              "object": "0d16ba1b78589331e0c1310da73934738f5faeb7"
+            },
+            {
+              "path": "js/objnam.js",
+              "object": "cff691875b79c9f0328e954337567988ddb94d16"
+            },
+            {
+              "path": "js/shknam.js",
+              "object": "eb3fa149bd0cd3cc72ec99687eb629f44fa02d93"
+            },
+            {
+              "path": "js/timeout.js",
+              "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "scripts/shk.test.mjs",
+              "object": "993ebffbb69faa34b6f758b9a41e24fb9585505d"
+            },
+            {
+              "path": "scripts/flooreffects.test.mjs",
+              "object": "72465fd7c4399e86f86c0688503b52d85e1165e7"
+            },
+            {
+              "path": "scripts/mon-kill.test.mjs",
+              "object": "a70293bfb89397fbae18c029bd81add8ab5582e9"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "target": "4f7b2a86960d68230caceb0e47448f488aa0b44758653b3281407a763510765f actual one real flooreffects invocation; Main+CL verified410476B84a59ee2/all10. Absorber138 row0/incoming139 row1 each9, before→after both9, actualmass20→40/timers merged/deletedincoming; no renderedmerge text/publicdrop claim. selectedhelper sourcebodies identical c689→7f.",
+            "closure": "ff1c321235acd45ea2f963e36d87a21b4f3e4a7c0f9f43cf6abb58d9b0de14b5 complete6min sourceonly, Main+CL19255B3b12f726/all4; no requiredhelper missing.",
+            "independent": "CL glob-whole-closure-independent-review.json 93b410363f62e6fea9f602ee109353494b1b49e46315bc99644d51fad70be168; actualtarget2628def7; allsource/order/default/asyncfamily supports NEW20min.",
+            "Main": "Main read complete C5976–6120, clear_unpaid307–315, current clear_unpaid_obj/billable/set_cost/onbill, obj_absorb/obj_meld, flooreffects/mon.make_corpse and directcallgrep, canonical verbalize/set_voice defaults. All16 pins immutable accepted7f; current report-only descendant e779 changes no source. Source-only worker scope complete before code.",
+            "knownSetup": "Use exact successful4f7b source-checked canonical constructors/bills/timers and actualshop9701133; worker owns fixture. Resolve each import relative to FINAL scriptdirectory and exact export/args/statewriter-owner-accessor shape beforefreeze. runSegment recorder vs singletongame; game.nhDisplay.serialize string; actual dismissPendingTtyMessage renders startupMore before finite16 displayedMore-only callback, finallyrestore. No optionalhistory/singletonfake/privatependingDisplay assumption. Retain olda793 firstactualmergemessage but absentpoststate and secondnull display failures; no new seed/RNG hunt or unrelated oldsource retry."
+          }
+        },
+        "reviewSha256": "da8dd4a370914171de97add2d6f0bae7b715b536fc27daaaa2ee3cd0419e7158"
+      }
     }
   ]
 }
