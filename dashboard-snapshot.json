@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T08:12:03.810Z",
+  "capturedAt": "2026-10-18T08:40:23.770Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T08:12:03.810Z",
+    "asOf": "2026-10-18T08:40:23.770Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 253,
+      "mainSupportAssignments": 254,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -170327,6 +170327,118 @@
         "output": "implementation",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:13:35.349Z",
+        "id": "queue:df049f37-0a92-4dfb-b00d-2cc734414856",
+        "type": "assign",
+        "task": "glob-whole-billing-async-closure-source-continuation-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:17:01.294Z",
+        "id": "queue:bde4eed2-3178-4aae-a699-98216717b390",
+        "type": "queue-complete",
+        "task": "glob-whole-billing-async-closure-source-continuation-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:17:01.294Z",
+        "id": "queue:bde4eed2-3178-4aae-a699-98216717b390:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:22:18.421Z",
+        "id": "ready-13d35d011466ccce1ec7a3cc170a5a2c8973218a:transport",
+        "type": "assign",
+        "task": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-rogue-blind-ray-draft-caller-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-13d35d011466ccce1ec7a3cc170a5a2c8973218a",
+        "type": "ready",
+        "at": "2026-10-18T08:22:18.421Z",
+        "task": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "delivery": "13d35d011466ccce1ec7a3cc170a5a2c8973218a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:22:18.421Z",
+        "id": "ready-13d35d011466ccce1ec7a3cc170a5a2c8973218a:complete",
+        "type": "queue-complete",
+        "task": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:22:18.421Z",
+        "id": "ready-13d35d011466ccce1ec7a3cc170a5a2c8973218a:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:22:23.148Z",
+        "id": "queue:cb4a7d03-54ae-467d-b35f-acd4202ae53e",
+        "type": "assign",
+        "task": "fix-whole-globby-billing-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-rogue-ray-13d35d011466ccce1ec7a3cc170a5a2c8973218a",
+        "type": "received",
+        "at": "2026-10-18T08:26:04.338Z",
+        "task": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "delivery": "13d35d011466ccce1ec7a3cc170a5a2c8973218a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-6f91eab5b8bb18f769f078a81c30198415d9d220-b9a3b80cc27f47af297fed8f74766610c5573f9c4fdd00cf1f8caaf69cdcc643-delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T08:28:44.558Z",
+        "task": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "integration": "6f91eab5b8bb18f769f078a81c30198415d9d220",
+        "validationGroup": [
+          "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018-6f91eab5b8bb18f769f078a81c30198415d9d220-validated",
+        "type": "validated",
+        "at": "2026-10-18T08:37:25.394Z",
+        "task": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018-6f91eab5b8bb18f769f078a81c30198415d9d220-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T08:38:20.306Z",
+        "task": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018"
       }
     ]
   },
@@ -170517,42 +170629,42 @@
         ],
         "reason": "The intended lazy monkilled lookup reaches real death, but completion then requires the out-of-scope relobj/dropEnv unsupported provider; a lifesaving-return variant needs a new linked review."
       },
-      "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018": {
-        "id": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
-        "worker": "Worker-3",
+      "delivery:fix-whole-globby-billing-source-parity-20261018": {
+        "id": "delivery:fix-whole-globby-billing-source-parity-20261018",
+        "worker": "Worker-2",
         "status": "working",
         "seed": null,
         "reservations": [
-          "source:zap.c:zap_over_floor"
+          "source:shk.c:globby_bill_fixup"
         ]
       }
     },
     "reservations": {
-      "source:zap.c:zap_over_floor": {
+      "source:shk.c:globby_bill_fixup": {
         "tasks": [
-          "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018"
+          "delivery:fix-whole-globby-billing-source-parity-20261018"
         ]
       }
     }
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
     "claimed": [
       {
-        "task": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
-        "worker": "Worker-3"
+        "task": "fix-whole-globby-billing-source-parity-20261018",
+        "worker": "Worker-2"
       }
     ],
     "counts": {
       "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 498,
+      "completed": 500,
       "superseded": 96
     },
     "workers": [
@@ -170563,13 +170675,13 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-whole-globby-billing-source-parity-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -179519,7 +179631,7 @@
         "id": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -179528,13 +179640,43 @@
         "target": null,
         "readyAt": "2026-10-18T08:09:59.650Z",
         "claimedAt": "2026-10-18T08:11:31.247Z",
+        "completedAt": "2026-10-18T08:22:18.421Z"
+      },
+      {
+        "id": "glob-whole-billing-async-closure-source-continuation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T08:12:30.177Z",
+        "claimedAt": "2026-10-18T08:13:35.349Z",
+        "completedAt": "2026-10-18T08:17:01.294Z"
+      },
+      {
+        "id": "fix-whole-globby-billing-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T08:21:48.904Z",
+        "claimedAt": "2026-10-18T08:22:23.148Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
-    "measuredAt": "2026-10-18T08:00:42.830Z",
+    "executionCommit": "6f91eab5b8bb18f769f078a81c30198415d9d220",
+    "measuredAt": "2026-10-18T08:35:22.299Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

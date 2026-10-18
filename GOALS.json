@@ -325725,7 +325725,7 @@
     {
       "id": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement zap_over_floor from undefined",
       "cFile": "zap.c",
       "sessions": [],
@@ -325733,7 +325733,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "6f91eab5b8bb18f769f078a81c30198415d9d220",
       "delivered": null,
       "functions": [
         {
@@ -325830,6 +325830,51 @@
           }
         },
         "reviewSha256": "a20a51f34b9831af3469d3f74ade38b872a1442d71244fa220b013e0fa7adbde"
+      },
+      "closeStanding": {
+        "sha": "6f91eab5b8bb18f769f078a81c30198415d9d220",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "4c6dcd022287cc807fc1e49442d1b060bc2f4398",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/6f91eab5b8bb18f769f078a81c30198415d9d220/run-hosted-eF7XZh/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "sourceFile": "zap.c",
+            "name": "zap_over_floor",
+            "implementation": "js/zap.js",
+            "symbol": "zap_over_floor",
+            "pure": false,
+            "sourceReview": "At zap.c:5400-5408, C snapshots see_it before SDOOR conversion, recalc_block_point, and newsym; if the square was unseen and the current level is Rogue, it awaits draft_message(FALSE). The JS caller now awaits the existing imported draft_message(false) with the normalized parent message and preserves caller-selected RNG callbacks plus canonical rn1 fallback. The existing guard, snapshot, conversion, recalc, redraw and branch order are unchanged.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dobuzz",
+                "source": "Real exported dobuzz ordinary hero cold ray calls zap_over_floor before actors; primary normal source-valid canonical Rogue descriptor/level with adjacent SDOOR and timed blindness, actual live TTY message default."
+              }
+            ],
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The real exported dobuzz call ran with the initialized canonical Rogue-level descriptor preserved and u.uz copied by assign_level, timed blindness set by make_blinded, an adjacent SDOOR, ordinary seeded RNG, and the default TTY. Before the repair it converted the secret door but left the expected draft absent; after wiring it emitted the pending draft through ttyPline, which the real TTY dismissal rendered. Visible Rogue and blind non-Rogue controls passed. A secondary hallucinating zap_over_floor call with its partial default RNG bundle passed through the imported rn1 fallback. No C gameplay recording, public C match, public parity, or source certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "real dobuzz lateral cold ray through blind Rogue-level SDOOR",
+            "functions": [
+              "zap_over_floor"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
