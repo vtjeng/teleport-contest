@@ -49,7 +49,7 @@
         {
           "path": "js/zap.js",
           "symbol": "zap_map",
-          "source": "Selected real lateral WAN_STRIKING/SPE_FORCE_BOLT branch after find_drawbridge and originalType != DRAWBRIDGE_UP; now awaits destroy_drawbridge with the selected state and RNG."
+          "source": "Real exported zap_map lateral WAN_STRIKING/SPE_FORCE_BOLT, find_drawbridge canonical position and originalType!=DRAWBRIDGE_UP branch. Primary actual initialized target test calls this production entry, not helper-only destroy; no public wand acquisition/history requirement."
         }
       ],
       "tests": [
