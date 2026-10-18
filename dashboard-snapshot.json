@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T06:57:53.513Z",
+  "capturedAt": "2026-10-18T07:44:14.091Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T06:57:53.513Z",
+    "asOf": "2026-10-18T07:44:14.091Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 247,
+      "mainSupportAssignments": 251,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -169605,11 +169605,451 @@
         "type": "accepted",
         "at": "2026-10-18T06:57:38.773Z",
         "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018-26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+        "type": "published",
+        "at": "2026-10-18T06:58:16.348Z",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "commit": "26117031da0bbe02a9451a5c6dca6c2b01bc1791"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publication-confirmed-delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018-26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+        "type": "publication-confirmed",
+        "at": "2026-10-18T06:58:17.653Z",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "commit": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+        "knownBy": "2026-10-18T06:58:16.348Z"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:58:41.999Z",
+        "id": "queue:001a6ef6-3eec-45f0-aae5-8442f234c297",
+        "type": "queue-complete",
+        "task": "drawbridge-destruction-default-closure-continuation-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:58:41.999Z",
+        "id": "queue:001a6ef6-3eec-45f0-aae5-8442f234c297:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:02:15.892Z",
+        "id": "queue:fe8d2782-fb37-4398-b1dd-2ae47b8a958b",
+        "type": "assign",
+        "task": "mounted-legal-entry-contract-continuation-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:03:49.216Z",
+        "id": "queue:b3a6e92c-90c8-47c2-a942-745748f772d0",
+        "type": "queue-complete",
+        "task": "mounted-legal-entry-contract-continuation-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:03:49.216Z",
+        "id": "queue:b3a6e92c-90c8-47c2-a942-745748f772d0:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:05:28.178Z",
+        "id": "queue:0de6320b-7e2b-4356-bc52-cc6e4c5adb0f",
+        "type": "assign",
+        "task": "fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:09:58.658Z",
+        "id": "ready-f07b74c029cd4aece419f4424384526e61a370da:transport",
+        "type": "assign",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-monster-dropenv-unused-provider-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-f07b74c029cd4aece419f4424384526e61a370da",
+        "type": "ready",
+        "at": "2026-10-18T07:09:58.658Z",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "delivery": "f07b74c029cd4aece419f4424384526e61a370da"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:09:58.658Z",
+        "id": "ready-f07b74c029cd4aece419f4424384526e61a370da:complete",
+        "type": "queue-complete",
+        "task": "fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:09:58.658Z",
+        "id": "ready-f07b74c029cd4aece419f4424384526e61a370da:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:10:23.032Z",
+        "id": "queue:39ac01a4-66c0-4654-a9bb-5c670881c1d6",
+        "type": "assign",
+        "task": "fix-drawbridge-striking-destruction-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-dropenv-f07b74c-20261018",
+        "type": "received",
+        "at": "2026-10-18T07:14:37.533Z",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "delivery": "f07b74c029cd4aece419f4424384526e61a370da"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-dropenv-f07b74c-20261018",
+        "type": "activity",
+        "at": "2026-10-18T07:14:39.157Z",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "phase": "review",
+        "reason": "Review exact guard removal and same final test/raw logs, actual ordinary acid death/ownership, preserved nested defaults and source-valid obsolete refusal control before normal checkpoint."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:17:57.730Z",
+        "id": "queue:b9941c27-882e-49fc-a6f5-ca97aae9332e",
+        "type": "assign",
+        "task": "npc-numeric-bones-target-continuation-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-6edc644d309f7fa5ed8353a6e403fe1e936f95fa-e03a3f46bc353380dd7913e8c1bb065ce94991e422db6a51fe30495a3bb3e9b2-delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T07:20:31.915Z",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "integration": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
+        "validationGroup": [
+          "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:20:53.576Z",
+        "id": "ready-e104a8a266f653a9f492e4bd0212b99146201fac:transport",
+        "type": "assign",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-drawbridge-striking-destruction-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-e104a8a266f653a9f492e4bd0212b99146201fac",
+        "type": "ready",
+        "at": "2026-10-18T07:20:53.576Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "delivery": "e104a8a266f653a9f492e4bd0212b99146201fac"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:20:53.576Z",
+        "id": "ready-e104a8a266f653a9f492e4bd0212b99146201fac:complete",
+        "type": "queue-complete",
+        "task": "fix-drawbridge-striking-destruction-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:20:53.576Z",
+        "id": "ready-e104a8a266f653a9f492e4bd0212b99146201fac:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:21:07.979Z",
+        "id": "queue:852c5f6e-b4ee-4e1e-b866-4548a3798530",
+        "type": "assign",
+        "task": "unpaid-splitbill-residual-target-inquiry-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:21:42.581Z",
+        "id": "queue:7749abe9-e443-4dd1-a1c6-57a757f87d07",
+        "type": "queue-complete",
+        "task": "npc-numeric-bones-target-continuation-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:21:42.581Z",
+        "id": "queue:7749abe9-e443-4dd1-a1c6-57a757f87d07:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-drawbridge-e104a8-20261018",
+        "type": "received",
+        "at": "2026-10-18T07:26:51.649Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "delivery": "e104a8a266f653a9f492e4bd0212b99146201fac"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-drawbridge-e104a8-20261018",
+        "type": "activity",
+        "at": "2026-10-18T07:26:54.272Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "phase": "review",
+        "reason": "Review complete C helper/caller and exact regressions; independent source review found hallucinating-moat display RNG/text drift and postfatal zap_map learnwand continuation."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-drawbridge-e104-two-source-findings-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T07:26:56.379Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "delivery": "e104a8a266f653a9f492e4bd0212b99146201fac"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:27:28.962Z",
+        "id": "queue:10f22308-f090-4a7e-98ec-b781a91c547c",
+        "type": "assign",
+        "task": "rework:delivery:fix-drawbridge-striking-destruction-source-parity-20261018:e104a8a266f653a9f492e4bd0212b99146201fac",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "e104a8a266f653a9f492e4bd0212b99146201fac",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:27:33.748Z",
+        "id": "queue:69465a2a-065c-4b51-a350-4cb2ed4bad35",
+        "type": "queue-complete",
+        "task": "unpaid-splitbill-residual-target-inquiry-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:27:33.748Z",
+        "id": "queue:69465a2a-065c-4b51-a350-4cb2ed4bad35:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-0df878a8641ab32a697005c0b17e568eeef61054",
+        "type": "ready",
+        "at": "2026-10-18T07:30:58.553Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "delivery": "0df878a8641ab32a697005c0b17e568eeef61054"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:30:58.553Z",
+        "id": "ready-0df878a8641ab32a697005c0b17e568eeef61054:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-drawbridge-striking-destruction-source-parity-20261018:e104a8a266f653a9f492e4bd0212b99146201fac",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:30:58.553Z",
+        "id": "ready-0df878a8641ab32a697005c0b17e568eeef61054:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:37:30.652Z",
+        "id": "queue:35c66b49-808b-4a2a-9788-1c5e760de8e1",
+        "type": "assign",
+        "task": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:38:19.282Z",
+        "id": "queue:a51c9a8b-1e90-4e8a-9df0-5317db3cc94e",
+        "type": "assign",
+        "task": "fix-unpaid-object-splitbill-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-drawbridge-rework-0df878a8641ab32a697005c0b17e568eeef61054",
+        "type": "received",
+        "at": "2026-10-18T07:40:03.006Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "delivery": "0df878a8641ab32a697005c0b17e568eeef61054"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:41:08.763Z",
+        "id": "ready-9505432e9ac71bdd676dd8610fa5f4791848bc0b:transport",
+        "type": "assign",
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-9505432e9ac71bdd676dd8610fa5f4791848bc0b",
+        "type": "ready",
+        "at": "2026-10-18T07:41:08.763Z",
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "delivery": "9505432e9ac71bdd676dd8610fa5f4791848bc0b"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:41:08.763Z",
+        "id": "ready-9505432e9ac71bdd676dd8610fa5f4791848bc0b:complete",
+        "type": "queue-complete",
+        "task": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:41:08.763Z",
+        "id": "ready-9505432e9ac71bdd676dd8610fa5f4791848bc0b:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-idle-after-bones-numeric-filter-20261018-0743",
+        "type": "turn",
+        "at": "2026-10-18T07:41:37.577Z",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Submitted the reviewed bones numeric-filter fix; no queued assignment is ready."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T07:42:55.472Z",
+        "id": "queue:6d36bc64-aa0e-4b2a-8c0a-b1868c2247c7",
+        "type": "assign",
+        "task": "rogue-blind-lateral-ray-target-continuation-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-monster-dropenv-unused-provider-source-parity-20261018-6edc644d309f7fa5ed8353a6e403fe1e936f95fa-validated",
+        "type": "validated",
+        "at": "2026-10-18T07:43:16.522Z",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-monster-dropenv-unused-provider-source-parity-20261018-6edc644d309f7fa5ed8353a6e403fe1e936f95fa-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T07:44:02.823Z",
+        "task": "delivery:fix-monster-dropenv-unused-provider-source-parity-20261018"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "worker": "Worker-3",
+        "goal": "fix-drawbridge-striking-destruction-source-parity-20261018",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "0df878a8641ab32a697005c0b17e568eeef61054",
+        "since": "2026-10-18T07:30:58.553Z",
+        "blockedBy": [],
+        "unblocks": 0
+      },
+      {
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "worker": "Worker-2",
+        "goal": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "9505432e9ac71bdd676dd8610fa5f4791848bc0b",
+        "since": "2026-10-18T07:41:08.763Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -169794,9 +170234,52 @@
           "source:mon.c:monkilled"
         ],
         "reason": "The intended lazy monkilled lookup reaches real death, but completion then requires the out-of-scope relobj/dropEnv unsupported provider; a lifesaving-return variant needs a new linked review."
+      },
+      "delivery:fix-drawbridge-striking-destruction-source-parity-20261018": {
+        "id": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "worker": "Worker-3",
+        "status": "ready",
+        "seed": null,
+        "reservations": [
+          "source:dbridge.c:destroy_drawbridge"
+        ]
+      },
+      "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018": {
+        "id": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "worker": "Worker-2",
+        "status": "ready",
+        "seed": null,
+        "reservations": [
+          "source:bones.c:remove_mon_from_bones"
+        ]
+      },
+      "delivery:fix-unpaid-object-splitbill-source-parity-20261018": {
+        "id": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:shk.c:splitbill"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "source:dbridge.c:destroy_drawbridge": {
+        "tasks": [
+          "delivery:fix-drawbridge-striking-destruction-source-parity-20261018"
+        ]
+      },
+      "source:bones.c:remove_mon_from_bones": {
+        "tasks": [
+          "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018"
+        ]
+      },
+      "source:shk.c:splitbill": {
+        "tasks": [
+          "delivery:fix-unpaid-object-splitbill-source-parity-20261018"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
     "readySessions": null,
@@ -169807,22 +170290,26 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "drawbridge-destruction-default-closure-continuation-source-20261018",
+        "task": "fix-unpaid-object-splitbill-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "task": "rogue-blind-lateral-ray-target-continuation-20261018",
         "worker": "Worker-3"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 485,
-      "superseded": 95
+      "completed": 493,
+      "superseded": 96
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-unpaid-object-splitbill-source-parity-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -169831,7 +170318,7 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "drawbridge-destruction-default-closure-continuation-source-20261018",
+        "assignment": "rogue-blind-lateral-ray-target-continuation-20261018",
         "state": "active"
       }
     ],
@@ -178572,7 +179059,7 @@
         "id": "drawbridge-destruction-default-closure-continuation-source-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -178581,13 +179068,163 @@
         "target": null,
         "readyAt": "2026-10-18T06:54:54.957Z",
         "claimedAt": "2026-10-18T06:55:11.579Z",
+        "completedAt": "2026-10-18T06:58:41.999Z"
+      },
+      {
+        "id": "mounted-legal-entry-contract-continuation-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T07:01:55.723Z",
+        "claimedAt": "2026-10-18T07:02:15.892Z",
+        "completedAt": "2026-10-18T07:03:49.216Z"
+      },
+      {
+        "id": "fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T07:05:08.193Z",
+        "claimedAt": "2026-10-18T07:05:28.178Z",
+        "completedAt": "2026-10-18T07:09:58.658Z"
+      },
+      {
+        "id": "fix-drawbridge-striking-destruction-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T07:09:48.004Z",
+        "claimedAt": "2026-10-18T07:10:23.032Z",
+        "completedAt": "2026-10-18T07:20:53.576Z"
+      },
+      {
+        "id": "npc-numeric-bones-target-continuation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T07:17:22.886Z",
+        "claimedAt": "2026-10-18T07:17:57.730Z",
+        "completedAt": "2026-10-18T07:21:42.581Z"
+      },
+      {
+        "id": "unpaid-splitbill-residual-target-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T07:20:22.346Z",
+        "claimedAt": "2026-10-18T07:21:07.979Z",
+        "completedAt": "2026-10-18T07:27:33.748Z"
+      },
+      {
+        "id": "rework:delivery:fix-drawbridge-striking-destruction-source-parity-20261018:e104a8a266f653a9f492e4bd0212b99146201fac",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": "e104a8a266f653a9f492e4bd0212b99146201fac",
+        "readyAt": "2026-10-18T07:26:56.379Z",
+        "claimedAt": "2026-10-18T07:27:28.962Z",
+        "completedAt": "2026-10-18T07:30:58.553Z"
+      },
+      {
+        "id": "fix-bones-numeric-quest-filter-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-18T07:35:14.873Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T07:37:00.838Z",
+        "claimedAt": "2026-10-18T07:37:30.652Z",
+        "completedAt": "2026-10-18T07:41:08.763Z"
+      },
+      {
+        "id": "fix-unpaid-object-splitbill-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T07:37:02.809Z",
+        "claimedAt": "2026-10-18T07:38:19.282Z",
+        "completedAt": null
+      },
+      {
+        "id": "rogue-blind-lateral-ray-target-continuation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T07:42:36.508Z",
+        "claimedAt": "2026-10-18T07:42:55.472Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
-    "measuredAt": "2026-10-18T06:54:10.056Z",
+    "executionCommit": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
+    "measuredAt": "2026-10-18T07:41:37.880Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

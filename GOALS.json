@@ -325105,7 +325105,7 @@
     {
       "id": "fix-monster-dropenv-unused-provider-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement relobj from undefined",
       "cFile": "steal.c",
       "sessions": [],
@@ -325113,7 +325113,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
       "delivered": null,
       "functions": [
         {
@@ -325208,6 +325208,51 @@
           }
         },
         "reviewSha256": "91e1bb11a3a6bc3f6683c460c1697c9175473b478ec3380eb30ebb12abac8303"
+      },
+      "closeStanding": {
+        "sha": "6edc644d309f7fa5ed8353a6e403fe1e936f95fa",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/6edc644d309f7fa5ed8353a6e403fe1e936f95fa/run-hosted-TvLrx5/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "relobj",
+            "implementation": "js/steal.js",
+            "symbol": "relobj",
+            "sourceReview": "C steal.c relobj releases creature inventory without an unsupported callback parameter. JS dropEnv previously rejected the ordinary default environment before checking gold or minvent, although neither relobj nor mdrop_obj invokes unsupported. The correction removes only that unused type check and throw while preserving state normalization, raw environment fields, nested branch refusals, and all release operations.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "Real potionhit nonhero lethal AD_ACID goes through actual monkilled/mondied/mondead/m_detach to relobj; primary test exercises complete real default empty-inventory death and potion ownership, not direct dropEnv or helper-only relobj proof."
+              }
+            ],
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/steal.test.mjs"
+            ],
+            "recordings": [],
+            "pure": false
+          }
+        ],
+        "entryPointReview": "The real exported potionhit call with an ordinary acid potion and POTHIT_OTHER_THROW reached monkilled, mondead, m_detach and relobj. Before the fix it stopped at the dropEnv eager validation before inventory inspection. After the fix the same call completed actual death accounting, map detach and potion cleanup with an empty-inventory goblin.",
+        "entryPoints": [
+          {
+            "name": "potionhit ordinary acid death through relobj",
+            "functions": [
+              "relobj"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
