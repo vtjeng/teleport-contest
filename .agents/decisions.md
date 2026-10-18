@@ -672,3 +672,53 @@ Retained ray publication and glob evidence disposition (2026-10-18):
   exact hosted and per-case no-regression gates remain. All prior attempts and
   the original twenty-minute cap stay spent. The unbound synchronous inventory
   hook, public dropx behavior and broad billing certification stay outside scope.
+
+Retained-source attribution and execution closure (2026-10-18):
+
+- Ray and whole glob billing successors are accepted and published in
+  31a4880d and 9cc31c3d respectively, with exact hosted checkpoints,
+  per-case no-regression acceptance and normal publication CI passed.
+  The glob task chronology and final-manifest evidence limits recorded above
+  remain explicit; acceptance does not rewrite their historical ordering.
+- Mounted qualification 6a6843d1 reached real catalog-cockatrice newcham from
+  the legal horse/saddle snapshot, but did not establish the later touch or
+  petrification guard. Both C and JavaScript first remove the saddle through
+  m_lose_armor, extract_from_minvent and update_mon_extrinsics; this canonically
+  dismounts before the later noride/u.usteed check. The preceding message was
+  absent, and rn2(3)=0 cannot be attributed to that later rnl guard. Earlier
+  050c/e6f/independent4253 joint-route qualification omitted this helper tail
+  and is withdrawn additively. The legal mounted state and actual form-change
+  result remain valid; immutable originals stay unchanged. Main deliberately
+  defers the conditional missing-call question pending a source-valid route
+  that addresses this earlier compensation, with no seed or state rescue.
+  Original two physical attempts, this one qualification and all source
+  allowances remain separately preserved; no further run is implied.
+- Fountain 80e13e2a had zero runtime and a life-saving helper prerequisite,
+  subsequently resolved by the accepted helper. Source follow-ups 596ec340
+  and bd9124ec bind one exact goblin/visible-cell topology and the ordinary
+  non-endgame overcrowding-to-limbo/migration path. The first teleport arm is
+  optional and skipped for the goblin. Normal hero-triggered liquid death
+  uses xkilled to mondead and its life-saving return, not a forced monster-turn
+  context. These are source contracts, not observed fountain behavior.
+- First fountain implementation 22c357bb stopped before dogushforth on a
+  constructor flag combination explicitly rejected by the retained source
+  contract; the worker acknowledged omitting the pre-run flag audit. The
+  separately reviewed final continuation d6de7bf8 stopped before constructor
+  invocation on an unbound MM_ADJACENTOK test constant; its call-shape review
+  missed the import binding. Neither produced a target red, source refutation
+  or production change. Both execution assignments are closed with immutable
+  negatives; the original twenty-minute allowance/one bad-call attempt and
+  final fifteen-minute allowance/one setup invocation remain distinct from
+  every earlier source allowance. Elapsed time is not CPU evidence.
+- Main owns deliberate deferral of the still source-supported fountain
+  callback question. A future continuation needs independently checked actual
+  import and constructor bindings from the retained successful source pattern,
+  explicit fresh finite selection and a real original-source target failure
+  before code, followed by the same final tests green and normal gates. It
+  would reuse the retained fixed input; no automatic extra attempt, actor/map
+  variant, RNG hunt, helper expansion or fabricated runtime claim is authorized.
+  All rejected drafts and limitations remain available to the next reviewer.
+
+Chest, EGG and melt keep their previously recorded unresolved dispositions and
+spent budgets. The existing dashboard watcher remains the sole refresh owner;
+normal publications and its coalesced captures preserve accepted game evidence.
