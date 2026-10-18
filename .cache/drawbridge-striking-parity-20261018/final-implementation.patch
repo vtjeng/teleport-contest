@@ -1,0 +1,399 @@
+diff --git a/js/dbridge.js b/js/dbridge.js
+index 07392961a..03d139f3d 100644
+--- a/js/dbridge.js
++++ b/js/dbridge.js
+@@ -3,10 +3,10 @@ import {
+     BURNING, CONFUSION, CRUSHING, DB_DIR, DB_EAST, DB_ICE, DB_LAVA, DEAF,
+     DB_MOAT, DB_NORTH, DB_SOUTH, DB_UNDER, DB_WEST, DBWALL, DOOR,
+     DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, DROWNING, D_NODOOR, FUMBLING, HALLUC,
+-    HALLUC_RES, ICE,
++    HALLUC_RES, ICE, ICED_MOAT,
+     IS_LAVA, IS_WALL, IS_DRAWBRIDGE, IS_WATERWALL, KILLED_BY_AN, LAVAPOOL,
+     MAGICAL_BREATHING, MOAT, NO_KILLER_PREFIX, OBJ_AT, PASSES_WALLS,
+-    POOL, STUNNED, SWIMMING, WATER, WWALKING, Is_waterlevel,
++    POOL, ROOM, STUNNED, SWIMMING, WATER, WWALKING, Is_waterlevel,
+     W_NONDIGGABLE, XKILL_GIVEMSG, XKILL_NOCORPSE, XKILL_NOCONDUCT,
+     XKILL_NOMSG, TELEDS_NO_FLAGS, helpless, u_at,
+ } from './const.js';
+@@ -14,27 +14,33 @@ import { isok } from './cmd_isok.js';
+ import { on_level } from './dungeon.js';
+ import { game } from './gstate.js';
+ import { canseemon, newsym } from './display.js';
+-import { Monnam, mon_nam } from './do_name.js';
++import { hliquid, Monnam, mon_nam } from './do_name.js';
++import { flooreffects } from './do.js';
+ import { done } from './end.js';
++import { SCATTER_MAY_HIT, scatter } from './explode.js';
+ import { del_engr_at } from './engrave.js';
+ import { dist2 } from './hacklib.js';
+-import { delallobj } from './invent.js';
++import { delallobj, obj_extract_self, sobj_at } from './invent.js';
+ import {
+     amphibious, breathless, is_flyer, is_floater, is_swimmer, likes_lava,
+     noncorporeal, passes_walls,
+ } from './mondata.js';
+ import { AD_DGST, AD_PHYS, PM_LONG_WORM_TAIL } from './monsters.js';
+-import { heroUnaware as plineHeroUnaware } from './pline.js';
+-import { monkilled, xkilled } from './mon.js';
++import { heroUnaware as plineHeroUnaware, youHear } from './pline.js';
++import { minliquid, monkilled, wake_nearto, xkilled } from './mon.js';
+ import { m_at, place_monster, remove_monster } from './monst.js';
+-import { d, rnd, rn2 } from './rng.js';
++import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from './rng.js';
++import { BOULDER, IRON_CHAIN } from './objects.js';
+ import { update_monster_region } from './region.js';
+ import { deltrap, drown, Flying, Levitation, lava_effects, t_at } from './trap.js';
+ import { revive_nasty, spoteffects } from './hack.js';
+ import { enexto, teleds } from './teleport.js';
+-import { block_point, cansee, unblock_point } from './vision.js';
+-import { vtense } from './objnam.js';
++import {
++    block_point, cansee, does_block, unblock_point, vision_recalc,
++} from './vision.js';
++import { mksobj_at } from './obj.js';
+ import { ttyPline } from './tty_message.js';
++import { vtense } from './objnam.js';
+ 
+ // C refs: dbridge.c is_pool() (46-60) and is_moat() (100-112). The `flags`
+ // field is the live JavaScript owner of drawbridgemask on map records.
+@@ -207,6 +213,187 @@ export function create_drawbridge(x, y, dir, flag, state = game) {
+     return true;
+ }
+ 
++// C ref: dbridge.c destroy_drawbridge() (888-1020). Destruction differs
++// from open/close: it removes the bridge and resolves debris before it
++// captures either occupant, so scatter can change who is on the two squares.
++function drawbridgeRandom(selected = {}, state = game) {
++    return {
++        ...selected,
++        d: selected.d ?? d,
++        rn1: selected.rn1 ?? rn1,
++        rn2: selected.rn2 ?? rn2,
++        rnd: selected.rnd ?? rnd,
++        rne: selected.rne ?? rne,
++        rnl: selected.rnl ?? rnl,
++        rnz: selected.rnz ?? rnz,
++        rn2_on_display_rng: selected.rn2_on_display_rng
++            ?? ((bound) => rn2_on_display_rng(bound, state)),
++    };
++}
++
++export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
++    const bridge = state.level?.at(x, y);
++    if (!IS_DRAWBRIDGE(bridge?.typ)) return;
++
++    // zap_map's selected random parameter is sometimes partial. Retain its
++    // supplied callbacks, fill only absent canonical operations, and give
++    // object creation, scatter and display naming the same stream.
++    const random = drawbridgeRandom(rawEnv.random, state);
++    const env = {
++        ...rawEnv,
++        state,
++        random,
++        displayRandom: rawEnv.displayRandom ?? random.rn2_on_display_rng,
++    };
++    const message = env.message ?? ttyPline;
++    const say = async (line) => message(line, state, env);
++    const hear = async (line) => {
++        const heard = youHear(line, state);
++        if (heard) await say(heard);
++    };
++
++    const wallPosition = { x, y };
++    get_wall_for_db(wallPosition, state);
++    const { x: x2, y: y2 } = wallPosition;
++    const wall = state.level.at(x2, y2);
++    const under = drawbridgeUnder(bridge);
++
++    if (under === DB_MOAT || under === DB_LAVA) {
++        const lava = under === DB_LAVA;
++        if (bridge.typ === DRAWBRIDGE_UP) {
++            if (cansee(x2, y2, state) || u_at(x2, y2, state)) {
++                const liquid = hliquid(lava ? 'lava' : 'moat', env);
++                await say(`The portcullis of the drawbridge falls into the ${liquid}!`);
++            } else {
++                await hear('a loud *SPLASH*!');
++            }
++        } else if (cansee(x, y, state) || u_at(x, y, state)) {
++            const liquid = hliquid(lava ? 'lava' : 'moat', env);
++            await say(`The drawbridge collapses into the ${liquid}!`);
++        } else {
++            await hear('a loud *SPLASH*!');
++        }
++        bridge.typ = lava ? LAVAPOOL : MOAT;
++        bridge.flags = 0;
++        const boulder = sobj_at(BOULDER, x, y, state);
++        if (boulder) {
++            obj_extract_self(boulder, env);
++            await flooreffects(boulder, x, y, 'fall', env);
++            if (state.program_state?.gameover) return;
++        }
++    } else {
++        if (cansee(x, y, state) || u_at(x, y, state))
++            await say('The drawbridge disintegrates!');
++        else
++            await hear('a loud *CRASH*!');
++        const icy = Boolean(under & DB_ICE);
++        // The C expression reads DB_ICE from the preserved drawbridgemask;
++        // the bridge's `flags` stay intact on this dry branch.
++        bridge.typ = icy ? ICE : ROOM;
++        bridge.icedpool = icy ? ICED_MOAT : 0;
++    }
++
++    await wake_nearto(x, y, 500, env);
++    wall.typ = DOOR;
++    wall.doormask = D_NODOOR;
++    const bridgeTrap = t_at(x, y, state);
++    if (bridgeTrap) deltrap(bridgeTrap, state);
++    const wallTrap = t_at(x2, y2, state);
++    if (wallTrap) deltrap(wallTrap, state);
++    del_engr_at(x, y, state);
++    del_engr_at(x2, y2, state);
++
++    for (let count = random.rn2(6); count > 0; --count) {
++        const objectX = random.rn2(2) ? x : x2;
++        const objectY = random.rn2(2) ? y : y2;
++        const chain = mksobj_at(
++            IRON_CHAIN, objectX, objectY, true, false, env,
++        );
++        await scatter(
++            chain.ox, chain.oy, 1, SCATTER_MAY_HIT, chain, state, env,
++        );
++        if (state.program_state?.gameover) return;
++    }
++
++    newsym(x, y, state);
++    newsym(x2, y2, state);
++    if (!does_block(x2, y2, wall, state)) unblock_point(x2, y2, state);
++    vision_recalc(0, {
++        ...env,
++        state,
++        redraw: env.redraw
++            ?? ((redrawX, redrawY) => newsym(redrawX, redrawY, state)),
++    });
++    if (on_level(state.u.uz, state.stronghold_level)) {
++        state.u.uevent ??= {};
++        state.u.uevent.uopened_dbridge = true;
++    }
++
++    const [bridgeEntity, wallEntity] = occupants(state);
++    set_entity(x2, y2, wallEntity, state);
++    if (wallEntity.edata) {
++        const inview = entityCanSee(wallEntity, state);
++        if (!automiss(wallEntity, state)) {
++            if (inview)
++                await say(`${E_phrase(wallEntity, 'are', state)} blown apart by flying debris.`);
++            state.killer ??= {};
++            state.killer.format = KILLED_BY_AN;
++            state.killer.name = 'exploding drawbridge';
++            await e_died(
++                wallEntity,
++                XKILL_NOCORPSE | (inview ? XKILL_GIVEMSG : XKILL_NOMSG),
++                CRUSHING,
++                state,
++                env,
++            );
++            if (state.program_state?.gameover) return;
++        }
++    }
++
++    set_entity(x, y, bridgeEntity, state);
++    if (bridgeEntity.edata) {
++        const inview = entityCanSee(bridgeEntity, state);
++        if (e_missed(bridgeEntity, true, state, random)) {
++            if (is_u(bridgeEntity, state))
++                await spoteffects(false, state, env);
++            else
++                await minliquid(bridgeEntity.emon, env);
++            if (state.program_state?.gameover) return;
++        } else {
++            if (inview) {
++                if (!is_u(bridgeEntity, state) && heroHallucinating(state))
++                    await say(`${E_phrase(bridgeEntity, 'get', state)} into some heavy metal!`);
++                else
++                    await say(`${E_phrase(bridgeEntity, 'are', state)} hit by a huge chunk of metal!`);
++            } else if (!heroDeaf(state)
++                && !is_u(bridgeEntity, state) && !is_pool(x, y, state)) {
++                await hear('a crushing sound.');
++            }
++            state.killer ??= {};
++            state.killer.format = KILLED_BY_AN;
++            state.killer.name = 'collapsing drawbridge';
++            await e_died(
++                bridgeEntity,
++                XKILL_NOCORPSE | (inview ? XKILL_GIVEMSG : XKILL_NOMSG),
++                CRUSHING,
++                state,
++                env,
++            );
++            if (state.program_state?.gameover) return;
++            if (state.level.at(bridgeEntity.ex, bridgeEntity.ey).typ === MOAT) {
++                await do_entity(bridgeEntity, state, env);
++                if (state.program_state?.gameover) return;
++            }
++        }
++    }
++
++    nokiller(state);
++    if (on_level(state.u.uz, state.stronghold_level)) {
++        state.u.uevent ??= {};
++        state.u.uevent.uheard_tune = 3;
++    }
++}
++
+ // The two C occupants are call-local drawbridge bookkeeping kept in go while
+ // do_entity recursively resolves collisions. They are cleared by nokiller.
+ function occupants(state) {
+diff --git a/js/zap.js b/js/zap.js
+index 8487c5233..89b9e4ce9 100644
+--- a/js/zap.js
++++ b/js/zap.js
+@@ -34,6 +34,7 @@ import { ship_object } from './dokick.js';
+ import { o_unleash } from './apply.js';
+ import {
+     close_drawbridge,
++    destroy_drawbridge,
+     find_drawbridge,
+     is_db_wall,
+     is_moat,
+@@ -4031,7 +4032,9 @@ export async function zap_map(
+             case SPE_FORCE_BOLT:
+                 if (originalType !== DRAWBRIDGE_UP) {
+                     learnIt = true;
+-                    note_unported('dbridge.c destroy_drawbridge');
++                    await destroy_drawbridge(
++                        position.x, position.y, state, { ...rawEnv, random },
++                    );
+                 }
+                 break;
+             }
+diff --git a/scripts/zap-ray.test.mjs b/scripts/zap-ray.test.mjs
+index a018c83a2..9f0d532c5 100644
+--- a/scripts/zap-ray.test.mjs
++++ b/scripts/zap-ray.test.mjs
+@@ -18,9 +18,12 @@ import {
+     COLD_RES,
+     COULD_SEE,
+     CORR,
++    DB_EAST,
+     DISINT_RES,
+     DOOR,
+     D_CLOSED,
++    D_NODOOR,
++    DRAWBRIDGE_DOWN,
+     GRAVE,
+     KILLED_BY_AN,
+     ER_DAMAGED,
+@@ -69,6 +72,7 @@ import {
+ } from '../js/glyph_offsets.js';
+ import { game } from '../js/gstate.js';
+ import { GameMap } from '../js/game.js';
++import { create_drawbridge } from '../js/dbridge.js';
+ import { add_to_minv } from '../js/invent.js';
+ import { mksobj, newObject } from '../js/obj.js';
+ import { runSegment } from '../js/jsmain.js';
+@@ -105,12 +109,16 @@ import {
+     WAN_LIGHTNING,
+     WAN_MAGIC_MISSILE,
+     WAN_POLYMORPH,
++    WAN_STRIKING,
+     WAN_SLEEP,
+     WAND_CLASS,
+ } from '../js/objects.js';
+ import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
+ import { HeroDeathPlanningError } from '../js/hack.js';
+-import { enableRngLog, getRngLog } from '../js/rng.js';
++import {
++    d, enableRngLog, getRngLog, rn1, rn2, rn2_on_display_rng,
++    rnd, rne, rnl, rnz,
++} from '../js/rng.js';
+ // Read straight out of the generated defsym.h index rather than through
+ // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
+ // arithmetic the arm under test performs.
+@@ -133,6 +141,7 @@ import {
+     miss,
+     resist,
+     zap_dig,
++    zap_map,
+     u_adtyp_resistance_obj,
+     weffects,
+     zap_over_floor,
+@@ -145,7 +154,7 @@ import {
+ } from '../js/zap.js';
+ import { flash_glyph_at } from '../js/display.js';
+ import { flash_mon, shieldeff_mon } from '../js/mon.js';
+-import { cansee, couldsee } from '../js/vision.js';
++import { cansee, couldsee, vision_recalc } from '../js/vision.js';
+ import { mon_reflects } from '../js/muse.js';
+ import {
+     RAY_CASES,
+@@ -2595,3 +2604,69 @@ test('zap.c unturn_dead awaits corpse revival and encumbrance effects', async ()
+     const result = compareSessionOutputs(recording, js);
+     assert.equal(result.passed, true, JSON.stringify(result));
+ });
++
++test('zap_map destroys a canonical lowered drawbridge through the real striking caller',
++    async () => {
++    await runSegment({ ...raySegment(0), moves: '' });
++
++    // Build a source-valid lowered bridge in the initialized room in front
++    // of the hero. The canonical writer leaves DB_UNDER at 0 (DB_MOAT), and
++    // owns the coupled bridge/wall flags; the hero remains outside scatter.
++    const x = game.u.ux;
++    const y = game.u.uy + 3;
++    assert.ok(y + 1 < 20, 'fixture target stays inside the dungeon map');
++    game.u.dz = 0;
++    for (const yy of [y - 2, y - 1, y]) {
++        const location = game.level.at(x, yy);
++        location.typ = ROOM;
++        location.flags = 0;
++        location.icedpool = 0;
++        location.doormask = 0;
++    }
++    const wall = game.level.at(x + 1, y);
++    wall.typ = VWALL;
++    wall.flags = 0;
++    wall.doormask = 0;
++    assert.equal(create_drawbridge(x, y, DB_EAST, true, game), true);
++    assert.equal(game.level.at(x, y).typ, DRAWBRIDGE_DOWN);
++    assert.equal(game.level.at(x + 1, y).doormask, D_NODOOR);
++    vision_recalc(0, { state: game });
++    assert.equal(cansee(x, y, game), true,
++        'the ordinary crash message takes the visible branch');
++
++    const wand = mksobj(WAN_STRIKING, false, false, { state: game });
++    const random = {
++        d, rn1, rn2, rn2_on_display_rng: (bound) => rn2_on_display_rng(bound, game),
++        rnd, rne, rnl, rnz,
++    };
++    const display = game.nhDisplay;
++    const previousOnEmptyQueue = display.onEmptyQueue;
++    const acknowledgements = [];
++    display.onEmptyQueue = () => {
++        const screen = display.serialize();
++        assert.ok(game._pending_message,
++            'the real message reader is waiting on a pending tty line');
++        assert.ok(screen.includes('--More--'),
++            'only acknowledge a displayed --More--');
++        assert.ok(acknowledgements.length < 16,
++            'finite actual tty acknowledgement budget');
++        acknowledgements.push({ message: game._pending_message, screen });
++        return 32;
++    };
++    try {
++        await zap_map(x, y, wand, game, random);
++    } finally {
++        display.onEmptyQueue = previousOnEmptyQueue;
++    }
++
++    // This is the production zap_map path and its source-owned destruction,
++    // not a direct helper invocation. The original tree fails here because
++    // the selected call only records note_unported().
++    assert.equal(game.level.at(x, y).typ, MOAT);
++    assert.equal(game.level.at(x, y).flags, 0,
++        'the moat destruction branch clears the source drawbridgemask');
++    assert.equal(game.level.at(x + 1, y).typ, DOOR);
++    assert.equal(game.level.at(x + 1, y).doormask, D_NODOOR);
++    assert.ok(acknowledgements.length > 0,
++        'actual TTY display consumed its bounded More acknowledgements');
++});

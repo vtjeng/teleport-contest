@@ -34,6 +34,7 @@ import { ship_object } from './dokick.js';
 import { o_unleash } from './apply.js';
 import {
     close_drawbridge,
+    destroy_drawbridge,
     find_drawbridge,
     is_db_wall,
     is_moat,
@@ -4031,7 +4032,9 @@ export async function zap_map(
             case SPE_FORCE_BOLT:
                 if (originalType !== DRAWBRIDGE_UP) {
                     learnIt = true;
-                    note_unported('dbridge.c destroy_drawbridge');
+                    await destroy_drawbridge(
+                        position.x, position.y, state, { ...rawEnv, random },
+                    );
                 }
                 break;
             }

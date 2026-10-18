@@ -1,0 +1,10 @@
+✔ dbridge terrain predicates retain the C source guards and bridge surfaces (2.252113ms)
+✔ drawbridge entity lookup, survival, and wall coordinates follow dbridge.c (3.581227ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 896.840008

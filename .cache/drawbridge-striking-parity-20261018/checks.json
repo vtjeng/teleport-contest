@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/dbridge.test.mjs",
+      "scripts/zap-ray.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/drawbridge-striking-parity-20261018/combined-green.stdout.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/drawbridge-striking-parity-20261018/lint.stdout.log"
+  }
+]

@@ -18,9 +18,12 @@ import {
     COLD_RES,
     COULD_SEE,
     CORR,
+    DB_EAST,
     DISINT_RES,
     DOOR,
     D_CLOSED,
+    D_NODOOR,
+    DRAWBRIDGE_DOWN,
     GRAVE,
     KILLED_BY_AN,
     ER_DAMAGED,
@@ -69,6 +72,7 @@ import {
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
+import { create_drawbridge } from '../js/dbridge.js';
 import { add_to_minv } from '../js/invent.js';
 import { mksobj, newObject } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
@@ -105,12 +109,16 @@ import {
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
     WAN_POLYMORPH,
+    WAN_STRIKING,
     WAN_SLEEP,
     WAND_CLASS,
 } from '../js/objects.js';
 import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
 import { HeroDeathPlanningError } from '../js/hack.js';
-import { enableRngLog, getRngLog } from '../js/rng.js';
+import {
+    d, enableRngLog, getRngLog, rn1, rn2, rn2_on_display_rng,
+    rnd, rne, rnl, rnz,
+} from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
 // arithmetic the arm under test performs.
@@ -133,6 +141,7 @@ import {
     miss,
     resist,
     zap_dig,
+    zap_map,
     u_adtyp_resistance_obj,
     weffects,
     zap_over_floor,
@@ -145,7 +154,7 @@ import {
 } from '../js/zap.js';
 import { flash_glyph_at } from '../js/display.js';
 import { flash_mon, shieldeff_mon } from '../js/mon.js';
-import { cansee, couldsee } from '../js/vision.js';
+import { cansee, couldsee, vision_recalc } from '../js/vision.js';
 import { mon_reflects } from '../js/muse.js';
 import {
     RAY_CASES,
@@ -2594,4 +2603,70 @@ test('zap.c unturn_dead awaits corpse revival and encumbrance effects', async ()
     const js = await runJsSession(recording, process.cwd());
     const result = compareSessionOutputs(recording, js);
     assert.equal(result.passed, true, JSON.stringify(result));
+});
+
+test('zap_map destroys a canonical lowered drawbridge through the real striking caller',
+    async () => {
+    await runSegment({ ...raySegment(0), moves: '' });
+
+    // Build a source-valid lowered bridge in the initialized room in front
+    // of the hero. The canonical writer leaves DB_UNDER at 0 (DB_MOAT), and
+    // owns the coupled bridge/wall flags; the hero remains outside scatter.
+    const x = game.u.ux;
+    const y = game.u.uy + 3;
+    assert.ok(y + 1 < 20, 'fixture target stays inside the dungeon map');
+    game.u.dz = 0;
+    for (const yy of [y - 2, y - 1, y]) {
+        const location = game.level.at(x, yy);
+        location.typ = ROOM;
+        location.flags = 0;
+        location.icedpool = 0;
+        location.doormask = 0;
+    }
+    const wall = game.level.at(x + 1, y);
+    wall.typ = VWALL;
+    wall.flags = 0;
+    wall.doormask = 0;
+    assert.equal(create_drawbridge(x, y, DB_EAST, true, game), true);
+    assert.equal(game.level.at(x, y).typ, DRAWBRIDGE_DOWN);
+    assert.equal(game.level.at(x + 1, y).doormask, D_NODOOR);
+    vision_recalc(0, { state: game });
+    assert.equal(cansee(x, y, game), true,
+        'the ordinary crash message takes the visible branch');
+
+    const wand = mksobj(WAN_STRIKING, false, false, { state: game });
+    const random = {
+        d, rn1, rn2, rn2_on_display_rng: (bound) => rn2_on_display_rng(bound, game),
+        rnd, rne, rnl, rnz,
+    };
+    const display = game.nhDisplay;
+    const previousOnEmptyQueue = display.onEmptyQueue;
+    const acknowledgements = [];
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        assert.ok(game._pending_message,
+            'the real message reader is waiting on a pending tty line');
+        assert.ok(screen.includes('--More--'),
+            'only acknowledge a displayed --More--');
+        assert.ok(acknowledgements.length < 16,
+            'finite actual tty acknowledgement budget');
+        acknowledgements.push({ message: game._pending_message, screen });
+        return 32;
+    };
+    try {
+        await zap_map(x, y, wand, game, random);
+    } finally {
+        display.onEmptyQueue = previousOnEmptyQueue;
+    }
+
+    // This is the production zap_map path and its source-owned destruction,
+    // not a direct helper invocation. The original tree fails here because
+    // the selected call only records note_unported().
+    assert.equal(game.level.at(x, y).typ, MOAT);
+    assert.equal(game.level.at(x, y).flags, 0,
+        'the moat destruction branch clears the source drawbridgemask');
+    assert.equal(game.level.at(x + 1, y).typ, DOOR);
+    assert.equal(game.level.at(x + 1, y).doormask, D_NODOOR);
+    assert.ok(acknowledgements.length > 0,
+        'actual TTY display consumed its bounded More acknowledgements');
 });
