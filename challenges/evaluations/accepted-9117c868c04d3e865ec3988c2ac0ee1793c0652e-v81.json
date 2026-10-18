@@ -1,0 +1,720 @@
+{
+  "version": 1,
+  "batch": "v81",
+  "manifestPath": "challenges/manifests/v81.json",
+  "sha": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
+  "utc": "2026-10-18T06:50:12.793Z",
+  "status": "complete",
+  "manifestSha256": "95c7d20527ca43b24899457cfb466e98c6a75df18a930c091d90aa398173f9c3",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "6fa6e4992db7d7f2ab9b9c489307bbafff0e691e821a7016c27c8ba0b86bedac",
+  "inputFiles": [
+    "challenges/cases/v81/v81-card-chest-action1.recipe.session.json",
+    "challenges/cases/v81/v81-card-chest-action1.session.json",
+    "challenges/cases/v81/v81-force-cursed-action1.recipe.session.json",
+    "challenges/cases/v81/v81-force-cursed-action1.session.json",
+    "challenges/cases/v81/v81-key-broken-katana-action2.recipe.session.json",
+    "challenges/cases/v81/v81-key-broken-katana-action2.session.json",
+    "challenges/cases/v81/v81-lock-pool-action1.recipe.session.json",
+    "challenges/cases/v81/v81-lock-pool-action1.session.json",
+    "challenges/cases/v81/v81-lock-up-action1.recipe.session.json",
+    "challenges/cases/v81/v81-lock-up-action1.session.json",
+    "challenges/cases/v81/v81-mount-hallu-action1.recipe.session.json",
+    "challenges/cases/v81/v81-mount-hallu-action1.session.json",
+    "challenges/cases/v81/v81-mount-incompatible-action1.recipe.session.json",
+    "challenges/cases/v81/v81-mount-incompatible-action1.session.json",
+    "challenges/cases/v81/v81-mount-punished-action1.recipe.session.json",
+    "challenges/cases/v81/v81-mount-punished-action1.session.json",
+    "challenges/cases/v81/v81-mount-unsaddled-action1.recipe.session.json",
+    "challenges/cases/v81/v81-mount-unsaddled-action1.session.json",
+    "challenges/cases/v81/v81-mount-wounded-action1.recipe.session.json",
+    "challenges/cases/v81/v81-mount-wounded-action1.session.json",
+    "challenges/cases/v81/v81-open-adjacent-chest-action1.recipe.session.json",
+    "challenges/cases/v81/v81-open-adjacent-chest-action1.session.json",
+    "challenges/cases/v81/v81-pit-open-door-action1.recipe.session.json",
+    "challenges/cases/v81/v81-pit-open-door-action1.session.json",
+    "challenges/cases/v81/v81-resume-no-floor-action1.recipe.session.json",
+    "challenges/cases/v81/v81-resume-no-floor-action1.session.json",
+    "challenges/cases/v81/v81-saddle-amorous-action1.recipe.session.json",
+    "challenges/cases/v81/v81-saddle-amorous-action1.session.json",
+    "challenges/cases/v81/v81-saddle-equipped-action1.recipe.session.json",
+    "challenges/cases/v81/v81-saddle-equipped-action1.session.json",
+    "challenges/cases/v81/v81-saddle-priest-action1.recipe.session.json",
+    "challenges/cases/v81/v81-saddle-priest-action1.session.json",
+    "challenges/cases/v81/v81-saddle-self-action1.recipe.session.json",
+    "challenges/cases/v81/v81-saddle-self-action1.session.json",
+    "challenges/cases/v81/v81-swallowed-key-action1.recipe.session.json",
+    "challenges/cases/v81/v81-swallowed-key-action1.session.json",
+    "challenges/manifests/v81.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/alloc.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/astral_level_data.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cav_goal_level_data.js",
+    "js/cav_loca_level_data.js",
+    "js/cav_strt_level_data.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd_isok.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/earth_level_data.js",
+    "js/earth_levels.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hea_goal_level_data.js",
+    "js/hea_loca_level_data.js",
+    "js/hea_strt_level_data.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/kni_loca_level_data.js",
+    "js/kni_strt_level_data.js",
+    "js/knox_level_data.js",
+    "js/knox_levels.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon_goal_level_data.js",
+    "js/mon_loca_level_data.js",
+    "js/mon_strt_level_data.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mplayer.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlsel.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself_bodyparts.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/ran_goal_level_data.js",
+    "js/ran_loca_level_data.js",
+    "js/ran_strt_level_data.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read_text_data.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rnd.js",
+    "js/rng.js",
+    "js/rog_goal_level_data.js",
+    "js/rog_loca_level_data.js",
+    "js/rog_strt_level_data.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/rumors.js",
+    "js/sam_filb_level_data.js",
+    "js/sam_goal_level_data.js",
+    "js/sam_loca_level_data.js",
+    "js/sam_strt_level_data.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/sp_lev.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/status_field_data.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/strutil.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout_property_data.js",
+    "js/timeout.js",
+    "js/topl.js",
+    "js/topten.js",
+    "js/tou_goal_level_data.js",
+    "js/tou_loca_level_data.js",
+    "js/tou_strt_level_data.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/utf8map.js",
+    "js/val_goal_level_data.js",
+    "js/val_loca_level_data.js",
+    "js/val_strt_level_data.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/water_levels.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wiz_goal_level_data.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizard3_levels.js",
+    "js/wizcmds_data.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "v81-saddle-self-action1",
+      "recordingSha256": "f667b821c952c2780765803e4eec3f4937e9e940429928306a532b7711dce977",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 140,
+          "total": 140
+        },
+        "rng": {
+          "matched": 2509,
+          "total": 2509
+        },
+        "cursors": {
+          "matched": 140,
+          "total": 140
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-saddle-amorous-action1",
+      "recordingSha256": "01341b9ea30b0d551f9ec51e59dbbdfb34ceaab70ba57d6ef4870a32b8972297",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 199,
+          "total": 199
+        },
+        "rng": {
+          "matched": 2783,
+          "total": 2783
+        },
+        "cursors": {
+          "matched": 199,
+          "total": 199
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-saddle-equipped-action1",
+      "recordingSha256": "8c199351cb2e469f1b02694be8d2596fdd2b068f7738aac0a943510326226c01",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 194,
+          "total": 194
+        },
+        "rng": {
+          "matched": 2689,
+          "total": 2689
+        },
+        "cursors": {
+          "matched": 194,
+          "total": 194
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-saddle-priest-action1",
+      "recordingSha256": "ff39f8165cd2ddd29c29042b2cb73bb66b5b5ec07b174453ca6ac60979614afd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 201,
+          "total": 201
+        },
+        "rng": {
+          "matched": 3026,
+          "total": 3026
+        },
+        "cursors": {
+          "matched": 201,
+          "total": 201
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-mount-hallu-action1",
+      "recordingSha256": "41dae3cad29184160ec91ac26cd8405827f6e2f427dc5c8c8af982eae47ab7ac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 202,
+          "total": 202
+        },
+        "rng": {
+          "matched": 2799,
+          "total": 2799
+        },
+        "cursors": {
+          "matched": 202,
+          "total": 202
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-mount-wounded-action1",
+      "recordingSha256": "754d010298b5f6da67da5da5c395d9ea08034b554750bb2c9e53717e2f25f011",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 203,
+          "total": 203
+        },
+        "rng": {
+          "matched": 2799,
+          "total": 2799
+        },
+        "cursors": {
+          "matched": 203,
+          "total": 203
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-mount-punished-action1",
+      "recordingSha256": "4c63ae695aa596a5acc89122bbee4b0a2e10564ec7742b82e5eeba726e3dea4f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 239,
+          "total": 239
+        },
+        "rng": {
+          "matched": 2812,
+          "total": 2812
+        },
+        "cursors": {
+          "matched": 239,
+          "total": 239
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-mount-unsaddled-action1",
+      "recordingSha256": "f24d0a124705073fc04f9a2db49902eac9c558b1701caeeb3568515eda7b3434",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 150,
+          "total": 150
+        },
+        "rng": {
+          "matched": 2798,
+          "total": 2798
+        },
+        "cursors": {
+          "matched": 150,
+          "total": 150
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-mount-incompatible-action1",
+      "recordingSha256": "bd19cc0f3716ccc01a4f05e1950596cf77ef1fd874c4c1b4ce934f78d450c484",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 204,
+          "total": 204
+        },
+        "rng": {
+          "matched": 2804,
+          "total": 2804
+        },
+        "cursors": {
+          "matched": 204,
+          "total": 204
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-lock-up-action1",
+      "recordingSha256": "44030ec3c4db58ac3086e0eac0fc4a9ef09c60ef3b7c80da8abe053a452d09e0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 226,
+          "total": 226
+        },
+        "rng": {
+          "matched": 2397,
+          "total": 2397
+        },
+        "cursors": {
+          "matched": 226,
+          "total": 226
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-lock-pool-action1",
+      "recordingSha256": "0a4d0a86f2591402f6036f96fa819b89d8d18afb119b72023ec431308d8b7f2b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 257,
+          "total": 257
+        },
+        "rng": {
+          "matched": 2403,
+          "total": 2403
+        },
+        "cursors": {
+          "matched": 257,
+          "total": 257
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-swallowed-key-action1",
+      "recordingSha256": "072016650d627ce72c41af2379cafd3be152c7873c657fb64777361e79ad42ca",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 873,
+          "total": 873
+        },
+        "rng": {
+          "matched": 2507,
+          "total": 2507
+        },
+        "cursors": {
+          "matched": 873,
+          "total": 873
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-card-chest-action1",
+      "recordingSha256": "06225e6d33167037b0f1176fd6f1b07d81bd576c3c8067a668752991674c2eaf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 252,
+          "total": 252
+        },
+        "rng": {
+          "matched": 4999,
+          "total": 4999
+        },
+        "cursors": {
+          "matched": 252,
+          "total": 252
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-key-broken-katana-action2",
+      "recordingSha256": "95bad20c66dfff9f698f223db1ae509f293baa3c04f62e0782a6b59eb8482e72",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 1010,
+          "total": 1010
+        },
+        "rng": {
+          "matched": 2936,
+          "total": 2936
+        },
+        "cursors": {
+          "matched": 1010,
+          "total": 1010
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-resume-no-floor-action1",
+      "recordingSha256": "b3f67e651a171dd38e5136dd9c7e69f20bc5560fcdf6bc634894e07eece4f7d4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 331,
+          "total": 331
+        },
+        "rng": {
+          "matched": 2698,
+          "total": 2698
+        },
+        "cursors": {
+          "matched": 331,
+          "total": 331
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-force-cursed-action1",
+      "recordingSha256": "8e645cca34b1abf485c295c9db199c4842c9c0089f8cc126c63c89c442e82c86",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 1001,
+          "total": 1001
+        },
+        "rng": {
+          "matched": 3084,
+          "total": 3084
+        },
+        "cursors": {
+          "matched": 1001,
+          "total": 1001
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-open-adjacent-chest-action1",
+      "recordingSha256": "da815e12eb6a2328483a741e16c216ed88f518fbe1d7a640d724c81f0f967d9c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 275,
+          "total": 275
+        },
+        "rng": {
+          "matched": 4999,
+          "total": 4999
+        },
+        "cursors": {
+          "matched": 275,
+          "total": 275
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v81-pit-open-door-action1",
+      "recordingSha256": "c8da9d4b9673ce09f56823b88cd655d867133c647c18261403b7d08b008a6ee3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 379,
+          "total": 379
+        },
+        "rng": {
+          "matched": 5004,
+          "total": 5004
+        },
+        "cursors": {
+          "matched": 379,
+          "total": 379
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 18,
+      "total": 18
+    },
+    "screens": {
+      "matched": 6336,
+      "total": 6336
+    },
+    "rng": {
+      "matched": 56046,
+      "total": 56046
+    },
+    "cursors": {
+      "matched": 6336,
+      "total": 6336
+    }
+  }
+}

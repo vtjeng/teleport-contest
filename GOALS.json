@@ -324790,7 +324790,7 @@
     {
       "id": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement fix_ghostly_obj from undefined",
       "cFile": "bones.c",
       "sessions": [],
@@ -324798,7 +324798,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
       "delivered": null,
       "functions": [
         {
@@ -324900,12 +324900,57 @@
           }
         },
         "reviewSha256": "3a36bc701c93eceaeab63a0c9536ee117d1f8f19c11e09bac568ebb58d2fa9ee"
+      },
+      "closeStanding": {
+        "sha": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "746cdb156fc6859b02a85cfb4846e57fce2be3e1",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/9117c868c04d3e865ec3988c2ac0ee1793c0652e/run-hosted-XXj8f2/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "fix_ghostly_obj",
+            "symbol": "fix_ghostly_obj",
+            "implementation": "js/bones.js",
+            "pure": false,
+            "sourceReview": "Implemented the complete C bones.c fix_ghostly_obj behavior: no-op for unmarked objects; the five asymmetric weapon types use canonical xname/the naming and the hero handedness, await ttyPline, then clear ghostly; other marked objects clear silently. pickup_object now awaits the helper after pickup_prinv on the real returned addinv object and before clearing mrg_to_wielded.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup_object",
+                "source": "Real exported pickup_object calls real lift_object→pick_obj/addinv→pickup_prinv, then fixes actual returned object if marked. Primary regression must preserve canonical floor/grid/inventory and returned same-ID object with no compatible inventory stack; no helper-only or merged-away marker witness."
+              }
+            ],
+            "tests": [
+              "scripts/bones.test.mjs",
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The real exported pickup_object path ran lift_object, pick_obj, addinv, and pickup_prinv on an initialized game and then awaited fix_ghostly_obj on the actual returned object. The source-generated BOW had no matching inventory stack; identity and floor removal were checked. The same test also exercised left-handed naming, marked ordinary silent clearing, and unmarked quiet behavior. Runtime receipts are focused constructed-state evidence only; no saved bones level, public history, or C certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "pickup_object",
+            "functions": [
+              "fix_ghostly_obj"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement monkilled from mon.c",
       "cFile": "mon.c",
       "sessions": [],
@@ -324913,7 +324958,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
       "delivered": null,
       "functions": [
         {
@@ -325010,6 +325055,51 @@
           }
         },
         "reviewSha256": "0ffeb913e9f535d17163655964498954cf267a5cb5ecd61263357a4cfd73bab9"
+      },
+      "closeStanding": {
+        "sha": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "746cdb156fc6859b02a85cfb4846e57fce2be3e1",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/9117c868c04d3e865ec3988c2ac0ee1793c0652e/run-hosted-XXj8f2/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "monkilled",
+            "implementation": "js/mon.js",
+            "symbol": "monkilled",
+            "sourceReview": "Align monk.c monkilled provider lookup order: resolve unsupported only within the existing mtame and nonnull rxt destroyed-pet-golem farewell guard. Preserve the exact farewell operation and all death/message ordering.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "Actual exported potionhit ordinary nonhero POT_ACID branch, after resistance and lethal damage, awaits real monkilled(mon, empty fltxt, AD_ACID,state,env). Primary proof must use this real production caller without invented unsupported or direct monkilled-only proof."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Real potionhit production caller applies lethal acid to the initialized ordinary goblin with default message and process RNG; it awaits monkilled. The same final test bytes reproduce the eager lookup failure on assignment base, then pass after the sole guarded lookup move. Canonical AoL inventory/worn logic reaches lifesaved_monster, consumes the amulet through default helpers, restores the live monster, avoids death accounting/detach, and potionhit releases the acid item. Existing farewell refusal remains covered by the scoped mon-kill suite. This establishes the lifesaving return only; it does not claim the ordinary completed-death path or its downstream dropEnv prerequisite.",
+        "entryPoints": [
+          {
+            "name": "real potionhit acid lifesaving path",
+            "functions": [
+              "monkilled"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

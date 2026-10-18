@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T06:37:43.063Z",
+  "capturedAt": "2026-10-18T06:57:53.513Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T06:37:43.063Z",
+    "asOf": "2026-10-18T06:57:53.513Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 244,
+      "mainSupportAssignments": 247,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -169344,6 +169344,267 @@
         "output": "implementation",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:38:29.281Z",
+        "id": "queue:6e04491d-6aec-483f-921d-f17c86613f1d",
+        "type": "queue-block",
+        "task": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:38:29.281Z",
+        "id": "queue:6e04491d-6aec-483f-921d-f17c86613f1d:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:40:43.159Z",
+        "id": "queue:9038441a-3c44-46a9-98f7-1542d139069a",
+        "type": "assign",
+        "task": "fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:43:01.095Z",
+        "id": "queue:1a5ae285-3931-4dbb-b80f-1e6531110c12",
+        "type": "assign",
+        "task": "mounted-steed-explicit-newcham-petrification-target-support-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:43:27.549Z",
+        "id": "ready-2474769308872ac9c94ce4bb6067436156f68c30:transport",
+        "type": "assign",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-ghostly-object-pickup-adjustment-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-2474769308872ac9c94ce4bb6067436156f68c30",
+        "type": "ready",
+        "at": "2026-10-18T06:43:27.549Z",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "delivery": "2474769308872ac9c94ce4bb6067436156f68c30"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:43:27.549Z",
+        "id": "ready-2474769308872ac9c94ce4bb6067436156f68c30:complete",
+        "type": "queue-complete",
+        "task": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:43:27.549Z",
+        "id": "ready-2474769308872ac9c94ce4bb6067436156f68c30:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-ghostly-247476930-20261018",
+        "type": "received",
+        "at": "2026-10-18T06:44:36.027Z",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "delivery": "2474769308872ac9c94ce4bb6067436156f68c30"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-ghostly-247476930-20261018",
+        "type": "activity",
+        "at": "2026-10-18T06:44:38.365Z",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "phase": "review",
+        "reason": "Review exact source-only whole helper and real returned-object pickup regression, same final test byte/log binding, state/message ownership and independent source review before hosted group."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:46:17.011Z",
+        "id": "ready-1d8604dc72c88360f3e9ad2c31b689e9a7212669:transport",
+        "type": "assign",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-monkilled-guarded-provider-lifesaving-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-1d8604dc72c88360f3e9ad2c31b689e9a7212669",
+        "type": "ready",
+        "at": "2026-10-18T06:46:17.011Z",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "delivery": "1d8604dc72c88360f3e9ad2c31b689e9a7212669"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:46:17.011Z",
+        "id": "ready-1d8604dc72c88360f3e9ad2c31b689e9a7212669:complete",
+        "type": "queue-complete",
+        "task": "fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:46:17.011Z",
+        "id": "ready-1d8604dc72c88360f3e9ad2c31b689e9a7212669:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-monkilled-life-1d8604dc-20261018",
+        "type": "received",
+        "at": "2026-10-18T06:47:50.009Z",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "delivery": "1d8604dc72c88360f3e9ad2c31b689e9a7212669"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-monkilled-life-1d8604dc-20261018",
+        "type": "activity",
+        "at": "2026-10-18T06:47:51.602Z",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "phase": "review",
+        "reason": "Review narrow guarded lookup source ordering and genuine production potionhit lifesaving same-byte red/green; retain distinct dead-victim relobj prerequisite and original source-provider refutation."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:47:56.179Z",
+        "id": "queue:57138122-1365-40cf-9d69-ca1fb49a44b8",
+        "type": "queue-complete",
+        "task": "mounted-steed-explicit-newcham-petrification-target-support-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:47:56.179Z",
+        "id": "queue:57138122-1365-40cf-9d69-ca1fb49a44b8:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-9117c868c04d3e865ec3988c2ac0ee1793c0652e-faf69f408f8ddf22b966006f4a1e97b2bd077d0e936aa25acfcb03b864f29459-delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T06:48:26.502Z",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "integration": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
+        "validationGroup": [
+          "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+          "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-9117c868c04d3e865ec3988c2ac0ee1793c0652e-faf69f408f8ddf22b966006f4a1e97b2bd077d0e936aa25acfcb03b864f29459-delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T06:48:26.502Z",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "integration": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
+        "validationGroup": [
+          "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+          "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:51:46.902Z",
+        "id": "queue:c15e4bf0-cf54-472b-a9f8-139378bbc62f",
+        "type": "assign",
+        "task": "monster-dropenv-provider-source-inquiry-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:55:11.579Z",
+        "id": "queue:68455e93-b03d-44a0-816f-c61a1f9247f8",
+        "type": "assign",
+        "task": "drawbridge-destruction-default-closure-continuation-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:55:26.931Z",
+        "id": "queue:c33acb84-c9c1-4879-bbec-5947fc0ddd5c",
+        "type": "queue-complete",
+        "task": "monster-dropenv-provider-source-inquiry-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:55:26.931Z",
+        "id": "queue:c33acb84-c9c1-4879-bbec-5947fc0ddd5c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018-9117c868c04d3e865ec3988c2ac0ee1793c0652e-validated",
+        "type": "validated",
+        "at": "2026-10-18T06:56:49.685Z",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018-9117c868c04d3e865ec3988c2ac0ee1793c0652e-validated",
+        "type": "validated",
+        "at": "2026-10-18T06:56:49.685Z",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018-9117c868c04d3e865ec3988c2ac0ee1793c0652e-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T06:57:38.773Z",
+        "task": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018-9117c868c04d3e865ec3988c2ac0ee1793c0652e-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T06:57:38.773Z",
+        "task": "delivery:fix-monkilled-guarded-provider-lifesaving-source-parity-20261018"
       }
     ]
   },
@@ -169527,64 +169788,41 @@
       "delivery:fix-monkilled-guarded-farewell-provider-source-parity-20261018": {
         "id": "delivery:fix-monkilled-guarded-farewell-provider-source-parity-20261018",
         "worker": "Worker-1",
-        "status": "working",
+        "status": "parked",
         "seed": null,
         "reservations": [
           "source:mon.c:monkilled"
-        ]
-      },
-      "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018": {
-        "id": "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018",
-        "worker": "Worker-3",
-        "status": "working",
-        "seed": null,
-        "reservations": [
-          "source:bones.c:fix_ghostly_obj"
-        ]
+        ],
+        "reason": "The intended lazy monkilled lookup reaches real death, but completion then requires the out-of-scope relobj/dropEnv unsupported provider; a lifesaving-return variant needs a new linked review."
       }
     },
-    "reservations": {
-      "source:mon.c:monkilled": {
-        "tasks": [
-          "delivery:fix-monkilled-guarded-farewell-provider-source-parity-20261018"
-        ]
-      },
-      "source:bones.c:fix_ghostly_obj": {
-        "tasks": [
-          "delivery:fix-ghostly-object-pickup-adjustment-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
     "claimed": [
       {
-        "task": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
-        "worker": "Worker-1"
-      },
-      {
-        "task": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "task": "drawbridge-destruction-default-closure-continuation-source-20261018",
         "worker": "Worker-3"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 2,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 481,
-      "superseded": 94
+      "completed": 485,
+      "superseded": 95
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
@@ -169593,7 +169831,7 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
+        "assignment": "drawbridge-destruction-default-closure-continuation-source-20261018",
         "state": "active"
       }
     ],
@@ -178259,7 +178497,7 @@
         "id": "fix-monkilled-guarded-farewell-provider-source-parity-20261018",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -178274,7 +178512,7 @@
         "id": "fix-ghostly-object-pickup-adjustment-source-parity-20261018",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -178283,13 +178521,73 @@
         "target": null,
         "readyAt": "2026-10-18T06:36:16.276Z",
         "claimedAt": "2026-10-18T06:36:26.631Z",
+        "completedAt": "2026-10-18T06:43:27.549Z"
+      },
+      {
+        "id": "fix-monkilled-guarded-provider-lifesaving-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T06:40:19.291Z",
+        "claimedAt": "2026-10-18T06:40:43.159Z",
+        "completedAt": "2026-10-18T06:46:17.011Z"
+      },
+      {
+        "id": "mounted-steed-explicit-newcham-petrification-target-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T06:42:42.508Z",
+        "claimedAt": "2026-10-18T06:43:01.095Z",
+        "completedAt": "2026-10-18T06:47:56.179Z"
+      },
+      {
+        "id": "monster-dropenv-provider-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T06:51:34.363Z",
+        "claimedAt": "2026-10-18T06:51:46.902Z",
+        "completedAt": "2026-10-18T06:55:26.931Z"
+      },
+      {
+        "id": "drawbridge-destruction-default-closure-continuation-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T06:54:54.957Z",
+        "claimedAt": "2026-10-18T06:55:11.579Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "746cdb156fc6859b02a85cfb4846e57fce2be3e1",
-    "measuredAt": "2026-10-18T06:34:37.595Z",
+    "executionCommit": "9117c868c04d3e865ec3988c2ac0ee1793c0652e",
+    "measuredAt": "2026-10-18T06:54:10.056Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
