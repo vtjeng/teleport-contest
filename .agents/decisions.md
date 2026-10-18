@@ -867,3 +867,24 @@ outputs and semantic capture sets are preserved; no intermediate log is lost
 or reconstructed. The final identical-byte original red and repaired green
 plus lint pass were reviewed independently. Hosted checkpoint, saved
 no-regression acceptance and publication remain pending at this record.
+
+### 2026-10-18 — Stage canonical glob absorption through live pickup
+
+Main selects the complete runtime owner of C `invent.c:merged` (814–948)
+and the effect-free regular pickup dependency/slot projection seam. Canonical
+message completion precedes awaited `obj_absorb`; the existing synchronous
+hook contract and non-glob comparison waits remain separate. The actual
+`0010244e` initialized pickup reached the missing absorber preflight with
+both globs, timers, RNG contexts and ownership unchanged. The regression
+requires the live pickup to finish with one mass-40 glob and the canonical
+survivor timer, and preserves the source-ordered lifecycle.
+
+The master hybrid API/caller design is reviewed, but global stack, monster,
+container, organizer and special-level transfer migrations remain pending.
+This stage does not complete the old synchronous glob default or certify
+public recordings, C parity or whole-source completion. Operational benefit
+is unmeasured. The genuine `d076` original target red precedes the first code
+draft; final control-extended `bf501` pairing follows that draft and precedes
+the scoped rework. The intermediate setup-miss full test copy is unavailable;
+raw failure and hash remain. Exact hosted checkpoint, saved no-regression
+acceptance and publication are pending at this record.

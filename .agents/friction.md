@@ -1788,3 +1788,32 @@ Cube `02ac` rejected raw undefined `multi` and skipped restoring saved null.
 Cube `16f7` records effective 0, marker-before=false and restoration=true;
 passive ran, but natural `rn2(3)=0` skipped freezing. No extra call was selected.
 Existing capture contracts apply; no new rule, helper, gate, or causal benefit claim.
+
+## 2026-10-18 — Source-parity assignment schema preparation
+
+Main's initial glob implementation enqueue drafts were rejected before any
+queue event or claim while aligning allowed/test/caller pins and exact source
+unit reservations. The final packet uses an existing pinned test file; the
+uncreated test path could not supply a source pin. No worker invocation,
+physical allowance or cap was consumed by these draft rejections.
+Successful enqueue at 22:20:24.540 reached claim at 22:20:36.449 (11.909 s).
+Review and schema preparation share the preceding interval; their exact costs
+are unmeasured. Existing assignment validation applies; no new rule or gate.
+
+The first frozen regression `6b58` then stopped at ESM linking: `SHRINK_GLOB`
+was imported from `timeout.js`, though `const.js:1302` owns its export.
+No test body or production edit ran. Main's full diff audit also found the
+unreached timer-kind/action confusion (`TIMER_OBJECT=3`, `SHRINK_GLOB=7`) and
+an assertion order that could mask the target error. Main allowed only those
+three preproduction corrections within the original 20-minute scope, with
+refreeze and a meaningful original red still required. The first miss/raw
+remain retained; no new qualification, cap reset, or causal benefit claim.
+
+The corrected frozen `d076` test reached the real pickup refusal before the first
+production edit, then passed 125 tests. Review held delivery `829b` because its
+shared preflight removal let synchronous callers mutate before refusal, and
+eligible planned globs lacked the existing input handoff. The linked correction
+preserved the original target proof and paired final `bf501` bytes after the
+first draft; an intermediate control setup-miss test copy was overwritten. Its
+raw failure and hash survive, while the exact intermediate test is unavailable.
+Literal raw/capture envelopes replace path summaries. No benefit is measured.
