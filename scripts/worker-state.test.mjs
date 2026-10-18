@@ -365,6 +365,48 @@ test('receipts drain superseded deliveries without changing the accepted repair'
     assert.throws(() => f.send({ type: 'received', task: 'one', delivery: FIRST }), /already received/);
 });
 
+test('unread hides reviewed feedback without inventing a receipt for the correction history', () => {
+    const f = fixture(); f.assign(); f.ready();
+    assert.deepEqual(nextActions(summarizeLedger(f.ledger())).unread.map(row => row.delivery), [FIRST]);
+    const reviewed = f.send({ type: 'feedback', task: 'one', delivery: FIRST,
+        reason: 'Correct the caller.' });
+    const original = structuredClone(reviewed.deliveries[FIRST]);
+    assert.deepEqual(nextActions(reviewed).unread, []);
+    assert.equal(nextActions(reviewed).corrections[0].delivery, FIRST);
+
+    f.send({ type: 'resume', task: 'one' });
+    const corrected = f.ready('one', SECOND);
+    const beforeRead = structuredClone(corrected);
+    assert.deepEqual(nextActions(corrected).unread, [
+        { task: 'one', delivery: SECOND, readyAt: corrected.deliveries[SECOND].readyAt },
+    ]);
+    assert.deepEqual(corrected, beforeRead, 'projection does not acknowledge or rewrite deliveries');
+    const accepted = f.accept();
+    assert.deepEqual(nextActions(accepted).unread, []);
+    assert.deepEqual(accepted.deliveries[FIRST], original);
+    assert.equal(accepted.deliveries[FIRST].receivedAt, undefined);
+});
+
+test('unread hides superseded validation failures and retains another current delivery', () => {
+    const f = fixture(); f.assign(); f.ready();
+    f.send({ type: 'integrating', task: 'one', integration: INTEGRATION });
+    const failed = f.send({ type: 'validated', task: 'one', passed: false,
+        checkpoint: `${ROOT}/failure.json` });
+    const original = structuredClone(failed.deliveries[FIRST]);
+    f.send({ type: 'resume', task: 'one' }); f.ready('one', SECOND);
+    f.assign('other', 'B', ['source:monmove.c:postmov']);
+    const third = 'e'.repeat(40);
+    const state = f.ready('other', third);
+    assert.deepEqual(nextActions(state).unread.map(row => [row.task, row.delivery]), [
+        ['one', SECOND], ['other', third],
+    ]);
+    const received = f.send({ type: 'received', task: 'one', delivery: SECOND });
+    assert.deepEqual(nextActions(received).unread.map(row => row.delivery), [third]);
+    assert.deepEqual(received.deliveries[FIRST], original);
+    assert.equal(received.deliveries[FIRST].feedbackAt, undefined);
+    assert.equal(received.deliveries[FIRST].receivedAt, undefined);
+});
+
 test('three implementation workers and Prep can register, but a fifth cannot', () => {
     const f = fixture();
     f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`,

@@ -772,7 +772,8 @@ export function nextActions(state, admittedBatches = [], queue = null) {
         wakeups: batchWakeups(state, admittedBatches, queue),
         connections: Object.values(state.workers).filter(w => w.connectionRequestedAt && !w.connectedAt)
             .map(w => ({ worker: w.worker, handle: w.handle })),
-        unread: deliveries.filter(d => !d.receivedAt && !d.acceptedAt)
+        unread: deliveries.filter(d => !d.receivedAt && !d.acceptedAt && !d.feedbackAt
+            && state.tasks[d.task]?.deliveries.at(-1) === d.delivery)
             .map(d => ({ task: d.task, delivery: d.delivery, readyAt: d.readyAt })),
         corrections: tasks.filter(task => task.status === 'changes-required').map(task => ({
             task: task.id, worker: task.worker, delivery: task.deliveries.at(-1),
