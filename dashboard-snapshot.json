@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T21:23:12.504Z",
+  "capturedAt": "2026-10-18T21:45:25.340Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T21:23:12.504Z",
+    "asOf": "2026-10-18T21:45:25.340Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 333,
+      "mainSupportAssignments": 342,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -174154,6 +174154,250 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-shop-damage-getcad-pursuit-source-parity-20261018-63c883e4b3cf79b57dbc1523aff3a16e46d30ad0",
+        "type": "published",
+        "at": "2026-10-18T21:23:33.887Z",
+        "task": "delivery:fix-shop-damage-getcad-pursuit-source-parity-20261018",
+        "commit": "63c883e4b3cf79b57dbc1523aff3a16e46d30ad0"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:26:08.577Z",
+        "id": "queue:bb22005d-eb6e-443a-a661-0aefcd005495",
+        "type": "assign",
+        "task": "glob-pickup-plan-lifetime-commit-boundary-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:26:36.482Z",
+        "id": "queue:fdd96600-3f2e-497c-9ed9-ff89ebd30089",
+        "type": "assign",
+        "task": "glob-dothrow-six-transfer-sites-producer-tail-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:29:04.952Z",
+        "id": "queue:289d88ac-e6ca-4584-a8fe-4c017e696961",
+        "type": "queue-complete",
+        "task": "glob-pickup-plan-lifetime-commit-boundary-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:29:04.952Z",
+        "id": "queue:289d88ac-e6ca-4584-a8fe-4c017e696961:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:30:44.541Z",
+        "id": "queue:2674b4c1-f16d-4a1d-8110-977a4549a458",
+        "type": "queue-complete",
+        "task": "glob-dothrow-six-transfer-sites-producer-tail-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:30:44.541Z",
+        "id": "queue:2674b4c1-f16d-4a1d-8110-977a4549a458:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:35:43.569Z",
+        "id": "queue:b6f69176-ed48-4e9f-aec4-d56764638051",
+        "type": "assign",
+        "task": "glob-stack-literal-sites-a-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:37:58.798Z",
+        "id": "queue:33c1f128-0f17-4174-b2b8-2ec707b4ad5b",
+        "type": "queue-complete",
+        "task": "glob-stack-literal-sites-a-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:37:58.798Z",
+        "id": "queue:33c1f128-0f17-4174-b2b8-2ec707b4ad5b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:38:08.694Z",
+        "id": "queue:f50e4785-8ea2-4f4b-8f9f-b65bb0cf63c6",
+        "type": "assign",
+        "task": "glob-container-eighteen-sites-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:39:38.138Z",
+        "id": "queue:71b48483-649a-4e91-9370-d1310666569e",
+        "type": "assign",
+        "task": "glob-monster-eighteen-sites-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:40:15.672Z",
+        "id": "queue:c60ac85c-e1f4-40a5-bc62-51c70431bd67",
+        "type": "queue-complete",
+        "task": "glob-container-eighteen-sites-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:40:15.672Z",
+        "id": "queue:c60ac85c-e1f4-40a5-bc62-51c70431bd67:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:40:21.394Z",
+        "id": "queue:4a657ae3-2f51-458a-aac0-6a231c87f6c9",
+        "type": "assign",
+        "task": "glob-stack-literal-sites-b-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:41:56.857Z",
+        "id": "queue:9958e04e-7eb9-4523-8976-6cbbb7d7cdc1",
+        "type": "assign",
+        "task": "glob-container-four-random-producers-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:43:07.270Z",
+        "id": "queue:bb7f81c2-1ff2-4e60-ab6c-6bc937291cfe",
+        "type": "queue-complete",
+        "task": "glob-monster-eighteen-sites-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:43:07.270Z",
+        "id": "queue:bb7f81c2-1ff2-4e60-ab6c-6bc937291cfe:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:43:44.185Z",
+        "id": "queue:32c796a0-6b99-4f82-8331-4e67743e9394",
+        "type": "queue-complete",
+        "task": "glob-container-four-random-producers-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:43:44.185Z",
+        "id": "queue:32c796a0-6b99-4f82-8331-4e67743e9394:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:44:16.580Z",
+        "id": "queue:8654ea89-dc49-49f0-95ad-a33c96b05573",
+        "type": "assign",
+        "task": "glob-mpickobj-literal-sites-a-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:44:24.269Z",
+        "id": "queue:92d2f5d2-c833-4ffc-b7c4-f6d5e815cbbb",
+        "type": "queue-complete",
+        "task": "glob-stack-literal-sites-b-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:44:24.269Z",
+        "id": "queue:92d2f5d2-c833-4ffc-b7c4-f6d5e815cbbb:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T21:44:58.452Z",
+        "id": "queue:ff6e8238-33f6-4e5c-81ab-82a1e6d16538",
+        "type": "assign",
+        "task": "glob-mpickobj-literal-sites-b-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -174374,24 +174618,33 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "glob-mpickobj-literal-sites-a-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "task": "glob-mpickobj-literal-sites-b-source-20261018",
+        "worker": "Worker-1"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 593,
+      "completed": 600,
       "superseded": 101
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "glob-mpickobj-literal-sites-b-source-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "glob-mpickobj-literal-sites-a-source-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -184841,6 +185094,141 @@
         "readyAt": "2026-10-18T21:17:03.743Z",
         "claimedAt": "2026-10-18T21:17:15.175Z",
         "completedAt": "2026-10-18T21:22:29.232Z"
+      },
+      {
+        "id": "glob-pickup-plan-lifetime-commit-boundary-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T21:25:55.803Z",
+        "claimedAt": "2026-10-18T21:26:08.577Z",
+        "completedAt": "2026-10-18T21:29:04.952Z"
+      },
+      {
+        "id": "glob-dothrow-six-transfer-sites-producer-tail-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T21:26:23.196Z",
+        "claimedAt": "2026-10-18T21:26:36.482Z",
+        "completedAt": "2026-10-18T21:30:44.541Z"
+      },
+      {
+        "id": "glob-stack-literal-sites-a-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T21:35:31.018Z",
+        "claimedAt": "2026-10-18T21:35:43.569Z",
+        "completedAt": "2026-10-18T21:37:58.798Z"
+      },
+      {
+        "id": "glob-container-eighteen-sites-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T21:35:49.682Z",
+        "claimedAt": "2026-10-18T21:38:08.694Z",
+        "completedAt": "2026-10-18T21:40:15.672Z"
+      },
+      {
+        "id": "glob-monster-eighteen-sites-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T21:39:06.170Z",
+        "claimedAt": "2026-10-18T21:39:38.138Z",
+        "completedAt": "2026-10-18T21:43:07.270Z"
+      },
+      {
+        "id": "glob-stack-literal-sites-b-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T21:39:48.257Z",
+        "claimedAt": "2026-10-18T21:40:21.394Z",
+        "completedAt": "2026-10-18T21:44:24.269Z"
+      },
+      {
+        "id": "glob-container-four-random-producers-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T21:41:42.545Z",
+        "claimedAt": "2026-10-18T21:41:56.857Z",
+        "completedAt": "2026-10-18T21:43:44.185Z"
+      },
+      {
+        "id": "glob-mpickobj-literal-sites-a-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T21:44:00.496Z",
+        "claimedAt": "2026-10-18T21:44:16.580Z",
+        "completedAt": null
+      },
+      {
+        "id": "glob-mpickobj-literal-sites-b-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T21:44:47.075Z",
+        "claimedAt": "2026-10-18T21:44:58.452Z",
+        "completedAt": null
       }
     ]
   },
