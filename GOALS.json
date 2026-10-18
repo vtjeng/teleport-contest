@@ -324456,7 +324456,7 @@
     {
       "id": "fix-qualified-keepdogs-mimic-departure-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Correct the reviewed mimic reveal branch in mon_leaving_level through the actual keepdogs caller, retaining callback ownership and the existing lifecycle order.",
       "cFile": "mon.c",
       "sessions": [],
@@ -324464,7 +324464,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "2596de609fcf06e1200c1e6bd7d7e7af04c91fac",
       "delivered": null,
       "functions": [
         {
@@ -324558,6 +324558,55 @@
           }
         },
         "reviewSha256": "2417040be159160d481e5717e98a12aac9dee35aded1fc161248e1efd30b8795"
+      },
+      "closeStanding": {
+        "sha": "2596de609fcf06e1200c1e6bd7d7e7af04c91fac",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "fa902cc5f8e27e8c22b5bc00b757da5a673aa6d9",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/2596de609fcf06e1200c1e6bd7d7e7af04c91fac/run-hosted-kMKTxH/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mon_leaving_level",
+            "implementation": "js/mon.js",
+            "symbol": "mon_leaving_level",
+            "pure": false,
+            "sourceReview": "The selected branch now invokes the existing synchronous seemimic after the actor grid removal and before fill_pit. Its explicit newsym adapter calls killRedraw(x,y,{...env,state}), retaining existing hooks/default behavior and state-local clone ownership. Other order, guards, fill_pit continuation, final cleanup, and polearm handling remain intact. The actual keepdogs fixture confirms disguise clearing and transfer of the same actor; its real floor boulder still blocks, so the regression does not claim an unblock result. Scope is only the reviewed mon.c:mon_leaving_level source-parity correction.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "keepdogs",
+                "source": "Real exported keepdogs(false) selects actual adjacent mobile tame disguised follower; mon_leave→private relmon awaits canonical mon_leaving_level before unlink/list transfer. Use actual same fixture, not direct seemimic or alternate migrate_to_level (which rejects disguise)."
+              }
+            ],
+            "tests": [
+              "scripts/dog-migrate.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "C mon.c:2695-2730 removes the actor from the map, calls seemimic for an on-map disguised mimic, then continues into fill_pit and final redraw/cleanup. The actual exported keepdogs(false) regression follows mon_leave → relmon → mon_leaving_level with the canonical small-mimic constructor, canonical boulder object, and tamedog. It fails on the reviewed unsupported refusal before the patch; after the patch the same actor is revealed, transferred to gm.mydogs, removed from the level grid/list, and receives the normal remaining cleanup. The floor boulder remains and continues to block the square; no unblock is claimed. The selected seemimic redraw adapter routes through existing killRedraw with the original env and state, preserving selected hook ownership and keeping clone redraws on their clone. The separate clone seam checks selected redraw callbacks for both disguised and ordinary departures. These are focused constructed-state checks only; source-parity-runtime-pending does not claim public input parity or whole-function certification.",
+        "entryPoints": [
+          {
+            "name": "keepdogs(false) → mon_leave → relmon → mon_leaving_level",
+            "functions": [
+              {
+                "sourceFile": "mon.c",
+                "name": "mon_leaving_level"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
