@@ -324072,6 +324072,152 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-ordinary-monster-lifesaving-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement lifesaved_monster from mon.c",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "lifesaved_monster",
+          "line": 2839,
+          "endLine": 2889,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2839,
+        "to": 2889
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "assignmentBase": "cffc9278dcf01b7a9d041882ca59f10e73fd95dc",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "cffc9278dcf01b7a9d041882ca59f10e73fd95dc",
+          "authorization": "User explicitly authorizes direct source-proved control-flow repairs with real production-caller original-red/same-command-green and runtime parity pending, no public witness. Coordinator explicitly selects retained whole lifesaved_monster supporting correction after independent b6bfb07 and source10028. New early worker ownership: same W1 designs minimal fixture and retains continuity; full Main sourceParity scope precedes source edits. Closedmon and parked wary_dog-v22 owners/budgets remain intact, no fountain retry.",
+          "currentBehavior": "C mon.c2838-2884 uses actual worn lifesaving Amulet, performs head-visibility messages/discovery, consumes item and restores monster movement/HP (with pet/genocide branches). JS mlifesaver admits source-valid ordinary living untame non-genocided monster with canonical W_AMUL item, but lifesaved_monster currently explicitly refuses. Existing m_useup/check_gear_next_turn/default extraction suffice; no earlier mandatory helper barrier on real mondead entry. Source10028 is coherent conditional proof, runtime target unknown until first no-edit test.",
+          "expectedBehavior": "Port WHOLE C lifesaved_monster in js/mon.js as async; preserve C order and guards. Head cansee controls all visible medallion text/discovery independent invisibility, nested canseemon and AT_EXPL/AT_BOOM chooses reconstitutes vs looks better. Await real m_useup then check_gear_next_turn; survivor from actual mvitals G_GENOD; mcanmove=1,mfrozen=0; guarded await wary_dog(!survivor) for tame&&!isminion; real set_mon_min_mhpmax(10), mhp=mhpmax; genocide visible message then mhp0. Await helper in BOTH existing async production callers mondead and monstone before their HP-survival return. Add only required canonical imports, discover_object(...true,true,true,state,env) rather than nonexistent makeknown. No m_useup/dog/fountain/relocation/AI/timer rewrite. Current stub/comment removed. Preserve supplied-state providers and visibility defaults; no fake success or global clone leakage.",
+          "units": [
+            "mon.c:lifesaved_monster"
+          ],
+          "allowedPaths": [
+            "js/mon.js",
+            "scripts/mon-kill.test.mjs",
+            "scripts/monster-death-planning.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/mon-kill.test.mjs",
+            "scripts/monster-death-planning.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/mon.js",
+              "symbol": "mondead",
+              "source": "C mon.c mondead calls lifesaved_monster before testing restored mhp to return before death count/detach. JS exported real mondead is required primary initialized production-caller regression, not direct helper call."
+            },
+            {
+              "path": "js/mon.js",
+              "symbol": "monstone",
+              "source": "C mon.c monstone calls lifesaved_monster before its survival return/statue work. Existing exported async JS monstone must await same helper; focused caller check verifies await ordering under genuine lifesaving, not helper-only mock."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/mon.js",
+              "object": "d051f988e061dfaa72edd5e371b0ad562bf19874"
+            },
+            {
+              "path": "js/mthrowu.js",
+              "object": "aefe9fd13461fa42388c6b901af892a5f91a620c"
+            },
+            {
+              "path": "js/worn.js",
+              "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+            },
+            {
+              "path": "js/dog.js",
+              "object": "03b2a3d6ef444156b8a2f970c3bce2b60960bc7e"
+            },
+            {
+              "path": "js/o_init.js",
+              "object": "59958b8facbb2800962dc3942c59cf49984cb726"
+            },
+            {
+              "path": "js/monsters.js",
+              "object": "1381545113e72cabfbc4c05f1d6f167964ecfcc7"
+            },
+            {
+              "path": "scripts/mon-kill.test.mjs",
+              "object": "23aa4c2a81c8f4e3d6cf0db50db6cc18a4449dae"
+            },
+            {
+              "path": "scripts/monster-death-planning.test.mjs",
+              "object": "1a8e10d6ff5fc9afa065989fa6b3381e33f21327"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/mondata.js",
+              "object": "a2ed0919963fc18468d0a5ff0b02ee388157afa6"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/monst.js",
+              "object": "5b3d047868d8b40c07416497640bd948ae2c6c93"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "result": "10028dcc610a55a445f654f08c40d0c2b444af172e0ac18fa1e92038a7c41189",
+            "envelope": {
+              "outer": true,
+              "envelopeBytes": 16833,
+              "envelopeSha256": "2aa393f2132aa95b039e95912b4ad9cd5bd1240e1c4c90a42dd138ccc94f2d4e",
+              "allEmbeddedFiles": true
+            },
+            "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/ordinary-monster-lifesaving-default-inquiry-20261018/independent-source-parity-review-2252.json",
+            "independentSha256": "b6bfb07f00ca02a905efbf916d6c3d9126bd777b47ccd9e17802da8a6ef15a90",
+            "baseEquivalence": "All8 independent41f tracked file hashes verified against immutable acceptedcffc, tooling/docs/report only; additional supporting source/test Git pins bound here.",
+            "owners": "Closed port-mon-replmon-vamprises and parked wary_dog-v22 retained, no original budget reset or fountain80e retry. No pet/monstone runtime/wholemon/clone certification from ordinary mondead fixture.",
+            "defaultExtraction": "Worn extract_from_minvent dead mhp0 skips extrinsic update; finish clears worn bits in misc_worn_check then marks I_SPECIAL. check_gear_next_turn alone only marks I_SPECIAL. Ordinary Amulet no artifact light/weapon hook.",
+            "sourceEffects": "cansee head controls message/discovery independent invisibility; nested canseemon selects reconstitutes vs looksbetter via AT_EXPL/AT_BOOM. Await canonical m_useup then check_gear_next_turn; compute survivor from mvitals G_GENOD; movement/frozen restore; guarded await wary_dog with !survivor; set_mon_min_mhpmax10 and mhp=mhpmax; genocide message and mhp0. Both production callers await before mhp return.",
+            "bindingChecks": {
+              "m_useup": "mthrowu.js1729 exported async",
+              "wary_dog": "dog.js1457 exported async",
+              "AT_EXPL": "monsters.js39 exported",
+              "makeknown": "C macro maps discover_object from o_init.js430 with type,true,true,true,state,env; no nonexistent makeknown export",
+              "Monnam": "do_name.js1658 exported, already imported",
+              "attacktype": "mondata.js134 exported, already imported"
+            },
+            "fixture": "Worker owns minimal source-valid initialized actual mondead fixture with real living ordinary untame non-genocided actor, correctly worn canonical Amulet and source-valid HP/death boundary/list/grid. No public acquisition/history prerequisite. Use existing proper fixture conventions/canonical constructors and effective initialized NON_PM/data/HP, genuine seeded RNG/default providers. Avoid optional historybuilding helpers. Inspect exports/requiredargs/defaults/writer-owner-accessor-value before freeze. Existing source10028/fountain80e are source findings not matching runtime receipts. Target-specific actual old refusal first before code; no direct/private helper/fake m_useup/lifesave success. Preserve every authoring/setup failure and exact scripts. Same testbytes original red then final green, actual item destruction/ID/worn bits/HP/movement/gear return vs no detach/death-count. Source-local visibility/genocide/pet/monstone checks only justified source states; no claim whole pet/quest/global clone certification. Clone isolation only if actual supported caller fixture establishes it; no invented full public planning coverage."
+          }
+        },
+        "reviewSha256": "7ce7815b1129e16aed32a6e232d7470fde6dc342279b54e147699812a05683ac"
+      }
     }
   ]
 }
