@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T23:24:30.415Z",
+  "capturedAt": "2026-10-18T23:32:16.778Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T23:24:30.415Z",
+    "asOf": "2026-10-18T23:32:16.778Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 352,
+      "mainSupportAssignments": 354,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -175209,6 +175209,57 @@
         "type": "accepted",
         "at": "2026-10-18T23:23:33.530Z",
         "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018-efcfe31da88189b5f5d3ddc02950531a1a21b4e7",
+        "type": "published",
+        "at": "2026-10-18T23:24:51.756Z",
+        "task": "delivery:fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+        "commit": "efcfe31da88189b5f5d3ddc02950531a1a21b4e7"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:26:05.880Z",
+        "id": "queue:44973ba6-0b82-4eeb-8798-5dd3bec19f34",
+        "type": "queue-complete",
+        "task": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:26:05.880Z",
+        "id": "queue:44973ba6-0b82-4eeb-8798-5dd3bec19f34:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:26:32.809Z",
+        "id": "queue:97f2f3cb-379c-4392-bd92-ca6201e6c124",
+        "type": "assign",
+        "task": "glob-special-container-proposed-fixture-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:31:12.523Z",
+        "id": "queue:8403b17c-94af-4e4b-acc5-406a43675435",
+        "type": "assign",
+        "task": "glob-unearth-main-reviewed-default-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -175423,23 +175474,27 @@
     "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
     "claimed": [
       {
-        "task": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
+        "task": "glob-special-container-proposed-fixture-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "task": "glob-unearth-main-reviewed-default-qualification-20261018",
         "worker": "Worker-2"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 617,
+      "completed": 618,
       "superseded": 101
     },
     "workers": [
@@ -175450,13 +175505,13 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
+        "assignment": "glob-unearth-main-reviewed-default-qualification-20261018",
         "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "glob-special-container-proposed-fixture-source-20261018",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -186266,7 +186321,7 @@
         "id": "glob-unearth-proposed-fixture-capture-correction-source-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -186275,6 +186330,36 @@
         "target": null,
         "readyAt": "2026-10-18T23:21:29.485Z",
         "claimedAt": "2026-10-18T23:21:47.584Z",
+        "completedAt": "2026-10-18T23:26:05.880Z"
+      },
+      {
+        "id": "glob-special-container-proposed-fixture-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T23:25:58.938Z",
+        "claimedAt": "2026-10-18T23:26:32.809Z",
+        "completedAt": null
+      },
+      {
+        "id": "glob-unearth-main-reviewed-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T23:30:52.186Z",
+        "claimedAt": "2026-10-18T23:31:12.523Z",
         "completedAt": null
       }
     ]
