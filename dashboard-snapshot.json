@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T20:18:13.938Z",
+  "capturedAt": "2026-10-18T20:45:42.928Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T20:18:13.938Z",
+    "asOf": "2026-10-18T20:45:42.928Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 325,
+      "mainSupportAssignments": 328,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -173733,6 +173733,170 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:20:44.813Z",
+        "id": "queue:b25eaef2-2022-4767-9b51-5373cf61ab00",
+        "type": "assign",
+        "task": "fix-billed-boulder-door-exit-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:29:25.039Z",
+        "id": "ready-ce411eb4166e67ba186c0dd169e21ea62ffea590:transport",
+        "type": "assign",
+        "task": "delivery:fix-billed-boulder-door-exit-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-billed-boulder-door-exit-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-ce411eb4166e67ba186c0dd169e21ea62ffea590",
+        "type": "ready",
+        "at": "2026-10-18T20:29:25.039Z",
+        "task": "delivery:fix-billed-boulder-door-exit-source-parity-20261018",
+        "delivery": "ce411eb4166e67ba186c0dd169e21ea62ffea590"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:29:25.039Z",
+        "id": "ready-ce411eb4166e67ba186c0dd169e21ea62ffea590:complete",
+        "type": "queue-complete",
+        "task": "fix-billed-boulder-door-exit-source-parity-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:29:25.039Z",
+        "id": "ready-ce411eb4166e67ba186c0dd169e21ea62ffea590:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-idle-after-fix-billed-boulder-door-exit-source-parity-20261018",
+        "type": "turn",
+        "at": "2026-10-18T20:29:42.715Z",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Submitted the reviewed boulder accounting fix; the Work lead is selecting the next bounded task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "boulder-ce411-received-20261018",
+        "type": "received",
+        "at": "2026-10-18T20:30:45.810Z",
+        "task": "delivery:fix-billed-boulder-door-exit-source-parity-20261018",
+        "delivery": "ce411eb4166e67ba186c0dd169e21ea62ffea590"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-ab7ae9b714e29a9d17e2b4dca2f826858da71e24-bc6fa4c71367ed9882c7b5d979337f44c248ed70ffbba219e7b3591c0b875d18-delivery:fix-billed-boulder-door-exit-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T20:32:17.095Z",
+        "task": "delivery:fix-billed-boulder-door-exit-source-parity-20261018",
+        "integration": "ab7ae9b714e29a9d17e2b4dca2f826858da71e24",
+        "validationGroup": [
+          "delivery:fix-billed-boulder-door-exit-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:36:03.918Z",
+        "id": "queue:cc990dc4-63b2-4516-b454-a78dd973342b",
+        "type": "assign",
+        "task": "dynamic-multi-reason-state-buffer-consumer-owner-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:37:41.563Z",
+        "id": "queue:8cb6953a-c831-47c5-8d64-e3af2dab908b",
+        "type": "assign",
+        "task": "shop-damage-zero-cash-near-door-getcad-default-qualification-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:39:08.121Z",
+        "id": "queue:efe7e0c2-6575-41fe-9933-190e79d239a2",
+        "type": "queue-complete",
+        "task": "dynamic-multi-reason-state-buffer-consumer-owner-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:39:08.121Z",
+        "id": "queue:efe7e0c2-6575-41fe-9933-190e79d239a2:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-billed-boulder-door-exit-source-parity-20261018-ab7ae9b714e29a9d17e2b4dca2f826858da71e24-validated",
+        "type": "validated",
+        "at": "2026-10-18T20:41:05.944Z",
+        "task": "delivery:fix-billed-boulder-door-exit-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-billed-boulder-door-exit-source-parity-20261018-ab7ae9b714e29a9d17e2b4dca2f826858da71e24-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T20:42:05.371Z",
+        "task": "delivery:fix-billed-boulder-door-exit-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:42:24.553Z",
+        "id": "queue:24589ddf-eb45-45b1-827d-da8064fc310a",
+        "type": "queue-block",
+        "task": "shop-damage-zero-cash-near-door-getcad-default-qualification-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:42:24.553Z",
+        "id": "queue:24589ddf-eb45-45b1-827d-da8064fc310a:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:45:12.946Z",
+        "id": "queue:dbcd6974-6437-4b1c-bb3f-7c3140061427",
+        "type": "assign",
+        "task": "cube-passive-dynamic-reason-default-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -173952,20 +174116,30 @@
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
-    "blocked": [],
-    "claimed": [],
+    "blocked": [
+      {
+        "task": "shop-damage-zero-cash-near-door-getcad-default-qualification-20261018",
+        "reason": "Waiting for producer or dependencies."
+      }
+    ],
+    "claimed": [
+      {
+        "task": "cube-passive-dynamic-reason-default-qualification-20261018",
+        "worker": "Worker-1"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
-      "blocked": 0,
-      "completed": 584,
+      "claimed": 1,
+      "blocked": 1,
+      "completed": 586,
       "superseded": 100
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "cube-passive-dynamic-reason-default-qualification-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -184270,12 +184444,72 @@
         "readyAt": "2026-10-18T20:15:39.302Z",
         "claimedAt": "2026-10-18T20:15:57.569Z",
         "completedAt": "2026-10-18T20:18:07.275Z"
+      },
+      {
+        "id": "fix-billed-boulder-door-exit-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T20:20:23.875Z",
+        "claimedAt": "2026-10-18T20:20:44.813Z",
+        "completedAt": "2026-10-18T20:29:25.039Z"
+      },
+      {
+        "id": "dynamic-multi-reason-state-buffer-consumer-owner-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T20:35:45.879Z",
+        "claimedAt": "2026-10-18T20:36:03.918Z",
+        "completedAt": "2026-10-18T20:39:08.121Z"
+      },
+      {
+        "id": "shop-damage-zero-cash-near-door-getcad-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "blocked",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T20:37:17.652Z",
+        "claimedAt": "2026-10-18T20:37:41.563Z",
+        "completedAt": null
+      },
+      {
+        "id": "cube-passive-dynamic-reason-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T20:44:47.320Z",
+        "claimedAt": "2026-10-18T20:45:12.946Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "1f476061c22b9cfd6c4923fa4af10fd8c7a22e63",
-    "measuredAt": "2026-10-18T19:46:26.280Z",
+    "executionCommit": "ab7ae9b714e29a9d17e2b4dca2f826858da71e24",
+    "measuredAt": "2026-10-18T20:37:48.843Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

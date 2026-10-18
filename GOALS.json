@@ -327517,7 +327517,7 @@
     {
       "id": "fix-billed-boulder-door-exit-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement dopush from hack.c",
       "cFile": "hack.c",
       "sessions": [],
@@ -327525,7 +327525,7 @@
       "detail": "Runtime-pending source-parity repair of the complete dopush final owner-shop exit arm. Actual default test_move be4e moved billed boulder101 door6,10 to exterior7,10 with unpaid/bill retained and debit0; final regression verifies bill/unpaid removal and debit5 before hero movement. Initial genuine pre-code red is separate from final same-byte pairing after approved observer correction. One intermediate raw failure log is unavailable, explicitly disclosed; no full-turn/public/C parity or source certification.",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "ab7ae9b714e29a9d17e2b4dca2f826858da71e24",
       "delivered": null,
       "functions": [
         {
@@ -327644,6 +327644,58 @@
           ]
         },
         "reviewSha256": "d8aa011355fbe138e82e3cd278db7a051d7d9c33e126a07670542005ff9dfa25"
+      },
+      "closeStanding": {
+        "sha": "ab7ae9b714e29a9d17e2b4dca2f826858da71e24",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "1f476061c22b9cfd6c4923fa4af10fd8c7a22e63",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/ab7ae9b714e29a9d17e2b4dca2f826858da71e24/run-hosted-9LdTsT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dopush",
+            "sourceFile": "hack.c",
+            "implementation": "js/hack.js",
+            "symbol": "dopush",
+            "sourceReview": "Matches hack.c:dopush (165-241) final unpaid owner-shop exit arm: after movement, find_objowner at the source coordinates and require the destination room list to exclude that owner shop before awaiting the existing stolen_value with the original C arguments. Existing feedback, movement, addtobill, and subfrombill ordering remains intact.",
+            "pure": false,
+            "tests": [
+              "scripts/hero-boulder-push.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "moverock_core",
+                "source": "Both source C moverock dopush calls already await current private dopush in same JS owner; no signature/helper expansion."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "Actual exported be4ee call with DO_MOVE and canonical set_move_cmd owns full default movement/vision/billing entry before hero coordinate commit."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The single final focused case invokes the real exported test_move(DO_MOVE) with canonical default dependencies and reaches moverock_core→dopush. It asserts the same floor boulder leaves the owner shop, the bill/unpaid state is cleared, the peaceful keeper is debited, and hero coordinates remain unchanged. This is the authorized source-parity runtime-pending path, not public full-turn, source-completeness, or fixed-workload certification.",
+        "entryPoints": [
+          {
+            "name": "actual exported test_move DO_MOVE shop-exit push",
+            "functions": [
+              "dopush"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
