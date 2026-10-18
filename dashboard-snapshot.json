@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T08:55:23.062Z",
+  "capturedAt": "2026-10-18T09:19:40.970Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T08:55:23.062Z",
+    "asOf": "2026-10-18T09:19:40.970Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 255,
+      "mainSupportAssignments": 258,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -170555,6 +170555,104 @@
         "type": "accepted",
         "at": "2026-10-18T08:54:31.657Z",
         "task": "delivery:fix-whole-globby-billing-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-whole-globby-billing-source-parity-20261018-9cc31c3db93495e20d3b8c21b004e6b5e6ba88bf",
+        "type": "published",
+        "at": "2026-10-18T08:55:44.938Z",
+        "task": "delivery:fix-whole-globby-billing-source-parity-20261018",
+        "commit": "9cc31c3db93495e20d3b8c21b004e6b5e6ba88bf"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:59:30.912Z",
+        "id": "queue:ab4f47c3-93ae-4988-957c-a844d98a0218",
+        "type": "assign",
+        "task": "mounted-newcham-petrification-production-target-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:03:48.449Z",
+        "id": "queue:df2d473e-143e-40eb-8a50-1fd0e95df086",
+        "type": "queue-complete",
+        "task": "mounted-newcham-petrification-production-target-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:03:48.449Z",
+        "id": "queue:df2d473e-143e-40eb-8a50-1fd0e95df086:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:05:23.004Z",
+        "id": "queue:47aed60a-1735-4b9d-af75-f5d6de44c206",
+        "type": "assign",
+        "task": "fountain-survivor-relocation-prerequisite-source-continuation-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:08:42.863Z",
+        "id": "queue:9d3eab6d-b20f-4bc6-acb7-0047a4ff76d9",
+        "type": "queue-complete",
+        "task": "fountain-survivor-relocation-prerequisite-source-continuation-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:08:42.863Z",
+        "id": "queue:9d3eab6d-b20f-4bc6-acb7-0047a4ff76d9:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:15:33.291Z",
+        "id": "queue:0ae95b1f-9e03-4093-a0af-df0a9e6e7a4c",
+        "type": "assign",
+        "task": "fountain-goblin-survivor-exact-entry-source-residual-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:19:11.249Z",
+        "id": "queue:da7198f5-2169-41a3-a5c4-f9b4f2b32fcb",
+        "type": "queue-complete",
+        "task": "fountain-goblin-survivor-exact-entry-source-residual-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:19:11.249Z",
+        "id": "queue:da7198f5-2169-41a3-a5c4-f9b4f2b32fcb:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -170749,10 +170847,10 @@
     "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
     "claimed": [],
@@ -170760,7 +170858,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 502,
+      "completed": 505,
       "superseded": 96
     },
     "workers": [
@@ -179782,6 +179880,51 @@
         "readyAt": "2026-10-18T08:46:19.315Z",
         "claimedAt": "2026-10-18T08:46:32.462Z",
         "completedAt": "2026-10-18T08:48:53.394Z"
+      },
+      {
+        "id": "mounted-newcham-petrification-production-target-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T08:59:01.737Z",
+        "claimedAt": "2026-10-18T08:59:30.912Z",
+        "completedAt": "2026-10-18T09:03:48.449Z"
+      },
+      {
+        "id": "fountain-survivor-relocation-prerequisite-source-continuation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T09:04:35.702Z",
+        "claimedAt": "2026-10-18T09:05:23.004Z",
+        "completedAt": "2026-10-18T09:08:42.863Z"
+      },
+      {
+        "id": "fountain-goblin-survivor-exact-entry-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T09:15:14.856Z",
+        "claimedAt": "2026-10-18T09:15:33.291Z",
+        "completedAt": "2026-10-18T09:19:11.249Z"
       }
     ]
   },
