@@ -12,6 +12,7 @@ import {
     MM_NONAME,
     NON_PM,
     ROWNO,
+    RIGHT_HANDED,
     W_WEP,
     has_ebones,
     has_oname,
@@ -50,6 +51,7 @@ import { m_at } from './monst.js';
 import { mongone } from './mon.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
+import { the, xname } from './objnam.js';
 import { artifact_light } from './artifacts.js';
 import { unleash_all } from './apply.js';
 import { obj_is_burning } from './light.js';
@@ -64,6 +66,11 @@ import {
 } from './obj.js';
 import { end_burn } from './timeout.js';
 import {
+    BOW,
+    ELVEN_BOW,
+    ORCISH_BOW,
+    YUMI,
+    BOOMERANG,
     CORPSE,
     EGG,
     AMULET_OF_YENDOR,
@@ -172,6 +179,32 @@ function set_ghostly_objlist(objchain) {
         obj.ghostly = 1;
         obj = obj.nobj;
     }
+}
+
+// C ref: bones.c fix_ghostly_obj() (795-816). A bones weapon can be marked
+// even when it is otherwise an ordinary inventory object. Adjust asymmetric
+// weapons for this hero, then clear the marker from every picked-up object.
+export async function fix_ghostly_obj(obj, state = game) {
+    if (!obj.ghostly) return;
+
+    switch (obj.otyp) {
+    case BOW:
+    case ELVEN_BOW:
+    case ORCISH_BOW:
+    case YUMI:
+    case BOOMERANG:
+        await ttyPline(
+            `You make adjustments to ${the(xname(obj, state), state)} `
+                + `to suit your ${state.u.uhandedness === RIGHT_HANDED
+                    ? 'right' : 'left'} hand.`,
+            state,
+        );
+        break;
+    default:
+        break;
+    }
+
+    obj.ghostly = 0;
 }
 
 // C savelev() stores the level's persistent map fields, not the terminal's

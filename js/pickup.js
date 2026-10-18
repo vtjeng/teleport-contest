@@ -165,6 +165,7 @@ import { makesingular } from './fruit.js';
 import { christen_monst, Monnam, mon_nam, oname, rndmonnam, x_monnam } from './do_name.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
+import { fix_ghostly_obj } from './bones.js';
 import { upstart } from './hacklib.js';
 import {
     calc_capacity,
@@ -1358,9 +1359,9 @@ export function preflight_projected_random_arrival_pickup(state) {
 // C ref: pickup.c pickup_object() (1803-1888). lift_object(), pick_obj(), and
 // pickup_prinv() run at their source sites.
 //
-// The uchain, engulfed worn-item, artifact, corpse, and scare-scroll arms all
-// run here in C's order. Only the discarded impossible(), display_nhwindow(),
-// instapetrify(), and fix_ghostly_obj() operations remain named gaps.
+// The uchain, engulfed worn-item, artifact, corpse, scare-scroll, and ghostly
+// object arms all run here in C's order. Only discarded impossible(),
+// display_nhwindow(), and instapetrify() operations remain named gaps.
 export async function pickup_object(
     obj, count, telekinesis, rawEnv = {}, plan = null,
 ) {
@@ -1436,8 +1437,7 @@ export async function pickup_object(
     if (state.uwep && state.uwep === obj)
         state.gm.mrg_to_wielded = true;
     await pickup_prinv(obj, count, 'lifting', state);
-    if (obj.ghostly)
-        note_unported('bones.c fix_ghostly_obj');
+    await fix_ghostly_obj(obj, state);
     state.gm.mrg_to_wielded = false;
     return 1;
 }

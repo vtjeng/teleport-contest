@@ -19,6 +19,7 @@ import {
     ICE,
     INCLUDE_HERO,
     INVORDER_SORT,
+    LEFT_HANDED,
     LAST_PROP,
     LOST_DROPPED,
     LOST_EXPLODING,
@@ -35,6 +36,7 @@ import {
     OBJ_DELETED,
     POOL,
     PIT,
+    RIGHT_HANDED,
     DUST,
     ROOM,
     ROOMOFFSET,
@@ -118,6 +120,7 @@ import {
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
     BOULDER,
+    BOW,
     COIN_CLASS,
     CORPSE,
     CRYSTAL_BALL,
@@ -765,6 +768,108 @@ test('pickup describes a square it is not allowed to take from', async () => {
     assert.equal(previouslyCarried.pickup_prev, false);
     assert.match(state._ttyToplines ?? '', /elven dagger/u);
 });
+
+test('pickup adjusts the actual returned ghostly bow before returning',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        const object = typedObjectUnderHero(state, BOW);
+        object.ghostly = 1;
+        const objectId = object.o_id;
+        const initialInventory = state.invent;
+        assert.equal(
+            Array.from((function* () {
+                for (let item = initialInventory; item; item = item.nobj)
+                    yield item;
+            })()).some((item) => item.otyp === BOW),
+            false,
+            'the returned object cannot merge into an existing bow stack',
+        );
+
+        const display = state.nhDisplay;
+        const previousOnEmptyQueue = display.onEmptyQueue;
+        const acknowledgements = [];
+        display.onEmptyQueue = () => {
+            const screen = display.serialize();
+            assert.ok(state._pending_message,
+                'the empty-input read belongs to a pending TTY message');
+            assert.ok(screen.includes('--More--'),
+                'only acknowledge an actually displayed --More--');
+            if (acknowledgements.length >= 16)
+                throw new Error('finite ghostly pickup TTY budget exhausted');
+            acknowledgements.push({
+                message: state._pending_message,
+                screen,
+                waitEpoch: display.waitEpoch,
+            });
+            return 32;
+        };
+
+        let result;
+        try {
+            result = await pickup_object(object, 1, false, state);
+        } finally {
+            display.onEmptyQueue = previousOnEmptyQueue;
+        }
+
+        assert.equal(result, 1);
+        let returned = state.invent;
+        while (returned && returned.o_id !== objectId) returned = returned.nobj;
+        assert.equal(returned, object,
+            'the real addinv return is the source floor object');
+        assert.equal(returned.where, OBJ_INVENT);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+        assert.equal(returned.ghostly, 0,
+            'the actual returned object has its bones marker cleared');
+        assert.match(state._ttyToplines ?? '',
+            /make adjustments to the bow to suit your right hand\./u);
+        assert.equal(state.gm.mrg_to_wielded, false);
+        assert.ok(acknowledgements.length <= 16);
+
+        const exercisePickup = async (otyp, marked, handedness) => {
+            const controlState = await heroOnAnEmptySquare();
+            controlState.u.uhandedness = handedness;
+            const controlObject = typedObjectUnderHero(controlState, otyp);
+            if (marked) controlObject.ghostly = 1;
+            const controlDisplay = controlState.nhDisplay;
+            const priorOnEmptyQueue = controlDisplay.onEmptyQueue;
+            controlDisplay.onEmptyQueue = () => {
+                const screen = controlDisplay.serialize();
+                assert.ok(controlState._pending_message);
+                assert.ok(screen.includes('--More--'));
+                return 32;
+            };
+            try {
+                assert.equal(
+                    await pickup_object(controlObject, 1, false, controlState),
+                    1,
+                );
+            } finally {
+                controlDisplay.onEmptyQueue = priorOnEmptyQueue;
+            }
+            let returnedControl = controlState.invent;
+            while (returnedControl
+                && returnedControl.o_id !== controlObject.o_id)
+                returnedControl = returnedControl.nobj;
+            assert.equal(returnedControl, controlObject);
+            assert.equal(returnedControl.ghostly, marked ? 0 : false);
+            assert.equal(controlState.level.objects[
+                controlState.u.ux
+            ][controlState.u.uy], null);
+            return controlState._ttyToplines ?? '';
+        };
+
+        const leftLine = await exercisePickup(BOW, true, LEFT_HANDED);
+        assert.match(leftLine,
+            /make adjustments to the bow to suit your left hand\./u);
+        const ordinaryLine = await exercisePickup(
+            SACK, true, RIGHT_HANDED,
+        );
+        assert.doesNotMatch(ordinaryLine, /make adjustments to/u);
+        const unmarkedLine = await exercisePickup(
+            BOW, false, RIGHT_HANDED,
+        );
+        assert.doesNotMatch(unmarkedLine, /make adjustments to/u);
+    });
 
 test('blind pickup does not observe the object before carrying it',
     async () => {

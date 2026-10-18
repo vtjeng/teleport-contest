@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/bones.test.mjs",
+      "scripts/pickup.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/ghostly-pickup-regression-after.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/ghostly-pickup-lint.log"
+  }
+]

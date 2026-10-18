@@ -1,0 +1,70 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "The real exported pickup_object path ran lift_object, pick_obj, addinv, and pickup_prinv on an initialized game and then awaited fix_ghostly_obj on the actual returned object. The source-generated BOW had no matching inventory stack; identity and floor removal were checked. The same test also exercised left-handed naming, marked ordinary silent clearing, and unmarked quiet behavior. Runtime receipts are focused constructed-state evidence only; no saved bones level, public history, or C certification is claimed.",
+  "functions": [
+    {
+      "name": "fix_ghostly_obj",
+      "symbol": "fix_ghostly_obj",
+      "implementation": "js/bones.js",
+      "pure": false,
+      "sourceReview": "Implemented the complete C bones.c fix_ghostly_obj behavior: no-op for unmarked objects; the five asymmetric weapon types use canonical xname/the naming and the hero handedness, await ttyPline, then clear ghostly; other marked objects clear silently. pickup_object now awaits the helper after pickup_prinv on the real returned addinv object and before clearing mrg_to_wielded.",
+      "callers": [
+        {
+          "path": "js/pickup.js",
+          "symbol": "pickup_object",
+          "source": "Real exported pickup_object calls real lift_object→pick_obj/addinv→pickup_prinv, then fixes actual returned object if marked. Primary regression must preserve canonical floor/grid/inventory and returned same-ID object with no compatible inventory stack; no helper-only or merged-away marker witness."
+        }
+      ],
+      "tests": [
+        "scripts/bones.test.mjs",
+        "scripts/pickup.test.mjs"
+      ],
+      "recordings": []
+    }
+  ],
+  "entryPoints": [
+    {
+      "name": "pickup_object",
+      "functions": [
+        "fix_ghostly_obj"
+      ],
+      "recordings": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "49bbe159a22ce3181a853a642839966035f4a620",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bones.test.mjs",
+        "scripts/pickup.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "Raw full output: .cache/ghostly-pickup-regression-before-final.log\n✖ failing tests:\n\ntest at scripts/pickup.test.mjs:772:1\n✖ pickup adjusts the actual returned ghostly bow before returning (20.697227ms)\n  AssertionError [ERR_ASSERTION]: the actual returned object has its bones marker cleared\n  \n  1 !== 0\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/pickup.test.mjs:821:16)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 1,\n    expected: 0,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }"
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/bones.test.mjs",
+        "scripts/pickup.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "Raw full output: .cache/ghostly-pickup-regression-after.log\nℹ tests 77\nℹ suites 0\nℹ pass 77\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3486.526794"
+    },
+    "testInputs": {
+      "scripts/bones.test.mjs": "dffd8c44be5f4621366a037912a43ae1a17c058c62299f44505b1d44aa7975e6",
+      "scripts/pickup.test.mjs": "663d1301e798f20a33bcce1f417449be715f0a31e0ba692732c4706a4535cc3c"
+    }
+  },
+  "lint": {
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "output": "Raw output: .cache/ghostly-pickup-lint.log\n> teleport-contest@1.0.0 lint\n> eslint js/ scripts/"
+  }
+}
