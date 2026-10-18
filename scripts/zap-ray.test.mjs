@@ -16,6 +16,7 @@ import {
     ANTIMAGIC,
     AC_VALUE,
     COLD_RES,
+    DISCLOSE_NO_WITHOUT_PROMPT,
     COULD_SEE,
     CORR,
     DB_EAST,
@@ -2669,4 +2670,88 @@ test('zap_map destroys a canonical lowered drawbridge through the real striking 
     assert.equal(game.level.at(x + 1, y).doormask, D_NODOOR);
     assert.ok(acknowledgements.length > 0,
         'actual TTY display consumed its bounded More acknowledgements');
+});
+
+
+async function createDrawbridgeAt(x, y) {
+    game.u.dz = 0;
+    const bridgeSquare = game.level.at(x, y);
+    bridgeSquare.typ = ROOM;
+    bridgeSquare.flags = 0;
+    bridgeSquare.icedpool = 0;
+    bridgeSquare.doormask = 0;
+    const wall = game.level.at(x + 1, y);
+    wall.typ = VWALL;
+    wall.flags = 0;
+    wall.doormask = 0;
+    assert.equal(create_drawbridge(x, y, DB_EAST, true, game), true);
+    return game.level.at(x, y);
+}
+
+test('striking a hallucinating hero over a moat uses literal moat text without display RNG',
+    async () => {
+    await runSegment({ ...raySegment(0), moves: '' });
+    game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    const x = game.u.ux;
+    const y = game.u.uy + 3;
+    await createDrawbridgeAt(x, y);
+
+    const wand = mksobj(WAN_STRIKING, false, false, { state: game });
+    const displayCalls = [];
+    const messages = [];
+    const random = {
+        d, rn1, rn2, rnd, rne, rnl, rnz,
+        rn2_on_display_rng: (bound) => {
+            displayCalls.push(bound);
+            return rn2_on_display_rng(bound, game);
+        },
+    };
+    await zap_map(x, y, wand, game, random, {
+        message: async (line) => messages.push(line),
+    });
+
+    assert.ok(messages.some((line) => line.includes('collapses into the moat!')),
+        'the C moat arm prints the literal liquid name even under hallucination');
+    assert.deepEqual(displayCalls, [],
+        'only lava naming reaches hliquid and consumes display RNG');
+});
+
+test('fatal drawbridge destruction returns from zap_map before wand learning', async () => {
+    await runSegment({ ...raySegment(0), moves: '' });
+    const x = game.u.ux;
+    const y = game.u.uy;
+    await createDrawbridgeAt(x, y);
+
+    // Follow the normal end.c no-window/no-disclosure fatal path, while the
+    // actual display reader acknowledges only visible --More-- lines.
+    game.iflags.window_inited = false;
+    game.wizard = false;
+    game.discover = false;
+    game.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    game.flags.bones = false;
+    game.moves = Math.max(game.moves, 2);
+    game.objects[WAN_STRIKING].oc_name_known = 0;
+    const wand = mksobj(WAN_STRIKING, false, false, { state: game });
+    wand.dknown = true;
+    const display = game.nhDisplay;
+    const previousOnEmptyQueue = display.onEmptyQueue;
+    let acknowledgements = 0;
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        assert.ok(screen.includes('--More--'), 'acknowledge only an actual More prompt');
+        assert.ok(acknowledgements < 16, 'finite terminal acknowledgement budget');
+        acknowledgements++;
+        return 32;
+    };
+    try {
+        await zap_map(x, y, wand, game);
+    } finally {
+        display.onEmptyQueue = previousOnEmptyQueue;
+    }
+
+    assert.equal(game.program_state.gameover, true,
+        'the imported default death path must actually end the game');
+    assert.equal(game.objects[WAN_STRIKING].oc_name_known, 0,
+        'zap_map returns before its post-helper learnwand tail on fatal completion');
 });

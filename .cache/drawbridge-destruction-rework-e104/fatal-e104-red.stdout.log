@@ -1,0 +1,28 @@
+✖ fatal drawbridge destruction returns from zap_map before wand learning (395.535846ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1294.075296
+
+✖ failing tests:
+
+test at scripts/zap-ray.test.mjs:2720:1
+✖ fatal drawbridge destruction returns from zap_map before wand learning (395.535846ms)
+  AssertionError [ERR_ASSERTION]: zap_map returns before its post-helper learnwand tail on fatal completion
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/zap-ray.test.mjs:2755:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

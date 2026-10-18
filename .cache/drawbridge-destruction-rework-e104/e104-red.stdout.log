@@ -1,0 +1,114 @@
+✔ dbridge terrain predicates retain the C source guards and bridge surfaces (5.295507ms)
+✔ drawbridge entity lookup, survival, and wall coordinates follow dbridge.c (2.342486ms)
+✔ melt_ice uses objnam An() for its settled boulder message (4.172175ms)
+✔ disintegrate_mon uses C Monnam capitalization for its visible message (1.852336ms)
+✔ inventory resistance mapping matches its complete C source (8.666772ms)
+✔ stone-to-flesh self spell uses eat.c fix_petrification (167.81999ms)
+✔ zaptype folds a monster zap onto the hero band it shares (0.284014ms)
+✔ flash_str names the row of flash_types the ray type indexes (0.933819ms)
+✔ zapdir_to_glyph packs the beam direction under its type (0.800272ms)
+✔ the zap glyph arm reads S_vbeam and zapcolors by its two fields (97.481058ms)
+✔ zap_hit rolls once and compares the roll with the armor class (0.620373ms)
+✔ bounce_dir reverses a bolt on a row without drawing for it (0.515531ms)
+✔ bounce_dir picks a side from the two squares beside the obstacle (80.404194ms)
+✔ an unprotected pack rolls nothing when fire looks for a resistance (44.931701ms)
+✔ the killer zhitu builds names the bolt, the verb and the hero (0.471435ms)
+✔ Half_spell_damage halves a wand and a spell but never a breath (0.239872ms)
+✔ a monster bolt names the caster via death_inflicted_by (0.360651ms)
+✔ weffects hands the ray six dice, and magic missile two (97.080384ms)
+✔ a wand of fire aimed at a wall burns the hero it bounces back onto (68.916356ms)
+✔ a downward ray kills the hero and stops on the death More (51.991373ms)
+✔ a planned monster fire death crosses the existing live handoff (265.826032ms)
+✔ burnarmor rolls again for a slot the hero has nothing in (182.310638ms)
+✔ burnarmor dries one towel before selecting an armor slot (155.754257ms)
+✔ the ray matrix keeps replay inputs and one wand per case (5.205216ms)
+✔ a ray that runs out of range erases itself and spends the turn (72.984669ms)
+✔ dobuzz admits a hero wand or monster breath and rejects other bands (297.930223ms)
+✔ monster breath dobuzz consumes only its source range draw on a forced miss (38.017048ms)
+✔ a monster in the path reaches the source sleep arm before waking (75.514083ms)
+✔ a cold bolt over water or lava stops at what it would freeze (297.529461ms)
+✔ hallucinated cold-water naming uses display RNG and its ice timer uses core RNG (77.764862ms)
+✔ a fire-resistant hero rolls damage but takes none (117.535069ms)
+✔ a reflecting hero bounces the bolt without taking damage (123.540546ms)
+✔ dobuzz animates a visible reflecting monster before its message (39.564165ms)
+✔ a hallucinating hero draws the beam colour and hallucinatory text (155.054019ms)
+✔ burnarmor falls past the cloak to the suit and then the shirt (36.268875ms)
+✔ burnarmor answers false for a slot that is not the torso (43.224815ms)
+✔ erode_obj treats non-carried objects as floor objects despite stale ocarry (70.852669ms)
+✔ weffects turns each ray wand into the dobuzz type its row implies (278.524835ms)
+✔ weffects sends digging to its source arm before ray dispatch (135.853015ms)
+✔ weffects dispatches every source spell-ray type with integer level dice (459.356907ms)
+✔ zap_dig mutates normal and maze walls after the source beam walk (41.429155ms)
+✔ weffects offers a downward zap to the steed before the ray (93.923419ms)
+✔ a bounce off stone rolls against a different chance than a wall (71.214711ms)
+✔ a bolt whose range runs out at the obstacle says nothing (43.231212ms)
+✔ a bolt over an empty square leaves no invisible-monster memory (40.200903ms)
+✔ a bolt erases the invisible-monster memory on every square it crosses (33.016484ms)
+✔ the bolt that misses says so and stops what the hero was doing (32.578392ms)
+✔ dobuzz hands zap_hit the hero own armor class (69.474647ms)
+✔ hit() prints "The <str> hits <mon><force>" with verbose detail (31.091824ms)
+✔ miss() prints "The <str> misses <mon>." with verbose detail (35.437054ms)
+✔ resist() uses monster MR against attack level and rolls rn2(100+alev-dlev) (0.335646ms)
+✔ resist() does not halve damage when the roll exceeds MR (0.101326ms)
+✔ shieldeff() draws the shield-static sequence before shieldeff_mon text (34.001934ms)
+✔ flashburn() animates artifact-resisted blindness after its guard (71.680849ms)
+✔ flash_mon restores the original vision byte before newsym() (37.994297ms)
+✔ flash_mon uses ordinary mon_to_glyph for tame and hallucinated monsters (29.78614ms)
+✔ flash_mon leaves the live display alone for a planning clone (30.800236ms)
+✔ flash_glyph_at() uses remembered terrain when hero memory is enabled (0.895744ms)
+✔ zhitm() ZT_COLD deals d(nd,6) damage and calls resist() (0.313602ms)
+✔ zhitm() ZT_COLD adds d(nd,3) when the monster has fire resistance (0.193697ms)
+✔ zhitm() resistance keeps shieldeff visual-only in the monster arm (76.236411ms)
+✔ zhitm() death ray rechecks spell band after its source type changes (44.545035ms)
+✔ zhitm() ZT_FIRE deals d(nd,6) damage to a non-fire-resistant monster (0.265747ms)
+✔ zhitm() acid branch corrodes the monster weapon before its armor gate (33.977995ms)
+✔ mon_reflects() returns false for a monster with no reflective gear (30.69461ms)
+✔ mon_reflects uses the artifact reflection return contract (31.405791ms)
+✔ get_container_location returns outer location, nesting, and carrier (0.213534ms)
+✔ zombie_can_dig admits room, corridor, and grave but rejects traps (0.295173ms)
+✔ zap.c bhitm matches each selected v12 monster-wand case (312.664988ms)
+✔ zap.c bhitm handles an opening ray hitting an unsaddled pony (149.517307ms)
+✔ zap.c zap_steed preserves direct and delegated mounted wand paths (148.528824ms)
+✔ zap.c unturn_dead awaits corpse revival and encumbrance effects (56.423588ms)
+✔ zap_map destroys a canonical lowered drawbridge through the real striking caller (38.86629ms)
+✖ striking a hallucinating hero over a moat uses literal moat text without display RNG (40.525194ms)
+✖ fatal drawbridge destruction returns from zap_map before wand learning (54.404128ms)
+ℹ tests 75
+ℹ suites 0
+ℹ pass 73
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6110.979659
+
+✖ failing tests:
+
+test at scripts/zap-ray.test.mjs:2691:1
+✖ striking a hallucinating hero over a moat uses literal moat text without display RNG (40.525194ms)
+  AssertionError [ERR_ASSERTION]: the C moat arm prints the literal liquid name even under hallucination
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/zap-ray.test.mjs:2714:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/zap-ray.test.mjs:2720:1
+✖ fatal drawbridge destruction returns from zap_map before wand learning (54.404128ms)
+  AssertionError [ERR_ASSERTION]: acknowledge only an actual More prompt
+      at display.onEmptyQueue (file:///workspace/teleport-contest-worker3-recovery/scripts/zap-ray.test.mjs:2740:16)
+      at Terminal.readKey (file:///workspace/teleport-contest-worker3-recovery/js/terminal.js:291:28)
+      at GameDisplay.readKey (file:///workspace/teleport-contest-worker3-recovery/js/game_display.js:158:30)
+      at nhgetch (file:///workspace/teleport-contest-worker3-recovery/js/input.js:33:35) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

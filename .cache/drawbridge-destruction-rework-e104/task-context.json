@@ -1,0 +1,117 @@
+{
+  "goal": "fix-drawbridge-striking-destruction-source-parity-20261018",
+  "kind": "file-port",
+  "cFile": "dbridge.c",
+  "functions": [
+    "destroy_drawbridge"
+  ],
+  "requiredFunctions": [],
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-drawbridge-striking-destruction-source-parity-20261018",
+    "assignmentBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+      "authorization": "Standing direct sourceParity authorization, real production caller target-red before code, runtime pending/no public witness. Main explicitly selects retained v58 supporting whole destroy_drawbridge + selected zap_map caller after originaldfb, additional source3ac and independent6857. Current261 published/CI passed, source/helper dependencies available; W3 retains source context and owns fixture. Preserve original source elapsed/8min+additional6min and oldv58/ceilingstriking physical causes/caps, no novelty or budget release.",
+      "currentBehavior": "C dbridge.c888\u20131020 whole destroy_drawbridge changes underlying terrain/portcullis, clears traps/engravings, scatters real chain debris, updates vision, THEN captures wall occupant and resolves it, THEN captures bridge occupant/liquid/death effects, clears killer/occupants and Stronghold tune. JS has source-ported create/open/close and entity/default helpers but no destroy function; actual lateral zap_map striking/force-bolt branch recognizes find_drawbridge and originalType!=DRAWBRIDGE_UP then only notes unported. Canonical lowered empty bridge+wall source entry through create_drawbridge admits a real zap_map original terrain-red without Castle/public history. Runtime readiness remains unknown until worker first actual target-red.",
+      "expectedBehavior": "Port WHOLE async exported destroy_drawbridge(x,y,state=game,env={}) in js/dbridge.js, C888\u20131020 complete guarded order, and replace ONLY selected zap_map marker with awaited helper/import. No open/close/entity/scatter/mon/trap/vision implementation edits. Preserve nonbridge return; canonical flags/direction/wall lookup. Water/lava branch uses actual visibility/heroat/deaf-aware raisedportcullis vs lowered collapse text and canonical hliquid display RNG; set MOAT/LAVAPOOL, clearflags, actual sobj_at BOULDER/extract/awaitflooreffects. Dry branch ROOM/ICE+ICED_MOAT exactlyC flags. Wake500, wallDOOR/D_NODOOR, bothcells trap+engraving deletion; rn2(6) debris count, perchain xdraw THEN ydraw, canonical mksobj_at IRON_CHAIN inittrue/artiffalse, await real scatter(force1,SCATTER_MAY_HIT0x06) each iteration. NEVER substitute generated MAY_HIT0x03. Two newsym, conditional does_block/unblock and vision_recalc, Stronghold openedflag. CRITICAL: C declares entity-record pointers atentry but does NOT capture occupants then: set_entity WALL only after ALL terrain/scatter/vision/openflag, process wall automiss/visibility/killer/crushing death, then set_entity BRIDGE and e_missed chunks/liquid or huge-metal message/killer/e_died/MOATdo_entity, preserving exact C order. Use existing canonical helpers; no early snapshot because scatter can change occupants. Await effects and return on actual gameover after potentially fatal awaits before subsequent caller mutations/nokiller/tuneflag; lifesaving returns continue. Existing helper-internal death limitations are not permission to broaden source. Finish canonical nokiller/occupants reset and Stronghold heardtune3 when alive. Soundeffect no-op is existing recorder nosound backend (sounds.js761) and does not omit terminal audible fallback text. Preserve actualstate/chosenmessage/displayRNG and default redraw owners; no broad clone certification. zap_map has separate selected random arg(defaultpartial), so pass it explicitly; helper merges complete canonical RNG bundle with selected overrides for mksobj_at/scatter/rnd/hliquid display owner, do not assume rawEnv.random full or discard selected stream. Exact helper signatures: scatter(sx,sy,force,flags,obj,state,env), vision_recalc(control,{state,redraw}), wake_nearto(x,y,distance,{state,...}), minliquid(mon,{state,...}), hliquid(text,{state,...}). Add only needed canonical imports. Worker owns minimal initialized canonical geometry and actual lateral zap_map+real striking wand, hero outside debris neighborhood/emptyendpoint source-valid, real RNG and real object/vision effects, finite actualTTY More. FIRST original target terrain-red on unchangedsource, then identical finalbytes/command green+lint. No direct destroy-only, fake scatter/debris/death/random success or publicCastle/wishhistory. Preserve raisedbridge originalType guard. Meaningful nonbridge/guard/order/default seam controls only as needed; no forcedRNG target or broad helper port.",
+      "units": [
+        "dbridge.c:destroy_drawbridge"
+      ],
+      "allowedPaths": [
+        "js/dbridge.js",
+        "js/zap.js",
+        "scripts/dbridge.test.mjs",
+        "scripts/zap-ray.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/dbridge.test.mjs",
+        "scripts/zap-ray.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/zap.js",
+          "symbol": "zap_map",
+          "source": "Real exported zap_map lateral WAN_STRIKING/SPE_FORCE_BOLT, find_drawbridge canonical position and originalType!=DRAWBRIDGE_UP branch. Primary actual initialized target test calls this production entry, not helper-only destroy; no public wand acquisition/history requirement."
+        }
+      ],
+      "pins": [
+        {
+          "path": "js/dbridge.js",
+          "object": "07392961a02bed965d1beeecd404281890ae3a1c"
+        },
+        {
+          "path": "js/zap.js",
+          "object": "8487c52333574a31c4c14d87e811ed27c594aab2"
+        },
+        {
+          "path": "js/explode.js",
+          "object": "766da06f8d68e2844ca73d2a2ae7263e6820055a"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+        },
+        {
+          "path": "js/mon.js",
+          "object": "d5aa9b39abc1f361e63f7219546c9e90977ca428"
+        },
+        {
+          "path": "js/trap.js",
+          "object": "12234b3a2a1b30a13aa35e9c091c53d0803d7820"
+        },
+        {
+          "path": "js/hack.js",
+          "object": "67ec67360eebbaab081ad9faf431ca934d87d7cb"
+        },
+        {
+          "path": "js/vision.js",
+          "object": "f8d278fc3103d2cb430afe356935d3b1f98f11d7"
+        },
+        {
+          "path": "js/do_name.js",
+          "object": "6557f299efab4a165da3258626213d6b64986ada"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/sounds.js",
+          "object": "0d16ba1b78589331e0c1310da73934738f5faeb7"
+        },
+        {
+          "path": "scripts/dbridge.test.mjs",
+          "object": "c7cfe569a5ed9a98f7dee6877eb486b11e10e711"
+        },
+        {
+          "path": "scripts/zap-ray.test.mjs",
+          "object": "a018c83a2a0cd9f99b7c02ad7f8bc294d1bb373f"
+        },
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "sourceEvidence": {
+        "original": "dfb2846d source canonicalgeometry/lateralguards retained; no runtime",
+        "continuation": "3ac287efd08cb28df971b5643435d277a17d77ce7e009d49e4a212ea951ad2c2",
+        "independent": "/workspace/teleport-contest-challenge-recovery/.cache/drawbridge-destruction-default-closure-continuation-20261018/independent-disposition-2252.json",
+        "Main": "Main read complete C888\u20131020, actual zap_map selected branch, existing dbridge entities/openclose/default contracts, scatter/vision/wake/minliquid/hliquid/mksobj/sobj exports, RNG and nosound source. All pins from same immutable accepted261. C lateoccupant capture corrects original3ac firstbullet; retain original bytes and additive independent correction.",
+        "knownSetup": "Source-valid transparent bridge geometry allowed; canonical create_drawbridge owns DBflags/wallshape. No optional wizterrainwish/history. Worker audit all named exports/exactargs/stateowners/RNGbundles/providers beforefreeze. Actual game singleton after runSegment, game.nhDisplay.serialize string; a989 withPendingMessageAcks finite16 actualMore. Raye522 terrainwish TTY and import failure, globprivate pendingDisplay null, oldMM_NOGRP constructor failures are knownnegative refs, not newtargets. Copy lossless primitive/RNG/input/phase receipts and all rawfailures. Newdependency stops for Main, no automatic expansion."
+      }
+    },
+    "reviewSha256": "4cab3958147ee271a705fc171c6030d8a4624e3bcfc896b65caa56a50ffa43be"
+  }
+}

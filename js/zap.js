@@ -4035,6 +4035,7 @@ export async function zap_map(
                     await destroy_drawbridge(
                         position.x, position.y, state, { ...rawEnv, random },
                     );
+                    if (state.program_state?.gameover) return;
                 }
                 break;
             }

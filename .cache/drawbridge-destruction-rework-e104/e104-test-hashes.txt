@@ -1,0 +1,2 @@
+5c3eb8d47dd7fcbec7782b93c9cc8c9064efc1d0e2ce174f59ea82d04bb427fc  scripts/dbridge.test.mjs
+8f1e04fd3251f8693dc83ace96bd9f3a16ff36e7eb27635f225f1ffddafb26bc  scripts/zap-ray.test.mjs

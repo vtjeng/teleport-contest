@@ -262,13 +262,13 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
         const lava = under === DB_LAVA;
         if (bridge.typ === DRAWBRIDGE_UP) {
             if (cansee(x2, y2, state) || u_at(x2, y2, state)) {
-                const liquid = hliquid(lava ? 'lava' : 'moat', env);
+                const liquid = lava ? hliquid('lava', env) : 'moat';
                 await say(`The portcullis of the drawbridge falls into the ${liquid}!`);
             } else {
                 await hear('a loud *SPLASH*!');
             }
         } else if (cansee(x, y, state) || u_at(x, y, state)) {
-            const liquid = hliquid(lava ? 'lava' : 'moat', env);
+            const liquid = lava ? hliquid('lava', env) : 'moat';
             await say(`The drawbridge collapses into the ${liquid}!`);
         } else {
             await hear('a loud *SPLASH*!');

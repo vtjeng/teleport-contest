@@ -1,0 +1,32 @@
+diff --git a/js/dbridge.js b/js/dbridge.js
+index 03d139f3d..48343dfd1 100644
+--- a/js/dbridge.js
++++ b/js/dbridge.js
+@@ -262,13 +262,13 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
+         const lava = under === DB_LAVA;
+         if (bridge.typ === DRAWBRIDGE_UP) {
+             if (cansee(x2, y2, state) || u_at(x2, y2, state)) {
+-                const liquid = hliquid(lava ? 'lava' : 'moat', env);
++                const liquid = lava ? hliquid('lava', env) : 'moat';
+                 await say(`The portcullis of the drawbridge falls into the ${liquid}!`);
+             } else {
+                 await hear('a loud *SPLASH*!');
+             }
+         } else if (cansee(x, y, state) || u_at(x, y, state)) {
+-            const liquid = hliquid(lava ? 'lava' : 'moat', env);
++            const liquid = lava ? hliquid('lava', env) : 'moat';
+             await say(`The drawbridge collapses into the ${liquid}!`);
+         } else {
+             await hear('a loud *SPLASH*!');
+diff --git a/js/zap.js b/js/zap.js
+index 89b9e4ce9..1434c9b4d 100644
+--- a/js/zap.js
++++ b/js/zap.js
+@@ -4035,6 +4035,7 @@ export async function zap_map(
+                     await destroy_drawbridge(
+                         position.x, position.y, state, { ...rawEnv, random },
+                     );
++                    if (state.program_state?.gameover) return;
+                 }
+                 break;
+             }
