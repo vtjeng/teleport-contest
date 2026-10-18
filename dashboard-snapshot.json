@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T19:58:57.920Z",
+  "capturedAt": "2026-10-18T20:18:13.938Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T19:58:57.920Z",
+    "asOf": "2026-10-18T20:18:13.938Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 321,
+      "mainSupportAssignments": 325,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -173558,6 +173558,181 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018-88106737fbb254b33508fc30d413841493790798",
+        "type": "published",
+        "at": "2026-10-18T19:59:17.227Z",
+        "task": "delivery:fix-pay-damage-outside-room-buffer-source-parity-20261018",
+        "commit": "88106737fbb254b33508fc30d413841493790798"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:01:10.745Z",
+        "id": "queue:6bb0da29-dfa9-4e42-81e8-c93b3ebe6815",
+        "type": "assign",
+        "task": "boulder-86e-full-entry-lifecycle-provider-audit-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:01:34.506Z",
+        "id": "queue:3b386738-533a-42b6-b3b9-e0ba2c0915bf",
+        "type": "queue-complete",
+        "task": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:01:34.506Z",
+        "id": "queue:3b386738-533a-42b6-b3b9-e0ba2c0915bf:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:04:45.160Z",
+        "id": "queue:472fc911-e737-4171-9909-4eb11d5bfdd1",
+        "type": "assign",
+        "task": "invisible-mimic-frozen-state-lifetime-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:05:03.601Z",
+        "id": "queue:e55faadb-a729-4009-895e-d13de7020cdb",
+        "type": "queue-complete",
+        "task": "boulder-86e-full-entry-lifecycle-provider-audit-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:05:03.601Z",
+        "id": "queue:e55faadb-a729-4009-895e-d13de7020cdb:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:07:41.218Z",
+        "id": "queue:880dc47d-8c3c-4881-af95-de895eec0cef",
+        "type": "assign",
+        "task": "boulder-81ea-corrected-final-fixture-proposal-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:08:00.052Z",
+        "id": "queue:ab939b24-57b0-44ee-a549-c6412b2295f3",
+        "type": "queue-complete",
+        "task": "invisible-mimic-frozen-state-lifetime-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:08:00.052Z",
+        "id": "queue:ab939b24-57b0-44ee-a549-c6412b2295f3:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:10:37.742Z",
+        "id": "queue:158b7291-432f-4820-8add-3d23f49f43a5",
+        "type": "queue-complete",
+        "task": "boulder-81ea-corrected-final-fixture-proposal-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:10:37.742Z",
+        "id": "queue:158b7291-432f-4820-8add-3d23f49f43a5:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:12:32.302Z",
+        "id": "queue:ba25c7d4-97fd-4ae4-bd50-8c395a70c77a",
+        "type": "assign",
+        "task": "boulder-70fb-rendered-more-source-proposal-correction-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "exploration",
+        "target": "699be4f314bfe9f4032784c0ed6e9694ea4cc271",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:13:57.585Z",
+        "id": "queue:ac5eb97b-5b5e-4e55-a6ca-80a42cdc3dd2",
+        "type": "queue-complete",
+        "task": "boulder-70fb-rendered-more-source-proposal-correction-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:13:57.585Z",
+        "id": "queue:ac5eb97b-5b5e-4e55-a6ca-80a42cdc3dd2:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:15:57.569Z",
+        "id": "queue:8130d199-d084-4162-b8e9-86afffb1803f",
+        "type": "assign",
+        "task": "billed-boulder-frozen-provider-default-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:18:07.275Z",
+        "id": "queue:feac3c03-5707-471d-a56c-c4fc476d1b23",
+        "type": "queue-complete",
+        "task": "billed-boulder-frozen-provider-default-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T20:18:07.275Z",
+        "id": "queue:feac3c03-5707-471d-a56c-c4fc476d1b23:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -173778,17 +173953,12 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
-        "worker": "Worker-3"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 578,
+      "completed": 584,
       "superseded": 100
     },
     "workers": [
@@ -173804,8 +173974,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -184015,7 +184185,7 @@
         "id": "mimic-f214-game-binding-final-fixture-proposal-source-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -184024,7 +184194,82 @@
         "target": null,
         "readyAt": "2026-10-18T19:58:33.760Z",
         "claimedAt": "2026-10-18T19:58:46.060Z",
-        "completedAt": null
+        "completedAt": "2026-10-18T20:01:34.506Z"
+      },
+      {
+        "id": "boulder-86e-full-entry-lifecycle-provider-audit-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T20:00:59.628Z",
+        "claimedAt": "2026-10-18T20:01:10.745Z",
+        "completedAt": "2026-10-18T20:05:03.601Z"
+      },
+      {
+        "id": "invisible-mimic-frozen-state-lifetime-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T20:04:23.797Z",
+        "claimedAt": "2026-10-18T20:04:45.160Z",
+        "completedAt": "2026-10-18T20:08:00.052Z"
+      },
+      {
+        "id": "boulder-81ea-corrected-final-fixture-proposal-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T20:07:22.627Z",
+        "claimedAt": "2026-10-18T20:07:41.218Z",
+        "completedAt": "2026-10-18T20:10:37.742Z"
+      },
+      {
+        "id": "boulder-70fb-rendered-more-source-proposal-correction-20261018",
+        "type": "rework",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "699be4f314bfe9f4032784c0ed6e9694ea4cc271",
+        "readyAt": "2026-10-18T20:12:19.847Z",
+        "claimedAt": "2026-10-18T20:12:32.302Z",
+        "completedAt": "2026-10-18T20:13:57.585Z"
+      },
+      {
+        "id": "billed-boulder-frozen-provider-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T20:15:39.302Z",
+        "claimedAt": "2026-10-18T20:15:57.569Z",
+        "completedAt": "2026-10-18T20:18:07.275Z"
       }
     ]
   },
