@@ -1847,3 +1847,28 @@ raw outputs, captures, prefixes and frozen bytes; it changes no game or test
 and runs no replacement trial. Any unavailable bytes stay explicit.
 Optional controls not run remain distinct from source-reviewed behavior;
 no broader snuff/planning runtime claim, new rule, gate or benefit claim.
+
+## 2026-10-18 — Unearth source fixture and observer preparation
+
+Zero-game `4a34` needed corrections to strict undefined-gameover/false guards,
+startup prefixes, full copied ISAAC state including `n`, and pile admission.
+Linked `20c9` still needed precise pending-input ownership, effective `multi`
+and invocation intent. Main bound final exact `bdeda` before selecting one run.
+Actual `4db8` reached default `unearth_objs` and the missing absorption boundary:
+glob 66 moved buried-to-floor beside 65; exit 2 retained the caught error and
+partial state. No retry or rescue followed that qualification.
+Special-container `f969` repeated root-HP/gameover, `nexthere` pile-link and
+capture assumptions; its linked correction remains source-only.
+These are fixture/observer preparation findings. They establish no game defect
+or failed physical retry. Original packets, caps and actual raw remain intact.
+No new checks, helpers, rules, gates or causal benefit claim.
+
+Meaningful `a32e` original red preceded code. The first repaired callback
+returned with glob 66 mass 40, glob 65 deleted and one timer for 66 at 27, but
+the observer read `after.after.objects.timers` instead of `after.after.timers`.
+Main verified the initially blamed `before.fullSnapshot` path was valid; the
+worker corrected that report additively. Only the three timer paths and the
+already-selected unique 66 SHRINK timeout `[27]` check were authorized within
+the same claim/deadline. First failed-green raw and unique `slY89N` stay intact.
+The new final test pair is after the draft; the genuine precode red remains.
+No queue block/unblock, fixture change or game-scope expansion occurred.

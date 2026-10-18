@@ -936,3 +936,31 @@ prove a positive snuff branch. No global caller migration, public recording,
 whole-source completion or C parity is claimed; operational benefit remains
 unmeasured. Hosted checkpoint, saved acceptance and publication of this stage
 remain pending at this record.
+
+### 2026-10-18 — Stage runtime floor stacking through unearth
+
+The hero and monster pickup stages are published. Delivery 8eb8f50 adds a
+runtime counterpart for whole invent.c:stackobj and migrates only both
+stacking continuations in whole dig.c:unearth_objs. It preserves the newly
+placed object as survivor and stops after the first successful merge, then
+continues the buried-object loop and engraving/redraw tails. The legacy
+synchronous API, punishment branch and other caller families remain pending.
+
+The actual default entry reached missing absorption after moving glob 66
+from buried to floor beside 65. Genuine a32e original target red precedes
+production edits. First repaired callback succeeded but its timer observer
+failed; Main authorized only three sibling paths and the selected unique
+timeout check. Final d471 identical-byte original red/repaired green follows
+that draft. Literal historical runs, source/test/fixture bytes and all 116
+envelope artifacts are retained. The freeze's first-failure testBytesAtFailure
+descriptor is stale: earlier a32e raw is authoritative, not final d471. The
+envelope task context/evidence are earlier metadata snapshots; committed
+delivery context remains authoritative. Raw test whitespace was preserved
+with the disclosed commit-hook bypass after focused checks and lint passed.
+
+The passing regression observes survivor 66 mass 40, quantity one, incoming
+65 deleted/unlinked and one shrink timer for 66 at deadline 27, with unrelated
+inventory/buried objects and level identities retained. Dig 38, inventory 125
+and lint pass. No public play, C parity, global transfer completion or source
+certification is claimed. Operational benefit is unmeasured. Exact hosted
+checkpoint, saved no-regression acceptance and publication remain pending.

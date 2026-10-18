@@ -328484,6 +328484,164 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-glob-unearth-runtime-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement stackobj from invent.c",
+      "cFile": "invent.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-glob-unearth-runtime-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "stackobj",
+          "line": 4366,
+          "endLine": 4378,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 4366,
+        "to": 4378
+      },
+      "requiredFunctions": [
+        {
+          "name": "unearth_objs",
+          "line": 2086,
+          "endLine": 2124,
+          "declared": true,
+          "sourceFile": "dig.c"
+        }
+      ],
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-glob-unearth-runtime-source-parity-20261018",
+        "assignmentBase": "b182cdad6c254c218a020ae1bc551ed824ef3faf",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "b182cdad6c254c218a020ae1bc551ed824ef3faf",
+          "authorization": "Standing explicit user source-parity correction authorization; Main selects NEW<=20min THIRD bounded runtime UNERTH FLOOR STACK stage after accepted hero/minv stages and exactactual4db852b7c053ad68e99d457038de000ad8a6acebeb41cf1ad12b393cfe3a6681. Whole Cstackobj/unearth/default/outward caller source reviewed Main+CL, exact frozen15540Bbdeda callback once. Globalcaller/API adoption remains staged/pending, alloldcaps preserved, no public parity/sourcecert/gain claim.",
+          "currentBehavior": "Exactactual4db8 defaultunearth entered1 on acceptedefcfe31: initial65FLOOR mass20/SHRINK26,66BURIED mass20/SHRINK28+ROT476 at74,2. Realunearth extracts66/stopsROT/places66 then oldsyncstackobj→mergedpreflight throws missingabsorbGlob. Bothfloor[66,65]/levelretained;66outburied; otherburied/inventoryunchanged; RNG2385+bothercontextsunchanged, heroHP13/moves1/map+hero+descriptorrefs/handlerrestoredtrue,noobserver/save/outputerrors. Publishedsnapshotb182 has identicalexecution tree; existingoldsyncstackunchanged.",
+          "expectedBehavior": "WHOLE Cinvent:stackobj runtime counterpart stackobjRuntime object|Promise<object> preserves real square validation/newlyplaced target and FIRSTsuccess break using accepted mergedRuntime/default exactlyonepudding→awaitobj_absorb, no legacy hook widening. Wire ONLY WHOLE Cdig:unearth_objs BOTH stack sites to finish runtime merge before expose(next)/engraving/redraw, keeping punishment/conditionalplacement/eagerordinary paths/fullenv. Sourcegreen:66 survivesFLOOR mass40/quan1/age1 and only66SHRINKdeadline27;65deleted/unlinked/no65timer,66ROTstopped, sourceorderedlist/otherburied/inventory/hero/maprefs retained. All otherglobalstackcaller families remain pending/legacy API unchanged.",
+          "units": [
+            "invent.c:stackobj",
+            "dig.c:unearth_objs"
+          ],
+          "allowedPaths": [
+            "js/invent.js",
+            "js/dig.js",
+            "scripts/dig.test.mjs",
+            "scripts/inventory-substrate.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/dig.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/dig.js",
+              "symbol": "unearth_objs",
+              "source": "WHOLE Cdig2086-2116: save next buried pointer, punishment restoration branch alreadyreturnedthen/expose(next); ordinary extract/stopROT/place/stack BEFORE next/engraving/redraw. Wire BOTH existing stack sites2613/2616 through runtime helper and preserve full rawenv/conditional-placement hybrid/eager behavior."
+            },
+            {
+              "path": "js/invent.js",
+              "symbol": "stackobj",
+              "source": "WHOLE Cinvent4366-4376: scans actual square nexthere, skips obj itself, merged target is newly placed obj. Stop after FIRST successful merge, await real runtime merge before break; legacy stackobj sync API unchanged, othercaller families pending."
+            },
+            {
+              "path": "js/dig.js",
+              "symbol": "liquid_flow",
+              "source": "Existing only external dig1394 call alreadyawaits unearth_objs with full composedenv BEFORE subsequent liquid damage. No caller edit; preserve source continuations."
+            },
+            {
+              "path": "js/zap.js",
+              "symbol": "melt_ice",
+              "source": "Existing other external call zap5042 alreadyawaits unearth_objs(x,y,env) before vision/redraw/message/boulder tail. No source or API expansion."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "c054d605049090ba7b96b3c44c77c4e73f7a570b"
+            },
+            {
+              "path": "js/dig.js",
+              "object": "a80e2b7a2734c6a400972a664d9dfa1d63978fbd"
+            },
+            {
+              "path": "scripts/dig.test.mjs",
+              "object": "da6746ee64e492fe51b7cd0c113480a9daed451a"
+            },
+            {
+              "path": "scripts/inventory-substrate.test.mjs",
+              "object": "9848c72498f8244fa5cb7ca55b57e0ee04670006"
+            },
+            {
+              "path": "js/zap.js",
+              "object": "c29975212bdb340128867b3579e75fa2fad84dc9"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/bury.js",
+              "object": "f6b92057bf0e00dd7cc6af2d490f159549f7e2c5"
+            },
+            {
+              "path": "js/timeout.js",
+              "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/terminal.js",
+              "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+            },
+            {
+              "path": "js/tty_message.js",
+              "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+            }
+          ]
+        },
+        "reviewSha256": "c8d3baa17ef726d04be7220862ded23b3fda15ea471af8e82d519532c36f21c4"
+      }
     }
   ]
 }
