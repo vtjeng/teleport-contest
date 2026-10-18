@@ -173,7 +173,7 @@ import {
     set_occupation,
     xytodir,
 } from './cmd.js';
-import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, update_inventory } from './invent.js';
+import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, stackobjRuntime, update_inventory } from './invent.js';
 import { bury_an_obj } from './bury.js';
 import { punish } from './read.js';
 import { stop_timer, obj_stop_timers } from './timeout.js';
@@ -2608,12 +2608,17 @@ export function unearth_objs(x, y, rawEnv = {}) {
             obj_extract_self(obj, env);
             if (obj.timed) stop_timer(ROT_ORGANIC, obj, state, env);
             const placement = place_object(obj, x, y, env);
+            const stackAndContinue = () => {
+                const stacking = stackobjRuntime(obj, env);
+                return stacking && typeof stacking.then === 'function'
+                    ? Promise.resolve(stacking).then(() => expose(next))
+                    : expose(next);
+            };
             if (placement && typeof placement.then === 'function')
-                return placement.then(() => {
-                    stackobj(obj, env);
-                    return expose(next);
-                });
-            stackobj(obj, env);
+                return Promise.resolve(placement).then(stackAndContinue);
+            const stacking = stackobjRuntime(obj, env);
+            if (stacking && typeof stacking.then === 'function')
+                return Promise.resolve(stacking).then(() => expose(next));
         }
         finish();
     };

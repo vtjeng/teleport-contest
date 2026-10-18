@@ -1,0 +1,43 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=default unearth awaits the real first floor-glob merge before continuing",
+      "scripts/dig.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/final-green-final/stdout.raw"
+  },
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/dig.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/focused/dig.stdout.raw"
+  },
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/inventory-substrate.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/focused/inventory-substrate.stdout.raw"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/focused/lint.stdout.raw"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "phase": "threw",
+  "callEntered": true,
+  "callCount": 1,
+  "primaryError": {
+    "name": "UnsupportedObjectOperationError",
+    "message": "absorbGlob is not available for otyp 271",
+    "stack": "UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\n    at stackobj (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:4009:32)\n    at expose (file:///workspace/teleport-contest-worker2-recovery/js/dig.js:2616:13)\n    at unearth_objs (file:///workspace/teleport-contest-worker2-recovery/js/dig.js:2620:12)\n    at file:///workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/attempt.mjs:182:30"
+  },
+  "observerError": null,
+  "saveError": null,
+  "outputError": null,
+  "runDir": "/workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/runs/invocation-1D2oks",
+  "handlerRestored": true
+}

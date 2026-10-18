@@ -1,0 +1,9 @@
+{
+  "phase": "returned",
+  "callEntered": true,
+  "callCount": 1,
+  "returnValue": null,
+  "invocationError": null,
+  "primaryError": null,
+  "handlerRestored": true
+}

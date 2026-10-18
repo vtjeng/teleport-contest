@@ -1,0 +1,15 @@
+{
+  "phase": "returned",
+  "callEntered": true,
+  "callCount": 1,
+  "returnValue": null,
+  "invocation": {
+    "entry": "await unearth_objs(actualHeroX,actualHeroY,{state,random})",
+    "intent": true,
+    "entered": true,
+    "count": 1,
+    "error": null,
+    "returnValue": null
+  },
+  "primaryError": null
+}

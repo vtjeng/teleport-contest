@@ -1,0 +1,30 @@
+{
+  "task": "fix-glob-unearth-runtime-source-parity-20261018",
+  "base": "b182cdad6c254c218a020ae1bc551ed824ef3faf",
+  "frozenAt": "2026-10-18T23:41:03.522Z",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=default unearth awaits the real first floor-glob merge before continuing",
+    "scripts/dig.test.mjs"
+  ],
+  "test": {
+    "path": "scripts/dig.test.mjs",
+    "bytes": 76554,
+    "sha256": "a32e4c464d28ff1b098cbb194a5c5cce7727c8e60f2d2cb9e5d7bb7fbe9261b1"
+  },
+  "patch": {
+    "path": ".cache/fix-glob-unearth-runtime-source-parity-20261018/original-red/frozen-test.patch",
+    "bytes": 4751,
+    "sha256": "61f95de6eb4b88a300956a7aacf593d6dc8eda1499e22afffb609cd326914576"
+  },
+  "fixture": {
+    "path": ".cache/glob-unearth-main-reviewed-qualification-20261018/attempt.mjs",
+    "bytes": 15540,
+    "sha256": "bdeda7781a934d4356bb62999bd7b0a414ebe9de6accca9164273ef516e534be"
+  },
+  "original": {
+    "invent": "7729a88ff7c0143c6cb5feaf2638e14d1d934e1089582c25615c385ee49fb4e1",
+    "dig": "c69517ce9aac402577b05e599b695a30499ddf6cb4ec97565cdfda59d2e2a0f3"
+  }
+}

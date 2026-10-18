@@ -1,0 +1,97 @@
+diff --git a/js/dig.js b/js/dig.js
+index a80e2b7a2..6fb8f12ec 100644
+--- a/js/dig.js
++++ b/js/dig.js
+@@ -173,7 +173,7 @@ import {
+     set_occupation,
+     xytodir,
+ } from './cmd.js';
+-import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, update_inventory } from './invent.js';
++import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, stackobjRuntime, update_inventory } from './invent.js';
+ import { bury_an_obj } from './bury.js';
+ import { punish } from './read.js';
+ import { stop_timer, obj_stop_timers } from './timeout.js';
+@@ -2608,12 +2608,17 @@ export function unearth_objs(x, y, rawEnv = {}) {
+             obj_extract_self(obj, env);
+             if (obj.timed) stop_timer(ROT_ORGANIC, obj, state, env);
+             const placement = place_object(obj, x, y, env);
++            const stackAndContinue = () => {
++                const stacking = stackobjRuntime(obj, env);
++                return stacking && typeof stacking.then === 'function'
++                    ? Promise.resolve(stacking).then(() => expose(next))
++                    : expose(next);
++            };
+             if (placement && typeof placement.then === 'function')
+-                return placement.then(() => {
+-                    stackobj(obj, env);
+-                    return expose(next);
+-                });
+-            stackobj(obj, env);
++                return Promise.resolve(placement).then(stackAndContinue);
++            const stacking = stackobjRuntime(obj, env);
++            if (stacking && typeof stacking.then === 'function')
++                return Promise.resolve(stacking).then(() => expose(next));
+         }
+         finish();
+     };
+diff --git a/js/invent.js b/js/invent.js
+index c054d6050..31dc40ca6 100644
+--- a/js/invent.js
++++ b/js/invent.js
+@@ -3982,10 +3982,7 @@ function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
+     return true;
+ }
+ 
+-// C ref: invent.c stackobj(). Preserve the newly placed object by merging an
+-// older compatible pile member into it, which is the pointer order used by C.
+-export function stackobj(obj, env = {}) {
+-    const normalized = inventoryEnv(env);
++function floorPileForStacking(obj, normalized) {
+     if (!obj || typeof obj !== 'object')
+         throw new TypeError('stackobj requires an object');
+     const pile = normalized.state.level?.objects?.[obj.ox]?.[obj.oy];
+@@ -4002,6 +3999,14 @@ export function stackobj(obj, env = {}) {
+         if (!linked)
+             throw new Error('stackobj: object is not on its floor pile');
+     }
++    return pile;
++}
++
++// C ref: invent.c stackobj(). Preserve the newly placed object by merging an
++// older compatible pile member into it, which is the pointer order used by C.
++export function stackobj(obj, env = {}) {
++    const normalized = inventoryEnv(env);
++    const pile = floorPileForStacking(obj, normalized);
+     // sp_lev.c also calls stackobj() after putting a direct custom-inventory
+     // object into OBJ_MINVENT (or after mpickobj merged and deleted it).  C
+     // simply scans the remembered coordinate's floor pile in every case.
+@@ -4011,6 +4016,29 @@ export function stackobj(obj, env = {}) {
+     return obj;
+ }
+ 
++// Runtime counterpart for callers that must finish a source glob merge before
++// continuing. C stackobj stops at the first successful merge, so a pending
++// pudding message is awaited before either returning or scanning the next pile
++// member. The synchronous stackobj contract remains available to other callers.
++export function stackobjRuntime(obj, env = {}) {
++    const normalized = inventoryEnv(env);
++    const pile = floorPileForStacking(obj, normalized);
++    const scan = (current) => {
++        for (let candidate = current; candidate; candidate = candidate.nexthere) {
++            if (candidate === obj) continue;
++            const next = candidate.nexthere;
++            const result = mergedRuntime(obj, candidate, normalized);
++            if (isThenable(result)) {
++                return Promise.resolve(result).then((didMerge) =>
++                    didMerge ? obj : scan(next));
++            }
++            if (result) break;
++        }
++        return obj;
++    };
++    return scan(pile);
++}
++
+ // C ref: shk.c delete_contents(). Preflight the whole sibling chain before
+ // extracting any child, so a missing lifecycle dependency cannot partially
+ // destroy a container.  Extraction then updates ownership and weight at the

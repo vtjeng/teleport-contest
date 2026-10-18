@@ -1,0 +1,11 @@
+{
+  "phase": "returned",
+  "callEntered": true,
+  "callCount": 1,
+  "primaryError": null,
+  "observerError": null,
+  "saveError": null,
+  "outputError": null,
+  "runDir": "/workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/runs/invocation-slY89N",
+  "handlerRestored": true
+}

@@ -1,0 +1,93 @@
+{
+  "task": "fix-glob-unearth-runtime-source-parity-20261018",
+  "assignmentBase": "b182cdad6c254c218a020ae1bc551ed824ef3faf",
+  "frozenAt": "2026-10-18T23:43:51.850Z",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=default unearth awaits the real first floor-glob merge before continuing",
+    "scripts/dig.test.mjs"
+  ],
+  "finalTest": {
+    "path": "scripts/dig.test.mjs",
+    "bytes": 76567,
+    "sha256": "d4715b6d1102271fab6a805d3fa7dee561a6606d2360eaee85b737227a58fcd7"
+  },
+  "fixture": {
+    "path": ".cache/glob-unearth-main-reviewed-qualification-20261018/attempt.mjs",
+    "bytes": 15540,
+    "sha256": "bdeda7781a934d4356bb62999bd7b0a414ebe9de6accca9164273ef516e534be"
+  },
+  "finalSource": {
+    "invent": {
+      "path": "js/invent.js",
+      "bytes": 233731,
+      "sha256": "d602bb89d2a848b7590343ba381ed44880f13f6ba6e78ec2d56fb3b6e62bac0f"
+    },
+    "dig": {
+      "path": "js/dig.js",
+      "bytes": 99592,
+      "sha256": "2960855141af30231b8e42e9936a7b715d9df3c2574f335fd3af7eb39034a3ca"
+    }
+  },
+  "originalSource": {
+    "invent": {
+      "path": ".cache/fix-glob-unearth-runtime-source-parity-20261018/original-red/original-invent.js",
+      "bytes": 232606,
+      "sha256": "7729a88ff7c0143c6cb5feaf2638e14d1d934e1089582c25615c385ee49fb4e1"
+    },
+    "dig": {
+      "path": ".cache/fix-glob-unearth-runtime-source-parity-20261018/original-red/original-dig.js",
+      "bytes": 99184,
+      "sha256": "c69517ce9aac402577b05e599b695a30499ddf6cb4ec97565cdfda59d2e2a0f3"
+    }
+  },
+  "firstPrecodeTestHash": "a32e4c464d28ff1b098cbb194a5c5cce7727c8e60f2d2cb9e5d7bb7fbe9261b1",
+  "chronology": {
+    "originalPreFirstCodeRed": ".cache/fix-glob-unearth-runtime-source-parity-20261018/original-red",
+    "firstRepairedObserverMiss": ".cache/fix-glob-unearth-runtime-source-parity-20261018/final-green",
+    "finalSameByteOriginalRed": ".cache/fix-glob-unearth-runtime-source-parity-20261018/final-original-red",
+    "finalSameByteRepairedGreen": ".cache/fix-glob-unearth-runtime-source-parity-20261018/final-green-final"
+  },
+  "testCorrection": {
+    "authorization": "Main approved exactly the three timer-path corrections from after.after.objects.timers to after.after.timers and an exact-one SHRINK_GLOB timeout list [27]; no further test edits.",
+    "finalTestSha256": "d4715b6d1102271fab6a805d3fa7dee561a6606d2360eaee85b737227a58fcd7",
+    "finalTestBytes": 76567,
+    "finalTestCopy": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/final-freeze/final-dig.test.mjs",
+    "afterFirstProductionDraft": true
+  },
+  "originalPreFirstEdit": {
+    "testSha256": "a32e4c464d28ff1b098cbb194a5c5cce7727c8e60f2d2cb9e5d7bb7fbe9261b1",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=default unearth awaits the real first floor-glob merge before continuing",
+      "scripts/dig.test.mjs"
+    ],
+    "exitCode": 1,
+    "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/original-red/stdout.raw",
+    "runDirectory": "/workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/runs/invocation-1D2oks"
+  },
+  "finalSameBytesPair": {
+    "testSha256": "d4715b6d1102271fab6a805d3fa7dee561a6606d2360eaee85b737227a58fcd7",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=default unearth awaits the real first floor-glob merge before continuing",
+      "scripts/dig.test.mjs"
+    ],
+    "originalExitCode": 1,
+    "originalStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/final-original-red/stdout.raw",
+    "originalRunDirectory": "/workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/runs/invocation-cepFWZ",
+    "repairedExitCode": 0,
+    "repairedStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/final-green-final/stdout.raw",
+    "repairedRunDirectory": "/workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/runs/invocation-QXilPz"
+  },
+  "firstPostDraftObserverFailure": {
+    "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/final-green/stdout.raw",
+    "rawStderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-unearth-runtime-source-parity-20261018/final-green/stderr.raw",
+    "testBytesAtFailure": "d4715b6d1102271fab6a805d3fa7dee561a6606d2360eaee85b737227a58fcd7",
+    "runDirectory": "/workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/runs/invocation-slY89N",
+    "classification": "fixture target returned successfully; wrapper test dereferenced after.after.objects.timers; only after.after.timers exists; retained unchanged raw output and full state"
+  }
+}

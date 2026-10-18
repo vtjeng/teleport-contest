@@ -1,0 +1,8 @@
+{
+  "entry": "await unearth_objs(actualHeroX,actualHeroY,{state,random})",
+  "intent": true,
+  "entered": false,
+  "count": 0,
+  "expectedNextCallCount": 1,
+  "nextPhase": "target"
+}

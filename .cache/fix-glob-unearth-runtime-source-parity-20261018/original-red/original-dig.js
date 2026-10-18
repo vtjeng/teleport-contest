@@ -1,0 +1,2621 @@
+// dig.js -- what a wielded digging tool is pointed at, what rots away, and
+// how Mine Town watchmen respond to digging.
+// C refs: src/dig.c use_pick_axe(), use_pick_axe2(), dig_typ(),
+// rot_organic(), rot_corpse(),
+// watchman_canseeu(), watch_dig().
+//
+// dig.c bury_an_obj() is ported in js/bury.js, which predates this file and
+// keeps its own name because it also holds zap.c obj_resists().
+
+import {
+    AM_MASK,
+    AM_SANCTUM,
+    A_LAWFUL,
+    A_CHA,
+    A_CON,
+    A_DEX,
+    A_INT,
+    A_STR,
+    A_WIS,
+    COLNO,
+    COULD_SEE,
+    CORR,
+    ALTAR,
+    DEAF,
+    CQ_CANNED,
+    DB_MOAT,
+    DB_LAVA,
+    DBWALL,
+    DB_UNDER,
+    D_BROKEN,
+    D_NODOOR,
+    D_TRAPPED,
+    DOOR,
+    DIR_ERR,
+    DIR_180,
+    DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
+    DISP_BEAM,
+    DISP_END,
+    DIGCHECK_FAILED,
+    DIGCHECK_FAIL_AIRLEVEL,
+    DIGCHECK_FAIL_ALTAR,
+    DIGCHECK_FAIL_BOULDER,
+    DIGCHECK_FAIL_CANTDIG,
+    DIGCHECK_FAIL_OBJ_POOL_OR_TRAP,
+    DIGCHECK_FAIL_ONLADDER,
+    DIGCHECK_FAIL_ONSTAIRS,
+    DIGCHECK_FAIL_THRONE,
+    DIGCHECK_FAIL_TOOHARD,
+    DIGCHECK_FAIL_UNDESTROYABLETRAP,
+    DIGCHECK_FAIL_WATERLEVEL,
+    DIGCHECK_PASSED,
+    DIGCHECK_PASSED_DESTROY_TRAP,
+    DIGCHECK_PASSED_PITONLY,
+    ECMD_CANCEL,
+    ECMD_OK,
+    ECMD_TIME,
+    EXPL_MAGICAL,
+    N_DIRS,
+    FOOT,
+    NO_PART,
+    FUMBLING,
+    FORCETRAP,
+    F_WARNED,
+    DIGTYP_DOOR,
+    DIGTYP_BOULDER,
+    DIGTYP_ROCK,
+    DIGTYP_STATUE,
+    DIGTYP_TREE,
+    DIGTYP_UNDIGGABLE,
+    FAINTED,
+    FORCEBUNGLE,
+    Has_contents,
+    HALLUC,
+    HALLUC_RES,
+    IRONBARS,
+    IN_SIGHT,
+    IS_WATERWALL,
+    WEB,
+    IS_ALTAR,
+    IS_DOOR,
+    IS_FOUNTAIN,
+    IS_FURNITURE,
+    IS_ROOM,
+    IS_OBSTRUCTED,
+    IS_GRAVE,
+    IS_SINK,
+    IS_THRONE,
+    IS_TREE,
+    IS_WALL,
+    IS_STWALL,
+    LAVAPOOL,
+    LAVAWALL,
+    MOAT,
+    HOLE,
+    TRAPDOOR,
+    PIT,
+    OBJ_AT,
+    OBJ_FLOOR,
+    OBJ_INVENT,
+    OBJ_MINVENT,
+    OBJ_MIGRATING,
+    CXN_NO_PFX,
+    POOL,
+    ROOM,
+    ROWNO,
+    N_DIRS_Z,
+    MV_WALK,
+    TT_WEB,
+    TT_PIT,
+    SCORR,
+    SDOOR,
+    SHOPBASE,
+    SHOP_DOOR_COST,
+    SHOP_WALL_COST,
+    SHOP_PIT_COST,
+    STONE,
+    TRAP_EXPLODE,
+    TT_BURIEDBALL,
+    TT_INFLOOR,
+    A_NONE,
+    NO_TRAP_FLAGS,
+    MIGR_RANDOM,
+    u_at,
+    W_NONDIGGABLE,
+    Is_airlevel,
+    Is_earthlevel,
+    Is_waterlevel,
+    is_pit,
+    is_hole,
+    undestroyable_trap,
+    is_magical_trap,
+    LANDMINE,
+    BEAR_TRAP,
+    KILLED_BY,
+    KILLED_BY_AN,
+    HALF_PHDAM,
+    HEAD,
+    STOMACH,
+    MM_NOMSG,
+    RIGHT_SIDE,
+    RLOC_NOMSG,
+    ROT_ORGANIC,
+    TAINT_AGE,
+    Amask2align,
+    xdir,
+    ydir,
+} from './const.js';
+import { isok } from './cmd_isok.js';
+import { game } from './gstate.js';
+import { impact_drop } from './dokick.js';
+import { objectGenerationEnv } from './object_generation.js';
+// js/hack.js imports dig_typ(); both crossings occur only inside function
+// bodies, so the source-owned in_town() remains safe across the cycle.
+import {
+    in_town, losehp, may_dig, nh_delay_output, nomul, pooleffects, spot_checks, spoteffects, switch_terrain,
+} from './hack.js';
+import {
+    can_reach_floor,
+    cant_reach_floor,
+    del_engr_at,
+    u_wipe_engr,
+} from './engrave.js';
+import {
+    cmd_from_dir,
+    cmdq_add_ec,
+    cmdq_add_key,
+    dxdy_moveok,
+    extcmdRow,
+    getdir,
+    movecmd,
+    confdir,
+    set_occupation,
+    xytodir,
+} from './cmd.js';
+import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, update_inventory } from './invent.js';
+import { bury_an_obj } from './bury.js';
+import { punish } from './read.js';
+import { stop_timer, obj_stop_timers } from './timeout.js';
+import {
+    add_damage, costly_spot, make_angry_shk, pay_for_damage,
+    shop_keeper, shopdig, stolen_value,
+} from './shk.js';
+import { shkname } from './shknam.js';
+import {
+    dmgtype_fromattack, grounded, hides_under, is_flyer, is_floater,
+    is_watch, is_whirly, passes_walls, unique_corpstat,
+} from './mondata.js';
+import {
+    angry_guards,
+    deal_with_overcrowding,
+    get_iter_mons,
+    hideunder,
+    maybe_unhide_at,
+    minliquid,
+    wake_nearby,
+} from './mon.js';
+import { closed_door, youHear } from './monmove.js';
+import { m_at } from './monst.js';
+import {
+    APPLE,
+    BANANA,
+    BEARTRAP,
+    BOULDER,
+    COIN_CLASS,
+    EUCALYPTUS_LEAF,
+    HEAVY_IRON_BALL,
+    LAND_MINE,
+    ORANGE,
+    PEAR,
+    ROCK,
+    GLASS,
+    STATUE,
+} from './objects.js';
+import { cvt_sdoor_to_door } from './detect.js';
+import {
+    cmap_to_glyph, feel_newsym, flush_screen, map_glyphinfo, newsym, tmp_at,
+} from './display.js';
+import { verbalize } from './pline.js';
+import { in_rooms } from './rooms.js';
+import { acurr, acurrstr, adjalign, exercise } from './attrib.js';
+import {
+    greatest_erosion,
+    is_axe,
+    is_helmet,
+    isMetallic,
+    is_pick,
+    mksobj_at,
+    objectType,
+    obj_ice_effects,
+    place_object,
+    remove_object,
+    rnd_treefruit_at,
+} from './obj.js';
+import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
+import { d, rn1, rn2, rn2_on_display_rng, rne, rnl, rnd, rnz } from './rng.js';
+import { set_voice } from './sounds.js';
+import {
+    Flying,
+    Levitation,
+    b_trapped,
+    conjoined_pits,
+    cnv_trap_obj,
+    deltrap,
+    maketrap,
+    reset_utrap,
+    set_utrap,
+    t_at,
+    trapname,
+    delfloortrap,
+    uteetering_at_seen_pit,
+    uescaped_shaft,
+} from './trap.js';
+import { feeltrap, seetrap } from './trap_effects.js';
+import { bimanual } from './worn.js';
+import { On_stairs, stairway_at } from './stairs.js';
+import { dist2, s_suffix } from './hacklib.js';
+import { unconscious } from './trap.js';
+import {
+    displayPendingTtyMessageWindow, ttyPline,
+} from './tty_message.js';
+import { wield_tool, welded } from './wield.js';
+import { Can_dig_down, ceiling, depth, dunlevs_in_dungeon, get_level, ledger_no, on_level, surface } from './dungeon.js';
+import { abon, dbon, dmgval, setmnotwielded } from './weapon.js';
+import {
+    corpse_xname, otense, simpleonames, the, xnameFresh, yname, yobjnam, Yobjnam2,
+} from './objnam.js';
+import { altar_wrath, altarmask_at, desecrate_altar } from './pray.js';
+import { note_unported } from './unported.js';
+import { angry_priest } from './priest.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { mk_tt_object } from './mkroom.js';
+import { mkclass } from './makemon.js';
+import {
+    PM_ARCHEOLOGIST,
+    PM_SAMURAI,
+    S_MUMMY,
+    S_ZOMBIE,
+} from './monsters.js';
+import { CORPSE } from './objects.js';
+import {
+    PM_DWARF, PM_EARTH_ELEMENTAL, PM_ELF, PM_RANGER, PM_XORN,
+} from './monsters.js';
+import { dogushforth, dryup, breaksink } from './fountain.js';
+import {
+    destroy_drawbridge,
+    find_drawbridge,
+    is_db_wall,
+    is_drawbridge_wall,
+    is_moat,
+    is_pool,
+    is_lava,
+    is_pool_or_lava,
+} from './dbridge.js';
+
+import { hliquid, mon_nam } from './do_name.js';
+import { S_digbeam } from './symbols.js';
+import { align_str } from './insight.js';
+import { an, An } from './objnam.js';
+import { Monnam } from './do_name.js';
+import { goto_level } from './do.js';
+import { next_to_u } from './apply_next_to_u.js';
+import { mintrap } from './trap_effects.js';
+import { rloc, teleport_pet } from './teleport.js';
+import { migrate_to_level } from './dog.js';
+import { count_wsegs } from './worm.js';
+import { AD_DGST, AT_ENGL, MZ_HUGE } from './monsters.js';
+import { canseemon } from './display.js';
+import { expels } from './mhitu.js';
+import { body_part, mbodypart } from './polyself.js';
+
+// C ref: youprop.h Unaware. The draft-message random roll is skipped while a
+// negative multi represents unconsciousness or fainting.
+function unaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
+}
+
+// C ref: dig.c pick_can_reach() (141-164). A pick reaches a target in a pit
+// only when the hero's pit links to it; otherwise the hero must be able to
+// reach across with a two-handed tool. Outside a pit, bimanual tools and
+// flying heroes can reach any target, while a one-handed pick cannot reach a
+// target in a known pit.
+export function pick_can_reach(pick, x, y, state = game) {
+    const trap = t_at(x, y, state);
+    const targetInPit = Boolean(trap && is_pit(trap.ttyp) && trap.tseen);
+
+    if (state.u?.utrap && state.u.utraptype === TT_PIT) {
+        if (targetInPit)
+            return conjoined_pits(
+                trap,
+                t_at(state.u.ux, state.u.uy, state),
+                false,
+                state,
+            );
+        return bimanual(pick, state);
+    }
+
+    if (bimanual(pick, state) || Flying(state)) return true;
+    return !targetInPit;
+}
+
+// C ref: dig.c dig_typ() (167-192). Answers what digging into <x,y> with
+// `otmp` would break: a door, a tree, rock, or nothing diggable at all.
+// DIGTYP_UNDIGGABLE is 0, so C's callers spell the question as a plain truth
+// test on the result.
+//
+// All source arms are ported, including the two object arms whose reach rule
+// is shared with use_pick_axe2().
+//
+// The order of the pick's remaining arms is what dig.c's own "pick vs tree"
+// comment marks. A tree is answered DIGTYP_UNDIGGABLE before IS_OBSTRUCTED()
+// is asked, and TREE is obstructed, so without that arm a pick would be told
+// to dig a tree as rock. The arboreal conjunct beneath it asks a separate
+// question and settles only the obstructed types that are neither walls nor
+// trees, which leaves the two secret ones, SDOOR and SCORR.
+// C ref: dig.c is_digging() (195-201). C compares the occupation function
+// pointer; set_occupation() stores this same callback in state.go.
+export function is_digging(state = game) {
+    return state.go?.occupation === dig;
+}
+
+// C ref: dig.c rm_waslit() (30-45), the neighborhood predicate used by
+// mkcavearea() before it rewrites the terrain around the hero.
+export function rm_waslit(state = game) {
+    const { ux, uy } = state.u;
+    const center = state.level.at(ux, uy);
+    if (center.typ === ROOM && center.waslit) return true;
+    for (let x = ux - 2; x < ux + 3; ++x) {
+        for (let y = uy - 1; y < uy + 2; ++y) {
+            if (isok(x, y) && state.level.at(x, y).waslit) return true;
+        }
+    }
+    return false;
+}
+
+// C ref: dig.c mkcavepos() (48-86). The rockit arm keeps obstructing terrain,
+// traps, and wall-walking monsters out of the new ceiling-collapse footprint.
+export async function mkcavepos(
+    x, y, dist, waslit, rockit, state = game, rawEnv = {},
+) {
+    if (!isok(x, y)) return;
+    const location = state.level.at(x, y);
+    if (rockit) {
+        if (IS_OBSTRUCTED(location.typ, state) || t_at(x, y, state)) return;
+        const monster = m_at(x, y, state);
+        if (monster && !passes_walls(monster.data)) {
+            const relocate = rawEnv.relocateMonster ?? rloc;
+            await relocate(monster, RLOC_NOMSG, {
+                ...rawEnv,
+                state,
+                random: {
+                    d, rn1, rn2, rne, rnl, rnd, rnz,
+                    ...(rawEnv.random ?? {}),
+                },
+            });
+        }
+    } else if (location.typ === ROOM) {
+        return;
+    }
+
+    const unblockPoint = rawEnv.unblockPoint ?? unblock_point;
+    unblockPoint(x, y, state);
+    location.seenv = 0;
+    location.flags = 0;
+    if ('doormask' in location) location.doormask = 0;
+    if (dist < 3) location.lit = !rockit;
+    if (waslit) location.waslit = !rockit;
+    location.horizontal = false;
+    state.viz_array[y][x] = dist < 3 ? IN_SIGHT | COULD_SEE : COULD_SEE;
+    location.typ = rockit ? STONE : ROOM;
+
+    // C's impossible() here is a debug diagnostic: mkcavearea() calls this
+    // helper only with distances one and two.
+    const feelNewsym = rawEnv.feelNewsym ?? feel_newsym;
+    feelNewsym(x, y, state);
+}
+
+// C ref: dig.c mkcavearea() (88-128). Its display window is a forced TTY
+// boundary; each of the two terrain rings is then flushed and delay-captured
+// before the next ring is changed.
+export async function mkcavearea(
+    rockit, state = game, rawEnv = {},
+) {
+    const { ux, uy } = state.u;
+    let xmin = ux;
+    let xmax = ux;
+    let ymin = uy;
+    let ymax = uy;
+    const waslit = rm_waslit(state);
+    const message = rawEnv.message ?? ttyPline;
+
+    if (rockit) {
+        // Soundeffect(se_crashing_rock, 100) is a no-op in the recorder TTY.
+        await message('Crash!  The ceiling collapses around you!', state, rawEnv);
+    } else {
+        const creates = state.level.at(ux, uy).typ === CORR;
+        await message(
+            `A mysterious force ${creates ? 'creates a' : 'extends the'} cave around you!`,
+            state,
+            rawEnv,
+        );
+    }
+    const displayMessageWindow = rawEnv.displayMessageWindow
+        ?? displayPendingTtyMessageWindow;
+    await displayMessageWindow(state);
+
+    for (let dist = 1; dist <= 2; ++dist) {
+        xmin--;
+        xmax++;
+        if (dist < 2) {
+            ymin--;
+            ymax++;
+            for (let i = xmin + 1; i < xmax; ++i) {
+                await mkcavepos(i, ymin, dist, waslit, rockit, state, rawEnv);
+                await mkcavepos(i, ymax, dist, waslit, rockit, state, rawEnv);
+            }
+        }
+        for (let i = ymin; i <= ymax; ++i) {
+            await mkcavepos(xmin, i, dist, waslit, rockit, state, rawEnv);
+            await mkcavepos(xmax, i, dist, waslit, rockit, state, rawEnv);
+        }
+
+        const flushScreen = rawEnv.flushScreen ?? flush_screen;
+        const delayOutput = rawEnv.delayOutput ?? nh_delay_output;
+        await flushScreen(1);
+        await delayOutput(state);
+    }
+
+    if (!rockit && state.level.at(ux, uy).typ === CORR) {
+        const center = state.level.at(ux, uy);
+        center.typ = ROOM;
+        if (waslit) center.waslit = true;
+        newsym(ux, uy);
+    }
+
+    state.vision_full_recalc = 1;
+}
+
+// C ref: dig.c dig_check() (207-253). `madeby === null` represents C's
+// BY_OBJECT pointer; every non-null actor follows the hero/tool rule. This
+// helper reads terrain, traps and level state only and consumes no RNG.
+export function dig_check(madeby, x, y, state = game) {
+    const trap = t_at(x, y, state);
+    const location = state.level.at(x, y);
+
+    if (On_stairs(x, y, state)) {
+        return stairway_at(x, y, state).isladder
+            ? DIGCHECK_FAIL_ONLADDER : DIGCHECK_FAIL_ONSTAIRS;
+    }
+    if (IS_THRONE(location.typ) && madeby !== null)
+        return DIGCHECK_FAIL_THRONE;
+    if (IS_ALTAR(location.typ)
+        && (madeby !== null
+            || (altarmask_at(x, y, state) & AM_SANCTUM) !== 0)) {
+        return DIGCHECK_FAIL_ALTAR;
+    }
+    if (on_level(state.u?.uz, state.air_level, state))
+        return DIGCHECK_FAIL_AIRLEVEL;
+    if (on_level(state.u?.uz, state.water_level, state))
+        return DIGCHECK_FAIL_WATERLEVEL;
+    if (IS_OBSTRUCTED(location.typ) && location.typ !== SDOOR
+        && (location.wall_info & W_NONDIGGABLE) !== 0) {
+        return DIGCHECK_FAIL_TOOHARD;
+    }
+    if (trap && undestroyable_trap(trap.ttyp))
+        return DIGCHECK_FAIL_UNDESTROYABLETRAP;
+    if (!Can_dig_down(state.u?.uz, state)
+        && !location.candig) {
+        if (trap) {
+            return !is_hole(trap.ttyp) && !is_pit(trap.ttyp)
+                ? DIGCHECK_PASSED_DESTROY_TRAP : DIGCHECK_FAIL_CANTDIG;
+        }
+        return DIGCHECK_PASSED_PITONLY;
+    }
+    if (sobj_at(BOULDER, x, y, state))
+        return DIGCHECK_FAIL_BOULDER;
+    if (madeby === null && (trap || is_pool_or_lava(x, y, state)))
+        return DIGCHECK_FAIL_OBJ_POOL_OR_TRAP;
+    return DIGCHECK_PASSED;
+}
+
+// C ref: dig.c digcheck_fail_message() (255-298). The source helper writes
+// only its selected failure line; hliquid owns display-RNG use on water level.
+export async function digcheck_fail_message(
+    digresult, madeby, x, y, state = game, env = {},
+) {
+    if (digresult < DIGCHECK_FAILED) return;
+    const verb = madeby === state.youmonst && state.uwep
+        && is_axe(state.uwep, state) ? 'chop' : 'dig in';
+    const message = env.message ?? ttyPline;
+    switch (digresult) {
+    case DIGCHECK_FAIL_AIRLEVEL:
+        await message(`You cannot ${verb} thin air.`, state, env);
+        break;
+    case DIGCHECK_FAIL_ALTAR:
+        await message('The altar is too hard to break apart.', state, env);
+        break;
+    case DIGCHECK_FAIL_BOULDER:
+        await message(`There isn't enough room to ${verb} here.`, state, env);
+        break;
+    case DIGCHECK_FAIL_ONLADDER:
+        await message('The ladder resists your effort.', state, env);
+        break;
+    case DIGCHECK_FAIL_ONSTAIRS:
+        await message(`The stairs are too hard to ${verb}.`, state, env);
+        break;
+    case DIGCHECK_FAIL_THRONE:
+        await message('The throne is too hard to break apart.', state, env);
+        break;
+    case DIGCHECK_FAIL_CANTDIG:
+    case DIGCHECK_FAIL_TOOHARD:
+    case DIGCHECK_FAIL_UNDESTROYABLETRAP:
+        await message(`The ${surface(x, y, state)} here is too hard to ${verb}.`, state, env);
+        break;
+    case DIGCHECK_FAIL_WATERLEVEL: {
+        const { hliquid } = await import('./do_name.js');
+        await message(`The ${hliquid('water', { ...env, state })} splashes and subsides.`, state, env);
+        break;
+    }
+    case DIGCHECK_FAIL_OBJ_POOL_OR_TRAP:
+    case DIGCHECK_PASSED:
+    case DIGCHECK_PASSED_PITONLY:
+    case DIGCHECK_PASSED_DESTROY_TRAP:
+        break;
+    default:
+        break;
+    }
+}
+
+function resetDigging(digging) {
+    Object.assign(digging, {
+        down: false,
+        chew: false,
+        warned: false,
+        quiet: false,
+        pos: { x: 0, y: 0 },
+        level: { dnum: 0, dlevel: 0 },
+        effort: 0,
+        lastdigtime: 0,
+    });
+}
+
+// C ref: dig.c dig() (300-570). Both axes share the same occupation state;
+// the caller's Boolean decides whether allmain.c keeps running this callback.
+export async function dig(state = game, rawEnv = {}) {
+    const { u } = state;
+    const digging = state.context?.digging;
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message ?? ttyPline;
+    const weapon = state.uwep;
+    const ispick = Boolean(weapon && is_pick(weapon, state));
+    const verb = !weapon || ispick ? 'dig into' : 'chop through';
+    const x = digging?.pos?.x;
+    const y = digging?.pos?.y;
+
+    if (u?.uswallow || !weapon
+        || (!ispick && !is_axe(weapon, state))
+        || !on_level(digging?.level, u?.uz, state)
+        || (digging.down
+            ? (x !== u.ux || y !== u.uy)
+            : dist2(x, y, u.ux, u.uy) > 2)) {
+        return 0;
+    }
+
+    const location = state.level.at(x, y);
+    let digcheck = DIGCHECK_PASSED;
+    if (digging.down) {
+        digcheck = dig_check(state.youmonst, u.ux, u.uy, state);
+        if (digcheck >= DIGCHECK_FAILED) {
+            await digcheck_fail_message(
+                digcheck, state.youmonst, u.ux, u.uy, state,
+                { ...rawEnv, random, message },
+            );
+            return 0;
+        }
+    } else if (IS_TREE(location.typ, state) && !may_dig(x, y, state)
+        && dig_typ(weapon, x, y, state) === DIGTYP_TREE) {
+        await message('This tree seems to be petrified.', state, rawEnv);
+        return 0;
+    } else if (IS_OBSTRUCTED(location.typ, state) && !may_dig(x, y, state)
+        && dig_typ(weapon, x, y, state) === DIGTYP_ROCK) {
+        await message(
+            `This ${is_db_wall(x, y, state) ? 'drawbridge' : 'wall'} is too hard to ${verb}.`,
+            state,
+            rawEnv,
+        );
+        return 0;
+    }
+
+    const fumbling = Boolean(u.uprops?.[FUMBLING]?.intrinsic
+        || u.uprops?.[FUMBLING]?.extrinsic);
+    if (fumbling && !random.rn2(3)) {
+        switch (random.rn2(3)) {
+        case 0:
+            if (!welded(weapon, state, rawEnv)) {
+                await message(
+                    `You fumble and drop ${yname(weapon, state)}.`, state,
+                    rawEnv,
+                );
+                const { dropx, dropCommandEnv } = await import('./do.js');
+                await dropx(weapon, dropCommandEnv(state, {
+                    ...rawEnv, state, random, message,
+                }));
+            } else {
+                const bounce = Yobjnam2(weapon, 'bounce', state);
+                const hit = otense(weapon, 'hit', state);
+                if (u.usteed) {
+                    await message(
+                        `${bounce} and ${hit} ${mon_nam(u.usteed, state)}!`,
+                        state,
+                        rawEnv,
+                    );
+                } else {
+                    await message(`Ouch!  ${bounce} and ${hit} you!`, state, rawEnv);
+                }
+                const { set_wounded_legs } = await import('./do.js');
+                await set_wounded_legs(
+                    RIGHT_SIDE,
+                    5 + random.rnd(5),
+                    state,
+                    { ...rawEnv, message },
+                );
+            }
+            break;
+        case 1:
+            // The recorder is built with the nosound backend, where C's
+            // Soundeffect() macro is a no-op.
+            await message(
+                `Bang!  You hit with the broad side of ${the(xnameFresh(weapon, state), state)}!`,
+                state,
+                rawEnv,
+            );
+            await wake_nearby(false, { ...rawEnv, state, random, message });
+            break;
+        default:
+            await message('Your swing misses its mark.', state, rawEnv);
+            break;
+        }
+        return 0;
+    }
+
+    digging.effort = Math.trunc(digging.effort ?? 0)
+        + 10 + random.rn2(5) + abon(state) + Math.trunc(weapon.spe ?? 0)
+        - greatest_erosion(weapon) + Math.trunc(u.udaminc ?? 0);
+    if (state.urace?.mnum === PM_DWARF) digging.effort *= 2;
+
+    if (digging.down) {
+        const trap = t_at(x, y, state);
+        if (digging.effort > 250 || trap?.ttyp === HOLE) {
+            await dighole(false, false, null, {
+                ...rawEnv, state, message, random,
+            });
+            resetDigging(digging);
+            return 0;
+        }
+        if (digging.effort <= 50 || trap?.ttyp === TRAPDOOR
+            || (trap && is_pit(trap.ttyp))) {
+            return 1;
+        }
+        if (trap && (trap.ttyp === LANDMINE
+            || (trap.ttyp === BEAR_TRAP && !u.utrap))) {
+            const { dotrap } = await import('./trap_effects.js');
+            await dotrap(trap, FORCETRAP, state);
+            resetDigging(digging);
+            return 0;
+        }
+        if (trap?.ttyp === BEAR_TRAP && u.utrap) {
+            if (random.rnl(7) > (fumbling ? 1 : 4)) {
+                const damageResult = dmgval(
+                    weapon,
+                    state.youmonst,
+                    state,
+                    { ...rawEnv, random },
+                ) + dbon(state);
+                let damage = damageResult;
+                if (damage < 1) damage = 1;
+                else if (u.uarmf) damage = Math.trunc((damage + 1) / 2);
+                const { body_part } = await import('./polyself.js');
+                const part = body_part(FOOT, state.youmonst);
+                await message(`You hit yourself in the ${part}.`, state, rawEnv);
+                const own = state.flags?.female ? 'her' : 'his';
+                await losehp(
+                    maybeHalfPhysical(damage, state),
+                    `chopping off ${own} own ${part}`,
+                    KILLED_BY,
+                    state,
+                    { ...rawEnv, message },
+                );
+            } else {
+                await message(
+                    `You destroy the bear trap with ${yobjnam(weapon, null, state)}.`,
+                    state,
+                    rawEnv,
+                );
+                await deltrap(trap, state);
+                await reset_utrap(true, state);
+            }
+            digging.effort = 0;
+            return 0;
+        }
+        if (trap && digcheck === DIGCHECK_PASSED_DESTROY_TRAP) {
+            if (ispick) {
+                const name = trapname(trap.ttyp, false, state);
+                await message(
+                    `You destroy ${trap.tseen ? `the ${name}` : `a ${name}`} with ${yobjnam(weapon, null, state)}.`,
+                    state,
+                    rawEnv,
+                );
+            }
+            await deltrap(trap, state);
+            digging.effort = 0;
+            return 0;
+        }
+
+        if (IS_ALTAR(location.typ, state)) {
+            await altar_wrath(x, y, state);
+            await angry_priest(state, rawEnv);
+        }
+        if (await dighole(true, false, null, {
+            ...rawEnv, state, message, random,
+        })) {
+            digging.level = { dnum: 0, dlevel: -1 };
+        }
+        return 0;
+    }
+
+    if (digging.effort > 100) {
+        let digtext;
+        let damageText = null;
+        const shopedge = in_rooms(x, y, SHOPBASE, state).length > 0;
+        const digtype = dig_typ(weapon, x, y, state);
+        const object = sobj_at(STATUE, x, y, state);
+        if (digtype === DIGTYP_STATUE && object) {
+            const { break_statue } = await import('./zap.js');
+            digtext = await break_statue(object, state, random, {
+                ...rawEnv, message,
+            })
+                ? 'The statue shatters.' : null;
+        } else if (digtype === DIGTYP_BOULDER
+            && (sobj_at(BOULDER, x, y, state))) {
+            const boulder = sobj_at(BOULDER, x, y, state);
+            const { fracture_rock } = await import('./zap.js');
+            await fracture_rock(boulder, state, random, rawEnv);
+            const remainingBoulder = sobj_at(BOULDER, x, y, state);
+            if (remainingBoulder) {
+                obj_extract_self(remainingBoulder, { ...rawEnv, state });
+                place_object(remainingBoulder, x, y, { ...rawEnv, state });
+            }
+            digtext = 'The boulder falls apart.';
+        } else if (location.typ === STONE || location.typ === SCORR
+            || IS_TREE(location.typ, state)) {
+            if (Is_earthlevel(u.uz, state)) {
+                if (weapon.blessed && !random.rn2(3)) {
+                    await mkcavearea(false, state, {
+                        ...rawEnv, random, message,
+                    });
+                    finishDigging(digging, state);
+                    return 0;
+                } else if ((weapon.cursed && !random.rn2(4))
+                    || (!weapon.blessed && !random.rn2(6))) {
+                    await mkcavearea(true, state, {
+                        ...rawEnv, random, message,
+                    });
+                    finishDigging(digging, state);
+                    return 0;
+                }
+            }
+            if (digtype === DIGTYP_TREE) {
+                digtext = 'You cut down the tree.';
+                setTerrain(location, ROOM);
+                if (!random.rn2(5))
+                    rnd_treefruit_at(x, y, objectGenerationEnv({
+                        ...rawEnv, state, random,
+                    }));
+                if (state.urace?.mnum === PM_ELF
+                    || state.urole?.mnum === PM_RANGER) {
+                    adjalign(-1, state);
+                }
+            } else {
+                digtext = 'You succeed in cutting away some rock.';
+                setTerrain(location, CORR);
+            }
+        } else if (IS_WALL(location.typ, state)) {
+            if (shopedge) {
+                add_damage(x, y, 10 * acurrstr(state), state);
+                damageText = 'damage';
+            }
+            if (state.level.flags?.is_maze_lev) {
+                setTerrain(location, ROOM);
+            } else if (state.level.flags?.is_cavernous_lev
+                && !in_town(x, y, state)) {
+                setTerrain(location, CORR);
+            } else {
+                setTerrain(location, DOOR, D_NODOOR);
+            }
+            digtext = 'You make an opening in the wall.';
+        } else if (location.typ === SDOOR) {
+            cvt_sdoor_to_door(location, state);
+            digtext = 'You break through a secret door!';
+            if (!(location.doormask & D_TRAPPED))
+                location.doormask = D_BROKEN;
+        } else if (closed_door(x, y, state)) {
+            digtext = `You break through the door with your ${simpleonames(weapon, state)}.`;
+            if (shopedge) {
+                add_damage(x, y, SHOP_DOOR_COST, state);
+                damageText = 'break';
+            }
+            if (!(location.doormask & D_TRAPPED))
+                location.doormask = D_BROKEN;
+        } else {
+            return 0;
+        }
+
+        if (!does_block(x, y, location, state)) unblock_point(x, y, state);
+        feel_newsym(x, y, state);
+        if (digtext && !digging.quiet)
+            await message(digtext, state, rawEnv);
+        if (damageText) await pay_for_damage(damageText, false, state, rawEnv);
+
+        if (Is_earthlevel(u.uz, state) && !random.rn2(3)) {
+            const monsterIndex = random.rn2(2)
+                ? PM_EARTH_ELEMENTAL : PM_XORN;
+            const { makemon_runtime } = await import('./makemon_create.js');
+            const { stop_occupation } = await import('./allmain.js');
+            const monster = await makemon_runtime(
+                state.mons[monsterIndex],
+                x,
+                y,
+                MM_NOMSG,
+                {
+                    ...rawEnv,
+                    state,
+                    random,
+                    message,
+                    norepMessage: rawEnv.norepMessage ?? message,
+                    hooks: {
+                        ...(rawEnv.hooks ?? {}),
+                        stopOccupation: rawEnv.hooks?.stopOccupation
+                            ?? ((_monster, hookEnv) => stop_occupation(
+                                hookEnv.state,
+                                { ...hookEnv, message },
+                            )),
+                    },
+                },
+            );
+            if (monster)
+                await message('The debris from your digging comes to life!', state, rawEnv);
+        }
+        if (IS_DOOR(location.typ, state) && (location.doormask & D_TRAPPED)) {
+            location.doormask = D_NODOOR;
+            location.flags = D_NODOOR;
+            await b_trapped('door', NO_PART, state, { ...rawEnv, random, message });
+            recalc_block_point(x, y, state);
+            newsym(x, y, state);
+        }
+        finishDigging(digging, state);
+        return 0;
+    }
+
+    const targets = ['', 'rock', 'statue', 'boulder', 'door', 'tree'];
+    if (IS_WALL(location.typ, state) || dig_typ(weapon, x, y, state) === DIGTYP_DOOR) {
+        if (in_rooms(x, y, SHOPBASE, state).length) {
+            await message(
+                `This ${IS_DOOR(location.typ, state) ? 'door' : 'wall'} seems too hard to ${verb}.`,
+                state,
+                rawEnv,
+            );
+            return 0;
+        }
+    } else {
+        const target = dig_typ(weapon, x, y, state);
+        if (target === DIGTYP_UNDIGGABLE
+            || (target === DIGTYP_ROCK && !IS_OBSTRUCTED(location.typ, state))) {
+            return 0;
+        }
+    }
+    if (!state.gd?.did_dig_msg) {
+        state.gd ??= {};
+        await message(`You hit the ${targets[dig_typ(weapon, x, y, state)]} with all your might.`, state, rawEnv);
+        await wake_nearby(false, { ...rawEnv, state, random, message });
+        state.gd.did_dig_msg = true;
+    }
+    return 1;
+}
+
+function finishDigging(digging, state) {
+    digging.lastdigtime = state.moves ?? 0;
+    digging.quiet = false;
+    digging.level = { dnum: 0, dlevel: -1 };
+}
+
+// C ref: dig.c watchman_canseeu() (1362-1368). The guard must be a watchman,
+// able to see, able to see the hero, and peaceful. m_canseeu() owns the
+// compiled vision variant, including the hero's invisibility and underwater
+// checks.
+export function watchman_canseeu(mtmp, state = game) {
+    return is_watch(mtmp?.data)
+        && mtmp.mcansee
+        && m_canseeu(mtmp, state)
+        && mtmp.mpeaceful;
+}
+
+function heroDeaf(state) {
+    const deafness = state.u?.uprops?.[DEAF] ?? {};
+    return Boolean(
+        deafness.intrinsic || deafness.extrinsic
+        || state.u?.uroleplay?.deaf,
+    );
+}
+
+// C ref: dig.c watch_dig() (1377-1410). This is called by the monster watch,
+// chewing, and wand-digging paths before their terrain mutation. The optional
+// operations keep focused tests independent while production uses the same
+// source-owned helpers and live game state.
+export async function watch_dig(mtmp, x, y, zap, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const inTown = in_town(x, y, state);
+    const lev = state.level?.at(x, y);
+    if (!inTown || !lev
+        || !(closed_door(x, y, state)
+            || lev.typ === SDOOR
+            || IS_WALL(lev.typ)
+            || IS_FOUNTAIN(lev.typ)
+            || IS_TREE(lev.typ, state))) {
+        return;
+    }
+
+    const findWatchman = rawEnv.getIterMons ?? get_iter_mons;
+    if (!mtmp)
+        mtmp = findWatchman(
+            (candidate) => watchman_canseeu(candidate, state), state,
+        );
+    if (!mtmp) return;
+
+    set_voice(mtmp, 0, 80, 0, state);
+    if (zap || state.context?.digging?.warned) {
+        await verbalize(
+            'Halt, vandal!  You\'re under arrest!',
+            state,
+            { message },
+        );
+        const anger = rawEnv.angryGuards ?? angry_guards;
+        await anger(heroDeaf(state), { ...rawEnv, state, message });
+    } else {
+        const target = IS_DOOR(lev.typ) ? 'door'
+            : IS_TREE(lev.typ, state) ? 'tree'
+                : IS_OBSTRUCTED(lev.typ) ? 'wall' : 'fountain';
+        await verbalize(`Hey, stop damaging that ${target}!`, state, {
+            message,
+        });
+        state.context ??= {};
+        state.context.digging ??= {};
+        state.context.digging.warned = true;
+    }
+
+    if (is_digging(state)) {
+        const stop = rawEnv.stopOccupation
+            ?? (await import('./allmain.js')).stop_occupation;
+        await stop(state, { ...rawEnv, state, message });
+    }
+}
+
+export function dig_typ(otmp, x, y, state = game) {
+    if (!isok(x, y) || !otmp
+        || (!is_pick(otmp, state) && !is_axe(otmp, state)))
+        return DIGTYP_UNDIGGABLE;
+
+    const ltyp = state.level.at(x, y).typ;
+    if (is_axe(otmp, state))
+        return closed_door(x, y, state) ? DIGTYP_DOOR
+            : IS_TREE(ltyp, state) ? DIGTYP_TREE /* axe vs tree */
+                : DIGTYP_UNDIGGABLE;
+    /*assert(is_pick(otmp));*/
+    const statue = sobj_at(STATUE, x, y, state);
+    if (statue && pick_can_reach(otmp, x, y, state))
+        return DIGTYP_STATUE;
+    const boulder = sobj_at(BOULDER, x, y, state);
+    if (boulder && pick_can_reach(otmp, x, y, state))
+        return DIGTYP_BOULDER;
+    return closed_door(x, y, state) ? DIGTYP_DOOR
+        : IS_TREE(ltyp, state) ? DIGTYP_UNDIGGABLE /* pick vs tree */
+            : (IS_OBSTRUCTED(ltyp)
+               && (!state.level.flags.arboreal || IS_WALL(ltyp)))
+                ? DIGTYP_ROCK
+                : DIGTYP_UNDIGGABLE;
+}
+
+// C ref: dig.c use_pick_axe() (1092-1155). Applying a digging tool first
+// equips it when needed, then offers only directions that can reach a
+// diggable target (plus vertical choices that can reach the floor).
+export async function use_pick_axe(obj, state = game, env = {}) {
+    const ispick = is_pick(obj, state);
+    const verb = ispick ? 'dig' : 'chop';
+    const u = state.u;
+    if (obj !== state.uwep) {
+        if (await wield_tool(obj, 'swing', state)) {
+            cmdq_add_ec(CQ_CANNED, extcmdRow('apply'), state);
+            cmdq_add_key(CQ_CANNED, obj.invlet, state);
+            return ECMD_TIME;
+        }
+        return ECMD_OK;
+    }
+
+    if (u.utrap && u.utraptype === TT_WEB) {
+        await ttyPline(
+            `Unfortunately, you can't ${verb} while entangled in a web.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    const downok = Boolean(can_reach_floor(false, state));
+    const directions = [];
+    for (let dir = 0; dir < N_DIRS_Z; dir++) {
+        const dirch = cmd_from_dir(dir, MV_WALK, state);
+        if (u.uswallow) {
+            // All directions are viable while swallowed.
+        } else if (movecmd(dirch, MV_WALK, state)) {
+            if (!dxdy_moveok(state)) continue;
+            const rx = u.ux + u.dx;
+            const ry = u.uy + u.dy;
+            if (!isok(rx, ry) || dig_typ(obj, rx, ry, state) === DIGTYP_UNDIGGABLE)
+                continue;
+        } else if (Boolean((u.dz > 0) !== downok)) {
+            continue;
+        }
+        directions.push(String.fromCharCode(dirch));
+    }
+    const prompt = `In what direction do you want to ${verb}? `
+        + `[${directions.join('')}]`;
+    if (!await getdir(prompt, state))
+        return ECMD_CANCEL;
+    return use_pick_axe2(obj, state, env);
+}
+
+// C ref: dig.c use_pick_axe2() (1162-1359). The immediate direction handling
+// and occupation installation follow source order; allmain.c later consumes
+// dig()'s return to decide whether the occupation continues.
+export async function use_pick_axe2(obj, state = game, env = {}) {
+    const { u } = state;
+    const ispick = is_pick(obj, state);
+    const verbing = ispick ? 'digging' : 'chopping';
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { d, rn2, rnd };
+    let attackConsumed = false;
+    if (u.uswallow) {
+        const { do_attack } = await import('./uhitm.js');
+        attackConsumed = await do_attack(u.ustuck, state, env);
+    }
+    if (attackConsumed) {
+        // The attack consumed this action; the source still returns time.
+    } else if (u.uinwater) {
+        await message(`Turbulence torpedoes your ${verbing} attempts.`, state);
+    } else if (u.dz < 0) {
+        if (Levitation(state)) {
+            await message("You don't have enough leverage.", state);
+        } else {
+            await message(`You can't reach the ${ceiling(u.ux, u.uy, state)}.`, state);
+        }
+    } else if (!u.dx && !u.dy && !u.dz) {
+        let damage = random.rnd(2) + dbon(state) + (obj.spe ?? 0);
+        if (damage <= 0) damage = 1;
+        await message(`You hit yourself with ${yname(state.uwep, state)}.`, state);
+        const { OBJ_NAME } = await import('./objects.js');
+        const objectName = OBJ_NAME(state.objects[obj.otyp], state);
+        const possessive = state.flags?.female ? 'her' : 'his';
+        await losehp(
+            maybeHalfPhysical(damage, state),
+            `${possessive} own ${objectName}`,
+            KILLED_BY,
+            state,
+            env,
+        );
+        state.disp ??= {};
+        state.disp.botl = true;
+        return ECMD_TIME;
+    } else if (!u.dz) {
+        confdir(false, state);
+        const rx = u.ux + u.dx;
+        const ry = u.uy + u.dy;
+        if (!isok(rx, ry)) {
+            // Soundeffect(se_clash, 40) is a no-op with the recorder's tty
+            // sound backend, so only its source-owned message remains.
+            await message('Clash!', state);
+            return ECMD_TIME;
+        }
+
+        const lev = state.level.at(rx, ry);
+        const monster = m_at(rx, ry, state);
+        if (monster) {
+            const { do_attack } = await import('./uhitm.js');
+            if (await do_attack(monster, state, env)) return ECMD_TIME;
+        }
+
+        const digTarget = dig_typ(obj, rx, ry, state);
+        if (digTarget === DIGTYP_UNDIGGABLE) {
+            const trap = t_at(rx, ry, state);
+            if (trap?.ttyp === WEB) {
+                if (!trap.tseen) {
+                    const { newsym } = await import('./display.js');
+                    const { seetrap } = await import('./trap_effects.js');
+                    seetrap(trap, { redraw: (x, y) => newsym(x, y, state) });
+                    await message('There is a spider web there!', state);
+                }
+                await message(`${Yobjnam2(obj, 'become')} entangled in the web.`, state);
+                nomul(-random.d(2, 2), state);
+                state.multi_reason = 'stuck in a spider web';
+                state.nomovemsg = 'You pull free.';
+            } else if (lev.typ === IRONBARS) {
+                await message('Clang!', state);
+                await wake_nearby(false, { ...env, state });
+            } else if (IS_WATERWALL(lev.typ)) {
+                await message('Splash!', state);
+            } else if (lev.typ === LAVAWALL) {
+                await message('Splash!', state);
+                const { fire_damage } = await import('./trap_water_damage.js');
+                await fire_damage(state.uwep, false, rx, ry, { ...env, state });
+            } else if (IS_TREE(lev.typ, state)) {
+                await message('You need an axe to cut down a tree.', state);
+            } else if (IS_OBSTRUCTED(lev.typ)) {
+                await message('You need a pick to dig rock.', state);
+            } else {
+                const boulder = sobj_at(BOULDER, rx, ry, state);
+                const statue = sobj_at(STATUE, rx, ry, state);
+                if (boulder || statue) {
+                    const what = boulder ? 'boulder' : 'statue';
+                    if (!ispick) {
+                        const vibrates = !random.rn2(3);
+                        await message(
+                            `Sparks fly as you whack the ${what}.`
+                                + (vibrates
+                                    ? '  The axe-handle vibrates violently!'
+                                    : ''),
+                            state,
+                        );
+                        if (vibrates) {
+                            await losehp(
+                                maybeHalfPhysical(2, state),
+                                'axing a hard object',
+                                KILLED_BY,
+                                state,
+                                env,
+                            );
+                        }
+                        await wake_nearby(false, { ...env, state });
+                    } else {
+                        await message(`You can't reach the ${what}.`, state);
+                    }
+                } else {
+                    const heroTrap = t_at(u.ux, u.uy, state);
+                    if (u.utrap && u.utraptype === TT_PIT && trap
+                        && heroTrap && is_pit(trap.ttyp)
+                        && !conjoined_pits(trap, heroTrap, false, state)) {
+                        const idx = xytodir(u.dx, u.dy);
+                        if (idx !== DIR_ERR) {
+                            const adjidx = DIR_180(idx);
+                            heroTrap.conjoined = (heroTrap.conjoined ?? 0)
+                                | (1 << idx);
+                            trap.conjoined = (trap.conjoined ?? 0)
+                                | (1 << adjidx);
+                            await message('You clear some debris from between the pits.', state);
+                        }
+                    } else if (u.utrap && u.utraptype === TT_PIT && heroTrap) {
+                        await message(
+                            `You swing ${yobjnam(obj, null, state)}, but the rubble has no place to go.`,
+                            state,
+                        );
+                    } else {
+                        await message(
+                            `You swing ${yobjnam(obj, null, state)} through thin air.`,
+                            state,
+                        );
+                    }
+                }
+            }
+        } else {
+            const actions = [
+                'swinging', 'digging', 'chipping the statue',
+                'hitting the boulder', 'chopping at the door', 'cutting the tree',
+            ];
+            state.gd ??= {};
+            state.gd.did_dig_msg = false;
+            state.context.digging ??= {};
+            const digging = state.context.digging;
+            digging.quiet = false;
+            if (digging.pos?.x !== rx || digging.pos?.y !== ry
+                || !on_level(digging.level, u.uz) || digging.down) {
+                if (state.flags?.autodig && digTarget === DIGTYP_ROCK
+                    && !digging.down && u_at(
+                        digging.pos?.x, digging.pos?.y, state,
+                    )
+                    && state.moves <= (digging.lastdigtime ?? 0) + 2
+                    && state.moves >= (digging.lastdigtime ?? 0)) {
+                    state.gd.did_dig_msg = true;
+                    digging.quiet = true;
+                }
+                digging.down = false;
+                digging.chew = false;
+                digging.warned = false;
+                digging.pos = { x: rx, y: ry };
+                digging.level = { ...u.uz };
+                digging.effort = 0;
+                if (!digging.quiet)
+                    await message(`You start ${actions[digTarget]}.`, state);
+            } else {
+                await message(
+                    `You ${digging.chew ? 'begin' : 'continue'} ${actions[digTarget]}.`,
+                    state,
+                );
+                digging.chew = false;
+            }
+            set_occupation(dig, verbing, 0, state);
+        }
+    } else if (on_level(u.uz, state.air_level)
+        || on_level(u.uz, state.water_level)) {
+        await message(`You swing ${yobjnam(obj, null, state)} through thin air.`, state);
+    } else if (!can_reach_floor(false, state)) {
+        await cant_reach_floor(u.ux, u.uy, false, false, false, state, {
+            pline: message,
+        });
+    } else if (is_pool_or_lava(u.ux, u.uy, state)) {
+        await message(
+            `You cannot stay under${is_pool(u.ux, u.uy, state) ? 'water' : ' the lava'} long enough.`,
+            state,
+        );
+    } else {
+        const trap = t_at(u.ux, u.uy, state);
+        if (trap && (uteetering_at_seen_pit(trap, state)
+            || uescaped_shaft(trap, state))) {
+            const { dotrap } = await import('./trap_effects.js');
+            await dotrap(trap, FORCEBUNGLE, state);
+            if (!u.utrap) {
+                await cant_reach_floor(u.ux, u.uy, false, true, false, state, {
+                    pline: message,
+                });
+            }
+            return ECMD_TIME;
+        }
+        if (!ispick && (!trap
+            || (trap.ttyp !== LANDMINE && trap.ttyp !== BEAR_TRAP))) {
+            await message(
+                `${Yobjnam2(obj, null, state)} merely scratches the ${surface(u.ux, u.uy, state)}.`,
+                state,
+            );
+            u_wipe_engr(3, { ...env, state });
+            return ECMD_TIME;
+        }
+
+        state.context.digging ??= {};
+        const digging = state.context.digging;
+        if (digging.pos?.x !== u.ux || digging.pos?.y !== u.uy
+            || !on_level(digging.level, u.uz) || !digging.down) {
+            digging.chew = false;
+            digging.down = true;
+            digging.warned = false;
+            digging.pos = { x: u.ux, y: u.uy };
+            digging.level = { ...u.uz };
+            digging.effort = 0;
+            await message(`You start ${verbing} downward.`, state);
+            if (state.u?.ushops?.[0]) {
+                await shopdig(0, state, { ...env, random, message });
+                add_damage(state.u.ux, state.u.uy, SHOP_PIT_COST, state);
+            }
+        } else {
+            await message(`You continue ${verbing} downward.`, state);
+        }
+        state.gd ??= {};
+        state.gd.did_dig_msg = false;
+        set_occupation(dig, verbing, 0, state);
+    }
+    return ECMD_TIME;
+}
+
+function maybeHalfPhysical(damage, state) {
+    const property = state.u?.uprops?.[HALF_PHDAM];
+    return property?.intrinsic || property?.extrinsic
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+// C ref: dig.c fillholetyp() (606-637). Count the liquid around a square in
+// x-major/y-minor order, reduce ordinary pools when not forced, then preserve
+// C's short-circuit order for the three rn2() choices. This helper is impure
+// only because those choices consume the caller's random stream.
+export function fillholetyp(x, y, fillIfAny, state = game, random = { rn2 }) {
+    const loX = Math.max(1, x - 1);
+    const hiX = Math.min(x + 1, COLNO - 1);
+    const loY = Math.max(0, y - 1);
+    const hiY = Math.min(y + 1, ROWNO - 1);
+    let poolCount = 0;
+    let moatCount = 0;
+    let lavaCount = 0;
+
+    for (let x1 = loX; x1 <= hiX; ++x1) {
+        for (let y1 = loY; y1 <= hiY; ++y1) {
+            if (is_moat(x1, y1, state)) ++moatCount;
+            else if (is_pool(x1, y1, state)) ++poolCount;
+            else if (is_lava(x1, y1, state)) ++lavaCount;
+        }
+    }
+
+    if (!fillIfAny) poolCount = Math.trunc(poolCount / 3);
+    if ((lavaCount > moatCount + poolCount
+         && random.rn2(lavaCount + 1))
+        || (lavaCount && fillIfAny)) {
+        return LAVAPOOL;
+    }
+    if ((moatCount > 0 && random.rn2(moatCount + 1))
+        || (moatCount && fillIfAny)) {
+        return MOAT;
+    }
+    if ((poolCount > 0 && random.rn2(poolCount + 1))
+        || (poolCount && fillIfAny)) {
+        return POOL;
+    }
+    return ROOM;
+}
+
+// C ref: dig.c liquid_flow() (838-880). This is a void terrain effect: it
+// removes the trap, releases ice and buried objects, handles the floor pile,
+// then applies liquid effects to the hero or monster at the square.
+export async function liquid_flow(
+    x, y, typ, trap, fillmsg = null, state = game, rawEnv = {},
+) {
+    const random = {
+        d, rn1, rn2, rn2_on_display_rng, rnz, rnd, rne, rnl,
+        ...(rawEnv.random ?? {}),
+    };
+    const env = { ...rawEnv, state, random };
+    const uSpot = u_at(x, y, state);
+
+    // C expects POOL, MOAT or LAVA to have been installed by its caller.
+    if (!is_pool_or_lava(x, y, state)) {
+        if (state.iflags?.sanity_check) {
+            const trapName = trap
+                ? trapname(trap.ttyp, true, state, random)
+                : 'no trap';
+            const diagnostic = `Insane liquid_flow(${x},${y},${trapName},${fillmsg ?? 'no mesg'}).`;
+            if (typeof env.impossible === 'function')
+                await env.impossible(diagnostic, state, env);
+            else
+                note_unported('pline.c impossible');
+        }
+        return;
+    }
+
+    if (trap) await delfloortrap(trap, state);
+    obj_ice_effects(x, y, true, env);
+
+    // unearth_objs completes punishment restoration before liquid damage.
+    const redraw = rawEnv.newsym ?? rawEnv.redraw
+        ?? ((rx, ry) => newsym(rx, ry, state));
+    await unearth_objs(x, y, {
+        ...env,
+        hooks: {
+            ...(rawEnv.hooks ?? {}),
+            newsym: rawEnv.hooks?.newsym
+                ?? ((rx, ry, hookEnv) => redraw(rx, ry, state, hookEnv)),
+        },
+    });
+
+    if (fillmsg) {
+        const liquid = hliquid(typ === LAVAPOOL ? 'lava' : 'water', {
+            ...env,
+            random,
+        });
+        await (env.message ?? ttyPline)(
+            fillmsg.replace('%s', liquid), state, env,
+        );
+    }
+
+    // Handle exposed floor objects before the occupant, as dig.c does.
+    const objects = state.level.objects[x][y];
+    if (objects) {
+        if (typ === LAVAPOOL) {
+            const { fire_damage_chain } = await import('./trap.js');
+            await fire_damage_chain(objects, true, true, x, y, env);
+        } else {
+            const { water_damage_chain } = await import(
+                './trap_water_damage.js'
+            );
+            await water_damage_chain(objects, true, { ...env, random });
+        }
+    }
+
+    if (uSpot) {
+        await pooleffects(false, state, env);
+    } else {
+        const monster = m_at(x, y, state);
+        if (monster) {
+            // C dig.c:liquid_flow() -> minliquid() reaches mon.c:minliquid_core(),
+            // which calls teleport.c:rloc() and deal_with_overcrowding().
+            await minliquid(monster, {
+                ...env,
+                random,
+                relocateMonster: rawEnv.relocateMonster ?? rloc,
+                dealWithOvercrowding: rawEnv.dealWithOvercrowding
+                    ?? ((target, liquidEnv) => deal_with_overcrowding(
+                        target,
+                        state,
+                        liquidEnv,
+                    )),
+            });
+        }
+    }
+}
+
+// C ref: dig.c pit_flow() (1844-1882). Save the fields the recursive walk
+// reads before liquid_flow can delete this trap and clear both link masks.
+export async function pit_flow(
+    trap, filltyp, state = game, rawEnv = {},
+) {
+    if (!trap || filltyp === ROOM || !is_pit(trap.ttyp)) return;
+
+    const saved = {
+        tx: trap.tx,
+        ty: trap.ty,
+        conjoined: trap.conjoined ?? 0,
+    };
+    const location = state.level.at(saved.tx, saved.ty);
+    location.typ = filltyp;
+    location.flags = 0;
+    await liquid_flow(
+        saved.tx,
+        saved.ty,
+        filltyp,
+        trap,
+        u_at(saved.tx, saved.ty, state)
+            ? 'Suddenly %s flows in from the adjacent pit!'
+            : null,
+        state,
+        rawEnv,
+    );
+
+    for (let direction = 0; direction < N_DIRS; ++direction) {
+        if (!(saved.conjoined & (1 << direction))) continue;
+        const x = saved.tx + xdir[direction];
+        const y = saved.ty + ydir[direction];
+        const neighbor = t_at(x, y, state);
+        await pit_flow(neighbor, filltyp, state, rawEnv);
+    }
+}
+
+// C ref: dig.c furniture_handled() (570-594). Its Boolean is consumed by
+// dighole() and digactualhole(); preserve C's coordinate normalization before
+// destroying the bridge.
+export async function furniture_handled(
+    x, y, madebyU, state = game, rawEnv = {},
+) {
+    const location = state.level.at(x, y);
+    if (IS_FOUNTAIN(location.typ)) {
+        await dogushforth(false, state, rawEnv);
+        location.flags |= F_WARNED;
+        await dryup(x, y, madebyU, state, rawEnv);
+    } else if (IS_SINK(location.typ)) {
+        await breaksink(x, y, state, rawEnv);
+    } else if (location.typ === DRAWBRIDGE_DOWN
+        || is_drawbridge_wall(x, y, state) >= 0) {
+        const position = { x, y };
+        find_drawbridge(position, state);
+        await destroy_drawbridge(position.x, position.y, state, rawEnv);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+// C ref: dig.c digactualhole() (640-829). BY_YOU is youmonst and
+// BY_OBJECT is null: the broken wand is still the hero's responsibility.
+// The discarded shop calls remain named gaps.
+export async function digactualhole(
+    x, y, madeby, trapType, state = game, rawEnv = {},
+) {
+    const message = rawEnv.message ?? ttyPline;
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const env = { ...rawEnv, state, random };
+    const location = state.level.at(x, y);
+    const monster = m_at(x, y, state);
+    const madebyU = madeby === state.youmonst;
+    const madebyObject = madeby === null;
+    const herosFault = madebyU || madebyObject;
+    const atHero = u_at(x, y, state);
+    let wontFall = Levitation(state) || Flying(state);
+    let oldAlignment = A_NONE;
+
+    if (atHero && state.u.utrap) {
+        if (state.u.utraptype === TT_BURIEDBALL)
+            await buried_ball_to_punishment(state, rawEnv);
+        else if (state.u.utraptype === TT_INFLOOR)
+            reset_utrap(false, state);
+    }
+    if (await furniture_handled(x, y, madebyU, state, rawEnv)) return;
+    if (trapType !== PIT && !Can_dig_down(state.u.uz, state)
+        && !location.candig) {
+        note_unported('pline.c impossible');
+        trapType = PIT;
+    }
+
+    const oldType = location.typ;
+    const surfaceType = IS_FURNITURE(oldType)
+        ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz) ? 'floor' : 'ground')
+        : surface(x, y, state);
+    let furniture = '';
+    if (IS_FURNITURE(oldType)) {
+        if (IS_ALTAR(oldType)) {
+            oldAlignment = Amask2align((location.flags ?? 0) & AM_MASK);
+            furniture = `${align_str(oldAlignment)} `;
+        }
+        furniture += surface(x, y, state);
+    }
+    const shopdoor = IS_DOOR(oldType)
+        && in_rooms(x, y, SHOPBASE, state).length > 0;
+    const oldObjects = state.level.objects?.[x]?.[y] ?? null;
+    const trap = await maketrap(x, y, trapType, env);
+    if (!trap) return;
+    const newObjects = state.level.objects?.[x]?.[y] ?? null;
+    trap.madeby_u = herosFault;
+    trap.tseen = false;
+    const trapEnv = { state, redraw: (tx, ty) => newsym(tx, ty, state) };
+    if (cansee(x, y, state)) seetrap(trap, trapEnv);
+    else if (madebyU) feeltrap(trap, trapEnv);
+
+    const name = trapname(trapType, true, state, random);
+    const inThrough = trapType === HOLE ? 'through' : 'in';
+    if (madebyU) {
+        await message(x !== state.u.ux || y !== state.u.uy
+            ? `You dig an adjacent ${name}.`
+            : `You dig ${an(name)} ${inThrough} the ${surfaceType}.`, state, rawEnv);
+    } else if (!madebyObject && canseemon(madeby, state)) {
+        await message(`${Monnam(madeby, state, rawEnv)} digs ${an(name)} ${inThrough} the ${surfaceType}.`, state, rawEnv);
+    } else if (cansee(x, y, state) && state.flags?.verbose) {
+        await message(IS_STWALL(oldType)
+            ? `The ${surfaceType} crumbles into ${an(name)}.`
+            : `${An(name)} appears in the ${surfaceType}.`, state, rawEnv);
+    }
+    if (IS_FURNITURE(oldType) && cansee(x, y, state))
+        await message(`The ${furniture} falls into the ${name}!`, state, rawEnv);
+    if (herosFault && oldType === ALTAR)
+        await desecrate_altar(false, oldAlignment, state);
+
+    if (trapType === PIT) {
+        if (shopdoor && herosFault)
+            await pay_for_damage('ruin', false, state, env);
+        else add_damage(x, y, herosFault ? SHOP_PIT_COST : 0, state);
+        if (madebyU) await wake_nearby(false, env);
+        await switch_terrain(state, rawEnv);
+        if (Levitation(state) || Flying(state)) wontFall = true;
+        if (atHero) {
+            if (!wontFall) {
+                set_utrap(random.rn1(4, 2), TT_PIT, state);
+                state.vision_full_recalc = 1;
+            } else await reset_utrap(true, state);
+            if (oldObjects !== newObjects) {
+                const { pickup } = await import('./pickup.js');
+                await pickup(1, state);
+            }
+        } else if (monster) {
+            if (is_flyer(monster.data) || is_floater(monster.data)) {
+                if (canseemon(monster, state))
+                    await message(`${Monnam(monster, state, rawEnv)} ${is_flyer(monster.data) ? 'flies' : 'floats'} over the pit.`, state, rawEnv);
+            } else if (monster !== madeby) {
+                await mintrap(monster, NO_TRAP_FLAGS, env);
+            }
+        }
+    } else if (atHero) {
+        await switch_terrain(state, rawEnv);
+        if (Levitation(state) || Flying(state)) wontFall = true;
+        if (!state.u.ustuck && !wontFall
+            && !(await next_to_u(state, rawEnv))) {
+            await message('You are jerked back by your pet!', state, rawEnv);
+            wontFall = true;
+        }
+        if (state.u.ustuck || wontFall) {
+            if (newObjects) await impact_drop(null, x, y, 0, env);
+            if (oldObjects !== newObjects) {
+                const { pickup } = await import('./pickup.js');
+                await pickup(1, state);
+            }
+            if (shopdoor && herosFault)
+                await pay_for_damage('ruin', false, state, env);
+        } else {
+            if (state.u.ushops[0] && herosFault)
+                await shopdig(1, state, env);
+            else await pay_for_damage('dig into', true, state, env);
+            await message('You fall through...', state, rawEnv);
+            const newLevel = { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 };
+            await goto_level(newLevel, false, true, false, state);
+            await spoteffects(false, state, rawEnv);
+        }
+    } else {
+        if (shopdoor && herosFault)
+            await pay_for_damage('ruin', false, state, env);
+        if (newObjects) await impact_drop(null, x, y, 0, env);
+        if (monster) {
+            if (!grounded(monster.data, state)
+                || (monster.wormno && count_wsegs(monster, state) > 5)
+                || monster.data.msize >= MZ_HUGE) return;
+            if (monster === state.u.ustuck) return;
+            if (await teleport_pet(monster, false, env)) {
+                const toLevel = {};
+                if (on_level(state.u.uz, state.stronghold_level)) {
+                    Object.assign(toLevel, state.valley_level);
+                } else if (state.u.uz.dlevel === dunlevs_in_dungeon(state.u.uz, state)) {
+                    if (canseemon(monster, state))
+                        await message(`${Monnam(monster, state, rawEnv)} avoids the trap.`, state, rawEnv);
+                    return;
+                } else get_level(toLevel, depth(state.u.uz, state) + 1, state);
+                if (monster.isshk)
+                    await make_angry_shk(monster, x, y, state, env);
+                await migrate_to_level(
+                    monster,
+                    ledger_no(toLevel, state),
+                    MIGR_RANDOM,
+                    null,
+                    env,
+                );
+            }
+        }
+    }
+}
+
+// C ref: dig.c dig_up_grave() (1027-1089). This is called after dighole has
+// made a pit on a grave, and keeps the source's exercise, alignment, outcome,
+// and cleanup order.
+async function dig_up_grave(coordinate, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message ?? ttyPline;
+    let x;
+    let y;
+    if (coordinate === null || coordinate === undefined) {
+        x = state.u.ux;
+        y = state.u.uy;
+    } else {
+        x = coordinate.x;
+        y = coordinate.y;
+        if (!isok(x, y)) return;
+    }
+
+    const location = state.level.at(x, y);
+    await exercise(A_WIS, false, state, random);
+    if (state.urole?.mnum === PM_ARCHEOLOGIST) {
+        adjalign(-Math.sign(state.u.ualign.type) * 3, state);
+        await message('You feel like a despicable grave-robber!', state, rawEnv);
+    } else if (state.urole?.mnum === PM_SAMURAI) {
+        adjalign(-Math.sign(state.u.ualign.type), state);
+        await message('You disturb the honorable dead!', state, rawEnv);
+    } else if (state.u.ualign.type === A_LAWFUL) {
+        if (state.u.ualign.record > -10) adjalign(-1, state);
+        await message('You have violated the sanctity of this grave!', state, rawEnv);
+    }
+
+    const hallucinating = Boolean(
+        state.u?.uprops?.[HALLUC]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+    );
+    const whatHappens = location.emptygrave ? -1 : random.rn2(5);
+    switch (whatHappens) {
+    case 0:
+    case 1: {
+        await message('You unearth a corpse.', state, rawEnv);
+        const corpse = mk_tt_object(CORPSE, x, y, { state, random });
+        if (corpse) corpse.age -= TAINT_AGE + 1;
+        break;
+    }
+    case 2: {
+        if (!heroIsBlind(state)) {
+            const surprise = hallucinating
+                ? 'Dude!  The living dead'
+                : "The grave's owner is very upset";
+            await message(`${surprise}!`, state, rawEnv);
+        }
+        const { makemon_runtime } = await import('./makemon_create.js');
+        const { stop_occupation } = await import('./allmain.js');
+        await makemon_runtime(
+            mkclass(S_ZOMBIE, 0, { state, random }),
+            x,
+            y,
+            MM_NOMSG,
+            {
+                ...rawEnv,
+                state,
+                random,
+                message,
+                hooks: {
+                    ...(rawEnv.hooks ?? {}),
+                    // C makemon.c:1504 runs dochugw() for a new monster
+                    // while an occupation is active; it may stop that
+                    // occupation if the monster is a threat.
+                    stopOccupation: rawEnv.hooks?.stopOccupation
+                        ?? ((_monster, hookEnv) => stop_occupation(
+                            hookEnv.state,
+                            { ...hookEnv, message },
+                        )),
+                },
+            },
+        );
+        break;
+    }
+    case 3: {
+        if (!heroIsBlind(state)) {
+            const surprise = hallucinating
+                ? 'I want my mummy'
+                : "You've disturbed a tomb";
+            await message(`${surprise}!`, state, rawEnv);
+        }
+        const { makemon_runtime } = await import('./makemon_create.js');
+        const { stop_occupation } = await import('./allmain.js');
+        await makemon_runtime(
+            mkclass(S_MUMMY, 0, { state, random }),
+            x,
+            y,
+            MM_NOMSG,
+            {
+                ...rawEnv,
+                state,
+                random,
+                message,
+                hooks: {
+                    ...(rawEnv.hooks ?? {}),
+                    // Keep C makemon.c:1504's occupation/monster continuation
+                    // available through the existing runtime hook.
+                    stopOccupation: rawEnv.hooks?.stopOccupation
+                        ?? ((_monster, hookEnv) => stop_occupation(
+                            hookEnv.state,
+                            { ...hookEnv, message },
+                        )),
+                },
+            },
+        );
+        break;
+    }
+    default:
+        await message('The grave is unoccupied.  Strange...', state, rawEnv);
+        break;
+    }
+
+    location.typ = ROOM;
+    location.emptygrave = 0;
+    location.disturbed = 0;
+    del_engr_at(x, y, state);
+    newsym(x, y, state);
+}
+
+// C ref: dig.c dighole() (885-1022). Its Boolean is consumed by dig(), so all
+// exits after coordinate validation converge on C's trailing spot_checks().
+// Calls whose C results are discarded but whose source owners remain absent
+// are named at the call site; they are not replaced with invented effects.
+export async function dighole(
+    pitOnly, byMagic, coordinate = null, rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const x = coordinate?.x ?? state.u.ux;
+    const y = coordinate?.y ?? state.u.uy;
+    if (!isok(x, y)) return false;
+
+    const trap = t_at(x, y, state);
+    const location = state.level.at(x, y);
+    const check = dig_check(state.youmonst, x, y, state);
+    const nohole = check === DIGCHECK_FAIL_CANTDIG
+        || check === DIGCHECK_FAIL_TOOHARD;
+    const oldType = location.typ;
+    let retval = false;
+    if ((trap && (undestroyable_trap(trap.ttyp) || nohole))
+        || (IS_OBSTRUCTED(oldType) && oldType !== SDOOR
+            && (location.wall_info & W_NONDIGGABLE))) {
+        await message(
+            `The ${surface(x, y, state)} ${x !== state.u.ux || y !== state.u.uy ? 't' : ''}here is too hard to dig in.`,
+            state, rawEnv,
+        );
+    } else if (trap && is_magical_trap(trap.ttyp)) {
+        const damage = 20 + random.d(3, 6);
+        const { explode } = await import('./explode.js');
+        await explode(
+            x, y, 0, damage, TRAP_EXPLODE, EXPL_MAGICAL, state,
+            { ...rawEnv, random, message },
+        );
+        await deltrap(trap, state);
+        newsym(x, y, state);
+    } else if (is_pool_or_lava(x, y, state)) {
+        const liquid = is_lava(x, y, state) ? 'lava' : 'water';
+        await message(`The ${hliquid(liquid, { ...rawEnv, state })} sloshes furiously for a moment, then subsides.`, state, rawEnv);
+        await wake_nearby(false, { ...rawEnv, state });
+    } else if (oldType === DRAWBRIDGE_DOWN
+        || is_drawbridge_wall(x, y, state) >= 0) {
+        if (pitOnly) {
+            await message('The drawbridge seems too hard to dig through.', state, rawEnv);
+        } else {
+            const position = { x, y };
+            find_drawbridge(position, state);
+            await destroy_drawbridge(position.x, position.y, state, rawEnv);
+            retval = true;
+        }
+    } else if (sobj_at(BOULDER, x, y, state)) {
+        const boulder = sobj_at(BOULDER, x, y, state);
+        if (trap && is_pit(trap.ttyp) && random.rn2(2)) {
+            await message(
+                `The boulder settles into the ${x !== state.u.ux || y !== state.u.uy ? 'adjacent ' : ''}pit.`,
+                state, rawEnv,
+            );
+            trap.ttyp = PIT;
+        } else {
+            // C's Soundeffect(se_kadoom_boulder_falls_in, 60) has no tty
+            // output in the recorder's nosound build.
+            await message('KADOOM!  The boulder falls in!', state, rawEnv);
+            await wake_nearby(false, { ...rawEnv, state });
+            await delfloortrap(trap, state);
+        }
+        const deletionHooks = {
+            ...rawEnv.hooks,
+            recalcBlockPoint: rawEnv.hooks?.recalcBlockPoint
+                ?? ((bx, by, hookEnv) =>
+                    recalc_block_point(bx, by, hookEnv.state)),
+            extractExternalObject: rawEnv.hooks?.extractExternalObject
+                ?? remove_object,
+        };
+        delobj(boulder, { ...rawEnv, state, hooks: deletionHooks });
+    } else if (IS_GRAVE(oldType)) {
+        await digactualhole(x, y, state.youmonst, PIT, state, rawEnv);
+        await dig_up_grave(coordinate, { ...rawEnv, state, random, message });
+        retval = true;
+    } else if (oldType === DRAWBRIDGE_UP) {
+        const liquidType = fillholetyp(x, y, false, state, random);
+        if (liquidType === ROOM) {
+            await message(`The ${surface(x, y, state)} ${x !== state.u.ux || y !== state.u.uy ? 't' : ''}here is too hard to dig in.`, state, rawEnv);
+        } else {
+            location.flags &= ~DB_UNDER;
+            location.flags |= liquidType === LAVAPOOL
+                ? DB_LAVA : DB_MOAT;
+            await liquid_flow(
+                x, y, liquidType, trap,
+                'As you dig, the hole fills with %s!',
+                state,
+                { ...rawEnv, random, message },
+            );
+            retval = true;
+        }
+    } else if (IS_THRONE(oldType)) {
+        await message('The throne is too hard to break apart.', state, rawEnv);
+    } else if (IS_ALTAR(oldType)) {
+        await message('The altar is too hard to break apart.', state, rawEnv);
+    } else {
+        const liquidType = fillholetyp(x, y, false, state, random);
+        location.flags = 0;
+        if (liquidType !== ROOM) {
+            if (!await furniture_handled(x, y, true, state, rawEnv)) {
+                location.typ = liquidType;
+                await liquid_flow(
+                    x, y, liquidType, trap,
+                    'As you dig, the hole fills with %s!',
+                    state,
+                    { ...rawEnv, random, message },
+                );
+            }
+            retval = true;
+        } else {
+            if (byMagic && trap
+                && (trap.ttyp === LANDMINE || trap.ttyp === BEAR_TRAP)) {
+                const type = trap.ttyp === LANDMINE ? LAND_MINE : BEARTRAP;
+                await cnv_trap_obj(type, 1, trap, true, state, rawEnv);
+            }
+
+            const pit = nohole || pitOnly
+                || check === DIGCHECK_PASSED_DESTROY_TRAP
+                || check === DIGCHECK_PASSED_PITONLY;
+            await digactualhole(x, y, state.youmonst, pit ? PIT : HOLE, state, rawEnv);
+            retval = true;
+        }
+    }
+
+    spot_checks(x, y, oldType, state, rawEnv);
+    return retval;
+}
+
+// C ref: dig.c zap_dig() (1548-1754). The swallowed branch uses the canonical
+// expels() message and relocation path; vertical down-dig calls the ported
+// dighole() but later hole descent remains incomplete. The horizontal adjacent-pit arm runs
+// pit_flow()/liquid_flow() in source order. The
+// normal horizontal and maze arms are complete through their beam animation,
+// source terrain order, vision updates, and discarded shop/watch hooks.
+function zapDigHardHelmet(helmet, state) {
+    if (!helmet || !is_helmet(helmet, state)) return false;
+    const type = objectType(helmet, state);
+    return isMetallic(helmet, state) || type.oc_material === GLASS;
+}
+
+function zapDigMaybeHalfPhys(damage, state) {
+    const property = state.u?.uprops?.[HALF_PHDAM];
+    return property?.intrinsic || property?.extrinsic
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+export async function zap_dig(
+    state = game,
+    random = { rn1, rnd, rn2 },
+) {
+    const u = state.u;
+    if (u.uswallow) {
+        const mtmp = u.ustuck;
+        if (!is_whirly(mtmp?.data)) {
+            const digestive = Boolean(
+                dmgtype_fromattack(mtmp.data, AD_DGST, AT_ENGL),
+            );
+            if (digestive) {
+                await ttyPline(
+                    `You pierce ${s_suffix(mon_nam(mtmp, state))} `
+                    + `${mbodypart(mtmp, STOMACH)} wall!`,
+                    state,
+                );
+            }
+            if (unique_corpstat(mtmp.data))
+                mtmp.mhp = Math.trunc((mtmp.mhp + 1) / 2);
+            else
+                mtmp.mhp = 1;
+            await expels(mtmp, {
+                state,
+                expulsionMessage: !digestive,
+            });
+        }
+        return;
+    }
+    if (u.dz) {
+        if (!Is_airlevel(u.uz) && !Is_waterlevel(u.uz) && !u.uinwater) {
+            const stway = stairway_at(u.ux, u.uy, state);
+            if (u.dz < 0 || stway) {
+                if (stway) {
+                    await ttyPline(
+                        `The beam bounces off the ${stway.isladder ? 'ladder' : 'stairs'} `
+                        + `and hits the ${ceiling(u.ux, u.uy, state)}.`,
+                        state,
+                    );
+                }
+                await ttyPline(
+                    `You loosen a rock from the ${ceiling(u.ux, u.uy, state)}.`,
+                    state,
+                );
+                await ttyPline(
+                    `It falls on your ${body_part(HEAD, state.youmonst)}!`,
+                    state,
+                );
+                const damage = random.rnd(
+                    zapDigHardHelmet(state.uarmh, state) ? 2 : 6,
+                );
+                await losehp(
+                    zapDigMaybeHalfPhys(damage, state),
+                    'falling rock', KILLED_BY_AN, state,
+                );
+                const rock = mksobj_at(
+                    ROCK, u.ux, u.uy, false, false,
+                    objectGenerationEnv({ state, random }),
+                );
+                if (rock) {
+                    xnameFresh(rock, state);
+                    stackobj(rock, objectGenerationEnv({ state, random }));
+                }
+                newsym(u.ux, u.uy, state);
+            } else {
+                await watch_dig(null, u.ux, u.uy, true, { state });
+                await dighole(false, true, null, { state, random });
+            }
+        }
+        return;
+    }
+
+    const trapWithHero = u.utrap && u.utraptype === TT_PIT
+        ? t_at(u.ux, u.uy, state) : null;
+
+    let shopdoor = false;
+    let shopwall = false;
+    let flowX = -1;
+    let flowY = -1;
+    let pitflow = false;
+    let diridx = 8;
+    if (trapWithHero) diridx = xytodir(u.dx, u.dy);
+    const mazeDig = Boolean(
+        state.level?.flags?.is_maze_lev && !Is_earthlevel(u.uz),
+    );
+    let zx = u.ux + u.dx;
+    let zy = u.uy + u.dy;
+    let digdepth = random.rn1(18, 8);
+
+    await tmp_at(
+        DISP_BEAM,
+        map_glyphinfo(cmap_to_glyph(S_digbeam, state), state),
+        state,
+    );
+    while (--digdepth >= 0) {
+        if (!isok(zx, zy)) break;
+        const room = state.level.at(zx, zy);
+        await tmp_at(zx, zy, state);
+        await nh_delay_output(state);
+
+        if (trapWithHero) {
+            const adjacentPit = t_at(zx, zy, state);
+            if (diridx !== DIR_ERR
+                && !conjoined_pits(adjacentPit, trapWithHero, false, state)) {
+                digdepth = 0;
+                let nextPit = adjacentPit;
+                if (!(nextPit && is_pit(nextPit.ttyp))) {
+                    const check = adj_pit_checks({ x: zx, y: zy }, state);
+                    if (check.message)
+                        await ttyPline(check.message, state);
+                    if (check.allowed)
+                        await dighole(true, true, { x: zx, y: zy }, {
+                            state,
+                            random,
+                        });
+                    nextPit = t_at(zx, zy, state);
+                }
+                if (nextPit && is_pit(nextPit.ttyp)) {
+                    trapWithHero.conjoined
+                        = (trapWithHero.conjoined ?? 0) | (1 << diridx);
+                    nextPit.conjoined
+                        = (nextPit.conjoined ?? 0) | (1 << DIR_180(diridx));
+                    flowX = zx;
+                    flowY = zy;
+                    pitflow = true;
+                }
+                if (is_pool(zx, zy, state) || is_lava(zx, zy, state)) {
+                    flowX = zx - u.dx;
+                    flowY = zy - u.dy;
+                    pitflow = true;
+                }
+                break;
+            }
+        } else if (closed_door(zx, zy, state) || room.typ === SDOOR) {
+            if (in_rooms(zx, zy, SHOPBASE, state).length) {
+                add_damage(zx, zy, SHOP_DOOR_COST, state);
+                shopdoor = true;
+            }
+            if (room.typ === SDOOR) {
+                cvt_sdoor_to_door(room, state);
+            } else if (cansee(zx, zy, state)) {
+                await ttyPline('The door is razed!', state);
+            }
+            await watch_dig(null, zx, zy, true, { state });
+            room.doormask = D_NODOOR;
+            room.flags = D_NODOOR;
+            recalc_block_point(zx, zy, state);
+            digdepth -= 2;
+            if (mazeDig) break;
+        } else if (mazeDig) {
+            if (IS_WALL(room.typ)) {
+                if (!(room.wall_info & W_NONDIGGABLE)) {
+                    if (in_rooms(zx, zy, SHOPBASE, state).length) {
+                        add_damage(zx, zy, SHOP_WALL_COST, state);
+                        shopwall = true;
+                    }
+                    room.typ = ROOM;
+                    room.flags = 0;
+                    room.doormask = 0;
+                    unblock_point(zx, zy, state);
+                } else if (!heroIsBlind(state)) {
+                    await ttyPline('The wall glows then fades.', state);
+                }
+                break;
+            } else if (IS_TREE(room.typ)) {
+                if (!(room.wall_info & W_NONDIGGABLE)) {
+                    room.typ = ROOM;
+                    room.flags = 0;
+                    room.doormask = 0;
+                    unblock_point(zx, zy, state);
+                } else if (!heroIsBlind(state)) {
+                    await ttyPline('The tree shudders but is unharmed.', state);
+                }
+                break;
+            } else if (room.typ === STONE || room.typ === SCORR) {
+                if (!(room.wall_info & W_NONDIGGABLE)) {
+                    room.typ = CORR;
+                    room.flags = 0;
+                    room.doormask = 0;
+                    unblock_point(zx, zy, state);
+                } else if (!heroIsBlind(state)) {
+                    await ttyPline('The rock glows then fades.', state);
+                }
+                break;
+            }
+        } else if (IS_OBSTRUCTED(room.typ)) {
+            if (!may_dig(zx, zy, state)) break;
+            if (IS_WALL(room.typ) || room.typ === SDOOR) {
+                if (in_rooms(zx, zy, SHOPBASE, state).length) {
+                    add_damage(zx, zy, SHOP_WALL_COST, state);
+                    shopwall = true;
+                }
+                await watch_dig(null, zx, zy, true, { state });
+                if (state.level.flags?.is_cavernous_lev
+                    && !in_town(zx, zy, state)) {
+                    room.typ = CORR;
+                    room.flags = 0;
+                    room.doormask = 0;
+                } else {
+                    room.typ = DOOR;
+                    room.doormask = D_NODOOR;
+                    room.flags = D_NODOOR;
+                }
+                digdepth -= 2;
+            } else if (IS_TREE(room.typ)) {
+                room.typ = ROOM;
+                room.flags = 0;
+                room.doormask = 0;
+                digdepth -= 2;
+            } else {
+                room.typ = CORR;
+                room.flags = 0;
+                room.doormask = 0;
+                digdepth--;
+            }
+            unblock_point(zx, zy, state);
+        }
+        zx += u.dx;
+        zy += u.dy;
+    }
+    await tmp_at(DISP_END, 0, state);
+    if (pitflow && isok(flowX, flowY)) {
+        const flowTrap = t_at(flowX, flowY, state);
+        if (flowTrap && is_pit(flowTrap.ttyp)) {
+            const filltyp = fillholetyp(flowTrap.tx, flowTrap.ty, true,
+                state, random);
+            if (filltyp !== ROOM)
+                await pit_flow(flowTrap, filltyp, state, { random });
+        }
+    }
+    if (shopdoor || shopwall)
+        await pay_for_damage(shopdoor ? 'destroy' : 'dig into', false,
+            state, { random });
+}
+
+// C ref: dig.c adj_pit_checks() (1763-1838). The caller supplies the mutable
+// coordinate and receives both the boolean permission and the exact refusal
+// message. C clears the struct-rm flags before inspecting the surface; the
+// JS location keeps doormask as a compatibility mirror, so clear that mirror
+// too or monmove.c closed_door() would observe stale door state.
+export function adj_pit_checks(coordinate, state = game) {
+    if (!coordinate || !isok(coordinate.x, coordinate.y))
+        return { allowed: false, message: '' };
+
+    const { x, y } = coordinate;
+    const room = state.level.at(x, y);
+    room.flags = 0;
+    room.doormask = 0;
+    const foundation = 'The foundation is too hard to dig through from this angle.';
+    let message = '';
+
+    if (is_pool(x, y, state) || is_lava(x, y, state)) {
+        // The zap_dig() caller handles liquid after this helper returns false.
+        return { allowed: false, message };
+    }
+    if (closed_door(x, y, state) || room.typ === SDOOR) {
+        message = foundation;
+    } else if (IS_WALL(room.typ)) {
+        message = foundation;
+    } else if (IS_TREE(room.typ, state)) {
+        message = "The tree's roots glow then fade.";
+    } else if ((room.typ === STONE || room.typ === SCORR)
+               && (room.wall_info & W_NONDIGGABLE)) {
+        message = 'The rock glows then fades.';
+    } else if (room.typ === IRONBARS) {
+        message = 'The bars go much deeper than your pit.';
+    } else if (IS_SINK(room.typ)) {
+        message = 'A tangled mass of plumbing remains below the sink.';
+    } else if (stairway_at(x, y, state)?.isladder) {
+        message = 'The ladder is unaffected.';
+    } else {
+        let supporting = null;
+        if (IS_FOUNTAIN(room.typ)) supporting = 'fountain';
+        else if (IS_THRONE(room.typ)) supporting = 'throne';
+        else if (IS_ALTAR(room.typ)) supporting = 'altar';
+        else if (stairway_at(x, y, state)) supporting = 'stairs';
+        else if (room.typ === DRAWBRIDGE_DOWN || room.typ === DBWALL)
+            supporting = 'drawbridge';
+        if (supporting)
+            message = `The ${s_suffix(supporting)} supporting structures remain intact.`;
+    }
+    return { allowed: !message, message };
+}
+
+function setTerrain(location, typ, flags = 0) {
+    location.typ = typ;
+    location.flags = flags;
+    location.doormask = flags;
+}
+
+export async function draft_message(unexpected, env) {
+    const state = env.state;
+    const random = env.random ?? { rn1 };
+    const message = env.planning ? async () => {} : (env.message ?? (async () => {}));
+    const hallucinating = Boolean(
+        state.u?.uprops?.[HALLUC]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+    );
+    if (unexpected) {
+        if (!hallucinating) {
+            await message('You feel an unexpected draft.', state, env);
+            return;
+        }
+        const weak = [A_STR, A_DEX, A_CON, A_CHA, A_INT, A_WIS]
+            .some((attribute) => acurr(state, attribute) < 6);
+        await message(`You feel like you are ${weak ? '4-F' : '1-A'}.`, state, env);
+        return;
+    }
+    if (!hallucinating) {
+        await message('You feel a draft.', state, env);
+        return;
+    }
+    const reactions = ['enlisting', 'marching', 'protesting', 'fleeing'];
+    const alignment = Math.sign(state.u?.ualign?.type ?? 0);
+    let index = random.rn1(2, 1 - alignment);
+    if ((state.u?.ualign?.record ?? 0) < 4)
+        index += random.rn1(3, alignment - 1);
+    await message(`You feel like ${reactions[index]}.`, state, env);
+}
+
+// C ref: dig.c mdig_tunnel() (1413-1490). This is the monster movement arm,
+// not the hero's digging command. The caller has already moved the monster;
+// this function mutates the destination terrain, performs the one pile roll,
+// and redraws the changed square before the caller continues.
+export async function mdig_tunnel(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rnd: () => 1, rn2: () => 0 };
+    const objectEnv = objectGenerationEnv({ ...rawEnv, state, random });
+    const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? (() => {}));
+    const message = rawEnv.planning
+        ? async () => {}
+        : (rawEnv.message ?? (async () => {}));
+    const recalcBlockPoint = rawEnv.recalcBlockPoint ?? recalc_block_point;
+    const unblockPoint = rawEnv.unblockPoint ?? unblock_point;
+    const x = monster.mx;
+    const y = monster.my;
+    let location = state.level?.at(x, y);
+    if (!location) return false;
+
+    // C evaluates rnd(12) before inspecting the square, so preserve that
+    // order even when the destination turns out not to be diggable.
+    const pile = random.rnd(12);
+    if (location.typ === SDOOR)
+        location = cvt_sdoor_to_door(location, state);
+
+    if (closed_door(x, y, state)) {
+        if (in_rooms(x, y, SHOPBASE, state).length)
+            add_damage(x, y, 0, state);
+        const sawit = canseemon(monster, state);
+        const trapped = Boolean((location.doormask ?? location.flags ?? 0) & D_TRAPPED);
+        setTerrain(location, DOOR, trapped ? D_NODOOR : D_BROKEN);
+        recalcBlockPoint(x, y, state);
+        redraw(x, y);
+        if (trapped) {
+            // mb_trapped() owns the door-trap explosion and monster death.
+            // No development witness reaches this arm yet.
+            if (typeof rawEnv.mbTrapped !== 'function')
+                throw new Error('mdig_tunnel requires mb_trapped for a trapped door');
+            const seeit = canseemon(monster, state);
+            if (await rawEnv.mbTrapped(monster, sawit || seeit, {
+                ...rawEnv,
+                state,
+                message,
+                redraw,
+            })) {
+                redraw(x, y);
+                return true;
+            }
+        } else if (state.flags?.verbose
+            && !unaware(state)
+            && !random.rn2(3)) {
+            await draft_message(true, { ...rawEnv, state, message });
+        }
+        return false;
+    }
+
+    if (location.typ === SCORR) {
+        setTerrain(location, CORR, 0);
+        unblockPoint(x, y, state);
+        redraw(x, y);
+        await draft_message(false, { ...rawEnv, state, message });
+        return false;
+    }
+    if (!IS_OBSTRUCTED(location.typ) && !IS_TREE(location.typ, state))
+        return false;
+    if ((location.wall_info ?? 0) & W_NONDIGGABLE)
+        return false;
+
+    if (IS_WALL(location.typ)) {
+        if (state.flags?.verbose && !random.rn2(5)) {
+            // Soundeffect() is a no-op in the tty build. You_hear() spends
+            // nothing and prints nothing for a deaf hero or under !acoustics.
+            const heard = youHear('crashing rock.', state);
+            if (heard) await message(heard, state, rawEnv);
+        }
+        if (in_rooms(x, y, SHOPBASE, state).length)
+            add_damage(x, y, 0, state);
+        if (state.level.flags?.is_maze_lev) {
+            setTerrain(location, ROOM, 0);
+        } else if (state.level.flags?.is_cavernous_lev && !in_town(x, y, state)) {
+            setTerrain(location, CORR, 0);
+        } else {
+            setTerrain(location, DOOR, D_NODOOR);
+        }
+    } else if (IS_TREE(location.typ, state)) {
+        setTerrain(location, ROOM, 0);
+        if (pile && pile < 5) {
+            const fruits = [APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF];
+            mksobj_at(
+                fruits[random.rnd(fruits.length) - 1],
+                x,
+                y,
+                true,
+                false,
+                objectEnv,
+            );
+        }
+    } else {
+        setTerrain(location, CORR, 0);
+        if (pile && pile < 5) {
+            mksobj_at(
+                pile === 1 ? BOULDER : ROCK,
+                x,
+                y,
+                true,
+                false,
+                objectEnv,
+            );
+        }
+    }
+    redraw(x, y);
+    if (!sobj_at(BOULDER, x, y, state))
+        unblockPoint(x, y, state);
+    return false;
+}
+
+// C ref: dig.c bury_objs() (2050-2085). Keep the saved nexthere returned by
+// bury_an_obj: extraction mutates both floor indexes and unpunish can delete
+// the chain that had followed a ball.
+export async function bury_objs(x, y, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const redraw = env.planning ? (() => {})
+        : (env.newsym ?? env.redraw ?? ((px, py) => newsym(px, py, state)));
+    const keeper = shop_keeper(in_rooms(x, y, SHOPBASE, state)[0] ?? 0, state);
+    const costly = keeper && costly_spot(x, y, state);
+    let loss = 0;
+    for (let obj = state.level.objects[x][y]; obj;) {
+        if (costly && !state.context?.mon_moving) {
+            loss += await stolen_value(obj, x, y, Boolean(keeper.mpeaceful), true, state);
+            if (obj.oclass !== COIN_CLASS) obj.no_charge = 1;
+        }
+        const result = await bury_an_obj(obj, { ...env, newsym: redraw });
+        obj = result.next;
+    }
+    del_engr_at(x, y, state);
+    redraw(x, y, state);
+    maybe_unhide_at(x, y, state, env);
+    if (costly && loss && !env.planning) {
+        await (env.message ?? ttyPline)(
+            `You owe ${shkname(keeper, state)} ${loss} ${currency(loss, state)} for burying merchandise.`,
+            state, env,
+        );
+    }
+}
+
+// C ref: dig.c wiz_debug_cmd_bury() (2288-2328), enabled by patchlevel.h's
+// DEBUG definition. Count each square before and after its burial, in source
+// order; unpunish may remove an extra object from the current floor pile.
+export async function wiz_debug_cmd_bury(state = game, env = {}) {
+    let before = 0;
+    let after = 0;
+    for (let x = state.u.ux - 1; x <= state.u.ux + 1; x++) {
+        for (let y = state.u.uy - 1; y <= state.u.uy + 1; y++) {
+            if (!isok(x, y)) continue;
+            for (let obj = state.level.objects[x][y]; obj; obj = obj.nexthere) before++;
+            await bury_objs(x, y, state, env);
+            for (let obj = state.level.objects[x][y]; obj; obj = obj.nexthere) after++;
+        }
+    }
+    const difference = before - after;
+    if (!env.planning) {
+        await (env.message ?? ttyPline)(
+            before === 0 ? 'No objects here or adjacent to bury.'
+                : difference === 0 ? 'No objects buried.'
+                    : `${difference} object${difference === 1 ? '' : 's'} buried.`,
+            state, env,
+        );
+    }
+    return ECMD_OK;
+}
+
+// The environment dig.c's rotting hands its callees. `state` and `hooks` are
+// what invent.c obj_extract_self() and obfree() read; the caller supplies
+// hooks.newsym, because a planned turn runs this over a discarded clone and
+// must draw nothing on the live map.
+//
+// obj_extract_self()'s OBJ_FLOOR arm dispatches to mkobj.c remove_object() in
+// C. The port injects that owner, and rotting can mean no other one, so the
+// hook is filled in here rather than at each run_timers() call site.
+function rotEnv(env) {
+    return {
+        ...env,
+        state: env.state ?? game,
+        hooks: {
+            extractExternalObject: remove_object,
+            stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
+                obj, hookEnv.state, hookEnv,
+            ),
+            ...env.hooks,
+        },
+    };
+}
+
+// Corpses cannot contain objects in valid play. ROT_ORGANIC's generic
+// container callback is separate from this corpse-specific cleanup.
+export function unportedRotCorpseReason(obj, rawEnv = {}) {
+    const env = rotEnv(rawEnv);
+    if (Has_contents(obj))
+        return 'a rotting corpse to hold nothing, but one holds an object';
+    if (obj.where === OBJ_FLOOR && typeof env.hooks.newsym !== 'function')
+        throw new TypeError('rot_corpse requires a newsym seam');
+    return null;
+}
+
+// C ref: dig.c rot_organic() (2125-2140). A rotting buried container releases
+// its contents back into the buried-object list at the same square before the
+// container itself is extracted and freed. bury_an_obj() owns each child's
+// timer, resistance draw, and burial effects.
+export async function rot_organic(arg, timeout, rawEnv = {}) {
+    const env = rotEnv(rawEnv);
+    const obj = arg;
+    while (Has_contents(obj)) {
+        obj.cobj.ox = obj.ox;
+        obj.cobj.oy = obj.oy;
+        await bury_an_obj(obj.cobj, env);
+    }
+    obj_extract_self(obj, env);
+    obfree(obj, null, env);
+}
+
+// C ref: dig.c rot_corpse() (2146-2189). Preserve location-specific cleanup
+// before extraction/deallocation, then expose the cleared square or refresh
+// inventory. Timer dispatch and zombify_mon await the message/worn cleanup.
+export async function rot_corpse(arg, timeout, rawEnv = {}) {
+    const env = rotEnv(rawEnv);
+    const { state } = env;
+    const obj = arg;
+    const onFloor = obj.where === OBJ_FLOOR;
+    const inInvent = obj.where === OBJ_INVENT;
+    let x = 0, y = 0;
+    if (onFloor) {
+        x = obj.ox;
+        y = obj.oy;
+    } else if (inInvent) {
+        if (state.flags.verbose) {
+            const cname = corpse_xname(obj, null, CXN_NO_PFX, state);
+            const wielded = obj === state.uwep;
+            const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+            await message('Your ' + (wielded ? 'wielded ' : '') + cname
+                + ' ' + otense(obj, 'rot', state) + ' away' + (wielded ? '!' : '.'));
+        }
+        if (obj.owornmask) {
+            const { remove_worn_item } = await import('./steal.js');
+            await remove_worn_item(obj, true, state, env);
+            const { stop_occupation } = await import('./allmain.js');
+            await stop_occupation(state, env);
+        }
+    } else if (obj.where === OBJ_MINVENT) {
+        if (obj.owornmask && obj === obj.ocarry.mw)
+            await setmnotwielded(obj.ocarry, obj, env);
+    } else if (obj.where === OBJ_MIGRATING) {
+        obj.owornmask = 0;
+    }
+    rot_organic(arg, timeout, env);
+    if (onFloor) {
+        const mtmp = m_at(x, y, state);
+        if (mtmp && !OBJ_AT(x, y, state) && mtmp.mundetected
+            && hides_under(mtmp.data)) {
+            mtmp.mundetected = 0;
+        } else if (u_at(x, y, state) && state.u.uundetected
+            && hides_under(state.youmonst.data)) {
+            hideunder(state.youmonst, { ...env, state });
+        }
+        env.hooks.newsym(x, y, env);
+    } else if (inInvent) {
+        update_inventory(env);
+    }
+}
+
+// C ref: dig.c buried_ball() (1885-1930). Find a buried iron ball at or near
+// cc. A nearby match updates the caller-owned coordinate; equal-distance
+// matches keep the first ball in buriedobjlist order.
+export function buried_ball(cc, state = game) {
+    let bdist = COLNO;
+    let ball = null;
+
+    if (!state.u.utrap || state.u.utraptype === TT_BURIEDBALL) {
+        for (let obj = state.level.buriedobjlist; obj; obj = obj.nobj) {
+            if (obj.otyp !== HEAVY_IRON_BALL) continue;
+            if (obj.ox === cc.x && obj.oy === cc.y) return obj;
+
+            const odist = dist2(obj.ox, obj.oy, cc.x, cc.y);
+            if (odist <= 8 && (!ball || odist < bdist)) {
+                ball = obj;
+                bdist = odist;
+            }
+        }
+    }
+
+    if (ball) {
+        cc.x = ball.ox;
+        cc.y = ball.oy;
+    }
+    return ball;
+}
+
+// C ref: dig.c buried_ball_to_punishment() (1935-1955). Reattach the same
+// unearthed ball, then silently clear the tether before deleting its text.
+export async function buried_ball_to_punishment(state = game, rawEnv = {}) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+    const ball = buried_ball(cc, state);
+    if (!ball) return;
+    const env = objectGenerationEnv({ ...rawEnv, state });
+    obj_extract_self(ball, env);
+    await punish(ball, state, rawEnv);
+    await reset_utrap(false, state);
+    del_engr_at(cc.x, cc.y, state);
+    (rawEnv.redraw ?? newsym)(cc.x, cc.y, state);
+}
+
+// C ref: dig.c buried_ball_to_freedom() (1958-1979). The finder may move
+// cc to a nearby ball: place, erase and redraw that square, not the hero's.
+// The #if 0 rust-metal timer in C is not part of the reference build.
+export async function buried_ball_to_freedom(state = game, rawEnv = {}) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+    const ball = buried_ball(cc, state);
+    if (!ball) return;
+
+    const env = objectGenerationEnv({ ...rawEnv, state });
+    obj_extract_self(ball, env);
+    place_object(ball, cc.x, cc.y, env);
+    stackobj(ball, env);
+    await reset_utrap(true, state);
+    del_engr_at(cc.x, cc.y, state);
+    const redraw = rawEnv.newsym ?? rawEnv.redraw ?? newsym;
+    redraw(cc.x, cc.y, state);
+}
+
+// C ref: dig.c unearth_objs() (2086-2116). Ordinary generation stays
+// synchronous. A live punishment restoration returns its awaited tail so
+// callers finish it before linking a trap or applying the next terrain effect.
+export function unearth_objs(x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = objectGenerationEnv({ ...rawEnv, state });
+    const cc = { x, y };
+    const bball = buried_ball(cc, state);
+    const finish = () => {
+        del_engr_at(x, y, state);
+        if (rawEnv.hooks?.newsym) rawEnv.hooks.newsym(x, y, env);
+        else (rawEnv.redraw ?? newsym)(x, y, state);
+    };
+    const expose = first => {
+        for (let obj = first, next; obj; obj = next) {
+            next = obj.nobj;
+            if (obj.ox !== x || obj.oy !== y) continue;
+            if (bball && obj === bball && state.u.utrap
+                && state.u.utraptype === TT_BURIEDBALL) {
+                return buried_ball_to_punishment(state, rawEnv)
+                    .then(() => expose(next));
+            }
+            obj_extract_self(obj, env);
+            if (obj.timed) stop_timer(ROT_ORGANIC, obj, state, env);
+            const placement = place_object(obj, x, y, env);
+            if (placement && typeof placement.then === 'function')
+                return placement.then(() => {
+                    stackobj(obj, env);
+                    return expose(next);
+                });
+            stackobj(obj, env);
+        }
+        finish();
+    };
+    return expose(state.level.buriedobjlist);
+}

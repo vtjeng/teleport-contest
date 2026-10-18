@@ -1,0 +1,46 @@
+✔ dig_typ answers what each tool would break (30.725338ms)
+✔ dig_typ answers undiggable for a square off the map (5.651194ms)
+✔ pick_can_reach follows pit, bimanual, and flight rules (1.865679ms)
+✔ dig_typ prefers reachable statues and boulders before terrain (1.778375ms)
+✔ fillholetyp preserves liquid counts, weighting and draw order (8.117343ms)
+✔ digactualhole preserves the old visible furniture label in its fall message (11.778164ms)
+✔ digactualhole calls desecrate_altar after hero-caused altar damage (1.541046ms)
+✔ dig_up_grave keeps the C selector values for zombie and mummy creation (5.089659ms)
+✔ dighole returns the drawbridge refusal after source-ordered spot checks (3.329399ms)
+✔ drawbridge source parity: real dighole destroys the fixed lowered bridge (132.084288ms)
+✔ drawbridge source parity: pit-only refuses and furniture caller normalizes the portcullis (50.88266ms)
+✔ dighole removes a settled floor boulder through the object lifecycle (1.997521ms)
+✔ dighole runs magical-trap explosions before deleting and redrawing the trap (0.519455ms)
+✔ adj_pit_checks reports hard foundations and supporting structures (1.261668ms)
+✔ ROT_ORGANIC buries container contents before freeing the container (2.268065ms)
+✔ rot_corpse deletes a floor corpse and redraws its square (1.508202ms)
+✔ default unearth awaits the real first floor-glob merge before continuing (829.38826ms)
+✔ rot_corpse exposes a hider only once nothing is left to hide under (11.661144ms)
+✔ unportedRotCorpseReason names the arm each corpse is waiting on (1.561222ms)
+✔ unportedRotCorpseReason demands the newsym seam it will draw through (1.753033ms)
+✔ the corpse rot matrix rests long enough for a corpse to come due (0.766147ms)
+✔ the crashing-rock line of a dug wall prints under the default options (45.7754ms)
+✔ the crashing-rock line of a dug wall stays silent under !acoustics (32.029801ms)
+✔ mdig_tunnel supplies object hooks for a boulder on stone (34.651605ms)
+✔ digcheck_result values match the C enum and failure alias (0.952463ms)
+✔ dig_check follows C's ordered terrain, trap, and actor tests (1.496654ms)
+✔ dig preserves the C fumbling gate and outcome-selection draw (2.634172ms)
+✔ dig uses the second fumbling draw to select the C swing-miss arm (1.474494ms)
+✔ lateral digging breaks a secret door and finishes the occupation (1.71237ms)
+✔ tree chopping wires the canonical fruit generator after clearing terrain (9.475327ms)
+✔ dig triggers a set trap with the C FORCETRAP flag (0.428238ms)
+✔ digging into a pit schedules the flattened vision recalculation (134.790882ms)
+✔ is_digging compares the active occupation with dig (0.24921ms)
+✔ digactualhole creates a hole before the levitation fall check (2.354877ms)
+✔ digactualhole downgrades forbidden holes but honors candig (2.843454ms)
+✔ digactualhole keeps unseen object-created adjacent pits out of hero trap state (1.822016ms)
+✔ digactualhole releases solid-floor entrapment before trapping the hero in a pit (1.840994ms)
+✔ real nonhero HOLE settles the shopkeeper before the unchanged migration refusal (126.677675ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2076.613563

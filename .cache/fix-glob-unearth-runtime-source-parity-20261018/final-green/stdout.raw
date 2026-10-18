@@ -1,0 +1,20 @@
+✖ default unearth awaits the real first floor-glob merge before continuing (634.687565ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1187.165972
+
+✖ failing tests:
+
+test at scripts/dig.test.mjs:1066:1
+✖ default unearth awaits the real first floor-glob merge before continuing (634.687565ms)
+  TypeError: Cannot read properties of undefined (reading 'filter')
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/dig.test.mjs:1129:45)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)

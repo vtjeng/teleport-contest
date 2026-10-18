@@ -1,0 +1,44 @@
+✖ default unearth awaits the real first floor-glob merge before continuing (589.784793ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1254.725743
+
+✖ failing tests:
+
+test at scripts/dig.test.mjs:1066:1
+✖ default unearth awaits the real first floor-glob merge before continuing (589.784793ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   message: 'absorbGlob is not available for otyp 271',
+  +   name: 'UnsupportedObjectOperationError',
+  +   stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\n' +
+  +     '    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\n' +
+  +     '    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\n' +
+  +     '    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\n' +
+  +     '    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\n' +
+  +     '    at stackobj (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:4009:32)\n' +
+  +     '    at expose (file:///workspace/teleport-contest-worker2-recovery/js/dig.js:2616:13)\n' +
+  +     '    at unearth_objs (file:///workspace/teleport-contest-worker2-recovery/js/dig.js:2620:12)\n' +
+  +     '    at file:///workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/attempt.mjs:182:30'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/dig.test.mjs:1108:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: 'UnsupportedObjectOperationError', message: 'absorbGlob is not available for otyp 271', stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\n    at stackobj (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:4009:32)\n    at expose (file:///workspace/teleport-contest-worker2-recovery/js/dig.js:2616:13)\n    at unearth_objs (file:///workspace/teleport-contest-worker2-recovery/js/dig.js:2620:12)\n    at file:///workspace/teleport-contest-worker2-recovery/.cache/glob-unearth-main-reviewed-qualification-20261018/attempt.mjs:182:30' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

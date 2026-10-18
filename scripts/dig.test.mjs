@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
     COLNO,
@@ -1057,6 +1061,78 @@ test('rot_corpse deletes a floor corpse and redraws its square', async () => {
     assert.equal(corpse.where, OBJ_DELETED);
     // The rock, not the corpse: the square is already clear when it is drawn.
     assert.deepEqual(drawn, [[x, y, rock.otyp, null]]);
+});
+
+test('default unearth awaits the real first floor-glob merge before continuing', () => {
+    const root = dirname(fileURLToPath(import.meta.url));
+    const fixture = resolve(root,
+        '../.cache/glob-unearth-main-reviewed-qualification-20261018/attempt.mjs');
+    const fixtureBytes = readFileSync(fixture);
+    assert.equal(fixtureBytes.byteLength, 15540);
+    assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
+        'bdeda7781a934d4356bb62999bd7b0a414ebe9de6accca9164273ef516e534be');
+
+    const child = spawnSync(process.execPath, [fixture], {
+        cwd: resolve(root, '..'), encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,
+    });
+    assert.equal(child.error, undefined);
+    const receipt = JSON.parse(child.stdout);
+    const runDir = receipt.runDir;
+    writeFileSync(resolve(runDir, 'wrapper.stdout'), child.stdout);
+    writeFileSync(resolve(runDir, 'wrapper.stderr'), child.stderr);
+    writeFileSync(resolve(runDir, 'wrapper.exit'), `${child.status}\n`);
+    assert.equal(receipt.callEntered, true);
+    assert.equal(receipt.callCount, 1);
+    assert.equal(receipt.phase, receipt.primaryError ? 'threw' : 'returned');
+    assert.equal(receipt.observerError, null);
+    assert.equal(receipt.saveError, null);
+    assert.equal(receipt.outputError, null);
+    assert.equal(receipt.handlerRestored, true);
+
+    const after = JSON.parse(readFileSync(resolve(runDir, '04-after-target.json'), 'utf8'));
+    assert.equal(after.callEntered, true);
+    assert.equal(after.callCount, 1);
+    assert.equal(after.after?.references?.liveGameBinding, true);
+    assert.equal(after.after?.references?.levelIdentity, true);
+    assert.equal(after.after?.references?.heroIdentity, true);
+    assert.equal(after.after?.references?.levelDescriptorIdentity, true);
+    assert.equal(after.after?.actor?.hp, 13);
+    assert.equal(after.after?.actor?.moves, 1);
+
+    // The original revision reaches the real stack boundary and reports the
+    // retained refusal. The repaired revision completes this same entry.
+    if (receipt.primaryError) {
+        assert.equal(receipt.primaryError.name, 'UnsupportedObjectOperationError');
+        assert.match(receipt.primaryError.message, /absorbGlob is not available for otyp 271/u);
+    }
+    assert.equal(receipt.primaryError, null);
+    assert.equal(child.status, 0);
+    const before = JSON.parse(readFileSync(
+        resolve(runDir, '03-before-unearth-intent.json'), 'utf8'));
+    const { first, second, floorAtTarget, buried, levelObjects, inventory } =
+        after.after.objects;
+    assert.equal(second.id, 66);
+    assert.equal(second.where, OBJ_FLOOR);
+    assert.equal(second.mass, 40);
+    assert.equal(second.quan, 1);
+    assert.equal(second.age, 1);
+    assert.equal(first.id, 65);
+    assert.equal(first.where, OBJ_DELETED);
+    assert.equal(floorAtTarget.filter((id) => id === 66).length, 1);
+    assert.deepEqual(floorAtTarget.filter((id) => id !== 66),
+        before.fullSnapshot.objects.floorAtTarget.filter((id) => id !== 65 && id !== 66));
+    assert.equal(floorAtTarget.includes(65), false);
+    assert.equal(levelObjects.includes(65), false);
+    assert.equal(buried.includes(65), false);
+    assert.deepEqual(buried, before.fullSnapshot.objects.buried.filter((id) => id !== 66));
+    assert.deepEqual(inventory, before.fullSnapshot.objects.inventory);
+    const shrinkTimers = after.after.timers.filter((timer) =>
+        timer.queueId === 66 && timer.kind === TIMER_OBJECT && timer.func_index === 7);
+    assert.deepEqual(shrinkTimers.map((timer) => timer.timeout), [27]);
+    assert.equal(after.after.timers.some((timer) =>
+        timer.queueId === 66 && timer.kind === TIMER_OBJECT && timer.func_index === ROT_ORGANIC), false);
+    assert.equal(after.after.timers.some((timer) =>
+        timer.queueId === 65 && timer.kind === TIMER_OBJECT), false);
 });
 
 test('rot_corpse exposes a hider only once nothing is left to hide under',

@@ -3982,10 +3982,7 @@ function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
     return true;
 }
 
-// C ref: invent.c stackobj(). Preserve the newly placed object by merging an
-// older compatible pile member into it, which is the pointer order used by C.
-export function stackobj(obj, env = {}) {
-    const normalized = inventoryEnv(env);
+function floorPileForStacking(obj, normalized) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('stackobj requires an object');
     const pile = normalized.state.level?.objects?.[obj.ox]?.[obj.oy];
@@ -4002,6 +3999,14 @@ export function stackobj(obj, env = {}) {
         if (!linked)
             throw new Error('stackobj: object is not on its floor pile');
     }
+    return pile;
+}
+
+// C ref: invent.c stackobj(). Preserve the newly placed object by merging an
+// older compatible pile member into it, which is the pointer order used by C.
+export function stackobj(obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    const pile = floorPileForStacking(obj, normalized);
     // sp_lev.c also calls stackobj() after putting a direct custom-inventory
     // object into OBJ_MINVENT (or after mpickobj merged and deleted it).  C
     // simply scans the remembered coordinate's floor pile in every case.
@@ -4009,6 +4014,29 @@ export function stackobj(obj, env = {}) {
         if (current !== obj && merged(obj, current, normalized)) break;
     }
     return obj;
+}
+
+// Runtime counterpart for callers that must finish a source glob merge before
+// continuing. C stackobj stops at the first successful merge, so a pending
+// pudding message is awaited before either returning or scanning the next pile
+// member. The synchronous stackobj contract remains available to other callers.
+export function stackobjRuntime(obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    const pile = floorPileForStacking(obj, normalized);
+    const scan = (current) => {
+        for (let candidate = current; candidate; candidate = candidate.nexthere) {
+            if (candidate === obj) continue;
+            const next = candidate.nexthere;
+            const result = mergedRuntime(obj, candidate, normalized);
+            if (isThenable(result)) {
+                return Promise.resolve(result).then((didMerge) =>
+                    didMerge ? obj : scan(next));
+            }
+            if (result) break;
+        }
+        return obj;
+    };
+    return scan(pile);
 }
 
 // C ref: shk.c delete_contents(). Preflight the whole sibling chain before
