@@ -325101,6 +325101,114 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-monster-dropenv-unused-provider-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement relobj from undefined",
+      "cFile": "steal.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-monster-dropenv-unused-provider-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "relobj",
+          "line": 875,
+          "endLine": 901,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 875,
+        "to": 901
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-monster-dropenv-unused-provider-source-parity-20261018",
+        "assignmentBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+          "authorization": "Standing user direct sourceParity authorization; root explicitly agrees NEW sameW1 supporting correction after current group publication. Current mon guarded lookup is accepted/published261 with passing normalCI. Source9e49/independent06e40d supports stale unused validation removal, old v22 whole mdrop_obj/relobj owner42b62e6f remains closed/retained, no novelty/budget release. Original062a and subsequent life-return proof remain separate evidence and spent time; this newsteal scope does not reset them.",
+          "currentBehavior": "C steal.c relobj873–899 releases ordinary creature inventory, with no callback type contract. JS shared dropEnv requires unsupported at entry before relobj reads even empty minvent. Neither mdrop_obj nor relobj nor any steal.js operation invokes that provider; all nested default/guard contracts are separately retained. Ordinary real potionhit lethal AD_ACID→monkilled→mondied→mondead→m_detach forwards default normalized message/RNG but no unsupported. Historical062a post-monfix actually reached this separate refusal; now accepted lazylookup unblocks that same route. Empty ordinary living untame nonquest nonguard inventory admits no special drop dependency.",
+          "expectedBehavior": "Delete ONLY typeof rawEnv.unsupported check/throw in dropEnv. Preserve state=rawEnv.state??game, returned {...rawEnv,state}, every relobj/mdrop_obj/extraction/message/redraw/ownership operation and branch-specific refusal. No fallback callback insertion or helper/callee/mon/potion code change. Primary actual real exported potionhit ordinary nonhero lethal acid against source-valid canonically initialized empty-inventory lowHP goblin, no lifesaving/nonpet/noquest/nonguard, no unsupported provider: original exactsource must fail at dropEnv before edit, after minimaldelta actual normal death/detach/map removal/deathcount and real potion cleanup complete. Genuine seeded resistance/damage/corpse RNG only; no fake kill/drop/corpse helpers or provider/forceddraw. Same final testbytes and same focused command red→green, lint. Reuse retained062a actual dead-fixture setup and successfulmonlife constructor/singleton/More/docall contracts; no optional history/publicroute. Existing steal object-drop tests preserve supplied-operation/body behavior; source-local meaningful ordinary/default control if needed. No nonempty/specialterrain/fullpetdrop certification unless actually tested; do not expand code when another branch fails.",
+          "units": [
+            "steal.c:relobj"
+          ],
+          "allowedPaths": [
+            "js/steal.js",
+            "scripts/potion.test.mjs",
+            "scripts/steal.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/potion.test.mjs",
+            "scripts/steal.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/potion.js",
+              "symbol": "potionhit",
+              "source": "Real potionhit nonhero lethal AD_ACID goes through actual monkilled/mondied/mondead/m_detach to relobj; primary test exercises complete real default empty-inventory death and potion ownership, not direct dropEnv or helper-only relobj proof."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/steal.js",
+              "object": "a8c844558ee3a40a5b4fa25fc976c9e2fd823020"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "d5aa9b39abc1f361e63f7219546c9e90977ca428"
+            },
+            {
+              "path": "js/potion.js",
+              "object": "72cf938e6eac813f3f047b1613a8d80a25028d43"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "scripts/potion.test.mjs",
+              "object": "8ded9fa7793ac28997c309af51a0d582a8f60554"
+            },
+            {
+              "path": "scripts/steal.test.mjs",
+              "object": "729d61549145e2618c3c3a2abdb708c40a05db1c"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "sourceResult": "9e49f37ae45781bf232d58d4af83adceb6d762e8b9fe2a47b92f605c6e86d3ad",
+            "historicalConditional": "062a41525c60caa89d083e9803e3fd40f98f00ad423cd9146933cda9c49600a0 preserved originalred/deeperdropEnvfailure, conditional then, now monprerequisite accepted261",
+            "independent": "CL validated79211B/e3326862/all3files, both callers/defaultnestedrefs, C814–899; source no unusedcallback invocation. Formal independent06e40d retained in CLcache.",
+            "Main": "Main independently read whole C814–899 and JSdropEnv/mdrop_obj/relobj; exactguard cannot be needed beforeemptyinventory. rg refusal/dropEnv/relobj across scripts/steal identifies existing drop tests and no exact stale refusal requirement. All new pins from sameimmutable261.",
+            "knownSetup": "Successful W1 currentmonlife1d860 realptr+NO_MINVENT|MM_ADJACENTOK|MM_NOMSG, singletongame afterrunSegment, game.nhDisplay.serialize, finite actualMore16+one actualdocall emptyreply. Retain earlier missingPOTHIT import/namingprompt logs; audit exactexports/args/defaults/writer-owner-accessor-shape beforefreeze. Worker owns minimalfixture; no injectedunsupported or optionalhistory. Copy primitive/RNG/phase receipts, original targetred before code."
+          }
+        },
+        "reviewSha256": "91e1bb11a3a6bc3f6683c460c1697c9175473b478ec3380eb30ebb12abac8303"
+      }
     }
   ]
 }
