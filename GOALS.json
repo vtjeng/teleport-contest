@@ -327905,6 +327905,126 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-glob-regular-pickup-runtime-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement the reviewed regular live-pickup glob merge path through the existing mergedRuntime owner, preserving synchronous merged behavior and effect-free pickup projection.",
+      "cFile": "invent.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-glob-regular-pickup-runtime-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "merged",
+          "line": 814,
+          "endLine": 959,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 814,
+        "to": 959
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-glob-regular-pickup-runtime-source-parity-20261018",
+        "assignmentBase": "63c883e4b3cf79b57dbc1523aff3a16e46d30ad0",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "63c883e4b3cf79b57dbc1523aff3a16e46d30ad0",
+          "authorization": "Standing explicit source-parity authorization. Main adopts FIRST COMPLETE REGULAR LIVE PICKUP stage after actual0010244e and Main/CL full C merged814-948, current JS/default/caller and master design review. NEW <=20min implementation including packaging, all prior source/physical caps remain spent. Whole runtime merged owner plus actual regular pickup projection/dependency seam only; global synchronous merged/default and transfer-wrapper/caller migrations remain explicitly pending, not completion claims.",
+          "currentBehavior": "Exact17775B eabbd qualifier one awaited pickup(-1,state) on initialized canonical pair: carried65 grayglob271 mass20/quan1/timer26 and floor66 same mass/quan1/timer28; actual requiredHook absorbGlob error via preflightMerged/projectAddinv/preflight_addinv_sequence/preflightPickupObjects, before extraction. Same object chains/timers/RNG2382 and both contexts, same actuallevel/descriptor/hero74,2/D1/HP13, handler restored. Process0 records exception, not successful pickup.",
+          "expectedBehavior": "WHOLE C invent.c merged814-948 semantics for existing awaited mergedRuntime: preserve full prefix/source order, exactly one real pudding_merge_message then await canonical obj_absorb using real state/env before return/lifecycle assertions. Regular pickup pure slot projection/dependency preflight must accept this real runtime capability without calling any effect hook or changing live state. Existing synchronous merged hook contract and non-glob eager/non-glob comparison wait behavior preserved. Actual pickup succeeds once, survivor65 inventory mass40/quan1/age1; incoming66 deleted/unlinked with no timer; one survivor SHRINK_GLOB canonical deadline26 from staged incoming timer-stop then obj_absorb. No RNG equality guarantee after added real effects. Other existing mergedRuntime zap1496 remains awaited with same defaults/fullenv; no global transfer/caller or clone-safety certification.",
+          "units": [
+            "invent.c:merged"
+          ],
+          "allowedPaths": [
+            "js/invent.js",
+            "scripts/inventory-substrate.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/inventory-substrate.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/invent.js",
+              "symbol": "addinv_runtime",
+              "source": "Existing actual addinv_core0_runtime awaits/then-chains mergedRuntime at inventory/uquiver scan, then finish inventory effects. Source pickup actual pickup->preflightPickupObjects->sequence->projectAddinv is effect-free capability/slot planning, actual pick_obj later extracts/bills then addinv_runtime consumes prepared object/state/dependency token and scans live inventory."
+            },
+            {
+              "path": "js/zap.js",
+              "symbol": "zapyourself",
+              "source": "Existing post-stone-to-flesh inventory mergedRuntime1496 is already awaited with mergeEnv; preserve this existing canonical non-glob/message behavior. No zap edit or claim that this mergeEnv already forwards every planning provider."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/pickup.js",
+              "object": "f33c1d21340e7a78649033c4e703967b037e5123"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/timeout.js",
+              "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "scripts/inventory-substrate.test.mjs",
+              "object": "ce96c60921afcd36e6b22732c0330ff1446ec2aa"
+            },
+            {
+              "path": "js/zap.js",
+              "object": "c29975212bdb340128867b3579e75fa2fad84dc9"
+            }
+          ]
+        },
+        "reviewSha256": "673b480869f3a0f1c31377a2d0db507bf54c3149b610817104c6c506d95affa7"
+      }
     }
   ]
 }
