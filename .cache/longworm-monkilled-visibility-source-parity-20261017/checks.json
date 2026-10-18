@@ -9,7 +9,7 @@
       "scripts/worm.test.mjs"
     ],
     "exitCode": 0,
-    "log": "/workspace/teleport-contest-worker2-recovery/.cache/longworm-monkilled-visibility-source-parity-20261017/focused.after.log"
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/longworm-monkilled-visibility-source-parity-20261017/focused.rework.after.log"
   },
   {
     "kind": "lint",
@@ -19,6 +19,6 @@
       "lint"
     ],
     "exitCode": 0,
-    "log": "/workspace/teleport-contest-worker2-recovery/.cache/longworm-monkilled-visibility-source-parity-20261017/lint.log"
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/longworm-monkilled-visibility-source-parity-20261017/lint.rework.log"
   }
 ]
