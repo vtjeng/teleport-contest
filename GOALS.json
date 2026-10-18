@@ -327149,7 +327149,7 @@
     {
       "id": "fix-floor-figurine-stone-flesh-billing-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement stone_to_flesh_obj from zap.c",
       "cFile": "zap.c",
       "sessions": [],
@@ -327157,7 +327157,7 @@
       "detail": "Source-parity-runtime-pending whole stone_to_flesh_obj. Actual e4eee callback normal return/missing-call prefix was initially misclassified after a postobserver failed; original numeric projections unavailable. New regression directly proves floor FIGURINE101 deletion/newt103/price80 versus original debit0; reviewed helper call makes debit80. Initial046a genuine target red preceded code, final1f2702 same-byte red/green pairing followed import-only test cleanup after first draft. Exact raw/projections/lint preserved in47d/0dd67; pending normal hosted checkpoint/acceptance. B21/parked spell/poly/shock owners/caps and public/source-certification limits retained.",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "28b64ea6689e4428050f855833972026bac02028",
       "delivered": null,
       "functions": [
         {
@@ -327284,6 +327284,56 @@
           }
         },
         "reviewSha256": "b0088c683ba77433c6cd9fea3c65fc9838ed068642ac7472c22d8240005e6d9a"
+      },
+      "closeStanding": {
+        "sha": "28b64ea6689e4428050f855833972026bac02028",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/28b64ea6689e4428050f855833972026bac02028/run-hosted-lOCrxb/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "stone_to_flesh_obj",
+            "sourceFile": "zap.c",
+            "implementation": "js/zap.js",
+            "symbol": "stone_to_flesh_obj",
+            "pure": false,
+            "sourceReview": "Read the complete C zap.c stone_to_flesh_obj (1993-2111), exact successful floor FIGURINE predicates, makemon success, stolen_value call and order before timer cleanup/useup/delobj, and all remaining statue/golem/material/resistance/failure branches. Replaced only the JS note_unported marker with canonical in_rooms first room lookup, shop_keeper lookup, and await existing stolen_value with peaceful/silent/state arguments. Existing caller and helper remain unchanged.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "Actual e4eee SPE_STONE_TO_FLESH callback awaits whole helper with full normal canonical RNG."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "stone_to_flesh_obj",
+                "source": "Whole C1993–2111; successful FIGURINE charge precedes timers/deletion, remaining branches preserved."
+              }
+            ],
+            "tests": [
+              "scripts/zapyourself.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Constructed-state focused regression initializes a real canonical NethackGame, shop and peaceful keeper, then calls actual bhito with the real floor FIGURINE and SPE_STONE_TO_FLESH. It proves this callback path and the missing charge repair only; public gameplay/runtime parity and whole-function source certification remain pending.",
+        "entryPoints": [
+          {
+            "name": "stone-to-flesh floor FIGURINE callback and shop charge",
+            "functions": [
+              "stone_to_flesh_obj"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
