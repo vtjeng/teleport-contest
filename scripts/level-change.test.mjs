@@ -80,6 +80,294 @@ import { add_weapon_skill, lose_weapon_skill } from '../js/weapon.js';
 import { skillSlot } from '../js/startup_skills.js';
 import { scanLevelArgument } from '../js/wizcmds.js';
 import { loadLevelChangeRecipe } from './run-level-change.mjs';
+import { GameDisplay } from '../js/game_display.js';
+import { NethackGame } from '../js/jsmain.js';
+import { goto_level } from '../js/do.js';
+import {
+    addinv_nomerge,
+    add_to_container,
+    inventoryObjects,
+    obj_extract_self,
+} from '../js/invent.js';
+import { add_to_migration, mksobj, mksobj_at } from '../js/obj.js';
+import { makemon_runtime } from '../js/makemon_create.js';
+import { migrate_to_level } from '../js/dog.js';
+import { ledger_no } from '../js/dungeon.js';
+import { getRngLog } from '../js/rng.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import {
+    MIGR_RANDOM,
+    MM_NOMSG,
+    NO_MINVENT,
+    OBJ_DELETED,
+    OBJ_MIGRATING,
+    LS_MONSTER,
+    LS_OBJECT,
+} from '../js/const.js';
+import { APPLE, AMULET_OF_YENDOR, CHEST, OIL_LAMP } from '../js/objects.js';
+import {
+    PM_FIRE_ELEMENTAL,
+    PM_LITTLE_DOG,
+    PM_WIZARD_OF_YENDOR,
+} from '../js/monsters.js';
+import { begin_burn } from '../js/timeout.js';
+import { mpickobj } from '../js/steal.js';
+
+test('terminal entry discards unreachable migrant lists through canonical lifecycle', async () => {
+    const input = {
+        seed: 45024504,
+        datetime: '20581013132200',
+        nethackrc: 'OPTIONS=name:TerminalProbe,role:Wizard,race:human,gender=male,align=neutral,playmode:normal,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n',
+    };
+    const display = new GameDisplay(null);
+    const previousOnEmptyQueue = display.onEmptyQueue;
+    let moreSpaces = 0;
+    const moreReceipts = [];
+    display.onEmptyQueue = () => {
+        const receipt = {
+            epoch: display.waitEpoch,
+            toplin: display.toplin,
+            topMessage: display.topMessage,
+            queueLength: display.inputQueueLength,
+            screen: display.serialize(),
+        };
+        if (display.toplin === 1 && receipt.screen.includes('--More--')) {
+            if (moreSpaces >= 16)
+                throw new Error('terminal-discard test exceeded More input cap');
+            moreSpaces++;
+            moreReceipts.push(receipt);
+            return 32;
+        }
+        throw new Error(`terminal-discard test reached unknown input: ${JSON.stringify(receipt)}`);
+    };
+
+    try {
+        const nhGame = new NethackGame(input);
+        nhGame._pendingDisplay = display;
+        assert.equal(await nhGame.start(), true);
+        const state = game;
+        assert.equal(state.u.uz.dnum, 0);
+        assert.equal(state.u.uz.dlevel, 1);
+        assert.ok(state.earth_level && state.astral_level);
+        assert.equal(state.wizard, false);
+
+        const lifecycle = objectGenerationEnv({ state });
+        const amulet = mksobj(AMULET_OF_YENDOR, true, false, lifecycle);
+        const addedAmulet = addinv_nomerge(amulet, lifecycle);
+        if (addedAmulet && typeof addedAmulet.then === 'function')
+            await addedAmulet;
+        assert.equal(state.u.uhave.amulet, 1);
+        assert.ok(inventoryObjects(state).includes(amulet));
+
+        const dog = await makemon_runtime(
+            state.mons[PM_LITTLE_DOG], 0, 0, MM_NOMSG, lifecycle,
+        );
+        assert.ok(dog && !dog.minvent);
+        const abandoned = { dnum: 0, dlevel: 2 };
+        const abandonedLedger = ledger_no(abandoned, state);
+        assert.ok(abandonedLedger > 0);
+        await migrate_to_level(dog, abandonedLedger, MIGR_RANDOM, null, lifecycle);
+        const dogId = dog.m_id;
+
+        const apple = mksobj(APPLE, true, false, lifecycle);
+        assert.equal(apple.otyp, APPLE);
+        assert.equal(apple.lamplit, false);
+        assert.equal(apple.timed, 0);
+        add_to_migration(apple, state);
+        apple.ox = abandoned.dnum;
+        apple.oy = abandoned.dlevel;
+        apple.owornmask = MIGR_RANDOM;
+        const appleId = apple.o_id;
+        assert.equal(state.gm.migrating_mons.m_id, dogId);
+        assert.equal(state.gm.migrating_objs.o_id, appleId);
+
+        const requested = { ...state.earth_level };
+        await goto_level(requested, true, false, false, state);
+        const rngAfterGoto = structuredClone(getRngLog());
+
+        const migrantIds = head => {
+            const ids = [];
+            for (let current = head; current; current = current.nmon)
+                ids.push(current.m_id);
+            return ids;
+        };
+        const objectIds = head => {
+            const ids = [];
+            for (let current = head; current; current = current.nobj)
+                ids.push(current.o_id);
+            return ids;
+        };
+        const afterTarget = {
+            hero: {
+                dnum: state.u.uz.dnum,
+                dlevel: state.u.uz.dlevel,
+                amulet: state.u.uhave.amulet,
+            },
+            dogId,
+            dogAfterDeallocationId: dog.m_id,
+            migratingMonsters: migrantIds(state.gm.migrating_mons),
+            appleId,
+            appleWhere: apple.where,
+            appleLink: apple.nobj?.o_id ?? null,
+            appleWornMask: apple.owornmask,
+            migratingObjects: objectIds(state.gm.migrating_objs),
+            marker: [...(state.unported ?? [])]
+                .filter(value => value === 'dog.c discard_migrations'),
+            moreSpaces,
+            rngCalls: getRngLog().length,
+        };
+        assert.equal(afterTarget.hero.dnum, requested.dnum, JSON.stringify(afterTarget));
+        assert.equal(afterTarget.hero.dlevel, requested.dlevel, JSON.stringify(afterTarget));
+        assert.equal(afterTarget.hero.amulet, 1, JSON.stringify(afterTarget));
+        assert.equal(afterTarget.rngCalls, 4958, JSON.stringify(afterTarget));
+        assert.ok(!afterTarget.migratingMonsters.includes(dogId),
+            `C dog.c discard_migrations must unlink and deallocate original dog ${dogId}; after=${JSON.stringify(afterTarget)}`);
+        assert.ok(!afterTarget.migratingObjects.includes(appleId),
+            `C dog.c discard_migrations must unlink and free original apple ${appleId}; after=${JSON.stringify(afterTarget)}`);
+        assert.equal(dog.m_id, 0);
+        assert.equal(dog.nmon, null);
+        assert.equal(apple.where, OBJ_DELETED);
+        assert.equal(apple.nobj, null);
+        assert.equal(apple.owornmask, 0);
+        assert.ok(!afterTarget.marker.includes('dog.c discard_migrations'));
+        assert.equal(afterTarget.moreSpaces, 4);
+        assert.deepEqual(getRngLog(), rngAfterGoto);
+        assert.equal(moreReceipts.length, 4);
+
+        // The exported helper is exercised only after the real goto_level
+        // regression above; it supplements and never substitutes for that path.
+        const { discard_migrations } = await import('../js/dog.js');
+        const toMigration = async (species, destination) => {
+            const monster = await makemon_runtime(
+                state.mons[species], state.u.ux, state.u.uy,
+                NO_MINVENT | MM_NOMSG, lifecycle,
+            );
+            assert.ok(monster, `canonical monster creation ${species}`);
+            const ledger = ledger_no(destination, state);
+            assert.ok(ledger > 0, `valid migration destination ${JSON.stringify(destination)}`);
+            await migrate_to_level(monster, ledger, MIGR_RANDOM, null, lifecycle);
+            return monster;
+        };
+        const destLedger = abandonedLedger;
+        const headDog = await toMigration(PM_LITTLE_DOG, abandoned);
+        let actualWizard = state.level.monlist;
+        while (actualWizard
+            && actualWizard.data?.pmidx !== PM_WIZARD_OF_YENDOR)
+            actualWizard = actualWizard.nmon;
+        assert.ok(actualWizard?.iswiz,
+            'actual source-created Wizard is retained by the iswiz condition');
+        await migrate_to_level(actualWizard, destLedger, MIGR_RANDOM, null, lifecycle);
+        const endgameDog = await toMigration(PM_LITTLE_DOG, state.astral_level);
+        const fireElemental = await toMigration(PM_FIRE_ELEMENTAL, abandoned);
+        const inventoryDog = await toMigration(PM_LITTLE_DOG, abandoned);
+        const minventApple = mksobj(APPLE, true, false, lifecycle);
+        mpickobj(inventoryDog, minventApple, lifecycle);
+        assert.equal(inventoryDog.minvent, minventApple);
+
+        const monsterIdsBeforeCleanup = migrantIds(state.gm.migrating_mons);
+        assert.deepEqual(monsterIdsBeforeCleanup, [
+            inventoryDog.m_id,
+            fireElemental.m_id,
+            endgameDog.m_id,
+            actualWizard.m_id,
+            headDog.m_id,
+        ]);
+        const fireLight = source => source?.type === LS_MONSTER
+            && source.id === fireElemental;
+        const hasFireLightBefore = () => {
+            for (let source = state.gl.light_base; source; source = source.next)
+                if (fireLight(source)) return true;
+            return false;
+        };
+        assert.ok(hasFireLightBefore(), 'canonical fire elemental has its monster light');
+
+        const plainApple = mksobj(APPLE, true, false, lifecycle);
+        add_to_migration(plainApple, state);
+        plainApple.ox = abandoned.dnum;
+        plainApple.oy = abandoned.dlevel;
+        plainApple.owornmask = MIGR_RANDOM;
+        const retainedApple = mksobj(APPLE, true, false, lifecycle);
+        add_to_migration(retainedApple, state);
+        retainedApple.ox = state.astral_level.dnum;
+        retainedApple.oy = state.astral_level.dlevel;
+        retainedApple.owornmask = MIGR_RANDOM;
+
+        const chest = mksobj_at(
+            CHEST, state.u.ux, state.u.uy, true, false, lifecycle,
+        );
+        const nestedApple = mksobj(APPLE, true, false, lifecycle);
+        add_to_container(chest, nestedApple, lifecycle);
+        const lamp = mksobj(OIL_LAMP, true, false, lifecycle);
+        add_to_container(chest, lamp, lifecycle);
+        begin_burn(lamp, false, lifecycle);
+        assert.ok(lamp.timed > 0 && lamp.lamplit);
+        obj_extract_self(chest, lifecycle);
+        add_to_migration(chest, state);
+        chest.ox = abandoned.dnum;
+        chest.oy = abandoned.dlevel;
+        chest.owornmask = MIGR_RANDOM;
+        const lampId = lamp.o_id;
+        const chestId = chest.o_id;
+        const lampLightPresentBefore = (() => {
+            for (let source = state.gl.light_base; source; source = source.next)
+                if (source.type === LS_OBJECT && source.id === lamp) return true;
+            return false;
+        })();
+        assert.ok(lampLightPresentBefore, 'canonical lit lamp has its object light');
+        assert.ok([...getRngLog()].length >= afterTarget.rngCalls);
+
+        const rngBeforeDiscard = structuredClone(getRngLog());
+        await discard_migrations(state, lifecycle);
+        assert.deepEqual(getRngLog(), rngBeforeDiscard);
+
+        const helperAfter = {
+            monsters: migrantIds(state.gm.migrating_mons),
+            objects: objectIds(state.gm.migrating_objs),
+            wizardId: actualWizard.m_id,
+            endgameDogId: endgameDog.m_id,
+            deletedMonsterIds: [headDog.m_id, fireElemental.m_id, inventoryDog.m_id],
+            fireLightPresent: hasFireLightBefore(),
+            plainAppleWhere: plainApple.where,
+            chestWhere: chest.where,
+            nestedAppleWhere: nestedApple.where,
+            lampWhere: lamp.where,
+            lampTimed: lamp.timed,
+            lampLit: lamp.lamplit,
+            lampLightPresent: (() => {
+                for (let source = state.gl.light_base; source; source = source.next)
+                    if (source.type === LS_OBJECT && source.id === lamp) return true;
+                return false;
+            })(),
+            minventAppleWhere: minventApple.where,
+            minventAppleLink: minventApple.nobj,
+            originalLampId: lampId,
+            originalChestId: chestId,
+        };
+        assert.deepEqual(helperAfter.monsters, [endgameDog.m_id, actualWizard.m_id],
+            JSON.stringify(helperAfter));
+        assert.ok(helperAfter.monsters.includes(endgameDog.m_id));
+        assert.ok(helperAfter.monsters.includes(actualWizard.m_id));
+        assert.ok(!helperAfter.deletedMonsterIds.some(id => helperAfter.monsters.includes(id)));
+        assert.equal(headDog.m_id, 0);
+        assert.equal(fireElemental.m_id, 0);
+        assert.equal(inventoryDog.m_id, 0);
+        assert.equal(helperAfter.fireLightPresent, false);
+        assert.deepEqual(helperAfter.objects, [retainedApple.o_id]);
+        assert.equal(retainedApple.where, OBJ_MIGRATING);
+        assert.equal(plainApple.where, OBJ_DELETED);
+        assert.equal(chest.where, OBJ_DELETED);
+        assert.equal(nestedApple.where, OBJ_DELETED);
+        assert.equal(lamp.where, OBJ_DELETED);
+        assert.equal(lamp.timed, 0);
+        assert.equal(lamp.lamplit, false);
+        assert.equal(helperAfter.lampLightPresent, false);
+        assert.equal(minventApple.where, OBJ_DELETED);
+        assert.equal(helperAfter.minventAppleLink, null);
+    } finally {
+        display.onEmptyQueue = previousOnEmptyQueue;
+    }
+    assert.equal(display.onEmptyQueue, previousOnEmptyQueue);
+});
 
 function advancement(infix, inrnd, lofix, lornd, hifix, hirnd) {
     return { infix, inrnd, lofix, lornd, hifix, hirnd };

@@ -60,6 +60,8 @@ import {
     DOGFOOD,
     FULL_MOON,
     MANFOOD,
+    In_endgame,
+    LS_MONSTER,
     OBJ_FREE,
     RLOC_NOMSG,
     STRAT_ARRIVE,
@@ -89,11 +91,11 @@ import { game } from './gstate.js';
 import {
     can_saddle, dismount_steed, put_saddle_on_mon,
 } from './steed.js';
-import { update_inventory } from './invent.js';
+import { obfree, update_inventory } from './invent.js';
 import { mbirth_limit, rndmonst_adj, set_malign } from './makemon.js';
-import { makemon_runtime } from './makemon_create.js';
+import { discard_minvent, makemon_runtime } from './makemon_create.js';
 import {
-    healmon, mnearto, minliquid, mnexto,
+    dealloc_monst, healmon, mnearto, minliquid, mnexto,
 } from './mon.js';
 import {
     attacktype,
@@ -104,6 +106,7 @@ import {
     is_human,
     levl_follower,
     carnivorous,
+    emits_light,
     herbivorous,
     regenerates,
     sticks,
@@ -165,6 +168,8 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
+import { del_light_source } from './light.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { finish_meating } from './dogmove.js';
 import { body_part } from './polyself.js';
 import { mintrap } from './trap_effects.js';
@@ -1440,6 +1445,51 @@ export async function migrate_to_level(
     monster.my = 0;
     if (recalculateVision) recalculateVision(0);
     return monster;
+}
+
+// C ref: dog.c discard_migrations(). Terminal destinations retain only the
+// Wizard and endgame monsters/objects; every other migrant is removed from
+// its global chain and passed through its normal owner cleanup.
+export function discard_migrations(state = game, rawEnv = {}) {
+    const env = objectGenerationEnv({ ...rawEnv, state });
+
+    let previousMonster = null;
+    let monster = state.gm.migrating_mons;
+    while (monster) {
+        const next = monster.nmon;
+        const keep = monster.iswiz
+            || In_endgame({ dnum: monster.mux, dlevel: monster.muy });
+        if (keep) {
+            previousMonster = monster;
+        } else {
+            if (previousMonster) previousMonster.nmon = next;
+            else state.gm.migrating_mons = next;
+            monster.nmon = null;
+            discard_minvent(monster, false, env);
+            if (emits_light(monster.data))
+                del_light_source(LS_MONSTER, monster, state);
+            dealloc_monst(monster);
+        }
+        monster = next;
+    }
+
+    let previousObject = null;
+    let object = state.gm.migrating_objs;
+    while (object) {
+        const next = object.nobj;
+        const keep = In_endgame({ dnum: object.ox, dlevel: object.oy });
+        if (keep) {
+            previousObject = object;
+        } else {
+            if (previousObject) previousObject.nobj = next;
+            else state.gm.migrating_objs = next;
+            object.nobj = null;
+            object.where = OBJ_FREE;
+            object.owornmask = 0;
+            obfree(object, null, env);
+        }
+        object = next;
+    }
 }
 
 // C ref: youprop.h:214 Aggravate_monster and :218 Conflict, each `(H... ||

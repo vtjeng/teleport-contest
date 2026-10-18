@@ -185,7 +185,8 @@ import {
 } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import {
-    keepdogs, losedogs, mon_arrive, mon_catchup_elapsed_time, update_mlstmv,
+    discard_migrations, keepdogs, losedogs, mon_arrive,
+    mon_catchup_elapsed_time, update_mlstmv,
 } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { make_grave } from './grave.js';
@@ -2651,8 +2652,8 @@ export function updateDunlevReached(level, state = game) {
 // tutorial levels are terminal in the dungeon graph, so delete the in-memory
 // level snapshots/files that C discards and mark their map-overview branches
 // as unreachable. The file and overview operations stay with their C owners:
-// files.c delete_levelfile() and dungeon.c remdun_mapseen(). The migration
-// list has no JS owner yet; its discarded call remains an explicit source gap.
+// files.c delete_levelfile() and dungeon.c remdun_mapseen(). Then dog.c's
+// discard_migrations() removes migrants bound to unreachable levels.
 function discard_unreachable_levels(state, leavingTutorial) {
     const tutorialDnum = state.tutorial_dnum;
 
@@ -2674,7 +2675,7 @@ function discard_unreachable_levels(state, leavingTutorial) {
             remdun_mapseen(dnum, state);
     }
 
-    note_unported('dog.c discard_migrations');
+    discard_migrations(state);
 }
 
 // C ref: do.c goto_level() (1478-1998), for first-time arrival on an ordinary
