@@ -3,9 +3,7 @@
   "kind": "file-port",
   "cFile": "worm.c",
   "functions": [
-    {
-      "name": "see_wsegs"
-    }
+    "see_wsegs"
   ],
   "requiredFunctions": [
     {
