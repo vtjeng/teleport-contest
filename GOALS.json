@@ -324612,7 +324612,7 @@
     {
       "id": "fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement make_angry_shk from shk.c",
       "cFile": "shk.c",
       "sessions": [],
@@ -324620,7 +324620,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "20ff7999e70b958a1a19a805fbd636c8ec78804b",
       "delivered": null,
       "functions": [
         {
@@ -324740,6 +324740,51 @@
           }
         },
         "reviewSha256": "e4ded05abea4bfc3f64da52001e6dbe3515a372776ab84f90622171ba08c7ffb"
+      },
+      "closeStanding": {
+        "sha": "20ff7999e70b958a1a19a805fbd636c8ec78804b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "2596de609fcf06e1200c1e6bd7d7e7af04c91fac",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/20ff7999e70b958a1a19a805fbd636c8ec78804b/run-hosted-4pAYbG/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "make_angry_shk",
+            "implementation": "js/shk.js",
+            "symbol": "make_angry_shk",
+            "sourceReview": "Read the entire C shk.c:make_angry_shk function at 1470-1498, the complete selected dig.c:digactualhole nonhero HOLE branch, and the existing C callees addupbill, setpaid, Shknam, and hot_pursuit. Implemented the source order: settle bill/debit/loan/credit into robbed, clamp at zero, call setpaid, await the pre-pursuit gets-angry/is-furious TTY line, then call hot_pursuit. The C ox/oy parameters are unused; no extra admission guard was added. The selected caller awaits the helper before retaining the unchanged migrate_to_level refusal.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "Real exported nonhero HOLE production entry after source-valid terrain/Can_dig_down/maketrap/grounded/size/ustuck/teleport_pet/destination guards. Actual fb747 proves this same entry reaches omitted anger prefix then current exact shopkeeper migration refusal. Legal direct HOLE entry snapshot needs no do_break_wand/explosion/public acquisition history. Regression observes effects before unchanged refusal, not completed caller/migration."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The reviewed impure C unit shk.c:make_angry_shk (1470-1498) is called by dig.c:digactualhole at the live nonhero HOLE branch before migration. The JavaScript implementation is the whole exported js/shk.js:make_angry_shk helper, wired by an awaited call in js/dig.js:digactualhole. Focused scripts/dig.test.mjs exercises that actual caller on the retained initialized keeper/real-bill fixture and observes settlement before the unchanged exact migration refusal; scripts/shk.test.mjs checks the helper credit/clamp, already-angry wording, and message-before-pursuit order. This is source-parity-runtime-pending evidence only; it does not claim completed migration, public parity, or whole-source certification.",
+        "entryPoints": [
+          {
+            "name": "digactualhole shopkeeper HOLE branch",
+            "functions": [
+              "make_angry_shk"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

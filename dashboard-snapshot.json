@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T05:55:51.851Z",
+  "capturedAt": "2026-10-18T06:17:21.551Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T05:55:51.851Z",
+    "asOf": "2026-10-18T06:17:21.551Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 237,
+      "mainSupportAssignments": 241,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -169041,23 +169041,190 @@
         "type": "accepted",
         "at": "2026-10-18T05:54:23.372Z",
         "task": "delivery:fix-qualified-keepdogs-mimic-departure-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-qualified-keepdogs-mimic-departure-source-parity-20261018-1765cf6bb493d147bfcdc4ffb512c48e43cf9b89",
+        "type": "published",
+        "at": "2026-10-18T05:56:16.678Z",
+        "task": "delivery:fix-qualified-keepdogs-mimic-departure-source-parity-20261018",
+        "commit": "1765cf6bb493d147bfcdc4ffb512c48e43cf9b89"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:57:30.932Z",
+        "id": "queue:d8e7dc63-9f55-45a9-87f2-43533e7a1275",
+        "type": "queue-complete",
+        "task": "conflict-steed-dogmove-default-source-inquiry-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:57:30.932Z",
+        "id": "queue:d8e7dc63-9f55-45a9-87f2-43533e7a1275:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:59:20.003Z",
+        "id": "queue:c6acb39a-8a5a-47e8-925b-08830c78e06c",
+        "type": "assign",
+        "task": "whip-petrifying-corpse-snatch-target-support-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:03:07.376Z",
+        "id": "queue:660d3b18-6cc7-4650-84e1-2eefffc0c94b",
+        "type": "assign",
+        "task": "acid-potion-iron-bars-target-support-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-qualified-keeper-251f7c6a",
+        "type": "received",
+        "at": "2026-10-18T06:03:18.838Z",
+        "task": "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
+        "delivery": "251f7c6ac402b22a50c859d64673b8eb2c077bf0"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:04:00.482Z",
+        "id": "queue:0bda66c8-9b69-4115-9911-442e3425f3f9",
+        "type": "assign",
+        "task": "conflict-steed-dogmove-target-support-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-20ff7999e70b958a1a19a805fbd636c8ec78804b-6deedd74e5ae1137a658e33ba5f155c3184e735cfb7b652feb902e4423a912b1-delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T06:04:35.517Z",
+        "task": "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
+        "integration": "20ff7999e70b958a1a19a805fbd636c8ec78804b",
+        "validationGroup": [
+          "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:05:01.077Z",
+        "id": "queue:8ad2d92a-7d2f-4be2-8d0f-994b469de5f9",
+        "type": "queue-complete",
+        "task": "whip-petrifying-corpse-snatch-target-support-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:05:01.077Z",
+        "id": "queue:8ad2d92a-7d2f-4be2-8d0f-994b469de5f9:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:06:33.351Z",
+        "id": "queue:1e4e4411-b73c-4e66-bda8-997e933b1632",
+        "type": "queue-block",
+        "task": "acid-potion-iron-bars-target-support-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:06:33.351Z",
+        "id": "queue:1e4e4411-b73c-4e66-bda8-997e933b1632:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:10:21.777Z",
+        "id": "queue:72ade707-dfc1-4c18-8d15-05e01550c686",
+        "type": "queue-complete",
+        "task": "conflict-steed-dogmove-target-support-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:10:21.777Z",
+        "id": "queue:72ade707-dfc1-4c18-8d15-05e01550c686:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:12:22.116Z",
+        "id": "queue:98f31ffc-c4b4-473b-93e9-a4661b5c863d",
+        "type": "assign",
+        "task": "mounted-steed-polymorph-petrification-source-inquiry-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018-20ff7999e70b958a1a19a805fbd636c8ec78804b-validated",
+        "type": "validated",
+        "at": "2026-10-18T06:14:48.616Z",
+        "task": "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018-20ff7999e70b958a1a19a805fbd636c8ec78804b-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T06:15:26.668Z",
+        "task": "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:16:27.866Z",
+        "id": "queue:761e0c5a-def8-480e-a935-d60639afab83",
+        "type": "queue-complete",
+        "task": "mounted-steed-polymorph-petrification-source-inquiry-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T06:16:27.866Z",
+        "id": "queue:761e0c5a-def8-480e-a935-d60639afab83:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
-        "worker": "Worker-3",
-        "goal": "fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "251f7c6ac402b22a50c859d64673b8eb2c077bf0",
-        "since": "2026-10-18T05:49:34.037Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -169232,44 +169399,24 @@
           "source:bones.c:resetobjs"
         ],
         "reason": "Terminal first-run setup blocker: resetInventory cannot clear a worn boot Wizard item because the canonical setworn path requires an unprovided cancelDoff hook; no real savebones target receipt occurred. Frozen draft and exact raw output are retained in typed evidence; no retry or fixture repair."
-      },
-      "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018": {
-        "id": "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018",
-        "worker": "Worker-3",
-        "status": "ready",
-        "seed": null,
-        "reservations": [
-          "source:shk.c:make_angry_shk"
-        ]
       }
     },
-    "reservations": {
-      "source:shk.c:make_angry_shk": {
-        "tasks": [
-          "delivery:fix-qualified-shopkeeper-hole-anger-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "conflict-steed-dogmove-default-source-inquiry-20261018",
-        "worker": "Worker-3"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 474,
-      "superseded": 93
+      "completed": 478,
+      "superseded": 94
     },
     "workers": [
       {
@@ -169284,8 +169431,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "conflict-steed-dogmove-default-source-inquiry-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -177830,7 +177977,7 @@
         "id": "conflict-steed-dogmove-default-source-inquiry-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -177839,13 +177986,73 @@
         "target": null,
         "readyAt": "2026-10-18T05:51:30.347Z",
         "claimedAt": "2026-10-18T05:52:22.520Z",
+        "completedAt": "2026-10-18T05:57:30.932Z"
+      },
+      {
+        "id": "whip-petrifying-corpse-snatch-target-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T05:58:33.151Z",
+        "claimedAt": "2026-10-18T05:59:20.003Z",
+        "completedAt": "2026-10-18T06:05:01.077Z"
+      },
+      {
+        "id": "acid-potion-iron-bars-target-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T06:02:14.374Z",
+        "claimedAt": "2026-10-18T06:03:07.376Z",
         "completedAt": null
+      },
+      {
+        "id": "conflict-steed-dogmove-target-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T06:02:16.388Z",
+        "claimedAt": "2026-10-18T06:04:00.482Z",
+        "completedAt": "2026-10-18T06:10:21.777Z"
+      },
+      {
+        "id": "mounted-steed-polymorph-petrification-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T06:11:49.455Z",
+        "claimedAt": "2026-10-18T06:12:22.116Z",
+        "completedAt": "2026-10-18T06:16:27.866Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "2596de609fcf06e1200c1e6bd7d7e7af04c91fac",
-    "measuredAt": "2026-10-18T05:50:41.184Z",
+    "executionCommit": "20ff7999e70b958a1a19a805fbd636c8ec78804b",
+    "measuredAt": "2026-10-18T06:10:58.429Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
