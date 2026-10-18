@@ -4154,4 +4154,63 @@ test('glob pickup projection has no live merge effects; runtime keeps its non-gl
     resumeMessage();
     assert.equal(await waiting, true);
     assert.equal(waitingIncoming.where, OBJ_DELETED);
+
+    const legacyState = initializedState();
+    timeout_globals_init(legacyState);
+    const legacyTarget = instance(GLOB_OF_GRAY_OOZE, legacyState, {
+        globby: true, owt: 20, where: OBJ_INVENT,
+    });
+    const legacyIncoming = instance(GLOB_OF_GRAY_OOZE, legacyState, {
+        globby: true, owt: 15, timed: 1, where: OBJ_FREE,
+    });
+    legacyState.invent = legacyTarget;
+    const legacyBefore = {
+        target: inputFingerprint(legacyTarget),
+        incoming: inputFingerprint(legacyIncoming),
+        inventory: legacyState.invent,
+    };
+    assert.throws(() => merged(legacyTarget, legacyIncoming, {
+        state: legacyState,
+    }), (error) => error.name === 'UnsupportedObjectOperationError'
+        && /absorbGlob/u.test(error.message));
+    assert.deepEqual(inputFingerprint(legacyTarget), legacyBefore.target);
+    assert.deepEqual(inputFingerprint(legacyIncoming), legacyBefore.incoming);
+    assert.equal(legacyState.invent, legacyBefore.inventory);
+
+    const plannedState = initializedState();
+    timeout_globals_init(plannedState);
+    const plannedTarget = instance(GLOB_OF_GRAY_OOZE, plannedState, {
+        globby: true, owt: 20, where: OBJ_INVENT,
+    });
+    const plannedIncoming = instance(GLOB_OF_GRAY_OOZE, plannedState, {
+        globby: true, owt: 15, timed: 1, where: OBJ_FREE,
+    });
+    plannedState.invent = plannedTarget;
+    const plannedBefore = {
+        target: inputFingerprint(plannedTarget),
+        incoming: inputFingerprint(plannedIncoming),
+        inventory: plannedState.invent,
+    };
+    const inputBoundary = { operation: 'planning input boundary' };
+    const requestedInputs = [];
+    let plannedEffectCalls = 0;
+    const handedOff = mergedRuntime(plannedTarget, plannedIncoming, {
+        state: plannedState,
+        planning: true,
+        requestPlanningInput(operation) {
+            requestedInputs.push(operation);
+            return inputBoundary;
+        },
+        message() { plannedEffectCalls++; },
+        hooks: {
+            absorbGlob() { plannedEffectCalls++; },
+            message() { plannedEffectCalls++; },
+        },
+    });
+    assert.equal(handedOff, inputBoundary);
+    assert.deepEqual(requestedInputs, ['mkobj.c pudding_merge_message']);
+    assert.equal(plannedEffectCalls, 0);
+    assert.deepEqual(inputFingerprint(plannedTarget), plannedBefore.target);
+    assert.deepEqual(inputFingerprint(plannedIncoming), plannedBefore.incoming);
+    assert.equal(plannedState.invent, plannedBefore.inventory);
 });

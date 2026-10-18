@@ -3789,9 +3789,9 @@ function mergedEnv(env) {
 // Mutation prefix of invent.c merged(), through the point immediately before
 // its comparison-discovery pline().  The live pickup path can suspend at that
 // call boundary before obfree() deletes the incoming object.
-function beginMerged(otmp, obj, env = {}) {
+function beginMerged(otmp, obj, env = {}, globMode = 'sync') {
     const normalized = mergedEnv(env);
-    if (!preflightMerged(otmp, obj, normalized)) return null;
+    if (!preflightMerged(otmp, obj, normalized, globMode)) return null;
 
     if (!obj.lamplit && !obj.globby) {
         obj.age = Math.trunc(obj.age);
@@ -3905,7 +3905,18 @@ export function merged(otmp, obj, env = {}) {
 // still complete synchronously so merely scanning incompatible stacks cannot
 // introduce an observable scheduling boundary.
 export function mergedRuntime(otmp, obj, env = {}) {
-    const plan = beginMerged(otmp, obj, env);
+    const normalized = mergedEnv(env);
+    if (normalized.planning && obj?.globby
+        && preflightMerged(otmp, obj, normalized, 'runtime')) {
+        if (typeof normalized.requestPlanningInput !== 'function')
+            throw new TypeError(
+                'planned glob merge requires a message input handoff',
+            );
+        return normalized.requestPlanningInput(
+            'mkobj.c pudding_merge_message', otmp, obj, normalized,
+        );
+    }
+    const plan = beginMerged(otmp, obj, normalized, 'runtime');
     if (!plan) return false;
     if (plan.globby) {
         return (async () => {
@@ -3947,12 +3958,19 @@ export function mergedRuntime(otmp, obj, env = {}) {
 // Dependency-only prefix of invent.c merged().  Pickup plans an entire
 // selected floor sequence before observing or unlinking its first object, so
 // the merge target can be the projected result of an earlier selection.
-function preflightMerged(otmp, obj, normalized) {
+function preflightMerged(otmp, obj, normalized, globMode = 'sync') {
     normalized = mergedEnv(normalized);
     if (!mergable(otmp, obj, normalized)) return false;
     if (obj.timed) requiredHook(normalized, 'stopObjectTimers', obj);
     if (obj.owornmask && otmp.where === OBJ_INVENT)
         requiredHook(normalized, 'mergeWornMasks', obj);
+    if (obj.globby && globMode === 'sync')
+        requiredHook(normalized, 'absorbGlob', obj);
+    if (obj.globby && globMode !== 'sync'
+        && (typeof pudding_merge_message !== 'function'
+            || typeof obj_absorb !== 'function')) {
+        throw new UnsupportedObjectOperationError('runtime glob absorption', obj);
+    }
     if (!obj.globby
         && comparisonWillDiscover(otmp, obj, normalized.state)
         && otmp.where === OBJ_INVENT
@@ -4404,12 +4422,14 @@ function projectAddinv(obj, projectedEnv) {
     if (prize) obj.nomerge = false;
 
     let target = null;
-    if (state.uquiver && preflightMerged(state.uquiver, obj, projectedEnv)) {
+    if (state.uquiver
+        && preflightMerged(state.uquiver, obj, projectedEnv, 'projection')) {
         target = state.uquiver;
     } else {
         let previous = null;
         let current = inventoryHead(state);
-        while (current && !preflightMerged(current, obj, projectedEnv)) {
+        while (current
+            && !preflightMerged(current, obj, projectedEnv, 'projection')) {
             previous = current;
             current = current.nobj;
         }
