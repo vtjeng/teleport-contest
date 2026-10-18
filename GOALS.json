@@ -323354,7 +323354,7 @@
     {
       "id": "fix-qualified-a51-see-wsegs-repaint-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement see_wsegs from undefined",
       "cFile": "worm.c",
       "sessions": [],
@@ -323362,7 +323362,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "05c0588db52af337d663ef6687768b17a4b9fc5d",
       "delivered": null,
       "functions": [
         {
@@ -323515,6 +323515,163 @@
           }
         },
         "reviewSha256": "8f91196cba817abd24ee933c3ea25f56288faf18201a26b2b3cc397b189fea42"
+      },
+      "closeStanding": {
+        "sha": "05c0588db52af337d663ef6687768b17a4b9fc5d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "7c4ec039bc5ffbfd65a23ad09e92ed55389f6daa",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/05c0588db52af337d663ef6687768b17a4b9fc5d/run-hosted-h0bCwx/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "see_wsegs",
+            "sourceFile": "worm.c",
+            "implementation": "js/worm.js",
+            "symbol": "see_wsegs",
+            "pure": false,
+            "sourceReview": "Traced complete C worm.c see_wsegs (487-495): iterate live tail list in order, stop before hidden head tracker, call newsym synchronously for each coordinate. No RNG, list mutation, occupancy filter, or Promise boundary. The JS implementation reads the selected state worm list and repaints only tail coordinates; clone mode uses explicit caller callbacks or retains named unresolved display.c newsym.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "see_monsters",
+                "source": "C display.c1512 real property/monster repaint loop, dead/arriving/defer guards then head/tail/warning/hero order."
+              },
+              {
+                "path": "js/worn.js",
+                "symbol": "mon_set_minvis",
+                "source": "C worn.c483: perminvis; !invis_blkd current visibility plus head then see_wsegs, explicit clone repaint owner."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "C monmove.c1686 normal moved/done post-move object consumption/pickup then minvis head/tail redraw; preserve caller-owned planning noop."
+              }
+            ],
+            "tests": [
+              "scripts/worm.test.mjs",
+              "scripts/display-visibility.test.mjs",
+              "scripts/worn.test.mjs",
+              "scripts/monmove-items.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "see_monsters",
+            "sourceFile": "display.c",
+            "implementation": "js/display.js",
+            "symbol": "see_monsters",
+            "pure": false,
+            "sourceReview": "Traced C display.c monster repaint loop: dead/arriving/defer guards precede head redraw, then see_wsegs before warning/hero work. JS retains those guards/order and passes its selected state repaint callback to see_wsegs.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "see_monsters",
+                "source": "C display.c1512 real property/monster repaint loop, dead/arriving/defer guards then head/tail/warning/hero order."
+              }
+            ],
+            "tests": [
+              "scripts/worm.test.mjs",
+              "scripts/display-visibility.test.mjs",
+              "scripts/worn.test.mjs",
+              "scripts/monmove-items.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "mon_set_minvis",
+            "sourceFile": "worn.c",
+            "implementation": "js/worn.js",
+            "symbol": "mon_set_minvis",
+            "pure": false,
+            "sourceReview": "Traced C worn.c minvis transition: under !invis_blkd update visibility, repaint head, then see_wsegs; blocked branch does not repaint. JS preserves live newsym default and supports explicit selected-state clone redraw for head and tails.",
+            "callers": [
+              {
+                "path": "js/worn.js",
+                "symbol": "mon_set_minvis",
+                "source": "C worn.c483: perminvis; !invis_blkd current visibility plus head then see_wsegs, explicit clone repaint owner."
+              }
+            ],
+            "tests": [
+              "scripts/worm.test.mjs",
+              "scripts/display-visibility.test.mjs",
+              "scripts/worn.test.mjs",
+              "scripts/monmove-items.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "postmov",
+            "sourceFile": "monmove.c",
+            "implementation": "js/monmove.js",
+            "symbol": "postmov",
+            "pure": false,
+            "sourceReview": "Traced C monmove.c postmov after ordinary move completion, consumption/pickup and mcanmove guards: when minvis redraw head then tails. JS calls helper only from the existing moved/done branch; the planning redraw remains a no-op.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "C monmove.c1686 normal moved/done post-move object consumption/pickup then minvis head/tail redraw; preserve caller-owned planning noop."
+              }
+            ],
+            "tests": [
+              "scripts/worm.test.mjs",
+              "scripts/display-visibility.test.mjs",
+              "scripts/worn.test.mjs",
+              "scripts/monmove-items.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Exact C helper and three selected production caller bodies traced against the pinned C source and the qualified natural A51 result. This delivery proves only the bounded JS source-parity correction through focused source tests; no C gameplay, public C parity, discovery, or certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "worm.c see_wsegs helper reached by retained callers",
+            "functions": [
+              {
+                "sourceFile": "worm.c",
+                "name": "see_wsegs"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "display.see_monsters monster repaint loop",
+            "functions": [
+              {
+                "sourceFile": "display.c",
+                "name": "see_monsters"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "worn.mon_set_minvis visibility transition",
+            "functions": [
+              {
+                "sourceFile": "worn.c",
+                "name": "mon_set_minvis"
+              }
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monmove.postmov completed monster move",
+            "functions": [
+              {
+                "sourceFile": "monmove.c",
+                "name": "postmov"
+              }
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
