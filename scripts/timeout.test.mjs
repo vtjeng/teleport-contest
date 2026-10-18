@@ -3597,7 +3597,10 @@ test('nh_timeout real melt callback resets a FAINTED hero before drown crawl', a
         'the default TTY message history contains the actual revival message');
     assert.ok(boot.getRngLog().length > rngBefore,
         'default production RNG advances through faint recovery and crawl');
-    assert.notEqual(state.program_state?.gameover, true);
+    assert.equal(Boolean(state.program_state?.gameover), false,
+        'the real crawl escape leaves the program live');
+    assert.ok(state.u.uhp > 0,
+        'the hero survives the real drowning/crawl path with positive HP');
     assert.equal(state.u.uinwater, false);
     assert.notDeepEqual([state.u.ux, state.u.uy], [x, y],
         'the awake hero crawls to a real adjacent escape square');
