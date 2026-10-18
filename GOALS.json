@@ -323174,6 +323174,125 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-longworm-monkilled-visibility-source-parity-20261017",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement monkilled from mon.c",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-longworm-monkilled-visibility-source-parity-20261017",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "monkilled",
+          "line": 3377,
+          "endLine": 3420,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 3377,
+        "to": 3420
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-longworm-monkilled-visibility-source-parity-20261017",
+        "assignmentBase": "3e6cc6ae9170fedb5f052fde97def1854d4daadc",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "3e6cc6ae9170fedb5f052fde97def1854d4daadc",
+          "authorization": "User2026-10-17 explicitly authorizes source-proved JS control-flow parity repairs without public mismatch; Work lead selects bounded correction under retained closed mon.c owner, with actual production regression and unchanged hosted acceptance gates.",
+          "currentBehavior": "C mon.c3376 monkilled tests nonnull fltxt and wormno?worm_known:cansee before message/death. JS throws for every nonnull fltxt segmented worm, before death despite existing worm_known and canonical cleanup.",
+          "expectedBehavior": "js/mon.js existingmonkilled only: import existing worm_known; replace nonnullwormrefusal with Cconditional visibility (wormno?worm_known(mdef,state):canseehead). Preserve fltxt!=null pointersemantics, message/naming, sadfeeling, death/loot/RNG/lifesave order. Remove obsolete earlyrefusal comment/test. No worm/trap/monmove implementation edits or genericdeathport.",
+          "units": [
+            "mon.c:monkilled"
+          ],
+          "allowedPaths": [
+            "js/mon.js",
+            "scripts/mon-kill.test.mjs",
+            "scripts/unported-monster-actions.test.mjs",
+            "scripts/worm.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/mon-kill.test.mjs",
+            "scripts/unported-monster-actions.test.mjs",
+            "scripts/worm.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/unported_monster_actions.js",
+              "symbol": "runSimpleMonsterAction",
+              "source": "Real planningState+normal runSimpleMonsterAction provider→dochug→m_move normal worm movement→postmov/mintrap fresh arrow, source-valid HP1 and future growtime avoid healing before hit."
+            },
+            {
+              "path": "js/trap_effects.js",
+              "symbol": "thitm",
+              "source": "Actual arrow trap lethal nonhero hit awaits monkilled(mon,emptystring,AD_PHYS,state,env), emptystring is nonnull C pointer, then real death/segment cleanup."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/mon.js",
+              "object": "8ecb6be8f48a8c71e9c72bce27f78173568af1ac"
+            },
+            {
+              "path": "js/worm.js",
+              "object": "65c183dfa04c4f17eaecffd3c72583cfd3979dba"
+            },
+            {
+              "path": "js/monmove.js",
+              "object": "a4b39dfb7a4e3075db1f07dbb09556a985a0d993"
+            },
+            {
+              "path": "js/trap_effects.js",
+              "object": "6178a5654f47f826c6e90902a2d58b28738bb241"
+            },
+            {
+              "path": "js/unported_monster_actions.js",
+              "object": "1fd28ae7e30c4a629dfc01de6fe974a60669055e"
+            },
+            {
+              "path": "scripts/mon-kill.test.mjs",
+              "object": "4735189e3cdec3efb1592a8614ebd7bf361a6b75"
+            },
+            {
+              "path": "scripts/unported-monster-actions.test.mjs",
+              "object": "18a6a3569268058cc2356a015db5b0ee21dd003a"
+            },
+            {
+              "path": "scripts/worm.test.mjs",
+              "object": "f0322b829984b04cb11d815659f61b10196f676b"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "packetDigest": "b9941846c49ff5b5daf1307c22a63231a18ac7e5f6c51d8ed11752b6e439b53c",
+            "envelopeSha256": "34110b3abfa8e30b716c193a91a80382539c1766b345aba033741375a7aae928",
+            "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/longworm-monkilled-implementation-review-2252/review.json",
+            "independentReviewSHA256": "569eb6e33bf0e7b6d6db00043d7ab60b24a5904f6f91dbdba89ba90c53d219bb",
+            "ownerDisposition": ".cache/continuous-run-resume/longworm-monkilled-old-owner-disposition.json",
+            "fullGuardReview": [
+              "Normal fullyinitialized hostile longworm with real source data, nonzero allocatedwormno/segments including hiddenhead; propermap+levelworms/monlist; human ordinary hero. Wormnot tame/airborne/frozen/asleep/mtrapped/meating/blind/fleeing/stuck; noinventory/lifesaving or specialdeathflags. Actual normal planner/runtime action admits creature; monmove wormbranch chooses not_special and legal closer mfndpos cell with fresh unknownarrowtrap, no rememberedtrap/blockedterrain/pit/portal/boulder/liquid.",
+              "ADDITIVE state requirement beyond b994: set legal currentworm growtime>state.moves, derived from priorordinarywormmove, so selected worm_move before mintrap does NOT grow/heal HP1. Then legal priornonfataldamage leaves HP1, next action occurs before growthtimestamp. Do not initialize growtime0/forceHP/max/invalidsegments: worm_move growth would heal and can defeat lethal arrow premise. One jointlyvalid injured nongrowing worm state, no publichistory claimed.",
+              "Real runSimpleMonsterAction→dochug→m_move→wormmove/postmov→mintrap fresharrow: traponcefalse/notheromade/unknown, no bodyairborne escape; ordinary t_missile ARROW; source attack find_mac+tlev+spe<=rnd20 legalhit, minarrowdamage1 kills HP1. thitm880 passes emptystringNONNULL+AD_PHYS; not nocorpse/disintegration/elemental/golempetbranch. Wormhead/tail vision normal (one segmentvisible); Ctests worm_known, JSearlyrefuses regardless helperavailability.",
+              "Canonical worm_known79 traverses levelworms.segments and cansee with suppliedstate; planningState deepens wormrecords and segments. mon_leaving_level removes wormmapnodes; m_detach wormgone({state}) uses canonical state and redrawWormSquare only defaults globalnewsym for state===game (nonlive with noops stayssilent), so this selected cleanup does not leak by dropping env. No need altercleanuphelper or inventnewfallback. No mimic/priest/shop/steed/leash/engulfer/quests/inventory/trapsunderdeath,beyondarrow, so namedoptionaldeathcallbacks bypassed. Actual execution may expose concretecallee gate; terminalblock if so."
+            ],
+            "regression": "Actual planningState+runSimpleMonsterAction realwormmovement→arrowtrap→lethalthitm→monkilled→mondied/mondead/m_detach/wormgone, complete realstandardselectedRNG beforefix; no forcedmove/hit/damage/deathcallbacks, no directmonkilled-only evidence. Pin validfuturegrowtime and actual injury1 state, fullsegmentmap. Retain exactsamecommand/fixture originalred proving trap selects realpath and refusal; samebytesgreen clonevictimdetached/count+wormslotrelease/maptailclear/arrowplaced/corpsesourceorder with liveRNG/log/map/tails/HP/displayunchanged. Actual standardseed chosenbeforeedit, no seed/actor/trap rescue on miss. Unitcontrols sameclosedmonowner: headinvisible+visibletail must use anysegment, allsegmentsunseen must defer sadfeeling; nonnull emptystring vs null remains correct. Sourcevalidtails in replacement outdatedrefusaltest (oldtest spawned wormno withoutsegments invalidfornewpath). Next concreteunsupportedcallee/runtimeguard terminal; no scopeexpansion.",
+            "limits": "No runtime/publicwitness/novelty/UI timing/admission/wholefunctioncertification; originalcaa/ECDtrialtimes and allowners/budgets immutable. Main newsourceParity review/currentpins/allowedpaths/exactfocusedredgreen+lint+hosted gates required."
+          }
+        },
+        "reviewSha256": "4c2a30b494eb950b43f1415448a7adc42670ae91fe589bf19f827027e8a00ead"
+      }
     }
   ]
 }

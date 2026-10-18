@@ -455,3 +455,18 @@ No test, validation or gameplay was repeated for this observation.
   return or rendered-input error. Existing source review caught it without
   gameplay. Prevention benefit is unmeasured.
 
+
+## 2026-10-18 — Bound the producer's essential-premise review
+
+- Change: before expanding each of five new source handoffs, the producer spent at most two minutes trying to refute one essential selected-state premise. An unresolved premise stayed first in the existing bounded source assignment; a contradiction stopped that proposal. The completed five-handoff trial added no task phase, schema, gameplay permission, or validation gate.
+- Evidence and limits: producer records separate bounded review/preparation windows, worker ownership and queue waits. Those windows are not all-in effort or CPU. Source-supported results, a caller-only scope refutation, later fixed-fixture misses and implementation acceptance remain separate. Benefit is unmeasured; preserve original owners, budgets and negative evidence.
+
+### Qualify the frozen fixture in existing regression preparation
+
+After two source-supported repair tasks stopped before production edits—earthquake seed8547721 had DOOR14 at (9,3), not required ROOM25; mounted seed8815 drew rn2(6)=4 and missed KNOCKED—Coordinator, Work lead, and Challenge lead adopted placing the exact initial-state and target-event assertion first in the task’s already authorized no-edit regression preparation. Retain the real raw receipt from that same execution before declaring fixture readiness or making a production delta. Source-only screening leaves runtime readiness unknown without an existing exact-fixture receipt. These terminal fixture-unreached outcomes do not refute the source findings or change the five-handoff trial’s source counters. No extra phase, run, seed/history search, C authority, or CI gate is added. Benefit remains unmeasured.
+
+## 2026-10-18 — Keep snapshot refresh compatible with accepted reports
+
+- Change: verify the tested-to-accepted suffix with the existing publication report verifier. Keep the accepted-anchor-to-snapshot execution tree equal and every subsequent commit snapshot-only, with the existing checkpoint, ancestry, immutable-prefix, projection, mode and privacy checks. Checkpoint reuse remains unchanged.
+- Why: normal rolling acceptance appended 98 checked evaluation JSON reports after tested commit `464a4219`; accepted publication `3e6cc6ae9` passed its publication checks, but the snapshot observer's stricter tree comparison rejected the report suffix before the workspace outage.
+- Verification and limits: a disposable full refresh reproduces the rejection, then accepts checked reports while rejecting unrelated execution edits. Exact hosted validation and normal publication checks still govern this correction. The pending coalesced watermark and original due time are retained; no new capture or deployment is claimed until its receipt passes.
