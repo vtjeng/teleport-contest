@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T00:45:58.578Z",
+  "capturedAt": "2026-10-18T01:11:08.703Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T00:45:58.578Z",
+    "asOf": "2026-10-18T01:11:08.703Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 195,
+      "mainSupportAssignments": 202,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -166823,6 +166823,234 @@
         "output": "implementation",
         "target": null,
         "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:50:54.017Z",
+        "id": "queue:2938dfac-53c2-47ba-a9ee-bf6df61f4c2c",
+        "type": "assign",
+        "task": "town-builder-snapshot-contract-prerequisite-source-screen-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:51:54.672Z",
+        "id": "queue:60ed97f5-9766-4de5-8d5c-87da09d7dadb",
+        "type": "queue-block",
+        "task": "fix-prayer-second-tune-achievement-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:51:54.672Z",
+        "id": "queue:60ed97f5-9766-4de5-8d5c-87da09d7dadb:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "turn-worker3-prayer-blocked-20261018-0056",
+        "type": "turn",
+        "at": "2026-10-18T00:52:12.817Z",
+        "worker": "Worker-3",
+        "state": "blocked",
+        "reason": "Blocked on the selected prayer test input exhausting before the target receipt; Work lead review needed."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:52:56.516Z",
+        "id": "queue:43b74f6c-5ac4-4b51-8dce-5109882d3d7b",
+        "type": "assign",
+        "task": "floor-corpse-default-revival-snapshot-prerequisite-source-screen-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:54:50.088Z",
+        "id": "queue:68ff1c9d-dde7-4a8c-9cef-23b79b4bd9f1",
+        "type": "queue-complete",
+        "task": "town-builder-snapshot-contract-prerequisite-source-screen-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:54:50.088Z",
+        "id": "queue:68ff1c9d-dde7-4a8c-9cef-23b79b4bd9f1:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:56:22.036Z",
+        "id": "queue:b22cb70e-505c-41e9-9cc8-253334d4a924",
+        "type": "queue-complete",
+        "task": "floor-corpse-default-revival-snapshot-prerequisite-source-screen-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:56:22.036Z",
+        "id": "queue:b22cb70e-505c-41e9-9cc8-253334d4a924:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:59:21.667Z",
+        "id": "queue:cec27c37-4d1e-4d92-87c3-6fef43433df4",
+        "type": "assign",
+        "task": "sink-empty-floor-fatal-continuation-observable-source-support-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T00:59:51.219Z",
+        "id": "queue:5353872c-5926-433f-8a2d-3f8a645dc83e",
+        "type": "assign",
+        "task": "prayer-retained-input-owner-contract-source-support-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:02:28.922Z",
+        "id": "queue:950fc709-46f9-40f5-b7e0-e4c7ecb24167",
+        "type": "assign",
+        "task": "floor-newt-default-revive-single-state-runtime-investigation-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:04:14.397Z",
+        "id": "queue:c5dfe542-4743-490c-af14-16a5adc62e6d",
+        "type": "queue-complete",
+        "task": "prayer-retained-input-owner-contract-source-support-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:04:14.397Z",
+        "id": "queue:c5dfe542-4743-490c-af14-16a5adc62e6d:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:04:31.975Z",
+        "id": "queue:23799578-ecd7-4cce-81c9-816312781094",
+        "type": "queue-complete",
+        "task": "sink-empty-floor-fatal-continuation-observable-source-support-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:04:31.975Z",
+        "id": "queue:23799578-ecd7-4cce-81c9-816312781094:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:05:31.670Z",
+        "id": "queue:11ba2a1f-7dd1-4011-8712-fa702765f9b6",
+        "type": "assign",
+        "task": "see-invisible-longworm-tail-refresh-source-screen-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:07:32.660Z",
+        "id": "queue:86f2abe7-b704-4b31-904b-18a8d9682d8c",
+        "type": "queue-block",
+        "task": "floor-newt-default-revive-single-state-runtime-investigation-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:07:32.660Z",
+        "id": "queue:86f2abe7-b704-4b31-904b-18a8d9682d8c:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "turn-worker3-floor-newt-blocked-20261018",
+        "type": "turn",
+        "at": "2026-10-18T01:07:39.077Z",
+        "worker": "Worker-3",
+        "state": "blocked",
+        "reason": "Blocked before runtime initialization by a harness import error; no game behavior observed."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:10:07.051Z",
+        "id": "queue:b23fc93f-bfe6-442c-b934-541545b1431a",
+        "type": "assign",
+        "task": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:10:30.864Z",
+        "id": "queue:8f2b632b-615e-4cd7-9cc8-cfef41ddc7ec",
+        "type": "queue-complete",
+        "task": "see-invisible-longworm-tail-refresh-source-screen-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T01:10:30.864Z",
+        "id": "queue:8f2b632b-615e-4cd7-9cc8-cfef41ddc7ec:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -166943,20 +167171,15 @@
       "delivery:fix-prayer-second-tune-achievement-source-parity-20261018": {
         "id": "delivery:fix-prayer-second-tune-achievement-source-parity-20261018",
         "worker": "Worker-3",
-        "status": "working",
+        "status": "parked",
         "seed": null,
         "reservations": [
           "source:pray.c:pleased"
-        ]
+        ],
+        "reason": "Selected source-valid initialized state reached, but the frozen normal #pray input .#pray\\ny  exhausted in Terminal.readKey before the actual second-hint receipt; no production source delta or alternate input/state attempted. Recovery commit b6a07599a preserves exact initial state and both raw failed attempts in .cache/pray-second-tune-achievement-source-parity-20261018/blocked-evidence.json (sha256 ff52116c2673105016f3230e21ba53620ced2086fbd25dd5b4599b8f30e04493)."
       }
     },
-    "reservations": {
-      "source:pray.c:pleased": {
-        "tasks": [
-          "delivery:fix-prayer-second-tune-achievement-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
@@ -166967,22 +167190,22 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "fix-prayer-second-tune-achievement-source-parity-20261018",
-        "worker": "Worker-3"
+        "task": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
+        "worker": "Worker-1"
       }
     ],
     "counts": {
       "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 436,
-      "superseded": 75
+      "completed": 441,
+      "superseded": 77
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
@@ -166991,8 +167214,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "fix-prayer-second-tune-achievement-source-parity-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -174697,7 +174920,7 @@
         "id": "fix-prayer-second-tune-achievement-source-parity-20261018",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "superseded",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -174706,6 +174929,111 @@
         "target": null,
         "readyAt": "2026-10-18T00:44:35.336Z",
         "claimedAt": "2026-10-18T00:44:52.156Z",
+        "completedAt": null
+      },
+      {
+        "id": "town-builder-snapshot-contract-prerequisite-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T00:50:42.419Z",
+        "claimedAt": "2026-10-18T00:50:54.017Z",
+        "completedAt": "2026-10-18T00:54:50.088Z"
+      },
+      {
+        "id": "floor-corpse-default-revival-snapshot-prerequisite-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T00:52:40.269Z",
+        "claimedAt": "2026-10-18T00:52:56.516Z",
+        "completedAt": "2026-10-18T00:56:22.036Z"
+      },
+      {
+        "id": "sink-empty-floor-fatal-continuation-observable-source-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T00:58:53.112Z",
+        "claimedAt": "2026-10-18T00:59:21.667Z",
+        "completedAt": "2026-10-18T01:04:31.975Z"
+      },
+      {
+        "id": "prayer-retained-input-owner-contract-source-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T00:58:56.439Z",
+        "claimedAt": "2026-10-18T00:59:51.219Z",
+        "completedAt": "2026-10-18T01:04:14.397Z"
+      },
+      {
+        "id": "floor-newt-default-revive-single-state-runtime-investigation-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T01:02:03.331Z",
+        "claimedAt": "2026-10-18T01:02:28.922Z",
+        "completedAt": null
+      },
+      {
+        "id": "see-invisible-longworm-tail-refresh-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T01:05:18.761Z",
+        "claimedAt": "2026-10-18T01:05:31.670Z",
+        "completedAt": "2026-10-18T01:10:30.864Z"
+      },
+      {
+        "id": "monster-thrown-cockatrice-egg-stoning-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T01:09:24.449Z",
+        "claimedAt": "2026-10-18T01:10:07.051Z",
         "completedAt": null
       }
     ]
