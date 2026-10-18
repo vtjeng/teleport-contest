@@ -7,6 +7,7 @@ import { experience } from '../js/exper.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { cloneIsaacContext, createCoreRandom, enableRngLog, getRngLog } from '../js/rng.js';
+import { add_to_minv } from '../js/invent.js';
 import {
     adj_erinys,
     corpse_chance,
@@ -18,6 +19,7 @@ import {
     mon_leaving_level,
     mondead,
     mondied,
+    monstone,
     monkilled,
     replmon,
     set_mon_min_mhpmax,
@@ -29,7 +31,6 @@ import {
     m_at,
     newMonster,
     place_monster,
-    remove_monster,
 } from '../js/monst.js';
 import { set_malign } from '../js/makemon.js';
 import { emits_light, is_neuter } from '../js/mondata.js';
@@ -124,7 +125,9 @@ import {
     MAGICAL_BREATHING,
     MON_DETACH,
     OBJ_FLOOR,
+    OBJ_DELETED,
     OBJ_MINVENT,
+    I_SPECIAL,
     TAINT_AGE,
     W_AMUL,
     W_SADDLE,
@@ -134,6 +137,7 @@ import {
     LL_UMONST,
 } from '../js/const.js';
 import { newedog } from '../js/dog.js';
+import { m_dowear } from '../js/worn.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { RIDE_COMMAND, loadRideDismountRecipe }
     from './run-ride-dismount.mjs';
@@ -1190,30 +1194,40 @@ test('mondead reverts a shifted form and counts the death', async () => {
 
 // mon.c mondead() (3081-3177): common deaths finish removal, while lifesaving
 // still returns before the vanquished count or detach.
-test('mondead completes common deaths and stops after lifesaving', async () => {
+test('mondead completes deaths and callers return after lifesaving', async () => {
     await hero();
 
-    const stopped = async (mon, reason, diedDelta, label) => {
-        const x = mon.mx;
-        const y = mon.my;
-        const mndx = mon.data.pmidx;
-        const died = game.svm.mvitals[mndx].died;
-        const purged = game.iflags.purge_monsters ?? 0;
-        const env = killEnv();
-        await refusesAsync(() => mondead(mon, game, env), reason, label);
-        assert.deepEqual(env.bounds, [], `${label}: drew nothing`);
-        assert.deepEqual(env.lines, [], `${label}: printed nothing`);
-        assert.equal(m_at(x, y, game), mon, `${label}: still on the map`);
-        assert.equal(mon.minvent?.where ?? OBJ_MINVENT, OBJ_MINVENT,
-                     `${label}: inventory undropped`);
-        assert.equal((mon.mstate ?? 0) & MON_DETACH, 0,
-                     `${label}: not detached`);
-        assert.equal(game.iflags.purge_monsters ?? 0, purged,
-                     `${label}: purge count`);
-        assert.equal(game.svm.mvitals[mndx].died, died + diedDelta,
-                     `${label}: vanquished count`);
-        // A refused death leaves this fixture on its square.
-        remove_monster(x, y, game);
+    // The real TTY message path may request space while replacing a pending
+    // line. Answer only an observed, displayed --More-- prompt at the actual
+    // terminal empty-input boundary. The finite budget cannot leak keys into
+    // a later monster/game command.
+    const withPendingMessageAcks = async (action, label) => {
+        const display = game.nhDisplay;
+        const previousOnEmptyQueue = display.onEmptyQueue;
+        const acknowledgements = [];
+        display.onEmptyQueue = () => {
+            const screen = display.serialize();
+            assert.ok(game._pending_message,
+                      `${label}: reader belongs to a pending TTY message`);
+            assert.ok(screen.includes('--More--'),
+                      `${label}: only acknowledge a displayed --More--`);
+            if (acknowledgements.length >= 16)
+                throw new Error(`${label}: finite TTY acknowledgement budget exhausted`);
+            acknowledgements.push({
+                message: game._pending_message,
+                screen,
+                waitEpoch: display.waitEpoch,
+            });
+            return 32;
+        };
+        try {
+            await action();
+        } finally {
+            display.onEmptyQueue = previousOnEmptyQueue;
+        }
+        assert.ok(acknowledgements.length > 0,
+                  `${label}: the real TTY path consumed message acknowledgements`);
+        return acknowledgements;
     };
 
     // A unique monster is now fully handled by mondead(): it increments the
@@ -1244,17 +1258,81 @@ test('mondead completes common deaths and stops after lifesaving', async () => {
                     LL_UMONST | LL_ACHIEVE);
     await completes(spawn(PM_VLAD_THE_IMPALER, { mrevived: 1 }),
                     'revived Vlad', '2nd', LL_UMONST);
-    // A monster carrying a worn amulet of life saving. lifesaved_monster()
-    // runs above everything else in mondead(), so nothing is counted.
-    const saved = spawn(PM_NEWT);
-    const amulet = mksobj(AMULET_OF_LIFE_SAVING, false, false,
-                          { state: game });
-    amulet.where = OBJ_MINVENT;
-    amulet.ocarry = saved;
-    amulet.owornmask = W_AMUL;
-    saved.minvent = amulet;
-    await stopped(saved, 'a monster saved by an amulet of life saving', 0,
-                  'life saving');
+    // C mon.c:lifesaved_monster() must finish item disposal and restore HP
+    // before either production caller returns without counting/detaching.
+    // Use real object insertion and creation-time wear selection rather than
+    // writing the inventory ownership or worn mask by hand.
+    const equipAmulet = (mon) => {
+        const amulet = mksobj(AMULET_OF_LIFE_SAVING, false, false,
+                              { state: game });
+        add_to_minv(mon, amulet, { state: game });
+        m_dowear(mon, true, { state: game });
+        assert.equal(amulet.owornmask & W_AMUL, W_AMUL,
+                     'canonical inventory logic wears the lifesaving amulet');
+        return amulet;
+    };
+    const saved = spawn(PM_GOBLIN, { mhp: 1, mhpmax: 1 });
+    const amulet = equipAmulet(saved);
+    saved.mcanmove = 0;
+    saved.mfrozen = 3;
+    const { mx, my } = saved;
+    const deaths = game.svm.mvitals[PM_GOBLIN].died;
+    const rngBefore = [...getRngLog()];
+    assert.equal(game.objects[AMULET_OF_LIFE_SAVING].oc_name_known, 0,
+                 'the source makeknown branch has a real discovery transition');
+    assert.equal(cansee(saved.mx, saved.my, game), true,
+                 'the fixture sees the monster head and takes the message arm');
+    const deathAcknowledgements = await withPendingMessageAcks(
+        () => mondead(saved, game), 'mondead',
+    );
+    assert.equal(game.svm.mvitals[PM_GOBLIN].died, deaths,
+                 'life-saving returns before death accounting');
+    assert.equal(m_at(mx, my, game), saved, 'saved monster stays on-map');
+    assert.equal(saved.mhp, saved.mhpmax, 'saved monster has full HP');
+    assert.equal(saved.mhpmax, 10, 'saved monster receives C minimum HP');
+    assert.equal(saved.mcanmove, 1, 'saved monster can move');
+    assert.equal(saved.mfrozen, 0, 'saved monster is unfrozen');
+    assert.equal(saved.minvent, null, 'amulet is consumed from inventory');
+    assert.equal(amulet.where, OBJ_DELETED, 'amulet follows default disposal');
+    assert.equal(amulet.ocarry, null, 'disposed amulet releases its owner');
+    assert.equal(amulet.owornmask, 0, 'disposed amulet clears worn state');
+    assert.equal(saved.misc_worn_check & W_AMUL, 0,
+                 'default extraction clears the old amulet slot');
+    assert.equal(saved.misc_worn_check & I_SPECIAL, I_SPECIAL,
+                 'default extraction schedules next-turn gear review');
+    const discoveryDraws = getRngLog().slice(rngBefore.length);
+    assert.equal(discoveryDraws.length, 1,
+                 'makeknown performs exactly the source Wisdom exercise draw');
+    assert.match(discoveryDraws[0], /^rn2\(19\)=\d+$/u,
+                 'the real seeded RNG performs exercise(A_WIS, TRUE)');
+    assert.equal(game.objects[AMULET_OF_LIFE_SAVING].oc_name_known, 1,
+                 'the visible lifesaving Amulet becomes known');
+
+    const stoned = spawn(PM_GOBLIN, { mhp: 1, mhpmax: 1 });
+    const stoneAmulet = equipAmulet(stoned);
+    stoned.mcanmove = 0;
+    stoned.mfrozen = 3;
+    const stoneXY = [stoned.mx, stoned.my];
+    const stoneDeaths = game.svm.mvitals[PM_GOBLIN].died;
+    const stoneRngBefore = [...getRngLog()];
+    const stoneAcknowledgements = await withPendingMessageAcks(
+        () => monstone(stoned, game), 'monstone',
+    );
+    assert.equal(game.svm.mvitals[PM_GOBLIN].died, stoneDeaths,
+                 'monstone lifesaving returns before death accounting');
+    assert.equal(m_at(...stoneXY, game), stoned,
+                 'monstone returns before detachment');
+    assert.equal(stoned.mhp, stoned.mhpmax,
+                 'monstone caller awaits restored HP');
+    assert.equal(stoned.minvent, null, 'monstone caller consumes the amulet');
+    assert.equal(stoneAmulet.where, OBJ_DELETED,
+                 'monstone uses default amulet disposal');
+    assert.equal(stoned.misc_worn_check & I_SPECIAL, I_SPECIAL,
+                 'monstone caller awaits gear marking');
+    assert.deepEqual(getRngLog(), stoneRngBefore,
+                     'monstone lifesaving introduces no random draws');
+    assert.ok(deathAcknowledgements.length <= 16);
+    assert.ok(stoneAcknowledgements.length <= 16);
 });
 
 // mon.c mondead():3147-3166. The Kop draw follows death counting and precedes
