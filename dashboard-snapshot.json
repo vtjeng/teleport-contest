@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T02:41:08.049Z",
+  "capturedAt": "2026-10-18T03:06:26.942Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T02:41:08.049Z",
+    "asOf": "2026-10-18T03:06:26.942Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 212,
+      "mainSupportAssignments": 213,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -167590,6 +167590,66 @@
         "worker": "Worker-1",
         "state": "idle",
         "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T02:47:22.748Z",
+        "id": "queue:b46ceeb2-1df3-4e3d-bba1-0d44341ed309",
+        "type": "assign",
+        "task": "adjacent-asmodeus-cold-guard-new-review-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T02:50:26.878Z",
+        "id": "queue:fae2fe3a-208f-4dc0-90dc-28452e3e2a57",
+        "type": "queue-complete",
+        "task": "adjacent-asmodeus-cold-guard-new-review-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T02:50:26.878Z",
+        "id": "queue:fae2fe3a-208f-4dc0-90dc-28452e3e2a57:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T02:59:44.082Z",
+        "id": "queue:8e912f57-f27d-424c-8c29-48682b827035",
+        "type": "assign",
+        "task": "fix-adjacent-asmodeus-cold-cast-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:03:43.328Z",
+        "id": "queue:6f379285-e74c-491e-9024-193cde038f1a",
+        "type": "queue-block",
+        "task": "fix-adjacent-asmodeus-cold-cast-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:03:43.328Z",
+        "id": "queue:6f379285-e74c-491e-9024-193cde038f1a:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
       }
     ]
   },
@@ -167739,15 +167799,25 @@
           "source:monmove.c:postmov"
         ],
         "reason": "Frozen source-parity fixture reached only startup boundary: game.level and hero coordinates were absent after the single authorized seed/input, so the canonical worm constructor and all three production callers were unreachable. No retries or alternate state were attempted."
+      },
+      "delivery:fix-adjacent-asmodeus-cold-cast-source-parity-20261018": {
+        "id": "delivery:fix-adjacent-asmodeus-cold-cast-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "parked",
+        "seed": null,
+        "reservations": [
+          "source:mcastu.c:castmu"
+        ],
+        "reason": "Fixed no-production-edit target attempt terminated before setup input: the initial actual hero-form observer asserted game.u.umonnum===PM_HUMAN and observed 343!==260 immediately after the B23 opening-space startup. No ring, potion, hostile genesis, wait, or AD_COLD action was executed; no runtime parity or repair result. Preserve the one exit-1 command and frozen test/input drafts in typed evidence; no retry or observer correction."
       }
     },
     "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
     "claimed": [],
@@ -167755,8 +167825,8 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 447,
-      "superseded": 86
+      "completed": 448,
+      "superseded": 87
     },
     "workers": [
       {
@@ -175801,6 +175871,36 @@
         "target": null,
         "readyAt": "2026-10-18T02:34:04.728Z",
         "claimedAt": "2026-10-18T02:34:14.679Z",
+        "completedAt": null
+      },
+      {
+        "id": "adjacent-asmodeus-cold-guard-new-review-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T02:44:46.073Z",
+        "claimedAt": "2026-10-18T02:47:22.748Z",
+        "completedAt": "2026-10-18T02:50:26.878Z"
+      },
+      {
+        "id": "fix-adjacent-asmodeus-cold-cast-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T02:59:19.715Z",
+        "claimedAt": "2026-10-18T02:59:44.082Z",
         "completedAt": null
       }
     ]
