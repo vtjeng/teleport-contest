@@ -325254,6 +325254,332 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-drawbridge-striking-destruction-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement destroy_drawbridge from undefined",
+      "cFile": "dbridge.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "destroy_drawbridge",
+          "line": 888,
+          "endLine": 1022,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 888,
+        "to": 1022
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-drawbridge-striking-destruction-source-parity-20261018",
+        "assignmentBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+          "authorization": "Standing direct sourceParity authorization, real production caller target-red before code, runtime pending/no public witness. Main explicitly selects retained v58 supporting whole destroy_drawbridge + selected zap_map caller after originaldfb, additional source3ac and independent6857. Current261 published/CI passed, source/helper dependencies available; W3 retains source context and owns fixture. Preserve original source elapsed/8min+additional6min and oldv58/ceilingstriking physical causes/caps, no novelty or budget release.",
+          "currentBehavior": "C dbridge.c888–1020 whole destroy_drawbridge changes underlying terrain/portcullis, clears traps/engravings, scatters real chain debris, updates vision, THEN captures wall occupant and resolves it, THEN captures bridge occupant/liquid/death effects, clears killer/occupants and Stronghold tune. JS has source-ported create/open/close and entity/default helpers but no destroy function; actual lateral zap_map striking/force-bolt branch recognizes find_drawbridge and originalType!=DRAWBRIDGE_UP then only notes unported. Canonical lowered empty bridge+wall source entry through create_drawbridge admits a real zap_map original terrain-red without Castle/public history. Runtime readiness remains unknown until worker first actual target-red.",
+          "expectedBehavior": "Port WHOLE async exported destroy_drawbridge(x,y,state=game,env={}) in js/dbridge.js, C888–1020 complete guarded order, and replace ONLY selected zap_map marker with awaited helper/import. No open/close/entity/scatter/mon/trap/vision implementation edits. Preserve nonbridge return; canonical flags/direction/wall lookup. Water/lava branch uses actual visibility/heroat/deaf-aware raisedportcullis vs lowered collapse text and canonical hliquid display RNG; set MOAT/LAVAPOOL, clearflags, actual sobj_at BOULDER/extract/awaitflooreffects. Dry branch ROOM/ICE+ICED_MOAT exactlyC flags. Wake500, wallDOOR/D_NODOOR, bothcells trap+engraving deletion; rn2(6) debris count, perchain xdraw THEN ydraw, canonical mksobj_at IRON_CHAIN inittrue/artiffalse, await real scatter(force1,SCATTER_MAY_HIT0x06) each iteration. NEVER substitute generated MAY_HIT0x03. Two newsym, conditional does_block/unblock and vision_recalc, Stronghold openedflag. CRITICAL: C declares entity-record pointers atentry but does NOT capture occupants then: set_entity WALL only after ALL terrain/scatter/vision/openflag, process wall automiss/visibility/killer/crushing death, then set_entity BRIDGE and e_missed chunks/liquid or huge-metal message/killer/e_died/MOATdo_entity, preserving exact C order. Use existing canonical helpers; no early snapshot because scatter can change occupants. Await effects and return on actual gameover after potentially fatal awaits before subsequent caller mutations/nokiller/tuneflag; lifesaving returns continue. Existing helper-internal death limitations are not permission to broaden source. Finish canonical nokiller/occupants reset and Stronghold heardtune3 when alive. Soundeffect no-op is existing recorder nosound backend (sounds.js761) and does not omit terminal audible fallback text. Preserve actualstate/chosenmessage/displayRNG and default redraw owners; no broad clone certification. zap_map has separate selected random arg(defaultpartial), so pass it explicitly; helper merges complete canonical RNG bundle with selected overrides for mksobj_at/scatter/rnd/hliquid display owner, do not assume rawEnv.random full or discard selected stream. Exact helper signatures: scatter(sx,sy,force,flags,obj,state,env), vision_recalc(control,{state,redraw}), wake_nearto(x,y,distance,{state,...}), minliquid(mon,{state,...}), hliquid(text,{state,...}). Add only needed canonical imports. Worker owns minimal initialized canonical geometry and actual lateral zap_map+real striking wand, hero outside debris neighborhood/emptyendpoint source-valid, real RNG and real object/vision effects, finite actualTTY More. FIRST original target terrain-red on unchangedsource, then identical finalbytes/command green+lint. No direct destroy-only, fake scatter/debris/death/random success or publicCastle/wishhistory. Preserve raisedbridge originalType guard. Meaningful nonbridge/guard/order/default seam controls only as needed; no forcedRNG target or broad helper port.",
+          "units": [
+            "dbridge.c:destroy_drawbridge"
+          ],
+          "allowedPaths": [
+            "js/dbridge.js",
+            "js/zap.js",
+            "scripts/dbridge.test.mjs",
+            "scripts/zap-ray.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/dbridge.test.mjs",
+            "scripts/zap-ray.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/zap.js",
+              "symbol": "zap_map",
+              "source": "Real exported zap_map lateral WAN_STRIKING/SPE_FORCE_BOLT, find_drawbridge canonical position and originalType!=DRAWBRIDGE_UP branch. Primary actual initialized target test calls this production entry, not helper-only destroy; no public wand acquisition/history requirement."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/dbridge.js",
+              "object": "07392961a02bed965d1beeecd404281890ae3a1c"
+            },
+            {
+              "path": "js/zap.js",
+              "object": "8487c52333574a31c4c14d87e811ed27c594aab2"
+            },
+            {
+              "path": "js/explode.js",
+              "object": "766da06f8d68e2844ca73d2a2ae7263e6820055a"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "d5aa9b39abc1f361e63f7219546c9e90977ca428"
+            },
+            {
+              "path": "js/trap.js",
+              "object": "12234b3a2a1b30a13aa35e9c091c53d0803d7820"
+            },
+            {
+              "path": "js/hack.js",
+              "object": "67ec67360eebbaab081ad9faf431ca934d87d7cb"
+            },
+            {
+              "path": "js/vision.js",
+              "object": "f8d278fc3103d2cb430afe356935d3b1f98f11d7"
+            },
+            {
+              "path": "js/do_name.js",
+              "object": "6557f299efab4a165da3258626213d6b64986ada"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/sounds.js",
+              "object": "0d16ba1b78589331e0c1310da73934738f5faeb7"
+            },
+            {
+              "path": "scripts/dbridge.test.mjs",
+              "object": "c7cfe569a5ed9a98f7dee6877eb486b11e10e711"
+            },
+            {
+              "path": "scripts/zap-ray.test.mjs",
+              "object": "a018c83a2a0cd9f99b7c02ad7f8bc294d1bb373f"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "original": "dfb2846d source canonicalgeometry/lateralguards retained; no runtime",
+            "continuation": "3ac287efd08cb28df971b5643435d277a17d77ce7e009d49e4a212ea951ad2c2",
+            "independent": "/workspace/teleport-contest-challenge-recovery/.cache/drawbridge-destruction-default-closure-continuation-20261018/independent-disposition-2252.json",
+            "Main": "Main read complete C888–1020, actual zap_map selected branch, existing dbridge entities/openclose/default contracts, scatter/vision/wake/minliquid/hliquid/mksobj/sobj exports, RNG and nosound source. All pins from same immutable accepted261. C lateoccupant capture corrects original3ac firstbullet; retain original bytes and additive independent correction.",
+            "knownSetup": "Source-valid transparent bridge geometry allowed; canonical create_drawbridge owns DBflags/wallshape. No optional wizterrainwish/history. Worker audit all named exports/exactargs/stateowners/RNGbundles/providers beforefreeze. Actual game singleton after runSegment, game.nhDisplay.serialize string; a989 withPendingMessageAcks finite16 actualMore. Raye522 terrainwish TTY and import failure, globprivate pendingDisplay null, oldMM_NOGRP constructor failures are knownnegative refs, not newtargets. Copy lossless primitive/RNG/input/phase receipts and all rawfailures. Newdependency stops for Main, no automatic expansion."
+          }
+        },
+        "reviewSha256": "4cab3958147ee271a705fc171c6030d8a4624e3bcfc896b65caa56a50ffa43be"
+      }
+    },
+    {
+      "id": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Correct the two numeric quest-sound comparisons in the existing savebones pre-serialization filter, preserving all other behavior and the existing sourceParity scope.",
+      "cFile": "bones.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "remove_mon_from_bones",
+          "line": 390,
+          "endLine": 402,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 390,
+        "to": 402
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "assignmentBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+          "authorization": "Standing explicit user sourceParity authorization and retained-source audit request; root selected same-worker bounded supporting correction. Preserve historical closed owners and all spent source/fixture attempts/time; this is a NEW additional 15-minute implementation allowance, no cap reset or public-history requirement.",
+          "currentBehavior": "C bones389–399 compares msound to numeric MS_LEADER/MS_NEMESIS; JS compares strings and actual real savebones retained same canonical Carnarvon id54/type344/sound36 in serialized bytes. Accepted Amulet/ghost helpers do not fix predicate.",
+          "expectedBehavior": "Only replace BOTH string MS_LEADER/MS_NEMESIS comparisons with imported canonical numeric constants from monsters.js in existing remove_mon_from_bones predicate. Preserve all other arms and simplified removal/default cleanup; no Medusa/Vlad/Oracle/global mongone/quest bookkeeping expansion. Primary real savebones canonical inventoryless Carnarvon serialized-presence original-red then same-final-test serialized absence green; include meaningful numeric nemesis/surviving ordinary actor controls through real savebones if source-valid within fixture. Private actual InMemoryStorage allowed, no public death/quest acquisition. Use accepted successful same-caller fixture, not optional history helpers.",
+          "units": [
+            "bones.c:remove_mon_from_bones"
+          ],
+          "allowedPaths": [
+            "js/bones.js",
+            "scripts/bones.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/bones.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/bones.js",
+              "symbol": "savebones",
+              "source": "Actual exported savebones applies filter then dmonsfree before serializing real private VFS bytes; primary actual canonical inventoryless Carnarvon numeric sound36 serialized id54 in e18b."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/bones.js",
+              "object": "17eccc80c1c7094c50d72f49550f95886dfe93ae"
+            },
+            {
+              "path": "scripts/bones.test.mjs",
+              "object": "6c8ccbc79c8b441fc86245358d86e64cb82b7f41"
+            },
+            {
+              "path": "js/monsters.js",
+              "object": "1381545113e72cabfbc4c05f1d6f167964ecfcc7"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "d5aa9b39abc1f361e63f7219546c9e90977ca428"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": "Retain source22aa232a0b36179345e433fee0b855aadd8fbf85bb8033ccfa42b0248dcf1baf; old522bbc5528b708f4430ed79718a9dc14716031e31afc6dd6a701da2abb92227a TWO killer failures, old8min source+20min/max2 fixture. NEW e18b27c979645e0d8c35bd75dbb8e6d1200894cc598e842d51f731155eae8e38 ONE actual target invocation under15min allowance, no second consumed. Main verified730160B/ac629a50/all9 files; CL52e096af actual-target independent review. Reuse e18b exact singleton/ptr+131089/correct nonempty killer DIED/privateVFS/minimal empty equipment while retaining role intrinsics; successful23d0cf4014e77debf36358d1d5cb04b9b5086713 fixture. Exact imports/args/provider/writer-owner-accessor checks beforefreeze; finite actual More only. Old v13/generalbones owners retained without novelty or budget release."
+        },
+        "reviewSha256": "0a8c0b8c0c997c8f0ad35d7558038443e139af6bdacf1ecc4e62752709fddc8c"
+      }
+    },
+    {
+      "id": "fix-unpaid-object-splitbill-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement splitbill from shk.c",
+      "cFile": "shk.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "splitbill",
+          "line": 3623,
+          "endLine": 3660,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 3623,
+        "to": 3660
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-unpaid-object-splitbill-source-parity-20261018",
+        "assignmentBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+          "authorization": "Standing explicit user sourceParity authorization and retained-source audit request; root selected same-worker bounded supporting correction. Preserve historical closed owners and all spent source/fixture attempts/time; this is a NEW additional 15-minute implementation allowance, no cap reset or public-history requirement.",
+          "currentBehavior": "C shk3623–3658 splitbill resident/inhishop→onbill parent→quantity diagnostics→decrement parent bquan→BILLSZ child unpaid0 else append child bill row same price. JS unpaid splitobj only uses optional splitBill hook else marker, no canonical default. Actual parent138 qty2→1/child141 unpaid but only parentbquan2 then onbill straychild refusal. Canonical unpaid_cost/subfrombill work when child row exists.",
+          "expectedBehavior": "Port WHOLE synchronous C splitbill in shk.js using canonical state-local shop_keeper/inhishop/onbill/ESHK/BILLSZ and source diagnostics/order. Wire ONLY unpaid splitobj default call in obj.js, preserving explicit hooks.splitBill precedence and synchronous position before copy_oextra/timers/light. No apply/unpaid_cost/other billing or helper expansion. Primary actual real doapply cream-pie canonical billed stack original missingchildbill refusal red before code, same final test green verifies parentqty1/billedqty1 + used child debt/dummy/consumption/accounting; marker-only or direct helper alone insufficient. Include meaningful full-bill child-unpaid clear and explicit-hook precedence/source guard controls. Preserve genuine RNG/input and real providers.",
+          "units": [
+            "shk.c:splitbill"
+          ],
+          "allowedPaths": [
+            "js/shk.js",
+            "js/obj.js",
+            "scripts/shk.test.mjs",
+            "scripts/object-substrate.test.mjs",
+            "scripts/apply-cream-pie.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/shk.test.mjs",
+            "scripts/object-substrate.test.mjs",
+            "scripts/apply-cream-pie.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/apply.js",
+              "symbol": "use_cream_pie",
+              "source": "Real doapply selector→use_cream_pie→synchronous splitobj unpaid default→costly_alteration/bill_dummy_object; actual9f5e reaches child missing-bill refusal."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/shk.js",
+              "object": "76b0666b553598d22a47b5c7216ccb16b528c80e"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+            },
+            {
+              "path": "scripts/shk.test.mjs",
+              "object": "c764640757eb2172b0738a460e191d3122f8e7fa"
+            },
+            {
+              "path": "scripts/object-substrate.test.mjs",
+              "object": "c385575ab1db25169a12e004e1c9da26f1ab09b4"
+            },
+            {
+              "path": "scripts/apply-cream-pie.test.mjs",
+              "object": "64c13aae23d2d916c7e3b15bacde30f819f2e2d7"
+            },
+            {
+              "path": "js/apply.js",
+              "object": "0734a8737d4548a9bbade1fd71c602d5068e6f2d"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": "Retain oldaddf28ceac2259b6d275fe02cd1862e6d9c6ba0cae72e2bbd65eb644b5c6249f TWO More/startupmerge setup attempts/15min allowance and exact closed v16 whole use_cream_pie owner. New9f5e90aa0ff894da74425682dbd725ea314da15566bdfd290aa53c16724e2232 TWO more attempts under15min, first pending message before renderedMore; second actualtarget. Main source-read complete Csplitbill and current unpaid_cost validrow path; CL2f810e1913452e1c34d629ccd1edf832d9ffb4cb57f92a84f69d9f42732409e7 verified154060B/c2f3b209/all27 files and fullscope. Same worker minimal successful fixture uses actual shop recipe9701133/fb747, nonValkyrie/no compatible initialpie, canonical addtobill parent2. Reuse actual dismissPendingTtyMessage then finite renderedMore/onEmptyQueue; do not treat unrendered pending as More. Exact exports/args/defaults/writer-owner-accessor checks beforefreeze. No public shop/history or fake unpaid/bill/provider/RNG."
+        },
+        "reviewSha256": "ec5b081f7349327b6772623690255b7c2e574e87a23e0394ae7230a93c9da14f"
+      }
     }
   ]
 }
