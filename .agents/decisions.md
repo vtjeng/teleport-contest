@@ -847,3 +847,23 @@ overwritten; its raw bytes are unavailable. The stale earlier freeze path is
 overridden by the delivery chronology, not treated as a raw failure. Final
 identical-byte original red and repaired green are preserved. Full hosted
 checkpoint, saved no-regression acceptance and publication remain pending.
+
+### 2026-10-18 — Complete shop-damage reproach and pursuit
+
+The reviewed whole `shk.c:getcad` and existing `pay_for_damage` caller delivery
+`81a54ac8c27e171467741090c0743071f665bf29` implements every reproach arm
+and awaits it at all three source guard sites. Existing sound, naming, random,
+and pursuit helpers supply their defaults; no helper API is expanded. The
+actual near-door zero-cash witness returned with the same keeper at the owned
+door but still peaceful and not following. The regression now verifies the
+source reproach and pursuit while retaining actual identity, grid/list, damage,
+hero and accounting observations. Other helper arms are source-reviewed; this
+is constructed-state source-parity runtime-pending evidence, without public
+recording, C parity or whole-source certification.
+
+The meaningful pre-code `acd418` red is separate from the final `06a2` pair
+after Main's approved message-owner observer correction. All four unique raw
+outputs and semantic capture sets are preserved; no intermediate log is lost
+or reconstructed. The final identical-byte original red and repaired green
+plus lint pass were reviewed independently. Hosted checkpoint, saved
+no-regression acceptance and publication remain pending at this record.

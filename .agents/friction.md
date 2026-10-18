@@ -1775,3 +1775,16 @@ The first observer-failure raw output was overwritten by a reused log path.
 Its unique state receipt survives; transcript reconstruction is not original
 raw output. No replay was requested to recreate lost bytes. The unchanged
 fixture dependency must be committed for clean hosted checkout.
+
+## 2026-10-18 — Observer ownership and retained chronology
+
+Getcad's `acd418` meaningful original red preceded code. The first repaired
+pursuit was correct, but its observer read empty `messages[]` while the
+actual reproach was retained in `topMessage`. Main allowed only that observer
+correction within the original 15-minute scope. Final `06a2` same-byte red/green
+ran after the draft; all prior raw captures were retained without overwrites.
+
+Cube `02ac` rejected raw undefined `multi` and skipped restoring saved null.
+Cube `16f7` records effective 0, marker-before=false and restoration=true;
+passive ran, but natural `rn2(3)=0` skipped freezing. No extra call was selected.
+Existing capture contracts apply; no new rule, helper, gate, or causal benefit claim.

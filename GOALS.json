@@ -327697,6 +327697,136 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-shop-damage-getcad-pursuit-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement getcad, pay_for_damage from shk.c",
+      "cFile": "shk.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-shop-damage-getcad-pursuit-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "getcad",
+          "line": 5138,
+          "endLine": 5173,
+          "declared": false
+        },
+        {
+          "name": "pay_for_damage",
+          "line": 5174,
+          "endLine": 5349,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 5138,
+        "to": 5349
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-shop-damage-getcad-pursuit-source-parity-20261018",
+        "assignmentBase": "2c336bb6f5b051e2618efa20917f73ddc81aef25",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "2c336bb6f5b051e2618efa20917f73ddc81aef25",
+          "authorization": "Standing source-parity runtime-pending authorization. Main explicitly selects NEW <=15min WHOLE getcad plus whole existing pay_for_damage caller wiring after actual77a2 exact-body/default target and independent Main/CL complete C/JS/default dependency review. All ca6/v53/fcc47/v65/67185/d481/535c physical/source caps stay separately spent; no oldowner unpark, public damage history gate, or new qualification.",
+          "currentBehavior": "Actual77a2 exactf925 ONE default parent call moved canonical keeper79 home5,10 to door6,10 but left peacefultrue/followingfalse/surchargefalse with current400 damage, zero cash/credit, hero7,10/zero shops, new getcad marker, RNG2575 unchanged, restored/noerrors. JS skips whole C getcad at all3 guarded parent returns. Whole current parent first-slot room predicate is already accepted and must remain.",
+          "expectedBehavior": "Implement WHOLE C shk.c getcad5138-5176: dugwall choice for dig into/damage; muted nonhelpless animal awaits existing yelp; near/pursue/inshop hearing voice and How dare reproach; far hearing shouts then Who dared; deaf near/far messages use exact angrytexts roll and existing source noitPronoun; unconditional existing synchronous hot_pursuit AFTER complete reproach. Wire ALL3 actual parent sites with await getcad using full existing state/env/canonical rn2/message defaults; preserve whole parent aggregation/selection/customer/earlier anger/outside mnearto/inshop mnexto/common shortcircuit/payment and return ordering. No sounds/mon/helper API edits. Actual near snapshot must remain keeperatdoor/grid/list, hero unchanged/currentdamage; peacefulfalse/followingtrue/surcharge true and proper customer through existing hot_pursuit, with actual source reproach. No guarantee original RNG/screens unchanged because added real messages/default effects.",
+          "units": [
+            "shk.c:getcad",
+            "shk.c:pay_for_damage"
+          ],
+          "allowedPaths": [
+            "js/shk.js",
+            "scripts/shk.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/shk.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/shk.js",
+              "symbol": "pay_for_damage",
+              "source": "C three guarded getcad sites after outside-keeper, inshop-pursue and common failure guards; all are currently skipped markers+return. Actual77a2 qualifies near/outside zero-money common guard, real mnearto and canonical default entry."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/shk.js",
+              "object": "53df2906a2d31d975aae651fc905186113423c74"
+            },
+            {
+              "path": "scripts/shk.test.mjs",
+              "object": "eba5ad3038fe2347cc6b22417bfb360e34b92166"
+            },
+            {
+              "path": "js/sounds.js",
+              "object": "0d16ba1b78589331e0c1310da73934738f5faeb7"
+            },
+            {
+              "path": "js/pline.js",
+              "object": "c5c26cb6018f9096441cce80559ae1c47d29e3d1"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "a8967364ab0b77bdc92d76208b806e832792b914"
+            },
+            {
+              "path": "js/teleport.js",
+              "object": "eb7790101224158e28ada929eff408139a71aadd"
+            },
+            {
+              "path": "js/rooms.js",
+              "object": "d35e27a3d2d100dbd69b1d4e2f92192dc91dae39"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/hacklib.js",
+              "object": "dbba8b8be55b6b21875167cb0cbb91ff4472b422"
+            },
+            {
+              "path": "js/mondata.js",
+              "object": "a2ed0919963fc18468d0a5ff0b02ee388157afa6"
+            },
+            {
+              "path": "js/do_name.js",
+              "object": "6557f299efab4a165da3258626213d6b64986ada"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            }
+          ]
+        },
+        "reviewSha256": "52100e69bf730d578a7764b6f9994277854a3f2161bef0c0c77c7d62090ffdc8"
+      }
     }
   ]
 }
