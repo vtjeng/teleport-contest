@@ -1,140 +1,131 @@
 {
-  "goal": "fix-qualified-a51-see-wsegs-repaint-source-parity-20261018",
+  "goal": "fix-dig-drawbridge-callers-source-parity-20261018",
   "kind": "file-port",
-  "cFile": "worm.c",
+  "sourceFile": "dig.c",
+  "cFile": "dig.c",
   "functions": [
-    "see_wsegs"
+    "dighole"
   ],
   "requiredFunctions": [
     {
-      "sourceFile": "display.c",
-      "name": "see_monsters"
-    },
-    {
-      "sourceFile": "worn.c",
-      "name": "mon_set_minvis"
-    },
-    {
-      "sourceFile": "monmove.c",
-      "name": "postmov"
+      "sourceFile": "dig.c",
+      "name": "furniture_handled",
+      "line": 571,
+      "endLine": 596,
+      "jsFile": "js/dig.js"
     }
   ],
+  "lineRanges": [
+    "885-1026"
+  ],
+  "cLines": 142,
+  "jsFile": "js/dig.js",
   "sessions": [],
   "sourceParity": {
     "version": 1,
-    "id": "fix-qualified-a51-see-wsegs-repaint-source-parity-20261018",
-    "assignmentBase": "d16e2394667fed75afd4d5fcddb63a14230677bd",
+    "id": "fix-dig-drawbridge-callers-source-parity-20261018",
+    "assignmentBase": "720448d8bfa5acc1b207540979e868795b74e7e9",
     "evidenceBasis": "source-parity-runtime-pending",
     "review": {
-      "reviewedBase": "d16e2394667fed75afd4d5fcddb63a14230677bd",
-      "authorization": "User explicitly authorizes source-proved parity correction; Main and independent Challenge review qualify immutable333ccd naturalpubliccaller immediate-boundary source red. New bounded retained-owner implementation, not reopening any terminal setup or asserting public C parity/discovery.",
-      "currentBehavior": "Immutable333ccd actualsameA51 publicprefix→freeCtrlWwish→ordinaryzou hits worm56, minvis/perminvisfalse→1, headglyph114→rememberedfloor3992 while FOURplacedtailglyph330remain at fullzap-core immediateboundary; passive mon_set_minvis count1. Rawperception noBlind/See_invis, sameactor/mapownership. C worn473-485 newsymhead+see_wsegs BEFORE vanishesmessage; worm487-495 tail loop excludes hiddenhead. Other two existing skipped Ccallers also retainedsourcecontract.",
-      "expectedBehavior": "Port whole C worm.c487-495 see_wsegs loop repainting all tail nodes BEFORE hidden head in source order, no invented isok/placed filter/RNG/list mutation. Wire ONLY display.see_monsters, worn.mon_set_minvis, monmove.postmov existing sites and guards with their same state/repaint. Existing live defaults newsym; clone must never fall through to global. Do not inherit redrawWormSquare planning earlyreturn for explicit display clone callback. Worn may honor explicit rawEnv.redraw for clone head+tail under !invis_blkd; absent callback retain existing named unresolved redraw behavior. Preserve postmov planning noop. No potion/vision/global adapter edits. Keep helper SYNCHRONOUS like C void/newsym repaint, no unnecessary Promise boundary. The qualified natural wand route must redraw FOUR invisible tails to underlying remembered terrain at SAME immediate command return; preserve actor/HP/positions/segments/RNG/wandcharge/normalinput source semantics, no vision refresh workaround.",
+      "reviewedBase": "720448d8bfa5acc1b207540979e868795b74e7e9",
+      "authorization": "Standing explicit source-parity authorization and continuous useful-work instruction. Main selects NEW<=15min focused implementation after actual0f54 dighole target, whole464 source review and independent CL actual/full2site review. Existing v43/e898 two-physicalfamily cap, v54 misses and muse da790 remain spent; the separately selected one qualification has completed. No new discovery/runtime allowance or helper expansion.",
+      "currentBehavior": "C furniture_handled571-594 normalizes input through find_drawbridge then invokes destroy and returnsTRUE; digactualhole consumesTRUE beforetrapcreation. C dighole885-1022 loweredbridge/wall branch separately normalizes, destroys, setsretvalTRUE then spot_checks at originalx/y. JS both exactcalls onlymark missingcallee. Actual0f54 canonical start671903, hero12,7 and fixedlastOROOM7 realcreate_drawbridge66,13/northwall66,12 wroteDB_MOAT0; ONE actualdighole returnedTRUE, genuinepremarkerfalse→true while loweredbridge34 and openDOOR23 unchanged, noerrors/RNG3018→3018/oneMore/restoredhandler/samelevelREF.",
+      "expectedBehavior": "Within WHOLE existing furniture_handled and dighole functions replace BOTH exact omittedcalls with await existing destroy_drawbridge(position.x,position.y,state,rawEnv) after existingfind_drawbridge normalization; import existingcanonicalhelper, update inaccuratevoidgapcomments. Preserve originalinputcoordinates, furnitureTRUE earlyreturn into digactualhole, dighole retvalTRUE and finalspot_checks(originalx,y,oldType), allpitOnly/digcheck/liquid/trap/otherbranchordering and defaults. No edits to destroyhelper or unrelatedsource. Existinghelper owns actualMOATconversion, canonicaldebris/scatter/wake/vision/objects/occupanttails; no rescue, forcedRNG or inventedcompensation. DirectCsourceexpected MOAT with flags0 (notDRY); wallalreadyDOOR so no requiredtypechange. Retain allother namedgaps/sourcependinglimits.",
       "units": [
-        "worm.c:see_wsegs",
-        "display.c:see_monsters",
-        "worn.c:mon_set_minvis",
-        "monmove.c:postmov"
+        "dig.c:dighole",
+        "dig.c:furniture_handled"
       ],
       "allowedPaths": [
-        "js/worm.js",
-        "js/display.js",
-        "js/worn.js",
-        "js/monmove.js",
-        "scripts/worm.test.mjs",
-        "scripts/display-visibility.test.mjs",
-        "scripts/worn.test.mjs",
-        "scripts/monmove-items.test.mjs",
+        "js/dig.js",
+        "scripts/dig.test.mjs",
         ".cache/"
       ],
       "regressionTests": [
-        "scripts/worm.test.mjs",
-        "scripts/display-visibility.test.mjs",
-        "scripts/worn.test.mjs",
-        "scripts/monmove-items.test.mjs"
+        "scripts/dig.test.mjs"
       ],
       "callers": [
         {
-          "path": "js/display.js",
-          "symbol": "see_monsters",
-          "source": "C display.c1512 real property/monster repaint loop, dead/arriving/defer guards then head/tail/warning/hero order."
+          "path": "js/dig.js",
+          "symbol": "dighole",
+          "source": "C loweredbridge/wall branch calls normalizeddestroy, preservesretval and sourceorderedspot_checks originalcoords; actual0f54 exportedentry qualifies."
         },
         {
-          "path": "js/worn.js",
-          "symbol": "mon_set_minvis",
-          "source": "C worn.c483: perminvis; !invis_blkd current visibility plus head then see_wsegs, explicit clone repaint owner."
+          "path": "js/dig.js",
+          "symbol": "digactualhole",
+          "source": "C early furniture_handled consumesTRUE beforetrapconversion; bind production supporting regression through this existingcaller to normalizedbridge/wall destruction."
         },
         {
-          "path": "js/monmove.js",
-          "symbol": "postmov",
-          "source": "C monmove.c1686 normal moved/done post-move object consumption/pickup then minvis head/tail redraw; preserve caller-owned planning noop."
+          "path": "js/dig.js",
+          "symbol": "furniture_handled",
+          "source": "C normalizeddestroy beforeTRUE; coordinates may be portcullis rather than bridge, preserve sourcefind_drawbridge mutation."
+        },
+        {
+          "path": "js/dig.js",
+          "symbol": "zap_dig",
+          "source": "Existing default downward nonpit path awaits dighole; no wand/UI/publichistory gate added."
         }
       ],
       "pins": [
         {
+          "path": "js/dig.js",
+          "object": "5eef1f0b51f9cc10e5cf7593271dee434cc93959"
+        },
+        {
+          "path": "scripts/dig.test.mjs",
+          "object": "66e841f5f71a6f49b327a5e28ebd1379655c481e"
+        },
+        {
+          "path": "js/dbridge.js",
+          "object": "48343dfd12932d75b086dbfd5e90c0abc35aef4c"
+        },
+        {
+          "path": "js/zap.js",
+          "object": "3d03ad1932540ca8e89a7dfc0332302b9983d71f"
+        },
+        {
+          "path": "js/hack.js",
+          "object": "67ec67360eebbaab081ad9faf431ca934d87d7cb"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/trap.js",
+          "object": "4747a0667ddc8fba45209367c5c69ff5f91dd170"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
           "path": "nethack-c/upstream",
           "object": "16ff59115315917b93185d026aeefea06db9b0f4"
-        },
-        {
-          "path": "js/worm.js",
-          "object": "65c183dfa04c4f17eaecffd3c72583cfd3979dba"
-        },
-        {
-          "path": "js/display.js",
-          "object": "48816b4ee035468457eba3b898fd708e77a03fca"
-        },
-        {
-          "path": "js/worn.js",
-          "object": "44e12f1381193b304051d8d697841bfb2e825764"
-        },
-        {
-          "path": "js/monmove.js",
-          "object": "a4b39dfb7a4e3075db1f07dbb09556a985a0d993"
-        },
-        {
-          "path": "scripts/worm.test.mjs",
-          "object": "f0322b829984b04cb11d815659f61b10196f676b"
-        },
-        {
-          "path": "scripts/display-visibility.test.mjs",
-          "object": "d0c1fb6be4e880847394ff7124107ca06960275a"
-        },
-        {
-          "path": "scripts/worn.test.mjs",
-          "object": "ec61042bac9df8ef35ededf62b0ecf0e5db7431e"
-        },
-        {
-          "path": "scripts/monmove-items.test.mjs",
-          "object": "5f759fd83845851f71dcf98d88c267fb2fb4bbe1"
-        },
-        {
-          "path": "js/potion.js",
-          "object": "72cf938e6eac813f3f047b1613a8d80a25028d43"
-        },
-        {
-          "path": "js/allmain.js",
-          "object": "ad08141d2b299823bf6ad4a0008feca1c66025c0"
-        },
-        {
-          "path": "js/vision.js",
-          "object": "f8d278fc3103d2cb430afe356935d3b1f98f11d7"
         }
       ],
       "sourceEvidence": {
-        "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/see-invisible-longworm-tail-refresh-source-20261018/implementation-review-2252.json",
-        "independentReviewSHA256": "77cfd799ed30a976fbd999c08d1cf23785a8ef07910cad5f416d9903351fdd66",
-        "sourceResult": "db32c4ed00207a23dd154f55820f01565b5176fb7e9f7a6e41c5946605cc24f9",
-        "ownerDisposition": "Main explicitly selects exact retained-v27 see_monsters/see_wsegs correction with three current C callsites. Original53a terminal duplicate/no novelty and db32 DEFERRED retained. Closed v27/v13/v40 and parked v10 potion continuation remain original owners/budgets, no whole-source certification/release or consumed-public-firstcause claim. 9debd abuse_dog/redraw_worm remains distinct untouched. No live reservations overlap this helper/caller scope.",
-        "regression": "REUSE QUALIFIED EXACT fixture, not arbitrary new constructors/seed/state: immutable333ccd rawattempt2 plus d5 A51 prefix seed840041/date20340917101000/exactrecipeoptions/moves and samefreeCtrlWnamedblessedwand/actualuniqueinvlet/normalzouNE via fullnormalmoveloop_core. NO NEW SOURCE DELTA until meaningful original-source focused regression reproduces sameworm/headclear/4staletails immediate FULL zapcore return and expected FOURtailclear assertion red. Use finalState display.serialize()/actual segmentpresentations at this boundary, NOT lastgetScreens frame (66 recorderframes are pre-input and precede effect). Preserve exact actor56/species114/HP/coords/segments/map/sighted/noSee_invis/invis_blkd guard and charge5→4. Do not advance another core/monsterturn or force fullrefresh to hide red. Reuse known source-valid prefix/wish+zap protocol; no newseed/actor/map/input/observer rescue. Constructor directcalls forbidden; actualpublicrecipe supplies canonicalworm. Before future capture COPY primitive/ID/coordinate state and append-onlyscreen/RNG/cursor arrays at observationtime; one losslessBigInt encoderALLwrites/comparisons/catches and samekeyprojection; serialize()string, captureForShellVOID. Staticcheck newlyadded namedimports/returntypes before tests; per-attempt harness/test bytes retained. Main verified oldderivedcounts13/2690/13→63/2695/63→66/2697/66 exactly fromraw and prefixbytes; donot rely on livealiases fornew evidence. Tests include realnaturaldefaultlive production behavior (not helperonly callback count) PLUS precise threecaller/guard/callback seams: tailorder/headonce, dead/arriving/deferred, !invis_blkd blocked; postmov actual moved/done+object/mcanmove/consumption/pickup ordering; explicitclone callbacks get selectedstate/no liveglyph/RNG/output mutation; postmov retains planningnoop, worn no-callbackclone keeps namedgaps. Actualsourcecallbackseam tests may use the qualified canonicalstate and caller APIs; no fakehelper/RNG/success constructors. Same EXACT focused command includes ALL FOUR frozen testfiles originalred→finalgreen+lint. If new defaultcallee/render dependency prevents expectedgreen, STOP namedblocker and preserve partialred; no broad display/vision/potion/zap/helper expansion or changedfixture.",
-        "limits": "Constructed/natural JS production-path SOURCE-PARITY-RUNTIME-PENDING evidence only. No Cgameplay/recordings, publicCmatching/parity/discovery/score/certification. No aggregate/build/checkpoint byworker; standard exacthosted/fullno-regression Mainacceptance unchanged. Alloldv27/v13/v40/parkedv10/53a/db32/df241/5c26 retained, no budgetsreleased.",
-        "qualifiedTask": "public-a51-wand-invisibility-repaint-caller-qualification-20261018",
-        "qualifiedPacket": "333ccd1b23482d8a3d7f2b03fb284c17797197a6822ff664474b9bad4840086b",
-        "qualifiedEnvelopeSha256": "0ea0002e3981ae4aa2fd3fd4c99ada9409b3c7c67218b14d9883bab2de2531fe",
-        "qualifiedEnvelopeBytes": 6498452,
-        "mainBehaviorReview": ".cache/continuous-run-resume/a51-natural-caller-behavior-review.json",
-        "mainBehaviorReviewSha256": "adad863a748225adb50315901030994c87d8c43a2d3922e73afc785a2cdd58ef"
+        "sourceResult": "464bf5e50713b145e95aa8cf70e8555588e4392a5058808f9bc926695a2755a3",
+        "actualResult": "0f54a97c6eeb496766ae6c242c7e4591eb9c37d79658b9bc2d7ba869b08a665a",
+        "actualCommit": "f46eef683cd50992c98c9ff473c140547f8cc151",
+        "actualFixtureSha256": "c964df31f9b91350c149f0772a8097dc0ffd96a8db58ae67c8de704d7f079054",
+        "actualCaptureSha256": "ce5e412e8b0a546c229f9f0668f006efcd0d0a0331b382fdb5dce5f15417182c",
+        "mainFixtureCopy": "/workspace/teleport-contest/.cache/resume-1439/dighole-0f54/runner.mjs",
+        "mainReview": "Main verified outer/envelope/all10file hashes and read entire11923B fixture/captureprimitives and exactC/JS2seams/defaultcanonicalhelper. CL independentlyverified sameactual/full2site closure. ActuallevelIdentity observer wasnull (wrongproperties), not realledger; sameactuallevelREF and complete initializedsourceentry remainvalid. Newtests must capturecanonicalu.uz for meaningfullevelidentity. No C/publicwitness/syntheticgain/wholehelpersourcecertification."
       }
     },
-    "reviewSha256": "8f91196cba817abd24ee933c3ea25f56288faf18201a26b2b3cc397b189fea42"
-  }
+    "reviewSha256": "e400ebc33f8f1b31549d44a8d2b340c358c73cedf0d45d8d984af959d0983e01"
+  },
+  "evidenceRequired": "whole source, production callers, tests for pure functions, matching recordings or synthetic ranges for impure functions and entry points"
 }
