@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T03:50:28.794Z",
+  "capturedAt": "2026-10-18T04:32:33.084Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T03:50:28.794Z",
+    "asOf": "2026-10-18T04:32:33.084Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 218,
+      "mainSupportAssignments": 223,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -167979,11 +167979,259 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-direct-mattacku-cold-cast-source-parity-20261018-41f729c6eb0e5c1d08b8921baac852bbd18de1e9",
+        "type": "published",
+        "at": "2026-10-18T03:50:50.576Z",
+        "task": "delivery:fix-direct-mattacku-cold-cast-source-parity-20261018",
+        "commit": "41f729c6eb0e5c1d08b8921baac852bbd18de1e9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:56:18.451Z",
+        "id": "queue:c6446288-bbcd-4eea-a75e-a7cd03c7f28f",
+        "type": "queue-complete",
+        "task": "bones-real-amulet-save-conversion-source-screen-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T03:56:18.451Z",
+        "id": "queue:c6446288-bbcd-4eea-a75e-a7cd03c7f28f:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:05:00.480Z",
+        "id": "queue:9ac2692f-6614-49ef-93f5-34bd8b915deb",
+        "type": "assign",
+        "task": "fix-bones-real-amulet-save-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:08:41.856Z",
+        "id": "queue:c3eb0f4a-2977-4f71-9a0c-1c5a7a4a111a",
+        "type": "queue-block",
+        "task": "fix-bones-real-amulet-save-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:08:41.856Z",
+        "id": "queue:c3eb0f4a-2977-4f71-9a0c-1c5a7a4a111a:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:10:31.481Z",
+        "id": "queue:2d688dd5-833b-4bcf-9c52-2a5de5ae0b6f",
+        "type": "assign",
+        "task": "bones-quest-npc-numeric-sound-source-screen-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:13:36.893Z",
+        "id": "queue:94ce7083-b227-4d35-a3d1-9b0b06482fb8",
+        "type": "assign",
+        "task": "fix-empty-entry-bones-amulet-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:14:59.190Z",
+        "id": "queue:378196bb-d3d6-4dee-a7d3-5112e19e4173",
+        "type": "queue-complete",
+        "task": "bones-quest-npc-numeric-sound-source-screen-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:14:59.190Z",
+        "id": "queue:378196bb-d3d6-4dee-a7d3-5112e19e4173:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:17:56.154Z",
+        "id": "queue:02c45829-5ca4-420a-bcd8-a68a103b2d8b",
+        "type": "assign",
+        "task": "fountain-pool-survivor-overcrowding-default-inquiry-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:18:52.754Z",
+        "id": "ready-23d0cf4014e77debf36358d1d5cb04b9b5086713:transport",
+        "type": "assign",
+        "task": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-empty-entry-bones-amulet-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-23d0cf4014e77debf36358d1d5cb04b9b5086713",
+        "type": "ready",
+        "at": "2026-10-18T04:18:52.754Z",
+        "task": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+        "delivery": "23d0cf4014e77debf36358d1d5cb04b9b5086713"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:18:52.754Z",
+        "id": "ready-23d0cf4014e77debf36358d1d5cb04b9b5086713:complete",
+        "type": "queue-complete",
+        "task": "fix-empty-entry-bones-amulet-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:18:52.754Z",
+        "id": "ready-23d0cf4014e77debf36358d1d5cb04b9b5086713:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:20:48.971Z",
+        "id": "queue:71ed272c-a035-4f09-a328-d4154741a028",
+        "type": "queue-complete",
+        "task": "fountain-pool-survivor-overcrowding-default-inquiry-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:20:48.971Z",
+        "id": "queue:71ed272c-a035-4f09-a328-d4154741a028:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-bones-empty-entry-23d0cf40",
+        "type": "activity",
+        "at": "2026-10-18T04:24:21.764Z",
+        "task": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+        "phase": "review",
+        "reason": "Review immutable actual savebones red-green evidence and selected Amulet conversion scope"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-bones-empty-entry-23d0cf40",
+        "type": "received",
+        "at": "2026-10-18T04:24:23.253Z",
+        "task": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+        "delivery": "23d0cf4014e77debf36358d1d5cb04b9b5086713"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:25:35.129Z",
+        "id": "queue:fab1a679-59ed-4750-8b52-ae7886022f26",
+        "type": "assign",
+        "task": "bones-quest-npc-real-save-fixture-support-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:27:48.897Z",
+        "id": "queue:9a9dc35d-376f-4d69-83cf-48506ce2b17e",
+        "type": "assign",
+        "task": "unpaid-stack-split-bill-production-inquiry-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:29:16.151Z",
+        "id": "queue:21c790c2-da6d-43e8-95c5-b803b4843509",
+        "type": "queue-complete",
+        "task": "bones-quest-npc-real-save-fixture-support-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:29:16.151Z",
+        "id": "queue:21c790c2-da6d-43e8-95c5-b803b4843509:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:30:39.521Z",
+        "id": "queue:31d01e06-1c84-46af-b8df-fa4a2c345967",
+        "type": "assign",
+        "task": "ordinary-monster-lifesaving-default-prerequisite-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+        "worker": "Worker-1",
+        "goal": "fix-empty-entry-bones-amulet-source-parity-20261018",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "23d0cf4014e77debf36358d1d5cb04b9b5086713",
+        "since": "2026-10-18T04:18:52.754Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -168148,9 +168396,34 @@
           "source:mcastu.c:castmu"
         ],
         "reason": "The single frozen no-edit focused command failed during canonical makemon_runtime placement: mnexto reached awaited rloc_to_flag while dismissing a pending tty message, and the empty initialized input queue raised Input queue empty before the constructor returned. No normal action or AD_COLD target was reached; no source change or retry was made. Exact drafts, patch and raw output are retained in typed evidence."
+      },
+      "delivery:fix-bones-real-amulet-save-source-parity-20261018": {
+        "id": "delivery:fix-bones-real-amulet-save-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "parked",
+        "seed": null,
+        "reservations": [
+          "source:bones.c:resetobjs"
+        ],
+        "reason": "Terminal first-run setup blocker: resetInventory cannot clear a worn boot Wizard item because the canonical setworn path requires an unprovided cancelDoff hook; no real savebones target receipt occurred. Frozen draft and exact raw output are retained in typed evidence; no retry or fixture repair."
+      },
+      "delivery:fix-empty-entry-bones-amulet-source-parity-20261018": {
+        "id": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+        "worker": "Worker-1",
+        "status": "ready",
+        "seed": null,
+        "reservations": [
+          "source:bones.c:resetobjs"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "source:bones.c:resetobjs": {
+        "tasks": [
+          "delivery:fix-empty-entry-bones-amulet-source-parity-20261018"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
     "readySessions": 0,
@@ -168161,21 +168434,25 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "bones-real-amulet-save-conversion-source-screen-20261018",
+        "task": "unpaid-stack-split-bill-production-inquiry-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "task": "ordinary-monster-lifesaving-default-prerequisite-20261018",
         "worker": "Worker-1"
       }
     ],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 2,
       "blocked": 0,
-      "completed": 452,
-      "superseded": 90
+      "completed": 457,
+      "superseded": 91
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "bones-real-amulet-save-conversion-source-screen-20261018",
+        "assignment": "ordinary-monster-lifesaving-default-prerequisite-20261018",
         "state": "active"
       },
       {
@@ -168185,8 +168462,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "unpaid-stack-split-bill-production-inquiry-20261018",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -176356,7 +176633,7 @@
         "id": "bones-real-amulet-save-conversion-source-screen-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -176365,13 +176642,118 @@
         "target": null,
         "readyAt": "2026-10-18T03:48:35.047Z",
         "claimedAt": "2026-10-18T03:50:21.114Z",
+        "completedAt": "2026-10-18T03:56:18.451Z"
+      },
+      {
+        "id": "fix-bones-real-amulet-save-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T04:04:37.712Z",
+        "claimedAt": "2026-10-18T04:05:00.480Z",
+        "completedAt": null
+      },
+      {
+        "id": "bones-quest-npc-numeric-sound-source-screen-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T04:10:06.927Z",
+        "claimedAt": "2026-10-18T04:10:31.481Z",
+        "completedAt": "2026-10-18T04:14:59.190Z"
+      },
+      {
+        "id": "fix-empty-entry-bones-amulet-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T04:13:13.505Z",
+        "claimedAt": "2026-10-18T04:13:36.893Z",
+        "completedAt": "2026-10-18T04:18:52.754Z"
+      },
+      {
+        "id": "fountain-pool-survivor-overcrowding-default-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T04:17:33.178Z",
+        "claimedAt": "2026-10-18T04:17:56.154Z",
+        "completedAt": "2026-10-18T04:20:48.971Z"
+      },
+      {
+        "id": "bones-quest-npc-real-save-fixture-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T04:25:12.456Z",
+        "claimedAt": "2026-10-18T04:25:35.129Z",
+        "completedAt": "2026-10-18T04:29:16.151Z"
+      },
+      {
+        "id": "unpaid-stack-split-bill-production-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T04:27:38.698Z",
+        "claimedAt": "2026-10-18T04:27:48.897Z",
+        "completedAt": null
+      },
+      {
+        "id": "ordinary-monster-lifesaving-default-prerequisite-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T04:30:28.186Z",
+        "claimedAt": "2026-10-18T04:30:39.521Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "6bbf8f7795e622ffd455cad33890ba0cf1575fa6",
-    "measuredAt": "2026-10-18T03:45:53.223Z",
+    "executionCommit": "02a91c81d2942b738af2a9f7855066b6210f30bb",
+    "measuredAt": "2026-10-18T04:31:13.430Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
