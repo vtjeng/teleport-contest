@@ -32,8 +32,7 @@
     {
       "name": "actual zap_map lateral striking destruction of a canonical lowered drawbridge",
       "functions": [
-        "destroy_drawbridge",
-        "zap_map"
+        "destroy_drawbridge"
       ],
       "recordings": []
     }
