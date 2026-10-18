@@ -1,0 +1,56 @@
+{
+  "correction": "limbo-a93a-noncontiguous-context-feedback-20261018",
+  "feedbackDelivery": "a93a879ac30f14d777c96994d85fd7bdd92ce6e8",
+  "previousContextSha256": "f23d12eef7a9447b9cabb024bbc93d23651838c8f15ff7689c9400b2fcb7b7dc",
+  "correctedContextSha256": "cf98ca5c97bf8b2d98390e1e20e36e3553b4f71abc50e2b4d22b3d7f51b01fa5",
+  "evidenceSha256Unchanged": "41bbb615c9135bc082e1bcabb205ec199c375a15aeb017887a5b445f70a53883",
+  "checksSha256Unchanged": "4e6524224a995672eabc5465d85bba4f5dcac6d185afae0bac8cb8c70d645dfe",
+  "chronologySha256Unchanged": "f2f4074bf085e6847eca73d2e520b506f59f828ba96f6e959a3e1c471e8698bb",
+  "productionAndTestSha256": {
+    "js/dog.js": "f205a9234f31e83ff265a25a84b76417c4c7cfe3f91e5ed6c6235cdc30b8953c",
+    "scripts/dog-migrate.test.mjs": "dcec57abcfa0eac7964a340fbf32f7f4c785a194eadaddd2f19c67b05f1bba68"
+  },
+  "scopeRepresentation": {
+    "functions": [
+      "losedogs"
+    ],
+    "requiredFunctions": [
+      {
+        "sourceFile": "dog.c",
+        "name": "migrate_to_level"
+      }
+    ]
+  },
+  "evidenceUnitsPreserved": [
+    "losedogs",
+    "migrate_to_level"
+  ],
+  "callersPreserved": true,
+  "sourceParityReviewPreserved": true,
+  "originalRedGreenChronologyPreserved": true,
+  "focusedLintReceiptsPreserved": true,
+  "removedAccidentalProcessOutputLogs": [
+    {
+      "path": ".cache/failed-arrival-limbo-source-parity-20261018/process-clear-lint.log",
+      "bytes": 4004253,
+      "sha256": "2e7da52479425b5c264205ad34532ac15072d850d9b672323c22009c661d2845"
+    },
+    {
+      "path": ".cache/failed-arrival-limbo-source-parity-20261018/process-clear-red-v2.log",
+      "bytes": 3992598,
+      "sha256": "aedd3824122b4e4a97b1e170ff94191306fdddef7d4753b0e3383b24fc2b4da5"
+    },
+    {
+      "path": ".cache/failed-arrival-limbo-source-parity-20261018/process-register-lint.log",
+      "bytes": 4004276,
+      "sha256": "09b02b2af25781d78fc53e7b717270b4af059e03c3989a8e4af328ab6d7a5c39"
+    },
+    {
+      "path": ".cache/failed-arrival-limbo-source-parity-20261018/process-register-red-v2.log",
+      "bytes": 3992621,
+      "sha256": "80cc94a021a00332742fdebcfdb4be404653a8974db86f4ed0a607bd90e00fb7"
+    }
+  ],
+  "checksRerun": false,
+  "gameSourceOrTestChanged": false
+}

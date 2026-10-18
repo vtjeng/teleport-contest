@@ -3,8 +3,7 @@
   "kind": "file-port",
   "cFile": "dog.c",
   "functions": [
-    "losedogs",
-    "migrate_to_level"
+    "losedogs"
   ],
   "sessions": [],
   "sourceParity": {
@@ -125,5 +124,11 @@
       }
     },
     "reviewSha256": "579545ba520f1c99b4403f8e93e3c18d62a77a17ba22dd92dbab6869a54361aa"
-  }
+  },
+  "requiredFunctions": [
+    {
+      "sourceFile": "dog.c",
+      "name": "migrate_to_level"
+    }
+  ]
 }
