@@ -1817,3 +1817,18 @@ preserved the original target proof and paired final `bf501` bytes after the
 first draft; an intermediate control setup-miss test copy was overwritten. Its
 raw failure and hash survive, while the exact intermediate test is unavailable.
 Literal raw/capture envelopes replace path summaries. No benefit is measured.
+
+## 2026-10-18 — Quest-return source order and fixture corrections
+
+Two original-code setup misses preceded the actual ordering result: the test
+expected empty Knight inventory, then omitted canonical artifact registration.
+Main authorized narrow corrections within the original 12-minute deadline;
+normal inventory, the initialized artifact table and both misses/raw remained.
+The first genuine ordering red carried a cleanup warning, also retained.
+All test corrections preceded the first production edit. Final frozen `ab901`
+produced a clean original red (76 pass/1 fail), then 77 green and lint at `7a2b`.
+CL verified all 18 literal raw bindings and the final test. The real delayed
+pager proves the source await order; normal-history runtime remains unknown.
+Delivery at 22:52:27.844 preceded the original 22:55:19 deadline. This was
+Vincent's explicit source fix; no challenge prerequisite or new allowance.
+No new checks, helpers, rules, gates or causal benefit claim.

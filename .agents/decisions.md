@@ -888,3 +888,24 @@ draft; final control-extended `bf501` pairing follows that draft and precedes
 the scoped rework. The intermediate setup-miss full test copy is unavailable;
 raw failure and hash remain. Exact hosted checkpoint, saved no-regression
 acceptance and publication are pending at this record.
+
+### 2026-10-18 — Await the quest leader's inventory return
+
+Vincent explicitly requested this flagged JavaScript control-flow correction
+even without a runtime challenge. Delivery `7a2bc941` adds one await to
+`thitmonst` before encumbrance handling, matching C's completed `addinv`
+call order. The regression uses real artifact registration, real `addinv`
+and its existing quest pager output seam: the original returned while that
+pager remained deferred; the repaired call remains pending and inserts the
+artifact once after release. An already-touched eager control also passes.
+
+The final `ab901ff` test was frozen before the first production edit and
+produced a clean 76-pass/one-failure original result, then 77 passes and lint
+success. Earlier inventory and artifact registration setup misses, plus the
+first target red's cleanup warning, remain separate preserved evidence. Normal
+gameplay first-acquisition history remains unqualified. This is an async
+source-contract repair with unmeasured operational benefit, without public
+play or source-completion certification. Exact hosted acceptance and publication
+are pending at this record. The accepted glob stage changes separate runtime
+merge/projection behavior; its diff preserves this ordinary non-glob `addinv`
+quest pager contract.
