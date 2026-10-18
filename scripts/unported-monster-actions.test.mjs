@@ -151,6 +151,7 @@ import {
 } from '../js/unported_monster_actions.js';
 import { cloneu, MonsterDeathPlanningError } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
+import { newmonhp } from '../js/makemon.js';
 import { newObject } from '../js/obj.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
@@ -158,6 +159,7 @@ import {
     ARROW,
     BOULDER,
     BOW,
+    CORPSE,
     DAGGER,
     ELVEN_DAGGER,
     EGG,
@@ -6150,6 +6152,12 @@ test('awake or visible long worms use the ordinary movement path', async () => {
 test('a planned long worm dies through a fresh arrow trap and releases its tail', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_LONG_WORM });
     const sourceWorm = target.monster;
+    sourceWorm.cham = NON_PM;
+    newmonhp(sourceWorm, PM_LONG_WORM, {
+        state: game,
+        random: createCoreRandom(cloneIsaacContext(game.coreCtx), game),
+    });
+    const deathsBefore = game.svm.mvitals[PM_LONG_WORM].died;
     const sourceX = target.monsterX - 1;
     game.level.monsters[target.monsterX][target.heroY] = null;
     game.level.at(sourceX, target.heroY).typ = ROOM;
@@ -6224,6 +6232,8 @@ test('a planned long worm dies through a fresh arrow trap and releases its tail'
         'arrow trap was reached through a real closer move');
     assert.equal(worm.mhp, 0, 'real arrow damage completed death');
     assert.equal(worm.wormno, 0, 'death releases the active worm number');
+    assert.equal(planned.svm.mvitals[PM_LONG_WORM].died, deathsBefore + 1,
+        'ordinary makemon form is counted as a long-worm death');
     assert.equal(planned.level.worms[1], null,
         'death cleanup releases the segment slot');
     assert.notEqual(worm.mstate & MON_DETACH, 0,
@@ -6233,6 +6243,10 @@ test('a planned long worm dies through a fresh arrow trap and releases its tail'
             `worm segment at ${x},${target.heroY} was removed`);
     assert.equal(planned.level.traps[0].once, true,
         'the real arrow trap fired');
+    const corpse = planned.level.objects[routeBefore.mx + 1][target.heroY];
+    assert.equal(corpse?.otyp, CORPSE, 'real arrow death leaves a corpse');
+    assert.equal(corpse.corpsenm, PM_LONG_WORM,
+        'corpse preserves the ordinary long-worm species');
     assert.deepEqual(routeBefore.tail.at(-1),
         { x: routeBefore.mx, y: target.heroY }, 'pre-hit head was real');
 });
