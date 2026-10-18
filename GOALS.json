@@ -326558,6 +326558,143 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-terminal-discard-migrations-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Discard unreachable migrating monsters and objects at terminal level entry",
+      "cFile": "dog.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-terminal-discard-migrations-source-parity-20261018",
+      "detail": "Complete dog.c discard_migrations source-parity-runtime-pending repair and exact do.goto_level terminal cleanup caller, selected from original actual d6e8 target. Both source-ordered lists retain Wizard/endgame destinations and use existing real minvent/deallocation/object contents/timer/light owners. Linked d8 corrects state-bound endgame identity and adds alternate-state countercase. Main and Challenge independently verified immutable26933 packet, raw initial pre-edit target red, final d109 test identity and literal final same-byte original-base red/repaired39-of-39 green plus lint. The final pairing occurred AFTER the first production draft: narrow RNG/full-goto and finally observers plus canonical helper-control setup were corrected within the same frozen source scope. Main explicitly permits those test corrections and source-state predicate correction under the reviewed task; no final-bytes-before-first-edit claim. Earliest raw red establishes actual goto Earth, dog66/apple68 remaining linked, four More acknowledgements and4958 RNG. Missing raw intermediate failed observer/helper attempts are disclosed in immutable chronology and are not recovered or treated as proof of later assertions. Final39-of-39 assertions directly establish actual original primitive IDs removed, true dog deallocation/object deletion, retention, recursion/timer/light/minvent/default helper behavior and restoration. No C/public-input parity, source certification, reopening old seed4500 scope/caps, or synthetic gain claim.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "discard_migrations",
+          "line": 938,
+          "endLine": 994,
+          "declared": false
+        }
+      ],
+      "range": {
+        "from": 938,
+        "to": 994
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-terminal-discard-migrations-source-parity-20261018",
+        "assignmentBase": "41833ac39bde296803966c7eaa8408f4f613548d",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "41833ac39bde296803966c7eaa8408f4f613548d",
+          "authorization": "Standing explicit source-parity authorization 2026-10-17 and continuous reviewed-revisit instruction 2026-10-18. Main selects NEW <=25min whole-function implementation/focused verification after actual original target d6e8 and independent whole C/JS/caller/lifecycle review. Prior 7421 observer miss and all old port-do-goto-level-seed4500/other caps stay spent/parked. W2 limbo editing finished at immutable READY a93a before this selection; no concurrent dog.js edits. Separate source unit and regression file, no unaccepted dependency or broad endgame claim.",
+          "currentBehavior": "C dog.c938-989 discard_migrations performs two source-ordered pointer-to-link sweeps after terminal file/overview deletion: discard non-Wizard non-endgame monster migrants via discard_minvent(FALSE), emitted monster light deletion and dealloc_monst; discard non-endgame object migrants after unlink/OBJ_FREE/owornmask0 via recursive obfree. Existing JS do.discard_unreachable_levels records only a marker. Actual exported goto_level D:1 to Earth returned normally yet original dog66 and APPLE68 stayed linked to abandoned D:2, exact marker, no error, four actual More responses, 4958 copied RNG.",
+          "expectedBehavior": "Port complete dog.c discard_migrations in js/dog.js and wire its existing do.discard_unreachable_levels production caller at the exact source order. Keep Wizard OR In_endgame monster destinations and endgame object destinations; preserve every retained head/interior link. Remove others from global chains, null nmon/nobj before lifecycle operations, use canonical discard_minvent(mon,false,env), emits_light + del_light_source(LS_MONSTER,identity,state), dealloc_monst. Objects get OBJ_FREE and owornmask0 before real obfree(obj,null,env), recursively freeing contents/timers/light. Compose existing objectGenerationEnv with actual raw hooks/state to preserve canonical lifecycle; no fabricated noop or recursive updateInventory binding. Valid ownership invariants clear masks/lock/leash already as b4d732 shows. Wire sync/await semantics according to actual callees, preserving before destination assignment/arrival. Do not use mongone/m_detach, change migration/arrival guards, or broaden helper APIs. Actual full goto same primitive ORIGINAL dogID/appleID captured before deallocation must disappear from migration lists, dog truly deallocated/m_id0 and object OBJ_DELETED, null link/overloadmask cleared; real hero arrives Earth with no unknown input and restored handler. Whole-source helper controls independently cover retained Wizard/endgame destinations, list head/interior/end, canonical minvent/contents/timer/object+monster light lifecycle as applicable without fake providers.",
+          "units": [
+            "dog.c:discard_migrations"
+          ],
+          "allowedPaths": [
+            "js/dog.js",
+            "js/do.js",
+            "scripts/level-change.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/level-change.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/do.js",
+              "symbol": "discard_unreachable_levels",
+              "source": "C do.c cant_go_back cleanup after delete_levelfile/remdun_mapseen calls dog.discard_migrations before destination assignment/arrival; existing private helper is reached by real goto_level."
+            },
+            {
+              "path": "js/do.js",
+              "symbol": "goto_level",
+              "source": "Actual d6e8 normal exported D:1 to Earth terminal path passes canonical Amulet admission/keepdogs/savelev and reaches cleanup. No direct private-helper replacement for primary regression."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/dog.js",
+              "object": "03b2a3d6ef444156b8a2f970c3bce2b60960bc7e"
+            },
+            {
+              "path": "js/do.js",
+              "object": "0118dd30754e06c24a7319fe5d55678c7704f8b7"
+            },
+            {
+              "path": "scripts/level-change.test.mjs",
+              "object": "770f0d217735e354b80253a351f5f975760357ef"
+            },
+            {
+              "path": "js/mon.js",
+              "object": "a8967364ab0b77bdc92d76208b806e832792b914"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/light.js",
+              "object": "53ae84917b112d4519c494e0e574b04fc9246e38"
+            },
+            {
+              "path": "js/dungeon.js",
+              "object": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/worn.js",
+              "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+            },
+            {
+              "path": "js/lock.js",
+              "object": "341016582710d7636562bc6ba416e6768f9de988"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "actualResult": "d6e8ab8692ac058b492e5bf42fdb630f0405829ba6914477b7fb475a3661db33",
+            "actualEnvelopeSha256": "3325fb28a0029780282b32e5af4bdd168c65633969ebb6b7df58665c9f1e6b28",
+            "actualFixtureSha256": "2fc6cfcd6993e03e9106243e334dc0e9b9ce839449dc0d0725a3628c285ddbd9",
+            "actualCaptureSha256": "5dfe39bc1823bb761bc39c75099398a4d6d90ba5fea8f87825370d590bdfb2f8",
+            "lifecycleResult": "b4d732210994194d0fd6acc40900efbcb5d9d4cd9612781914c3552ea21b54cf",
+            "lifecycleEnvelopeSha256": "e448d57491577410c4bae00c1fb0fcefe508f0ed142806f1f16e34b120a8c736",
+            "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/discard-d6e8-actual-target-repair-source-review.json",
+            "independentReviewSha256": "827f787471b56459afdf3adc5191fcd18ab2da0acac7786ac297ac1b7876cd6c",
+            "mainReview": "Main verified result outer hashes/envelopes/all embedded lengths+hashes, full 7121-byte qualifier and actual primitive capture; read whole C discard_migrations, exact private do caller and real goto order, existing canonical lifecycle source/provider report. All 15 Git pins verified. Full parked seed4500 owner reviewed: original whole span closed, rare terminal callee remained named; narrow separate callee does not reopen it or claim its historical 241-screen bound.",
+            "limits": "Source-parity-runtime-pending only. No C/public input witness, novelty/source certification or synthetic gain. Preserve all original attempts and caps. Separate completed limbo source unit uses same original accepted base but different function/test; do not include its unaccepted commits or change its caller/admission. Main owns later compatible integration."
+          }
+        },
+        "reviewSha256": "dc9a458ed8c17d5974c7b4b5eb4f3dfad7dfb49f440f947dbdf3581a841b1112"
+      }
     }
   ]
 }

@@ -1593,3 +1593,98 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
 - Fountain qualification `9287095c` claimed 14:58:03.304 and completed 14:59:43.310 UTC after its one original-code invocation failed module resolution. Frozen fixture `61f9d7e4` lived at `.cache/fountain-fixed-input-target-qualification-20261018/fountain.test.mjs` but retained `../js/const.js`, resolving to absent `.cache/js/const.js`. No test body, constructor, fountain action, target, RNG or TTY was reached. Original attempts remain spent; this is not source refutation.
 - The retained `preflight.mjs` did run and report 97 named imports resolved. Its regex discarded the literal `../` and read `js/...` from repository cwd, so it checked intended root exports instead of the final fixture's actual ESM targets. Existing `new URL('../nethack-c/...', import.meta.url)` source reads have the same relocation problem. Source-pin/export checks alone do not establish final-path resolution. The static-audit prose includes a retrospective explanation despite its frozen-before heading; use the retained check implementation, final bytes and command receipt for the actual limit.
 - Earlier melt `3e1693e3` also spent an invocation on a relative import before startup; prior fountain `d6de7bf8` unbound names and `22c357bb` rejected flags were different binding/check failures. Here an audit was ineffective, rather than demonstrated omitted. Within the existing fixture audit, resolve literal imports and relative file URLs against the final fixture path, read those exact files and check their bindings before freezing. Do not substitute a guessed repository path, copied list or syntax-only verdict. This needs no additional worker phase, game import, gate, pipeline or historical retry. Work lead clarified the active melt task accordingly. Future recurrence reduction remains unmeasured.
+
+
+### 2026-10-18 — Noncontiguous units encoded as a primary range
+
+- Limbo delivery `a93a` represented its two reviewed units as
+  `context.functions=['losedogs','migrate_to_level']`. Delivery validation reads
+  those entries individually, but `goal-log.mjs:790` interprets first/last as
+  primary C range endpoints, adding intervening functions; sourceParity
+  registration then correctly rejected the expanded scope.
+- Work lead selected a linked metadata-only revision using existing support:
+  `functions=['losedogs']` and
+  `requiredFunctions=[{sourceFile:'dog.c',name:'migrate_to_level'}]`.
+  Preserve the original delivery and focused/lint bytes; no production edit,
+  source expansion, bypass or repeated game tests. Linked revision `027a`
+  progressed to hosted acceptance of candidate `43bb` at 17:09:52.836 UTC.
+  This is metadata friction, not failed runtime behavior evidence.
+
+### 2026-10-18 — State observers disagreed with their owners
+
+- Terminal qualifier `7421` read `state.u.invent`, while `invent.js:3032`
+  owns `state.invent`; actual `uhave.amulet=1` did not establish absent inventory.
+  Limbo's first postdraft test likewise read `after.gridOwns` instead of
+  `after.actor.gridOwns`; initial meaningful original red and the later
+  observer correction/final identical-byte red–green chronology remain distinct.
+- Outside-polyshock qualifier `97aea` stopped because its guard treated the
+  length of `[0,0,0,0,0]` as shop membership. Production checks the first value
+  (`shk.js:2461,3220`). Raw capture retains shop room 3, bounds x=3..5/y=7..10,
+  owner79, hero(67,4), `urooms[0]=12`, and zero shops. Main/Challenge review
+  corrected the original prose's inaccurate claim that this membership was
+  uncaptured. No wand, APPLE or callback ran; the spent miss is unchanged.
+- Existing state/provider audit should trace guards and copied observers to
+  actual owners/accessors and representations. Import/export validation and
+  `no-undef` do not establish those facts. No new rule, tooling, gate, pipeline
+  or physical allowance is proposed; follow-up selection remains Main-owned.
+
+- Follow-up: metadata-only linked revision `027a36b5` became ready at
+  16:59:48.369 UTC, received at 17:00:29.471, and an integration group began
+  at 17:01:10.546. Read-only `git diff` from original `a93a879a` to `027a36b5`
+  shows no change in `js/dog.js` or `scripts/dog-migrate.test.mjs`;
+  context/check references and a correction receipt changed, while original
+  process-registration logs remain in the original immutable revision.
+  Candidate `43bbcb33` validated at 17:09:07.422 and was accepted at
+  17:09:52.836 UTC. Publication remains separate; no source-completion
+  or public-parity certification follows.
+
+- Subsequent separately selected qualifier `466b63dd` passed membership/setup,
+  then its direct default `bhito` call drew non-shudder and failed before
+  replacement allocation on an incomplete RNG provider. Bounded source inquiry
+  `ce0b59e9` (17:08:00.050 UTC) found normal production callers supply the full
+  canonical RNG bundle. This corrects PA's initial adapter-gap classification:
+  the observed failure is a fixture/caller-contract omission, not established
+  normal production failure. Preserve both packets; no default widening/code,
+  retry or gameplay-history gate is proposed.
+
+
+### 2026-10-18 — Reused stale fixture restored a known rejected guard
+
+- New poly-replacement qualification `0e9b3502` completed at 17:16:45.457
+  UTC with a printed callback count of zero. Its command receipt records no
+  stdout redirection and a truncated interface response; exact terminal
+  stop/error and full state are unavailable. Preserve that uncertainty and
+  the spent invocation; no runtime guard, target or source refutation follows.
+- Static comparison of immutable envelopes identifies a concrete recurrence:
+  the new retained fixture hash `426b1026882eb0eb0fdf17e7ffd4f56c94a560aa25789703139360af81bcb448`
+  is the original `97aea` 16,706-byte script. The corrected `466b` fixture is
+  instead `ee2927a82ade1d47921dcfee78cb1b5da901a5aa6786269a88078f9b0e478aaa`.
+  New final hash `e1180276daa1450b49318937505f7a490a19ccdf2bde772e976af02313a413bb`
+  again rejects nonzero `ushops.length` at line 200, while corrected `466b`
+  uses `activeShopRooms()`. Known rejected source was therefore reintroduced,
+  even though missing capture prevents identifying the actual stopping guard.
+- Existing reuse/provenance practice should bind the selected predecessor
+  digest and exact fixture path/hash, preserving all reviewed corrections.
+  Existing full-capture instructions require retaining stdout/stderr files
+  through the frozen command, not relying on interface output. No new prose,
+  tooling, gate, pipeline or physical allowance is proposed; further work
+  remains Main-selected. How the worker chose the stale copy is unverified.
+
+
+### 2026-10-18 — Friction notes were added after the tested publication boundary
+
+- Work lead reports the first limbo publication refused newly appended
+  `.agents/friction.md`. Existing `task-handoff.mjs:90` permits only closure
+  reports in a dirty publication worktree; `checkpoint-reuse.mjs:9` lists five
+  bookkeeping files and does not include friction notes. This is document
+  placement outside the existing reuse contract, not a gameplay regression.
+- Work lead preserved its additions in Main
+  `.cache/resume-1439/friction-pending-next-checkpoint.md`, restored the exact
+  committed friction file, and retried publication. Carry the isolated notes
+  into the next candidate BEFORE its full checkpoint. No allowlist change,
+  gate weakening or gameplay rerun is needed. Retry/publication outcome is
+  pending observation; exact first-refusal time was not separately frozen here.
+
+- Retry outcome: the ledger records limbo publication `2f856577` at
+  17:16:57.215 UTC. Normal CI is a separate follow-up, not independently
+  rerun or certified by PA. Pending notes stay for the next full checkpoint.
