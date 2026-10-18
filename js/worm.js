@@ -118,12 +118,12 @@ export function see_wsegs(worm, rawEnv = {}) {
     const segments = state.level?.worms?.[worm?.wormno]?.segments ?? [];
     for (let index = 0; index < segments.length - 1; ++index) {
         const { x, y } = segments[index];
-        if (typeof env.hooks?.newsym === 'function') {
+        if (typeof env.redraw === 'function') {
+            env.redraw(x, y, state);
+        } else if (typeof env.hooks?.newsym === 'function') {
             env.hooks.newsym(x, y, env);
         } else if (typeof env.newsym === 'function') {
             env.newsym(x, y, state);
-        } else if (typeof env.redraw === 'function') {
-            env.redraw(x, y, state);
         } else if (state === game) {
             newsym(x, y);
         } else {

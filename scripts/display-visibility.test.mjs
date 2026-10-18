@@ -171,13 +171,25 @@ test('see_monsters repaints a live worm head then each tail without touching dea
 
     const calls = [];
     const redraw = (x, y, actualState) => calls.push([x, y, actualState]);
-    see_monsters(state, { redraw, planning: true });
+    let inheritedRedraws = 0;
+    const inherited = () => {
+        ++inheritedRedraws;
+        assert.fail('the selected display repaint must own clone worm tails');
+    };
+    see_monsters(state, {
+        redraw,
+        planning: true,
+        newsym: inherited,
+        hooks: { newsym: inherited },
+    });
 
     assert.deepEqual(calls.map(([x, y]) => [x, y]), [
         [4, 2], [3, 1], [3, 2], [3, 3], [4, 3], [2, 2],
     ]);
     assert.ok(calls.every(([, , actualState]) => actualState === state),
         'explicit clone repaint stays on the selected state');
+    assert.equal(inheritedRedraws, 0,
+        'inherited display hooks cannot override the selected repaint');
     const beforeDeferred = calls.length;
     state.gd = { defer_see_monsters: true };
     see_monsters(state, { redraw, planning: true });

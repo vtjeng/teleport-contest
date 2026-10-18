@@ -1,0 +1,1 @@
+node --test scripts/worm.test.mjs scripts/display-visibility.test.mjs scripts/worn.test.mjs scripts/monmove-items.test.mjs

@@ -1,0 +1,215 @@
+✔ display.c visibility helpers preserve invisibility and infrared rules (1.155907ms)
+✔ display.c telepathy and sensemon retain range and source gates (0.49895ms)
+✔ display.c MATCH_WARN_OF_MON and worm_known feed the canonical callers (0.263045ms)
+✖ see_monsters repaints a live worm head then each tail without touching dead or arriving monsters (2.22507ms)
+✔ monster item preference preserves carry, identity, and material gates (8.707109ms)
+✔ monster corpse consumption excludes petrifying corpses (3.389606ms)
+✔ postmov object selection follows consume then pickup order (5.192847ms)
+✔ postmov object selection reports the carryable amount, not the stack (2.317994ms)
+✔ postmov object selection preserves inert object and shop draws (2.686256ms)
+✖ postmov redraws invisible worm tails after eligible object handling only (6.48867ms)
+✔ m_search_items ignores rocks and reports an own-square selection (4.039818ms)
+✔ m_search_items retains the last equal-distance x-major candidate (2.793257ms)
+✔ m_search_items skips prize and charged shop merchandise (2.684534ms)
+✔ m_search_items clears a known trapped goal before line filtering (2.852622ms)
+✔ m_search_items reverses flight after its source radius reduction (2.1393ms)
+✔ m_search_items spends the shop draw before the shopkeeper check (1.536051ms)
+✔ get_wormno skips slot zero and returns the first free tail slot (1.577967ms)
+✔ count_wsegs excludes the hidden head node stored at the list end (0.323076ms)
+✔ worm_move exposes the old head, grows, and applies segment HP growth (1.905819ms)
+✔ worm_move scales later growth time by source monster movement speed (0.700273ms)
+✔ worm_move shifts the tail and redraws it when the growth clock is ahead (0.591815ms)
+✔ create_worm_tail makes num_segs plus one zeroed linked-list nodes (0.588818ms)
+✔ initworm owns its default and injected level state and resets its clock (0.952251ms)
+✔ wseg_at counts from the hidden head toward the tail only on worm occupancy (0.427733ms)
+✔ cutworm shrinks the first segment after the source cut chance passes (1.008749ms)
+✔ cutworm discards a split tail when no worm slot remains (2.071252ms)
+✔ wormhitu attacks every nearby visible tail and excludes distant tail and head (0.800587ms)
+✔ wormhitu propagates attacker death and stops before another nearby tail (0.297694ms)
+✔ mon_adjust_speed applies every permanent case and worn FAST override (4.717156ms)
+✔ mon_adjust_speed messages witnessed changes and learns their object (3.674707ms)
+✔ find_mac answers the species armor class for a bare monster (1.613704ms)
+✔ find_mac subtracts ARM_BONUS for each slot misc_worn_check names (1.484322ms)
+✔ find_mac ignores inventory outside misc_worn_check (1.276953ms)
+✔ find_mac gives an amulet of guarding a fixed two points (1.345713ms)
+✔ find_mac sums every worn slot across a chained inventory (1.601094ms)
+✔ find_mac caps the result at AC_MAX (1.445843ms)
+✔ which_armor answers the first minvent object worn in a queried slot (1.551715ms)
+✔ which_armor answers the hero from the uarm* slots, not from minvent (1.566185ms)
+✔ extract_from_minvent frees an unequipped object and leaves gear alone (1.956728ms)
+✔ extract_from_minvent clears an equipped slot and reschedules gear (2.527097ms)
+✔ extract_from_minvent skips update_mon_extrinsics on two conditions (2.252605ms)
+✔ extract_from_minvent uses the canonical extrinsic owner by default (5.629982ms)
+✔ extract_from_minvent unwields a weapon and ends an armor artifact light (4.974505ms)
+✔ extract_from_minvent waits for canonical wielded-light cleanup (8.351414ms)
+✔ extract_from_minvent rejects an object outside a monster inventory (2.597695ms)
+✔ setuwep marks a launcher, ammunition and a missile as no weapon (19.827933ms)
+✔ setuwep marks a polearm as no weapon only while the hero is afoot (2.762723ms)
+✔ wearslot preserves every source equipment category mask (1.382821ms)
+✔ clear_bypasses walks nested and floating object owners (0.548272ms)
+✔ clear_bypasses without an argument uses the canonical game state (0.1176ms)
+✔ setuwep ends an old artifact light only when that weapon burns (4.002686ms)
+✔ mon_set_minvis preserves blocked state and names discarded display gaps (0.196601ms)
+✖ mon_set_minvis redraws a clone worm head then each tail through its explicit callback (1.592541ms)
+✖ ordinary make-invisible zap clears every long-worm tail at its command boundary (141.836581ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 50
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1288.488489
+
+✖ failing tests:
+
+test at scripts/display-visibility.test.mjs:150:1
+✖ see_monsters repaints a live worm head then each tail without touching dead or arriving monsters (2.22507ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        4,
+        2
+      ],
+      [
+  -     3,
+  -     1
+  -   ],
+  -   [
+  -     3,
+        2,
+  -   ],
+  -   [
+  -     3,
+  -     3
+  -   ],
+  -   [
+  -     4,
+  -     3
+  -   ],
+  -   [
+        2,
+  -     2
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/display-visibility.test.mjs:186:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 4, 2 ], [ 2, 2 ] ],
+    expected: [ [ 4, 2 ], [ 3, 1 ], [ 3, 2 ], [ 3, 3 ], [ 4, 3 ], [ 2, 2 ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/monmove-items.test.mjs:343:1
+✖ postmov redraws invisible worm tails after eligible object handling only (6.48867ms)
+  AssertionError [ERR_ASSERTION]: postmov repaints the head and linked tail after checking objects
+  + actual - expected
+  
+    [
+      [
+  +     9,
+        10,
+  -     10
+      ],
+      [
+  +     10,
+  +     10
+  -     7,
+  -     9
+      ],
+      [
+  -     8,
+  -     9
+  -   ],
+  -   [
+  -     9,
+  -     9
+  -   ],
+  -   [
+  -     9,
+        10,
+  +     10
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/monmove-items.test.mjs:388:20)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 9, 10 ], [ 10, 10 ], [ 10, 10 ] ],
+    expected: [ [ 10, 10 ], [ 7, 9 ], [ 8, 9 ], [ 9, 9 ], [ 9, 10 ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/worn.test.mjs:879:1
+✖ mon_set_minvis redraws a clone worm head then each tail through its explicit callback (1.592541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   [
+  -     7,
+  -     6
+  -   ],
+  -   [
+  -     4,
+  -     5
+  -   ],
+  -   [
+  -     5,
+  -     5
+  -   ],
+  -   [
+  -     6,
+  -     5
+  -   ],
+  -   [
+  -     6,
+  -     6
+  -   ]
+  - ]
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/worn.test.mjs:909:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ [ 7, 6 ], [ 4, 5 ], [ 5, 5 ], [ 6, 5 ], [ 6, 6 ] ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/worn.test.mjs:920:1
+✖ ordinary make-invisible zap clears every long-worm tail at its command boundary (141.836581ms)
+  AssertionError [ERR_ASSERTION]: stale worm glyph at (67, 12) in immediate full-command display
+  
+  330 !== 3992
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/worn.test.mjs:1001:20)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 330,
+    expected: 3992,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

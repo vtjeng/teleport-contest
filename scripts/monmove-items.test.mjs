@@ -367,6 +367,14 @@ test('postmov redraws invisible worm tails after eligible object handling only',
                     message: async () => {},
                     norepMessage: async () => {},
                     random: { rn2: bound => assert.fail(`unexpected rn2(${bound})`) },
+                    newsym: () => assert.fail(
+                        'inherited newsym cannot override postmov repaint ownership',
+                    ),
+                    hooks: {
+                        newsym: () => assert.fail(
+                            'inherited hook cannot override postmov repaint ownership',
+                        ),
+                    },
                     redraw: (x, y) => redraws.push([x, y]),
                     unsupported: () => assert.fail('unexpected unsupported operation'),
                 },

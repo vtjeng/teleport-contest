@@ -1,0 +1,124 @@
+✔ display.c visibility helpers preserve invisibility and infrared rules (1.694757ms)
+✔ display.c telepathy and sensemon retain range and source gates (0.765483ms)
+✔ display.c MATCH_WARN_OF_MON and worm_known feed the canonical callers (0.39967ms)
+✖ see_monsters repaints a live worm head then each tail without touching dead or arriving monsters (2.684023ms)
+✔ monster item preference preserves carry, identity, and material gates (5.866705ms)
+✔ monster corpse consumption excludes petrifying corpses (2.091561ms)
+✔ postmov object selection follows consume then pickup order (4.61168ms)
+✔ postmov object selection reports the carryable amount, not the stack (1.576915ms)
+✔ postmov object selection preserves inert object and shop draws (1.796731ms)
+✖ postmov redraws invisible worm tails after eligible object handling only (4.23843ms)
+✔ m_search_items ignores rocks and reports an own-square selection (2.556244ms)
+✔ m_search_items retains the last equal-distance x-major candidate (1.711294ms)
+✔ m_search_items skips prize and charged shop merchandise (2.205774ms)
+✔ m_search_items clears a known trapped goal before line filtering (2.019751ms)
+✔ m_search_items reverses flight after its source radius reduction (1.427688ms)
+✔ m_search_items spends the shop draw before the shopkeeper check (1.490872ms)
+✔ get_wormno skips slot zero and returns the first free tail slot (1.598321ms)
+✔ count_wsegs excludes the hidden head node stored at the list end (0.346196ms)
+✔ worm_move exposes the old head, grows, and applies segment HP growth (1.742866ms)
+✔ worm_move scales later growth time by source monster movement speed (0.534103ms)
+✔ worm_move shifts the tail and redraws it when the growth clock is ahead (0.580797ms)
+✔ create_worm_tail makes num_segs plus one zeroed linked-list nodes (0.315517ms)
+✔ initworm owns its default and injected level state and resets its clock (0.747738ms)
+✔ wseg_at counts from the hidden head toward the tail only on worm occupancy (0.492169ms)
+✔ cutworm shrinks the first segment after the source cut chance passes (0.852665ms)
+✔ cutworm discards a split tail when no worm slot remains (1.202328ms)
+✔ wormhitu attacks every nearby visible tail and excludes distant tail and head (0.557268ms)
+✔ wormhitu propagates attacker death and stops before another nearby tail (0.257637ms)
+✔ mon_adjust_speed applies every permanent case and worn FAST override (4.849262ms)
+✔ mon_adjust_speed messages witnessed changes and learns their object (3.891079ms)
+✔ find_mac answers the species armor class for a bare monster (1.535938ms)
+✔ find_mac subtracts ARM_BONUS for each slot misc_worn_check names (1.662092ms)
+✔ find_mac ignores inventory outside misc_worn_check (1.32829ms)
+✔ find_mac gives an amulet of guarding a fixed two points (1.327894ms)
+✔ find_mac sums every worn slot across a chained inventory (1.710228ms)
+✔ find_mac caps the result at AC_MAX (1.629073ms)
+✔ which_armor answers the first minvent object worn in a queried slot (1.665281ms)
+✔ which_armor answers the hero from the uarm* slots, not from minvent (1.597996ms)
+✔ extract_from_minvent frees an unequipped object and leaves gear alone (1.928028ms)
+✔ extract_from_minvent clears an equipped slot and reschedules gear (2.700003ms)
+✔ extract_from_minvent skips update_mon_extrinsics on two conditions (2.254897ms)
+✔ extract_from_minvent uses the canonical extrinsic owner by default (4.072626ms)
+✔ extract_from_minvent unwields a weapon and ends an armor artifact light (4.99507ms)
+✔ extract_from_minvent waits for canonical wielded-light cleanup (9.09318ms)
+✔ extract_from_minvent rejects an object outside a monster inventory (3.642827ms)
+✔ setuwep marks a launcher, ammunition and a missile as no weapon (23.765835ms)
+✔ setuwep marks a polearm as no weapon only while the hero is afoot (4.133154ms)
+✔ wearslot preserves every source equipment category mask (1.448356ms)
+✔ clear_bypasses walks nested and floating object owners (0.417046ms)
+✔ clear_bypasses without an argument uses the canonical game state (0.106902ms)
+✔ setuwep ends an old artifact light only when that weapon burns (4.094591ms)
+✔ mon_set_minvis preserves blocked state and names discarded display gaps (0.264649ms)
+✖ mon_set_minvis redraws a clone worm head then each tail through its explicit callback (1.049448ms)
+✔ ordinary make-invisible zap clears every long-worm tail at its command boundary (162.580521ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 51
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1391.330196
+
+✖ failing tests:
+
+test at scripts/display-visibility.test.mjs:150:1
+✖ see_monsters repaints a live worm head then each tail without touching dead or arriving monsters (2.684023ms)
+  AssertionError [ERR_ASSERTION]: the selected display repaint must own clone worm tails
+      at Object.inherited [as newsym] (file:///workspace/teleport-contest-worker2-recovery/scripts/display-visibility.test.mjs:177:16)
+      at see_wsegs (file:///workspace/teleport-contest-worker2-recovery/js/worm.js:122:23)
+      at see_monsters (file:///workspace/teleport-contest-worker2-recovery/js/display.js:4081:13)
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/display-visibility.test.mjs:179:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at scripts/monmove-items.test.mjs:343:1
+✖ postmov redraws invisible worm tails after eligible object handling only (4.23843ms)
+  AssertionError [ERR_ASSERTION]: inherited hook cannot override postmov repaint ownership
+      at Object.newsym (file:///workspace/teleport-contest-worker2-recovery/scripts/monmove-items.test.mjs:374:46)
+      at see_wsegs (file:///workspace/teleport-contest-worker2-recovery/js/worm.js:122:23)
+      at postmov (file:///workspace/teleport-contest-worker2-recovery/js/monmove.js:3624:21)
+      at async run (file:///workspace/teleport-contest-worker2-recovery/scripts/monmove-items.test.mjs:361:29)
+      at async TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/monmove-items.test.mjs:386:55)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at scripts/worn.test.mjs:879:1
+✖ mon_set_minvis redraws a clone worm head then each tail through its explicit callback (1.049448ms)
+  AssertionError [ERR_ASSERTION]: the selected worn repaint must own clone worm tails
+      at Object.inherited [as newsym] (file:///workspace/teleport-contest-worker2-recovery/scripts/worn.test.mjs:896:40)
+      at see_wsegs (file:///workspace/teleport-contest-worker2-recovery/js/worm.js:122:23)
+      at mon_set_minvis (file:///workspace/teleport-contest-worker2-recovery/js/worn.js:511:17)
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/worn.test.mjs:900:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }

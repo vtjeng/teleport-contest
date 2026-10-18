@@ -1,0 +1,4 @@
+9c495d4af9e7a28d1d228f8e537442b9b9965c8ecda6f058435500d19b596662  scripts/worm.test.mjs
+06c7c02cf85944a680f3acb81a499789bff832fa7106ae34c9e3b9960e72b817  scripts/display-visibility.test.mjs
+a0513302aa48e988668120541dd0e37cce04c4b84181be8e4047b164f02a0a58  scripts/worn.test.mjs
+d3682a6c9eeff311c62888e48ba00c0dc5690207f7ef558ca3e614552431ff4e  scripts/monmove-items.test.mjs

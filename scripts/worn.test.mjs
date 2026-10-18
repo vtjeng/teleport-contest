@@ -893,10 +893,15 @@ test('mon_set_minvis redraws a clone worm head then each tail through its explic
             { x: 6, y: 6 }, { x: 7, y: 6 },
         ] };
         const calls = [];
+        const inherited = () => assert.fail(
+            'the selected worn repaint must own clone worm tails',
+        );
 
         mon_set_minvis(worm, false, state, {
             planning: true,
             redraw: (x, y, actualState) => calls.push([x, y, actualState]),
+            newsym: inherited,
+            hooks: { newsym: inherited },
         });
 
         assert.equal(worm.perminvis, 1);
