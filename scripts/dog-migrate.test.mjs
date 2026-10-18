@@ -573,7 +573,7 @@ test('ordinary failed arrival returns through limbo migration', async () => {
         assert.deepEqual([actor.mux, actor.muy],
             [currentLevel.dnum, currentLevel.dlevel], JSON.stringify(after));
         assert.equal(actor.mlstmv, game.moves, JSON.stringify(after));
-        assert.equal(after.gridOwns, false);
+        assert.equal(after.actor.gridOwns, false);
         assert.equal(after.marker, false, JSON.stringify(after));
         assert.equal(after.rngCalls, 457, JSON.stringify(after));
     } finally {

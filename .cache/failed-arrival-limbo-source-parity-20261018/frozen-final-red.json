@@ -1,0 +1,14 @@
+{
+  "task": "fix-failed-arrival-limbo-source-parity-20261018",
+  "base": "41833ac39bde296803966c7eaa8408f4f613548d",
+  "testPath": "scripts/dog-migrate.test.mjs",
+  "testSha256": "a126e2beab60f463985cc0d87f0bb87ee1ab85f7bd09324559e16179b842cf54",
+  "command": [
+    "node",
+    "--test",
+    "scripts/dog-migrate.test.mjs"
+  ],
+  "productionPath": "js/dog.js",
+  "originalProductionSha256": "4d1be481438a7bc92e12661be6b93705acc3bb3685a8c04e2b89fdf464b1e6ea",
+  "phase": "final-test-freeze-v2-before-original-code-red; original bytes restored by object hash for this run"
+}
