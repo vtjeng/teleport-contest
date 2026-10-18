@@ -327701,7 +327701,7 @@
     {
       "id": "fix-shop-damage-getcad-pursuit-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement getcad, pay_for_damage from shk.c",
       "cFile": "shk.c",
       "sessions": [],
@@ -327709,7 +327709,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "b8355d2f228fe5c398fff74103e92d529cad5df0",
       "delivered": null,
       "functions": [
         {
@@ -327826,6 +327826,84 @@
           ]
         },
         "reviewSha256": "52100e69bf730d578a7764b6f9994277854a3f2161bef0c0c77c7d62090ffdc8"
+      },
+      "closeStanding": {
+        "sha": "b8355d2f228fe5c398fff74103e92d529cad5df0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "ab7ae9b714e29a9d17e2b4dca2f826858da71e24",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/b8355d2f228fe5c398fff74103e92d529cad5df0/run-hosted-eK3gwh/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "getcad",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "getcad",
+            "sourceReview": "Read the complete C shk.c:getcad (5138-5176) and its helpers: dugwall selector, mute/animal/helpless yelp, near-vs-far and deaf-vs-hearing output branch, voice setup and noit_mhis pronoun RNG order, then unconditional hot_pursuit last. JS preserves branch/order/default message and rn2 providers and awaits yelp, verbalize, and pursuit; no helpers or providers expanded.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "pay_for_damage",
+                "source": "C three guarded getcad sites after outside-keeper, inshop-pursue and common failure guards; all are currently skipped markers+return. Actual77a2 qualifies near/outside zero-money common guard, real mnearto and canonical default entry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "pay_for_damage",
+            "sourceFile": "shk.c",
+            "implementation": "js/shk.js",
+            "symbol": "pay_for_damage",
+            "sourceReview": "Read the full C shk.c:pay_for_damage (5174-5346) and three getcad call sites. Replaced only the skipped getcad calls with awaited whole helper invocations and the same full state/env; existing first-slot, selection, customer, early anger, outside mnearto/inshop mnexto, guards, payment/decline ordering and returns remain unchanged.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "pay_for_damage",
+                "source": "C three guarded getcad sites after outside-keeper, inshop-pursue and common failure guards; all are currently skipped markers+return. Actual77a2 qualifies near/outside zero-money common guard, real mnearto and canonical default entry."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "zap_dig",
+                "source": "Existing source caller records real damage and awaits pay_for_damage for normal lateral wall/door damage."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "Existing source caller records the canonical SHOP_DOOR_COST and awaits pay_for_damage(\"break\", false, state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "The focused regression boots a canonical initialized game, uses the accepted fixed seed/date/RC, actual first-slot shop and keeper, canonical teleds and add_damage, then invokes the exported default pay_for_damage exactly once. It reaches getcad through the common insufficient-money guard and verifies actual movement/accounting/pursuit/reproach. This is a focused source-parity runtime claim, not public-input or whole-source certification.",
+        "entryPoints": [
+          {
+            "name": "default pay_for_damage near-door insufficient-funds branch",
+            "functions": [
+              "getcad",
+              "pay_for_damage"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
