@@ -1,0 +1,52 @@
+{
+  "schema": "billed-boulder-door-exit-chronology/v1",
+  "task": "fix-billed-boulder-door-exit-source-parity-20261018",
+  "base": "88106737fbb254b33508fc30d413841493790798",
+  "finalTestSha256": "db1706903e2d93fa2a778fb174fe53dd48b7fe7b51931ce61fd6ae3b4f258fb6",
+  "finalSourceSha256": "14b495d95e73440d2b6eaadecade34c66fee9d93684a8705ab27c1a25c686db8",
+  "fixtureSha256": "8f9966e0875dd0e26dfb881adbd74f0e574e75cf59082906de3ec7e6ec4e3820",
+  "runs": [
+    {
+      "directory": ".cache/billed-boulder-door-exit-run-2UX3Re",
+      "receiptSha256": "6b896108674c4f6c85d7bf40336a09b743c8214f8366d9abd2f016e65546ee27",
+      "afterTargetSha256": "bfc89a4486cdc7000e17ef1bb455e76fadecf709d1ac383954dc75a5ac725c5a",
+      "exitCode": "0"
+    },
+    {
+      "directory": ".cache/billed-boulder-door-exit-run-pDX9pj",
+      "receiptSha256": "6b896108674c4f6c85d7bf40336a09b743c8214f8366d9abd2f016e65546ee27",
+      "afterTargetSha256": "bfc89a4486cdc7000e17ef1bb455e76fadecf709d1ac383954dc75a5ac725c5a",
+      "exitCode": "0"
+    },
+    {
+      "directory": ".cache/billed-boulder-door-exit-run-xePEbN",
+      "receiptSha256": "59ca9e23daf9a78cb09f0db9ab7afa711de4e6f5c2efad3c0a56f094fafe6186",
+      "afterTargetSha256": "4b49306516c9f6f20f109c098c169e102f0a3f4a15c4f6ba6de6419cad8fd8af",
+      "exitCode": "2"
+    },
+    {
+      "directory": ".cache/billed-boulder-door-exit-run-yWl43a",
+      "receiptSha256": "59ca9e23daf9a78cb09f0db9ab7afa711de4e6f5c2efad3c0a56f094fafe6186",
+      "afterTargetSha256": "4b49306516c9f6f20f109c098c169e102f0a3f4a15c4f6ba6de6419cad8fd8af",
+      "exitCode": "2"
+    }
+  ],
+  "checks": {
+    "finalOriginalRed": {
+      "stdout": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-original-red.stdout",
+      "stderr": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-original-red.stderr",
+      "exit": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-original-red.exit"
+    },
+    "finalGreen": {
+      "stdout": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-green.stdout",
+      "stderr": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-green.stderr",
+      "exit": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-green.exit"
+    },
+    "finalLint": {
+      "stdout": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-lint.stdout",
+      "stderr": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-lint.stderr",
+      "exit": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-lint.exit"
+    }
+  },
+  "chronologyCaveat": "Final test observer correction was approved by Main after first production draft. First post-draft observer-failure raw output was overwritten by later final-green output before copying; it is unavailable as raw. The transcript reconstruction is labeled, and the distinct xePEbN runtime receipt remains supporting evidence. The final corrected test was then frozen, red against unchanged base, and green against the repaired source. The copied child fixture exits 2 after repair because its retained previous-task classification encodes the original unpaid result; the final regression checks source-required state directly and outer test command exits 0."
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "billed-boulder-door-exit-qualification/v1",
+  "phase": "single actual test_move DO_MOVE",
+  "targetInvocationCount": 1,
+  "targetCall": "fulfilled",
+  "targetError": null,
+  "testMoveReturned": true,
+  "boulder": {
+    "id": 101,
+    "otyp": 475,
+    "x": 7,
+    "y": 10,
+    "where": 1,
+    "unpaid": false
+  },
+  "keeperId": 79,
+  "billRows": [],
+  "hero": {
+    "x": 5,
+    "y": 10
+  },
+  "billct": 0,
+  "credit": 0,
+  "debit": 5,
+  "robbed": 0
+}

@@ -461,6 +461,7 @@ import {
     block_door,
     block_entry,
     costly_spot,
+    find_objowner,
     onshopbill,
     pay_for_damage,
     shop_keeper,
@@ -2308,8 +2309,12 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
         && (shkp = shop_keeper(in_rooms(rx, ry, SHOPBASE, state)[0], state))
         && onshopbill(otmp, shkp, true)) {
         subfrombill(otmp, shkp, state, env);
-    } else if (otmp.unpaid) {
-        note_unported('shk.c find_objowner/stolen_value');
+    } else if (otmp.unpaid
+        && (shkp = find_objowner(otmp, sx, sy, state))
+        && !in_rooms(rx, ry, SHOPBASE, state).includes(
+            shkp.mextra.eshk.shoproom,
+        )) {
+        await stolen_value(otmp, sx, sy, true, false, state);
     }
 }
 

@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=dopush settles a billed boulder immediately after its owner shop exit",
+      "scripts/hero-boulder-push.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-billed-boulder-door-exit-source-parity-20261018/final-green.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-billed-boulder-door-exit-source-parity-20261018/final-lint.log"
+  }
+]

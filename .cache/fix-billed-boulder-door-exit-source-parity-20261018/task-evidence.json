@@ -1,0 +1,129 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-billed-boulder-door-exit-source-parity-20261018",
+    "assignmentBase": "88106737fbb254b33508fc30d413841493790798",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "88106737fbb254b33508fc30d413841493790798",
+      "authorization": "Standing source-parity runtime-pending authorization. Main selects NEW <=15min narrow WHOLE dopush repair after actual be4ee exact canonical test_move target and independent Main/CL whole C/JS/default helper review. All v62/v41/6eee/86e and other physical/source caps stay separately spent; no additional qualification or public history gate.",
+      "currentBehavior": "Actual be4ee sole exact15576B8f9966 invocation: canonical initialized shop3/peaceful keeper79 relocated4,8, hero5,10; billed floor BOULDER101 at door6,10 ($5 row), real test_move DO_MOVE moves it to exterior7,10. Same owner/bill/unpaid remains, debit0, exact combined missing marker. Hero unchanged; no domove/u_left_shop. Raw before/after/prefixes and copied2577 RNG/3More/restored/noerrors retained. JS dopush final arm skips existing find_objowner/stolen_value; two preceding billing arms are already implemented.",
+      "expectedBehavior": "Preserve WHOLE C hack.c dopush166-241 feedback throttle, message/strength, source movement and blind/newsym ordering, first free-spot addtobill and second returning-inside subfrombill arms. Final else-if must require unpaid, actual find_objowner(otmp,sx,sy,state), and destination in_rooms excludes owner ESHK.shoproom; then await existing stolen_value(otmp,sx,sy,true,false,state) in exact source order after movement. Add existing find_objowner import only; stolen_value already imported. No shk/helper/provider edits. For exact actual snapshot same floor boulder at7,10, bill/unpaid removed and source debit5 through existing pricing/account/message path before hero movement. Preserve source controls that stay inside owner or return inside. Later u_left_shop remains separate possible compensation, no whole-command/public parity/source certification.",
+      "units": [
+        "hack.c:dopush"
+      ],
+      "allowedPaths": [
+        "js/hack.js",
+        "scripts/hero-boulder-push.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/hero-boulder-push.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/hack.js",
+          "symbol": "moverock_core",
+          "source": "Both source C moverock dopush calls already await current private dopush in same JS owner; no signature/helper expansion."
+        },
+        {
+          "path": "js/hack.js",
+          "symbol": "test_move",
+          "source": "Actual exported be4ee call with DO_MOVE and canonical set_move_cmd owns full default movement/vision/billing entry before hero coordinate commit."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/hack.js",
+          "object": "67ec67360eebbaab081ad9faf431ca934d87d7cb"
+        },
+        {
+          "path": "scripts/hero-boulder-push.test.mjs",
+          "object": "e502e6eb8d8043200d1142d5933a69ab67ba412c"
+        },
+        {
+          "path": "js/shk.js",
+          "object": "53df2906a2d31d975aae651fc905186113423c74"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/mkroom.js",
+          "object": "8e6d10b8dd5ca1dbdbc6b8062af950da7d23c778"
+        },
+        {
+          "path": "js/mklev.js",
+          "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+        },
+        {
+          "path": "js/teleport.js",
+          "object": "eb7790101224158e28ada929eff408139a71aadd"
+        },
+        {
+          "path": "js/cmd.js",
+          "object": "74600753d452ebee099f2764f6c54ac38de36e3f"
+        },
+        {
+          "path": "js/rooms.js",
+          "object": "d35e27a3d2d100dbd69b1d4e2f92192dc91dae39"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        }
+      ]
+    },
+    "reviewSha256": "d8aa011355fbe138e82e3cd278db7a051d7d9c33e126a07670542005ff9dfa25"
+  },
+  "functions": [
+    {
+      "name": "dopush",
+      "sourceFile": "hack.c",
+      "implementation": "js/hack.js",
+      "symbol": "dopush",
+      "sourceReview": "Matches hack.c:dopush (165-241) final unpaid owner-shop exit arm: after movement, find_objowner at the source coordinates and require the destination room list to exclude that owner shop before awaiting the existing stolen_value with the original C arguments. Existing feedback, movement, addtobill, and subfrombill ordering remains intact.",
+      "pure": false,
+      "tests": [
+        "scripts/hero-boulder-push.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "recordings": [],
+  "sessions": [],
+  "notes": [
+    "Runtime-pending scoped source parity only. The frozen actual default test_move fixture verifies the target and its immediate owner accounting; no public whole-turn or source-completeness certification is claimed."
+  ]
+}

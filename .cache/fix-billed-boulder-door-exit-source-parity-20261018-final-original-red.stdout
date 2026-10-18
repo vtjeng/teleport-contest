@@ -1,0 +1,30 @@
+✖ dopush settles a billed boulder immediately after its owner shop exit (667.194896ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1375.71066
+
+✖ failing tests:
+
+test at scripts/hero-boulder-push.test.mjs:726:1
+✖ dopush settles a billed boulder immediately after its owner shop exit (667.194896ms)
+  AssertionError [ERR_ASSERTION]: the immediate exit accounting clears unpaid
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/hero-boulder-push.test.mjs:767:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

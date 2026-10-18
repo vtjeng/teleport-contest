@@ -1,0 +1,172 @@
+{
+  "schema": "billed-boulder-door-exit-qualification/v1",
+  "phase": "single actual test_move DO_MOVE",
+  "fixedInput": {
+    "seed": 2026101801,
+    "datetime": "20261018120000",
+    "nethackrc": "OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+    "moves": ""
+  },
+  "expectedC": {
+    "path": "hack.c:dopush",
+    "condition": "unpaid boulder moved from shop-owned door square to a non-costly square outside the original owner shop; stolen_value removes bill and applies peaceful keeper accounting"
+  },
+  "result": "incomplete",
+  "targetInvocationCount": 1,
+  "acknowledgements": [
+    {
+      "screen": "Hello ShopFireFixture, welcome to NetHack!  You are a lawful male human\nArcheologist.--More--\n\n\u001b[64C----------\n\u001b[64C|........|\n\u001b[64C|.\u001b[97m@\u001b[39m......|\n\u001b[64C|.......\u001b[36m[\u001b[39m|\n\u001b[64C|........|\n\u001b[64C|........|\n\u001b[64C|........|\n\u001b[64C---.------\n\n\n\n\n\n\n\n\n\n\n\nShopFireFixture the Digger     St:11 Dx:10 Co:10 In:15 Wi:18 Ch:11 Lawful\nDlvl:1 $:0 HP:13(13) Pw:2(2) AC:9 Xp:1",
+      "toplin": 1,
+      "topMessage": "Hello ShopFireFixture, welcome to NetHack!  You are a lawful male human Archeologist.",
+      "waitEpoch": 1,
+      "inputQueueLength": 0
+    },
+    {
+      "screen": "You materialize in a different location!--More--\n\n\n\u001b[64C----------\n\u001b[64C|........|\n\u001b[64C|.\u001b[93m<\u001b[39m......|\n\u001b[64C|.......\u001b[36m[\u001b[39m|\n -----                                                          |........|\n |\u001b[36m(\u001b[39m].|                                                          |........|\n |\u001b[33m%\u001b[97m@\u001b[39m.|                                                          |........|\n |\u001b[36m[!\u001b[33m(\u001b[39m|                                                          ---.------\n |\u001b[97m??@\u001b[33m-\u001b[39m\n -----\n\n\n\n\n\n\n\n\n\nShopFireFixture the Digger     St:11 Dx:10 Co:10 In:15 Wi:18 Ch:11 Lawful\nDlvl:1 $:0 HP:13(13) Pw:2(2) AC:9 Xp:1",
+      "toplin": 1,
+      "topMessage": "You materialize in a different location!",
+      "waitEpoch": 2,
+      "inputQueueLength": 0
+    }
+  ],
+  "errors": [],
+  "started": true,
+  "room": {
+    "index": 0,
+    "roomno": 3,
+    "rtype": 14,
+    "bounds": {
+      "lx": 3,
+      "hx": 5,
+      "ly": 7,
+      "hy": 10
+    },
+    "doorct": 1,
+    "fdoor": 0,
+    "door": {
+      "x": 6,
+      "y": 10
+    },
+    "doorType": 23,
+    "doorMask": 2,
+    "home": {
+      "x": 5,
+      "y": 10
+    },
+    "exterior": {
+      "x": 7,
+      "y": 10
+    },
+    "roomContainsDoor": [
+      3
+    ],
+    "roomContainsExterior": [],
+    "keeperTarget": {
+      "x": 4,
+      "y": 8
+    },
+    "keeper": {
+      "id": 79,
+      "peaceful": true,
+      "alive": true,
+      "inhishop": null,
+      "shoproom": 3,
+      "homeFromESHK": {
+        "x": 5,
+        "y": 10
+      }
+    },
+    "initialHero": {
+      "x": 67,
+      "y": 4
+    },
+    "rngDrawsBefore": 2575
+  },
+  "beforeMove": {
+    "hero": {
+      "x": 5,
+      "y": 10,
+      "ushops": [
+        3,
+        0,
+        0,
+        0,
+        0
+      ],
+      "urooms": [
+        3,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "keeper": {
+      "id": 79,
+      "x": 4,
+      "y": 8,
+      "peaceful": true,
+      "mhp": 53,
+      "following": null,
+      "customer": "ShopFireFixture",
+      "surcharge": false,
+      "inhishop": null
+    },
+    "boulder": {
+      "id": 101,
+      "otyp": 475,
+      "x": 6,
+      "y": 10,
+      "where": 1,
+      "quan": 1,
+      "unpaid": true,
+      "no_charge": false,
+      "onshopbill": true
+    },
+    "billRows": [
+      {
+        "bo_id": 101,
+        "bquan": 1,
+        "price": 5
+      }
+    ],
+    "billct": 1,
+    "credit": 0,
+    "debit": 0,
+    "robbed": 0,
+    "owner": {
+      "id": 79,
+      "shoproom": 3
+    },
+    "doorObjects": [
+      {
+        "id": 101,
+        "otyp": 475,
+        "ox": 6,
+        "oy": 10,
+        "where": 1,
+        "unpaid": true,
+        "onshopbill": true,
+        "quan": 1,
+        "no_charge": false
+      }
+    ],
+    "exteriorObjects": [],
+    "doorTerrain": {
+      "typ": 23,
+      "mask": 2
+    },
+    "exteriorTerrain": {
+      "typ": 24,
+      "roomno": 0,
+      "edge": false
+    },
+    "rngLogLength": 2576,
+    "screen": "You materialize in a different location!--More--\n\n\n\u001b[64C----------\n\u001b[64C|........|\n\u001b[64C|.\u001b[93m<\u001b[39m......|\n\u001b[64C|.......\u001b[36m[\u001b[39m|\n -----                                                          |........|\n |\u001b[36m(\u001b[39m].|                                                          |........|\n |\u001b[33m%\u001b[97m@\u001b[39m.|                                                          |........|\n |\u001b[36m[!\u001b[33m(\u001b[39m|                                                          ---.------\n |\u001b[97m??@\u001b[33m-\u001b[39m\n -----\n\n\n\n\n\n\n\n\n\nShopFireFixture the Digger     St:11 Dx:10 Co:10 In:15 Wi:18 Ch:11 Lawful\nDlvl:1 $:0 HP:13(13) Pw:2(2) AC:9 Xp:1",
+    "topMessage": "\"Hello, ShopFireFixture!  Welcome to Holmavik's general store!\"",
+    "toplin": 1,
+    "waitEpoch": 2,
+    "inputQueueLength": 0
+  },
+  "targetStatus": "call-start-recorded"
+}

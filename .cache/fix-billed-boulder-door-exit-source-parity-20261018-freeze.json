@@ -1,0 +1,27 @@
+{
+  "schema": "billed-boulder-door-exit-source-parity-freeze/v1",
+  "task": "fix-billed-boulder-door-exit-source-parity-20261018",
+  "base": "88106737fbb254b33508fc30d413841493790798",
+  "phase": "final-focused-test-frozen-before-production-edit",
+  "test": {
+    "path": "scripts/hero-boulder-push.test.mjs",
+    "bytes": 33277,
+    "sha256": "4e29b70ba1d7f39e9183ca2fff3c689d64ac06da7f9c4fc2a28c066f786fb2fc"
+  },
+  "originalSource": {
+    "path": "js/hack.js",
+    "sha256": "5cdb26bf2ea1627f572d702943b61a4f97cfdfde0d3d0021ea9eeb4f232f7957"
+  },
+  "qualificationFixture": {
+    "path": ".cache/billed-boulder-frozen-provider-default-qualification-20261018/qualification.mjs",
+    "bytes": 15576,
+    "sha256": "8f9966e0875dd0e26dfb881adbd74f0e574e75cf59082906de3ec7e6ec4e3820"
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=dopush settles a billed boulder immediately after its owner shop exit",
+    "scripts/hero-boulder-push.test.mjs"
+  ],
+  "expectedOriginal": "one actual default test_move reaches the exterior and test fails because bill/unpaid/debit remain incorrect"
+}

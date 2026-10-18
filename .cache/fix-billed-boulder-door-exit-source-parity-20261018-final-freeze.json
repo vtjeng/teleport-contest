@@ -1,0 +1,33 @@
+{
+  "schema": "billed-boulder-door-exit-source-parity-final-freeze/v1",
+  "task": "fix-billed-boulder-door-exit-source-parity-20261018",
+  "base": "88106737fbb254b33508fc30d413841493790798",
+  "chronology": {
+    "previousTestFreezeSha256": "c3c0e4b8291b6747560c0290194c8bedf0b1e977698bc1fc00918f9aef56bd84",
+    "previousTestSha256": "4e29b70ba1d7f39e9183ca2fff3c689d64ac06da7f9c4fc2a28c066f786fb2fc",
+    "initialPreproductionRedPath": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-original-red.stdout",
+    "firstPostDraftObserverFailurePath": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-green.stdout",
+    "correction": "After first production draft, change only hero projection equality to compare source-shaped {x,y}; Main reviewed and explicitly authorized. Earlier red and observer failure retained."
+  },
+  "test": {
+    "path": "scripts/hero-boulder-push.test.mjs",
+    "bytes": 33337,
+    "sha256": "db1706903e2d93fa2a778fb174fe53dd48b7fe7b51931ce61fd6ae3b4f258fb6"
+  },
+  "source": {
+    "path": "js/hack.js",
+    "editedDraftSha256": "14b495d95e73440d2b6eaadecade34c66fee9d93684a8705ab27c1a25c686db8",
+    "assignmentBaseSha256": "5cdb26bf2ea1627f572d702943b61a4f97cfdfde0d3d0021ea9eeb4f232f7957"
+  },
+  "fixture": {
+    "path": ".cache/billed-boulder-frozen-provider-default-qualification-20261018/qualification.mjs",
+    "bytes": 15576,
+    "sha256": "8f9966e0875dd0e26dfb881adbd74f0e574e75cf59082906de3ec7e6ec4e3820"
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=dopush settles a billed boulder immediately after its owner shop exit",
+    "scripts/hero-boulder-push.test.mjs"
+  ]
+}

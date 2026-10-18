@@ -1,5 +1,14 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import {
+    copyFileSync,
+    mkdtempSync,
+    readFileSync,
+    writeFileSync,
+} from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
     BLINDED,
@@ -707,3 +716,67 @@ test('a rush into a boulder spends no time and says nothing', async () => {
     assert.deepEqual([game.u.ux, game.u.uy], [sx, sy]);
     game.u.uprops[BLINDED].intrinsic = 0;
 });
+
+// hack.c dopush():217-240. Exercise the real exported test_move() default
+// path with the exact canonical shop/keeper/boulder setup preserved from the
+// reviewed qualification. Each run gets its own sibling of .cache so the
+// fixture's literal ../../js imports still resolve from the final path and
+// every raw receipt remains unique. The fixture's exit code describes the
+// old observation predicate; these assertions pin the source-required result.
+test('dopush settles a billed boulder immediately after its owner shop exit',
+    () => {
+        const testFile = fileURLToPath(import.meta.url);
+        const root = resolve(dirname(testFile), '..');
+        const fixture = resolve(
+            root,
+            '.cache/billed-boulder-frozen-provider-default-qualification-20261018/qualification.mjs',
+        );
+        const runDir = mkdtempSync(resolve(root, '.cache/billed-boulder-door-exit-run-'));
+        const runFixture = join(runDir, 'qualification.mjs');
+        copyFileSync(fixture, runFixture);
+
+        const run = spawnSync(process.execPath, [runFixture], {
+            cwd: root,
+            encoding: 'utf8',
+        });
+        writeFileSync(join(runDir, 'stdout.log'), run.stdout ?? '');
+        writeFileSync(join(runDir, 'stderr.log'), run.stderr ?? '');
+        writeFileSync(
+            join(runDir, 'exit-code.txt'),
+            `${run.status ?? `signal:${run.signal}`}\n`,
+        );
+        assert.equal(run.error, undefined, 'fixture process starts successfully');
+
+        const before = JSON.parse(
+            readFileSync(join(runDir, 'before-target.json'), 'utf8'),
+        );
+        const after = JSON.parse(
+            readFileSync(join(runDir, 'after-target.json'), 'utf8'),
+        );
+        assert.equal(before.targetInvocationCount, 1,
+                     'one actual default test_move call was frozen');
+        assert.equal(after.targetCall, 'fulfilled');
+        assert.equal(after.testMoveReturned, true);
+        assert.equal(after.boulder.id, before.beforeMove.boulder.id);
+        assert.equal(after.boulder.where, OBJ_FLOOR);
+        assert.deepEqual(
+            [after.boulder.x, after.boulder.y],
+            [before.room.exterior.x, before.room.exterior.y],
+            'the same boulder reaches the non-costly exterior square',
+        );
+        assert.equal(after.boulder.unpaid, false,
+                     'the immediate exit accounting clears unpaid');
+        assert.equal(
+            after.billRows.some(row => row.bo_id === after.boulder.id),
+            false,
+            'the owner bill no longer contains the exited boulder',
+        );
+        assert.equal(after.billct, 0);
+        assert.equal(after.debit, 5,
+                     'the peaceful owner charges the original five-zorkmid bill');
+        assert.deepEqual(
+            after.hero,
+            { x: before.beforeMove.hero.x, y: before.beforeMove.hero.y },
+            'test_move itself does not move the hero',
+        );
+    });
