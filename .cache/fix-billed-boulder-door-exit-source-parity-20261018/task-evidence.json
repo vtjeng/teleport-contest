@@ -125,5 +125,86 @@
   "sessions": [],
   "notes": [
     "Runtime-pending scoped source parity only. The frozen actual default test_move fixture verifies the target and its immediate owner accounting; no public whole-turn or source-completeness certification is claimed."
-  ]
+  ],
+  "entryPointReview": "The single final focused case invokes the real exported test_move(DO_MOVE) with canonical default dependencies and reaches moverock_core→dopush. It asserts the same floor boulder leaves the owner shop, the bill/unpaid state is cleared, the peaceful keeper is debited, and hero coordinates remain unchanged. This is the authorized source-parity runtime-pending path, not public full-turn, source-completeness, or fixed-workload certification.",
+  "entryPoints": [
+    {
+      "name": "actual exported test_move DO_MOVE shop-exit push",
+      "functions": [
+        "test_move",
+        "moverock_core",
+        "dopush"
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "88106737fbb254b33508fc30d413841493790798",
+      "exitCode": 1,
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=dopush settles a billed boulder immediately after its owner shop exit",
+        "scripts/hero-boulder-push.test.mjs"
+      ],
+      "output": "✖ dopush settles a billed boulder immediately after its owner shop exit (667.194896ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1375.71066\n\n✖ failing tests:\n\ntest at scripts/hero-boulder-push.test.mjs:726:1\n✖ dopush settles a billed boulder immediately after its owner shop exit (667.194896ms)\n  AssertionError [ERR_ASSERTION]: the immediate exit accounting clears unpaid\n  \n  true !== false\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/hero-boulder-push.test.mjs:767:16)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: true,\n    expected: false,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    "after": {
+      "commit": "eeb50b732",
+      "exitCode": 0,
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=dopush settles a billed boulder immediately after its owner shop exit",
+        "scripts/hero-boulder-push.test.mjs"
+      ],
+      "output": "✔ dopush settles a billed boulder immediately after its owner shop exit (715.313839ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1346.237746\n"
+    }
+  },
+  "captureLimitations": {
+    "childFixtureExit": "The unchanged prior qualification fixture has exit code 2 after repair because its prior-result classifier encodes the original unpaid state; its immutable receipt records the corrected state. The regression asserts the actual state directly and its outer focused command exits 0.",
+    "firstPostDraftObserverFailure": "Original raw stdout/stderr were overwritten before copying; see chronology.json and labeled transcript reconstruction. Do not treat the reconstruction as raw bytes.",
+    "scope": "No full-turn departure, public-input, whole-source, or C parity claim."
+  },
+  "sourceFinding": "After movement, the source final arm finds the actual owner from the original coordinates, requires the destination in_rooms set to exclude that shoproom, and awaits the existing stolen_value with C arguments. The corrected real fixture immediately removes unpaid and bill membership and debits 5 while leaving the boulder on the exterior floor and the hero at (5,10).",
+  "chronology": {
+    "finalFreeze": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-freeze.json",
+    "details": ".cache/fix-billed-boulder-door-exit-source-parity-20261018/chronology.json",
+    "firstPrecodeRed": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-original-red.stdout",
+    "finalOriginalRed": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-original-red.stdout",
+    "finalGreen": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-green.stdout",
+    "finalLint": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-lint.stdout"
+  },
+  "retainedArtifacts": {
+    "version": 1,
+    "files": [
+      {
+        "name": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-freeze.json",
+        "bytes": 1659,
+        "sha256": "9eb133899a57c05430bd8ffe6417e8e4594e73a97a11893196af4b6f10966fca"
+      },
+      {
+        "name": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-original-red.stdout",
+        "bytes": 997,
+        "sha256": "47a2ae24d6cadee5115a712bc8c4807d67f6aa3fdd0affb7b177c1bdfdfe4731"
+      },
+      {
+        "name": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-green.stdout",
+        "bytes": 205,
+        "sha256": "dae1e5be559c0cbc94a075c4bba90f0434216d9ab3e08c78e721a33ec301db4d"
+      },
+      {
+        "name": ".cache/fix-billed-boulder-door-exit-source-parity-20261018-final-lint.stdout",
+        "bytes": 54,
+        "sha256": "f8b045212c87825355f5fd99462819427f5f9af4ecbc9ca4ca0e824521bebe6c"
+      },
+      {
+        "name": ".cache/billed-boulder-frozen-provider-default-qualification-20261018/qualification.mjs",
+        "bytes": 15576,
+        "sha256": "8f9966e0875dd0e26dfb881adbd74f0e574e75cf59082906de3ec7e6ec4e3820"
+      }
+    ]
+  }
 }
