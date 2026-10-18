@@ -1,0 +1,95 @@
+{
+  "goal": "fix-unpaid-object-splitbill-source-parity-20261018",
+  "kind": "file-port",
+  "sourceFile": "shk.c",
+  "cFile": "shk.c",
+  "functions": [
+    "splitbill"
+  ],
+  "lineRanges": [
+    "3623-3658"
+  ],
+  "cLines": 36,
+  "jsFile": "js/shk.js",
+  "sessions": [],
+  "requiredFunctions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-unpaid-object-splitbill-source-parity-20261018",
+    "assignmentBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+      "authorization": "Standing explicit user sourceParity authorization and retained-source audit request; root selected same-worker bounded supporting correction. Preserve historical closed owners and all spent source/fixture attempts/time; this is a NEW additional 15-minute implementation allowance, no cap reset or public-history requirement.",
+      "currentBehavior": "C shk3623–3658 splitbill resident/inhishop→onbill parent→quantity diagnostics→decrement parent bquan→BILLSZ child unpaid0 else append child bill row same price. JS unpaid splitobj only uses optional splitBill hook else marker, no canonical default. Actual parent138 qty2→1/child141 unpaid but only parentbquan2 then onbill straychild refusal. Canonical unpaid_cost/subfrombill work when child row exists.",
+      "expectedBehavior": "Port WHOLE synchronous C splitbill in shk.js using canonical state-local shop_keeper/inhishop/onbill/ESHK/BILLSZ and source diagnostics/order. Wire ONLY unpaid splitobj default call in obj.js, preserving explicit hooks.splitBill precedence and synchronous position before copy_oextra/timers/light. No apply/unpaid_cost/other billing or helper expansion. Primary actual real doapply cream-pie canonical billed stack original missingchildbill refusal red before code, same final test green verifies parentqty1/billedqty1 + used child debt/dummy/consumption/accounting; marker-only or direct helper alone insufficient. Include meaningful full-bill child-unpaid clear and explicit-hook precedence/source guard controls. Preserve genuine RNG/input and real providers.",
+      "units": [
+        "shk.c:splitbill"
+      ],
+      "allowedPaths": [
+        "js/shk.js",
+        "js/obj.js",
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/apply.js",
+          "symbol": "use_cream_pie",
+          "source": "Real doapply selector→use_cream_pie→synchronous splitobj unpaid default→costly_alteration/bill_dummy_object; actual9f5e reaches child missing-bill refusal."
+        }
+      ],
+      "pins": [
+        {
+          "path": "js/shk.js",
+          "object": "76b0666b553598d22a47b5c7216ccb16b528c80e"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+        },
+        {
+          "path": "scripts/shk.test.mjs",
+          "object": "c764640757eb2172b0738a460e191d3122f8e7fa"
+        },
+        {
+          "path": "scripts/object-substrate.test.mjs",
+          "object": "c385575ab1db25169a12e004e1c9da26f1ab09b4"
+        },
+        {
+          "path": "scripts/apply-cream-pie.test.mjs",
+          "object": "64c13aae23d2d916c7e3b15bacde30f819f2e2d7"
+        },
+        {
+          "path": "js/apply.js",
+          "object": "0734a8737d4548a9bbade1fd71c602d5068e6f2d"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "sourceEvidence": "Retain oldaddf28ceac2259b6d275fe02cd1862e6d9c6ba0cae72e2bbd65eb644b5c6249f TWO More/startupmerge setup attempts/15min allowance and exact closed v16 whole use_cream_pie owner. New9f5e90aa0ff894da74425682dbd725ea314da15566bdfd290aa53c16724e2232 TWO more attempts under15min, first pending message before renderedMore; second actualtarget. Main source-read complete Csplitbill and current unpaid_cost validrow path; CL2f810e1913452e1c34d629ccd1edf832d9ffb4cb57f92a84f69d9f42732409e7 verified154060B/c2f3b209/all27 files and fullscope. Same worker minimal successful fixture uses actual shop recipe9701133/fb747, nonValkyrie/no compatible initialpie, canonical addtobill parent2. Reuse actual dismissPendingTtyMessage then finite renderedMore/onEmptyQueue; do not treat unrendered pending as More. Exact exports/args/defaults/writer-owner-accessor checks beforefreeze. No public shop/history or fake unpaid/bill/provider/RNG."
+    },
+    "reviewSha256": "ec5b081f7349327b6772623690255b7c2e574e87a23e0394ae7230a93c9da14f"
+  }
+}

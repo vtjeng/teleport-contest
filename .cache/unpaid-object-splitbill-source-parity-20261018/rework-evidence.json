@@ -1,0 +1,209 @@
+{
+  "goal": "fix-unpaid-object-splitbill-source-parity-20261018",
+  "evidenceBasis": "source-parity-runtime-pending",
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-unpaid-object-splitbill-source-parity-20261018",
+    "assignmentBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+      "authorization": "Standing explicit user sourceParity authorization and retained-source audit request; root selected same-worker bounded supporting correction. Preserve historical closed owners and all spent source/fixture attempts/time; this is a NEW additional 15-minute implementation allowance, no cap reset or public-history requirement.",
+      "currentBehavior": "C shk3623–3658 splitbill resident/inhishop→onbill parent→quantity diagnostics→decrement parent bquan→BILLSZ child unpaid0 else append child bill row same price. JS unpaid splitobj only uses optional splitBill hook else marker, no canonical default. Actual parent138 qty2→1/child141 unpaid but only parentbquan2 then onbill straychild refusal. Canonical unpaid_cost/subfrombill work when child row exists.",
+      "expectedBehavior": "Port WHOLE synchronous C splitbill in shk.js using canonical state-local shop_keeper/inhishop/onbill/ESHK/BILLSZ and source diagnostics/order. Wire ONLY unpaid splitobj default call in obj.js, preserving explicit hooks.splitBill precedence and synchronous position before copy_oextra/timers/light. No apply/unpaid_cost/other billing or helper expansion. Primary actual real doapply cream-pie canonical billed stack original missingchildbill refusal red before code, same final test green verifies parentqty1/billedqty1 + used child debt/dummy/consumption/accounting; marker-only or direct helper alone insufficient. Include meaningful full-bill child-unpaid clear and explicit-hook precedence/source guard controls. Preserve genuine RNG/input and real providers.",
+      "units": [
+        "shk.c:splitbill"
+      ],
+      "allowedPaths": [
+        "js/shk.js",
+        "js/obj.js",
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/apply.js",
+          "symbol": "use_cream_pie",
+          "source": "Real doapply selector→use_cream_pie→synchronous splitobj unpaid default→costly_alteration/bill_dummy_object; actual9f5e reaches child missing-bill refusal."
+        }
+      ],
+      "pins": [
+        {
+          "path": "js/shk.js",
+          "object": "76b0666b553598d22a47b5c7216ccb16b528c80e"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "b402a109925d59b2f47f8eccc1722f42d9a9dfc2"
+        },
+        {
+          "path": "scripts/shk.test.mjs",
+          "object": "c764640757eb2172b0738a460e191d3122f8e7fa"
+        },
+        {
+          "path": "scripts/object-substrate.test.mjs",
+          "object": "c385575ab1db25169a12e004e1c9da26f1ab09b4"
+        },
+        {
+          "path": "scripts/apply-cream-pie.test.mjs",
+          "object": "64c13aae23d2d916c7e3b15bacde30f819f2e2d7"
+        },
+        {
+          "path": "js/apply.js",
+          "object": "0734a8737d4548a9bbade1fd71c602d5068e6f2d"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "sourceEvidence": "Retain oldaddf28ceac2259b6d275fe02cd1862e6d9c6ba0cae72e2bbd65eb644b5c6249f TWO More/startupmerge setup attempts/15min allowance and exact closed v16 whole use_cream_pie owner. New9f5e90aa0ff894da74425682dbd725ea314da15566bdfd290aa53c16724e2232 TWO more attempts under15min, first pending message before renderedMore; second actualtarget. Main source-read complete Csplitbill and current unpaid_cost validrow path; CL2f810e1913452e1c34d629ccd1edf832d9ffb4cb57f92a84f69d9f42732409e7 verified154060B/c2f3b209/all27 files and fullscope. Same worker minimal successful fixture uses actual shop recipe9701133/fb747, nonValkyrie/no compatible initialpie, canonical addtobill parent2. Reuse actual dismissPendingTtyMessage then finite renderedMore/onEmptyQueue; do not treat unrendered pending as More. Exact exports/args/defaults/writer-owner-accessor checks beforefreeze. No public shop/history or fake unpaid/bill/provider/RNG."
+    },
+    "reviewSha256": "ec5b081f7349327b6772623690255b7c2e574e87a23e0394ae7230a93c9da14f"
+  },
+  "entryPointReview": "The actual source caller is apply.c doapply selecting the CREAM_PIE, then use_cream_pie splits a carried stack through mkobj.c splitobj. The JS unpaid default now calls the whole synchronous shk.c splitbill port immediately after parent quantity reduction and child creation, before copy_oextra, timers, and light handling; an explicit hooks.splitBill provider still takes precedence. splitbill resolves the active hero shop using state-local shop_keeper and inhishop, finds the parent through onbill, decrements the active bill quantity, then either clears child.unpaid at BILLSZ or appends a same-price child row. The real generated-shop test first produces the original missing-child-bill refusal in costly_alteration/bill_dummy_object, and after the fix completes doapply with the parent billed at quantity one and a used-up child dummy bill preserving total debt. Scoped controls exercise the full-table clear and explicit hook precedence. This is focused source-parity runtime-pending evidence, not full source certification or gameplay recording parity. The linked correction also preserves the source non-silent onbill boundary: an unpaid parent without a row raises the existing UnsupportedShopError before bill table/child mutation; this is captured by a dedicated control red on the prior delivery and green after the correction.",
+  "entryPoints": [
+    {
+      "name": "real unpaid cream-pie split billing",
+      "functions": [
+        "splitbill"
+      ],
+      "recordings": []
+    }
+  ],
+  "functions": [
+    {
+      "sourceFile": "shk.c",
+      "name": "splitbill",
+      "implementation": "js/shk.js",
+      "symbol": "splitbill",
+      "pure": false,
+      "sourceReview": "Read the complete upstream shk.c splitbill body (3623–3658). It selects shop_keeper(*u.ushops), requires an in-shop keeper, finds the parent bill row with onbill, emits the source diagnostics for missing/invalid bill quantities, decrements parent bquan by the child quantity, and then clears child.unpaid when billct == BILLSZ or appends the child row with child oid/quantity, useup false, and the original unit price before incrementing billct. The JS port preserves this order and state-local APIs. The source-mandated onbill call is nonsilent (FALSE); the port now uses onbill(obj, shopkeeper, false), preserving the existing UnsupportedShopError refusal if an unpaid parent has no active bill row before splitbill changes either billing row or child state.",
+      "callers": [
+        {
+          "path": "js/apply.js",
+          "symbol": "use_cream_pie",
+          "source": "Real doapply selector→use_cream_pie→synchronous splitobj unpaid default→costly_alteration/bill_dummy_object; actual9f5e reaches child missing-bill refusal."
+        }
+      ],
+      "tests": [
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs"
+      ],
+      "recordings": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+      "command": [
+        "node",
+        "--test",
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "✔ cream-pie callers use the canonical can_blnd predicate (1.702184ms)\n✔ can_blnd admits a cream pie against an unprotected hero with eyes (255.460276ms)\n✔ make_blinded performs the talk-false sighted-to-blind transition (97.836375ms)\n✔ doapply creams and blinds the hero before deleting one ordinary pie (117.244085ms)\n✔ doapply splits a cream-pie stack and consumes only the returned child (110.497498ms)\n✔ splitobj preserves the returned child and explicit splitBill hook (52.849183ms)\n✔ doapply follows the hallucinated cream-pie message branch (68.008664ms)\n✔ doapply keeps the source sticky-goop message when already blind (39.154248ms)\n✔ doapply still consumes a pie when can_blnd rejects the eyes (71.756552ms)\n✖ doapply keeps a split unpaid cream pie fully billed through consumption (231.964525ms)\n✔ place_object degrades an ordinary crysknife without an RNG draw (9.904958ms)\n✔ fresh mksobj placement stays synchronous on its unpaid=false path (4.988919ms)\n✔ place_object preserves or degrades a fixed crysknife from rn2(10) (4.377439ms)\n✔ place_object releases contained crysknives in chain order (2.930024ms)\n✔ newObject exposes obj.h aliases over shared backing fields (0.663303ms)\n✔ newObject starts from zeroobj before mksobj applies sentinels (0.303058ms)\n✔ init_dummyobj fills in only the fields the obj.h tests read (2.962728ms)\n✔ object-class macro aliases write through to their shared fields (1.925798ms)\n✔ next_ident returns the old id and preserves uint32 wrap draws (0.52136ms)\n✔ next_ident uses the recorder-visible rnd wrapper in production (3.20903ms)\n✔ copy_oextra copies C-owned data while retaining monster pointers (1.136733ms)\n✔ splitobj preserves source list placement, ids, and independent extras (2.619273ms)\n✔ splitobj retries ids until the shop-price class matches (1.711827ms)\n✔ splitobj adds a light child after bill, extra, and timer work (30.756364ms)\n✔ splitobj tests light ownership with obj_sheds_light() (2.14273ms)\n✔ splitobj rejects an uninitialized shared id before mutating the stack (4.752318ms)\n✔ splitobj copies timers before cloning lit candle sources (11.876645ms)\n✔ splitobj checks light ownership after the timer call (2.603058ms)\n✔ is_flammable follows material and source exceptions (12.000813ms)\n✔ is_pick accepts the two P_PICK_AXE entries and nothing else (18.969511ms)\n✔ matching_launcher accepts only the launcher that negates the skill (2.064221ms)\n✔ ammo_and_launcher also requires the first object to be ammunition (3.255122ms)\n✔ is_launcher accepts the closed P_BOW through P_CROSSBOW window (5.970442ms)\n✔ is_missile accepts the closed -P_BOOMERANG through -P_DART window (2.185583ms)\n✔ is_wet_towel accepts a towel only while its spe is above zero (2.175402ms)\n✔ is_shield accepts armor in the shield category only (2.112477ms)\n✔ object APIs reject uninitialized catalogs, ids, and partial RNGs (0.538334ms)\n✔ real rne uses the supplied hero level and keeps nested log order (26.166464ms)\n✔ blessorcurse preserves draw order on free and carried objects (0.914604ms)\n✔ mksobj follows startup weapon initialization and PRNG order (2.854996ms)\n✔ initial-inventory sack retains the source rn2(1) draw (2.721192ms)\n✔ ordinary startup weapons skip multigen and poison draws (2.027502ms)\n✔ ordinary startup food can double its quantity (2.015464ms)\n✔ startup gems reset their overloaded species field before quantity (1.98848ms)\n✔ charged and ordinary startup tools keep distinct draw boundaries (3.870084ms)\n✔ startup potions preserve BUC and fromsink union initialization (4.04246ms)\n✔ startup scrolls use the shared four-way BUC branch (2.198077ms)\n✔ startup spellbooks clear study count before their BUC draw (2.161409ms)\n✔ startup novels consume BUC then title draws and keep object identity (2.520091ms)\n✔ dealloc_obj clears global references and preserves Lua-held extras (0.574815ms)\n✔ dealloc_obj stops timers before deleting any surviving light source (0.772079ms)\n✔ dealloc_obj preflights the timer seam before mutation (0.395282ms)\n✔ dealloc_obj rechecks light ownership after timer cleanup (0.265017ms)\n✔ dealloc_obj clears the boulder chain union before deletion (0.263427ms)\n✔ Samurai startup splint mail is lacquered after generic armor draws (2.247935ms)\n✔ directional startup wands use the lower charge base (2.019309ms)\n✔ charged startup rings derive enchantment sign from BUC (2.33048ms)\n✔ uncharged rings preserve harmful and ordinary curse boundaries (4.215161ms)\n✔ amulets preserve special-curse and ordinary BUC draw boundaries (4.017993ms)\n✔ artifact generation delegates after base weapon initialization (6.481735ms)\n✔ startup coins consume only the shared object-id draw (1.930639ms)\n✔ slime mold startup uses the current fruit id (2.060973ms)\n✔ candy bar startup records its one-based wrapper index (1.999556ms)\n✔ oil lamp startup initializes fuel before BUC (2.286149ms)\n✔ oil potion finalization replaces age with the full flask capacity (2.08259ms)\n✔ generic egg startup is source-owned and remains untimed (2.50618ms)\n✔ residual figurine hooks retain source initialization order (2.405541ms)\n✔ noninitial sacks use mkbox_cnts maximum of one (2.151934ms)\n✔ noninitial weapons preserve erosion and grease draw order (2.389237ms)\n✔ weight handles ordinary stacks, coins, and bag status exactly (2.916891ms)\n✔ mkobj uses initialized class totals before mksobj creation (2.577929ms)\n✔ mkobj walks a nontrivial initialized class probability boundary (2.071933ms)\n✔ mkobj steps over the globs objects.h gives no probability (2.041254ms)\n✔ rnd_class preserves the all-zero equal-probability branch (2.125756ms)\n✔ hornoplenty identifies a cursed item spilled onto an altar (208.059075ms)\n✔ hornoplenty wires the default carried-object encumbrance callback (157.170672ms)\n✔ addupbill sums exactly the active bill entries (1.995335ms)\n✖ splitbill divides the active row and handles a full bill table (2.306796ms)\n✔ shop_debt includes only the active bill entries (0.248561ms)\n✔ shop_keeper applies the anger surcharge once to active bill entries (1.34812ms)\n✔ hot_pursuit angers the keeper and clears floor and pet no-charge flags (1.670807ms)\n✔ make_angry_shk clears net debt with credit and chooses its message before hot pursuit (560.855733ms)\n✔ shk_move keeps C distu avoidance threshold in squared-distance units (0.723306ms)\n✔ nested shop identity reaches keeper and deserted-shop handling (1.072767ms)\n✔ restshk pacifies a ghostly keeper for a different customer (0.598575ms)\n✔ find_objowner checks every bill and falls back to the first room keeper (0.700499ms)\n✔ onshopbill preserves the silent onbill boolean contract (0.238775ms)\n✔ costly_adjacent keeps only tended shop edges and the free spot (0.29778ms)\n✔ is_unpaid includes unpaid objects nested inside containers (0.261468ms)\n✔ same_price requires one shopkeeper and one quoted price (0.277875ms)\n✔ cost_per_charge follows the complete shk.c item-rate formula (3.903349ms)\n✔ unpaid novel use speaks the C library fee and increments debt (6.010725ms)\n✔ pick_pick warns once per move and preserves speech formatting (3.741897ms)\n✔ append_price_quote formats the buy and sell halves shk.c writes (12.814819ms)\n✔ append_price_quote drops the whole suffix when it would overrun (2.298262ms)\n✔ gem_learned reprices matching bill entries and all gems for STRANGE_OBJECT (3.48789ms)\n✔ ordinary charge helpers preserve source quantity and id partitions (2.517009ms)\n✔ get_cost pins every charisma boundary and C integer rounding (68.751128ms)\n✔ getprice preserves reached class adjustments (9.938506ms)\n✔ record_price_quote updates one partition without changing the other (10.298449ms)\n✔ clear_no_charge_pets clears only tame monster inventories (0.332038ms)\n✔ contained_gold sums nested piles by shk.c's rules (0.29193ms)\n✔ hidden_gold walks the pack the way vault.c does (0.189552ms)\n✔ shkgone discards its owned damage records before resident removal (2.331851ms)\n✔ make_happy_shk settles hostility before the shopkeeper turn (2.136115ms)\n✔ angry_shk_exists uses next_shkp and restores a missing surcharge (0.188368ms)\n✔ shopdig warns in source order and all active callers use the owner (1.781534ms)\n✔ shopdig takes only inventory the source leaves eligible (77.515531ms)\n✔ inhishop checks the keeper level before the current room (0.702409ms)\n✔ shk_your prefixes what the hero holds and what she does not (0.946675ms)\n✔ Shk_Your capitalizes the source owner prefix (0.792834ms)\n✔ shk_your returns the source owner for shop and monster inventories (1.527526ms)\n✔ shk_your handles personal, unique, and ordinary corpse prefixes (0.682603ms)\n✔ shkcatch waits for mnearto before source speech and catch effects (0.357343ms)\nℹ tests 114\nℹ suites 0\nℹ pass 112\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1871.967758\n\n✖ failing tests:\n\ntest at scripts/apply-cream-pie.test.mjs:285:1\n✖ doapply keeps a split unpaid cream pie fully billed through consumption (231.964525ms)\n  Error [UnsupportedShopError]: shop handling requires onbill() reporting a stray unpaid item\n      at onbill (file:///workspace/teleport-contest-worker1-recovery/js/shk.js:4085:15)\n      at sub_one_frombill (file:///workspace/teleport-contest-worker1-recovery/js/shk.js:4172:18)\n      at subfrombill (file:///workspace/teleport-contest-worker1-recovery/js/shk.js:4198:5)\n      at bill_dummy_object (file:///workspace/teleport-contest-worker1-recovery/js/obj.js:1106:9)\n      at file:///workspace/teleport-contest-worker1-recovery/js/obj.js:2893:22\n      at async use_cream_pie (file:///workspace/teleport-contest-worker1-recovery/js/apply.js:1932:5)\n      at async TestContext.<anonymous> (file:///workspace/teleport-contest-worker1-recovery/scripts/apply-cream-pie.test.mjs:359:22)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    branch: 'onbill() reporting a stray unpaid item'\n  }\n\ntest at scripts/shk.test.mjs:138:1\n✖ splitbill divides the active row and handles a full bill table (2.306796ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'undefined'\n  - 'function'\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker1-recovery/scripts/shk.test.mjs:140:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'undefined',\n    expected: 'function',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    "after": {
+      "base": "26117031da0bbe02a9451a5c6dca6c2b01bc1791",
+      "command": [
+        "node",
+        "--test",
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "✔ cream-pie callers use the canonical can_blnd predicate (1.890788ms)\n✔ can_blnd admits a cream pie against an unprotected hero with eyes (235.653683ms)\n✔ make_blinded performs the talk-false sighted-to-blind transition (117.573657ms)\n✔ doapply creams and blinds the hero before deleting one ordinary pie (98.611016ms)\n✔ doapply splits a cream-pie stack and consumes only the returned child (63.969613ms)\n✔ splitobj preserves the returned child and explicit splitBill hook (69.606935ms)\n✔ doapply follows the hallucinated cream-pie message branch (52.96839ms)\n✔ doapply keeps the source sticky-goop message when already blind (42.914331ms)\n✔ doapply still consumes a pie when can_blnd rejects the eyes (32.40425ms)\n✔ doapply keeps a split unpaid cream pie fully billed through consumption (157.156372ms)\n✔ place_object degrades an ordinary crysknife without an RNG draw (6.060422ms)\n✔ fresh mksobj placement stays synchronous on its unpaid=false path (2.887509ms)\n✔ place_object preserves or degrades a fixed crysknife from rn2(10) (3.043097ms)\n✔ place_object releases contained crysknives in chain order (1.854332ms)\n✔ newObject exposes obj.h aliases over shared backing fields (0.198345ms)\n✔ newObject starts from zeroobj before mksobj applies sentinels (0.114592ms)\n✔ init_dummyobj fills in only the fields the obj.h tests read (1.544191ms)\n✔ object-class macro aliases write through to their shared fields (1.213489ms)\n✔ next_ident returns the old id and preserves uint32 wrap draws (0.300568ms)\n✔ next_ident uses the recorder-visible rnd wrapper in production (1.890433ms)\n✔ copy_oextra copies C-owned data while retaining monster pointers (0.907767ms)\n✔ splitobj preserves source list placement, ids, and independent extras (1.70444ms)\n✔ splitobj retries ids until the shop-price class matches (1.10297ms)\n✔ splitobj adds a light child after bill, extra, and timer work (1.879558ms)\n✔ splitobj tests light ownership with obj_sheds_light() (1.236488ms)\n✔ splitobj rejects an uninitialized shared id before mutating the stack (2.546084ms)\n✔ splitobj copies timers before cloning lit candle sources (5.018489ms)\n✔ splitobj checks light ownership after the timer call (1.215935ms)\n✔ is_flammable follows material and source exceptions (1.385755ms)\n✔ is_pick accepts the two P_PICK_AXE entries and nothing else (3.593066ms)\n✔ matching_launcher accepts only the launcher that negates the skill (1.113854ms)\n✔ ammo_and_launcher also requires the first object to be ammunition (1.084487ms)\n✔ is_launcher accepts the closed P_BOW through P_CROSSBOW window (1.206066ms)\n✔ is_missile accepts the closed -P_BOOMERANG through -P_DART window (1.123885ms)\n✔ is_wet_towel accepts a towel only while its spe is above zero (1.024819ms)\n✔ is_shield accepts armor in the shield category only (1.055877ms)\n✔ object APIs reject uninitialized catalogs, ids, and partial RNGs (0.385541ms)\n✔ real rne uses the supplied hero level and keeps nested log order (2.152086ms)\n✔ blessorcurse preserves draw order on free and carried objects (0.534993ms)\n✔ mksobj follows startup weapon initialization and PRNG order (1.289495ms)\n✔ initial-inventory sack retains the source rn2(1) draw (2.922146ms)\n✔ ordinary startup weapons skip multigen and poison draws (1.379869ms)\n✔ ordinary startup food can double its quantity (1.318324ms)\n✔ startup gems reset their overloaded species field before quantity (1.131857ms)\n✔ charged and ordinary startup tools keep distinct draw boundaries (2.169578ms)\n✔ startup potions preserve BUC and fromsink union initialization (3.323421ms)\n✔ startup scrolls use the shared four-way BUC branch (1.177128ms)\n✔ startup spellbooks clear study count before their BUC draw (1.019829ms)\n✔ startup novels consume BUC then title draws and keep object identity (1.172389ms)\n✔ dealloc_obj clears global references and preserves Lua-held extras (0.498315ms)\n✔ dealloc_obj stops timers before deleting any surviving light source (12.783035ms)\n✔ dealloc_obj preflights the timer seam before mutation (0.535137ms)\n✔ dealloc_obj rechecks light ownership after timer cleanup (0.86263ms)\n✔ dealloc_obj clears the boulder chain union before deletion (0.540927ms)\n✔ Samurai startup splint mail is lacquered after generic armor draws (1.669706ms)\n✔ directional startup wands use the lower charge base (1.020929ms)\n✔ charged startup rings derive enchantment sign from BUC (2.064728ms)\n✔ uncharged rings preserve harmful and ordinary curse boundaries (3.448394ms)\n✔ amulets preserve special-curse and ordinary BUC draw boundaries (7.144476ms)\n✔ artifact generation delegates after base weapon initialization (1.396479ms)\n✔ startup coins consume only the shared object-id draw (1.363331ms)\n✔ slime mold startup uses the current fruit id (1.401155ms)\n✔ candy bar startup records its one-based wrapper index (1.106537ms)\n✔ oil lamp startup initializes fuel before BUC (1.296808ms)\n✔ oil potion finalization replaces age with the full flask capacity (1.221022ms)\n✔ generic egg startup is source-owned and remains untimed (1.423053ms)\n✔ residual figurine hooks retain source initialization order (1.485109ms)\n✔ noninitial sacks use mkbox_cnts maximum of one (1.977142ms)\n✔ noninitial weapons preserve erosion and grease draw order (1.302559ms)\n✔ weight handles ordinary stacks, coins, and bag status exactly (2.934969ms)\n✔ mkobj uses initialized class totals before mksobj creation (1.288067ms)\n✔ mkobj walks a nontrivial initialized class probability boundary (1.062867ms)\n✔ mkobj steps over the globs objects.h gives no probability (1.016891ms)\n✔ rnd_class preserves the all-zero equal-probability branch (3.797859ms)\n✔ hornoplenty identifies a cursed item spilled onto an altar (195.392479ms)\n✔ hornoplenty wires the default carried-object encumbrance callback (180.20322ms)\n✔ addupbill sums exactly the active bill entries (2.130481ms)\n✔ splitbill divides the active row and handles a full bill table (423.357258ms)\n✔ shop_debt includes only the active bill entries (0.335554ms)\n✔ shop_keeper applies the anger surcharge once to active bill entries (0.634136ms)\n✔ hot_pursuit angers the keeper and clears floor and pet no-charge flags (1.51381ms)\n✔ make_angry_shk clears net debt with credit and chooses its message before hot pursuit (175.021375ms)\n✔ shk_move keeps C distu avoidance threshold in squared-distance units (0.794317ms)\n✔ nested shop identity reaches keeper and deserted-shop handling (1.5768ms)\n✔ restshk pacifies a ghostly keeper for a different customer (0.526605ms)\n✔ find_objowner checks every bill and falls back to the first room keeper (0.802129ms)\n✔ onshopbill preserves the silent onbill boolean contract (0.262065ms)\n✔ costly_adjacent keeps only tended shop edges and the free spot (0.516958ms)\n✔ is_unpaid includes unpaid objects nested inside containers (0.281834ms)\n✔ same_price requires one shopkeeper and one quoted price (0.559875ms)\n✔ cost_per_charge follows the complete shk.c item-rate formula (17.146558ms)\n✔ unpaid novel use speaks the C library fee and increments debt (3.921278ms)\n✔ pick_pick warns once per move and preserves speech formatting (2.84151ms)\n✔ append_price_quote formats the buy and sell halves shk.c writes (9.01484ms)\n✔ append_price_quote drops the whole suffix when it would overrun (2.219924ms)\n✔ gem_learned reprices matching bill entries and all gems for STRANGE_OBJECT (1.623992ms)\n✔ ordinary charge helpers preserve source quantity and id partitions (1.102617ms)\n✔ get_cost pins every charisma boundary and C integer rounding (41.375452ms)\n✔ getprice preserves reached class adjustments (1.639156ms)\n✔ record_price_quote updates one partition without changing the other (1.849601ms)\n✔ clear_no_charge_pets clears only tame monster inventories (0.174157ms)\n✔ contained_gold sums nested piles by shk.c's rules (0.243146ms)\n✔ hidden_gold walks the pack the way vault.c does (0.123045ms)\n✔ shkgone discards its owned damage records before resident removal (2.530753ms)\n✔ make_happy_shk settles hostility before the shopkeeper turn (2.45994ms)\n✔ angry_shk_exists uses next_shkp and restores a missing surcharge (0.156636ms)\n✔ shopdig warns in source order and all active callers use the owner (1.755537ms)\n✔ shopdig takes only inventory the source leaves eligible (43.093741ms)\n✔ inhishop checks the keeper level before the current room (1.260798ms)\n✔ shk_your prefixes what the hero holds and what she does not (13.86472ms)\n✔ Shk_Your capitalizes the source owner prefix (0.683061ms)\n✔ shk_your returns the source owner for shop and monster inventories (0.722094ms)\n✔ shk_your handles personal, unique, and ordinary corpse prefixes (0.341061ms)\n✔ shkcatch waits for mnearto before source speech and catch effects (0.284301ms)\nℹ tests 114\nℹ suites 0\nℹ pass 114\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1525.996664\n"
+    }
+  },
+  "testFileHashes": [
+    {
+      "path": "scripts/shk.test.mjs",
+      "sha256": "7c69b2f2a781153d0c013da2e49a235bba5b076a458f3b0dd0b8d8849eb4f97a"
+    },
+    {
+      "path": "scripts/object-substrate.test.mjs",
+      "sha256": "76a581ad6175e76b53ccffc121c9f1178b2e3d2a0c30587e54b8d8b1d0c55c72"
+    },
+    {
+      "path": "scripts/apply-cream-pie.test.mjs",
+      "sha256": "98c6c57b0d672234d4811fdb863e67cb28c4773d55800e84394b43d7c7a932dd"
+    }
+  ],
+  "checkReceipts": [
+    {
+      "kind": "focused",
+      "command": [
+        "node",
+        "--test",
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/teleport-contest-worker1-recovery/.cache/unpaid-object-splitbill-source-parity-20261018/final-focused-green.stdout"
+    },
+    {
+      "kind": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/teleport-contest-worker1-recovery/.cache/unpaid-object-splitbill-source-parity-20261018/lint.log"
+    }
+  ],
+  "rework": {
+    "target": "2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+    "priorDeliveryRed": {
+      "base": "2d20443ff89e00f3a71c37f2d8e2398dfaaef0e2",
+      "command": [
+        "node",
+        "--test",
+        "scripts/shk.test.mjs",
+        "scripts/object-substrate.test.mjs",
+        "scripts/apply-cream-pie.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "✔ cream-pie callers use the canonical can_blnd predicate (1.834799ms)\n✔ can_blnd admits a cream pie against an unprotected hero with eyes (281.06847ms)\n✔ make_blinded performs the talk-false sighted-to-blind transition (67.749417ms)\n✔ doapply creams and blinds the hero before deleting one ordinary pie (94.699057ms)\n✔ doapply splits a cream-pie stack and consumes only the returned child (92.295628ms)\n✔ splitobj preserves the returned child and explicit splitBill hook (69.836508ms)\n✔ doapply follows the hallucinated cream-pie message branch (103.472899ms)\n✔ doapply keeps the source sticky-goop message when already blind (33.407283ms)\n✔ doapply still consumes a pie when can_blnd rejects the eyes (38.417017ms)\n✔ doapply keeps a split unpaid cream pie fully billed through consumption (178.771651ms)\n✔ place_object degrades an ordinary crysknife without an RNG draw (9.135779ms)\n✔ fresh mksobj placement stays synchronous on its unpaid=false path (4.680197ms)\n✔ place_object preserves or degrades a fixed crysknife from rn2(10) (4.757605ms)\n✔ place_object releases contained crysknives in chain order (2.783596ms)\n✔ newObject exposes obj.h aliases over shared backing fields (0.279068ms)\n✔ newObject starts from zeroobj before mksobj applies sentinels (0.333672ms)\n✔ init_dummyobj fills in only the fields the obj.h tests read (2.423318ms)\n✔ object-class macro aliases write through to their shared fields (21.585754ms)\n✔ next_ident returns the old id and preserves uint32 wrap draws (0.382777ms)\n✔ next_ident uses the recorder-visible rnd wrapper in production (2.74911ms)\n✔ copy_oextra copies C-owned data while retaining monster pointers (1.285851ms)\n✔ splitobj preserves source list placement, ids, and independent extras (2.738648ms)\n✔ splitobj retries ids until the shop-price class matches (2.028048ms)\n✔ splitobj adds a light child after bill, extra, and timer work (2.83909ms)\n✔ splitobj tests light ownership with obj_sheds_light() (2.319095ms)\n✔ splitobj rejects an uninitialized shared id before mutating the stack (4.503315ms)\n✔ splitobj copies timers before cloning lit candle sources (4.738187ms)\n✔ splitobj checks light ownership after the timer call (1.9852ms)\n✔ is_flammable follows material and source exceptions (1.268914ms)\n✔ is_pick accepts the two P_PICK_AXE entries and nothing else (3.614863ms)\n✔ matching_launcher accepts only the launcher that negates the skill (2.024262ms)\n✔ ammo_and_launcher also requires the first object to be ammunition (1.964648ms)\n✔ is_launcher accepts the closed P_BOW through P_CROSSBOW window (2.018117ms)\n✔ is_missile accepts the closed -P_BOOMERANG through -P_DART window (2.414374ms)\n✔ is_wet_towel accepts a towel only while its spe is above zero (1.768156ms)\n✔ is_shield accepts armor in the shield category only (1.942009ms)\n✔ object APIs reject uninitialized catalogs, ids, and partial RNGs (0.778689ms)\n✔ real rne uses the supplied hero level and keeps nested log order (2.916983ms)\n✔ blessorcurse preserves draw order on free and carried objects (0.783082ms)\n✔ mksobj follows startup weapon initialization and PRNG order (2.240192ms)\n✔ initial-inventory sack retains the source rn2(1) draw (2.44738ms)\n✔ ordinary startup weapons skip multigen and poison draws (1.912161ms)\n✔ ordinary startup food can double its quantity (1.856673ms)\n✔ startup gems reset their overloaded species field before quantity (1.908116ms)\n✔ charged and ordinary startup tools keep distinct draw boundaries (4.47731ms)\n✔ startup potions preserve BUC and fromsink union initialization (4.427027ms)\n✔ startup scrolls use the shared four-way BUC branch (1.311178ms)\n✔ startup spellbooks clear study count before their BUC draw (1.881016ms)\n✔ startup novels consume BUC then title draws and keep object identity (1.96252ms)\n✔ dealloc_obj clears global references and preserves Lua-held extras (0.617481ms)\n✔ dealloc_obj stops timers before deleting any surviving light source (0.392788ms)\n✔ dealloc_obj preflights the timer seam before mutation (0.565919ms)\n✔ dealloc_obj rechecks light ownership after timer cleanup (0.274444ms)\n✔ dealloc_obj clears the boulder chain union before deletion (0.12861ms)\n✔ Samurai startup splint mail is lacquered after generic armor draws (1.8721ms)\n✔ directional startup wands use the lower charge base (1.917603ms)\n✔ charged startup rings derive enchantment sign from BUC (1.981496ms)\n✔ uncharged rings preserve harmful and ordinary curse boundaries (19.060736ms)\n✔ amulets preserve special-curse and ordinary BUC draw boundaries (3.731161ms)\n✔ artifact generation delegates after base weapon initialization (6.862107ms)\n✔ startup coins consume only the shared object-id draw (1.914611ms)\n✔ slime mold startup uses the current fruit id (1.952519ms)\n✔ candy bar startup records its one-based wrapper index (1.920295ms)\n✔ oil lamp startup initializes fuel before BUC (1.901447ms)\n✔ oil potion finalization replaces age with the full flask capacity (1.911864ms)\n✔ generic egg startup is source-owned and remains untimed (2.147081ms)\n✔ residual figurine hooks retain source initialization order (2.043491ms)\n✔ noninitial sacks use mkbox_cnts maximum of one (1.888132ms)\n✔ noninitial weapons preserve erosion and grease draw order (2.008733ms)\n✔ weight handles ordinary stacks, coins, and bag status exactly (1.971398ms)\n✔ mkobj uses initialized class totals before mksobj creation (2.166515ms)\n✔ mkobj walks a nontrivial initialized class probability boundary (1.902005ms)\n✔ mkobj steps over the globs objects.h gives no probability (2.072294ms)\n✔ rnd_class preserves the all-zero equal-probability branch (2.400166ms)\n✔ hornoplenty identifies a cursed item spilled onto an altar (222.119119ms)\n✔ hornoplenty wires the default carried-object encumbrance callback (196.443151ms)\n✔ addupbill sums exactly the active bill entries (7.21233ms)\n✖ splitbill divides the active row and handles a full bill table (656.50665ms)\n✔ shop_debt includes only the active bill entries (0.312953ms)\n✔ shop_keeper applies the anger surcharge once to active bill entries (1.533451ms)\n✔ hot_pursuit angers the keeper and clears floor and pet no-charge flags (1.362254ms)\n✔ make_angry_shk clears net debt with credit and chooses its message before hot pursuit (127.570353ms)\n✔ shk_move keeps C distu avoidance threshold in squared-distance units (0.513645ms)\n✔ nested shop identity reaches keeper and deserted-shop handling (0.950919ms)\n✔ restshk pacifies a ghostly keeper for a different customer (0.344606ms)\n✔ find_objowner checks every bill and falls back to the first room keeper (0.463708ms)\n✔ onshopbill preserves the silent onbill boolean contract (0.191316ms)\n✔ costly_adjacent keeps only tended shop edges and the free spot (0.188975ms)\n✔ is_unpaid includes unpaid objects nested inside containers (0.123303ms)\n✔ same_price requires one shopkeeper and one quoted price (0.152713ms)\n✔ cost_per_charge follows the complete shk.c item-rate formula (2.945983ms)\n✔ unpaid novel use speaks the C library fee and increments debt (2.732023ms)\n✔ pick_pick warns once per move and preserves speech formatting (6.491577ms)\n✔ append_price_quote formats the buy and sell halves shk.c writes (5.472401ms)\n✔ append_price_quote drops the whole suffix when it would overrun (1.033299ms)\n✔ gem_learned reprices matching bill entries and all gems for STRANGE_OBJECT (1.799019ms)\n✔ ordinary charge helpers preserve source quantity and id partitions (1.225774ms)\n✔ get_cost pins every charisma boundary and C integer rounding (29.598406ms)\n✔ getprice preserves reached class adjustments (1.580316ms)\n✔ record_price_quote updates one partition without changing the other (1.379607ms)\n✔ clear_no_charge_pets clears only tame monster inventories (0.176765ms)\n✔ contained_gold sums nested piles by shk.c's rules (0.186956ms)\n✔ hidden_gold walks the pack the way vault.c does (0.11436ms)\n✔ shkgone discards its owned damage records before resident removal (1.806802ms)\n✔ make_happy_shk settles hostility before the shopkeeper turn (1.66831ms)\n✔ angry_shk_exists uses next_shkp and restores a missing surcharge (0.17117ms)\n✔ shopdig warns in source order and all active callers use the owner (1.672602ms)\n✔ shopdig takes only inventory the source leaves eligible (31.230809ms)\n✔ inhishop checks the keeper level before the current room (1.133743ms)\n✔ shk_your prefixes what the hero holds and what she does not (0.913287ms)\n✔ Shk_Your capitalizes the source owner prefix (0.743425ms)\n✔ shk_your returns the source owner for shop and monster inventories (12.419833ms)\n✔ shk_your handles personal, unique, and ordinary corpse prefixes (0.390251ms)\n✔ shkcatch waits for mnearto before source speech and catch effects (0.293065ms)\nℹ tests 114\nℹ suites 0\nℹ pass 113\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2107.933234\n\n✖ failing tests:\n\ntest at scripts/shk.test.mjs:138:1\n✖ splitbill divides the active row and handles a full bill table (656.50665ms)\n  AssertionError [ERR_ASSERTION]: Missing expected exception (UnsupportedShopError): the existing nonsilent onbill refusal remains observable\n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker1-recovery/scripts/shk.test.mjs:155:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    operator: 'throws',\n    diff: 'simple'\n  }\n"
+    },
+    "testFileHashes": [
+      {
+        "path": "scripts/shk.test.mjs",
+        "sha256": "e90eb0ddc8e0f3289ba70c0b97881b87bdb81e580edd074c223789dcef97a8a2"
+      },
+      {
+        "path": "scripts/object-substrate.test.mjs",
+        "sha256": "76a581ad6175e76b53ccffc121c9f1178b2e3d2a0c30587e54b8d8b1d0c55c72"
+      },
+      {
+        "path": "scripts/apply-cream-pie.test.mjs",
+        "sha256": "98c6c57b0d672234d4811fdb863e67cb28c4773d55800e84394b43d7c7a932dd"
+      }
+    ]
+  }
+}

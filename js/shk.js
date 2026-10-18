@@ -4097,7 +4097,7 @@ export function splitbill(obj, child, state = game) {
         note_unported('shk.c impossible splitbill: no resident shopkeeper');
         return;
     }
-    const bill = onbill(obj, shopkeeper, true);
+    const bill = onbill(obj, shopkeeper, false);
     if (!bill) {
         note_unported('shk.c impossible splitbill: parent not on bill');
         return;

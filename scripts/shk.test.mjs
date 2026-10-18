@@ -136,7 +136,7 @@ test('addupbill sums exactly the active bill entries', () => {
 });
 
 test('splitbill divides the active row and handles a full bill table', async () => {
-    const { splitbill } = await import('../js/shk.js');
+    const { splitbill, UnsupportedShopError } = await import('../js/shk.js');
     assert.equal(typeof splitbill, 'function');
     const recipe = JSON.parse(readFileSync(
         'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
@@ -147,6 +147,22 @@ test('splitbill divides the active row and handles a full bill table', async () 
     const keeper = shop_keeper(roomNo, game);
     assert.ok(keeper?.isshk && keeper.mextra?.eshk);
     const eshk = keeper.mextra.eshk;
+
+    const unpaidParentWithoutRow = { o_id: 91005, quan: 2, unpaid: 1 };
+    const missingRowChild = { o_id: 91006, quan: 1, unpaid: 1 };
+    eshk.bill_p = [];
+    eshk.billct = 0;
+    assert.throws(
+        () => splitbill(unpaidParentWithoutRow, missingRowChild, game),
+        UnsupportedShopError,
+        'the existing nonsilent onbill refusal remains observable',
+    );
+    assert.equal(eshk.billct, 0);
+    assert.deepEqual(eshk.bill_p, []);
+    assert.equal(unpaidParentWithoutRow.unpaid, 1);
+    assert.equal(unpaidParentWithoutRow.quan, 2);
+    assert.equal(missingRowChild.unpaid, 1);
+    assert.equal(missingRowChild.quan, 1);
 
     const parent = { o_id: 91001, quan: 2, unpaid: 1 };
     const child = { o_id: 91002, quan: 1, unpaid: 1 };
