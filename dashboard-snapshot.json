@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T04:49:13.326Z",
+  "capturedAt": "2026-10-18T05:23:26.554Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T04:49:13.326Z",
+    "asOf": "2026-10-18T05:23:26.554Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 227,
+      "mainSupportAssignments": 231,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -168413,19 +168413,278 @@
         "type": "accepted",
         "at": "2026-10-18T04:47:52.739Z",
         "task": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-empty-entry-bones-amulet-source-parity-20261018-952eeebd907e246b6c6a3b1c5feeddc015eb8620",
+        "type": "published",
+        "at": "2026-10-18T04:49:32.738Z",
+        "task": "delivery:fix-empty-entry-bones-amulet-source-parity-20261018",
+        "commit": "952eeebd907e246b6c6a3b1c5feeddc015eb8620"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:52:13.780Z",
+        "id": "queue:8efe31cf-0723-47bc-8abe-51e16616fdb4",
+        "type": "assign",
+        "task": "hunger-faint-corpse-selftouch-caller-inquiry-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:52:39.848Z",
+        "id": "queue:a3f19d03-a8f1-4f60-86e7-f9a85eca1e41",
+        "type": "assign",
+        "task": "mimic-level-departure-reveal-source-inquiry-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:56:01.669Z",
+        "id": "queue:a3072456-edbd-43af-9262-f2f1d23e7dfa",
+        "type": "queue-complete",
+        "task": "mimic-level-departure-reveal-source-inquiry-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:56:01.669Z",
+        "id": "queue:a3072456-edbd-43af-9262-f2f1d23e7dfa:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "lifesaving-delivery-review-a989b5a5",
+        "type": "activity",
+        "at": "2026-10-18T04:56:35.320Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "phase": "review",
+        "reason": "Review saved original production-caller refusal and same-test green, canonical teardown/defaults and independent source review"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "lifesaving-delivery-received-a989b5a5",
+        "type": "received",
+        "at": "2026-10-18T04:56:36.658Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "delivery": "a989b5a5f6f40bc4a3ba16bf8034e3b595cec16c"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-4ca6ca276c8442396a58ab1febe76a17d459a150-c53f4ddfd4e9efaa75b46ec78b4f31f6f313d211867c15ed52c749d6a3ca5289-delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T04:58:04.768Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "integration": "4ca6ca276c8442396a58ab1febe76a17d459a150",
+        "validationGroup": [
+          "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:59:34.226Z",
+        "id": "queue:5386138a-22a2-49c2-8859-66764f2a7987",
+        "type": "queue-complete",
+        "task": "hunger-faint-corpse-selftouch-caller-inquiry-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T04:59:34.226Z",
+        "id": "queue:5386138a-22a2-49c2-8859-66764f2a7987:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:02:47.147Z",
+        "id": "queue:b4de87b6-1273-497a-a646-0c0e37739461",
+        "type": "assign",
+        "task": "mimic-keepdogs-departure-target-support-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:05:13.619Z",
+        "id": "queue:34edb12c-1a3b-4f4c-a39e-1e5d50333b0c",
+        "type": "assign",
+        "task": "fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:08:41.908Z",
+        "id": "queue:176a659c-11df-4a74-b17d-ed724395fbf8",
+        "type": "queue-complete",
+        "task": "mimic-keepdogs-departure-target-support-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:08:41.908Z",
+        "id": "queue:176a659c-11df-4a74-b17d-ed724395fbf8:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:10:20.118Z",
+        "id": "ready-b9ac8cf7451206daff8ac3bc3e08e96fd2f2f2c5:transport",
+        "type": "assign",
+        "task": "delivery:fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "implementation",
+        "goal": "fix-qualified-hunger-faint-selftouch-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-b9ac8cf7451206daff8ac3bc3e08e96fd2f2f2c5",
+        "type": "ready",
+        "at": "2026-10-18T05:10:20.118Z",
+        "task": "delivery:fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "delivery": "b9ac8cf7451206daff8ac3bc3e08e96fd2f2f2c5"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:10:20.118Z",
+        "id": "ready-b9ac8cf7451206daff8ac3bc3e08e96fd2f2f2c5:complete",
+        "type": "queue-complete",
+        "task": "fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:10:20.118Z",
+        "id": "ready-b9ac8cf7451206daff8ac3bc3e08e96fd2f2f2c5:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:11:53.963Z",
+        "id": "queue:7efce41d-334f-46f1-aa94-aed06930d0e9",
+        "type": "assign",
+        "task": "nonhero-acid-potion-kill-default-provider-source-inquiry-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "life-release-failed39098995526-delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T05:12:25.084Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "integration": "4ca6ca276c8442396a58ab1febe76a17d459a150"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "life-release-failed39098995526-delivery:fix-ordinary-monster-lifesaving-source-parity-20261018-released",
+        "type": "ready",
+        "at": "2026-10-18T05:12:25.084Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "integration": "4ca6ca276c8442396a58ab1febe76a17d459a150"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-5aca66388caceac99b12a2a75b7a6c016536f4a3-c53f4ddfd4e9efaa75b46ec78b4f31f6f313d211867c15ed52c749d6a3ca5289-delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T05:12:28.310Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "integration": "5aca66388caceac99b12a2a75b7a6c016536f4a3",
+        "validationGroup": [
+          "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:21:28.885Z",
+        "id": "queue:e93383df-5b67-4da1-a1d4-79accb1ffbc6",
+        "type": "assign",
+        "task": "shopkeeper-hole-anger-production-prerequisite-source-inquiry-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-ordinary-monster-lifesaving-source-parity-20261018-5aca66388caceac99b12a2a75b7a6c016536f4a3-validated",
+        "type": "validated",
+        "at": "2026-10-18T05:21:48.792Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-ordinary-monster-lifesaving-source-parity-20261018-5aca66388caceac99b12a2a75b7a6c016536f4a3-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T05:22:35.016Z",
+        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:22:43.877Z",
+        "id": "queue:d503d343-60dc-40de-8967-7b4e25cb6aca",
+        "type": "queue-block",
+        "task": "nonhero-acid-potion-kill-default-provider-source-inquiry-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T05:22:43.877Z",
+        "id": "queue:d503d343-60dc-40de-8967-7b4e25cb6aca:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Assignment blocked; available for independent work."
       }
     ]
   },
   "pendingMainWork": {
     "deliveries": [
       {
-        "task": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
-        "worker": "Worker-1",
-        "goal": "fix-ordinary-monster-lifesaving-source-parity-20261018",
+        "task": "delivery:fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "worker": "Worker-3",
+        "goal": "fix-qualified-hunger-faint-selftouch-source-parity-20261018",
         "kind": "implementation",
         "status": "ready",
-        "delivery": "a989b5a5f6f40bc4a3ba16bf8034e3b595cec16c",
-        "since": "2026-10-18T04:46:05.831Z",
+        "delivery": "b9ac8cf7451206daff8ac3bc3e08e96fd2f2f2c5",
+        "since": "2026-10-18T05:10:20.118Z",
         "blockedBy": [],
         "unblocks": 0
       }
@@ -168605,20 +168864,20 @@
         ],
         "reason": "Terminal first-run setup blocker: resetInventory cannot clear a worn boot Wizard item because the canonical setworn path requires an unprovided cancelDoff hook; no real savebones target receipt occurred. Frozen draft and exact raw output are retained in typed evidence; no retry or fixture repair."
       },
-      "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018": {
-        "id": "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018",
-        "worker": "Worker-1",
+      "delivery:fix-qualified-hunger-faint-selftouch-source-parity-20261018": {
+        "id": "delivery:fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "worker": "Worker-3",
         "status": "ready",
         "seed": null,
         "reservations": [
-          "source:mon.c:lifesaved_monster"
+          "source:eat.c:newuhs"
         ]
       }
     },
     "reservations": {
-      "source:mon.c:lifesaved_monster": {
+      "source:eat.c:newuhs": {
         "tasks": [
-          "delivery:fix-ordinary-monster-lifesaving-source-parity-20261018"
+          "delivery:fix-qualified-hunger-faint-selftouch-source-parity-20261018"
         ]
       }
     }
@@ -168631,16 +168890,21 @@
     "ready": [],
     "blocked": [
       {
-        "task": "hunger-faint-corpse-selftouch-caller-inquiry-20261018",
+        "task": "nonhero-acid-potion-kill-default-provider-source-inquiry-20261018",
         "reason": "Waiting for producer or dependencies."
       }
     ],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "shopkeeper-hole-anger-production-prerequisite-source-inquiry-20261018",
+        "worker": "Worker-3"
+      }
+    ],
     "counts": {
-      "ready": 1,
-      "claimed": 0,
-      "blocked": 0,
-      "completed": 462,
+      "ready": 0,
+      "claimed": 1,
+      "blocked": 1,
+      "completed": 466,
       "superseded": 92
     },
     "workers": [
@@ -168656,8 +168920,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "shopkeeper-hole-anger-production-prerequisite-source-inquiry-20261018",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -177007,22 +177271,97 @@
         "id": "hunger-faint-corpse-selftouch-caller-inquiry-20261018",
         "type": "exploration",
         "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T04:48:13.655Z",
+        "claimedAt": "2026-10-18T04:52:13.780Z",
+        "completedAt": "2026-10-18T04:59:34.226Z"
+      },
+      {
+        "id": "mimic-level-departure-reveal-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T04:51:52.324Z",
+        "claimedAt": "2026-10-18T04:52:39.848Z",
+        "completedAt": "2026-10-18T04:56:01.669Z"
+      },
+      {
+        "id": "mimic-keepdogs-departure-target-support-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T05:02:12.490Z",
+        "claimedAt": "2026-10-18T05:02:47.147Z",
+        "completedAt": "2026-10-18T05:08:41.908Z"
+      },
+      {
+        "id": "fix-qualified-hunger-faint-selftouch-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T05:04:51.373Z",
+        "claimedAt": "2026-10-18T05:05:13.619Z",
+        "completedAt": "2026-10-18T05:10:20.118Z"
+      },
+      {
+        "id": "nonhero-acid-potion-kill-default-provider-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
         "status": "blocked",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-1",
         "target": null,
-        "readyAt": "2026-10-18T04:48:13.655Z",
-        "claimedAt": null,
+        "readyAt": "2026-10-18T05:10:43.282Z",
+        "claimedAt": "2026-10-18T05:11:53.963Z",
+        "completedAt": null
+      },
+      {
+        "id": "shopkeeper-hole-anger-production-prerequisite-source-inquiry-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T05:20:48.435Z",
+        "claimedAt": "2026-10-18T05:21:28.885Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "eddab4df9e3830e8a8ff3a1410e600003b3f4003",
-    "measuredAt": "2026-10-18T04:45:04.649Z",
+    "executionCommit": "5aca66388caceac99b12a2a75b7a6c016536f4a3",
+    "measuredAt": "2026-10-18T05:19:11.777Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

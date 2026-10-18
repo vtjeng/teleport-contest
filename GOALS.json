@@ -324076,7 +324076,7 @@
     {
       "id": "fix-ordinary-monster-lifesaving-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement lifesaved_monster from mon.c",
       "cFile": "mon.c",
       "sessions": [],
@@ -324084,7 +324084,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "5aca66388caceac99b12a2a75b7a6c016536f4a3",
       "delivered": null,
       "functions": [
         {
@@ -324217,6 +324217,56 @@
           }
         },
         "reviewSha256": "7ce7815b1129e16aed32a6e232d7470fde6dc342279b54e147699812a05683ac"
+      },
+      "closeStanding": {
+        "sha": "5aca66388caceac99b12a2a75b7a6c016536f4a3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "eddab4df9e3830e8a8ff3a1410e600003b3f4003",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/5aca66388caceac99b12a2a75b7a6c016536f4a3/run-hosted-dpEMmb/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "lifesaved_monster",
+            "implementation": "js/mon.js",
+            "symbol": "lifesaved_monster",
+            "sourceReview": "Read the complete upstream mon.c:2838-2884 lifesaved_monster() and both actual caller sites in mondead() and monstone(). Match source guard/order: discover visible lifesaving amulet; consume it via m_useup; run gear review; derive survivor from mvitals/G_GENOD; restore movement and frozen fields; call wary_dog only for tame nonminions; enforce minimum HP and restore HP; then apply the genocided death result. The JS helper is async and both existing production callers await it before testing restored HP. Existing helper implementations are used without changing their source.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mondead",
+                "source": "C mon.c mondead calls lifesaved_monster before testing restored mhp to return before death count/detach. JS exported real mondead is required primary initialized production-caller regression, not direct helper call."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "monstone",
+                "source": "C mon.c monstone calls lifesaved_monster before its survival return/statue work. Existing exported async JS monstone must await same helper; focused caller check verifies await ordering under genuine lifesaving, not helper-only mock."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs",
+              "scripts/monster-death-planning.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The selected C unit is reached at two production call sites: mondead() checks the lifesaved HP before death accounting and detachment; monstone() checks it before statue/death continuation. The focused constructed-state test invokes real exported mondead() and monstone() with a canonically inserted and worn lifesaving amulet. The mondead case verifies visible discovery, the actual Wisdom RNG exercise draw, default item disposal, worn-slot cleanup, movement/HP restoration, and early return without death count or detach. The monstone case verifies the awaited survival return, real consumption and gear marking, and no additional draw after discovery. This is source-parity runtime-pending evidence, not public parity or whole-source certification.",
+        "entryPoints": [
+          {
+            "name": "mondead and monstone lifesaving production calls",
+            "functions": [
+              "lifesaved_monster"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
