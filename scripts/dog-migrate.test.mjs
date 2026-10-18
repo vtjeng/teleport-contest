@@ -310,6 +310,57 @@ test('migration rejects other future lifecycle owners before item mutation', asy
     }
 });
 
+test('migration only admits linked canonical off-map limbo state', async () => {
+    {
+        const state = migrationState();
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 4,
+            mhpmax: 4,
+            mx: 0,
+            my: 0,
+            mstate: MON_LIMBO,
+            mtrack: [
+                { x: MIGR_APPROX_XY, y: 0 },
+                { x: 0, y: 0 },
+                { x: CURRENT_LEVEL.dnum, y: CURRENT_LEVEL.dlevel },
+            ],
+        });
+        await assert.rejects(
+            () => migrate_to_level(monster, ledger_no(CURRENT_LEVEL, state),
+                MIGR_APPROX_XY, null, { state }),
+            /not on (?:the map|the level chain)/u,
+        );
+        assert.equal(state.level.monlist, null);
+        assert.equal(state.gm.migrating_mons, null);
+    }
+    {
+        const state = migrationState();
+        const { monster } = onMapMonster(state);
+        monster.mx = 0;
+        monster.my = 0;
+        await assert.rejects(
+            () => migrate_to_level(monster, ledger_no(CURRENT_LEVEL, state),
+                MIGR_APPROX_XY, null, { state }),
+            /not on the map/u,
+        );
+        assert.equal(state.gm.migrating_mons, null);
+        assert.equal(monster.mlstmv, 0);
+    }
+    {
+        const state = migrationState();
+        const { monster } = onMapMonster(state);
+        state.level.monsters[monster.mx][monster.my] = null;
+        await assert.rejects(
+            () => migrate_to_level(monster, ledger_no(CURRENT_LEVEL, state),
+                MIGR_RANDOM, null, { state }),
+            /not on the map/u,
+        );
+        assert.equal(state.gm.migrating_mons, null);
+        assert.equal(monster.mlstmv, 0);
+    }
+});
+
 test('dog.c mon_catchup_elapsed_time updates conditions, healing, and last move', () => {
     const state = migrationState();
     const { monster } = onMapMonster(state);

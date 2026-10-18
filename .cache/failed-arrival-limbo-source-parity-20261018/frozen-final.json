@@ -1,0 +1,14 @@
+{
+  "task": "fix-failed-arrival-limbo-source-parity-20261018",
+  "base": "41833ac39bde296803966c7eaa8408f4f613548d",
+  "testPath": "scripts/dog-migrate.test.mjs",
+  "testSha256": "dcec57abcfa0eac7964a340fbf32f7f4c785a194eadaddd2f19c67b05f1bba68",
+  "command": [
+    "node",
+    "--test",
+    "scripts/dog-migrate.test.mjs"
+  ],
+  "originalProductionSha256": "4d1be481438a7bc92e12661be6b93705acc3bb3685a8c04e2b89fdf464b1e6ea",
+  "repairProductionSha256": "f205a9234f31e83ff265a25a84b76417c4c7cfe3f91e5ed6c6235cdc30b8953c",
+  "phase": "final-test-freeze-v3-after-first-code-draft; corrected observer path and added explicit invalid offmap/onmap admission controls"
+}
