@@ -765,3 +765,23 @@ Retained melt repair evidence disposition (2026-10-18):
   expanded. Work lead selects this exact corrected revision for normal hosted
   validation under the reviewed observer correction; it is not yet accepted.
   Prior attempts, runtime-pending basis and public-evidence limits remain.
+
+
+Retained floor figurine charge evidence disposition (2026-10-18):
+
+- Whole source unit zap.c:stone_to_flesh_obj retains its B21 supporting
+  source owner and parked spell/poly entry limits. Floor charge is a distinct
+  reached callback; no prior physical budget or source certificate reopened.
+- Original e4eee reports zero callback incorrectly. Its immutable await at129
+  returns normally before the postobserver at139 fails; final marker/newt
+  screen supports the missing-call prefix. Numeric billing projections were
+  lost and the handler was not restored; these facts stay separate.
+- Implementation47d502 adds the source keeper lookup and awaits existing
+  stolen_value before timers/deletion. New original regression directly
+  records figurine101 removed/newt103/actual price80 with debit0. A genuine
+  target red on046a preceded production. Final1f2702 import-only cleanup came
+  after the first draft, then identical final bytes reproduced originalred
+  and repairedgreen/debit80. All earlier observer/path failures remain.
+- Main and Challenge lead reviewed exact code/test/35 literal artifacts and
+  raw projections. Select this exact delivery for normal hosted validation;
+  it is not yet accepted. Runtime-pending/public/source limits remain.

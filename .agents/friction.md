@@ -1726,3 +1726,30 @@ The initial wrong-field and startup-only gate assessments remain immutable; offl
 - Saddle47a71be9 stopped before mount because a normal Knight role form335 was compared with generic PM_HUMAN260. The prior melt source receipt21c55c11 already identified the source Upolyd predicate (u.umonnum versus u.umonster). Imports resolved; this was a state predicate error. Its separately selected same-input continuation62f775a9 introduced Set.includes in both a pre-action observer and catch snapshot. The catch masked the original exception, leaving the actual reached stage unknown. Preserve both spent invocations; no source refutation or automatic retry follows.
 - Dig a0b6 retained a literal target-specific original red log and unchanged-test green, but fixed receipt filenames allowed green to overwrite the full original red state/RNG JSON. Those bytes remain unavailable; their hashes and compact summaries are not raw proof. Metadata-only624b preserves the existing logs/freeze/full green bytes without rerunning or reconstructing. Its noncontiguous context also needed the already documented primary/requiredFunctions representation.
 - Existing final-script state-owner, catch/finally and evidence-preservation requirements apply. No new helper, rule, pipeline or gate is proposed; preventive benefit remains unmeasured.
+
+
+## 2026-10-18 — constant bindings and post-callback evidence
+
+Repeated terminal ESM misses imported object constants from `const.js`:
+`AMULET_OF_YENDOR` (67a4308f), `BOULDER` (6f1939bc and 86e80909), and
+`APPLE` (1445f752). These constants belong to `objects.js`. The new impact
+freeze deferred its import audit to the module body, which ESM linking never
+entered; its provenance admits only syntax/string checks completed. Boulder
+86e likewise retained pins/hashes without the required export audit. Preserve
+each spent invocation; source hashes and `node --check` do not prove exports.
+
+Figurine e4eee originally reported captureCount0 as no callback execution.
+The immutable fixture instead awaits `bhito` at129 before its post-callback
+Set/array observer throws at139 while evaluating `captures.push` arguments.
+Inner catch assignment and outer `??=` plus the raw error locate this after
+normal callback return. Final marker presence survives; numeric before/after
+projections do not. Main/CL/worker corrected the prose additively; no new
+qualification retry was selected from the false pretarget premise.
+
+Dig a0b6 disclosed full original-red receipts overwritten by green at fixed
+paths; raw red stdout/freeze/summary/hashes survived, missing bytes stayed
+unavailable. Main now reports figurine raw/projections preserved per run:
+earlier046a meaningful red/green preceded import-only final cleanup; the final
+same-byte original0!==80/repair-green pair ran after first code, with lint0.
+Retain that chronology. Existing audit/capture requirements apply; no new rule,
+helper, gate, or measured prevention benefit is claimed.

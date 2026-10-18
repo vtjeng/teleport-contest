@@ -327145,6 +327145,146 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-floor-figurine-stone-flesh-billing-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement stone_to_flesh_obj from zap.c",
+      "cFile": "zap.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-floor-figurine-stone-flesh-billing-source-parity-20261018",
+      "detail": "Source-parity-runtime-pending whole stone_to_flesh_obj. Actual e4eee callback normal return/missing-call prefix was initially misclassified after a postobserver failed; original numeric projections unavailable. New regression directly proves floor FIGURINE101 deletion/newt103/price80 versus original debit0; reviewed helper call makes debit80. Initial046a genuine target red preceded code, final1f2702 same-byte red/green pairing followed import-only test cleanup after first draft. Exact raw/projections/lint preserved in47d/0dd67; pending normal hosted checkpoint/acceptance. B21/parked spell/poly/shock owners/caps and public/source-certification limits retained.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "stone_to_flesh_obj",
+          "line": 1993,
+          "endLine": 2118,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 1993,
+        "to": 2118
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-floor-figurine-stone-flesh-billing-source-parity-20261018",
+        "assignmentBase": "d4eb863f57c8e2479e6f00789cd53db6c2000778",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "d4eb863f57c8e2479e6f00789cd53db6c2000778",
+          "authorization": "Standing authorized source-parity workflow. Main explicitly selects NEW <=15min implementation/regression work after actual e4eee callback normal return into missing-charge prefix, complete ecb whole-function source review, and independent CL whole C/JS/default helper review. The qualification is spent. All B21/parked spell/poly/shock and old physical/source caps remain unchanged; no additional discovery or helper expansion.",
+          "currentBehavior": "C whole stone_to_flesh_obj1993–2111 successful FIGURINE animation charges stolen_value before timers/useup/delobj. JS marks this call. Actual immutable e4eee: fixed FIGURINE101 at3,7/spell102, await bhito129 returned normally before postobserver139 Set.includes failure. Final raw marker stolen_value and newt glyph at3,7 support reached successful animation/missing-charge prefix. The old before-target/zero callback classification is contradicted by source/raw primaryError ownership. Durable pre/post numeric billing/object/actor projection and handler restoration are unavailable; do not invent old numeric debt/red.",
+          "expectedBehavior": "Within WHOLE existing stone_to_flesh_obj replace only successful FIGURINE charge marker with source lookup shop_keeper(first in_rooms(ox,oy,SHOPBASE,state)), then await existing stolen_value(obj,ox,oy,Boolean(keeper&&keeper.mpeaceful),false,state) BEFORE timers/useup/delobj. Preserve all material/resistance/statue/golem/failure/corpse/contents/ring/wand/gem/smell/newsym/default branches and existing callers. No helper/default widening, manual charge, forced RNG or poly/shop reopening. Existing helper owns source price/credit/debit-or-robbed/bill/message/pursuit.",
+          "units": [
+            "zap.c:stone_to_flesh_obj"
+          ],
+          "allowedPaths": [
+            "js/zap.js",
+            "scripts/zapyourself.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/zapyourself.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/zap.js",
+              "symbol": "bhito",
+              "source": "Actual e4eee SPE_STONE_TO_FLESH callback awaits whole helper with full normal canonical RNG."
+            },
+            {
+              "path": "js/zap.js",
+              "symbol": "stone_to_flesh_obj",
+              "source": "Whole C1993–2111; successful FIGURINE charge precedes timers/deletion, remaining branches preserved."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/zap.js",
+              "object": "3d03ad1932540ca8e89a7dfc0332302b9983d71f"
+            },
+            {
+              "path": "scripts/zapyourself.test.mjs",
+              "object": "796910436d1de96acaee7d2652bff69d8a7fc9af"
+            },
+            {
+              "path": "js/shk.js",
+              "object": "b34f0bd8e2ef05038e107e5eba141a544898e8a7"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "js/monsters.js",
+              "object": "1381545113e72cabfbc4c05f1d6f167964ecfcc7"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/rooms.js",
+              "object": "d35e27a3d2d100dbd69b1d4e2f92192dc91dae39"
+            },
+            {
+              "path": "js/mkroom.js",
+              "object": "8e6d10b8dd5ca1dbdbc6b8062af950da7d23c778"
+            },
+            {
+              "path": "js/mklev.js",
+              "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            }
+          ],
+          "sourceEvidence": {
+            "sourceResult": "ecb897801dfec2cf5de1d31dbb75d6864e09ad14f6932b4ef193f1c14b961ce7",
+            "actualResult": "e4eee527d0670242ba9579d9d75443ba7344d7b5f06c330943a7055d4a8c8ed8",
+            "actualCommit": "599abd12ea5464d9cf2bd1321f8bc4d07ae18144",
+            "actualEnvelope": "20fe72eb45009b82a0e593e2cac14c8b9211abd064a3f9e7381270d3f8ac5ad7",
+            "mainFixture": "/workspace/teleport-contest/.cache/resume-1439/figurine-e4ee/fixture.mjs",
+            "limits": "Main verified outer/all10 files and full fixture/raw attempt. CL independently confirms callback normal return and whole source closure; old numeric projections lost/no restoration. Exact B21 source owner and unrecorded entries preserved. No public/C parity, synthetic gain or broad source certification."
+          }
+        },
+        "reviewSha256": "b0088c683ba77433c6cd9fea3c65fc9838ed068642ac7472c22d8240005e6d9a"
+      }
     }
   ]
 }
