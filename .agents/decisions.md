@@ -499,3 +499,14 @@ After two source-supported repair tasks stopped before production edits—earthq
   pipeline. Current claimed and terminal work is not retrospectively counted
   as a new-policy result. Integrate this entry with the procedure edits at a
   natural boundary, without a standalone publication.
+- Follow-up, 2026-10-18: the first seven new questions and linked same-worker
+  repairs produced accepted life-saving (05:22:35), faint/selftouch (05:38:23)
+  and mimic departure (05:54:23) corrections. Useful source prerequisite
+  negatives remain distinct from split-bill, glob and ray fixture failures;
+  the life-saving candidate also required one hosted sibling-test correction.
+  All seven exact candidate onset times are unknown. Existing packet-to-first
+  ownership subintervals were 53.6–314.9 seconds and are only lower bounds.
+  These heterogeneous outcomes establish useful accepted work, not a causal
+  speedup or yield estimate; all-in effort, CPU and overall benefit remain
+  unmeasured. Continue ordinary monitoring without another reporting form.
+
