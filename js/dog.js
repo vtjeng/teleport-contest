@@ -110,7 +110,7 @@ import {
 } from './mondata.js';
 import { monnear } from './monmove.js';
 import {
-    mon_leaving_level, restore_cham, wake_nearto,
+    m_into_limbo, mon_leaving_level, restore_cham, wake_nearto,
 } from './mon.js';
 import {
     m_at, mon_track_clear, place_monster,
@@ -1098,12 +1098,9 @@ export async function losedogs(rawEnv = {}) {
     while (state.gm.failed_arrivals) {
         monster = state.gm.failed_arrivals;
         state.gm.failed_arrivals = monster.nmon;
-        // C re-adds the failed arrival to fmon before mon.c:m_into_limbo(),
-        // which reaches the still-partial dog.c:migrate_to_level adapter.
-        // Record that precise void-callee boundary without invoking it.
         monster.nmon = state.level.monlist;
         state.level.monlist = monster;
-        note_unported('dog.c migrate_to_level');
+        await m_into_limbo(monster, state, env);
     }
 }
 
@@ -1393,8 +1390,13 @@ export async function migrate_to_level(
     const inWizardTower = onWizardTowerLevel
         ? migratingOperation(env, 'inWizardTower')
         : null;
-    if (m_at(monster.mx, monster.my, state) !== monster)
+    const isOnMap = m_at(monster.mx, monster.my, state) === monster;
+    const isOffMapLimbo = monster.mx === 0
+        && (monster.mstate & MON_LIMBO) === MON_LIMBO;
+    if (!isOnMap && !isOffMapLimbo)
         throw new Error('migrate_to_level: monster is not on the map');
+    if (isOffMapLimbo)
+        levelMonsterPredecessor(monster, state);
     if (!Array.isArray(monster.mtrack)
         || monster.mtrack.length < 3
         || monster.mtrack.slice(0, 3).some((entry) => !entry)) {

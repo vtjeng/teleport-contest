@@ -1,0 +1,50 @@
+{
+  "assignmentBase": "41833ac39bde296803966c7eaa8408f4f613548d",
+  "initialPreEditTestSha256": "ce1f9b814802323a0eeb719b37dafec1f0bcb1ca6b9e9d1c80693758c42f8d51",
+  "initialPreEditOriginalRed": {
+    "description": "Genuine target-specific missing-transfer red run against assignment-base dog.js before the first production edit.",
+    "testSha256": "ce1f9b814802323a0eeb719b37dafec1f0bcb1ca6b9e9d1c80693758c42f8d51",
+    "log": "frozen-red.log",
+    "commandReceipt": "red-command.json"
+  },
+  "firstProductionDraftSha256": "f205a9234f31e83ff265a25a84b76417c4c7cfe3f91e5ed6c6235cdc30b8953c",
+  "firstPostDraftGreenFailure": {
+    "description": "First post-draft run retained. Behavior assertions reached the observer assertion, which incorrectly read after.gridOwns rather than nested after.actor.gridOwns; this was a test-observer typo, not a production failure.",
+    "testSha256": "ce1f9b814802323a0eeb719b37dafec1f0bcb1ca6b9e9d1c80693758c42f8d51",
+    "log": "frozen-green.log"
+  },
+  "finalTestSha256": "dcec57abcfa0eac7964a340fbf32f7f4c785a194eadaddd2f19c67b05f1bba68",
+  "finalFreezePhase": "after-first-code-draft; observer corrected and invalid offmap/onmap admission controls added",
+  "finalOriginalSourceRun": {
+    "command": [
+      "node",
+      "--test",
+      "scripts/dog-migrate.test.mjs"
+    ],
+    "exitCode": 1,
+    "log": "final-red.log",
+    "testSha256": "dcec57abcfa0eac7964a340fbf32f7f4c785a194eadaddd2f19c67b05f1bba68",
+    "dogJsSha256": "4d1be481438a7bc92e12661be6b93705acc3bb3685a8c04e2b89fdf464b1e6ea"
+  },
+  "finalRepairedRun": {
+    "command": [
+      "node",
+      "--test",
+      "scripts/dog-migrate.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "final-green.log",
+    "testSha256": "dcec57abcfa0eac7964a340fbf32f7f4c785a194eadaddd2f19c67b05f1bba68",
+    "dogJsSha256": "f205a9234f31e83ff265a25a84b76417c4c7cfe3f91e5ed6c6235cdc30b8953c"
+  },
+  "lint": {
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "lint.log"
+  },
+  "limits": "No C, build, aggregate check, runtime survey or additional physical/source trial; prior budgets remain spent."
+}

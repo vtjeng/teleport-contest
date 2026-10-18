@@ -1,0 +1,129 @@
+{
+  "goal": "fix-failed-arrival-limbo-source-parity-20261018",
+  "kind": "file-port",
+  "cFile": "dog.c",
+  "functions": [
+    "losedogs",
+    "migrate_to_level"
+  ],
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-failed-arrival-limbo-source-parity-20261018",
+    "assignmentBase": "41833ac39bde296803966c7eaa8408f4f613548d",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "41833ac39bde296803966c7eaa8408f4f613548d",
+      "authorization": "Standing explicit user source-parity authorization2026-10-17 and resumed continuous reviewed-revisit instruction2026-10-18. Main deliberately selects NEW20min implementation/focused verification after actual original targetf585 and complete independent C/JS/default caller review. Every prior source/physical allowance remains separately spent; no public recording/discovery/source certification.",
+      "currentBehavior": "C dog.c losedogs403-415 pops each actual failed_arrival, re-adds it to fmon and invokes mon.m_into_limbo. C mon.c3834-3865 sets LIMBO and specifically admits mx0 failed arrivals through migrate_mon, skipping map-dependent unstuck/specialdrop prefix, then migrate_to_level. Current JS readds then records a marker; its existing migration helper also rejects mx0 at m_at identity guard. Actual f585 reached the real default failure after350 canonical boulders, zero legal goodpos backup and457 additional RNG calls; actor37 left in level[37,7] at0,0/no grid, flags0, zeroed tracks, bad mux/muy40,14, no migrant. This is not Wizard/keepdogs or old elemental-clog evidence.",
+      "expectedBehavior": "At the exact whole losedogs failed_arrivals loop, preserve pop/re-add order and await existing m_into_limbo(monster,state,env). Import the existing helper from mon.js. In migrate_to_level preserve current on-map identity validation; admit only the source-valid off-map failed-arrival state mx===0, linked current level-list actor, MON_LIMBO set by canonical wrapper, valid track. Keep all current shop/worm/disguise/stuck/coordinate/track/other guards and exact mon_leave\u2192await relmon\u2192MIGRATING\u2192track/destination/mxmy order. Existing levelMonsterPredecessor may validate list ownership without mutation. No blanket mx0 bypass, placement, map synthesis or helper/API expansion. Same actor must return to gm.migrating_mons only, LIMBO|MIGRATING and not STILL_ARRIVING, MIGR_APPROX_XY, track1 old0,0, track2 currentlevel, mux/muy currentlevel, mxmy0, mlstmv currentmoves, no grid, failedlist drained and other level actor unchanged. No new RNG or input/placement attempt.",
+      "units": [
+        "dog.c:losedogs",
+        "dog.c:migrate_to_level"
+      ],
+      "allowedPaths": [
+        "js/dog.js",
+        "scripts/dog-migrate.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/dog-migrate.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/dog.js",
+          "symbol": "losedogs",
+          "source": "C failed-arrivals loop after actual ordinary mon_arrive/default rloc failure re-adds then calls m_into_limbo; targetf585 binds this normal exported entry and exact actor state."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "m_into_limbo",
+          "source": "Existing whole C wrapper sets MON_LIMBO then migrate_mon with currentledger/MIGR_APPROX_XY."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "migrate_mon",
+          "source": "Existing C wrapper skips unstuck/mdrop_special_objs when mx0, delegates to dog.migrate_to_level; default helper sufficient for the selected ordinary actor."
+        },
+        {
+          "path": "js/dog.js",
+          "symbol": "migrate_to_level",
+          "source": "C complete ordinary migration lifecycle mon_leave/relmon, flags, source/destination tracks and mxmy reset applies also to actual mx0 failed arrival. Preserve current guards outside this reviewed admission."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "mon_leaving_level",
+          "source": "Existing offmap-safe teardown has no grid/redraw/fillpit when no onmap identity; ordinary unstuck no effect. No changes to this helper."
+        }
+      ],
+      "pins": [
+        {
+          "path": "js/dog.js",
+          "object": "03b2a3d6ef444156b8a2f970c3bce2b60960bc7e"
+        },
+        {
+          "path": "js/mon.js",
+          "object": "a8967364ab0b77bdc92d76208b806e832792b914"
+        },
+        {
+          "path": "js/teleport.js",
+          "object": "eb7790101224158e28ada929eff408139a71aadd"
+        },
+        {
+          "path": "js/monst.js",
+          "object": "5b3d047868d8b40c07416497640bd948ae2c6c93"
+        },
+        {
+          "path": "js/steal.js",
+          "object": "d3ab43ce164756770f53d05a20a4659768d7a68b"
+        },
+        {
+          "path": "js/dungeon.js",
+          "object": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "scripts/dog-migrate.test.mjs",
+          "object": "58fa679fcf28741d7b592de9217d11e017ccb962"
+        },
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "sourceEvidence": {
+        "actualResult": "f585245345be24edfbb19f60036f6d31434e59893dfd609fd9b1dcf63300f25a",
+        "actualEnvelopeSha256": "2f5c713504f1cabce252d7aaa6a4e389bbd7cbdfc942d32d46078f3842d9f7a6",
+        "actualCaptureSha256": "d9a7ce85e30b10078238756aee179708994fae5e1b00efc00876be3a71616e51",
+        "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/limbo-f585-actual-target-repair-source-review.json",
+        "independentReviewSha256": "c345b0b63f770141a91343a863a038c6b8f23e43663c1c5504e2edf4c71de6b2",
+        "mainReview": "Main verified outer packet/envelope/all embedded hashes; read full frozen fixture and primitive before/after, C losedogs/migrate_to_level/m_into_limbo/migrate_mon, JS complete loop/admission/list helpers/relmon/mon_leaving_level, existing failed-arrival tests and all14Git identities. Independent full source+actual-target review finds no concrete blocker.",
+        "limits": "Only the reached ordinary actual failed-arrival path; no public C witness/novelty/parity/certification. Preserve old6f ESM miss, freshf585 one invocation, original6d/4f source caps, elemental8minsource/v19/v43/dothrow scopes. Other Wizard-arrival and accessible keepdogs markers remain separate. Terminal discard_migrations prospect must not share this task or edit dog.js concurrently."
+      }
+    },
+    "reviewSha256": "579545ba520f1c99b4403f8e93e3c18d62a77a17ba22dd92dbab6869a54361aa"
+  }
+}

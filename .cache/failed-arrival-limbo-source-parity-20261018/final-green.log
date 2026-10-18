@@ -1,0 +1,36 @@
+✔ ordinary migration clears charges and transfers the live monster (8.320098ms)
+✔ migration uses canonical mon_leaving_level boulder landing effects (9.96151ms)
+✔ exact upward migration stores coordinates and the upward flag (1.642659ms)
+✔ migration releases a leashed monster before moving it (2.146502ms)
+✔ migration rejects other future lifecycle owners before item mutation (5.022594ms)
+✔ migration only admits linked canonical off-map limbo state (4.327641ms)
+✔ dog.c mon_catchup_elapsed_time updates conditions, healing, and last move (4.911815ms)
+✔ dog.c mon_arrive preserves the mounted-steed early return state (1.943129ms)
+✔ failed Wizard arrival records the void limbo gap without throwing (10.325744ms)
+✔ dog.c losedogs places exact and random migrants in source order (6.611338ms)
+✔ ordinary failed arrival returns through limbo migration (163.818662ms)
+✔ failed dog arrivals migrate off-map through source limbo transfer (11.937711ms)
+✔ a migrating light invalidates vision after leaving the map (2.422602ms)
+✔ keepdogs takes an adjacent pet off the level onto gm.mydogs (3.10799ms)
+✔ keepdogs leaves an ordinary monster on the level (2.355617ms)
+✔ keepdogs records the partial migration of an accessible shopkeeper (2.530335ms)
+✔ keepdogs leaves a shopkeeper standing in her own shop (1.61219ms)
+✔ keepdogs tries a trapped follower before deciding whether it stays (1.692312ms)
+✔ keepdogs leaves a follower behind while it is eating (1.45088ms)
+✔ keepdogs releases a stray leash from a follower left on the level (2.298273ms)
+✔ keepdogs clears pet movement blockers for a pets-only transfer (1.581347ms)
+✔ migration clears the trapped and undetected flags (2.177476ms)
+✔ keepdogs reads both halves of helpless() (6.029338ms)
+✔ keepdogs still takes a follower down to its last hit point (2.092496ms)
+✔ keepdogs leaves distant accessible monsters to the migration port (1.913795ms)
+✔ keepdogs migrates a vault guard who is away from his vault (1.74777ms)
+✔ keep_mon_accessible matches the pure Wizard and level-home branches (0.337054ms)
+✔ keepdogs reveals its canonical disguised mimic before transferring it (63.771561ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 873.80227

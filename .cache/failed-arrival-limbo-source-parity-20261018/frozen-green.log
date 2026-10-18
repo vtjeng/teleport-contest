@@ -1,0 +1,56 @@
+✔ ordinary migration clears charges and transfers the live monster (7.681621ms)
+✔ migration uses canonical mon_leaving_level boulder landing effects (8.363888ms)
+✔ exact upward migration stores coordinates and the upward flag (1.604192ms)
+✔ migration releases a leashed monster before moving it (1.78995ms)
+✔ migration rejects other future lifecycle owners before item mutation (5.087297ms)
+✔ dog.c mon_catchup_elapsed_time updates conditions, healing, and last move (1.550861ms)
+✔ dog.c mon_arrive preserves the mounted-steed early return state (1.919731ms)
+✔ failed Wizard arrival records the void limbo gap without throwing (16.29799ms)
+✔ dog.c losedogs places exact and random migrants in source order (7.975391ms)
+✖ ordinary failed arrival returns through limbo migration (165.212383ms)
+✔ failed dog arrivals migrate off-map through source limbo transfer (8.242232ms)
+✔ a migrating light invalidates vision after leaving the map (1.43828ms)
+✔ keepdogs takes an adjacent pet off the level onto gm.mydogs (1.657935ms)
+✔ keepdogs leaves an ordinary monster on the level (1.500148ms)
+✔ keepdogs records the partial migration of an accessible shopkeeper (1.872061ms)
+✔ keepdogs leaves a shopkeeper standing in her own shop (1.171303ms)
+✔ keepdogs tries a trapped follower before deciding whether it stays (1.781241ms)
+✔ keepdogs leaves a follower behind while it is eating (1.573359ms)
+✔ keepdogs releases a stray leash from a follower left on the level (2.624001ms)
+✔ keepdogs clears pet movement blockers for a pets-only transfer (1.820809ms)
+✔ migration clears the trapped and undetected flags (2.240818ms)
+✔ keepdogs reads both halves of helpless() (5.122769ms)
+✔ keepdogs still takes a follower down to its last hit point (1.827546ms)
+✔ keepdogs leaves distant accessible monsters to the migration port (1.669665ms)
+✔ keepdogs migrates a vault guard who is away from his vault (2.685408ms)
+✔ keep_mon_accessible matches the pure Wizard and level-home branches (0.609532ms)
+✔ keepdogs reveals its canonical disguised mimic before transferring it (60.845663ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 863.120276
+
+✖ failing tests:
+
+test at scripts/dog-migrate.test.mjs:439:1
+✖ ordinary failed arrival returns through limbo migration (165.212383ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/dog-migrate.test.mjs:576:16)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,121 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "The exact final focused-test bytes (SHA-256 dcec57abcfa0eac7964a340fbf32f7f4c785a194eadaddd2f19c67b05f1bba68) and command were paired once against the assignment-base dog.js bytes and once against the repaired dog.js bytes. The final test freeze was made after the first production draft: it corrected the observer from after.gridOwns to after.actor.gridOwns and added explicit invalid offmap/onmap admission controls. The earlier initial red, first code draft, and first green observer failure remain preserved separately in the task cache; this final red is not represented as pre-first-edit. The red demonstrates the exact ordinary f585 failed-arrival lifecycle losing its actor from the migration list and retaining flags/tracks/destination inconsistently, with 457 default RNG calls; the same bytes pass after the narrow source repair. This is focused JS source-parity evidence only, not C gameplay/public-parity or certification.",
+  "functions": [
+    {
+      "name": "losedogs",
+      "sourceFile": "dog.c",
+      "implementation": "js/dog.js",
+      "symbol": "losedogs",
+      "pure": false,
+      "sourceReview": "C dog.c losedogs403-415 pops each actual failed_arrival, re-adds it to fmon and invokes mon.m_into_limbo. C mon.c3834-3865 sets LIMBO and specifically admits mx0 failed arrivals through migrate_mon, skipping map-dependent unstuck/specialdrop prefix, then migrate_to_level. Current JS readds then records a marker; its existing migration helper also rejects mx0 at m_at identity guard. Actual f585 reached the real default failure after350 canonical boulders, zero legal goodpos backup and457 additional RNG calls; actor37 left in level[37,7] at0,0/no grid, flags0, zeroed tracks, bad mux/muy40,14, no migrant. This is not Wizard/keepdogs or old elemental-clog evidence. At the exact whole losedogs failed_arrivals loop, preserve pop/re-add order and await existing m_into_limbo(monster,state,env). Import the existing helper from mon.js. In migrate_to_level preserve current on-map identity validation; admit only the source-valid off-map failed-arrival state mx===0, linked current level-list actor, MON_LIMBO set by canonical wrapper, valid track. Keep all current shop/worm/disguise/stuck/coordinate/track/other guards and exact mon_leave\u2192await relmon\u2192MIGRATING\u2192track/destination/mxmy order. Existing levelMonsterPredecessor may validate list ownership without mutation. No blanket mx0 bypass, placement, map synthesis or helper/API expansion. Same actor must return to gm.migrating_mons only, LIMBO|MIGRATING and not STILL_ARRIVING, MIGR_APPROX_XY, track1 old0,0, track2 currentlevel, mux/muy currentlevel, mxmy0, mlstmv currentmoves, no grid, failedlist drained and other level actor unchanged. No new RNG or input/placement attempt.",
+      "callers": [
+        {
+          "path": "js/dog.js",
+          "symbol": "losedogs",
+          "source": "C failed-arrivals loop after actual ordinary mon_arrive/default rloc failure re-adds then calls m_into_limbo; targetf585 binds this normal exported entry and exact actor state."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "m_into_limbo",
+          "source": "Existing whole C wrapper sets MON_LIMBO then migrate_mon with currentledger/MIGR_APPROX_XY."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "migrate_mon",
+          "source": "Existing C wrapper skips unstuck/mdrop_special_objs when mx0, delegates to dog.migrate_to_level; default helper sufficient for the selected ordinary actor."
+        },
+        {
+          "path": "js/dog.js",
+          "symbol": "migrate_to_level",
+          "source": "C complete ordinary migration lifecycle mon_leave/relmon, flags, source/destination tracks and mxmy reset applies also to actual mx0 failed arrival. Preserve current guards outside this reviewed admission."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "mon_leaving_level",
+          "source": "Existing offmap-safe teardown has no grid/redraw/fillpit when no onmap identity; ordinary unstuck no effect. No changes to this helper."
+        }
+      ],
+      "tests": [
+        "scripts/dog-migrate.test.mjs"
+      ],
+      "recordings": []
+    },
+    {
+      "name": "migrate_to_level",
+      "sourceFile": "dog.c",
+      "implementation": "js/dog.js",
+      "symbol": "migrate_to_level",
+      "pure": false,
+      "sourceReview": "C dog.c losedogs403-415 pops each actual failed_arrival, re-adds it to fmon and invokes mon.m_into_limbo. C mon.c3834-3865 sets LIMBO and specifically admits mx0 failed arrivals through migrate_mon, skipping map-dependent unstuck/specialdrop prefix, then migrate_to_level. Current JS readds then records a marker; its existing migration helper also rejects mx0 at m_at identity guard. Actual f585 reached the real default failure after350 canonical boulders, zero legal goodpos backup and457 additional RNG calls; actor37 left in level[37,7] at0,0/no grid, flags0, zeroed tracks, bad mux/muy40,14, no migrant. This is not Wizard/keepdogs or old elemental-clog evidence. At the exact whole losedogs failed_arrivals loop, preserve pop/re-add order and await existing m_into_limbo(monster,state,env). Import the existing helper from mon.js. In migrate_to_level preserve current on-map identity validation; admit only the source-valid off-map failed-arrival state mx===0, linked current level-list actor, MON_LIMBO set by canonical wrapper, valid track. Keep all current shop/worm/disguise/stuck/coordinate/track/other guards and exact mon_leave\u2192await relmon\u2192MIGRATING\u2192track/destination/mxmy order. Existing levelMonsterPredecessor may validate list ownership without mutation. No blanket mx0 bypass, placement, map synthesis or helper/API expansion. Same actor must return to gm.migrating_mons only, LIMBO|MIGRATING and not STILL_ARRIVING, MIGR_APPROX_XY, track1 old0,0, track2 currentlevel, mux/muy currentlevel, mxmy0, mlstmv currentmoves, no grid, failedlist drained and other level actor unchanged. No new RNG or input/placement attempt.",
+      "callers": [
+        {
+          "path": "js/dog.js",
+          "symbol": "losedogs",
+          "source": "C failed-arrivals loop after actual ordinary mon_arrive/default rloc failure re-adds then calls m_into_limbo; targetf585 binds this normal exported entry and exact actor state."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "m_into_limbo",
+          "source": "Existing whole C wrapper sets MON_LIMBO then migrate_mon with currentledger/MIGR_APPROX_XY."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "migrate_mon",
+          "source": "Existing C wrapper skips unstuck/mdrop_special_objs when mx0, delegates to dog.migrate_to_level; default helper sufficient for the selected ordinary actor."
+        },
+        {
+          "path": "js/dog.js",
+          "symbol": "migrate_to_level",
+          "source": "C complete ordinary migration lifecycle mon_leave/relmon, flags, source/destination tracks and mxmy reset applies also to actual mx0 failed arrival. Preserve current guards outside this reviewed admission."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "mon_leaving_level",
+          "source": "Existing offmap-safe teardown has no grid/redraw/fillpit when no onmap identity; ordinary unstuck no effect. No changes to this helper."
+        }
+      ],
+      "tests": [
+        "scripts/dog-migrate.test.mjs"
+      ],
+      "recordings": []
+    }
+  ],
+  "entryPoints": [
+    {
+      "name": "exported losedogs default-arrival failed_arrivals path",
+      "functions": [
+        {
+          "sourceFile": "dog.c",
+          "name": "losedogs"
+        },
+        {
+          "sourceFile": "dog.c",
+          "name": "migrate_to_level"
+        }
+      ],
+      "recordings": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "41833ac39bde296803966c7eaa8408f4f613548d",
+      "command": [
+        "node",
+        "--test",
+        "scripts/dog-migrate.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "\u2714 ordinary migration clears charges and transfers the live monster (6.472506ms)\n\u2714 migration uses canonical mon_leaving_level boulder landing effects (8.217832ms)\n\u2714 exact upward migration stores coordinates and the upward flag (1.505008ms)\n\u2714 migration releases a leashed monster before moving it (1.919447ms)\n\u2714 migration rejects other future lifecycle owners before item mutation (5.237134ms)\n\u2714 migration only admits linked canonical off-map limbo state (4.365441ms)\n\u2714 dog.c mon_catchup_elapsed_time updates conditions, healing, and last move (1.835176ms)\n\u2714 dog.c mon_arrive preserves the mounted-steed early return state (4.953681ms)\n\u2714 failed Wizard arrival records the void limbo gap without throwing (9.949329ms)\n\u2714 dog.c losedogs places exact and random migrants in source order (6.204654ms)\n\u2716 ordinary failed arrival returns through limbo migration (169.980467ms)\n\u2716 failed dog arrivals migrate off-map through source limbo transfer (11.018687ms)\n\u2714 a migrating light invalidates vision after leaving the map (1.630725ms)\n\u2714 keepdogs takes an adjacent pet off the level onto gm.mydogs (1.80578ms)\n\u2714 keepdogs leaves an ordinary monster on the level (1.666062ms)\n\u2714 keepdogs records the partial migration of an accessible shopkeeper (1.552862ms)\n\u2714 keepdogs leaves a shopkeeper standing in her own shop (1.478301ms)\n\u2714 keepdogs tries a trapped follower before deciding whether it stays (2.219589ms)\n\u2714 keepdogs leaves a follower behind while it is eating (1.707581ms)\n\u2714 keepdogs releases a stray leash from a follower left on the level (2.624819ms)\n\u2714 keepdogs clears pet movement blockers for a pets-only transfer (2.010027ms)\n\u2714 migration clears the trapped and undetected flags (1.841502ms)\n\u2714 keepdogs reads both halves of helpless() (5.290254ms)\n\u2714 keepdogs still takes a follower down to its last hit point (2.023407ms)\n\u2714 keepdogs leaves distant accessible monsters to the migration port (3.251968ms)\n\u2714 keepdogs migrates a vault guard who is away from his vault (1.830418ms)\n\u2714 keep_mon_accessible matches the pure Wizard and level-home branches (0.425284ms)\n\u2714 keepdogs reveals its canonical disguised mimic before transferring it (53.007788ms)\n\u2139 tests 28\n\u2139 suites 0\n\u2139 pass 26\n\u2139 fail 2\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 873.176792\n\n\u2716 failing tests:\n\ntest at scripts/dog-migrate.test.mjs:490:1\n\u2716 ordinary failed arrival returns through limbo migration (169.980467ms)\n  AssertionError [ERR_ASSERTION]: C failed-arrival migration expected; before={\"actorId\":37,\"levelIds\":[7],\"migratingIds\":[37],\"failedIds\":[],\"actor\":{\"mx\":0,\"my\":0,\"mstate\":4,\"mtrack\":[{\"x\":0,\"y\":0},{\"x\":41,\"y\":15},{\"x\":0,\"y\":1}],\"mux\":0,\"muy\":1}} after={\"actorId\":37,\"levelIds\":[37,7],\"migratingIds\":[],\"failedIds\":[],\"actor\":{\"mx\":0,\"my\":0,\"mstate\":0,\"mtrack\":[{\"x\":0,\"y\":0},{\"x\":0,\"y\":0},{\"x\":0,\"y\":0}],\"mux\":40,\"muy\":14,\"mlstmv\":1,\"gridOwns\":false},\"failedListDrained\":true,\"otherLevelHeadPreserved\":false,\"marker\":true,\"rngCalls\":457,\"inputPrompts\":0}\n  + actual - expected\n  \n  + []\n  - [\n  -   37\n  - ]\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/dog-migrate.test.mjs:608:16)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: [],\n    expected: [ 37 ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at scripts/dog-migrate.test.mjs:636:1\n\u2716 failed dog arrivals migrate off-map through source limbo transfer (11.018687ms)\n  AssertionError [ERR_ASSERTION]: Expected \"actual\" to be reference-equal to \"expected\":\n  + actual - expected\n  ... Skipped lines\n  \n    {\n      cham: 0,\n      data: {\n  +     ac: 7,\n  +     cnutrit: 12,\n  +     cwt: 20,\n  +     difficulty: 1,\n  +     geno: 161,\n  -     ac: 6,\n  -     cnutrit: 150,\n  -     cwt: 150,\n  -     difficulty: 3,\n  -     geno: 33,\n        maligntyp: 0,\n        mattk: [\n          {\n            aatyp: 2,\n            adtyp: 0,\n  +         damd: 3,\n  -         damd: 6,\n            damn: 1\n          },\n          {\n            aatyp: 0,\n            adtyp: 0,\n  ...\n        ],\n  +     mcolor: 3,\n  -     mcolor: 15,\n        mconveys: 0,\n        mflags1: 537141248,\n  +     mflags2: 1048576,\n  +     mflags3: 512,\n  +     mlet: 18,\n  +     mlevel: 0,\n  +     mmove: 12,\n  -     mflags2: 12582912,\n  -     mflags3: 768,\n  -     mlet: 6,\n  -     mlevel: 2,\n  -     mmove: 18,\n        mr: 0,\n        mresists: 0,\n  +     msize: 0,\n  +     msound: 6,\n  +     pmidx: 88,\n  -     msize: 1,\n  -     msound: 2,\n  -     pmidx: 32,\n        pmnames: [\n          null,\n          null,\n  +       'sewer rat'\n  -       'kitten'\n        ]\n      },\n      female: false,\n      invis_blkd: false,\n      isgd: false,\n  ...\n      mleashed: false,\n  +   mlstmv: 79,\n  -   mlstmv: 0,\n      mnum: 0,\n      movement: 0,\n      mpeaceful: false,\n      mrevived: false,\n      msleeping: false,\n  ...\n      mstate: 0,\n  +   mstrategy: 1073741824,\n  -   mstrategy: 0,\n      mstun: false,\n      mtame: 0,\n      mtemplit: false,\n      mtrack: [\n        {\n  ...\n      ],\n  +   mtrapped: 0,\n  -   mtrapped: false,\n      mtrapseen: 0,\n  +   mundetected: 0,\n  +   mux: 10,\n  +   muy: 10,\n  -   mundetected: false,\n  -   mux: 0,\n  -   muy: 0,\n      mw: null,\n      mwandexp: false,\n      mx: 0,\n      my: 0,\n  +   nmon: {\n  +     cham: 0,\n  +     data: {\n  +       ac: 6,\n  +       cnutrit: 150,\n  +       cwt: 150,\n  +       difficulty: 3,\n  +       geno: 33,\n  +       maligntyp: 0,\n  +       mattk: [\n  +         {\n  +           aatyp: 2,\n  +           adtyp: 0,\n  +           damd: 6,\n  +           damn: 1\n  +         },\n  +         {\n  +           aatyp: 0,\n  +           adtyp: 0,\n  +           damd: 0,\n  +           damn: 0\n  +         },\n  +         {\n  +           aatyp: 0,\n  +           adtyp: 0,\n  +           damd: 0,\n  +           damn: 0\n  +         },\n  +         {\n  +           aatyp: 0,\n  +           adtyp: 0,\n  +           damd: 0,\n  +           damn: 0\n  +         },\n  +         {\n  +           aatyp: 0,\n  +           adtyp: 0,\n  +           damd: 0,\n  +           damn: 0\n  +         },\n  +         {\n  +           aatyp: 0,\n  +           adtyp: 0,\n  +           damd: 0,\n  +           damn: 0\n  +         }\n  +       ],\n  +       mcolor: 15,\n  +       mconveys: 0,\n  +       mflags1: 537141248,\n  +       mflags2: 12582912,\n  +       mflags3: 768,\n  +       mlet: 6,\n  +       mlevel: 2,\n  +       mmove: 18,\n  +       mr: 0,\n  +       mresists: 0,\n  +       msize: 1,\n  +       msound: 2,\n  +       pmidx: 32,\n  +       pmnames: [\n  +         null,\n  +         null,\n  +         'kitten'\n  +       ]\n  +     },\n  +     female: false,\n  +     invis_blkd: false,\n  +     isgd: false,\n  +     isminion: false,\n  +     ispriest: false,\n  +     isshk: false,\n  +     iswiz: false,\n  +     m_ap_type: 0,\n  +     m_id: 0,\n  +     m_lev: 0,\n  +     malign: 0,\n  +     mappearance: 0,\n  +     mavenge: false,\n  +     mblinded: 0,\n  +     mburied: false,\n  +     mcan: false,\n  +     mcanmove: false,\n  +     mcansee: false,\n  +     mcloned: false,\n  +     mconf: false,\n  +     meating: 0,\n  +     meverseen: false,\n  +     mextra: null,\n  +     mextrinsics: 0,\n  +     mflee: false,\n  +     mfleetim: 0,\n  +     mfrozen: 0,\n  +     mgenmklev: false,\n  +     mgoal: {\n  +       x: 0,\n  +       y: 0\n  +     },\n  +     mhp: 4,\n  +     mhpmax: 4,\n  +     migflags: 0,\n  +     mintrinsics: 0,\n  +     minvent: null,\n  +     minvis: false,\n  +     misc_worn_check: 0,\n  +     mleashed: false,\n  +     mlstmv: 0,\n  +     mnum: 0,\n  +     movement: 0,\n  +     mpeaceful: false,\n  +     mrevived: false,\n  +     msleeping: false,\n  +     mspare1: 0,\n  +     mspec_used: 0,\n  +     mspeed: 0,\n  +     mspotted: false,\n  +     mstate: 0,\n  +     mstrategy: 0,\n  +     mstun: false,\n  +     mtame: 0,\n  +     mtemplit: false,\n  +     mtrack: [\n  +       {\n  +         x: 0,\n  +         y: 0\n  +       },\n  +       {\n  +         x: 0,\n  +         y: 0\n  +       },\n  +       {\n  +         x: 0,\n  +         y: 0\n  +       },\n  +       {\n  +         x: 0,\n  +         y: 0\n  +       }\n  +     ],\n  +     mtrapped: false,\n  +     mtrapseen: 0,\n  +     mundetected: false,\n  +     mux: 0,\n  +     muy: 0,\n  +     mw: null,\n  +     mwandexp: false,\n  +     mx: 0,\n  +     my: 0,\n  +     nmon: null,\n  +     perminvis: false,\n  +     permspeed: 0,\n  +     seen_resistance: 0,\n  +     weapon_check: 0,\n  +     wormno: 0\n  +   },\n  -   nmon: null,\n      perminvis: false,\n      permspeed: 0,\n      seen_resistance: 0,\n      weapon_check: 0,\n      wormno: 0\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/dog-migrate.test.mjs:655:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { nmon: { nmon: null, data: [Object], m_id: 0, mnum: 0, cham: 0, movement: 0, m_lev: 0, malign: 0, mx: 0, my: 0, mux: 0, muy: 0, mtrack: [Array], mhp: 4, mhpmax: 4, mappearance: 0, m_ap_type: 0, mtame: 0, mintrinsics: 0, mextrinsics: 0, seen_resistance: 0, mspec_used: 0, female: false, minvis: false, invis_blkd: false, perminvis: false, mcan: false, mburied: false, mundetected: false, mcansee: false, mspeed: 0, permspeed: 0, mrevived: false, mcloned: false, mavenge: false, mflee: false, mfleetim: 0, msleeping: false, mblinded: 0, mstun: false, mfrozen: 0, mcanmove: false, mconf: false, mpeaceful: false, mtrapped: false, mleashed: false, isshk: false, isminion: false, isgd: false, ispriest: false, iswiz: false, wormno: 0, mtemplit: false, meverseen: false, mspotted: false, mwandexp: false, mgenmklev: false, mstrategy: 0, mgoal: [Object], mtrapseen: 0, mlstmv: 0, mstate: 0, migflags: 0, mspare1: 0, minvent: null, mw: null, misc_worn_check: 0, weapon_check: 0, meating: 0, mextra: null }, data: { pmidx: 88, mlet: 18, mlevel: 0, mmove: 12, ac: 7, mr: 0, maligntyp: 0, geno: 161, cwt: 20, cnutrit: 12, msound: 6, msize: 0, mresists: 0, mconveys: 0, mflags1: 537141248, mflags2: 1048576, mflags3: 512, difficulty: 1, mcolor: 3, pmnames: [Array], mattk: [Array] }, m_id: 0, mnum: 0, cham: 0, movement: 0, m_lev: 0, malign: 0, mx: 0, my: 0, mux: 10, muy: 10, mtrack: [ [Object], [Object], [Object], [Object] ], mhp: 4, mhpmax: 4, mappearance: 0, m_ap_type: 0, mtame: 0, mintrinsics: 0, mextrinsics: 0, seen_resistance: 0, mspec_used: 0, female: false, minvis: false, invis_blkd: false, perminvis: false, mcan: false, mburied: false, mundetected: 0, mcansee: false, mspeed: 0, permspeed: 0, mrevived: false, mcloned: false, mavenge: false, mflee: false, mfleetim: 0, msleeping: false, mblinded: 0, mstun: false, mfrozen: 0, mcanmove: false, mconf: false, mpeaceful: false, mtrapped: 0, mleashed: false, isshk: false, isminion: false, isgd: false, ispriest: false, iswiz: false, wormno: 0, mtemplit: false, meverseen: false, mspotted: false, mwandexp: false, mgenmklev: false, mstrategy: 1073741824, mgoal: { x: 0, y: 0 }, mtrapseen: 0, mlstmv: 79, mstate: 0, migflags: 0, mspare1: 0, minvent: null, mw: null, misc_worn_check: 0, weapon_check: 0, meating: 0, mextra: null },\n    expected: { nmon: null, data: { pmidx: 32, mlet: 6, mlevel: 2, mmove: 18, ac: 6, mr: 0, maligntyp: 0, geno: 33, cwt: 150, cnutrit: 150, msound: 2, msize: 1, mresists: 0, mconveys: 0, mflags1: 537141248, mflags2: 12582912, mflags3: 768, difficulty: 3, mcolor: 15, pmnames: [Array], mattk: [Array] }, m_id: 0, mnum: 0, cham: 0, movement: 0, m_lev: 0, malign: 0, mx: 0, my: 0, mux: 0, muy: 0, mtrack: [ [Object], [Object], [Object], [Object] ], mhp: 4, mhpmax: 4, mappearance: 0, m_ap_type: 0, mtame: 0, mintrinsics: 0, mextrinsics: 0, seen_resistance: 0, mspec_used: 0, female: false, minvis: false, invis_blkd: false, perminvis: false, mcan: false, mburied: false, mundetected: false, mcansee: false, mspeed: 0, permspeed: 0, mrevived: false, mcloned: false, mavenge: false, mflee: false, mfleetim: 0, msleeping: false, mblinded: 0, mstun: false, mfrozen: 0, mcanmove: false, mconf: false, mpeaceful: false, mtrapped: false, mleashed: false, isshk: false, isminion: false, isgd: false, ispriest: false, iswiz: false, wormno: 0, mtemplit: false, meverseen: false, mspotted: false, mwandexp: false, mgenmklev: false, mstrategy: 0, mgoal: { x: 0, y: 0 }, mtrapseen: 0, mlstmv: 0, mstate: 0, migflags: 0, mspare1: 0, minvent: null, mw: null, misc_worn_check: 0, weapon_check: 0, meating: 0, mextra: null },\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/dog-migrate.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "\u2714 ordinary migration clears charges and transfers the live monster (8.320098ms)\n\u2714 migration uses canonical mon_leaving_level boulder landing effects (9.96151ms)\n\u2714 exact upward migration stores coordinates and the upward flag (1.642659ms)\n\u2714 migration releases a leashed monster before moving it (2.146502ms)\n\u2714 migration rejects other future lifecycle owners before item mutation (5.022594ms)\n\u2714 migration only admits linked canonical off-map limbo state (4.327641ms)\n\u2714 dog.c mon_catchup_elapsed_time updates conditions, healing, and last move (4.911815ms)\n\u2714 dog.c mon_arrive preserves the mounted-steed early return state (1.943129ms)\n\u2714 failed Wizard arrival records the void limbo gap without throwing (10.325744ms)\n\u2714 dog.c losedogs places exact and random migrants in source order (6.611338ms)\n\u2714 ordinary failed arrival returns through limbo migration (163.818662ms)\n\u2714 failed dog arrivals migrate off-map through source limbo transfer (11.937711ms)\n\u2714 a migrating light invalidates vision after leaving the map (2.422602ms)\n\u2714 keepdogs takes an adjacent pet off the level onto gm.mydogs (3.10799ms)\n\u2714 keepdogs leaves an ordinary monster on the level (2.355617ms)\n\u2714 keepdogs records the partial migration of an accessible shopkeeper (2.530335ms)\n\u2714 keepdogs leaves a shopkeeper standing in her own shop (1.61219ms)\n\u2714 keepdogs tries a trapped follower before deciding whether it stays (1.692312ms)\n\u2714 keepdogs leaves a follower behind while it is eating (1.45088ms)\n\u2714 keepdogs releases a stray leash from a follower left on the level (2.298273ms)\n\u2714 keepdogs clears pet movement blockers for a pets-only transfer (1.581347ms)\n\u2714 migration clears the trapped and undetected flags (2.177476ms)\n\u2714 keepdogs reads both halves of helpless() (6.029338ms)\n\u2714 keepdogs still takes a follower down to its last hit point (2.092496ms)\n\u2714 keepdogs leaves distant accessible monsters to the migration port (1.913795ms)\n\u2714 keepdogs migrates a vault guard who is away from his vault (1.74777ms)\n\u2714 keep_mon_accessible matches the pure Wizard and level-home branches (0.337054ms)\n\u2714 keepdogs reveals its canonical disguised mimic before transferring it (63.771561ms)\n\u2139 tests 28\n\u2139 suites 0\n\u2139 pass 28\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 873.80227\n"
+    }
+  }
+}

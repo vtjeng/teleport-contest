@@ -1,0 +1,1 @@
+{"exitCode":1,"command":["node","--test","scripts/dog-migrate.test.mjs"],"testSha256":"a126e2beab60f463985cc0d87f0bb87ee1ab85f7bd09324559e16179b842cf54","productionSha256":"4d1be481438a7bc92e12661be6b93705acc3bb3685a8c04e2b89fdf464b1e6ea"}
