@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
-import {G_EXTINCT, G_GENOD, MON_DETACH, W_AMUL} from '../js/const.js';
+import {G_EXTINCT, G_GENOD, MON_DETACH, OBJ_DELETED, W_AMUL} from '../js/const.js';
 import {game} from '../js/gstate.js';
 import {makemap_prepost} from '../js/cmd.js';
 import {runSegment} from '../js/jsmain.js';
 import {kill_genocided_monsters} from '../js/mon.js';
 import {accessible} from '../js/monmove.js';
 import {m_at, newMonster, place_monster, remove_monster} from '../js/monst.js';
-import {NON_PM, PM_CHAMELEON, PM_LICHEN, PM_NEWT} from '../js/monsters.js';
+import {NON_PM, PM_CHAMELEON, PM_GOBLIN, PM_LICHEN, PM_NEWT} from '../js/monsters.js';
+import {add_to_minv} from '../js/invent.js';
+import {mksobj} from '../js/obj.js';
+import {m_dowear} from '../js/worn.js';
 import {AMULET_OF_LIFE_SAVING, EGG, SACK} from '../js/objects.js';
 import {loadMonGenocideCases, verifyMonGenocideSegment} from './run-mon-genocide.mjs';
 
@@ -133,15 +136,40 @@ test('egg sweep skips dead monsters and visits live inventory then four global l
     assert.equal(state.invent.age,118,'the timer cancellation leaves egg data intact');
 });
 
-test('genocide retains the existing life-saving death boundary without claiming it',async()=>{
+test('genocide consumes a worn life-saving amulet and still removes the monster',async()=>{
     const state=await hero();
-    const mon=spawn(PM_NEWT,{misc_worn_check:W_AMUL});
-    mon.minvent={otyp:AMULET_OF_LIFE_SAVING,owornmask:W_AMUL,nobj:null};
-    state.svm.mvitals[PM_NEWT].mvflags|=G_GENOD;
-    await assert.rejects(kill_genocided_monsters(state),
-        /monster kill path requires unsupported/u);
-    assert.equal(mon.minvent.otyp,AMULET_OF_LIFE_SAVING);
-    assert.equal(mon.mstate&MON_DETACH,0);
+    // An ordinary humanoid can actually wear this item; a newt cannot pass
+    // m_dowear's animal/size guards. Preserve canonical inventory ownership.
+    const mon=spawn(PM_GOBLIN,{mhp:1,mhpmax:1});
+    const amulet=mksobj(AMULET_OF_LIFE_SAVING,false,false,{state});
+    add_to_minv(mon,amulet,{state});
+    m_dowear(mon,true,{state});
+    assert.equal(amulet.owornmask&W_AMUL,W_AMUL);
+    state.svm.mvitals[PM_GOBLIN].mvflags|=G_GENOD;
+    const deaths=state.svm.mvitals[PM_GOBLIN].died;
+    const display=state.nhDisplay,previous=display.onEmptyQueue;
+    let acknowledgements=0;
+    display.onEmptyQueue=()=>{
+        assert.ok(state._pending_message);
+        assert.ok(display.serialize().includes('--More--'));
+        assert.ok(++acknowledgements<=16,'finite real TTY acknowledgements');
+        return 32;
+    };
+    try {
+        await kill_genocided_monsters(state);
+    } finally {
+        display.onEmptyQueue=previous;
+    }
+    // C lifesaved_monster consumes the Amulet before the G_GENOD check
+    // leaves HP zero; mondead must then finish ordinary death accounting.
+    assert.equal(amulet.where,OBJ_DELETED);
+    assert.equal(amulet.ocarry,null);
+    assert.equal(amulet.owornmask,0);
+    assert.equal(mon.minvent,null);
+    assert.equal(mon.mhp,0);
+    assert.ok(mon.mstate&MON_DETACH);
+    assert.equal(m_at(mon.mx,mon.my,state),null);
+    assert.equal(state.svm.mvitals[PM_GOBLIN].died,deaths+1);
 });
 
 test('all four production callers await the shared source owner and remove the private stub',()=>{
