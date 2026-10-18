@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T17:38:26.511Z",
+  "capturedAt": "2026-10-18T18:00:41.920Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T17:38:26.511Z",
+    "asOf": "2026-10-18T18:00:41.920Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 295,
+      "mainSupportAssignments": 301,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -172451,23 +172451,232 @@
         "worker": "Worker-3",
         "state": "idle",
         "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-terminal-discard-migrations-source-parity-20261018-159a47ef6105cda8d078cccccf7ec0b154e08920",
+        "type": "published",
+        "at": "2026-10-18T17:38:48.130Z",
+        "task": "delivery:fix-terminal-discard-migrations-source-parity-20261018",
+        "commit": "159a47ef6105cda8d078cccccf7ec0b154e08920"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "wizard-ef4b-raw-evidence-feedback-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T17:43:07.399Z",
+        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
+        "delivery": "ef4b544843e8bebd8d5b5fdd4d61b7e5b53a8e1b"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:43:19.188Z",
+        "id": "queue:22bf42c5-b960-4fa0-aeb5-69981dff8ba5",
+        "type": "assign",
+        "task": "rework:delivery:fix-accessible-wizard-keepdogs-source-parity-20261018:ef4b544843e8bebd8d5b5fdd4d61b7e5b53a8e1b",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "ef4b544843e8bebd8d5b5fdd4d61b7e5b53a8e1b",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:43:27.827Z",
+        "id": "queue:dc4a4e41-a6e8-4f49-8025-5a1762a6d7d6",
+        "type": "assign",
+        "task": "bhitm-helpful-speed-keeper-capture-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:44:18.737Z",
+        "id": "queue:92d53fc5-7f47-437a-8eb6-a1c57cb98c4e",
+        "type": "assign",
+        "task": "kicked-container-impact-shop-anger-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-4c7f005f39b551f2147661d3804a56cfe069c62e",
+        "type": "ready",
+        "at": "2026-10-18T17:45:19.860Z",
+        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
+        "delivery": "4c7f005f39b551f2147661d3804a56cfe069c62e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:45:19.860Z",
+        "id": "ready-4c7f005f39b551f2147661d3804a56cfe069c62e:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-accessible-wizard-keepdogs-source-parity-20261018:ef4b544843e8bebd8d5b5fdd4d61b7e5b53a8e1b",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:45:19.860Z",
+        "id": "ready-4c7f005f39b551f2147661d3804a56cfe069c62e:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "receive-wizard-4c-20261018",
+        "type": "received",
+        "at": "2026-10-18T17:46:29.136Z",
+        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
+        "delivery": "4c7f005f39b551f2147661d3804a56cfe069c62e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:47:23.632Z",
+        "id": "queue:5722ff96-00c6-4295-b04c-b47b00aba75b",
+        "type": "queue-complete",
+        "task": "bhitm-helpful-speed-keeper-capture-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:47:23.632Z",
+        "id": "queue:5722ff96-00c6-4295-b04c-b47b00aba75b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:48:24.799Z",
+        "id": "queue:3ff9255f-d205-4332-a09c-93a39899a369",
+        "type": "queue-complete",
+        "task": "kicked-container-impact-shop-anger-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:48:24.799Z",
+        "id": "queue:3ff9255f-d205-4332-a09c-93a39899a369:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-83c7cb5ee86d9f0598628f67d5c5c4df387336e3-0f6e2e3af87b86065c650eaff3a31e04c42898b2e6cbc0e136859ef6f8797b76-delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T17:51:21.204Z",
+        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
+        "integration": "83c7cb5ee86d9f0598628f67d5c5c4df387336e3",
+        "validationGroup": [
+          "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:52:50.369Z",
+        "id": "queue:b1172cb9-117b-4800-b297-0296be555b67",
+        "type": "assign",
+        "task": "kicked-container-shop-anger-default-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:54:53.950Z",
+        "id": "queue:aad8444e-7bad-4a53-8c22-0ab03d8bd44e",
+        "type": "assign",
+        "task": "dig-drawbridge-default-caller-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:57:45.705Z",
+        "id": "queue:186abc95-157f-4b1c-ac2e-221761cf9079",
+        "type": "assign",
+        "task": "mounted-saddle-theft-dismount-reason-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:58:16.838Z",
+        "id": "queue:1d3df48c-5a7c-410d-ab45-bca565f92d8f",
+        "type": "queue-complete",
+        "task": "kicked-container-shop-anger-default-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:58:16.838Z",
+        "id": "queue:1d3df48c-5a7c-410d-ab45-bca565f92d8f:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:58:30.044Z",
+        "id": "queue:0f409c48-0113-4c61-ac7b-b3443e3a275c",
+        "type": "queue-complete",
+        "task": "dig-drawbridge-default-caller-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T17:58:30.044Z",
+        "id": "queue:0f409c48-0113-4c61-ac7b-b3443e3a275c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-accessible-wizard-keepdogs-source-parity-20261018-83c7cb5ee86d9f0598628f67d5c5c4df387336e3-validated",
+        "type": "validated",
+        "at": "2026-10-18T17:58:39.934Z",
+        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-accessible-wizard-keepdogs-source-parity-20261018-83c7cb5ee86d9f0598628f67d5c5c4df387336e3-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T17:59:17.858Z",
+        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
-        "worker": "Worker-3",
-        "goal": "fix-accessible-wizard-keepdogs-source-parity-20261018",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "ef4b544843e8bebd8d5b5fdd4d61b7e5b53a8e1b",
-        "since": "2026-10-18T17:38:17.765Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -172672,24 +172881,9 @@
           "source:fountain.c:gush"
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
-      },
-      "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018": {
-        "id": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
-        "worker": "Worker-3",
-        "status": "ready",
-        "seed": null,
-        "reservations": [
-          "source:dog.c:keepdogs"
-        ]
       }
     },
-    "reservations": {
-      "source:dog.c:keepdogs": {
-        "tasks": [
-          "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
@@ -172698,13 +172892,18 @@
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "mounted-saddle-theft-dismount-reason-source-20261018",
+        "worker": "Worker-3"
+      }
+    ],
     "counts": {
       "ready": 0,
-      "claimed": 0,
+      "claimed": 1,
       "blocked": 0,
-      "completed": 550,
-      "superseded": 98
+      "completed": 555,
+      "superseded": 99
     },
     "workers": [
       {
@@ -172719,8 +172918,8 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "mounted-saddle-theft-dismount-reason-source-20261018",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -182475,12 +182674,117 @@
         "readyAt": "2026-10-18T17:22:33.256Z",
         "claimedAt": "2026-10-18T17:24:35.995Z",
         "completedAt": "2026-10-18T17:28:13.428Z"
+      },
+      {
+        "id": "bhitm-helpful-speed-keeper-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "superseded",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-18T17:40:44.113Z",
+        "claimedAt": null,
+        "completedAt": null
+      },
+      {
+        "id": "bhitm-helpful-speed-keeper-capture-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T17:43:05.668Z",
+        "claimedAt": "2026-10-18T17:43:27.827Z",
+        "completedAt": "2026-10-18T17:47:23.632Z"
+      },
+      {
+        "id": "rework:delivery:fix-accessible-wizard-keepdogs-source-parity-20261018:ef4b544843e8bebd8d5b5fdd4d61b7e5b53a8e1b",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": "ef4b544843e8bebd8d5b5fdd4d61b7e5b53a8e1b",
+        "readyAt": "2026-10-18T17:43:07.399Z",
+        "claimedAt": "2026-10-18T17:43:19.188Z",
+        "completedAt": "2026-10-18T17:45:19.860Z"
+      },
+      {
+        "id": "kicked-container-impact-shop-anger-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T17:44:05.161Z",
+        "claimedAt": "2026-10-18T17:44:18.737Z",
+        "completedAt": "2026-10-18T17:48:24.799Z"
+      },
+      {
+        "id": "kicked-container-shop-anger-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T17:52:33.828Z",
+        "claimedAt": "2026-10-18T17:52:50.369Z",
+        "completedAt": "2026-10-18T17:58:16.838Z"
+      },
+      {
+        "id": "dig-drawbridge-default-caller-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T17:54:43.662Z",
+        "claimedAt": "2026-10-18T17:54:53.950Z",
+        "completedAt": "2026-10-18T17:58:30.044Z"
+      },
+      {
+        "id": "mounted-saddle-theft-dismount-reason-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T17:57:35.294Z",
+        "claimedAt": "2026-10-18T17:57:45.705Z",
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "9f1277d8838e1a15941b13f7247d8249663f8673",
-    "measuredAt": "2026-10-18T17:32:09.851Z",
+    "executionCommit": "83c7cb5ee86d9f0598628f67d5c5c4df387336e3",
+    "measuredAt": "2026-10-18T17:56:36.511Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

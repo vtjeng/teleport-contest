@@ -326749,7 +326749,7 @@
     {
       "id": "fix-accessible-wizard-keepdogs-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Wire supported ordinary Wizard accessibility departure in keepdogs",
       "cFile": "dog.c",
       "sessions": [],
@@ -326757,7 +326757,7 @@
       "detail": "Source-parity runtime-pending narrow supported Wizard caller repair. Retain explicit marker for unsupported accessibility/helper domains and all parked migration budgets. Actual e6fee target is separate from first numeric-flag setup miss 1e076eec. Main reviewed whole fixture before explicit supported finite unblock. Attempt2 supporting marker accessor was corrected while still before production; final test 120cbde394e92a59fea0e29a19a2cd451b7f7876cd6689566f53783d9372b837 was frozen before production, then identical bytes produced genuine target-specific original red and 30/30 repaired green plus lint. Literal raw red 40f2c44b33e8d577d35666524ac154f174ce493e21ef75f1fd01342eb4746fa7 and green 8e790f990971b5ba4762820cba75e02b55c3b7dc71ab50cf565c844ab6ecdea7 are embedded in linked evidence revision 4c7f005f39b551f2147661d3804a56cfe069c62e (packet e7b893d615eb00a36046d5dc7651406c01fbc5e91572f9248a9628a63b2c770d). Metadata revision preserves game/test bytes with no test rerun. Earlier attempts/observer failures remain retained; no whole accessibility, public C evidence, or synthetic gain certification.",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "83c7cb5ee86d9f0598628f67d5c5c4df387336e3",
       "delivered": null,
       "functions": [
         {
@@ -326869,6 +326869,55 @@
           }
         },
         "reviewSha256": "10f39d295ea6247881e439a5b98b717b425dc16ef04a38f03a3073fe4274d3c4"
+      },
+      "closeStanding": {
+        "sha": "83c7cb5ee86d9f0598628f67d5c5c4df387336e3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "9f1277d8838e1a15941b13f7247d8249663f8673",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/83c7cb5ee86d9f0598628f67d5c5c4df387336e3/run-hosted-EDrgKv/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "keepdogs",
+            "implementation": "js/dog.js",
+            "symbol": "keepdogs",
+            "sourceReview": "The reviewed C nonfollower keep_mon_accessible branch invokes migrate_to_level(mtmp, ledger_no(u.uz), MIGR_EXACT_XY, NULL). The JavaScript common branch formerly only recorded note_unported. The correction gates the existing migrate_to_level call to the source-reviewed supported ordinary Wizard state: canonical Wizard identity, supported appearance, current map/list/track state, non-shopkeeper, non-worm, non-stuck, non-tower, and no limbo/migrating/arriving lifecycle owner. Other states retain the explicit migration marker. No migration helper or unrelated source unit changed.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "keepdogs",
+                "source": "C nonfollower keep_mon_accessible branch invokes migration with currentledger/MIGR_EXACT_XY/null. Actual e6fee exported keepdogs false entry demonstrates exact ordinary Wizard caller; preserve current next-pointer loop ordering."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "migrate_to_level",
+                "source": "Existing accepted ordinary onmap helper supports selected Wizard default env; all partial helper guards and unrelated failed-arrival/terminal work stay separate."
+              }
+            ],
+            "tests": [
+              "scripts/dog-migrate.test.mjs"
+            ],
+            "recordings": [],
+            "pure": false
+          }
+        ],
+        "entryPointReview": "The final focused fixture calls exported keepdogs(false) on the exact initialized NethackGame.start seed 671903/time 20261018120000 production-created Wizard target. With original js/dog.js, this target remained on its original map and level chain with no migrant and the old marker; after the narrow branch repair, that same ID migrated through existing migrate_to_level with exact XY destination semantics. This is focused constructed-state JavaScript evidence, not a C recording or public input-parity witness.",
+        "entryPoints": [
+          {
+            "name": "keepdogs ordinary accessible Wizard exact-XY transfer",
+            "functions": [
+              "keepdogs"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
