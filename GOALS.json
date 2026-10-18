@@ -326562,7 +326562,7 @@
     {
       "id": "fix-terminal-discard-migrations-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Discard unreachable migrating monsters and objects at terminal level entry",
       "cFile": "dog.c",
       "sessions": [],
@@ -326570,7 +326570,7 @@
       "detail": "Complete dog.c discard_migrations source-parity-runtime-pending repair and exact do.goto_level terminal cleanup caller, selected from original actual d6e8 target. Both source-ordered lists retain Wizard/endgame destinations and use existing real minvent/deallocation/object contents/timer/light owners. Linked d8 corrects state-bound endgame identity and adds alternate-state countercase. Main and Challenge independently verified immutable26933 packet, raw initial pre-edit target red, final d109 test identity and literal final same-byte original-base red/repaired39-of-39 green plus lint. The final pairing occurred AFTER the first production draft: narrow RNG/full-goto and finally observers plus canonical helper-control setup were corrected within the same frozen source scope. Main explicitly permits those test corrections and source-state predicate correction under the reviewed task; no final-bytes-before-first-edit claim. Earliest raw red establishes actual goto Earth, dog66/apple68 remaining linked, four More acknowledgements and4958 RNG. Missing raw intermediate failed observer/helper attempts are disclosed in immutable chronology and are not recovered or treated as proof of later assertions. Final39-of-39 assertions directly establish actual original primitive IDs removed, true dog deallocation/object deletion, retention, recursion/timer/light/minvent/default helper behavior and restoration. No C/public-input parity, source certification, reopening old seed4500 scope/caps, or synthetic gain claim.",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "9f1277d8838e1a15941b13f7247d8249663f8673",
       "delivered": null,
       "functions": [
         {
@@ -326694,6 +326694,56 @@
           }
         },
         "reviewSha256": "dc9a458ed8c17d5974c7b4b5eb4f3dfad7dfb49f440f947dbdf3581a841b1112"
+      },
+      "closeStanding": {
+        "sha": "9f1277d8838e1a15941b13f7247d8249663f8673",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "43bbcb33f9bc14768c01dd9679d5892d52293347",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/9f1277d8838e1a15941b13f7247d8249663f8673/run-hosted-MJGsJl/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "discard_migrations",
+            "sourceFile": "dog.c",
+            "implementation": "js/dog.js",
+            "symbol": "discard_migrations",
+            "pure": false,
+            "sourceReview": "C dog.c discard_migrations performs source-ordered pointer-to-link sweeps: retain Wizard or endgame-destination migrants; otherwise unlink monster, discard minvent with uncreateArtifacts false, remove emitted monster light, then deallocate. Retain endgame objects; otherwise unlink, set OBJ_FREE and owornmask zero, then call recursive obfree so contents, timers and lights use canonical object lifecycle owners. The JS function uses the existing objectGenerationEnv and canonical discard_minvent, del_light_source, dealloc_monst and obfree. Endgame destination dnum is compared with the supplied state.astral_level.dnum, not the global game singleton; the focused isolated countercase confirms state-local retention.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "discard_unreachable_levels",
+                "source": "C do.c cant_go_back cleanup after delete_levelfile/remdun_mapseen calls dog.discard_migrations before destination assignment/arrival; existing private helper is reached by real goto_level."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "Actual d6e8 normal exported D:1 to Earth terminal path passes canonical Amulet admission/keepdogs/savelev and reaches cleanup. No direct private-helper replacement for primary regression."
+              }
+            ],
+            "tests": [
+              "scripts/level-change.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "Ported only dog.c:discard_migrations and wired the reviewed do.c goto_level cleanup caller. The focused regression reaches the actual terminal production entry and separately checks canonical owner cleanup. This is source-parity runtime-pending evidence only; it does not claim C gameplay parity, public discovery, novelty, or source certification.",
+        "entryPoints": [
+          {
+            "name": "goto_level terminal cleanup",
+            "functions": [
+              "discard_migrations"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
