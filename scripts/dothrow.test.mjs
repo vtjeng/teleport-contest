@@ -172,6 +172,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
+    artifact_exists,
     ART_MAGIC_MIRROR_OF_MERLIN,
     ART_EYE_OF_THE_AETHIOPICA,
     ART_EXCALIBUR,
@@ -3110,10 +3111,12 @@ async function questLeaderReturnFixture({ touchedArtifact }) {
         owornmask: 0,
         owt: state.objects[MIRROR].oc_weight,
         where: OBJ_FREE,
-        oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
     });
+    const mirrorArtifactName = state.artilist[ART_MAGIC_MIRROR_OF_MERLIN].name;
+    artifact_exists(mirror, mirrorArtifactName, true, undefined, state);
     assert.equal(mirror.where, OBJ_FREE);
     assert.equal(mirror.oartifact, state.urole.questarti);
+    assert.equal(state.artiexist[ART_MAGIC_MIRROR_OF_MERLIN].exists, 1);
     assert.equal(originalItems.includes(mirror), false);
     return { state, leader, mirror, originalInventory, originalItems };
 }
@@ -3185,6 +3188,7 @@ test('quest leader return waits for the actual first-touch pager before encumber
         } finally {
             releasePager();
             await returned.catch(() => {});
+            await new Promise((resolve) => setImmediate(resolve));
             resetGame();
         }
     });

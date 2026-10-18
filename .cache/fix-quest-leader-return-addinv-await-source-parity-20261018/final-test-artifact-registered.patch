@@ -1,0 +1,26 @@
+diff --git a/scripts/dothrow.test.mjs b/scripts/dothrow.test.mjs
+index e135e3ef7..c268dce0d 100644
+--- a/scripts/dothrow.test.mjs
++++ b/scripts/dothrow.test.mjs
+@@ -172,6 +172,7 @@ import {
+     objects_globals_init,
+ } from '../js/objects.js';
+ import {
++    artifact_exists,
+     ART_MAGIC_MIRROR_OF_MERLIN,
+     ART_EYE_OF_THE_AETHIOPICA,
+     ART_EXCALIBUR,
+@@ -3110,10 +3111,12 @@ async function questLeaderReturnFixture({ touchedArtifact }) {
+         owornmask: 0,
+         owt: state.objects[MIRROR].oc_weight,
+         where: OBJ_FREE,
+-        oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
+     });
++    const mirrorArtifactName = state.artilist[ART_MAGIC_MIRROR_OF_MERLIN].name;
++    artifact_exists(mirror, mirrorArtifactName, true, undefined, state);
+     assert.equal(mirror.where, OBJ_FREE);
+     assert.equal(mirror.oartifact, state.urole.questarti);
++    assert.equal(state.artiexist[ART_MAGIC_MIRROR_OF_MERLIN].exists, 1);
+     assert.equal(originalItems.includes(mirror), false);
+     return { state, leader, mirror, originalInventory, originalItems };
+ }

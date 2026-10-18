@@ -1,0 +1,93 @@
+{
+  "goal": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+  "kind": "file-port",
+  "sourceFile": "dothrow.c",
+  "cFile": "dothrow.c",
+  "functions": [
+    "thitmonst"
+  ],
+  "lineRanges": [
+    "2011-2304"
+  ],
+  "cLines": 294,
+  "jsFile": "js/dothrow.js",
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+    "assignmentBase": "b032e84988f41534b4ac2e0f5e7a3e2df5dff68c",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "b032e84988f41534b4ac2e0f5e7a3e2df5dff68c",
+      "authorization": "Vincent explicitly requested fixing this flagged JS control-flow difference even without Challenge lead runtime challenge, relayed by Coordinator at22:39\u201322:41UTC. Main+CL source review confirms thitmonst is async/currentcallerawaits and source requires addinv completion before encumber. Select NEW<=12min narrow source-order async contract correction, not discovered runtime mismatch. Ordinary prior-acquisition/first-touch conjunction UNKNOWN; no publicchallenge/history prerequisite or invented witness. Separate from active glob stage; no shared game edit.",
+      "currentBehavior": "JSdothrow thitmonst3093 assigns obj=addinv(obj,operationEnv) without awaiting before awaited encumber_msg/return1. addinv_core0 explicitly returns a thenable when beginAddinv/addinv_core1 returns real artitouch->qt_pager Promise; finish_quest does NOT set touched_artifact. Thus JS can continue encumber/return with deferred addinv incomplete under supported helper contract. Normal actual play may have touched before prior acquisition, so source-order issue is established while normal first-touch route remains unqualified. Original5a85 row/source artifact retained, no glob/cap reuse.",
+      "expectedBehavior": "Match Cwhole dothrow.c thitmonst2011-2304 (selected return branch2143\u20132145): obj=await addinv(obj,operationEnv), then encumber_msg, then return1. Use real addinv and existing deferred questPagerOutput/pager test owner to meaningfully pin order before completion; eager already-touched case still completes correct object/ownership/return. Preserve every other wholefunction branch/random/naming/quest/transfer/source order. No helper edits/newAPI/globalcaller migration/ring or glob scope.",
+      "units": [
+        "dothrow.c:thitmonst"
+      ],
+      "allowedPaths": [
+        "js/dothrow.js",
+        "scripts/dothrow.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/dothrow.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/dothrow.js",
+          "symbol": "throwit",
+          "source": "Existing caller awaits thitmonst in source throwit/wrapper path; function thitmonst alreadyasync, so awaiting addinv adds required in-function completion boundary before encumber and return without outward API changes."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/dothrow.js",
+          "object": "89c5cee6c7cdcf044bd1d8bbc992322e9f19d063"
+        },
+        {
+          "path": "scripts/dothrow.test.mjs",
+          "object": "8c8f25ca343d0c41f0a91237a24f91683baa9e7c"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+        },
+        {
+          "path": "js/quest.js",
+          "object": "5f053070a8fa63c5af2bb99612363468a2fcfd48"
+        },
+        {
+          "path": "js/questpgr.js",
+          "object": "39e1fefe6ab9f10b1386d0ee63f3c8de7aa82272"
+        },
+        {
+          "path": "js/pickup.js",
+          "object": "f33c1d21340e7a78649033c4e703967b037e5123"
+        },
+        {
+          "path": "js/artifacts.js",
+          "object": "4d45930283425823c7a135fd11052e2a140b8fff"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        }
+      ]
+    },
+    "reviewSha256": "e840a29da4aa81182bcc43ff5e1901b472f76ef64e47e047445b05d99117837a"
+  },
+  "evidenceRequired": "whole source, production callers, tests for pure functions, matching recordings or synthetic ranges for impure functions and entry points"
+}

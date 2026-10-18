@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/dothrow.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/fix-quest-leader-return-addinv-await-source-parity-20261018/final-green.stdout"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/fix-quest-leader-return-addinv-await-source-parity-20261018/lint.stdout"
+  }
+]

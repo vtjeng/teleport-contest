@@ -1,0 +1,105 @@
+✔ a swallowed tethered throw uses the source tether display (2.538257ms)
+✔ throwing_weapon follows the source missile and blade predicates (0.878159ms)
+✔ the objects.c rows the multishot arms select on (0.151734ms)
+✔ multishot_class_bonus() gives the Cave Dweller sling and spear (0.31277ms)
+✔ multishot_class_bonus() gives the Ranger everything but daggers (0.227459ms)
+✔ multishot_class_bonus() falls the Ninja through to the Samurai (0.150617ms)
+✔ should_mulch_missile follows source predicates and draw order (2.465914ms)
+✔ breaktest() asks obj_resists() before anything else (0.448855ms)
+✔ breaktest() breaks glass that is not a gem (0.205254ms)
+✔ find_launcher() prefers a launcher whose curse status is known (0.516898ms)
+✔ impact_disturbs_zombies() weighs a landing before waking anyone (0.46827ms)
+✔ skiprange() picks the window a thrown rock may skip over (0.272311ms)
+✔ walk_path() follows the source Bresenham cells and rewinds on failure (0.284362ms)
+✔ hurtle_step() maps an unseen collision on the planned level only (176.822598ms)
+✔ dothrow petrification call sites use minstapetrify in C order (41.244485ms)
+✔ thitmonst petrifies an engulfing animal before consuming its corpse (43.446279ms)
+✔ hurtle() installs source multi state and walks normalized recoil (33.424712ms)
+✔ mhurtle() moves a monster through the source callback and floor tail (5.477461ms)
+✔ hitfloor keeps its message, break, ship, and impact-drop order (8.572894ms)
+✔ throwit() lands a thrown weapon at the end of its range (6.368603ms)
+✔ throwit() blocks vision when a boulder lands (5.223657ms)
+✔ throwit() releases a crysknife with its supplied game state (4.069951ms)
+✔ throwit() names a pick caught by a shopkeeper with the supplied state (7.264839ms)
+✔ throwit() draws rn2(7) only for a cursed or greased missile (10.557146ms)
+✔ throwit runs the complete upward toss path before retiring the throw (11.773363ms)
+✔ toss_up drops a surviving petrifier through the supplied state and hooks (4.530712ms)
+✔ toss_up petrification pins source drop, transit cleanup and death order (0.409565ms)
+✔ throwit() handles weapons that return to the hand (11.279463ms)
+✔ throwit() treats unresisted hallucination as impaired (3.661441ms)
+✔ endmultishot() reports the source ordinal for a verbose volley stop (4.183882ms)
+✔ boomhit() applies the source self-hit and ends its volley (3.513748ms)
+✔ throwit() reaches hurtle after a weightless throw (2.491192ms)
+✔ throwit() takes its range from the launcher, not from the hand (5.584761ms)
+✔ throwit() halves an unlaunched missile range and names the hand throw (2.820671ms)
+✔ throwit() breaks what lands hard and drowns what lands wet (8.418563ms)
+✔ breakobj wires the lit-oil source branch before object cleanup (0.69319ms)
+✔ throwit() sounds a landing in liquid exactly where C sounds it (32.860173ms)
+✔ throwit() ships an object down a ladder but not down a hole it cannot see (9.79545ms)
+✔ throwit() settles an unpaid missile after landing (4.615741ms)
+✔ throwit() wakes buried zombies with a violent impact (2.67724ms)
+✔ throwit() drops a heavy missile from a tired hand (83.14288ms)
+✔ throwit() keeps its foreign naming state for the stamina message (8.804717ms)
+✔ throwit() reads the stamina test differently in each direction (8.280304ms)
+✔ throw_obj() refuses the throws C answers with a message (43.151428ms)
+✔ throw_gold() restores a count-split stack when aimed at yourself (22.789463ms)
+✔ throw_gold() feeds swallowed gold to digester entrails or inventory (25.662107ms)
+✔ throw_obj removes a singleton wielded item before freeing it (34.55458ms)
+✔ throw_obj applies C's wield and strength gates only to Mjollnir (36.182005ms)
+✔ throw_obj calls instapetrify before continuing a barehanded corpse throw (0.379198ms)
+✔ throw_obj dries a wet towel before continuing the throw (15.322075ms)
+✔ throw_obj() opens the multishot block only for a stack it can volley (106.164804ms)
+✔ throw_obj() withholds the skill bonus from a weak multishot role (44.834129ms)
+✔ throw_obj() adds the expert bonus whether or not the role is weak (18.013183ms)
+✔ throw_obj() gives the racial bow bonus only for its own arrow (63.966045ms)
+✔ throw_obj adds a volley only for the hero's quest-artifact launcher (25.682765ms)
+✔ throw_obj() rolls a crossbow volley twice for a weak hero (22.758219ms)
+✔ throw_obj() announces a volley and honours a count prefix (23.779ms)
+✔ throw_obj() empties the slot when a stack ends (9.965815ms)
+✔ throw_obj restores saved split context before the unsplitobj cleanup (9.004233ms)
+✔ dofire() asks whether the hero can throw at all (25.87965ms)
+✔ dofire() throws a wielded returning weapon over quivered ammo (22.178721ms)
+✔ dofire() with an empty quiver reads the hands before complaining (60.401197ms)
+✔ dofire() refills the quiver through doquiver_core() (29.858348ms)
+✔ dofire() finds a launcher for the quivered ammo (38.556334ms)
+✔ throw_ok() excludes the hands and downplays what is not a missile (4.513593ms)
+✔ throw_ok() downplays a weapon known to be welded before anything else (10.982028ms)
+✔ throw_ok() suggests a returning weapon out of the wielding hand (7.15471ms)
+✔ throw_ok() weighs Mjollnir against the wielder and her strength (11.486299ms)
+✔ throw_ok() hides a single wielded weapon and shows a stacked one (14.779559ms)
+✔ throw_ok() suggests gold, weapons without a sling and gems with one (66.011818ms)
+✔ throw_ok() suggests a boulder only to a form that throws rocks (11.550385ms)
+✔ dothrow() prompts with the suggested letters and throws the answer (10.793127ms)
+✔ dothrow() prompts with [*] when nothing is suggested (4.713745ms)
+✔ dothrow() answers an escaped prompt with ECMD_CANCEL (9.760997ms)
+✔ dothrow() stops at ok_to_throw() before drawing a prompt (4.5816ms)
+✖ quest leader return waits for the actual first-touch pager before encumbering (150.450978ms)
+✔ quest leader return on an already-touched artifact completes eagerly (86.57561ms)
+ℹ Error: Test "quest leader return waits for the actual first-touch pager before encumbering" at scripts/dothrow.test.mjs:3131:1 generated asynchronous activity after the test ended. This activity created the error "TypeError: Cannot read properties of undefined (reading 'n')" and would have caused the test to fail, but instead triggered an unhandledRejection event.
+ℹ tests 77
+ℹ suites 0
+ℹ pass 76
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3371.603954
+
+✖ failing tests:
+
+test at scripts/dothrow.test.mjs:3131:1
+✖ quest leader return waits for the actual first-touch pager before encumbering (150.450978ms)
+  AssertionError [ERR_ASSERTION]: thitmonst must remain pending while real questPagerOutput is deferred
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/dothrow.test.mjs:3169:20)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

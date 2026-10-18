@@ -1,0 +1,13 @@
+diff --git a/js/dothrow.js b/js/dothrow.js
+index 89c5cee6c..30eb8910d 100644
+--- a/js/dothrow.js
++++ b/js/dothrow.js
+@@ -3090,7 +3090,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
+                 );
+                 if (!next2u)
+                     note_unported('dothrow.c sho_obj_return_to_u');
+-                obj = addinv(obj, operationEnv);
++                obj = await addinv(obj, operationEnv);
+                 await encumber_msg(state, { message });
+             }
+             return 1;

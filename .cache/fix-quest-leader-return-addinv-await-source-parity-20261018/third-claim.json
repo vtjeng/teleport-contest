@@ -1,0 +1,139 @@
+{
+  "id": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+  "type": "implementation",
+  "output": "implementation",
+  "producer": "Main",
+  "recipient": "Main",
+  "goal": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+  "base": "b032e84988f41534b4ac2e0f5e7a3e2df5dff68c",
+  "dependencies": [],
+  "sessions": [],
+  "urgent": true,
+  "reservations": [
+    "source:dothrow.c:thitmonst"
+  ],
+  "allowedPaths": [
+    "js/dothrow.js",
+    "scripts/dothrow.test.mjs",
+    ".cache/"
+  ],
+  "checks": [
+    "focused",
+    "lint"
+  ],
+  "artifacts": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-quest-leader-return-addinv-await-source-parity-20261018",
+    "assignmentBase": "b032e84988f41534b4ac2e0f5e7a3e2df5dff68c",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "b032e84988f41534b4ac2e0f5e7a3e2df5dff68c",
+      "authorization": "Vincent explicitly requested fixing this flagged JS control-flow difference even without Challenge lead runtime challenge, relayed by Coordinator at22:39–22:41UTC. Main+CL source review confirms thitmonst is async/currentcallerawaits and source requires addinv completion before encumber. Select NEW<=12min narrow source-order async contract correction, not discovered runtime mismatch. Ordinary prior-acquisition/first-touch conjunction UNKNOWN; no publicchallenge/history prerequisite or invented witness. Separate from active glob stage; no shared game edit.",
+      "currentBehavior": "JSdothrow thitmonst3093 assigns obj=addinv(obj,operationEnv) without awaiting before awaited encumber_msg/return1. addinv_core0 explicitly returns a thenable when beginAddinv/addinv_core1 returns real artitouch->qt_pager Promise; finish_quest does NOT set touched_artifact. Thus JS can continue encumber/return with deferred addinv incomplete under supported helper contract. Normal actual play may have touched before prior acquisition, so source-order issue is established while normal first-touch route remains unqualified. Original5a85 row/source artifact retained, no glob/cap reuse.",
+      "expectedBehavior": "Match Cwhole dothrow.c thitmonst2011-2304 (selected return branch2143–2145): obj=await addinv(obj,operationEnv), then encumber_msg, then return1. Use real addinv and existing deferred questPagerOutput/pager test owner to meaningfully pin order before completion; eager already-touched case still completes correct object/ownership/return. Preserve every other wholefunction branch/random/naming/quest/transfer/source order. No helper edits/newAPI/globalcaller migration/ring or glob scope.",
+      "units": [
+        "dothrow.c:thitmonst"
+      ],
+      "allowedPaths": [
+        "js/dothrow.js",
+        "scripts/dothrow.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/dothrow.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/dothrow.js",
+          "symbol": "throwit",
+          "source": "Existing caller awaits thitmonst in source throwit/wrapper path; function thitmonst alreadyasync, so awaiting addinv adds required in-function completion boundary before encumber and return without outward API changes."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/dothrow.js",
+          "object": "89c5cee6c7cdcf044bd1d8bbc992322e9f19d063"
+        },
+        {
+          "path": "scripts/dothrow.test.mjs",
+          "object": "8c8f25ca343d0c41f0a91237a24f91683baa9e7c"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "d3b2e9fc102780843f5ab8f01b93e6add98df28c"
+        },
+        {
+          "path": "js/quest.js",
+          "object": "5f053070a8fa63c5af2bb99612363468a2fcfd48"
+        },
+        {
+          "path": "js/questpgr.js",
+          "object": "39e1fefe6ab9f10b1386d0ee63f3c8de7aa82272"
+        },
+        {
+          "path": "js/pickup.js",
+          "object": "f33c1d21340e7a78649033c4e703967b037e5123"
+        },
+        {
+          "path": "js/artifacts.js",
+          "object": "4d45930283425823c7a135fd11052e2a140b8fff"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        }
+      ]
+    },
+    "reviewSha256": "e840a29da4aa81182bcc43ff5e1901b472f76ef64e47e047445b05d99117837a"
+  },
+  "question": "Vincent explicitly requests source-proven flagged JS control-flow correction even without runtime challenge, relayed Coordinator22:39. Main+CL actual thitmonst/finish_quest/artitouch/addinv source read: one awaited addinv completion boundary needed before encumber_msg/return. Ordinary-history firsttouch conjunction UNKNOWN, do NOT claim discovered runtime challenge/public-C parity/sourcecert/gain. This is separatefromglob implementation in js/invent.js; game edits ONLY js/dothrow.js. Old5a85/questleader return/sourcecaps preserved; no unrelated async migration.\nNEW<=12min including packaging, normal implementationworkflow. FIRST read WHOLE C dothrow.c thitmonst2011–2304 and entire currentJSowner; preserve every preceding/otherbranch and full existing state/env/random/default return ordering. Target is specialquestleader catches then finish_quest then returnedobject->addinv->encumber/return. Source C2143 addinv then nhUse(noeffect) then encumber. JS thitmonst alreadyasync, caller alreadyawaits; change only obj = await addinv(obj,operationEnv) with concise source comment ifuseful. No injected addinv success/callee replacement or productiontestseam/newAPI. Existing addinv is real hybrid: beginAddinv can return real artitouch pagerPromise; finish_quest doesn't set touched_artifact. User says fix evenwithoutnormalruntimechallenge; actualpast acquisition may makeartitouch eager, preserve uncertainty. A valid direct initialized sourcecontract fixture with real questartifact/leader and existing output/pager seams is permitted, no public throw/acquisition/history gate. Do not forceRNG/role/object flags to gamecode or invent unsupported constructor. Use existing tests' canonical initialized source-shaped helpers; worker owns fullfixture/default audit.\nBEFORE ANY production edit, append FINAL meaningful regression to existing scripts/dothrow.test.mjs, freeze literaltest/source/diff/hash/command. Exercise REAL thitmonst and REAL addinv/questfirsttouch existing questPagerOutput or actualpagertestoutput boundary; first actualaddinv delay must stay pending while original thitmonst returns/encumber happens, so order/assertion genuinely fails. Do not use source regex-only or injected addinv function/Promise as soleproof. Existing output seam may controllably delay actualpager for deterministic test (no standalone gameplay qualification or datahunt). Record exacttestpreconditions touchedflag/questartifact/leader/OBJ_FREE/ownernames and validationbasis, no claim normalhistoryfirsttouchreached. Include source-real eager already-touched control (complete actual inventory/queststate/return with no pending). Keep error cleanup release deferredpager in finally so test doesn't hang on original red. Primary meaningful ORIGINAL red BEFOREcode mandatory; any earlier import/setup/observermiss stop/report for Mainreview, no autonomousfix/reroll.\nAfter meaningful red, implement ONLY await, SAMEfinaltestcommand originalred/repairedgreen and lint. Preserve actualobject identity/where/inventory membership/questpager resolution/encumber effects/return ordering, not Promise truthiness. Record literalstdout/stderr/exit and unique capture ifused, not pathstrings/handwrittensummaries. Commit exactrequired helperfixtures if any, cleanhostpaths reliable. If testneedschangeAFTERproductiondraft, STOP Mainreview with exactcause/chronology, keepinitialgenuineprecode red and firstfailedgreen. No optionalwholeaggregate/C/recorder/score/browser runs or sourcecertification. Source pins are acceptedb032; activeglobcandidate changes invent ONLY elsewhere; do not checkoutit or includeitschanges. If actualwhole source contradiction (await unsafe/entry impossible even validhelpercontract) stop namedblocker rather than expand.\nContext kind=file-port,cFile/sourceFile=dothrow.c, functions=[thitmonst], sourceParity EXACTunchanged. Relevantsourcepin/allowedpaths expansion requires Mainre-review. <=12min includingchecks/commit/evidence. Main owns goalrecords/hostedfullvalidation/acceptance/publication. Read actual existing outputpager API import/export/typedflags from finaltestpath BEFOREfrozenfirstinvocation; constants moduleownership, effective initializedfields, copyRNG/contexts/cleanup realstate. No sourcegetter/mutablealiasharness mistakes.",
+  "stop": "NEW<=12min narrow awaited quest-leader addinv completion contract; meaningful original red BEFOREcode, samefinalgreen/lint. No challenge requirement/gamehistory/helper or glob expansion; earlier harnessmiss STOP/report.",
+  "status": "claimed",
+  "readyAt": "2026-10-18T22:43:02.567Z",
+  "attempts": [
+    {
+      "worker": "Worker-3",
+      "branch": "queue/8e4a6874f55d250cf62ff7b53147492424d50d9a14463a2dd932844b4c75757a/attempt-1",
+      "base": "b032e84988f41534b4ac2e0f5e7a3e2df5dff68c",
+      "at": "2026-10-18T22:43:19.290Z"
+    },
+    {
+      "worker": "Worker-3",
+      "branch": "queue/8e4a6874f55d250cf62ff7b53147492424d50d9a14463a2dd932844b4c75757a/attempt-2",
+      "base": "3df31646616d5bbd5db044254c09092043f45eb3",
+      "at": "2026-10-18T22:46:53.589Z"
+    },
+    {
+      "worker": "Worker-3",
+      "branch": "queue/8e4a6874f55d250cf62ff7b53147492424d50d9a14463a2dd932844b4c75757a/attempt-3",
+      "base": "be07eb59816437ca725d4e3bb049db347d41dd7f",
+      "at": "2026-10-18T22:48:36.663Z"
+    }
+  ],
+  "transport": "delivery:fix-quest-leader-return-addinv-await-source-parity-20261018",
+  "worker": "Worker-3",
+  "branch": "queue/8e4a6874f55d250cf62ff7b53147492424d50d9a14463a2dd932844b4c75757a/attempt-3",
+  "worktree": "/workspace/teleport-contest-worker3-recovery",
+  "claimedAt": "2026-10-18T22:48:36.663Z",
+  "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration",
+  "processes": [],
+  "resumeFrom": "be07eb59816437ca725d4e3bb049db347d41dd7f",
+  "recovery": "/workspace/shared/teleport-loop-20261016/worker-state.json.results/331be878e25f832b833ffa8570bfa750bb97b6456e52973d99c9d4aae7f827d0.json",
+  "recoveryPackets": [
+    "/workspace/shared/teleport-loop-20261016/worker-state.json.results/3db84812330db339a9bc3592003f6f9d4f06ea7ffb2c54dec13c04c94a07554d.json",
+    "/workspace/shared/teleport-loop-20261016/worker-state.json.results/331be878e25f832b833ffa8570bfa750bb97b6456e52973d99c9d4aae7f827d0.json"
+  ]
+}
