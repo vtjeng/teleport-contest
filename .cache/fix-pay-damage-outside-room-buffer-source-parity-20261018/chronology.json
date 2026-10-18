@@ -1,0 +1,73 @@
+{
+  "task": "fix-pay-damage-outside-room-buffer-source-parity-20261018",
+  "assignmentBase": "d4eb863f57c8e2479e6f00789cd53db6c2000778",
+  "claimAt": "2026-10-18T19:25:20.250Z",
+  "freeze": {
+    "version": 1,
+    "task": "fix-pay-damage-outside-room-buffer-source-parity-20261018",
+    "testPath": "scripts/shk.test.mjs",
+    "testSha256": "07ff99465e83abd08e5bd0f220a495d2af1333ab535b3913413d0a9359e4eb5b",
+    "command": "PAY_DAMAGE_RUN_ROOT=.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/runs/original node --test --test-name-pattern=pay_for_damage\\ outside\\ first-slot\\ buffer\\ relocates\\ keeper\\ to\\ its\\ owned\\ door scripts/shk.test.mjs",
+    "assignmentBase": "d4eb863f57c8e2479e6f00789cd53db6c2000778",
+    "baselineShkBlob": "b34f0bd8e2ef05038e107e5eba141a544898e8a7",
+    "frozenAt": "2026-10-18T19:27:27.332Z",
+    "input": {
+      "seed": 2026101801,
+      "datetime": "20261018120000",
+      "nethackrc": "OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": ""
+    },
+    "originalSourceMustFail": "One actual default pay_for_damage call; assert that source-required resident moves from original home to exact actual open owned door; first test failure must be after call at keeper-position assertion.",
+    "allowedEditsAfterRed": "js/shk.js only first-slot ushops truthiness predicate; no helper/caller expansion"
+  },
+  "originalTargetRed": {
+    "at": "2026-10-18T19:27:27Z",
+    "command": "{\n  \"version\": 1,\n  \"task\": \"fix-pay-damage-outside-room-buffer-source-parity-20261018\",\n  \"testPath\": \"scripts/shk.test.mjs\",\n  \"testSha256\": \"07ff99465e83abd08e5bd0f220a495d2af1333ab535b3913413d0a9359e4eb5b\",\n  \"command\": \"PAY_DAMAGE_RUN_ROOT=.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/runs/original node --test --test-name-pattern=pay_for_damage\\\\ outside\\\\ first-slot\\\\ buffer\\\\ relocates\\\\ keeper\\\\ to\\\\ its\\\\ owned\\\\ door scripts/shk.test.mjs\",\n  \"assignmentBase\": \"d4eb863f57c8e2479e6f00789cd53db6c2000778\",\n  \"baselineShkBlob\": \"b34f0bd8e2ef05038e107e5eba141a544898e8a7\",\n  \"frozenAt\": \"2026-10-18T19:27:27.332Z\",\n  \"input\": {\n    \"seed\": 2026101801,\n    \"datetime\": \"20261018120000\",\n    \"nethackrc\": \"OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\\n\",\n    \"moves\": \"\"\n  },\n  \"originalSourceMustFail\": \"One actual default pay_for_damage call; assert that source-required resident moves from original home to exact actual open owned door; first test failure must be after call at keeper-position assertion.\",\n  \"allowedEditsAfterRed\": \"js/shk.js only first-slot ushops truthiness predicate; no helper/caller expansion\"\n}\n",
+    "argv": [
+      "node",
+      "--test",
+      "--test-name-pattern=pay_for_damage outside first-slot buffer relocates keeper to its owned door",
+      "scripts/shk.test.mjs"
+    ],
+    "exitCode": 1,
+    "stdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/original-red.stdout.log",
+    "stderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/original-red.stderr.log",
+    "combined": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/original-red.combined.log",
+    "projection": "runs/original/attempt-phU0Vh",
+    "primaryFailure": "After exactly one actual pay_for_damage call, keeper remains at (5,10) instead of source-required owned door (6,10)."
+  },
+  "sourceEdit": {
+    "scope": "only js/shk.js inShop first-slot predicate",
+    "diff": "Boolean((state.u?.ushops ?? []).length) -> Boolean(state.u?.ushops?.[0])",
+    "originalBlob": "b34f0bd8e2ef05038e107e5eba141a544898e8a7",
+    "originalFileSha256": "a83261b744bf2d7220ac30288e39a341f6c27f98d192bfc8979f6b5256a9a419",
+    "repairedFileSha256": "fca3f233f094abad7aa9c9961389cad9aa9d729f3ed98241d3692971b1ff5604"
+  },
+  "sameBytesGreen": {
+    "argv": [
+      "node",
+      "--test",
+      "--test-name-pattern=pay_for_damage outside first-slot buffer relocates keeper to its owned door",
+      "scripts/shk.test.mjs"
+    ],
+    "testPath": "scripts/shk.test.mjs",
+    "testSha256": "07ff99465e83abd08e5bd0f220a495d2af1333ab535b3913413d0a9359e4eb5b",
+    "exitCode": 0,
+    "stdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/repaired-green.stdout.log",
+    "stderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/repaired-green.stderr.log",
+    "combined": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/repaired-green.combined.log",
+    "projection": "runs/repaired/attempt-skt1NO"
+  },
+  "lint": {
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "stdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/lint.stdout.log",
+    "stderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/lint.stderr.log",
+    "combined": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/lint.combined.log"
+  },
+  "limitations": "No C run, fresh public history, or source certification; existing getcad/helper/default gaps remain separate. No new source/runtime/physical budget is claimed."
+}

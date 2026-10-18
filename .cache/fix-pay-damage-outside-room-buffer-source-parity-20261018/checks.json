@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=pay_for_damage outside first-slot buffer relocates keeper to its owned door",
+      "scripts/shk.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/repaired-green.combined.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/lint.combined.log"
+  }
+]

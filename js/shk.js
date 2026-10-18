@@ -4865,7 +4865,7 @@ export async function pay_for_damage(
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, message, random: { ...random, rn2: roll } };
     const moves = Math.trunc(state.moves ?? state.svm?.moves ?? 0);
-    const inShop = Boolean((state.u?.ushops ?? []).length);
+    const inShop = Boolean(state.u?.ushops?.[0]);
     let shopkeeper = null;
     let nearestKeeper = ROWNO * ROWNO + COLNO * COLNO;
     let nearestDamage = nearestKeeper;

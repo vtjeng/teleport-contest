@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "task": "fix-pay-damage-outside-room-buffer-source-parity-20261018",
+  "testPath": "scripts/shk.test.mjs",
+  "testSha256": "07ff99465e83abd08e5bd0f220a495d2af1333ab535b3913413d0a9359e4eb5b",
+  "command": "PAY_DAMAGE_RUN_ROOT=.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/runs/original node --test --test-name-pattern=pay_for_damage\\ outside\\ first-slot\\ buffer\\ relocates\\ keeper\\ to\\ its\\ owned\\ door scripts/shk.test.mjs",
+  "assignmentBase": "d4eb863f57c8e2479e6f00789cd53db6c2000778",
+  "baselineShkBlob": "b34f0bd8e2ef05038e107e5eba141a544898e8a7",
+  "frozenAt": "2026-10-18T19:27:27.332Z",
+  "input": {
+    "seed": 2026101801,
+    "datetime": "20261018120000",
+    "nethackrc": "OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+    "moves": ""
+  },
+  "originalSourceMustFail": "One actual default pay_for_damage call; assert that source-required resident moves from original home to exact actual open owned door; first test failure must be after call at keeper-position assertion.",
+  "allowedEditsAfterRed": "js/shk.js only first-slot ushops truthiness predicate; no helper/caller expansion"
+}

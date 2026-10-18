@@ -1,0 +1,34 @@
+PAY_DAMAGE_CAPTURE_DIR=.cache/fix-pay-damage-outside-room-buffer-source-parity-20261018/runs/original/attempt-phU0Vh
+✖ pay_for_damage outside first-slot buffer relocates keeper to its owned door (149.447787ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 820.910467
+
+✖ failing tests:
+
+test at scripts/shk.test.mjs:1600:1
+✖ pay_for_damage outside first-slot buffer relocates keeper to its owned door (149.447787ms)
+  AssertionError [ERR_ASSERTION]: source-required outside pay_for_damage path moves the actual same keeper to its owned entrance
+  + actual - expected
+  
+    {
+  +   x: 5,
+  -   x: 6,
+      y: 10
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/shk.test.mjs:1792:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { x: 5, y: 10 },
+    expected: { x: 6, y: 10 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
