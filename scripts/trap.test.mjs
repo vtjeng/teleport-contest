@@ -612,3 +612,21 @@ test('float_down moves the chain with the punished ball before redrawing the old
     assert.match(JS_HACK.slice(jsMovobjStart, jsMovobjEnd),
         /remove_object\(obj,[\s\S]*?maybe_unhide_at\(obj\.ox, obj\.oy, state\);\s*newsym\(obj\.ox, obj\.oy\);\s*place_object\(obj, ox, oy,[\s\S]*?newsym\(ox, oy\);/u);
 });
+
+
+test('drown calls reset_faint before testing the crawl movement gate', {
+    skip: !JS_TRAP.includes('await reset_faint(state)'),
+}, () => {
+    const cDrown = cFunction(C_TRAP, 'drown(void)', '\ndrain_en(');
+    const reset = cDrown.indexOf('if (is_fainted())\n        reset_faint();');
+    const crawl = cDrown.indexOf('if (gm.multi >= 0 && gy.youmonst.data->mmove');
+    assert.ok(reset >= 0 && reset < crawl);
+    const jsDrownStart = JS_TRAP.indexOf('export async function drown(');
+    const jsDrownEnd = JS_TRAP.indexOf(
+        '// C ref: trap.c lava_effects()', jsDrownStart,
+    );
+    const jsDrown = JS_TRAP.slice(jsDrownStart, jsDrownEnd);
+    const jsReset = jsDrown.indexOf('if (is_fainted(state)) await reset_faint(state);');
+    const jsCrawl = jsDrown.indexOf('(state.multi ?? 0) >= 0');
+    assert.ok(jsReset >= 0 && jsReset < jsCrawl);
+});

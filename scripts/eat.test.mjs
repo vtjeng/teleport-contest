@@ -43,6 +43,7 @@ import {
     W_TOOL,
     W_WEP,
 } from '../js/const.js';
+import * as eatModule from '../js/eat.js';
 import {
     eatfood, eating_dangerous_corpse, eatmupdate, Finish_digestion, gethungry, is_fainted, offer_ok,
     eat_brains, eating_conducts, set_tin_variety, temp_resist, tin_ok,
@@ -1250,4 +1251,19 @@ test('eatmdone and cpostfx preserve buffer, redraw, and blocking-map order', () 
         'cpostfx no longer skips the source dismount call');
     assert.doesNotMatch(EAT_JS, /note_unported\('windows\.c display_nhwindow'\)/u,
         'cpostfx no longer skips its source blocking display call');
+});
+
+
+test('reset_faint ignores a different or null pending callback', {
+    skip: typeof eatModule.reset_faint !== 'function',
+}, async () => {
+    const wrong = async () => {};
+    for (const callback of [wrong, null]) {
+        const state = { multi: -9, afternmv: callback,
+            u: { usleep: 0 }, disp: {} };
+        await eatModule.reset_faint(state);
+        assert.equal(state.multi, -9);
+        assert.equal(state.afternmv, callback);
+        assert.equal(state.u.usleep, 0);
+    }
 });

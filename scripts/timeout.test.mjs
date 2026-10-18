@@ -15,6 +15,8 @@ import {
     COLD_RES,
     ECMD_OK,
     DEAF,
+    FAINTED,
+    FAINTING,
     DETECT_MONSTERS,
     DISPLACED,
     FIG_TRANSFORM,
@@ -79,6 +81,7 @@ import {
 } from '../js/const.js';
 import { wipeoff } from '../js/do.js';
 import { eatfood } from '../js/eat.js';
+import * as eatModule from '../js/eat.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import { HCOLORS } from '../js/random_text_data.js';
@@ -3477,4 +3480,127 @@ test('wiz_timeout_queue formats timers, timed properties, region rows, counters,
     release();
     assert.equal(await pending, ECMD_OK);
     assert.equal(settled, true);
+});
+
+
+test('nh_timeout real melt callback resets a FAINTED hero before drown crawl', async () => {
+    const input = {
+        seed: 2026072503,
+        datetime: '20260725120000',
+        nethackrc: 'OPTIONS=name:AtomicMonster,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none',
+        moves: '',
+    };
+    const boot = await runSegment(input);
+    const state = game;
+    const display = state.nhDisplay;
+    const { unfaint } = eatModule;
+    assert.equal(typeof unfaint, 'function');
+    assert.equal(state.gt.timer_base, null, 'the retained entry starts without a timer');
+
+    const x = 10, y = 10;
+    for (const grid of [state.level.monsters, state.level.objects])
+        for (const col of grid) col.fill(null);
+    state.level.monlist = null;
+    state.level.objlist = null;
+    state.level.buriedobjlist = null;
+    state.level.traps = [];
+    state.level.regions = [];
+    state.u.ux = state.u.ux0 = x;
+    state.u.uy = state.u.uy0 = y;
+    state.u.uinwater = false;
+    state.u.ustuck = null;
+    state.u.usteed = null;
+    state.u.usleep = 0;
+    state.u.uhunger = 0;
+    state.u.uhs = FAINTED;
+    state.multi = -9;
+    state.afternmv = unfaint;
+    state.u.uprops[DEAF].intrinsic = 10;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+        const tile = state.level.at(x + dx, y + dy);
+        tile.typ = dx === 0 && dy === 0 ? ICE : ROOM;
+        tile.icedpool = dx === 0 && dy === 0 ? ICED_POOL : 0;
+        tile.flags = tile.doormask = tile.wall_info = 0;
+    }
+    assert.equal(state.u.umonnum, state.urole.mnum);
+    assert.equal(state.u.umonster, state.urole.mnum);
+    assert.equal(state.youmonst.data.mlet, S_HUMAN);
+    assert.equal(state.multi, -9);
+    assert.equal(state.u.uhs, FAINTED);
+    assert.equal(state.u.uprops[DEAF].intrinsic, 10);
+    assert.equal(state.level.at(x, y).typ, ICE);
+    assert.equal(state.level.at(x, y).icedpool, ICED_POOL);
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+        if (!dx && !dy) continue;
+        assert.equal(state.level.at(x + dx, y + dy).typ, ROOM);
+        assert.equal(state.level.monsters[x + dx]?.[y + dy], null);
+        assert.equal(state.level.objects[x + dx]?.[y + dy], null);
+    }
+
+    const installed = start_timer(0, TIMER_LEVEL, MELT_ICE_AWAY,
+        x * 0x10000 + y, state) && state.gt.timer_base;
+    assert.ok(installed, 'the exact source-supported due timer is installed');
+    const rngBefore = boot.getRngLog().length;
+    const previousOnEmptyQueue = display.onEmptyQueue;
+    const boundaries = [];
+    display.onEmptyQueue = () => {
+        const screen = display.serialize();
+        const topLine = display.grid[0].map(cell => cell.ch).join('').trimEnd();
+        if (!screen.includes('--More--') || boundaries.length >= 16) {
+            const boundary = { screen, topLine,
+                pendingMessage: state._pending_message,
+                waitEpoch: display.waitEpoch,
+                inputQueue: [...(display.terminal?._inputQueue ?? [])] };
+            boundaries.push(boundary);
+            const error = new Error('Unrecognized actual display input boundary');
+            error.boundary = boundary;
+            throw error;
+        }
+        boundaries.push({ key: 32, screen, topLine,
+            pendingMessage: state._pending_message,
+            waitEpoch: display.waitEpoch,
+            inputQueue: [...(display.terminal?._inputQueue ?? [])] });
+        return 32;
+    };
+    let boundaryError;
+    try {
+        await nh_timeout(state);
+    } catch (error) {
+        boundaryError = error;
+    } finally {
+        display.onEmptyQueue = previousOnEmptyQueue;
+    }
+
+    const timers = [];
+    for (let timer = state.gt.timer_base; timer; timer = timer.next)
+        timers.push({ timer, tid: timer.tid, kind: timer.kind,
+            func_index: timer.func_index, arg: timer.arg, timeout: timer.timeout });
+    assert.equal(state.level.at(x, y).typ, POOL,
+        'real MELT_ICE_AWAY callback reached its source effect');
+    assert.ok(state.unported?.has('eat.c reset_faint')
+        || (state.multi === 0 && state.afternmv === null
+            && state.u.uhs === FAINTING && state.u.uhunger === 0),
+    'the exact reset_faint path either records its original gap or recovers');
+    assert.ok(!timers.some(timer => timer.timer === installed),
+        'nh_timeout unlinks the exact installed timer object');
+
+    // The original source has no reset_faint helper. This assertion therefore
+    // records the target-specific red after the real callback, map effect,
+    // timer unlink, and the reset path above have all been established.
+    assert.equal(state.multi, 0,
+        'reset_faint must release the actual pending -9 faint callback');
+    assert.equal(state.afternmv, null);
+    assert.equal(state.u.uhs, FAINTING);
+    assert.equal(state.u.uhunger, 0);
+    const messageWindow = state.wintty?.wins?.[state.wintty.messageWindow];
+    assert.ok(JSON.stringify(messageWindow?.data ?? []).includes('You revive.'),
+        'the default TTY message history contains the actual revival message');
+    assert.ok(boot.getRngLog().length > rngBefore,
+        'default production RNG advances through faint recovery and crawl');
+    assert.notEqual(state.program_state?.gameover, true);
+    assert.equal(state.u.uinwater, false);
+    assert.notDeepEqual([state.u.ux, state.u.uy], [x, y],
+        'the awake hero crawls to a real adjacent escape square');
+    assert.equal(boundaryError, undefined,
+        'the bounded live TTY path completed without an unknown prompt');
 });

@@ -169,7 +169,7 @@ import { vault_gd_watching } from './vault.js';
 import { unpunish } from './read.js';
 import { heroDeaf, livelog_printf, verbalize, youHear } from './pline.js';
 import {
-    HeroDeathPlanningError, check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
+    HeroDeathPlanningError, check_capacity, endRunning, inv_cnt, losehp, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase, s_suffix } from './hacklib.js';
 import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
@@ -1765,6 +1765,13 @@ export async function cant_finish_meal(corpse, state = game, env = {}) {
     };
     await stop_occupation(state, mealEnv);
     await newuhs(false, state, mealEnv);
+}
+
+// C ref: eat.c reset_faint() (3354-3358). The source callback identity
+// guards this recovery; other immobilizing callbacks must keep their state.
+export async function reset_faint(state = game, env = {}) {
+    if (state.afternmv === unfaint)
+        await unmul('You revive.', state, env);
 }
 
 // C ref: eat.c unfaint() (3336-3344), invoked by hack.c unmul().

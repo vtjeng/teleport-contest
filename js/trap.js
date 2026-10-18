@@ -332,7 +332,7 @@ import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
 import { set_levltyp } from './terrain.js';
 import { burn_away_slime, spot_stop_timers } from './timeout.js';
-import { is_fainted } from './eat.js';
+import { is_fainted, reset_faint } from './eat.js';
 import {
     dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
 } from './trap_effects.js';
@@ -1535,7 +1535,7 @@ export async function drown(state = game) {
         if (!is_pool(u.ux, u.uy, state)) return true;
     }
     if (u.usleep) await unmul('Suddenly you wake up!', state);
-    if (is_fainted(state)) note_unported('eat.c reset_faint');
+    if (is_fainted(state)) await reset_faint(state);
 
     const destination = (state.multi ?? 0) >= 0
         && state.youmonst?.data?.mmove
