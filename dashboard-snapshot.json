@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T09:53:20.419Z",
+  "capturedAt": "2026-10-18T10:13:25.273Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T09:53:20.419Z",
+    "asOf": "2026-10-18T10:13:25.273Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 259,
+      "mainSupportAssignments": 260,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -170743,6 +170743,36 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:53:50.750Z",
+        "id": "queue:08b80153-040a-4df4-a8ba-38f7a3638161",
+        "type": "assign",
+        "task": "inventory-glob-merge-async-design-source-residual-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:55:31.830Z",
+        "id": "queue:261c711c-1806-45bf-ad25-7781055a6a62",
+        "type": "queue-complete",
+        "task": "inventory-glob-merge-async-design-source-residual-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T09:55:31.830Z",
+        "id": "queue:261c711c-1806-45bf-ad25-7781055a6a62:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -170968,7 +170998,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 506,
+      "completed": 507,
       "superseded": 98
     },
     "workers": [
@@ -180080,6 +180110,21 @@
         "readyAt": "2026-10-18T09:43:32.425Z",
         "claimedAt": "2026-10-18T09:43:47.527Z",
         "completedAt": "2026-10-18T09:46:50.034Z"
+      },
+      {
+        "id": "inventory-glob-merge-async-design-source-residual-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T09:53:35.868Z",
+        "claimedAt": "2026-10-18T09:53:50.750Z",
+        "completedAt": "2026-10-18T09:55:31.830Z"
       }
     ]
   },
