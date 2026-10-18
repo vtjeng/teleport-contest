@@ -324452,6 +324452,113 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-qualified-keepdogs-mimic-departure-source-parity-20261018",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Correct the reviewed mimic reveal branch in mon_leaving_level through the actual keepdogs caller, retaining callback ownership and the existing lifecycle order.",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-qualified-keepdogs-mimic-departure-source-parity-20261018",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_leaving_level",
+          "line": 2696,
+          "endLine": 2733,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2696,
+        "to": 2733
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-qualified-keepdogs-mimic-departure-source-parity-20261018",
+        "assignmentBase": "b26ff1bf60d01098ec6f2490e8b548afad653b12",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "b26ff1bf60d01098ec6f2490e8b548afad653b12",
+          "authorization": "User authorizes direct sourceParity repairs through actual production callers, runtime pending, no public witness/history gate. Main explicitly selects retained mon_leaving_level supporting reveal correction after actual W2 keepdogs target7bb and independent858f; same W2 retains fixture/repair context. Earlier genocide/m_detach d3e82/138590/v45 owners and physical budgets remain closed/held, no newcause or reset. Lifesaving accepted/published b26 deconflicts mon.js; no overlapping source edit remains.",
+          "currentBehavior": "C mon.c2695-2730 removes actor grid, reveals disguised mimic with seemimic before fill_pit and final newsym/forget. JS selected finishLeaving removes grid then unconditionally requires missing unsupported for a disguised onmap mimic. Actual canonical small mimic62 over floorboulder60, tamedog mtame5, real exported keepdogs(false) reached exact refusal after gridremove; disguise/list remain, mydogs null. Same-ID ordinary actual production target exception red is qualified; no frame/unblock or public mismatch claim.",
+          "expectedBehavior": "Only selected mon_leaving_level disguised-reveal site: replace requiredKillOperation unsupported with existing synchronous canonical seemimic(mon,state,selected adapter). Preserve caller-owned rendering via explicit newsym wrapper calling existing killRedraw(x,y,{...env,state}); no default/global helper paint on detached clone. Preserve existing env hooks/default ordering, state-local unblock_point and onmap guards, grid removal BEFORE reveal, then real existing fill_pit Promise continuation/final redraw/polearm cleanup. Do not modify seemimic, keepdogs, relmon, migration, lifecycle/vision helpers or lifesaving. Update obsolete selected comment only. Actual keepdogs regression SAME source-valid target fixture must fail old source at selected refusal and pass new source with disguise cleared, list transfer/mydogs same actor, real remaining cleanup; underlying real floor boulder stays and is not an unblock witness. Focused source-local callback/clone seam verifies selected departure redraw owner, no inherited-global leak; no whole mon/pet/quest/leveltransition certification.",
+          "units": [
+            "mon.c:mon_leaving_level"
+          ],
+          "allowedPaths": [
+            "js/mon.js",
+            "scripts/dog-migrate.test.mjs",
+            "scripts/mon-kill.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/dog-migrate.test.mjs",
+            "scripts/mon-kill.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/dog.js",
+              "symbol": "keepdogs",
+              "source": "Real exported keepdogs(false) selects actual adjacent mobile tame disguised follower; mon_leave→private relmon awaits canonical mon_leaving_level before unlink/list transfer. Use actual same fixture, not direct seemimic or alternate migrate_to_level (which rejects disguise)."
+            }
+          ],
+          "pins": [
+            {
+              "path": "js/mon.js",
+              "object": "d5578e4feba0f8b777997a914555db00f9cd03d5"
+            },
+            {
+              "path": "js/dog.js",
+              "object": "03b2a3d6ef444156b8a2f970c3bce2b60960bc7e"
+            },
+            {
+              "path": "js/vision.js",
+              "object": "f8d278fc3103d2cb430afe356935d3b1f98f11d7"
+            },
+            {
+              "path": "js/makemon_create.js",
+              "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+            },
+            {
+              "path": "js/monst.js",
+              "object": "5b3d047868d8b40c07416497640bd948ae2c6c93"
+            },
+            {
+              "path": "js/trap.js",
+              "object": "12234b3a2a1b30a13aa35e9c091c53d0803d7820"
+            },
+            {
+              "path": "scripts/dog-migrate.test.mjs",
+              "object": "03a687dfa8e7addfbcb42b0e9d5ea23876c41be4"
+            },
+            {
+              "path": "scripts/mon-kill.test.mjs",
+              "object": "f5eef66de5c11a8b7972ff3f69f60074e8423f3a"
+            },
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            }
+          ],
+          "sourceEvidence": {
+            "target": "7bb652cd27e846f7a5918a5c6197eaec74297131193f36a9f1a09805ab4f9576",
+            "targetEnvelope": "a58d4eef7d2bbaaf2cdc2e403b143feaa0800fa099218b4c67433f89535688e8",
+            "independent": "/workspace/teleport-contest-challenge-recovery/.cache/mimic-level-departure-reveal-source-inquiry-20261018/independent-target-source-parity-review-2252.json",
+            "independentSha256": "858f73f4712464310391f5964d0c3d7bf41fd6db6b2c21274555cd2a37c6fee9",
+            "baseReview": "952→5aca/b26 js/mon.js delta only accepted lifesaved_monster/imports/two awaited callsites. Exact mon_leaving_level/seemimic/killRedraw bodies unchanged; dog/vision target contracts unchanged. All new pins from immutable accepted b26 Git objects, not live source hashing.",
+            "observerLimits": "Raw beforeTarget.levelListHasActor false used preconstruction IDs; preserve interpretation as baseline comparison only. Actual after levelchain membership true and canonical constructor/list/grid writers establish actor. Screen unchanged and floorboulder remains, no unblock/render mismatch claim.",
+            "knownNegatives": "Target7bb actual game.nhDisplay serialize, no optional history setup. Prior glob a793 private pendingDisplay null and More failure are not target proof. Reuse successful exact target script/seed2026101805 and canonical constructor/tamedog. Audit named exports, required args/defaults/writer-owner-accessor-shape and primitive copied observations/phase before freeze. Preserve all attempts; no fabricated blockmap/disguise/RNG or direct helper-only proof.",
+            "tests": "Main rg exact refusal/symbol across existing test files found mon-kill/dog-migrate affected lifecycle tests; no exact unhiding-refusal expectation found. Worker must preserve canonical old tests and review any newly implicated fixture rather than accepting stale refusal. Same final testbytes/command baseline red→green, both focused files+lint. Actual caller target and clone seam distinct claims."
+          }
+        },
+        "reviewSha256": "2417040be159160d481e5717e98a12aac9dee35aded1fc161248e1efd30b8795"
+      }
     }
   ]
 }
