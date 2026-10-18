@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T08:04:07.872Z",
+  "capturedAt": "2026-10-18T08:12:03.810Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T08:04:07.872Z",
+    "asOf": "2026-10-18T08:12:03.810Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -170271,6 +170271,62 @@
         "type": "accepted",
         "at": "2026-10-18T08:02:59.386Z",
         "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-drawbridge-striking-destruction-source-parity-20261018-7f025f440baf38bfb9dffac9eee049576f222655",
+        "type": "published",
+        "at": "2026-10-18T08:04:30.135Z",
+        "task": "delivery:fix-drawbridge-striking-destruction-source-parity-20261018",
+        "commit": "7f025f440baf38bfb9dffac9eee049576f222655"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publication-confirmed-delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018-7f025f440baf38bfb9dffac9eee049576f222655",
+        "type": "publication-confirmed",
+        "at": "2026-10-18T08:04:31.374Z",
+        "task": "delivery:fix-bones-numeric-quest-filter-bounded-source-parity-20261018",
+        "commit": "7f025f440baf38bfb9dffac9eee049576f222655",
+        "knownBy": "2026-10-18T08:04:30.135Z"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publication-confirmed-delivery:fix-unpaid-object-splitbill-source-parity-20261018-7f025f440baf38bfb9dffac9eee049576f222655",
+        "type": "publication-confirmed",
+        "at": "2026-10-18T08:04:32.015Z",
+        "task": "delivery:fix-unpaid-object-splitbill-source-parity-20261018",
+        "commit": "7f025f440baf38bfb9dffac9eee049576f222655",
+        "knownBy": "2026-10-18T08:04:30.135Z"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:07:10.341Z",
+        "id": "queue:38846d52-3338-4950-a34a-93d4e29d0dd7",
+        "type": "queue-complete",
+        "task": "glob-scenario1-flooreffects-target-continuation-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:07:10.341Z",
+        "id": "queue:38846d52-3338-4950-a34a-93d4e29d0dd7:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T08:11:31.247Z",
+        "id": "queue:d841a9c8-3ed0-41af-90f6-aedd35b50fa5",
+        "type": "assign",
+        "task": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -170460,28 +170516,43 @@
           "source:mon.c:monkilled"
         ],
         "reason": "The intended lazy monkilled lookup reaches real death, but completion then requires the out-of-scope relobj/dropEnv unsupported provider; a lifesaving-return variant needs a new linked review."
+      },
+      "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018": {
+        "id": "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "worker": "Worker-3",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:zap.c:zap_over_floor"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "source:zap.c:zap_over_floor": {
+        "tasks": [
+          "delivery:fix-rogue-blind-ray-draft-caller-source-parity-20261018"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
     "ready": [],
     "blocked": [],
     "claimed": [
       {
-        "task": "glob-scenario1-flooreffects-target-continuation-20261018",
-        "worker": "Worker-2"
+        "task": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "worker": "Worker-3"
       }
     ],
     "counts": {
       "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 497,
+      "completed": 498,
       "superseded": 96
     },
     "workers": [
@@ -170492,13 +170563,13 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": "glob-scenario1-flooreffects-target-continuation-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "state": "active"
       }
     ],
     "tasks": [
@@ -179433,7 +179504,7 @@
         "id": "glob-scenario1-flooreffects-target-continuation-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -179442,6 +179513,21 @@
         "target": null,
         "readyAt": "2026-10-18T08:00:12.235Z",
         "claimedAt": "2026-10-18T08:00:50.482Z",
+        "completedAt": "2026-10-18T08:07:10.341Z"
+      },
+      {
+        "id": "fix-rogue-blind-ray-draft-caller-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T08:09:59.650Z",
+        "claimedAt": "2026-10-18T08:11:31.247Z",
         "completedAt": null
       }
     ]
