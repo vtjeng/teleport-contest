@@ -543,3 +543,67 @@ After two source-supported repair tasks stopped before production edits—earthq
 - Follow-up, chest explosion question: continuation `59699040e51c5bd7826c013d0a38bcbd0bd6fe1ee68f28a6cc8210330f4c12f5` reached actual `use_container` and `chest_trap` on a valid shop chest. Genuine draws selected the freeze branch, not explosion. This is a **branch miss and deliberately deferred unresolved question**, not another pre-action setup failure or a refutation. The combined floor-chain traversal and both billing sites remain unqualified. Work lead owns the next decision; Challenge lead retains the source and immutable receipts. The trigger is an explicitly reviewed finite continuation or an independently qualifying explosion receipt. Old three setup invocations and the new one executed invocation remain spent; one unused invocation in the closed assignment is not automatic retry authority.
 
 - Follow-up, ghostly pickup ownership: Main explicitly selected the narrow retained supporting `bones.c:fix_ghostly_obj` correction and its `pickup_object` caller after source result `e8408f8c13ee112be22d64aa140367b4c5760e3a43e39232af5b3204dbc1ffa5` and independent review `e4995fecce90b3abbf06709dc9d5b871116df32dbed53857bdc0d648b756fffe`. Known closed v13 pickup, v98 partial-stack and general bones provenance remain retained. The producer's shorthand for another bones helper did not establish a separate live hold; this selection claims neither historical absence nor novelty nor release of any physical budget. The real pickup target must use the object returned by inventory insertion, because the source does not propagate a merged-away object's marker. Worker 3 retains fixture and repair ownership under a new bounded implementation; runtime and acceptance remain pending until the normal receipts and gates.
+
+## 2026-10-18 — Audit retained unresolved source questions
+
+The user requested an audit of promising work whose bounded execution ended
+without settling its source question. Work lead reused the existing Challenge
+lead and Process analyst evidence review; no second audit loop or new pipeline
+was created. Accepted corrections and the refuted ordinary acid-projectile
+provider hypothesis are excluded from reopening. The current reviewed dropEnv
+and drawbridge work takes precedence over the following backlog.
+
+1. **NPC bones filter:** source `22aa232a` supports numeric sound constants;
+   `522bbc5528` reached canonical Carnarvon but exhausted two setup attempts
+   at missing/empty killer formatting. Main selects a new Worker 2 bounded
+   serialization target continuation. Reuse successful same-caller
+   `9a32a3c9` / `23d0cf4014e77debf36358d1d5cb04b9b5086713`, including
+   nonempty DIED killer, singleton state, private VFS and minimal empty entry.
+   Preserve the original source eight-minute and fixture twenty-minute/two
+   invocation allowances and exact negatives. New allowance: fifteen minutes,
+   at most two game JS invocations, cache only; no code until fresh sourceParity
+   review. No broader quest bookkeeping, Medusa, Vlad or Oracle claim.
+2. **Chest explosion:** `b66597bf` remains source-supported, but the combined
+   canonical floor traversal and both billing sites need an explosion witness.
+   Preserve `e369a0bf` three setup attempts and `59699040` one actual-caller
+   freeze outcome. Main owns deliberate deferral; the trigger is a reviewed
+   finite continuation or independently qualifying explosion receipt. No
+   automatic spare invocation, reroll or billing-only patch.
+3. **Unpaid stack billing:** `addf28ce` exhausted two setup attempts before
+   billing (appearance More; startup pie merge made quantity three). Main
+   selects a new bounded residual inquiry for Worker 1 after its delivery,
+   first tracing complete current split/useup compensation and old v16 scope,
+   then actual parent/child bill state through the real production apply path.
+   New allowance: fifteen minutes and at most two game JS invocations, cache
+   only, no code. Retained successful shop and exact input-owner references
+   guide worker preparation; no fresh room or seed hunt.
+4. **Blind Rogue ray:** `e522` has two setup failures, including terrain-wish
+   TTY exhaustion after initialization; the exact wish boundary remains
+   unknown. Main defers until a reviewed minimal ordinary terrain entry and
+   real ray/default message contract can replace optional wish history.
+   The v67 downward probe is not a ray witness; its ownership remains held.
+5. **Glob billing:** `a0d7` retained the normal dropx unpaid barrier; `a793`
+   reached real flooreffects merge messaging, then stopped before meld, and
+   its second attempt used a null private display handle. Main defers until
+   a reviewed source-valid free-object flooreffects entry, live display/input
+   owner and actual bill lifecycle can be qualified. The earlier scenario-2
+   recordings do not establish scenario-1 accounting.
+6. **EGG:** retain the earlier near miss and three later setup/observer
+   attempts, with actual action/hit state unknown where serialization lost
+   the receipt. Original harnesses one and two remain unavailable under the
+   saved bounded-search disposition. Main defers pending a concrete canonical
+   acquisition/selection/production target route; no new seed hunt or claimed
+   stoning witness.
+
+The earlier melt/reset-faint question is also explicitly retained: its
+`4d1d` optional newuhs provider failure ran no timeout or drowning caller.
+Main owns deferral pending a reviewed minimal source-derived nh_timeout or
+run_timers boundary, with exact deafness/timer/callback identities and real
+default input ownership; no optional history builder or automatic retry.
+
+Every prior attempt, elapsed-time record, owner and physical cap remains
+spent and preserved. Each selected successor has fresh queue ownership and
+its own explicit additional allowance; this audit authorizes neither blanket
+reopening nor relaxed source, original-red/green, independent review or hosted
+acceptance gates. Mounted legal-entry evidence remains a separate current
+question; a failed optional mount builder does not refute its valid entry.
