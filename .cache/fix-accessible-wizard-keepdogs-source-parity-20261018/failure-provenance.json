@@ -1,0 +1,126 @@
+{
+  "task": "fix-accessible-wizard-keepdogs-source-parity-20261018",
+  "base": "2f856577d4a61ff0c3c3db1fbf30f51eab9a9e2a",
+  "claim": {
+    "branch": "queue/ecf30bce3e08cf994e1365fbc4d58a0b5d8de86cdb957cc5c2273926c60352bd/attempt-1",
+    "commit": "2f856577d4a61ff0c3c3db1fbf30f51eab9a9e2a"
+  },
+  "invocation": {
+    "command": [
+      "node",
+      "--test",
+      "scripts/dog-migrate.test.mjs"
+    ],
+    "exitCode": 1,
+    "rawOutputPath": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/original-red.log",
+    "rawOutputSha256": "a99eb4c9260f241deef658d1c160c20e2df8ffa499998ca819aed96610278de2",
+    "frozenTest": {
+      "path": "scripts/dog-migrate.test.mjs",
+      "bytes": 45174,
+      "sha256": "d926816d5b4edbf6a8ee5e6c6c75743d09bea769e3599a469cd45ba3c75a3574"
+    },
+    "productionBefore": {
+      "path": "js/dog.js",
+      "blob": "a3e952de0804b908436bd6eb3386f5a8d1955928"
+    },
+    "frozenAt": "2026-10-18T17:24:09.655Z"
+  },
+  "blockedAt": {
+    "phase": "primary-regression setup assertion before canonical Wizard construction/keepdogs caller",
+    "line": 949,
+    "assertion": "assert.equal(state.u.uhave?.amulet ?? false, false)",
+    "actual": "0",
+    "expected": "false",
+    "meaning": "canonical initialized game represents absence of the Amulet as numeric 0; target setup did not reach the actual keepdogs call, so this is not a target-specific source-red receipt"
+  },
+  "result": "terminal first setup/test assertion miss per assignment; no retry, no production code edit; preserve for Work lead decision",
+  "originalPriorEvidence": {
+    "fixturePath": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/prior-attempt.mjs",
+    "fixtureBytes": 14599,
+    "fixtureSha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002",
+    "requiredFixtureSha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002",
+    "captureSha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e",
+    "requiredCaptureSha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e"
+  },
+  "sourcePins": [
+    {
+      "path": "js/dog.js",
+      "expected": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+      "actual": "a3e952de0804b908436bd6eb3386f5a8d1955928",
+      "match": true
+    },
+    {
+      "path": "scripts/dog-migrate.test.mjs",
+      "expected": "3b54860454b4f1a9958769749e8f890801709ed8",
+      "actual": "3b54860454b4f1a9958769749e8f890801709ed8",
+      "match": true
+    },
+    {
+      "path": "js/mon.js",
+      "expected": "a8967364ab0b77bdc92d76208b806e832792b914",
+      "actual": "a8967364ab0b77bdc92d76208b806e832792b914",
+      "match": true
+    },
+    {
+      "path": "js/monst.js",
+      "expected": "5b3d047868d8b40c07416497640bd948ae2c6c93",
+      "actual": "5b3d047868d8b40c07416497640bd948ae2c6c93",
+      "match": true
+    },
+    {
+      "path": "js/mondata.js",
+      "expected": "a2ed0919963fc18468d0a5ff0b02ee388157afa6",
+      "actual": "a2ed0919963fc18468d0a5ff0b02ee388157afa6",
+      "match": true
+    },
+    {
+      "path": "js/dungeon.js",
+      "expected": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7",
+      "actual": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7",
+      "match": true
+    },
+    {
+      "path": "js/makemon_create.js",
+      "expected": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400",
+      "actual": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400",
+      "match": true
+    },
+    {
+      "path": "js/jsmain.js",
+      "expected": "9705fb797cacba0c3a999a38abdae9bc93ad1559",
+      "actual": "9705fb797cacba0c3a999a38abdae9bc93ad1559",
+      "match": true
+    },
+    {
+      "path": "js/game_display.js",
+      "expected": "5e478cf3994629186bcdb1c97ee97ed3faf7928c",
+      "actual": "5e478cf3994629186bcdb1c97ee97ed3faf7928c",
+      "match": true
+    },
+    {
+      "path": "js/const.js",
+      "expected": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8",
+      "actual": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8",
+      "match": true
+    },
+    {
+      "path": "js/objects.js",
+      "expected": "20b37cda407137c5a2bedb88a26a229f2ac62d36",
+      "actual": "20b37cda407137c5a2bedb88a26a229f2ac62d36",
+      "match": true
+    },
+    {
+      "path": "js/rng.js",
+      "expected": "76efef3acbed3922b6a7d235a5420c43080538b0",
+      "actual": "76efef3acbed3922b6a7d235a5420c43080538b0",
+      "match": true
+    },
+    {
+      "path": "nethack-c/upstream",
+      "expected": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "actual": "16ff59115315917b93185d026aeefea06db9b0f4",
+      "match": true
+    }
+  ],
+  "sourceCodeEdited": false
+}

@@ -1,0 +1,280 @@
+{
+  "task": "keepdogs-initialized-wizard-default-qualification-20261018",
+  "base": "41833ac39bde296803966c7eaa8408f4f613548d",
+  "claimBranch": "queue/d720d65010764241eae34aa744f24420d1919040d4e6c0e33804c61e172247c9/attempt-1",
+  "invocation": {
+    "command": "node .cache/keepdogs-initialized-wizard-default-qualification-20261018/attempt.mjs > .cache/keepdogs-initialized-wizard-default-qualification-20261018/capture.json 2> .cache/keepdogs-initialized-wizard-default-qualification-20261018/stderr.log",
+    "count": 1,
+    "authorizedInvocationCount": 1,
+    "fixturePath": ".cache/keepdogs-initialized-wizard-default-qualification-20261018/attempt.mjs",
+    "fixtureBytes": 14599,
+    "fixtureSha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002",
+    "inputPath": ".cache/keepdogs-initialized-wizard-default-qualification-20261018/input.json",
+    "inputSha256": "b9d6e4dd4c9241341932b89b801451099c841a0e9f9ac67ef1dea2c4cace9b77",
+    "capturePath": ".cache/keepdogs-initialized-wizard-default-qualification-20261018/capture.json",
+    "captureBytes": 284472,
+    "captureSha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e",
+    "stderrPath": ".cache/keepdogs-initialized-wizard-default-qualification-20261018/stderr.log",
+    "stderrBytes": 0
+  },
+  "sourceAudit": {
+    "kind": "static filesystem-only import/export and source pin audit",
+    "result": "PASS static-audit imports=13 targets=all-present exports=all-present pins=9 input=frozen fixtureSha256=027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002",
+    "syntaxCheck": "node --check passed before invocation",
+    "sourcePins": {
+      "js/dog.js": {
+        "expected": "4d1be481438a7bc92e12661be6b93705acc3bb3685a8c04e2b89fdf464b1e6ea",
+        "actual": "4d1be481438a7bc92e12661be6b93705acc3bb3685a8c04e2b89fdf464b1e6ea",
+        "match": true
+      },
+      "js/mon.js": {
+        "expected": "427ff84697dfd0495cac99d8a3056b5ad51d86ec128683f2c0e4ded28d1d829d",
+        "actual": "427ff84697dfd0495cac99d8a3056b5ad51d86ec128683f2c0e4ded28d1d829d",
+        "match": true
+      },
+      "js/makemon_create.js": {
+        "expected": "e27869b4597d2a89bd5a15b71ee60aff60755e9bb6132a09eb83a3787613c68a",
+        "actual": "e27869b4597d2a89bd5a15b71ee60aff60755e9bb6132a09eb83a3787613c68a",
+        "match": true
+      },
+      "js/wizard.js": {
+        "expected": "9b1c209019d1b4b842085bfc4c8f77d76ba9c1ad259ae6b53aab1f53c84ed79b",
+        "actual": "9b1c209019d1b4b842085bfc4c8f77d76ba9c1ad259ae6b53aab1f53c84ed79b",
+        "match": true
+      },
+      "js/jsmain.js": {
+        "expected": "05aea25f4475e3379f535d25bc7bded71e7622dee1e75ef16c9286c9176e1a35",
+        "actual": "05aea25f4475e3379f535d25bc7bded71e7622dee1e75ef16c9286c9176e1a35",
+        "match": true
+      },
+      "js/allmain.js": {
+        "expected": "fe780332cb11a649e4264cd882739d40a8762d8b18042d7531cacdca584c3117",
+        "actual": "fe780332cb11a649e4264cd882739d40a8762d8b18042d7531cacdca584c3117",
+        "match": true
+      },
+      "js/objects.js": {
+        "expected": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+        "actual": "6a4179dfcd6e0db23d8826d6b5680c508a688ada01450b5ae200556a0cce4353",
+        "match": true
+      },
+      "js/obj.js": {
+        "expected": "6f976b92c202933d11fb33a57bd8da5779c7cb39f46278cdbc59be7854eb790d",
+        "actual": "6f976b92c202933d11fb33a57bd8da5779c7cb39f46278cdbc59be7854eb790d",
+        "match": true
+      },
+      "js/gstate.js": {
+        "expected": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+        "actual": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+        "match": true
+      }
+    },
+    "imports": [
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/jsmain.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/jsmain.js",
+        "names": [
+          "NethackGame"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/gstate.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/gstate.js",
+        "names": [
+          "game"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/rng.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/rng.js",
+        "names": [
+          "getRngLog"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/game_display.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/game_display.js",
+        "names": [
+          "GameDisplay"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/tty_message.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/tty_message.js",
+        "names": [
+          "TOPLINE_NEED_MORE"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/monsters.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/monsters.js",
+        "names": [
+          "PM_WIZARD_OF_YENDOR"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/const.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/const.js",
+        "names": [
+          "MM_NOMSG",
+          "ROOMOFFSET"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/objects.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/objects.js",
+        "names": [
+          "AMULET_OF_YENDOR"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/makemon_create.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/makemon_create.js",
+        "names": [
+          "makemon_runtime"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/dog.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/dog.js",
+        "names": [
+          "keepdogs"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/monst.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/monst.js",
+        "names": [
+          "m_at"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/mondata.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/mondata.js",
+        "names": [
+          "levl_follower"
+        ]
+      },
+      {
+        "url": "file:///workspace/teleport-contest-worker3-recovery/js/cmd_isok.js",
+        "target": "/workspace/teleport-contest-worker3-recovery/js/cmd_isok.js",
+        "names": [
+          "isok"
+        ]
+      }
+    ],
+    "providers": {
+      "NethackGame": "js/jsmain.js:237 constructor; start() resets and initializes source-owned default game before newgame(); fixture calls only start(), not runSegment or resetGame",
+      "initializedIdentity": "js/allmain.js:213 newgame_pre_mklev sets context.ident=2; source-owned game initialization establishes youmonst, u.uprops, flags, mons catalog",
+      "makemon": "js/makemon_create.js:3362 makemon_runtime(ptr,x,y,mmflags,env); explicit canonical catalog pointer and MM_NOMSG with {state}, default real RNG/message providers",
+      "keepdogs": "js/dog.js:908 keepdogs(pets_only,rawEnv={}); target is the live Wizard on initialized current-level list; call keepdogs(false,{state})",
+      "WizardAdmission": "js/makemon_create.js explicit-coordinate path uses isok and actual monster/map writers; no direct placement or manual state/catalog initialization",
+      "fixedTarget": "hero.x+4, hero.y only; no search; source isok check before single canonical makemon_runtime call",
+      "inputOwner": "GameDisplay.onEmptyQueue set synchronously before NethackGame construction/output; only serialize()+TOPLINE_NEED_MORE rendered More accepts byte32; finally equality check"
+    }
+  },
+  "observed": {
+    "outcome": "match",
+    "targetId": 134,
+    "hero": {
+      "x": 12,
+      "y": 7,
+      "level": {
+        "dnum": 0,
+        "dlevel": 1
+      },
+      "role": 12,
+      "name": "AccessibleWizard",
+      "hasAmulet": false,
+      "inventory": [
+        0
+      ]
+    },
+    "targetPremise": {
+      "sourceIsok": true,
+      "occupied": false,
+      "target": {
+        "x": 16,
+        "y": 7
+      },
+      "hero": {
+        "x": 12,
+        "y": 7
+      },
+      "distanceSquared": 16,
+      "heroHasAmulet": false,
+      "towerLevel": false,
+      "amuletType": 213,
+      "speciesAvailable": true
+    },
+    "evidence": {
+      "markerPresentAfter": true,
+      "markerPresentBefore": false,
+      "targetedOriginalId": 134,
+      "targetedIdAfter": 134,
+      "sameTargetObject": true,
+      "targetStillOnLevelList": true,
+      "targetStillAtOriginalMapCell": true,
+      "targetCoordinatesUnchanged": true,
+      "targetStillAlive": true,
+      "targetStillWizard": true,
+      "targetNoMigrationEntry": true,
+      "targetNotInDogList": true,
+      "otherActorIdsBefore": [
+        83,
+        55,
+        17,
+        13
+      ],
+      "otherActorIdsAfter": [
+        83,
+        55,
+        17,
+        13
+      ],
+      "otherActorListsMayChange": true
+    },
+    "marker": [
+      "dog.c migrate_to_level"
+    ],
+    "acknowledgementCount": 1,
+    "handlerRestored": true,
+    "stop": "actual initialized canonical Wizard received keepdogs; target-specific retained-state evidence captured; stop",
+    "error": null
+  },
+  "historicalPreservation": {
+    "priorAttemptEnvelope": "retained-original/assignment.json references prior 67a4308f33d9b923261799039cdbe1d259f10332fec207819aaaf3b6d6466edb; original import-instantiation miss remains terminal and its source/gameplay budgets remain spent",
+    "priorEnvelopeSha256": "20f91087b9487f572199f52585661a24b6d53de13ecf523167897be6ed3bdd2a",
+    "priorRetainedFiles": [
+      {
+        "name": "retained-original/assignment.json",
+        "bytes": 3971,
+        "sha256": "e9a79a261d915e23c8171912103a4d31460aa7cc546902ca939c9f71f8cdfe14"
+      },
+      {
+        "name": "retained-original/input-plan.json",
+        "bytes": 491,
+        "sha256": "5d0a69abc180897454e8850278c915b8c8d83ffb0f2ed012c3ee5d6a594895bb"
+      },
+      {
+        "name": "retained-original/invocation.log",
+        "bytes": 712,
+        "sha256": "253d52714647ebbc02481dc42f21ab0c449b74a445f6fed93b6f57082eff332e"
+      },
+      {
+        "name": "retained-original/provenance.json",
+        "bytes": 1169,
+        "sha256": "9d4023efe260fefc21669fa30a847f75ad5f2a057d65ba69da56b50c4f814389"
+      },
+      {
+        "name": "retained-original/runner.mjs",
+        "bytes": 10343,
+        "sha256": "c0cc2f2c7e418b4278621fbfc5031214977a230ac8d6d2202f9803105bdd1ebb"
+      },
+      {
+        "name": "retained-original/source-pins.json",
+        "bytes": 1176,
+        "sha256": "8fe52af5281d4a36c0fad5f4e137c942c270fe0a27d7916c81a7281fe65216d3"
+      }
+    ]
+  }
+}

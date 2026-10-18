@@ -1,0 +1,32 @@
+{
+  "task": "fix-accessible-wizard-keepdogs-source-parity-20261018",
+  "base": "2f856577d4a61ff0c3c3db1fbf30f51eab9a9e2a",
+  "frozenAt": "2026-10-18T17:24:09.655Z",
+  "originalTest": {
+    "path": "scripts/dog-migrate.test.mjs",
+    "bytes": 45174,
+    "sha256": "d926816d5b4edbf6a8ee5e6c6c75743d09bea769e3599a469cd45ba3c75a3574"
+  },
+  "productionBefore": {
+    "path": "js/dog.js",
+    "blob": "a3e952de0804b908436bd6eb3386f5a8d1955928"
+  },
+  "command": [
+    "node",
+    "--test",
+    "scripts/dog-migrate.test.mjs"
+  ],
+  "rawOutput": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/original-red.log",
+  "exitReceipt": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/original-red.exit",
+  "priorFixture": {
+    "path": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/prior-attempt.mjs",
+    "bytes": 14599,
+    "sha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002",
+    "requiredSha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002"
+  },
+  "priorCapture": {
+    "path": ".cache/fix-accessible-wizard-keepdogs-source-parity-20261018/prior-capture.json",
+    "sha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e",
+    "requiredSha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e"
+  }
+}

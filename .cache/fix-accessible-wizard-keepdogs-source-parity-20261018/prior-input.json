@@ -1,0 +1,7 @@
+{
+  "seed": 671903,
+  "datetime": "20261018120000",
+  "nethackrc": "OPTIONS=name:AccessibleWizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+  "moves": "",
+  "playMode": "normal"
+}

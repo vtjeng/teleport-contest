@@ -47,11 +47,13 @@ import {
     PM_LITTLE_DOG,
     PM_KITTEN,
     PM_SEWER_RAT,
+    PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
 import {
+    AMULET_OF_YENDOR,
     BOULDER,
     COIN_CLASS,
     LEASH,
@@ -65,6 +67,8 @@ import {
     is_lightblocker_mappear,
 } from '../js/vision.js';
 import { goodpos } from '../js/teleport.js';
+import { isok } from '../js/cmd_isok.js';
+import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
 
 const CURRENT_LEVEL = Object.freeze({ dnum: 0, dlevel: 2 });
 const CROSS_DUNGEON_DESTINATION = Object.freeze({ dnum: 1, dlevel: 2 });
@@ -903,6 +907,177 @@ test('keepdogs leaves distant accessible monsters to the migration port', async 
     assert.equal(state.gm.migrating_mons, null);
     assert.equal(game.unported.has('dog.c migrate_to_level'), true);
 });
+
+test('keepdogs migrates the canonical distant Wizard through the original caller',
+    async () => {
+        const input = {
+            seed: 671903,
+            datetime: '20261018120000',
+            nethackrc: 'OPTIONS=name:AccessibleWizard,role:Wizard,race:human,gender:male,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+            moves: '',
+        };
+        let display = null;
+        let previousEmptyHandler = null;
+        try {
+            // This is the exact source-owned initializer/input used by the
+            // retained e6fee qualification. The only added actor is the one
+            // predetermined explicit-coordinate Wizard below.
+            display = new GameDisplay(null);
+            previousEmptyHandler = display.onEmptyQueue;
+            display.onEmptyQueue = () => {
+                assert.equal(display.toplin, TOPLINE_NEED_MORE,
+                    'only a real rendered --More-- may receive input');
+                assert.ok(display.serialize().includes('--More--'));
+                return 32;
+            };
+            const harness = new NethackGame(input);
+            harness._pendingDisplay = display;
+            assert.equal(await harness.start(), true);
+            const state = game;
+            assert.equal(state.plname, 'AccessibleWizard');
+            assert.equal(state.context.ident > 0, true);
+            assert.ok(state.youmonst && state.u.uprops && state.flags);
+            assert.ok(state.mons[PM_WIZARD_OF_YENDOR]);
+
+            const hero = { x: state.u.ux, y: state.u.uy, level: { ...state.u.uz } };
+            const targetX = hero.x + 4;
+            const targetY = hero.y;
+            assert.deepEqual(hero, { x: 12, y: 7, level: { dnum: 0, dlevel: 1 } });
+            assert.equal(isok(targetX, targetY), true);
+            assert.equal(m_at(targetX, targetY, state), null);
+            assert.equal(state.u.uhave?.amulet ?? false, false);
+            assert.equal([state.wiz1_level, state.wiz2_level, state.wiz3_level]
+                .some(level => level?.dnum === hero.level.dnum
+                    && level?.dlevel === hero.level.dlevel), false);
+
+            const template = state.mons[PM_WIZARD_OF_YENDOR];
+            const wizard = await makemon_runtime(template, targetX, targetY,
+                MM_NOMSG, { state });
+            assert.ok(wizard, 'the canonical constructor must create the target');
+            const targetId = wizard.m_id;
+            const old = { x: wizard.mx, y: wizard.my };
+            const oldTrack = structuredClone(wizard.mtrack.slice(0, 3));
+            const oldInventory = [];
+            for (let obj = wizard.minvent; obj; obj = obj.nobj) {
+                oldInventory.push({ id: obj.o_id, otyp: obj.otyp, quan: obj.quan,
+                    where: obj.where, no_charge: obj.no_charge, unpaid: obj.unpaid });
+            }
+            const ids = head => {
+                const result = [];
+                for (let mon = head; mon; mon = mon.nmon)
+                    result.push(mon.m_id);
+                return result;
+            };
+            const otherActorsBefore = ids(state.level.monlist)
+                .filter(id => id !== targetId);
+            const originalMarker = state.unported instanceof Set
+                && state.unported.has('dog.c migrate_to_level');
+            assert.equal(state.unported instanceof Set, true,
+                'capture the actual pre-entry gap state');
+            const rngBefore = harness.getRngLog();
+            const ttyBefore = {
+                topline: display.toplin,
+                serialized: display.serialize(),
+                inputQueueLength: display.inputQueueLength,
+                waitEpoch: display.waitEpoch,
+                pendingMessage: state._pending_message,
+                inputState: state.program_state?.input_state ?? null,
+            };
+            const targetBefore = {
+                id: targetId, x: wizard.mx, y: wizard.my,
+                iswiz: wizard.iswiz, isshk: wizard.isshk,
+                wormno: wizard.wormno, appearance: wizard.m_ap_type,
+                stuck: wizard === state.u.ustuck,
+                mstate: wizard.mstate, mflags: wizard.mflags,
+                inLevel: ids(state.level.monlist).includes(targetId),
+                onMap: m_at(wizard.mx, wizard.my, state) === wizard,
+                currentLevel: { ...state.u.uz },
+                inventory: oldInventory,
+                mtrack: oldTrack,
+            };
+            assert.deepEqual({
+                id: targetBefore.id, x: targetBefore.x, y: targetBefore.y,
+                iswiz: targetBefore.iswiz, isshk: targetBefore.isshk,
+                wormno: targetBefore.wormno, appearance: targetBefore.appearance,
+                stuck: targetBefore.stuck, inLevel: targetBefore.inLevel,
+                onMap: targetBefore.onMap,
+            }, {
+                id: 134, x: 16, y: 7, iswiz: true, isshk: false,
+                wormno: 0, appearance: M_AP_NOTHING, stuck: false,
+                inLevel: true, onMap: true,
+            });
+            assert.equal((wizard.mx - hero.x) ** 2 + (wizard.my - hero.y) ** 2 >= 3,
+                true);
+            assert.equal(oldInventory.some(obj => obj.otyp === AMULET_OF_YENDOR),
+                false);
+
+            await keepdogs(false, { state });
+
+            const after = {
+                id: wizard.m_id,
+                levelIds: ids(state.level.monlist),
+                migratingIds: ids(state.gm?.migrating_mons),
+                dogIds: ids(state.gm?.mydogs),
+                gridActor: m_at(old.x, old.y, state)?.m_id ?? null,
+                x: wizard.mx, y: wizard.my,
+                mstate: wizard.mstate,
+                mtrack: wizard.mtrack.slice(0, 3),
+                mux: wizard.mux, muy: wizard.muy,
+                mlstmv: wizard.mlstmv,
+                inventory: [],
+                rng: harness.getRngLog(),
+                tty: {
+                    topline: display.toplin,
+                    serialized: display.serialize(),
+                    inputQueueLength: display.inputQueueLength,
+                    waitEpoch: display.waitEpoch,
+                    pendingMessage: state._pending_message,
+                    inputState: state.program_state?.input_state ?? null,
+                },
+                marker: state.unported.has('dog.c migrate_to_level'),
+                otherActorIds: ids(state.level.monlist)
+                    .filter(id => id !== targetId),
+            };
+            for (let obj = wizard.minvent; obj; obj = obj.nobj) {
+                after.inventory.push({ id: obj.o_id, otyp: obj.otyp,
+                    quan: obj.quan, where: obj.where,
+                    no_charge: obj.no_charge, unpaid: obj.unpaid });
+            }
+            const mismatchContext = JSON.stringify({
+                before: targetBefore, after,
+                hero, targetPremise: { targetX, targetY },
+                originalMarker, ttyBefore,
+            });
+            assert.ok(after.migratingIds.includes(targetId),
+                `actual source-created Wizard did not migrate: ${mismatchContext}`);
+            assert.equal(after.id, targetId, mismatchContext);
+            assert.equal(after.levelIds.includes(targetId), false, mismatchContext);
+            assert.equal(after.gridActor, null, mismatchContext);
+            assert.deepEqual([after.x, after.y], [0, 0], mismatchContext);
+            assert.equal(after.mstate & MON_MIGRATING, MON_MIGRATING,
+                mismatchContext);
+            assert.equal(after.mstate & MON_LIMBO, 0, mismatchContext);
+            assert.equal(after.mstate & MON_STILL_ARRIVING, 0,
+                mismatchContext);
+            assert.deepEqual(after.mtrack, [
+                { x: MIGR_EXACT_XY, y: 0 },
+                { x: old.x, y: old.y },
+                { x: hero.level.dnum, y: hero.level.dlevel },
+            ], mismatchContext);
+            assert.deepEqual([after.mux, after.muy],
+                [hero.level.dnum, hero.level.dlevel], mismatchContext);
+            assert.equal(after.mlstmv, state.moves, mismatchContext);
+            assert.deepEqual(after.inventory, oldInventory, mismatchContext);
+            assert.deepEqual(after.otherActorIds, otherActorsBefore,
+                mismatchContext);
+            assert.equal(after.marker, originalMarker, mismatchContext);
+            assert.deepEqual(after.rng, rngBefore, mismatchContext);
+            assert.deepEqual(after.tty, ttyBefore, mismatchContext);
+        } finally {
+            if (display) display.onEmptyQueue = previousEmptyHandler;
+        }
+    });
 
 test('keepdogs migrates a vault guard who is away from his vault', async () => {
     // keep_mon_accessible():772-778, the isgd disjunct. Each of the three
