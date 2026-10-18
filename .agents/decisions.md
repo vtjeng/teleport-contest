@@ -509,3 +509,31 @@ After two source-supported repair tasks stopped before production edits—earthq
   These heterogeneous outcomes establish useful accepted work, not a causal
   speedup or yield estimate; all-in effort, CPU and overall benefit remain
   unmeasured. Continue ordinary monitoring without another reporting form.
+
+## 2026-10-18 — Distinguish bounded task closure from hypothesis resolution
+
+- Approval/change: the user explicitly approved distinguishing a refuted
+  hypothesis, setup/prerequisite failure, infrastructure interruption and
+  deliberate deferral of an unresolved question. Use existing result/review
+  notes to state the closure reason, remaining question, and concrete next
+  step or deferral owner for promising partial work; add no reporting pipeline.
+- Evidence: chest qualification `e369a0bf` exhausted three setup invocations
+  before `use_container`, leaving the accounting finding unrefuted. Acid
+  provider inquiry `6d9208a1` retained partial source notes after a platform
+  output-limit interruption; the upstream provider chain and prior-owner
+  review remain unresolved. Terminal assignments do not settle those questions.
+- Limits/tradeoff: preserve immutable negatives, original owners and every
+  spent attempt/time budget. Classification alone authorizes no additional runs or time,
+  cap reset, runtime claim or relaxation of source, review,
+  validation and publication gates. Ownership stays explicit without leaving
+  an indefinite live blocker or requiring a full lead-authored fixture.
+- Follow-up: improved clarity and useful continuation are **unmeasured**.
+  Review ordinary subsequent dispositions for correct distinctions and an
+  owner, reusing saved evidence; no extra runs, metrics pipeline or standalone
+  publication is required.
+
+### Retained case dispositions and explicitly selected continuations
+
+- **Chest explosion accounting — setup/prerequisite failures; source question unresolved.** Source result `b66597bfdfa0e7fc14dafb065fddd4734a68be8942a9281622c65ac51a343b62` found the omitted C accounting. Qualification `e369a0bf9e3e93390fc64567ff93acee5e938fd5e2af24f3a680eaf925b75a19` retained all three invocations under its original 03:35:26.784–03:50:26.784 UTC allowance: wrong `stone_luck` export, an incorrect terrain-tile object observer, then no eligible one-door shop room. None called `use_container`; no explosion, debt, or source refutation was observed. Independent review also found the production floor loop uses the wrong owner: canonical objects are linked through `level.objects[x][y]` and `nexthere`. The outstanding question therefore covers canonical floor traversal and **both** C `stolen_value` sites, including pre-deletion and surviving-insider message order, through real `use_container`. Main selected `chest-explosion-floor-billing-combined-target-continuation-20261018`, owned by Worker 2 with Work lead disposition and Challenge lead independent review: source first, an explicitly additional 15 minutes and at most two JS invocations, cache only, no game edits. Use a minimal valid entry and retained successful keeper/shop evidence instead of restarting the old seed/room search. All original attempts and time remain spent; actual explosion readiness remains unknown. Any repair requires complete combined-scope review and actual target red before code.
+
+- **Nonhero acid-potion kill provider — infrastructure interruption; incomplete source review.** Result `6d9208a1e7bd5ff5576c773c2d0513a1df104a7ad3c53d1329e7a924d0566a8c` retained local `potionhit`/`monkilled` observations after a platform output-limit interruption, but not the complete upstream default-provider or prior-owner chain. Its original eight-minute allowance (05:11:53.963–05:19:53.963 UTC) and later packaging closure remain recorded; no runtime target or reachable defect was established. Main selected `nonhero-acid-potion-provider-chain-continuation-source-20261018`, owned by Worker 1 with Work lead disposition and Challenge lead independent review: an explicitly additional six minutes, source/cache only, zero runtime or game edits. Finish the ordinary `m_throw → ohitmon → potionhit → monkilled` environment/guard/compensation chain and exact prior ownership, returning either a coherent source finding, a contradiction, or a named unresolved dependency/owner. The later acid-versus-bars inquiry is a different question and is **not** its successor. Classification and this new allowance do not reset the original budget or establish repair readiness.

@@ -115,6 +115,7 @@ retain a live block only for a named unresolved dependency. Work lead reviews
 and executes the supported queue transitions and retains dispatch authority.
 These dispositions preserve immutable history and all validation, admission,
 and acceptance gates.
+At closure distinguish a refuted source question from a setup/prerequisite miss, infrastructure interruption, or deliberately deferred unresolved question. A bounded task ending does not exhaust its hypothesis. For partial source-supported work retain the exact outstanding question and evidence, record one concrete bounded continuation or a deferral reason and responsible owner. Preserve spent attempt/time records; any successor needs fresh review/queue ownership and does not relax proof or validation.
 
 Assign a distinct source-grounded question to a worker as soon as its owner,
 safe scope, prerequisites, and bounded stop are clear. The producer supplies
