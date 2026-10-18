@@ -1,131 +1,152 @@
 {
-  "goal": "fix-dig-drawbridge-callers-source-parity-20261018",
+  "goal": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
   "kind": "file-port",
-  "sourceFile": "dig.c",
-  "cFile": "dig.c",
+  "sourceFile": "mkobj.c",
+  "cFile": "mkobj.c",
   "functions": [
-    "dighole"
+    "add_to_minv"
   ],
   "requiredFunctions": [
     {
-      "sourceFile": "dig.c",
-      "name": "furniture_handled",
-      "line": 571,
-      "endLine": 596,
-      "jsFile": "js/dig.js"
+      "sourceFile": "steal.c",
+      "name": "mpickobj",
+      "line": 618,
+      "endLine": 685,
+      "jsFile": "js/steal.js"
+    },
+    {
+      "sourceFile": "mon.c",
+      "name": "mpickstuff",
+      "line": 1847,
+      "endLine": 1910,
+      "jsFile": "js/mon.js"
     }
   ],
   "lineRanges": [
-    "885-1026"
+    "2648-2665"
   ],
-  "cLines": 142,
-  "jsFile": "js/dig.js",
+  "cLines": 18,
+  "jsFile": "js/invent.js",
   "sessions": [],
   "sourceParity": {
     "version": 1,
-    "id": "fix-dig-drawbridge-callers-source-parity-20261018",
-    "assignmentBase": "720448d8bfa5acc1b207540979e868795b74e7e9",
+    "id": "fix-glob-monster-floor-pickup-runtime-source-parity-20261018",
+    "assignmentBase": "a4a3afb7f30ca072e55ad186fa513e75e511e606",
     "evidenceBasis": "source-parity-runtime-pending",
     "review": {
-      "reviewedBase": "720448d8bfa5acc1b207540979e868795b74e7e9",
-      "authorization": "Standing explicit source-parity authorization and continuous useful-work instruction. Main selects NEW<=15min focused implementation after actual0f54 dighole target, whole464 source review and independent CL actual/full2site review. Existing v43/e898 two-physicalfamily cap, v54 misses and muse da790 remain spent; the separately selected one qualification has completed. No new discovery/runtime allowance or helper expansion.",
-      "currentBehavior": "C furniture_handled571-594 normalizes input through find_drawbridge then invokes destroy and returnsTRUE; digactualhole consumesTRUE beforetrapcreation. C dighole885-1022 loweredbridge/wall branch separately normalizes, destroys, setsretvalTRUE then spot_checks at originalx/y. JS both exactcalls onlymark missingcallee. Actual0f54 canonical start671903, hero12,7 and fixedlastOROOM7 realcreate_drawbridge66,13/northwall66,12 wroteDB_MOAT0; ONE actualdighole returnedTRUE, genuinepremarkerfalse→true while loweredbridge34 and openDOOR23 unchanged, noerrors/RNG3018→3018/oneMore/restoredhandler/samelevelREF.",
-      "expectedBehavior": "Within WHOLE existing furniture_handled and dighole functions replace BOTH exact omittedcalls with await existing destroy_drawbridge(position.x,position.y,state,rawEnv) after existingfind_drawbridge normalization; import existingcanonicalhelper, update inaccuratevoidgapcomments. Preserve originalinputcoordinates, furnitureTRUE earlyreturn into digactualhole, dighole retvalTRUE and finalspot_checks(originalx,y,oldType), allpitOnly/digcheck/liquid/trap/otherbranchordering and defaults. No edits to destroyhelper or unrelatedsource. Existinghelper owns actualMOATconversion, canonicaldebris/scatter/wake/vision/objects/occupanttails; no rescue, forcedRNG or inventedcompensation. DirectCsourceexpected MOAT with flags0 (notDRY); wallalreadyDOOR so no requiredtypechange. Retain allother namedgaps/sourcependinglimits.",
+      "reviewedBase": "a4a3afb7f30ca072e55ad186fa513e75e511e606",
+      "authorization": "Standing explicit source-parity correction authorization. Main selects SECOND bounded MONSTER FLOOR PICKUP runtime stage after accepted/published firststagea4a and actualce5a exacte0ebb once. Whole C add_to_minv/mpickobj/mpickstuff source/default/caller and existing masterarchitecture reviewed Main+CL. NEW<=20min implementation including packaging, no oldbudgetreset or unrelated callerstage. Old syncexports preserved, global othercaller groups pending, no fullsource/public parity certification.",
+      "currentBehavior": "Actualce5a source-equivalent acceptedb032 invocation: canonical goblin65 at75,2 peacefulfalse/tame0 carries67mass20, exactreadonlyselector choosesfloor68carry1. Sole mpickstuff extracts68 intoFREE then mpickobj/add_to_minv/syncmergedpreflight throws absentabsorbGlob271. Actorstillminv67,68FREE/unlinked,floorempty; timers67deadline25/68deadline27 unchanged, RNG2423 unchanged, hero/map/restore true/noobservererror. Currentpublisheda4a now provides canonical awaited mergedRuntime foundation for hero stage but oldsyncmpickobj path remains same refusal.",
+      "expectedBehavior": "Implement WHOLE C mkobj.c:add_to_minv as new addToMinvRuntime hybrid boolean|Promise<boolean> using sourceordered sequential existing mergedRuntime scan; true only absorbed/freed, false only linked and carrier/minventory exact. Implement WHOLE steal.c:mpickobj as mpickobjRuntime hybrid, preserving missing/attached, transitclear, bill/unpaid, objectoutmessage, nocharge/unknown/loss and carrying effects BEFORE transfer, snuff AFTER resolvedboolean. Wire ONLY actual existing mon.mpickstuff effecthalf to await runtimewrapper before check_gear_next_turn/redraw/return. Preserve complete mon.c:mpickstuff selector in monmove unchanged. Same realcallback now completes actor65 retains67mass40/quan1/age1,68deleted/unlinked/no68timer/single67timerdeadline26, actualgear/redraw after transfer, samehero/level/survival. Positive snuff/light not claimed from nonluminousglobs. All oldexports/otheractualcallers remain explicitly pending/preserved.",
       "units": [
-        "dig.c:dighole",
-        "dig.c:furniture_handled"
+        "mkobj.c:add_to_minv",
+        "steal.c:mpickobj",
+        "mon.c:mpickstuff"
       ],
       "allowedPaths": [
-        "js/dig.js",
-        "scripts/dig.test.mjs",
+        "js/invent.js",
+        "js/steal.js",
+        "js/mon.js",
+        "scripts/monster-pickup.test.mjs",
+        "scripts/inventory-substrate.test.mjs",
+        "scripts/mon.test.mjs",
         ".cache/"
       ],
       "regressionTests": [
-        "scripts/dig.test.mjs"
+        "scripts/monster-pickup.test.mjs"
       ],
       "callers": [
         {
-          "path": "js/dig.js",
-          "symbol": "dighole",
-          "source": "C loweredbridge/wall branch calls normalizeddestroy, preservesretval and sourceorderedspot_checks originalcoords; actual0f54 exportedentry qualifies."
+          "path": "js/mon.js",
+          "symbol": "mpickstuff",
+          "source": "Actual sourceeffecthalf Cmon1888 onward: distance/name/message before floor extraction; mpickobj after extraction; await runtimeboolean before gear/redraw/return. Existing whole selector decisions/prize/reach/carry filters in monmove remain unchanged; actual ce5a selector boundjointstate."
         },
         {
-          "path": "js/dig.js",
-          "symbol": "digactualhole",
-          "source": "C early furniture_handled consumesTRUE beforetrapconversion; bind production supporting regression through this existingcaller to normalizedbridge/wall destruction."
+          "path": "js/steal.js",
+          "symbol": "mpickobj",
+          "source": "Existing checkedPickupPlan/pickupEnv canonical fullenv/carryeffects; new runtimecounterpart samepreflight+prefix, new runtime minv resolvedboolean before snuff/return; old syncinterface unchanged."
         },
         {
-          "path": "js/dig.js",
-          "symbol": "furniture_handled",
-          "source": "C normalizeddestroy beforeTRUE; coordinates may be portcullis rather than bridge, preserve sourcefind_drawbridge mutation."
-        },
-        {
-          "path": "js/dig.js",
-          "symbol": "zap_dig",
-          "source": "Existing default downward nonpit path awaits dighole; no wand/UI/publichistory gate added."
+          "path": "js/invent.js",
+          "symbol": "add_to_minv",
+          "source": "Existing source Cmkobj inventory ownership chain and sequentialmerge, runtimecounterpart uses accepted mergedRuntime foundation, preserves lowlevel actualboolean and source next/tail order."
         }
       ],
       "pins": [
         {
-          "path": "js/dig.js",
-          "object": "5eef1f0b51f9cc10e5cf7593271dee434cc93959"
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
         },
         {
-          "path": "scripts/dig.test.mjs",
-          "object": "66e841f5f71a6f49b327a5e28ebd1379655c481e"
+          "path": "js/invent.js",
+          "object": "9b48caf79a606240a465c0f19a17996a47b15fa3"
         },
         {
-          "path": "js/dbridge.js",
-          "object": "48343dfd12932d75b086dbfd5e90c0abc35aef4c"
+          "path": "js/steal.js",
+          "object": "d3ab43ce164756770f53d05a20a4659768d7a68b"
         },
         {
-          "path": "js/zap.js",
-          "object": "3d03ad1932540ca8e89a7dfc0332302b9983d71f"
+          "path": "js/mon.js",
+          "object": "a8967364ab0b77bdc92d76208b806e832792b914"
         },
         {
-          "path": "js/hack.js",
-          "object": "67ec67360eebbaab081ad9faf431ca934d87d7cb"
+          "path": "scripts/monster-pickup.test.mjs",
+          "object": "3f64fd16263df6d396d4c3f8f9806562566ce3b8"
+        },
+        {
+          "path": "scripts/inventory-substrate.test.mjs",
+          "object": "9848c72498f8244fa5cb7ca55b57e0ee04670006"
+        },
+        {
+          "path": "scripts/mon.test.mjs",
+          "object": "b558a046aa8de29da623318479dc0d0e7c48fe75"
+        },
+        {
+          "path": "js/monmove.js",
+          "object": "7bbcd07786c21b9f1c5c4a06c46622888c86d916"
+        },
+        {
+          "path": "js/moncarry.js",
+          "object": "a4dbeaf9f7adb87c34390227b97f9987e0934d42"
         },
         {
           "path": "js/obj.js",
           "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
         },
         {
-          "path": "js/trap.js",
-          "object": "4747a0667ddc8fba45209367c5c69ff5f91dd170"
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
         },
         {
-          "path": "js/jsmain.js",
-          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
         },
         {
-          "path": "js/game_display.js",
-          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
-        },
-        {
-          "path": "js/const.js",
-          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+          "path": "js/makemon_create.js",
+          "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
         },
         {
           "path": "js/rng.js",
           "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
         },
         {
-          "path": "nethack-c/upstream",
-          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
         }
-      ],
-      "sourceEvidence": {
-        "sourceResult": "464bf5e50713b145e95aa8cf70e8555588e4392a5058808f9bc926695a2755a3",
-        "actualResult": "0f54a97c6eeb496766ae6c242c7e4591eb9c37d79658b9bc2d7ba869b08a665a",
-        "actualCommit": "f46eef683cd50992c98c9ff473c140547f8cc151",
-        "actualFixtureSha256": "c964df31f9b91350c149f0772a8097dc0ffd96a8db58ae67c8de704d7f079054",
-        "actualCaptureSha256": "ce5e412e8b0a546c229f9f0668f006efcd0d0a0331b382fdb5dce5f15417182c",
-        "mainFixtureCopy": "/workspace/teleport-contest/.cache/resume-1439/dighole-0f54/runner.mjs",
-        "mainReview": "Main verified outer/envelope/all10file hashes and read entire11923B fixture/captureprimitives and exactC/JS2seams/defaultcanonicalhelper. CL independentlyverified sameactual/full2site closure. ActuallevelIdentity observer wasnull (wrongproperties), not realledger; sameactuallevelREF and complete initializedsourceentry remainvalid. Newtests must capturecanonicalu.uz for meaningfullevelidentity. No C/publicwitness/syntheticgain/wholehelpersourcecertification."
-      }
+      ]
     },
-    "reviewSha256": "e400ebc33f8f1b31549d44a8d2b340c358c73cedf0d45d8d984af959d0983e01"
-  },
-  "evidenceRequired": "whole source, production callers, tests for pure functions, matching recordings or synthetic ranges for impure functions and entry points"
+    "reviewSha256": "33061e6834388a214e4e5e43c0af79b41d497abb69d6b0cdd3d5185f81cf5c6b"
+  }
 }

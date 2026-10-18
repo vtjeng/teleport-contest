@@ -686,6 +686,7 @@ import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     mdrop_special_objs,
     mpickobj,
+    mpickobjRuntime,
     relobj,
     thiefdead,
 } from './steal.js';
@@ -2013,7 +2014,7 @@ export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
         }
     }
     obj_extract_self(taken, objectEnv);
-    mpickobj(monster, taken, objectEnv);
+    await mpickobjRuntime(monster, taken, objectEnv);
     // let them try to equip it on the next turn
     check_gear_next_turn(monster);
     redraw(monster.mx, monster.my, state);

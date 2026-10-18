@@ -4990,6 +4990,43 @@ export function add_to_minv(monster, obj, env = {}) {
     return false;
 }
 
+// Runtime counterpart of mkobj.c:add_to_minv(). Preserve the synchronous
+// boolean result for an ordinary insertion or non-waiting merge; a merge
+// whose source effects wait for message input resumes the same inventory
+// scan only after that merge reports whether it consumed obj.
+export function addToMinvRuntime(monster, obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('addToMinvRuntime requires a monster');
+    if (obj.where !== OBJ_FREE) {
+        throw new Error(
+            `addToMinvRuntime: object where=${obj.where}, expected OBJ_FREE`,
+        );
+    }
+
+    const insert = () => {
+        obj.where = OBJ_MINVENT;
+        obj.ocarry = monster;
+        obj.nobj = monster.minvent ?? null;
+        monster.minvent = obj;
+        return false;
+    };
+    const scan = (current) => {
+        while (current) {
+            const next = current.nobj ?? null;
+            const absorbed = mergedRuntime(current, obj, normalized);
+            if (isThenable(absorbed)) {
+                return Promise.resolve(absorbed).then((didAbsorb) =>
+                    didAbsorb ? true : scan(next));
+            }
+            if (absorbed) return true;
+            current = next;
+        }
+        return insert();
+    };
+    return scan(monster.minvent ?? null);
+}
+
 export function add_to_container(container, obj, env = {}) {
     const normalized = inventoryEnv(env);
     if (obj.where !== OBJ_FREE) {

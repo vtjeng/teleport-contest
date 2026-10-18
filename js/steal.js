@@ -62,6 +62,7 @@ import { game } from './gstate.js';
 import { inv_cnt, nomul } from './hack.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
 import {
+    addToMinvRuntime,
     add_to_minv,
     carry_obj_effects,
     count_unpaid,
@@ -323,6 +324,69 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
     if (plan.snuff)
         plan.snuffLightSource(monster.mx, monster.my, env);
     return freed;
+}
+
+// Runtime counterpart of steal.c:mpickobj(). It retains the source-ordered
+// pickup effects, but waits for a runtime inventory merge before the
+// post-transfer snuff and before returning the source boolean.
+export function mpickobjRuntime(monster, obj, rawEnv = {}, prepared = null) {
+    const plan = checkedPickupPlan(monster, obj, rawEnv, prepared);
+    const { env } = plan;
+    if (plan.outcome === 'missing') {
+        reportImpossible(
+            env,
+            'monster taking or picking up nothing',
+            monster,
+            obj,
+        );
+        return true;
+    }
+    if (plan.outcome === 'attached') {
+        reportImpossible(
+            env,
+            'monster taking or picking up attached punishment object',
+            monster,
+            obj,
+        );
+        return false;
+    }
+
+    if (env.state.gt?.thrownobj === obj) {
+        env.state.gt.thrownobj = null;
+    } else if (env.state.gk?.kickedobj === obj) {
+        env.state.gk.kickedobj = null;
+    }
+
+    if (plan.billed) {
+        const owner = plan.findObjectOwner(obj, obj.ox, obj.oy, env);
+        plan.subFromBill(obj, owner, env);
+    }
+
+    if (plan.reportObjectGoesOut)
+        plan.reportObjectGoesOut(obj, env);
+
+    obj.no_charge = false;
+    if (!monster.mtame) {
+        if (!plan.canSeeMonster(monster, env)
+            && monster !== env.state.u?.ustuck) {
+            unknow_object(obj, env.state);
+        }
+        if (obj.how_lost === LOST_THROWN)
+            obj.how_lost = LOST_STOLEN;
+        else if (obj.how_lost === LOST_DROPPED)
+            obj.how_lost = LOST_NONE;
+    }
+
+    carry_obj_effects(obj, env, plan.carryEffects);
+    const transferred = addToMinvRuntime(monster, obj, env);
+    const afterTransfer = (freed) => {
+        if (plan.snuff)
+            plan.snuffLightSource(monster.mx, monster.my, env);
+        return freed;
+    };
+    return typeof transferred?.then === 'function'
+        ? Promise.resolve(transferred).then(afterTransfer)
+        : afterTransfer(transferred);
 }
 
 // C ref: steal.c remove_worn_item() (213-290). Strips a worn item from the
