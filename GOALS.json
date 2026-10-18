@@ -325880,7 +325880,7 @@
     {
       "id": "fix-whole-globby-billing-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the reviewed complete shk.c globby_bill_fixup behavior through the actual async obj_absorb/obj_meld production callers.",
       "cFile": "shk.c",
       "sessions": [],
@@ -325888,7 +325888,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "61e16f304b6a2fa4427ff6d14f7c8a4820ca9de2",
       "delivered": null,
       "functions": [
         {
@@ -326017,6 +326017,61 @@
           }
         },
         "reviewSha256": "da8dd4a370914171de97add2d6f0bae7b715b536fc27daaaa2ee3cd0419e7158"
+      },
+      "closeStanding": {
+        "sha": "61e16f304b6a2fa4427ff6d14f7c8a4820ca9de2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "6f91eab5b8bb18f769f078a81c30198415d9d220",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/61e16f304b6a2fa4427ff6d14f7c8a4820ca9de2/run-hosted-4n7iYm/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "globby_bill_fixup",
+            "implementation": "js/shk.js",
+            "symbol": "globby_bill_fixup",
+            "pure": false,
+            "sourceReview": "Implements the reviewed four C billing scenarios, including fixed-slot bill row copying and captured pointer order; exact scenario-2/3 wording; and the existing diagnostic behavior. obj_absorb calls it after its valid-pointer guard without an additional both-globby condition. obj_absorb/obj_meld and only the two reviewed async callers await completion. Synchronous invent.beginMerged absorbGlob remains untouched.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "flooreffects",
+                "source": "Real exported flooreffects admits canonical OBJ_FREE incoming and matching FLOORglob, awaits actual pudding_merge_message then source obj_meld→obj_absorb; primary4f7b target repeats as finaltest originalred and billing/lifecycle green."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "mondied",
+                "source": "Actual ordinary monster death flows to private alreadyasync make_corpse puddingglob branch, existing obj_meld assignment must await before continuation; meaningful real caller control with canonical state, no fakecorpse helper."
+              }
+            ],
+            "tests": [
+              "scripts/shk.test.mjs",
+              "scripts/flooreffects.test.mjs",
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The asynchronous helper is called unconditionally after obj_absorb validates two distinct non-null objects, before object knowledge/mass/age/timer/extraction/deallocation effects. Both obj_meld absorption branches await obj_absorb; the only production obj_meld callers, do.flooreffects and mon.make_corpse, await it. Tests exercise the real generated-shop flooreffects route and real black-pudding death→make_corpse route. Exact C scenario messages and unconditional helper dispatch are covered in scripts/shk.test.mjs. No C gameplay, public parity, or source certification is claimed.",
+        "entryPoints": [
+          {
+            "name": "obj_absorb → globby_bill_fixup; obj_meld → flooreffects/make_corpse",
+            "functions": [
+              {
+                "sourceFile": "shk.c",
+                "name": "globby_bill_fixup"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
