@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/dog-migrate.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/fix-accessible-wizard-keepdogs-source-parity-20261018/attempt2b-green.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/fix-accessible-wizard-keepdogs-source-parity-20261018/attempt2b-lint.log"
+  }
+]

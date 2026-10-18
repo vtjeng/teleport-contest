@@ -1,0 +1,110 @@
+{
+  "goal": "fix-accessible-wizard-keepdogs-source-parity-20261018",
+  "kind": "file-port",
+  "cFile": "dog.c",
+  "functions": [
+    "keepdogs"
+  ],
+  "requiredFunctions": [],
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-accessible-wizard-keepdogs-source-parity-20261018",
+    "assignmentBase": "2f856577d4a61ff0c3c3db1fbf30f51eab9a9e2a",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "2f856577d4a61ff0c3c3db1fbf30f51eab9a9e2a",
+      "authorization": "Standing explicit source-parity authorization and continued useful-work instruction. Main selects NEW<=15min complete reviewed keepdogs caller repair after actual e6fee Wizard target and independent source/caller/guard review. Prior67 source-invalid raw initializer and all historical migration/parked owners stay separately spent; no broad migration or public-history certification. Terminal dog.js code editing has finished and linked d8 correction is READY before this task; dog.js edits serialized, independent source units/tests retained.",
+      "currentBehavior": "C keepdogs867-876 sends a nonfollower keep_mon_accessible Wizard through migrate_to_level(current ledger,MIGR_EXACT_XY,NULL). JS common branch only records a marker. Actual e6fee normal NethackGame.start seed671903/time20261018120000 created canonical Wizard134 at one predetermined16,7 while hero12,7 D1 had no Amulet; keepdogs returned normally, same live Wizard remained mapped/listed with no migrant, marker present. Common accessibility branch also admits away shopkeepers and special states which existing helper refuses; blanket branch binding would regress them.",
+      "expectedBehavior": "Within whole existing keepdogs function, wire the exact C migration call only for the reviewed current-supported nonfollower ordinary Wizard domain: canonical iswiz actor, nonshopkeeper, no worm, supported M_AP_NOTHING or M_AP_MONSTER appearance, not hero ustuck, ordinary non-Wizard-Tower currentlevel, valid existing map/list/track state. Await existing migrate_to_level(mtmp,ledger_no(state.u.uz,state),MIGR_EXACT_XY,null,env) in existing loop with captured next pointer. Preserve all existing follower/pets_only/leash ordering and default env; keep explicit migration marker for other inaccessible helper domains including away shopkeeper, unsupported disguise/worm/stuck and tower without actual provider. Do not expand migrate_to_level, mutate actor to satisfy predicates, introduce source-independent providers, or claim entire accessibility migration complete. Supported Wizard moves from current level chain/grid to migrating_mons once, mx/my0, MIGRATING/no LIMBO/no STILL, source currentlevel and exact oldxy tracks, destination currentledger, mlstmv moves, same actor/inventory retained, no RNG/input added and real other actors preserved according to their branches. Existing helper owns lifecycle; no helper-file edits or terminal cleanup.",
+      "units": [
+        "dog.c:keepdogs"
+      ],
+      "allowedPaths": [
+        "js/dog.js",
+        "scripts/dog-migrate.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/dog-migrate.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/dog.js",
+          "symbol": "keepdogs",
+          "source": "C nonfollower keep_mon_accessible branch invokes migration with currentledger/MIGR_EXACT_XY/null. Actual e6fee exported keepdogs false entry demonstrates exact ordinary Wizard caller; preserve current next-pointer loop ordering."
+        },
+        {
+          "path": "js/dog.js",
+          "symbol": "migrate_to_level",
+          "source": "Existing accepted ordinary onmap helper supports selected Wizard default env; all partial helper guards and unrelated failed-arrival/terminal work stay separate."
+        }
+      ],
+      "pins": [
+        {
+          "path": "js/dog.js",
+          "object": "a3e952de0804b908436bd6eb3386f5a8d1955928"
+        },
+        {
+          "path": "scripts/dog-migrate.test.mjs",
+          "object": "3b54860454b4f1a9958769749e8f890801709ed8"
+        },
+        {
+          "path": "js/mon.js",
+          "object": "a8967364ab0b77bdc92d76208b806e832792b914"
+        },
+        {
+          "path": "js/monst.js",
+          "object": "5b3d047868d8b40c07416497640bd948ae2c6c93"
+        },
+        {
+          "path": "js/mondata.js",
+          "object": "a2ed0919963fc18468d0a5ff0b02ee388157afa6"
+        },
+        {
+          "path": "js/dungeon.js",
+          "object": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7"
+        },
+        {
+          "path": "js/makemon_create.js",
+          "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        }
+      ],
+      "sourceEvidence": {
+        "actualResult": "e6fee570f9f9998c687224b7c6194a54f5d1d7e297d4bc7ec62a939e4dd1a940",
+        "actualFixtureSha256": "027059bb6b2c3b0a1735d6d6e717502ab5e3b2195195b03a787bdcae60e39002",
+        "actualCaptureSha256": "6a35c66dd3a0d1a65906c8e72eac280045a2a4526bd8e3d076456bb3a4666b6e",
+        "actualFixture": "/workspace/teleport-contest-worker3-recovery/.cache/keepdogs-initialized-wizard-default-qualification-20261018/attempt.mjs",
+        "mainFixtureCopy": "/workspace/teleport-contest/.cache/resume-1439/keepdogs-initialized/attempt.mjs",
+        "mainReview": "Main verified immutable result outer/envelope/all10embedded files, checked current14599-byte fixture against immutable declared027059 hash and preserved full exact copy, read full recipe/target primitives and whole C/JS selected branch/helper guards. Independent CL full source/fixture review confirms target and narrow supported Wizard path. Recipe markerPresentBefore was fallbackfalse from uncaptured property, not a measured absence; rely on actual returned target identity/state/aftermarker, not fake newmarker. New regression must directly capture/check true pre-entry marker.",
+        "limits": "No C/public witness, novelty, recording, whole migration/accessibility certification or synthetic gain. All old caps/parked owners preserved; no alternate fixture/outcome hunt. Both full primary original target red and same final-byte green remain mandatory."
+      }
+    },
+    "reviewSha256": "10f39d295ea6247881e439a5b98b717b425dc16ef04a38f03a3073fe4274d3c4"
+  },
+  "deliveryNote": "Narrow source-parity correction to the reviewed ordinary accessible Wizard caller in keepdogs. Runtime evidence is focused constructed-state regression only; no C recording or public parity certification."
+}
