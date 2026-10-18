@@ -803,3 +803,47 @@ Outside shop-damage room-buffer disposition (2026-10-18):
   for hosted validation after figurinec212 publication CI is fully green.
   Existing getcad/helper gaps, runtime-pending basis, old caps and public
   evidence limits remain; no broader shop source certificate is claimed.
+
+### 2026-10-18 — Keep unread delivery notifications current
+
+`nextActions().unread` now selects only the task's latest delivery without
+feedback, retaining the existing missing-receipt and missing-acceptance checks.
+The current correction remains visible; corrections, historical delivery events,
+manual receipts, ownership, and validation/publication requirements are unchanged.
+
+Rejected splitbill `2d20443f` remained unread after feedback and accepted successor
+`70abdb10`, although `pendingMainWork` correctly showed no outstanding delivery.
+This caused recovery ambiguity; no automated gate delay was established.
+
+Implementation: retained tooling commit `0c86c723d`, from isolated patch SHA-256
+`9ce3bbfccc8f339eaf327472106ea448af28dd511ca5a4407892e57e5a39b305`.
+Main applied the reviewed patch; normal combined checkpoint and publication are pending.
+Two new regressions fail on published `88106737` and pass with the patch; the
+focused suite passes 34/34, targeted lint and whitespace checks pass.
+
+Tradeoff: reviewed or replaced revisions leave the prominent unread list while
+remaining available in immutable history. A read-only projection changed four
+stale rows to zero without changing reconstructed state. Operational benefit and
+later recurrence reduction remain **unmeasured**; no new notification pipeline,
+acknowledgment state, helper, or process policy is introduced.
+
+The first review manifest named an older PA source hash. An additive correction
+binds the actual isolated command directory and matching applied source/test bytes;
+these are post-run hashes, with no repeated checks or invented in-run capture.
+
+### 2026-10-18 — Restore immediate unpaid boulder exit accounting
+
+The reviewed whole `hack.c:dopush` delivery `ce411eb4166e67ba186c0dd169e21ea62ffea590`
+resolves the original owner and destination shop exclusion after movement, then
+awaits the existing theft-accounting helper in source order. The actual default
+`test_move` witness moved boulder 101 outside while retaining its $5 bill; the
+regression verifies bill/unpaid removal and debit 5 before hero movement. Later
+shop departure remains a separate path. This is source-parity runtime-pending
+work, with public play and whole-source certification unclaimed.
+
+The initial pre-code red remains separate from the final test pairing after an
+approved coordinate-observer correction. The first intermediate failure log was
+overwritten; its raw bytes are unavailable. The stale earlier freeze path is
+overridden by the delivery chronology, not treated as a raw failure. Final
+identical-byte original red and repaired green are preserved. Full hosted
+checkpoint, saved no-regression acceptance and publication remain pending.

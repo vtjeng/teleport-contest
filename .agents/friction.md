@@ -1753,3 +1753,25 @@ earlier046a meaningful red/green preceded import-only final cleanup; the final
 same-byte original0!==80/repair-green pair ran after first code, with lint0.
 Retain that chronology. Existing audit/capture requirements apply; no new rule,
 helper, gate, or measured prevention benefit is claimed.
+
+### 2026-10-18 — Stale unread predecessor correction prepared
+
+Splitbill `2d20443f` lacked a receipt after feedback and accepted successor
+`70abdb10`; the unread projection still advertised it while the current-delivery
+backlog was empty. The isolated latest-revision/no-feedback filter preserves
+current corrections and immutable history. Two meaningful original failures and
+34/34 focused green support it. Main applied the reviewed correction as `0c86c723d`; a normal full checkpoint
+remains pending; the read-only four-to-zero stale-row projection is not a measured
+time saving or evidence of an automated gate delay.
+
+### 2026-10-18 — Boulder regression observer and intermediate log loss
+
+The genuine pre-code regression reached the unpaid boulder accounting target.
+Its first repaired run passed the target assertions then compared `{x,y}` with
+`{x,y,ushops,urooms}`. Main approved only the coordinate projection correction
+within the original budget. Final identical-byte original-red/repaired-green
+pairing follows the first draft; the initial genuine red remains separate.
+The first observer-failure raw output was overwritten by a reused log path.
+Its unique state receipt survives; transcript reconstruction is not original
+raw output. No replay was requested to recreate lost bytes. The unchanged
+fixture dependency must be committed for clean hosted checkout.
