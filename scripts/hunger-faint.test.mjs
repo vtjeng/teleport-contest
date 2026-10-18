@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { A_STR, DEAF, FAINTED, FAINTING, WEAK, TIMEOUT, LAST_PROP, NOT_HUNGRY } from '../js/const.js';
-import { newuhs } from '../js/eat.js';
+import { A_STR, DEAF, FAINTED, FAINTING, WEAK, TIMEOUT, LAST_PROP, NOT_HUNGRY, W_ARMG } from '../js/const.js';
+import { gethungry, newuhs, unfaint } from '../js/eat.js';
 
 const source = readFileSync(new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8');
 function hero(nutrition, status = WEAK) {
@@ -164,4 +164,148 @@ test('morehungry fills planning hunger operations without changing supplied RNG 
     await morehungry(1, second, env);
     assert.deepEqual(events, [['message', 'You are beginning to feel hungry.'], ['run', true], ['bot', true]]);
     assert.equal(env.random, random);
+});
+
+test('gethungry faint runs real corpse selftouch and stops the fatal status tail', async () => {
+    const { runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
+    const { mksobj, set_corpsenm, weight } = await import('../js/obj.js');
+    const { addinv_nomerge } = await import('../js/invent.js');
+    const { ready_weapon } = await import('../js/wield.js');
+    const { setworn } = await import('../js/worn.js');
+    const { setwornEnv } = await import('../js/do_wear.js');
+    const { near_capacity, endRunning } = await import('../js/hack.js');
+    const { bot } = await import('../js/display.js');
+    const { ttyPline } = await import('../js/tty_message.js');
+    const { Stone_resistance } = await import('../js/artifacts.js');
+    const { Levitation } = await import('../js/trap.js');
+    const { getRngLog } = await import('../js/rng.js');
+    const { CORPSE, LEATHER_GLOVES } = await import('../js/objects.js');
+    const { PM_COCKATRICE } = await import('../js/monsters.js');
+    const { touch_petrifies } = await import('../js/mondata.js');
+
+    const input = {
+        seed: 97101842,
+        datetime: '20701018162000',
+        nethackrc: [
+            'OPTIONS=name:FaintProbe,role:Wizard,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,disclose:none',
+            '',
+        ].join('\n'),
+        moves: '',
+    };
+    await runSegment(input);
+    const { game } = gstate;
+    const display = game.nhDisplay;
+    assert.ok(display, 'normal runSegment provides the live TTY display');
+    for (let index = 0; index < 16; index++) display.pushKey(32);
+
+    const gloves = mksobj(LEATHER_GLOVES, true, false, { state: game });
+    const corpse = mksobj(CORPSE, true, false, { state: game });
+    set_corpsenm(corpse, PM_COCKATRICE, { state: game });
+    await addinv_nomerge(gloves, { state: game });
+    await addinv_nomerge(corpse, { state: game });
+    await setworn(gloves, W_ARMG, setwornEnv(game));
+    const readyWeaponResult = await ready_weapon(corpse, game);
+
+    // Preserve the source-derived actual caller state from qualification 49cc:
+    // a real first faint reached by gethungry's ordinary global RNG draw.
+    game.u.uhunger = 1;
+    game.u.uhs = WEAK;
+    const initial = {
+        hunger: game.u.uhunger,
+        hungerStatus: game.u.uhs,
+        mortality: game.u.umortality,
+        hp: game.u.uhp,
+        wielded: game.uwep === corpse,
+        corpseSpecies: corpse.corpsenm,
+        corpseWeight: corpse.owt,
+        sourceWeight: weight(corpse, { state: game }),
+        glovesWorn: game.uarmg === gloves,
+        stoneResistance: Stone_resistance(game),
+        levitation: Levitation(game),
+        readyWeaponResult,
+        displayEpoch: display.waitEpoch,
+        inputQueueLength: display.inputQueueLength,
+    };
+    assert.equal(initial.wielded, true);
+    assert.equal(initial.corpseSpecies, PM_COCKATRICE);
+    assert.equal(initial.corpseWeight, 30);
+    assert.equal(initial.sourceWeight, 30);
+    assert.equal(initial.glovesWorn, true);
+    assert.equal(initial.stoneResistance, false);
+    assert.equal(initial.levitation, false);
+
+    const nutritionLoss = await gethungry(game, {
+        nearCapacity: () => near_capacity(game),
+        message: (line) => ttyPline(line, game),
+        endRunning: (state) => endRunning(state),
+        statusRefresh: () => bot(),
+    });
+    const observed = {
+        nutritionLoss,
+        hunger: game.u.uhunger,
+        hungerStatus: game.u.uhs,
+        multi: game.multi,
+        afternmvIsUnfaint: game.afternmv === unfaint,
+        gameover: Boolean(game.program_state?.gameover),
+        killer: game.killer?.name ?? null,
+        mortality: game.u.umortality,
+        hp: game.u.uhp,
+        corpseStillWielded: game.uwep === corpse,
+        glovesStillWorn: game.uarmg === gloves,
+        inputQueueLength: display.inputQueueLength,
+        waitEpoch: display.waitEpoch,
+        finalScreen: display.serialize(),
+        rng: getRngLog(),
+    };
+    console.log(JSON.stringify({ input, initial, observed }, null, 2));
+
+    assert.equal(observed.nutritionLoss, 1);
+    assert.equal(observed.hunger, 0);
+    assert.equal(observed.gameover, true, 'the actual cockatrice corpse must cause terminal stoning');
+    assert.equal(observed.killer, 'a cockatrice corpse');
+    assert.equal(observed.mortality, initial.mortality + 1);
+    assert.equal(observed.hp, 0);
+    assert.equal(observed.hungerStatus, WEAK,
+        'the faint-status tail must stop after terminal selftouch');
+});
+
+test('gethungry faint without a petrifying corpse continues the ordinary faint status tail', async () => {
+    const { runSegment } = await import('../js/jsmain.js');
+    const gstate = await import('../js/gstate.js');
+    const { near_capacity, endRunning } = await import('../js/hack.js');
+    const { bot } = await import('../js/display.js');
+    const { ttyPline } = await import('../js/tty_message.js');
+    const { FAINTED } = await import('../js/const.js');
+
+    await runSegment({
+        seed: 97101842,
+        datetime: '20701018162000',
+        nethackrc: [
+            'OPTIONS=name:FaintControl,role:Wizard,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,disclose:none',
+            '',
+        ].join('\n'),
+        moves: '',
+    });
+    const { game } = gstate;
+    const display = game.nhDisplay;
+    assert.ok(display);
+    for (let index = 0; index < 16; index++) display.pushKey(32);
+    game.u.uhunger = 1;
+    game.u.uhs = WEAK;
+    const nutritionLoss = await gethungry(game, {
+        nearCapacity: () => near_capacity(game),
+        message: (line) => ttyPline(line, game),
+        endRunning: (state) => endRunning(state),
+        statusRefresh: () => bot(),
+    });
+    assert.equal(nutritionLoss, 1);
+    assert.equal(Boolean(game.program_state?.gameover), false);
+    assert.equal(game.u.uhs, FAINTED);
+    assert.equal(game.multi, -10);
+    assert.equal(game.afternmv, unfaint);
+    assert.equal(display.inputQueueLength, 15,
+        'the real TTY path consumed only the visible startup More acknowledgement');
 });

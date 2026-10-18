@@ -213,7 +213,7 @@ import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { fall_asleep, obj_stop_timers } from './timeout.js';
 import {
-    Flying, Levitation, b_trapped, deltrap, float_up, reset_utrap, t_at, unconscious } from './trap.js';
+    Flying, Levitation, b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at, unconscious } from './trap.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
 import { costly_spot, sellobj_state } from './shk.js';
@@ -1832,7 +1832,10 @@ export async function newuhs(incr, state = game, env = {}) {
                 state.nomovemsg = 'You regain consciousness.';
                 state.afternmv = unfaint;
                 newhs = FAINTED;
-                if (!Levitation(state)) note_unported('trap.c selftouch');
+                if (!Levitation(state)) {
+                    await selftouch('Falling, you', state, env);
+                    if (state.program_state?.gameover) return;
+                }
             }
         } else if (u.uhunger < -(100 + 10 * acurr(state, A_CON))) {
             u.uhs = STARVED;
