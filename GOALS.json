@@ -326923,7 +326923,7 @@
     {
       "id": "fix-dig-drawbridge-callers-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Wire normalized drawbridge destruction in both dig callers",
       "cFile": "dig.c",
       "sessions": [],
@@ -326931,7 +326931,7 @@
       "detail": "Source-parity runtime-pending caller repair for exact noncontiguous dig.c:dighole and dig.c:furniture_handled. Actual0f54 canonical dighole target is separately immutable; old v43/e898 two-physical family, v54 and muse misses remain spent. First frozen focused run stopped on test-only DB_LAVA reference before target; Main+CL full-diff review allowed missing import and clean-checkout receipt directory creation within original15min claim, without resetting allowance. Final test9032498f16fa4454c8b110d73244be0f5014fff7090badd00e2384ecd421e160 frozen before production. Literal original raw red99f8c6aa830945f7bcb456b5721776a4f2aa14a8f5b34d549956ef49976b2962 shows both actual target34!==17 failures, unchanged final test green5d880e2e8274664c736fbb3d5c24effe169ebbbb9bd38a833082106d44b8b5a2 passes2/2 plus lint0. Full original red state/RNG receipt JSON bytes were overwritten by fixed output paths and are UNAVAILABLE; hashes/compact summary do not recreate them. Final linked metadata624b1b86c391ff65125efed5747f3edcd9bf171a packetf48001ac6c17e55a7f45ff4c58d8ff43c010cd6f58607c33543b405a476405af embeds19 exact existing artifacts (finalfreeze/diff/rawlogs/fullgreenreceipts). No rerun/reconstruction; actual entry was exported dighole, not executed zap_dig. Corrected primary functions=[dighole], requiredFunctions=[dig.c:furniture_handled] preserves scope; game/test bytes unchanged. Main selects exact retained literal target-specific red/finalgreen evidence for normal hosted no-regression gate, with lost projections explicitly outside proof. No whole source/public C/synthetic gain certification.",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad",
       "delivered": null,
       "functions": [
         {
@@ -327059,6 +327059,91 @@
           }
         },
         "reviewSha256": "e400ebc33f8f1b31549d44a8d2b340c358c73cedf0d45d8d984af959d0983e01"
+      },
+      "closeStanding": {
+        "sha": "e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "83c7cb5ee86d9f0598628f67d5c5c4df387336e3",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad/run-hosted-9dTiVo/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "dighole",
+            "sourceFile": "dig.c",
+            "implementation": "js/dig.js",
+            "symbol": "dighole",
+            "sourceReview": "Reviewed C dig.c:dighole (885-1022), including pitOnly refusal, lowered drawbridge/wall normalization, await destroy_drawbridge, retval=true and source-ordered spot_checks at original coordinates. JS uses the existing canonical helper after find_drawbridge and preserves all other branches, defaults and final checks.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "dighole",
+                "source": "C loweredbridge/wall branch calls normalizeddestroy, preservesretval and sourceorderedspot_checks originalcoords; actual0f54 exportedentry qualifies."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "zap_dig",
+                "source": "Existing default downward nonpit path awaits dighole; no wand/UI/publichistory gate added."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "furniture_handled",
+            "sourceFile": "dig.c",
+            "implementation": "js/dig.js",
+            "symbol": "furniture_handled",
+            "sourceReview": "Reviewed C dig.c:furniture_handled (571-594): resolve drawbridge/portcullis coordinates with find_drawbridge, await destroy_drawbridge, return TRUE; digactualhole consumes this before trap conversion. JS follows that ordering and preserves the early return.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "digactualhole",
+                "source": "C early furniture_handled consumesTRUE beforetrapconversion; bind production supporting regression through this existingcaller to normalizedbridge/wall destruction."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "furniture_handled",
+                "source": "C normalizeddestroy beforeTRUE; coordinates may be portcullis rather than bridge, preserve sourcefind_drawbridge mutation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "Coverage is limited to the explicitly reviewed source-parity units and these two exercised JS entry paths. The focused case directly invokes exported dighole; it does not execute zap_dig. The support case enters through digactualhole→furniture_handled on the retained fixture. This is not public-input, recording, or whole-source certification.",
+        "entryPoints": [
+          {
+            "name": "actual exported dighole",
+            "functions": [
+              "dighole"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "digactualhole furniture early-return entry",
+            "functions": [
+              "furniture_handled"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

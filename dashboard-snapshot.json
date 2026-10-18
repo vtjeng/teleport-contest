@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T18:00:41.920Z",
+  "capturedAt": "2026-10-18T18:40:52.941Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T18:00:41.920Z",
+    "asOf": "2026-10-18T18:40:52.941Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 301,
+      "mainSupportAssignments": 310,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -172672,6 +172672,412 @@
         "type": "accepted",
         "at": "2026-10-18T17:59:17.858Z",
         "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-accessible-wizard-keepdogs-source-parity-20261018-720448d8bfa5acc1b207540979e868795b74e7e9",
+        "type": "published",
+        "at": "2026-10-18T18:01:02.794Z",
+        "task": "delivery:fix-accessible-wizard-keepdogs-source-parity-20261018",
+        "commit": "720448d8bfa5acc1b207540979e868795b74e7e9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:02:57.540Z",
+        "id": "queue:132f21b7-7864-4780-8d9f-05b47c788b28",
+        "type": "assign",
+        "task": "dighole-lowered-bridge-default-qualification-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:03:27.408Z",
+        "id": "queue:6bc5c329-de9b-4d2f-898f-213feb94f8ad",
+        "type": "queue-complete",
+        "task": "mounted-saddle-theft-dismount-reason-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:03:27.408Z",
+        "id": "queue:6bc5c329-de9b-4d2f-898f-213feb94f8ad:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:07:45.301Z",
+        "id": "queue:be737401-f32a-41b3-907d-89859f41d883",
+        "type": "queue-complete",
+        "task": "dighole-lowered-bridge-default-qualification-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:07:45.301Z",
+        "id": "queue:be737401-f32a-41b3-907d-89859f41d883:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:08:47.126Z",
+        "id": "queue:c043f987-7d13-445f-b603-e236b9671320",
+        "type": "assign",
+        "task": "mounted-saddle-theft-default-reason-qualification-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:11:05.875Z",
+        "id": "queue:8b8071a8-2888-4b78-878c-f5f615ddc220",
+        "type": "assign",
+        "task": "fix-dig-drawbridge-callers-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:12:34.561Z",
+        "id": "queue:6c8c0169-7062-4687-82bd-1e11ed36db6c",
+        "type": "queue-complete",
+        "task": "mounted-saddle-theft-default-reason-qualification-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:12:34.561Z",
+        "id": "queue:6c8c0169-7062-4687-82bd-1e11ed36db6c:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:13:39.894Z",
+        "id": "queue:b13e9cb6-2218-4cb5-bab3-194e8a5fbc18",
+        "type": "assign",
+        "task": "amulet-defensive-teleport-zero-move-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:17:14.165Z",
+        "id": "queue:fded983b-e104-4204-a7e3-1cbd3ba0f581",
+        "type": "queue-complete",
+        "task": "amulet-defensive-teleport-zero-move-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:17:14.165Z",
+        "id": "queue:fded983b-e104-4204-a7e3-1cbd3ba0f581:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:20:17.220Z",
+        "id": "queue:c21914b0-2582-4882-b0d2-b855a69de0bb",
+        "type": "assign",
+        "task": "mounted-saddle-theft-reviewed-roleform-qualification-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:21:26.508Z",
+        "id": "queue:96b85cde-f36b-402c-b3b0-125c77579b29",
+        "type": "assign",
+        "task": "impact-drop-insider-hostile-pursuit-source-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:22:14.898Z",
+        "id": "ready-a0b6e93a8394bc069fb43dc3ead254a443196ba7:transport",
+        "type": "assign",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-dig-drawbridge-callers-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-a0b6e93a8394bc069fb43dc3ead254a443196ba7",
+        "type": "ready",
+        "at": "2026-10-18T18:22:14.898Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "delivery": "a0b6e93a8394bc069fb43dc3ead254a443196ba7"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:22:14.898Z",
+        "id": "ready-a0b6e93a8394bc069fb43dc3ead254a443196ba7:complete",
+        "type": "queue-complete",
+        "task": "fix-dig-drawbridge-callers-source-parity-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:22:14.898Z",
+        "id": "ready-a0b6e93a8394bc069fb43dc3ead254a443196ba7:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "dig-context-metadata-feedback-a0b6-20261018",
+        "type": "feedback",
+        "at": "2026-10-18T18:23:16.080Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "delivery": "a0b6e93a8394bc069fb43dc3ead254a443196ba7"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:23:20.117Z",
+        "id": "queue:400f2ec7-ab29-4898-b0d9-805504c163bf",
+        "type": "queue-complete",
+        "task": "mounted-saddle-theft-reviewed-roleform-qualification-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:23:20.117Z",
+        "id": "queue:400f2ec7-ab29-4898-b0d9-805504c163bf:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:24:01.040Z",
+        "id": "queue:b174fe7e-79ad-4cd0-8d9f-9890da6df85d",
+        "type": "assign",
+        "task": "rework:delivery:fix-dig-drawbridge-callers-source-parity-20261018:a0b6e93a8394bc069fb43dc3ead254a443196ba7",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "a0b6e93a8394bc069fb43dc3ead254a443196ba7",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:24:13.913Z",
+        "id": "queue:f2defcd3-cd73-4bfe-813c-9815b09084d1",
+        "type": "queue-complete",
+        "task": "impact-drop-insider-hostile-pursuit-source-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:24:13.913Z",
+        "id": "queue:f2defcd3-cd73-4bfe-813c-9815b09084d1:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-624b1b86c391ff65125efed5747f3edcd9bf171a",
+        "type": "ready",
+        "at": "2026-10-18T18:25:40.805Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "delivery": "624b1b86c391ff65125efed5747f3edcd9bf171a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:25:40.805Z",
+        "id": "ready-624b1b86c391ff65125efed5747f3edcd9bf171a:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-dig-drawbridge-callers-source-parity-20261018:a0b6e93a8394bc069fb43dc3ead254a443196ba7",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:25:40.805Z",
+        "id": "ready-624b1b86c391ff65125efed5747f3edcd9bf171a:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:26:14.680Z",
+        "id": "queue:fc001dc1-c89f-49dd-bb7f-e99e491d902c",
+        "type": "assign",
+        "task": "amulet-zero-move-defensive-beam-qualification-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-dig624b-20261018",
+        "type": "received",
+        "at": "2026-10-18T18:27:03.465Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "delivery": "624b1b86c391ff65125efed5747f3edcd9bf171a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad-b19f57bd01b6214f1c2830d037970f46ef42f6c870adc007151b444838bba3f4-delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T18:28:04.433Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "integration": "e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad",
+        "validationGroup": [
+          "delivery:fix-dig-drawbridge-callers-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:29:03.868Z",
+        "id": "queue:f64945c0-22bd-41e1-9e01-cf385c6b71a0",
+        "type": "queue-complete",
+        "task": "amulet-zero-move-defensive-beam-qualification-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:29:03.868Z",
+        "id": "queue:f64945c0-22bd-41e1-9e01-cf385c6b71a0:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:34:27.735Z",
+        "id": "queue:44afc9f6-3eca-4851-87df-56a47799e68d",
+        "type": "assign",
+        "task": "impact-drop-insider-hostile-default-qualification-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:36:04.737Z",
+        "id": "queue:55b9f3cb-e60a-4fcb-a958-6d6cc3e26b67",
+        "type": "assign",
+        "task": "boulder-billed-free-spot-exit-accounting-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-dig-drawbridge-callers-source-parity-20261018-e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad-validated",
+        "type": "validated",
+        "at": "2026-10-18T18:36:30.577Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-dig-drawbridge-callers-source-parity-20261018-e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad-accepted",
+        "type": "accepted",
+        "at": "2026-10-18T18:37:32.641Z",
+        "task": "delivery:fix-dig-drawbridge-callers-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:39:08.920Z",
+        "id": "queue:ff27331f-6318-4086-99c6-fd54e2ac507a",
+        "type": "queue-complete",
+        "task": "impact-drop-insider-hostile-default-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:39:08.920Z",
+        "id": "queue:ff27331f-6318-4086-99c6-fd54e2ac507a:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:40:10.845Z",
+        "id": "queue:b024e624-00c6-4583-9c5e-29f4e911adf2",
+        "type": "queue-complete",
+        "task": "boulder-billed-free-spot-exit-accounting-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:40:10.845Z",
+        "id": "queue:b024e624-00c6-4583-9c5e-29f4e911adf2:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T18:40:45.869Z",
+        "id": "queue:f613bc39-c770-4573-a9a0-ba1520dcbb69",
+        "type": "assign",
+        "task": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
@@ -172894,7 +173300,7 @@
     "blocked": [],
     "claimed": [
       {
-        "task": "mounted-saddle-theft-dismount-reason-source-20261018",
+        "task": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
         "worker": "Worker-3"
       }
     ],
@@ -172902,7 +173308,7 @@
       "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 555,
+      "completed": 566,
       "superseded": 99
     },
     "workers": [
@@ -172918,7 +173324,7 @@
       },
       {
         "worker": "Worker-3",
-        "assignment": "mounted-saddle-theft-dismount-reason-source-20261018",
+        "assignment": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
         "state": "active"
       }
     ],
@@ -182769,7 +183175,7 @@
         "id": "mounted-saddle-theft-dismount-reason-source-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -182778,13 +183184,178 @@
         "target": null,
         "readyAt": "2026-10-18T17:57:35.294Z",
         "claimedAt": "2026-10-18T17:57:45.705Z",
+        "completedAt": "2026-10-18T18:03:27.408Z"
+      },
+      {
+        "id": "dighole-lowered-bridge-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T18:02:40.371Z",
+        "claimedAt": "2026-10-18T18:02:57.540Z",
+        "completedAt": "2026-10-18T18:07:45.301Z"
+      },
+      {
+        "id": "mounted-saddle-theft-default-reason-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T18:08:29.822Z",
+        "claimedAt": "2026-10-18T18:08:47.126Z",
+        "completedAt": "2026-10-18T18:12:34.561Z"
+      },
+      {
+        "id": "fix-dig-drawbridge-callers-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T18:10:47.831Z",
+        "claimedAt": "2026-10-18T18:11:05.875Z",
+        "completedAt": "2026-10-18T18:22:14.898Z"
+      },
+      {
+        "id": "amulet-defensive-teleport-zero-move-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T18:13:27.505Z",
+        "claimedAt": "2026-10-18T18:13:39.894Z",
+        "completedAt": "2026-10-18T18:17:14.165Z"
+      },
+      {
+        "id": "mounted-saddle-theft-reviewed-roleform-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T18:19:46.103Z",
+        "claimedAt": "2026-10-18T18:20:17.220Z",
+        "completedAt": "2026-10-18T18:23:20.117Z"
+      },
+      {
+        "id": "impact-drop-insider-hostile-pursuit-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T18:21:14.445Z",
+        "claimedAt": "2026-10-18T18:21:26.508Z",
+        "completedAt": "2026-10-18T18:24:13.913Z"
+      },
+      {
+        "id": "rework:delivery:fix-dig-drawbridge-callers-source-parity-20261018:a0b6e93a8394bc069fb43dc3ead254a443196ba7",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": "a0b6e93a8394bc069fb43dc3ead254a443196ba7",
+        "readyAt": "2026-10-18T18:23:16.080Z",
+        "claimedAt": "2026-10-18T18:24:01.040Z",
+        "completedAt": "2026-10-18T18:25:40.805Z"
+      },
+      {
+        "id": "amulet-zero-move-defensive-beam-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T18:25:53.720Z",
+        "claimedAt": "2026-10-18T18:26:14.680Z",
+        "completedAt": "2026-10-18T18:29:03.868Z"
+      },
+      {
+        "id": "impact-drop-insider-hostile-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T18:34:09.468Z",
+        "claimedAt": "2026-10-18T18:34:27.735Z",
+        "completedAt": "2026-10-18T18:39:08.920Z"
+      },
+      {
+        "id": "boulder-billed-free-spot-exit-accounting-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T18:35:53.129Z",
+        "claimedAt": "2026-10-18T18:36:04.737Z",
+        "completedAt": "2026-10-18T18:40:10.845Z"
+      },
+      {
+        "id": "stone-flesh-figurine-shop-billing-compensation-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T18:40:25.750Z",
+        "claimedAt": "2026-10-18T18:40:45.869Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "83c7cb5ee86d9f0598628f67d5c5c4df387336e3",
-    "measuredAt": "2026-10-18T17:56:36.511Z",
+    "executionCommit": "e9b72f0f599e17b1f61ac7b7a17824c102a4d8ad",
+    "measuredAt": "2026-10-18T18:33:47.302Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
