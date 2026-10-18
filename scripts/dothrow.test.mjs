@@ -27,6 +27,7 @@ import test from 'node:test';
 import {
     A_CON,
     A_DEX,
+    A_LAWFUL,
     A_STR,
     CONFUSION,
     CQ_CANNED,
@@ -105,6 +106,7 @@ import {
     PM_GIANT_ANT,
     PM_HEALER,
     PM_HUMAN,
+    PM_KNIGHT,
     PM_MONK,
     PM_NINJA,
     PM_ORC,
@@ -146,6 +148,7 @@ import {
     LEATHER,
     LEATHER_ARMOR,
     LANCE,
+    MIRROR,
     MINERAL,
     LENSES,
     LUCKSTONE,
@@ -169,6 +172,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
+    ART_MAGIC_MIRROR_OF_MERLIN,
     ART_EYE_OF_THE_AETHIOPICA,
     ART_EXCALIBUR,
     ART_LONGBOW_OF_DIANA,
@@ -3063,3 +3067,126 @@ test('dothrow() stops at ok_to_throw() before drawing a prompt', async () => {
     assert.equal(state.nhDisplay.inputQueueLength, 10);
     assert.equal(state.invent, dagger);
 });
+
+async function questLeaderReturnFixture({ touchedArtifact }) {
+    resetGame();
+    await runSegment({
+        seed: ARENA_SEED,
+        datetime: HURTLE_FIXTURE_DATETIME,
+        nethackrc: 'OPTIONS=name:QuestReturn,role:Knight,race:human,'
+            + 'gender:male,align:lawful,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,!acoustics\n',
+        moves: '',
+    });
+    const state = game;
+    assert.equal(state.urole.mnum, PM_KNIGHT);
+    assert.equal(state.urole.questarti, ART_MAGIC_MIRROR_OF_MERLIN);
+    state.u.ualign = { type: A_LAWFUL, record: 0 };
+    state.svq.quest_status.leader_m_id = 9107;
+    state.svq.quest_status.touched_artifact = touchedArtifact;
+    const leader = newMonster({
+        data: state.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        m_id: 9107,
+        mx: state.u.ux + 1,
+        my: state.u.uy,
+        mhp: 30,
+        mhpmax: 30,
+        mcanmove: true,
+        mcansee: true,
+        mpeaceful: true,
+        msleeping: 1,
+        mstrategy: 0,
+    });
+    place_monster(leader, leader.mx, leader.my, state);
+    const mirror = newObject({
+        otyp: MIRROR,
+        oclass: state.objects[MIRROR].oc_class,
+        quan: 1,
+        owornmask: 0,
+        owt: state.objects[MIRROR].oc_weight,
+        where: OBJ_FREE,
+        oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
+    });
+    assert.equal(mirror.where, OBJ_FREE);
+    assert.equal(state.invent, null);
+    assert.equal(mirror.oartifact, state.urole.questarti);
+    return { state, leader, mirror };
+}
+
+test('quest leader return waits for the actual first-touch pager before encumbering',
+    async () => {
+        const { state, leader, mirror } = await questLeaderReturnFixture({
+            touchedArtifact: false,
+        });
+        let enterPager;
+        const pagerEntered = new Promise((resolve) => { enterPager = resolve; });
+        let releasePager;
+        const pagerGate = new Promise((resolve) => { releasePager = resolve; });
+        let settled = false;
+        const returned = thitmonst(leader, mirror, state, {
+            message: async () => {},
+            commonPager: async () => {},
+            output: {
+                pline: async () => {},
+                window: async () => {},
+            },
+            questPagerOutput: {
+                pline: async () => {},
+                window: async () => {
+                    enterPager();
+                    await pagerGate;
+                },
+            },
+        }).then((result) => {
+            settled = true;
+            return result;
+        });
+        try {
+            const first = await Promise.race([
+                pagerEntered.then(() => 'pager'),
+                returned.then(() => 'returned'),
+            ]);
+            assert.equal(first, 'pager',
+                'real addinv first-touch must enter its pager before thitmonst returns');
+            await new Promise((resolve) => setImmediate(resolve));
+            assert.equal(settled, false,
+                'thitmonst must remain pending while real questPagerOutput is deferred');
+            assert.equal(state.svq.quest_status.touched_artifact, true);
+            assert.equal(mirror.where, OBJ_FREE,
+                'addinv must not insert the quest artifact before the pager completes');
+            assert.equal(state.invent, null);
+        } finally {
+            releasePager();
+        }
+        assert.equal(await returned, 1);
+        assert.equal(mirror.where, OBJ_INVENT);
+        assert.equal(state.invent, mirror);
+        assert.equal(state.u.uhave.questart, 1);
+        assert.equal(state.svq.quest_status.got_thanks, true);
+        resetGame();
+    });
+
+test('quest leader return on an already-touched artifact completes eagerly',
+    async () => {
+        const { state, leader, mirror } = await questLeaderReturnFixture({
+            touchedArtifact: true,
+        });
+        const result = await thitmonst(leader, mirror, state, {
+            message: async () => {},
+            commonPager: async () => {},
+            output: {
+                pline: async () => {},
+                window: async () => {},
+            },
+            questPagerOutput: {
+                pline: async () => {},
+                window: async () => {},
+            },
+        });
+        assert.equal(result, 1);
+        assert.equal(mirror.where, OBJ_INVENT);
+        assert.equal(state.invent, mirror);
+        assert.equal(state.u.uhave.questart, 1);
+        resetGame();
+    });

@@ -1,0 +1,3456 @@
+// dothrow.js -- the `f` command, which shoots the readied ammunition, and the
+// `t` command, which asks which object to throw.
+// C refs: src/dothrow.c multishot_class_bonus(), throw_obj(), ok_to_throw(),
+// throw_ok(), dothrow(), find_launcher(), dofire(), throwing_weapon(),
+// throwit(), throwit_return(), throwit_mon_hit(), breaktest(), walk_path(),
+// hurtle_jump(), hurtle_step(), mhurtle_step() and mhurtle().
+//
+// dothrow() is three calls: ok_to_throw() asks whether the hero can throw at
+// all, getobj() runs the prompt over throw_ok()'s per-object classification,
+// and throw_obj() throws what came back. Everything past that point is shared
+// with `f`, so `t` differs from `f` only in how the missile is chosen.
+//
+// dofire() is the entry point and it has two shapes. When the launcher is
+// already wielded it goes straight to throw_obj(). When the launcher is in
+// the secondary slot instead -- the Caveman's sling, with the club in hand --
+// it queues [doswapweapon, dofire] and returns without spending time, so the
+// swap costs its own turn and the shot happens on the next one, after the
+// monsters have moved. js/cmd.js owns that queue.
+//
+// throw_obj() decides how many missiles leave the hand, prints "You shoot 2
+// flint stones." and calls throwit() once per shot; throwit() flies each one
+// with zap.c bhit() and puts it down where it lands.
+//
+// throwit() below follows the complete dothrow.c:1507-1849 source chain;
+// hitfloor() owns the shared landing path from dothrow.c:606-655.
+// Calls whose C result is explicitly discarded retain a named note_unported()
+// boundary; command functions outside this source span may still use the
+// UnsupportedThrowError refusal while their own ports are pending.
+// #fire shares the source's autoquiver, launcher-selection, polearm and whip
+// helpers. The command-queue tail remains owned by js/cmd.js.
+
+import { ghitm } from './dokick.js';
+import {
+    ARTICLE_A,
+    ARTICLE_YOUR,
+    A_ORIGINAL,
+    ACCFOOD,
+    A_CON,
+    A_DEX,
+    A_STR,
+    ARM,
+    AUGMENT_IT,
+    BACKTRACK,
+    BLINDED,
+    BOLT_LIM,
+    BRK_FROM_INV,
+    BRK_KNOWN2BREAK,
+    BRK_KNOWN2NOTBREAK,
+    BRK_KNOWN_OUTCOME,
+    CONFUSION,
+    CXN_PFX_THE,
+    CQ_CANNED,
+    D_ISOPEN,
+    DEAF,
+    DB_UNDER,
+    DB_MOAT,
+    DISP_END,
+    DISP_FLASH,
+    DISP_TETHER,
+    DRAWBRIDGE_UP,
+    ECMD_CANCEL,
+    ECMD_OK,
+    ECMD_TIME,
+    EF_DESTROY,
+    EF_VERBOSE,
+    EXPL_FIERY,
+    EXACT_NAME,
+    ERODE_CRACK,
+    ER_DESTROYED,
+    EYE,
+    FACE,
+    FIRE_TRAP,
+    FUMBLING,
+    FOOT,
+    HALLUC,
+    HALLUC_RES,
+    GETOBJ_ALLOWCNT,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_PROMPT,
+    GETOBJ_SUGGEST,
+    HEAD,
+    HAND,
+    I_SPECIAL,
+    IRONBARS,
+    IS_SOFT,
+    IS_DOOR,
+    IS_OBSTRUCTED,
+    IS_TREE,
+    IS_WATERWALL,
+    Is_airlevel,
+    Is_waterlevel,
+    KILLED_BY,
+    KILLED_BY_AN,
+    LARGEST_INT,
+    LOW_PM,
+    MAGIC_PORTAL,
+    MOAT,
+    NO_TRAP_FLAGS,
+    NEUTRAL,
+    PRONOUN_HALLU,
+    PRONOUN_NO_IT,
+    Has_contents,
+    HALF_PHDAM,
+    HOLE,
+    IS_ALTAR,
+    PASSES_WALLS,
+    PIT,
+    ZAP_POS,
+    VIBRATING_SQUARE,
+    WATER,
+    W_ARM,
+    W_ARMC,
+    W_ARMU,
+    WWALKING,
+    WT_TOOMUCH_DIAGONAL,
+    WT_TO_DMG,
+    TIMEOUT,
+    SUPPRESS_SADDLE,
+    SUPPRESS_NAME,
+    is_hole,
+    is_pit,
+    u_at,
+    has_mgivenname,
+    ismnum,
+    LOST_THROWN,
+    P_CROSSBOW,
+    POTHIT_HERO_THROW,
+    P_BOW,
+    P_DART,
+    P_DAGGER,
+    P_EXPERT,
+    P_KNIFE,
+    P_SHURIKEN,
+    P_SKILLED,
+    P_SLING,
+    P_SPEAR,
+    SLT_ENCUMBER,
+    SHOPBASE,
+    STONE_RES,
+    STONING,
+    STRAT_WAITMASK,
+    STR19,
+    STUNNED,
+    TT_BURIEDBALL,
+    THROWN_TETHERED_WEAPON,
+    THROWN_WEAPON,
+    WT_SPLASH_THRESHOLD,
+    W_QUIVER,
+    W_SWAPWEP,
+    W_WEP,
+    TT_INFLOOR,
+    TT_WEB,
+    TT_LAVA,
+    TRAPDOOR,
+    SPIKED_PIT,
+    HMON_APPLIED,
+    HMON_KICKED,
+    HMON_THROWN,
+    M_AP_MONSTER,
+    M_AP_TYPE,
+    HURTLING,
+    FORCEBUNGLE,
+    Trap_Caught_Mon,
+    Trap_Killed_Mon,
+    Trap_Moved_Mon,
+    MM_IGNORELAVA,
+    MM_NOMSG,
+    MM_IGNOREWATER,
+    OBJ_INVENT,
+    OBJ_MINVENT,
+    OBJ_FREE,
+    RLOC_MSG,
+    engulfing_u,
+    helpless,
+    Upolyd,
+} from './const.js';
+import {
+    is_pool,
+    is_lava,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
+import {
+    ART_MJOLLNIR, artifact_hit, is_art, spec_abon,
+} from './artifacts.js';
+import { acurrstr, acurr, exercise } from './attrib.js';
+import { obj_resists } from './bury.js';
+import {
+    cmdq_add_ec, cmdq_add_key, extcmdRow, getdir,
+} from './cmd.js';
+import { change_luck } from './moveloop_preamble.js';
+import {
+    flush_screen,
+    glyph_at,
+    glyph_is_invisible,
+    glyph_is_monster,
+    map_invisible,
+    map_invisible_planning,
+    newsym,
+    obj_to_glyph,
+    tmp_at,
+} from './display.js';
+import {
+    canletgo, doaltarobj, dropCommandEnv, dropy, dropz, flooreffects,
+} from './do.js';
+import { hard_helmet, setwornEnv } from './do_wear.js';
+import {
+    ceiling, has_ceiling, on_level, surface, u_on_newpos,
+} from './dungeon.js';
+import { done } from './end.js';
+import { u_wipe_engr } from './engrave.js';
+import { game } from './gstate.js';
+import {
+    bad_rock,
+    calc_capacity,
+    check_capacity,
+    disturb_buried_zombies,
+    inv_weight,
+    losehp,
+    may_passwall,
+    NODIAG,
+    nh_delay_output,
+    nomul,
+    switch_terrain,
+    weight_cap,
+} from './hack.js';
+import { dist2, distmin, ordin, sgn, s_suffix } from './hacklib.js';
+import {
+    addinv,
+    addinv_before,
+    add_to_minv,
+    delobj,
+    freeinv,
+    fully_identify_obj,
+    getobj,
+    obfree,
+    prinv,
+    stackobj,
+    update_inventory,
+    sobj_at,
+} from './invent.js';
+import { obj_sheds_light } from './light.js';
+import { MZ_HUGE, MZ_MEDIUM } from './monsters.js';
+import {
+    bigmonst,
+    is_animal,
+    is_domestic,
+    is_elf,
+    is_orc,
+    is_unicorn,
+    is_whirly,
+    pronoun_gender,
+    nohands,
+    notake,
+    throws_rocks,
+    touch_petrifies,
+    breathless,
+    haseyes,
+    can_blnd,
+    hates_silver,
+    mon_hates_blessings,
+    monsndx,
+    passes_rocks,
+    poly_when_stoned,
+    your_race,
+} from './mondata.js';
+import {
+    closed_door, monnear, set_apparxy, youHear,
+} from './monmove.js';
+import { dogfood } from './dogfood.js';
+import { tamedog } from './dog.js';
+import {
+    PM_CAVE_DWELLER,
+    PM_CLERIC,
+    PM_DWARF,
+    PM_ELF,
+    PM_GNOME,
+    PM_HEALER,
+    PM_HUMAN,
+    PM_HOMUNCULUS,
+    PM_IMP,
+    PM_MONK,
+    PM_MONKEY,
+    PM_NINJA,
+    PM_ORC,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_SAMURAI,
+    PM_TOURIST,
+    PM_VALKYRIE,
+    PM_WIZARD,
+    PM_PYROLISK,
+    PM_APE,
+    PM_CYCLOPS,
+    PM_FLOATING_EYE,
+    AT_ENGL,
+    AD_DGST,
+    PM_LICHEN,
+    PM_SHADE,
+    PM_STONE_GOLEM,
+    AT_WEAP,
+    S_UNICORN,
+} from './monsters.js';
+import {
+    ammo_and_launcher,
+    greatest_erosion,
+    is_flammable,
+    is_ammo,
+    is_blade,
+    is_flimsy,
+    is_missile,
+    is_spear,
+    is_sword,
+    is_wet_towel,
+    is_weptool,
+    matching_launcher,
+    is_axe,
+    is_pick,
+    obj_no_longer_held,
+    objectType,
+    isCrackable,
+    place_object,
+    remove_object,
+    splitobj,
+    stone_missile,
+    uslinging,
+    weight,
+} from './obj.js';
+import {
+    ACID_VENOM,
+    AKLYS,
+    BANANA,
+    ARMOR_CLASS,
+    BAG_OF_HOLDING,
+    BAG_OF_TRICKS,
+    BLINDING_VENOM,
+    BOOMERANG,
+    BOULDER,
+    BULLWHIP,
+    CLOTH,
+    COIN_CLASS,
+    CORPSE,
+    CREAM_PIE,
+    CRYSTAL_BALL,
+    EGG,
+    ELVEN_ARROW,
+    ELVEN_BOW,
+    EUCALYPTUS_LEAF,
+    EXPENSIVE_CAMERA,
+    FLINT,
+    FORTUNE_COOKIE,
+    GAUNTLETS_OF_DEXTERITY,
+    GAUNTLETS_OF_FUMBLING,
+    GAUNTLETS_OF_POWER,
+    FOOD_CLASS,
+    GEM_CLASS,
+    GEMSTONE,
+    AMULET_OF_YENDOR,
+    FAKE_AMULET_OF_YENDOR,
+    VEGGY,
+    MINERAL,
+    GLASS,
+    HEAVY_IRON_BALL,
+    KELP_FROND,
+    LEATHER_GLOVES,
+    LENSES,
+    MELON,
+    MIRROR,
+    OILSKIN_SACK,
+    ORCISH_ARROW,
+    ORCISH_BOW,
+    PANCAKE,
+    POTION_CLASS,
+    POT_WATER,
+    POT_OIL,
+    RUBBER_HOSE,
+    SACK,
+    ROCK,
+    SILVER,
+    SCROLL_CLASS,
+    SLING,
+    SPRIG_OF_WOLFSBANE,
+    STRANGE_OBJECT,
+    STATUE,
+    TOWEL,
+    VENOM_CLASS,
+    WAN_STRIKING,
+    WEAPON_CLASS,
+    WAND_CLASS,
+    PIERCE,
+    WAR_HAMMER,
+    YA,
+    YUMI,
+} from './objects.js';
+import {
+    an,
+    An,
+    armor_simple_name,
+    corpse_xname,
+    Doname2,
+    helm_simple_name,
+    killer_xname,
+    mshot_xname,
+    otense,
+    singular,
+    the,
+    The,
+    Tobjnam,
+    thesimpleoname,
+    vtense,
+    xnameFresh,
+} from './objnam.js';
+import {
+    a_monnam,
+    Monnam,
+    mon_nam,
+    hliquid,
+    pmname,
+    rndmonnam,
+    Some_Monnam,
+    x_monnam,
+} from './do_name.js';
+import { genders } from './roles.js';
+import { encumber_msg } from './pickup.js';
+import { verbalize } from './pline.js';
+import { body_part, polymon } from './polyself.js';
+import { makeplural } from './fruit.js';
+import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
+import {
+    autoreturn_weapon, dmgval, dry_a_towel, hitval, skill_name, weapon_descr,
+    weapon_hit_bonus,
+} from './weapon.js';
+import { container_impact_dmg, ship_object } from './dokick.js';
+import { P_SKILL, weapon_type } from './startup_skills.js';
+import {
+    Flying,
+    Levitation,
+    drown,
+    instapetrify,
+    minstapetrify,
+    t_at,
+    trapname,
+} from './trap.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
+import { block_point, cansee, vision_recalc } from './vision.js';
+import { setuwep, doquiver_core, welded, weldmsg } from './wield.js';
+import { could_pole_mon, use_pole, use_whip } from './apply.js';
+import {
+    find_mac, is_pole, set_twoweap, setuqwep, setuswapwep,
+    which_armor,
+} from './worn.js';
+import { bhit, boomhit, hit, miss } from './zap.js';
+import { hmon, passive_obj } from './uhitm.js';
+import { m_at, place_monster, remove_monster } from './monst.js';
+import { m_in_air, minliquid, setmangry, wake_nearto, wakeup } from './mon.js';
+import { mpickobj, remove_worn_item } from './steal.js';
+import { goodpos, rloc, tele_restrict } from './teleport.js';
+import { is_quest_artifact } from './questpgr.js';
+import { finish_quest } from './quest.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { set_malign } from './makemon.js';
+import { makemon_runtime } from './makemon_create.js';
+import { explode, explode_oil } from './explode.js';
+import { align_gname } from './pray.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { in_out_region, m_in_out_region } from './region.js';
+import { check_special_room, in_rooms } from './rooms.js';
+import {
+    costly_spot,
+    donate_gold,
+    inside_shop,
+    is_unpaid,
+    shop_keeper,
+    sellobj,
+    stolen_value,
+} from './shk.js';
+import { erode_obj } from './trap_erode_obj.js';
+import { dotrap, mintrap } from './trap_effects.js';
+import { Punished } from './steed.js';
+import { move_bc, drag_ball, drop_ball } from './ball.js';
+import { note_unported } from './unported.js';
+import { cutworm } from './worm.js';
+import { snuff_candle } from './apply_splash_lit.js';
+import { make_blinded, potionbreathe, potionhit } from './potion.js';
+import { unsplitobj } from './obj.js';
+import { canseemon, canspotmon } from './display.js';
+
+// C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
+// Stone_resistance (65). Each is the union of the intrinsic and extrinsic
+// halves of one property; none of the four has a blocking source. Defined here
+// beside their callers -- the multishot gate and the bare-handed corpse gate --
+// the way js/wield.js keeps Glib beside can_twoweapon().
+function propertyHeld(state, property) {
+    const held = state.u?.uprops?.[property];
+    return Boolean(held?.intrinsic || held?.extrinsic);
+}
+
+// C ref: youprop.h Hallucination, HHallucination && !Halluc_resistance. Resistance is a
+// separate property from the hallucination source, so it must be checked at
+// the same admission point rather than folded into propertyHeld().
+function hallucinating(state) {
+    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !propertyHeld(state, HALLUC_RES);
+}
+
+// C ref: youprop.h Deaf (125), `HDeaf || EDeaf || u.uroleplay.deaf`. The third
+// term is the deaf conduct, which only `OPTIONS=roleplay:deaf` sets and nothing
+// clears; js/display.js statusConditionActive() spells the same union for the
+// status line.
+function Deaf(state) {
+    return propertyHeld(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
+}
+
+// A branch of dothrow.c this port has not translated. js/cmd.js
+// failClosedCommandRefusals() lists it, so the segment keeps every frame the
+// command already matched instead of failing hard.
+export class UnsupportedThrowError extends Error {
+    constructor(what) {
+        super(`dothrow.c reached ${what}`);
+        this.name = 'UnsupportedThrowError';
+        this.what = what;
+    }
+}
+
+// C ref: dothrow.c walk_path() (656-735). The callback sees every map cell
+// after the starting coordinate. It can stop the traversal; in that case the
+// destination object is rewound to the last cell whose callback succeeded.
+export async function walk_path(source, destination, checkProc, arg) {
+    let dx = destination.x - source.x;
+    let dy = destination.y - source.y;
+    let x = source.x;
+    let y = source.y;
+    let previousX = x;
+    let previousY = y;
+    const xChange = dx < 0 ? -1 : 1;
+    const yChange = dy < 0 ? -1 : 1;
+    if (dx < 0) dx = -dx;
+    if (dy < 0) dy = -dy;
+    let error = 0;
+    let keepGoing = true;
+
+    if (dx < dy) {
+        for (let i = 0; i < dy; ++i) {
+            previousX = x;
+            previousY = y;
+            y += yChange;
+            error += dx << 1;
+            if (error > dy) {
+                x += xChange;
+                error -= dy << 1;
+            }
+            keepGoing = await checkProc(arg, x, y);
+            if (!keepGoing) break;
+        }
+    } else {
+        for (let i = 0; i < dx; ++i) {
+            previousX = x;
+            previousY = y;
+            x += xChange;
+            error += dy << 1;
+            if (error > dx) {
+                y += yChange;
+                error -= dx << 1;
+            }
+            keepGoing = await checkProc(arg, x, y);
+            if (!keepGoing) break;
+        }
+    }
+    if (!keepGoing) {
+        destination.x = previousX;
+        destination.y = previousY;
+    }
+    return keepGoing;
+}
+
+// C ref: dothrow.c hurtle() (1078-1126). The walk callback owns each step;
+// this function installs C's multi-turn state and lets walk_path() stop at
+// the first source-defined obstacle or trap.
+export async function hurtle(
+    dx, dy, range, verbose, state = game,
+    {
+        planning = false,
+        random = null,
+        planningDeath = null,
+        isolateVision = null,
+    } = {},
+) {
+    const u = state.u;
+    if (Punished(state) && state.uball?.where !== OBJ_INVENT) {
+        await ttyPline('You feel a tug from the iron ball.', state);
+        nomul(0, state);
+        return;
+    }
+    if (u.utrap) {
+        const anchor = u.utraptype === TT_WEB ? 'web'
+            : u.utraptype === TT_LAVA
+                ? hliquid('lava', { state })
+                : u.utraptype === TT_INFLOOR
+                    ? surface(u.ux, u.uy, state)
+                    : u.utraptype === TT_BURIEDBALL
+                        ? 'buried ball' : 'trap';
+        await ttyPline(`You are anchored by the ${anchor}.`, state);
+        nomul(0, state);
+        return;
+    }
+
+    dx = sgn(dx);
+    dy = sgn(dy);
+    range = Math.trunc(range);
+    if (!range || (!dx && !dy) || u.ustuck) return;
+
+    nomul(-range, state);
+    state.multi_reason = 'moving through the air';
+    state.nomovemsg = '';
+    if (verbose) {
+        await ttyPline(
+            `You ${range > 1 ? 'hurtle' : 'float'} in the opposite direction.`,
+            state,
+        );
+    }
+    await endmultishot(true, state);
+
+    const source = { x: u.ux, y: u.uy };
+    const destination = { x: u.ux + dx * range, y: u.uy + dy * range };
+    const walkRange = {
+        range, state, planning: Boolean(planning), random, planningDeath,
+        isolateVision,
+    };
+    await walk_path(source, destination, hurtle_step, walkRange);
+}
+
+function propertyPresent(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function heroWwalking(state) {
+    return !Is_waterlevel(state.u?.uz)
+        && propertyPresent(state, WWALKING);
+}
+
+function heroPassesWalls(state) {
+    return propertyPresent(state, PASSES_WALLS);
+}
+
+function heroHalfPhysicalDamage(damage, state) {
+    return propertyPresent(state, HALF_PHDAM)
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+function isMoat(x, y, state) {
+    const location = state.level?.at(x, y);
+    if (!location || on_level(state.u?.uz, state.juiblex_level)) return false;
+    if (location.typ === MOAT) return true;
+    return location.typ === DRAWBRIDGE_UP
+        && ((location.flags ?? 0) & DB_UNDER) === DB_MOAT;
+}
+
+function rangePointer(arg) {
+    if (arg && typeof arg === 'object' && 'range' in arg) return arg;
+    return { range: Number(arg ?? 0) };
+}
+
+function noitMhim(monster, state) {
+    const gender = pronoun_gender(
+        monster,
+        PRONOUN_NO_IT | PRONOUN_HALLU,
+        { state, canSpotMonster: canspotmon },
+    );
+    return genders[gender].him;
+}
+
+// C ref: dothrow.c hurtle_jump() (742-752). I_SPECIAL is temporary: the jump
+// path must stop one cell short of a pool or pit and restore the walking flag
+// before the callback returns to walk_path().
+export async function hurtle_jump(arg, x, y) {
+    const state = arg?.state ?? game;
+    const walking = state.u?.uprops?.[WWALKING]
+        ?? (state.u.uprops[WWALKING] = { intrinsic: 0, extrinsic: 0, blocked: 0 });
+    const saved = walking.extrinsic;
+    walking.extrinsic |= I_SPECIAL;
+    try {
+        return await hurtle_step(arg, x, y);
+    } finally {
+        walking.extrinsic = saved;
+    }
+}
+
+// C ref: dothrow.c will_hurtle() (977-990). This pure predicate is shared by
+// uhitm.c mhitm_knockback() to choose its message before the void mhurtle()
+// call. Keep it beside the other dothrow recoil helpers so callers do not
+// approximate the terrain test locally.
+export function will_hurtle(mon, x, y, state = game, env = {}) {
+    if (!isok(x, y, state)) return false;
+    if (mon?.data?.msize >= MZ_HUGE || mon === state.u?.ustuck
+        || mon?.mtrapped) {
+        return false;
+    }
+    return goodpos(
+        x,
+        y,
+        mon,
+        MM_IGNOREWATER | MM_IGNORELAVA,
+        { ...env, state },
+    );
+}
+
+// trap.c mintrap() receives these operations from its production callers.
+// Keep mhurtle's ordinary effects executable with its source owner defaults,
+// while preserving a named refusal if mintrap reaches a still-unported arm.
+function mhurtleTrapEnvironment(rawEnv, state) {
+    return {
+        ...rawEnv,
+        state,
+        random: {
+            d, rn1, rn2, rnd, rne, rnl,
+            ...(rawEnv.random ?? {}),
+        },
+        mInAir: rawEnv.mInAir ?? m_in_air,
+        heroDeaf: rawEnv.heroDeaf ?? Deaf,
+        youHear: rawEnv.youHear ?? youHear,
+        message: rawEnv.message
+            ?? ((line, target) => ttyPline(line, target ?? state)),
+        redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
+        unsupported: rawEnv.unsupported ?? ((reason) => {
+            throw new Error(`trap.c mintrap cannot run ${reason}`);
+        }),
+    };
+}
+
+// C ref: dothrow.c mhurtle_step() (992-1074). This is the monster callback
+// consumed by walk_path(): its boolean decides whether the path advances to
+// the next cell. mintrap()'s Trap_* result is consumed exactly as in C;
+// minstapetrify() remains a void callee, with the source call order preserved.
+export async function mhurtle_step(arg, x, y) {
+    const { monster, state = game, env = {} } = arg ?? {};
+    if (!monster || !state.level)
+        throw new TypeError('mhurtle_step requires a monster and level');
+    if (!isok(x, y)) return false;
+
+    if (will_hurtle(monster, x, y, state, env)
+        && await m_in_out_region(monster, x, y, { ...env, state })) {
+        if (monster !== state.u?.usteed) {
+            const oldX = monster.mx;
+            const oldY = monster.my;
+            remove_monster(oldX, oldY, state);
+            newsym(oldX, oldY);
+            place_monster(monster, x, y, state);
+            newsym(monster.mx, monster.my);
+        } else {
+            state.u.ux0 = state.u.ux;
+            state.u.uy0 = state.u.uy;
+            u_on_newpos(x, y, state);
+            newsym(state.u.ux0, state.u.uy0);
+            vision_recalc(0, { state });
+        }
+        await flush_screen(1);
+        await nh_delay_output(state);
+        set_apparxy(monster, { ...env, state, random: env.random });
+        if (IS_WATERWALL(state.level.at(x, y).typ)) return false;
+        const result = await mintrap(
+            monster, HURTLING, mhurtleTrapEnvironment(env, state),
+        );
+        if (result === Trap_Killed_Mon || result === Trap_Caught_Mon
+            || result === Trap_Moved_Mon) {
+            return false;
+        }
+        return true;
+    }
+
+    const otherMonster = m_at(x, y, state);
+    if (otherMonster && otherMonster !== monster) {
+        if (canseemon(monster, state) || canseemon(otherMonster, state)) {
+            await ttyPline(
+                `${Monnam(monster, state, env)} bumps into `
+                    + `${a_monnam(otherMonster, env)}.`,
+                state,
+            );
+        }
+        await wakeup(otherMonster, !state.context?.mon_moving, {
+            ...env, state,
+        });
+        if (touch_petrifies(otherMonster.data)
+            && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
+            await minstapetrify(
+                monster, !state.context?.mon_moving, state, env,
+            );
+            newsym(monster.mx, monster.my);
+        }
+        if (touch_petrifies(monster.data)
+            && !which_armor(otherMonster, W_ARMU | W_ARM | W_ARMC, state)) {
+            await minstapetrify(
+                otherMonster, !state.context?.mon_moving, state, env,
+            );
+            newsym(otherMonster.mx, otherMonster.my);
+        }
+    } else if (u_at(x, y, state)) {
+        await ttyPline(
+            `${Some_Monnam(monster, state, env)} bumps into you.`,
+            state,
+        );
+        const { stop_occupation } = await import('./allmain.js');
+        await stop_occupation(state, {
+            ...env,
+            message: env.message
+                ?? ((line, target) => ttyPline(line, target ?? state)),
+        });
+        if (Upolyd(state.u) && touch_petrifies(state.youmonst.data)
+            && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
+            await minstapetrify(monster, true, state, {
+                ...env, state, random, message,
+            });
+            newsym(monster.mx, monster.my);
+        }
+        if (touch_petrifies(monster.data)
+            && !(state.uarmu || state.uarm || state.uarmc)) {
+            state.svk ??= {};
+            state.svk.killer ??= {};
+            const article = monster.mtame ? ARTICLE_YOUR : ARTICLE_A;
+            const name = x_monnam(
+                monster,
+                article,
+                'hurtling',
+                EXACT_NAME | SUPPRESS_NAME,
+                false,
+                state,
+                env,
+            );
+            state.svk.killer.name = `being hit by ${name}`;
+            await instapetrify(state.svk.killer.name, state, env);
+            newsym(state.u.ux, state.u.uy);
+        }
+    }
+    return false;
+}
+
+// C ref: dothrow.c mhurtle() (1130-1178). The final walk_path result,
+// mintrap(FORCEBUNGLE), and minliquid results are discarded by C; calls to
+// those source owners still run in order because their state/output effects
+// are observable before the helper returns.
+export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    const random = rawEnv.random;
+
+    await wakeup(monster, !state.context?.mon_moving, { ...env, random });
+    monster.movement = 0;
+    monster.mstun = 1;
+
+    if (monster.data.msize >= MZ_HUGE || monster === state.u?.ustuck
+        || monster.mtrapped) {
+        if (canseemon(monster, state))
+            await ttyPline(`${Monnam(monster, state, env)} doesn't budge!`,
+                state);
+        return;
+    }
+
+    dx = sgn(dx);
+    dy = sgn(dy);
+    if (!range || (!dx && !dy)) return;
+    if (dx && dy && NODIAG(monsndx(monster.data))) return;
+
+    if (monster.mundetected) {
+        monster.mundetected = 0;
+        newsym(monster.mx, monster.my);
+    }
+    if (M_AP_TYPE(monster)) seemimic(monster, state);
+
+    const source = { x: monster.mx, y: monster.my };
+    const destination = {
+        x: monster.mx + dx * range,
+        y: monster.my + dy * range,
+    };
+    const movementEnv = {
+        ...env,
+        state,
+        random: {
+            d, rn1, rn2, rnd, rne, rnl,
+            ...(random ?? {}),
+        },
+    };
+    await walk_path(source, destination, mhurtle_step, {
+        monster,
+        state,
+        env: movementEnv,
+    });
+    if (monster.mhp >= 1) {
+        if (t_at(monster.mx, monster.my, state)) {
+            await mintrap(
+                monster,
+                FORCEBUNGLE,
+                mhurtleTrapEnvironment(movementEnv, state),
+            );
+        } else {
+            await minliquid(monster, movementEnv);
+        }
+    }
+}
+
+// C ref: dothrow.c hurtle_step() (773-972). This is the movement callback for
+// jumping and other recoil paths. The callback mutates the hero's position,
+// range and nearby state in source order; its boolean controls walk_path().
+export async function hurtle_step(arg, x, y) {
+    const state = arg?.state ?? game;
+    const planning = Boolean(arg?.planning);
+    const random = arg?.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const message = planning ? async () => {} : ttyPline;
+    const norepMessage = planning ? async () => {} : ttyNorep;
+    const redraw = planning ? () => {} : newsym;
+    const flush = planning ? async () => {} : flush_screen;
+    const pointer = rangePointer(arg);
+    const range = () => Math.trunc(pointer.range ?? 0);
+    let mayPass = true;
+
+    if (!isok(x, y)) {
+        await message('You feel the spirits holding you back.', state);
+        return false;
+    }
+    if (!await in_out_region(x, y, { state })) return false;
+    if (range() === 0) return false;
+
+    const viaJumping = (state.u?.uprops?.[WWALKING]?.extrinsic ?? 0)
+        & I_SPECIAL;
+    const stoppingShort = Boolean(viaJumping && range() < 2);
+    const lev = state.level.at(x, y);
+    const ltyp = lev.typ;
+    if (!heroPassesWalls(state) || !(mayPass = may_passwall(x, y, state))) {
+        let why = null;
+        const diagonal = state.u.ux !== x && state.u.uy !== y;
+        const openDoor = IS_DOOR(ltyp)
+            && ((lev.doormask ?? lev.flags ?? 0) & D_ISOPEN) !== 0;
+        const openDoorDiagonal = openDoor && diagonal;
+        if (IS_OBSTRUCTED(ltyp) || closed_door(x, y, state)
+            || openDoorDiagonal) {
+            why = IS_TREE(ltyp, state) ? 'bumping into a tree'
+                : IS_OBSTRUCTED(ltyp) ? 'bumping into a wall'
+                    : openDoorDiagonal ? 'bumping into a door frame'
+                        : 'bumping into a closed door';
+            if (openDoorDiagonal)
+                await message('You hit the door frame!', state);
+            await message('Ouch!', state);
+        } else if (ltyp === IRONBARS) {
+            why = 'crashing into iron bars';
+            await message('You crash into some iron bars.  Ouch!', state);
+        } else {
+            const obj = sobj_at(BOULDER, x, y, state);
+            if (obj) {
+                why = 'bumping into a boulder';
+                await message(`You bump into a ${xnameFresh(obj, state)}.  Ouch!`, state);
+            } else if (!mayPass) {
+                why = 'touching the edge of the universe';
+                await message('You smack into something!', state);
+            } else if (diagonal
+                && bad_rock(state.youmonst?.data, state.u.ux, y, state)
+                && bad_rock(state.youmonst?.data, x, state.u.uy, state)) {
+                const tooMuch = Boolean(state.invent
+                    && inv_weight(state) + weight_cap(state)
+                        > WT_TOOMUCH_DIAGONAL);
+                if (bigmonst(state.youmonst?.data) || tooMuch) {
+                    why = 'wedging into a narrow crevice';
+                    await message(
+                        `You ${tooMuch ? 'and all your belongings ' : ''}`
+                        + 'get forcefully wedged into a crevice.', state,
+                    );
+                }
+            }
+        }
+        if (why) {
+            await losehp(
+                heroHalfPhysicalDamage(random.rnd(2 + range()), state),
+                why,
+                KILLED_BY,
+                state,
+                planning ? {
+                    planning: true,
+                    message,
+                    planningDeath: arg?.planningDeath,
+                } : {},
+            );
+            await wake_nearto(x, y, 10, { state, random, message });
+            return false;
+        }
+    }
+
+    const mon = m_at(x, y, state);
+    if (mon) {
+        const glyph = glyph_at(x, y, state);
+        mon.mundetected = false;
+        const mnam = x_monnam(
+            mon,
+            ARTICLE_A,
+            null,
+            (has_mgivenname(mon) ? SUPPRESS_SADDLE : 0) | AUGMENT_IT,
+            false,
+            state,
+            { canSpotMonster: canspotmon },
+        );
+        if (!glyph_is_monster(glyph) && !glyph_is_invisible(glyph)) {
+            const pronoun = noitMhim(mon, state);
+            await message(`You find ${mnam} by bumping into ${pronoun}.`, state);
+        } else {
+            await message(`You bump into ${mnam}.`, state);
+        }
+        await wakeup(mon, false, { state, random, message });
+        if (!canspotmon(mon, state)) {
+            // C's map write belongs to the planned level, but map_invisible()
+            // also paints the module-global display. Keep that live half out
+            // of this cloned-state pass.
+            if (planning) map_invisible_planning(mon.mx, mon.my, state);
+            else map_invisible(mon.mx, mon.my, state);
+        }
+        await setmangry(mon, false, { state, random, message });
+        if (touch_petrifies(mon.data) && !state.uarmu && !state.uarm
+            && !state.uarmc) {
+            state.killer ??= {};
+            state.killer.name = `bumping into ${an(pmname(mon.data, NEUTRAL))}`;
+            await instapetrify(state.killer.name, state, {
+                ...arg?.env,
+                random,
+                message,
+                planning,
+                planningDeath: arg?.planningDeath,
+            });
+        }
+        if (touch_petrifies(state.youmonst?.data)
+            && !which_armor(mon, W_ARMU | W_ARM | W_ARMC, state)) {
+            await minstapetrify(mon, true, state, {
+                ...arg?.env, state, random, message,
+            });
+        }
+        await wake_nearto(x, y, 10, { state, random, message });
+        return false;
+    }
+
+    if (state.u.ux !== x && state.u.uy !== y
+        && bad_rock(state.youmonst?.data, state.u.ux, y, state)
+        && bad_rock(state.youmonst?.data, x, state.u.uy, state)
+        && state.level.flags?.sokoban_rules) {
+        await message('You come to an abrupt halt!', state);
+        return false;
+    }
+
+    if (Punished(state)) {
+        const control = { value: 0 };
+        const ballx = { value: state.uball.ox };
+        const bally = { value: state.uball.oy };
+        const chainx = { value: state.uchain.ox };
+        const chainy = { value: state.uchain.oy };
+        const causeDelay = { value: false };
+        if (await drag_ball(
+            x, y, control, ballx, bally, chainx, chainy, causeDelay,
+            true, state,
+        )) {
+            move_bc(0, control.value, ballx.value, bally.value,
+                chainx.value, chainy.value, state);
+        }
+    }
+
+    const oldX = state.u.ux;
+    const oldY = state.u.uy;
+    // dungeon.c:u_on_newpos() observes nearby objects before its generic-glyph
+    // redraw. Preserve those clone-owned discovery writes, and record only the
+    // still-unported newsym_force output at that exact discarded-void call.
+    u_on_newpos(x, y, state, {
+        seeNearbyObjectsOptions: planning ? {
+            redraw: () => note_unported('display.c newsym_force planning'),
+        } : undefined,
+    });
+    redraw(oldX, oldY);
+    if (planning) {
+        if (typeof arg?.isolateVision !== 'function') {
+            throw new TypeError(
+                'planned hurtle requires clone-owned vision buffers',
+            );
+        }
+        arg.isolateVision(state);
+    }
+    vision_recalc(1, { state, redraw });
+    await flush(1);
+    if (ltyp !== state.level.at(oldX, oldY).typ)
+        await switch_terrain(state, { planning, message });
+    await check_special_room(false, state, {
+        message,
+        random: random.rn2,
+    });
+
+    if (is_pool(x, y, state) && !state.u.uinwater) {
+        if (state.level.at(x, y).typ === WATER
+            || !(Levitation(state) || Flying(state) || heroWwalking(state))) {
+            state.multi = 0;
+            if (planning) {
+                // C discards drown()'s boolean here and returns FALSE
+                // unconditionally. Its terminal/lifesaving/relocation chain
+                // is not safe to run on the planning clone yet.
+                note_unported('trap.c drown planning');
+            } else {
+                await drown(state);
+            }
+            return false;
+        }
+        if (!Is_waterlevel(state.u.uz) && !stoppingShort) {
+            await norepMessage(
+                `You move over ${an(isMoat(x, y, state) ? 'moat' : 'pool')}.`,
+                state,
+            );
+        }
+    } else if (is_lava(x, y, state) && !stoppingShort) {
+        await norepMessage('You move over some lava.', state);
+    }
+
+    const trap = t_at(x, y, state);
+    if (trap) {
+        if (stoppingShort) {
+            // Jumping's last step is performed by teleds(), which applies the
+            // landing trap after this callback has stopped one square short.
+        } else if (trap.ttyp === MAGIC_PORTAL) {
+            await dotrap(trap, NO_TRAP_FLAGS, state, {
+                planning, random, message, redraw,
+                planningDeath: arg?.planningDeath,
+            });
+            return false;
+        } else if (trap.ttyp === VIBRATING_SQUARE) {
+            await message('The ground vibrates as you pass it.', state);
+            await dotrap(trap, NO_TRAP_FLAGS, state, {
+                planning, random, message, redraw,
+                planningDeath: arg?.planningDeath,
+            });
+        } else if (trap.ttyp === FIRE_TRAP) {
+            await dotrap(trap, NO_TRAP_FLAGS, state, {
+                planning, random, message, redraw,
+                planningDeath: arg?.planningDeath,
+            });
+        } else if ((is_pit(trap.ttyp) || is_hole(trap.ttyp))
+            && state.level.flags?.sokoban_rules) {
+            if (!viaJumping)
+                await dotrap(trap, NO_TRAP_FLAGS, state, {
+                    planning, random, message, redraw,
+                    planningDeath: arg?.planningDeath,
+                });
+            pointer.range = 0;
+            return true;
+        } else if (trap.tseen) {
+            await message(
+                `You pass right over ${an(trapname(trap.ttyp))}.`, state,
+            );
+        }
+    }
+    pointer.range = Math.max(0, range() - 1);
+    if (range() !== 0)
+        await (planning ? async () => {} : nh_delay_output)(state);
+    return true;
+}
+
+// C ref: dothrow.c should_mulch_missile() (1976-2010). Only ammunition and
+// missiles can mulch. The chance, blessed-item override, and tough-material
+// override keep the source's random draw order.
+export function should_mulch_missile(obj, state = game, env = {}) {
+    if (!obj || (!(is_ammo(obj, state) || is_missile(obj, state))
+        || obj.otyp === BOOMERANG
+        || objectType(obj, state).oc_magic)) {
+        return false;
+    }
+    const random = { rn2, rnl, ...(env.random ?? {}) };
+    const chance = 3 + greatest_erosion(obj) - Math.trunc(obj.spe ?? 0);
+    let broken = chance > 1
+        ? random.rn2(chance) !== 0
+        : random.rn2(4) === 0;
+    if (obj.blessed
+        && (state.context?.mon_moving
+            ? random.rn2(3) === 0
+            : random.rnl(4) === 0)) {
+        broken = false;
+    }
+    const type = objectType(obj, state);
+    if (((obj.oclass === GEM_CLASS && type.oc_tough)
+         || obj.otyp === FLINT)
+        && random.rn2(2) === 0) {
+        broken = false;
+    }
+    return broken;
+}
+
+// C ref: dothrow.c hitfloor() (606-655). Finish the drop only after the source
+// surface message, hero break check, and migration attempt, in that order.
+export async function hitfloor(obj, verbosely = true, state = game, rawEnv = {}) {
+    const { ux, uy } = state.u;
+    const location = state.level.at(ux, uy);
+    if (IS_SOFT(location.typ) || state.u.uinwater || state.u.uswallow) {
+        await dropy(obj, { ...rawEnv, state });
+        return;
+    }
+
+    if (IS_ALTAR(location.typ)) {
+        await doaltarobj(obj, state);
+    } else if (verbosely) {
+        const verb = obj.otyp === WAN_STRIKING ? 'strike' : 'hit';
+        let landingSurface = surface(ux, uy, state);
+        const trap = t_at(ux, uy, state);
+        if (trap?.tseen) {
+            switch (trap.ttyp) {
+            case TRAPDOOR:
+                landingSurface = 'trap door';
+                break;
+            case HOLE:
+                landingSurface = 'edge of the hole';
+                break;
+            case PIT:
+            case SPIKED_PIT:
+                landingSurface = 'edge of the pit';
+                break;
+            default:
+                break;
+            }
+        }
+        await (rawEnv.message ?? ttyPline)(
+            `${Doname2(obj, state)} ${otense(obj, verb, state)} the ${landingSurface}.`,
+            state,
+            rawEnv,
+        );
+    }
+
+    if (await hero_breaks(obj, ux, uy, BRK_FROM_INV,
+        { ...rawEnv, state })) return;
+    if (await ship_object(obj, ux, uy, false, { ...rawEnv, state })) return;
+    await dropz(obj, true, { ...rawEnv, state });
+}
+
+// C ref: dothrow.c toss_up() (1256-1431). A vertically thrown object either
+// breaks against the ceiling, hits the hero, or comes back down harmlessly.
+export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
+    const random = { d, rn1, rn2, rnd, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message ?? ttyPline;
+    const u = state.u;
+    state.gt ??= {};
+    const otyp = obj.otyp;
+    const objectData = objectType(obj, state);
+    const petrifier = (otyp === EGG || otyp === CORPSE)
+        && ismnum(obj.corpsenm)
+        && touch_petrifies(state.mons[obj.corpsenm]);
+
+    let action;
+    if (!has_ceiling(u.uz, state)) {
+        action = 'flies up into';
+    } else if (hitsroof) {
+        if (breaktest(obj, { ...rawEnv, state, random })) {
+            await message(
+                `${Doname2(obj, state)} hits the ${ceiling(u.ux, u.uy, state)}.`,
+                state,
+                rawEnv,
+            );
+            await breakmsg(obj, !heroIsBlind(state), { ...rawEnv, state });
+            // Crackable armor may pass breaktest() but survive breakobj().
+            if (!await breakobj(obj, u.ux, u.uy, true, true,
+                { ...rawEnv, state, random })) {
+                await hitfloor(obj, false, state, rawEnv);
+                state.gt.thrownobj = null;
+                return true;
+            }
+            return false;
+        }
+        action = 'hits';
+    } else {
+        action = 'almost hits';
+    }
+
+    await message(
+        `${Doname2(obj, state)} ${action} the `
+            + `${ceiling(u.ux, u.uy, state)}, then falls back on top of your `
+            + `${body_part(HEAD, state.youmonst)}.`,
+        state,
+        rawEnv,
+    );
+
+    if (obj.oclass === POTION_CLASS) {
+        await potionhit(
+            state.youmonst, obj, POTHIT_HERO_THROW,
+            { ...rawEnv, state, random },
+        );
+    } else if (breaktest(obj, { ...rawEnv, state, random })) {
+        // Determine the blindness before breakobj() deletes the object.
+        const blindinc = ((otyp === CREAM_PIE || otyp === BLINDING_VENOM)
+            && can_blnd(state.youmonst, state.youmonst, AT_WEAP, obj, state))
+            ? random.rnd(25) : 0;
+        await breakmsg(obj, !heroIsBlind(state), { ...rawEnv, state });
+        if (await breakobj(obj, u.ux, u.uy, true, true,
+            { ...rawEnv, state, random }))
+            obj = null;
+
+        switch (otyp) {
+        case EGG:
+            if (petrifier && !propertyPresent(state, STONE_RES)
+                && !(poly_when_stoned(state.youmonst.data, state)
+                    && await polymon(PM_STONE_GOLEM, state))) {
+                // A visor may still save the hero from the egg's petrifying
+                // corpse, but a helm always receives this source message.
+                if (state.uarmh) {
+                    await message(
+                        `Your ${helm_simple_name(state.uarmh, state)} `
+                            + 'fails to protect you.',
+                        state,
+                        rawEnv,
+                    );
+                }
+                await toss_up_petrify(obj, state, rawEnv);
+                return Boolean(obj);
+            }
+            // C falls through from EGG into the face-splatter message.
+            await message(
+                `You've got it all over your ${body_part(FACE, state.youmonst)}!`,
+                state,
+                rawEnv,
+            );
+            break;
+        case CREAM_PIE:
+        case BLINDING_VENOM:
+            await message(
+                `You've got it all over your ${body_part(FACE, state.youmonst)}!`,
+                state,
+                rawEnv,
+            );
+            break;
+        default:
+            break;
+        }
+
+        if (blindinc) {
+            if (otyp === BLINDING_VENOM && !heroIsBlind(state))
+                await message('It blinds you!', state, rawEnv);
+            u.ucreamed = (u.ucreamed ?? 0) + blindinc;
+            const blindedTimeout = (u.uprops?.[BLINDED]?.intrinsic ?? 0)
+                & TIMEOUT;
+            await make_blinded(blindedTimeout + blindinc, false, state,
+                rawEnv);
+            if (!heroIsBlind(state))
+                await message('Your vision clears.', state, rawEnv);
+        }
+
+        if (!obj) return false;
+        await hitfloor(obj, false, state, rawEnv);
+        state.gt.thrownobj = null;
+    } else if (harmless_missile(obj, state)) {
+        await message("It doesn't hurt.", state, rawEnv);
+        await hitfloor(obj, false, state, rawEnv);
+        state.gt.thrownobj = null;
+    } else {
+        const material = objectData.oc_material;
+        const isSilver = material === SILVER;
+        const hateSilver = (u.ulycn >= LOW_PM)
+            || hates_silver(state.youmonst.data);
+        const lessDamage = hard_helmet(state.uarmh, state)
+            && (!isSilver || !hateSilver);
+        let harmless = stone_missile(obj, state)
+            && passes_rocks(state.youmonst.data);
+        let artiMsg = false;
+        let damage = dmgval(obj, state.youmonst, state, { ...rawEnv, random });
+
+        if (obj.oartifact && !harmless) {
+            const dmgptr = { value: damage };
+            // rn1(18, 2) avoids 1 and 20, as in dothrow.c:1354-1356.
+            artiMsg = await artifact_hit(
+                null, state.youmonst, obj, dmgptr, random.rn1(18, 2), state,
+            );
+            damage = dmgptr.value;
+        }
+
+        if (!damage) {
+            // Non-weapons did not get dmgval()'s silver or blessing bonuses.
+            damage = Math.trunc((obj.owt + WT_TO_DMG - 1) / WT_TO_DMG);
+            damage = damage <= 1 ? 1 : random.rnd(damage);
+            if (damage > 6) damage = 6;
+            if (state.youmonst.data === state.mons[PM_SHADE] && !isSilver)
+                damage = 0;
+            if (obj.blessed && mon_hates_blessings(state.youmonst))
+                damage += random.rnd(4);
+            if (isSilver && hateSilver)
+                damage += random.rnd(20);
+        }
+        if (damage > 1 && lessDamage) damage = 1;
+        if (damage > 0) damage += u.udaminc ?? 0;
+        if (damage < 0) damage = 0;
+        damage = heroHalfPhysicalDamage(damage, state);
+
+        if (state.uarmh) {
+            if ((lessDamage && damage < (Upolyd(u) ? u.mh : u.uhp))
+                || harmless) {
+                if (!artiMsg) {
+                    if (!harmless) {
+                        await message(
+                            'Fortunately, you are wearing a hard helmet.',
+                            state,
+                            rawEnv,
+                        );
+                    } else {
+                        await message(
+                            `Unfortunately, you are wearing `
+                                + `${an(helm_simple_name(state.uarmh, state), state)}.`,
+                            state,
+                            rawEnv,
+                        );
+                    }
+                }
+            } else if (!petrifier && state.flags?.verbose) {
+                await message(
+                    `Your ${helm_simple_name(state.uarmh, state)} `
+                        + 'does not protect you.',
+                    state,
+                    rawEnv,
+                );
+            }
+            // A thrown stone against a xorn's worn helmet is no longer
+            // harmless; the helmet has stopped it from passing through.
+            // (The petrifier case is explicitly not harmless in C.)
+            harmless = false;
+        } else if (petrifier && !propertyPresent(state, STONE_RES)
+            && !(poly_when_stoned(state.youmonst.data, state)
+                && await polymon(PM_STONE_GOLEM, state))) {
+            await toss_up_petrify(obj, state, rawEnv);
+            return true;
+        }
+
+        if (isSilver && hateSilver)
+            await message('The silver sears you!', state, rawEnv);
+        if (harmless) {
+            await hit(thesimpleoname(obj, state), state.youmonst,
+                " but doesn't hurt.", state, rawEnv);
+        }
+
+        await hitfloor(obj, true, state, rawEnv);
+        state.gt.thrownobj = null;
+        if (!harmless)
+            await losehp(damage, 'falling object', KILLED_BY_AN, state,
+                rawEnv);
+    }
+    return true;
+}
+
+// The source's petrification label and killer path are shared by the egg and
+// hard-object arms of toss_up(). `done()` is called for its terminal effect.
+async function toss_up_petrify(obj, state, rawEnv) {
+    state.killer ??= {};
+    state.killer.format = KILLED_BY;
+    state.killer.name = 'elementary physics';
+    await (rawEnv.message ?? ttyPline)('You turn to stone.', state, rawEnv);
+    if (obj) await dropy(obj, dropCommandEnv(state, rawEnv));
+    state.gt.thrownobj = null;
+    await done(STONING, state, rawEnv);
+}
+
+// C ref: dothrow.c:30-34 AutoReturn(). A weapon that comes back to the hand
+// when thrown: an aklys or Valkyrie's Mjollnir in the primary slot, or a
+// boomerang from anywhere. throwit() owns the return path; throw_ok() below
+// only classifies with it, so the Mjollnir half is spelled out rather than
+// widened to any artifact: widening would suggest a wielded artifact that C
+// downplays, and the prompt would show it.
+function autoReturns(obj, wmask, state = game) {
+    if (!obj) return false;
+    return (((wmask & W_WEP) !== 0
+        && (obj.otyp === AKLYS
+            || (is_art(obj, ART_MJOLLNIR)
+                && state.urole.mnum === PM_VALKYRIE)))
+        || obj.otyp === BOOMERANG);
+}
+
+// C ref: dothrow.c multishot_class_bonus() (37-83). The role-specific extra
+// missile: low-tech gear for a Caveman, shuriken for a Monk, anything but a
+// dagger for a Ranger, a dagger for a Rogue, and the racial bow and arrow for
+// a Ninja or Samurai. `launcher` may be null.
+export function multishot_class_bonus(pm, ammo, launcher, state = game) {
+    let multishot = 0;
+    const skill = objectType(ammo, state).oc_skill;
+
+    switch (pm) {
+    case PM_CAVE_DWELLER:
+        /* give bonus for low-tech gear */
+        if (skill === -P_SLING || skill === P_SPEAR)
+            multishot++;
+        break;
+    case PM_MONK:
+        /* allow higher volley count despite skill limitation */
+        if (skill === -P_SHURIKEN)
+            multishot++;
+        break;
+    case PM_RANGER:
+        /* arbitrary; encourage use of other missiles beside daggers */
+        if (skill !== P_DAGGER)
+            multishot++;
+        break;
+    case PM_ROGUE:
+        /* possibly should add knives... */
+        if (skill === P_DAGGER)
+            multishot++;
+        break;
+    case PM_NINJA:
+        if (skill === -P_SHURIKEN || skill === -P_DART)
+            multishot++;
+        /* FALLTHRU */
+    case PM_SAMURAI:
+        /* role-specific launcher and its ammo */
+        if (ammo.otyp === YA && launcher && launcher.otyp === YUMI)
+            multishot++;
+        break;
+    default:
+        break; /* No bonus */
+    }
+
+    return multishot;
+}
+
+// C ref: dothrow.c breaktest() (2581-2610). Whether an object that has just
+// hit something hard is going to break. It is asked before anything breaks,
+// so its rn2(100) through obj_resists() is part of every landing missile's
+// stream even when the answer is no.
+export function breaktest(obj, env = {}) {
+    const state = env.state ?? game;
+    let nonbreakchance = 1; /* chance for non-artifacts to resist */
+
+    /* crystal plate mail and helm of brilliance crack four times first */
+    if (obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_material === GLASS) {
+        nonbreakchance = 90;
+    }
+
+    if (obj_resists(obj, nonbreakchance, 99, env)) return false;
+    if (objectType(obj, state).oc_material === GLASS && !obj.oartifact
+        && obj.oclass !== GEM_CLASS) {
+        return true;
+    }
+    switch (obj.oclass === POTION_CLASS ? POT_WATER : obj.otyp) {
+    case EXPENSIVE_CAMERA:
+    case POT_WATER: /* really, all potions */
+    case EGG:
+    case CREAM_PIE:
+    case MELON:
+    case ACID_VENOM:
+    case BLINDING_VENOM:
+        return true;
+    default:
+        return false;
+    }
+}
+
+// C ref: dothrow.c breakmsg() (2612-2653). This runs only after breaktest()
+// succeeds; crackable armor leaves its message to trap.c erode_obj().
+async function breakmsg(obj, inView, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    if (isCrackable(obj, state)) return;
+
+    let toPieces = '';
+    switch (obj.oclass === POTION_CLASS ? POT_WATER : obj.otyp) {
+    default:
+        if (obj.oclass !== WAND_CLASS)
+            note_unported('pline.c impossible');
+        // Glass or crystal wand.
+        toPieces = ' into a thousand pieces';
+        // fall through
+    case LENSES:
+    case MIRROR:
+    case CRYSTAL_BALL:
+    case EXPENSIVE_CAMERA:
+        toPieces = ' into a thousand pieces';
+        // fall through
+    case POT_WATER:
+        if (!inView) {
+            const heard = youHear('something shatter!', state);
+            if (heard) await message(heard, state, rawEnv);
+        } else {
+            const plural = (obj.quan ?? 1) === 1 ? 's' : '';
+            await message(
+                `${Doname2(obj, state)} shatter${plural}${toPieces}!`,
+                state,
+                rawEnv,
+            );
+        }
+        break;
+    case EGG:
+    case MELON:
+        await message('Splat!', state, rawEnv);
+        break;
+    case CREAM_PIE:
+        if (inView) await message('What a mess!', state, rawEnv);
+        break;
+    case ACID_VENOM:
+    case BLINDING_VENOM:
+        await message('Splash!', state, rawEnv);
+        break;
+    }
+}
+
+// C ref: dothrow.c hero_breaks() (2417-2441). The hero-visible message is
+// selected before breakobj(), and the known-outcome flags can bypass a second
+// resistance roll when a caller already made the decision.
+export async function hero_breaks(
+    obj,
+    x,
+    y,
+    breakFlags = 0,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const fromInventory = Boolean(breakFlags & BRK_FROM_INV);
+    const inView = !heroIsBlind(state)
+        && (fromInventory || cansee(x, y, state));
+    let outcome = breakFlags & BRK_KNOWN_OUTCOME;
+    if (!outcome) {
+        outcome = breaktest(obj, { ...rawEnv, state })
+            ? BRK_KNOWN2BREAK : BRK_KNOWN2NOTBREAK;
+    }
+    if (outcome === BRK_KNOWN2NOTBREAK) return 0;
+    await breakmsg(obj, inView, { ...rawEnv, state });
+    return await breakobj(
+        obj,
+        x,
+        y,
+        true,
+        fromInventory,
+        { ...rawEnv, state },
+    );
+}
+
+// C ref: dothrow.c breaks() (2444-2454). This variant records a non-hero
+// cause and never bills a floor object to the hero as an inventory loss.
+export async function breaks(obj, x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const inView = !heroIsBlind(state) && cansee(x, y, state);
+    if (!breaktest(obj, { ...rawEnv, state })) return 0;
+    await breakmsg(obj, inView, { ...rawEnv, state });
+    return await breakobj(obj, x, y, false, false, { ...rawEnv, state });
+}
+
+// C ref: dothrow.c check_shop_obj() (1181-1214). Projectile landings either
+// charge theft at the source shop, transfer unpaid property, or offer a
+// costly-shop object for sale after it reaches the floor.
+async function check_shop_obj(obj, x, y, broken, state = game, rawEnv = {}) {
+    const room = state.u?.ushops?.[0] ?? 0;
+    const shkp = shop_keeper(room, state);
+    if (!shkp) return;
+
+    const costly = costly_spot(x, y, state);
+    if (broken || !costly || (in_rooms(x, y, SHOPBASE, state)[0] ?? 0) !== room) {
+        if (is_unpaid(obj)) {
+            await stolen_value(obj, state.u.ux, state.u.uy,
+                Boolean(shkp.mpeaceful), false, state);
+        }
+        if (broken) obj.no_charge = 1;
+    } else if (costly) {
+        const otherShop = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+        if (otherShop === room || otherShop === state.u.ushops0?.[0]) {
+            if (is_unpaid(obj)) {
+                const gold = Has_contents(obj) ? contained_gold(obj, true) : 0;
+                subfrombill(obj, shkp, state, rawEnv);
+                if (gold > 0)
+                    await donate_gold(gold, shkp, true, state, rawEnv);
+            } else if (x !== shkp.mx || y !== shkp.my) {
+                await sellobj(obj, x, y, state, rawEnv);
+            }
+        }
+    }
+}
+
+// C ref: dothrow.c release_camera_demon() (2457-2470). The release
+// gate precedes species selection and creation; feedback precedes peacefulness.
+export async function release_camera_demon(obj, x, y, env = {}) {
+    const state = env.state ?? game;
+    const random = { d, rn1, rn2, rnd, rne, ...env.random };
+    const message = env.planning ? async () => {} : (env.message ?? ttyPline);
+    if (!random.rn2(3)) {
+        const species = random.rn2(3) ? PM_HOMUNCULUS : PM_IMP;
+        const monster = await makemon_runtime(state.mons[species], x, y,
+            MM_NOMSG, { ...env, state, random, message });
+        if (monster) {
+            if (canspotmon(monster, state)) {
+                const name = hallucinating(state)
+                    ? An(rndmonnam({ state, random: env.displayRandom }))
+                    : 'The picture-painting demon';
+                await message(`${name} is released!`, state, env);
+            }
+            monster.mpeaceful = !obj.cursed;
+            set_malign(monster, state);
+        }
+    }
+}
+
+// C ref: dothrow.c breakobj() (2480-2578). The resistance check belongs to
+// breaktest(); this function performs the source's object disposition and
+// returns TRUE whenever the caller must stop its landing tail. The camera arm
+// awaits its source helper before the common shop-accounting and delobj() tail.
+export async function breakobj(
+    obj,
+    x,
+    y,
+    heroCaused = false,
+    fromInventory = false,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const random = rawEnv.random ?? { rn2, rnd, d };
+    const objectEnv = objectGenerationEnv({
+        ...rawEnv,
+        state,
+        random,
+        message,
+    });
+
+    if (!obj) return 0;
+
+    // C consumes erode_obj()'s return value to distinguish a crack from
+    // destruction. The floor-object path uses gb.bhitpos for visibility.
+    if (isCrackable(obj, state)) {
+        const result = await erode_obj(
+            obj,
+            armor_simple_name(obj, state),
+            ERODE_CRACK,
+            EF_DESTROY | EF_VERBOSE,
+            objectEnv,
+        );
+        return result === ER_DESTROYED ? 1 : 0;
+    }
+
+    let fracture = false;
+    let explosion = false;
+    const effectiveType = obj.oclass === POTION_CLASS ? POT_WATER : obj.otyp;
+    switch (effectiveType) {
+    case MIRROR:
+        if (heroCaused) change_luck(-2, state);
+        break;
+    case POT_WATER:
+        obj.in_use = 1;
+        if (obj.otyp === POT_OIL && obj.lamplit) {
+            await explode_oil(obj, x, y, state, {
+                ...objectEnv,
+                random: { d, rn1, rn2, rnl, rnd, rne, ...random },
+                message,
+            });
+            if (state.program_state?.gameover) return 1;
+        } else if (next2u(x, y, state)) {
+            const species = state.youmonst?.data;
+            const canBreatheVapors = !breathless(species) || haseyes(species);
+            if (canBreatheVapors) {
+                const halfGasDamage = state.ublindf?.otyp === TOWEL
+                    && state.ublindf.spe > 0;
+                if (obj.otyp !== POT_WATER && !halfGasDamage) {
+                    if (!breathless(species)) {
+                        await message(
+                            'You smell a peculiar odor...', state, rawEnv,
+                        );
+                    } else {
+                        let eyes = body_part(EYE, state.youmonst);
+                        const eyeCount = !haseyes(species) ? 0
+                            : (species.pmidx === PM_CYCLOPS
+                                || species.pmidx === PM_FLOATING_EYE) ? 1 : 2;
+                        if (eyeCount !== 1) eyes = makeplural(eyes);
+                        await message(
+                            `Your ${eyes} ${vtense(eyes, 'water')}.`,
+                            state,
+                            rawEnv,
+                        );
+                    }
+                }
+                // dothrow.c:2517 discards potionbreathe()'s void result.
+                await potionbreathe(obj, state, { ...rawEnv, random, message });
+            }
+        }
+        break;
+    case EXPENSIVE_CAMERA:
+        await release_camera_demon(obj, x, y, { ...rawEnv, state, random, message });
+        break;
+    case EGG:
+        if (heroCaused && obj.spe && Number.isInteger(obj.corpsenm))
+            change_luck(-Math.min(obj.quan ?? 1, 5), state);
+        if (obj.corpsenm === PM_PYROLISK) explosion = true;
+        break;
+    case BOULDER:
+    case STATUE:
+        // C leaves the boulder/statue for its caller to dispose of.
+        fracture = true;
+        break;
+    default:
+        break;
+    }
+
+    if (heroCaused && (fromInventory || obj.unpaid)) {
+        if (state.u?.ushops?.[0] || obj.unpaid)
+            await check_shop_obj(obj, x, y, true, state, rawEnv);
+    } else if (heroCaused && !obj.no_charge) {
+        if (costly_spot(x, y, state)) {
+            const room = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+            const keeper = shop_keeper(room, state);
+            if (keeper) {
+                const eshk = keeper.mextra.eshk;
+                const heroSeq = state.hero_seq ?? 0;
+                if (heroSeq !== eshk.break_seq)
+                    eshk.seq_peaceful = keeper.mpeaceful;
+                const value = await stolen_value(
+                    obj, x, y, eshk.seq_peaceful, false, state,
+                );
+                if (value > 0
+                    && (room !== state.u?.ushops?.[0]
+                        || !inside_shop(state.u?.ux, state.u?.uy, state))
+                    && heroSeq !== eshk.break_seq) {
+                    note_unported('shk.c make_angry_shk');
+                }
+                // C calls make_angry_shk() only on the first breakage of a
+                // hero move, then records this sequence even when no theft
+                // occurred.
+                eshk.break_seq = heroSeq;
+            }
+        }
+    }
+    if (!fracture) delobj(obj, objectEnv);
+    if (explosion) {
+        await explode(x, y, -11, (random.d ?? d)(3, 6), 0, EXPL_FIERY, state,
+            { ...objectEnv, random, message });
+    }
+    return 1;
+}
+
+export function next2u(x, y, state = game) {
+    // you.h next2u(px,py) is distu((px),(py)) <= 2; distu is squared
+    // Euclidean distance, so an orthogonal square two cells away is outside.
+    return dist2(x, y, state.u?.ux, state.u?.uy) <= 2;
+}
+
+// C ref: dothrow.c ok_to_throw() (295-317), "common to dothrow() and
+// dofire()". Answers whether the hero can throw at all and hands back the
+// count prefix as a shot limit.
+async function ok_to_throw(state) {
+    const shotlimit = Math.min(
+        Math.max(state.commandCount ?? 0, 0),
+        LARGEST_INT,
+    );
+    state.multi = 0; /* reset; it's been used up */
+
+    const youmonst = state.youmonst?.data ?? state.mons[state.u.umonnum];
+    if (notake(youmonst)) {
+        await ttyPline(
+            'You are physically incapable of throwing or shooting anything.',
+            state,
+        );
+        return { ok: false, shotlimit };
+    } else if (nohands(youmonst)) {
+        /* not body_part(HAND) */
+        await ttyPline("You can't throw or shoot without hands.", state);
+        return { ok: false, shotlimit };
+    }
+    if (await check_capacity(null, state)) return { ok: false, shotlimit };
+    return { ok: true, shotlimit };
+}
+
+// C ref: dothrow.c throw_ok() (315-348), "getobj callback for object to be
+// thrown". Its answer for each carried object is the whole of what the `t`
+// prompt shows: getobj() lists every GETOBJ_SUGGEST letter between the
+// brackets and hides every GETOBJ_DOWNPLAY one behind `?*`. The arms are
+// ordered, and the order is visible -- the wielded-weapon arm below runs
+// before the WEAPON_CLASS arm, which is why a Valkyrie is offered her spare
+// dagger and not the spear in her hand.
+export function throw_ok(obj, state = game) {
+    if (!obj) return GETOBJ_EXCLUDE;
+
+    if (obj.bknown && welded(obj, state)) /* not a candidate if known stuck */
+        return GETOBJ_DOWNPLAY;
+
+    if (autoReturns(obj, obj.owornmask, state)
+        /* to get here, obj is boomerang or is uwep and (alkys or Mjollnir) */
+        /* ACURR(A_STR) is acurr(), which keeps Strength in the
+           3..125 encoding STR19() writes; acurrstr() would already have
+           folded that down to 3..25 and could never reach the bound. */
+        && (obj.oartifact !== ART_MJOLLNIR
+            || acurr(state, A_STR) >= STR19(25)))
+        return GETOBJ_SUGGEST;
+
+    if (obj.quan === 1 && (obj === state.uwep
+        || (obj === state.uswapwep && state.u.twoweap)))
+        return GETOBJ_DOWNPLAY;
+
+    if (obj.oclass === COIN_CLASS)
+        return GETOBJ_SUGGEST;
+
+    if (!uslinging(state) && obj.oclass === WEAPON_CLASS)
+        return GETOBJ_SUGGEST;
+    /* Possible extension: exclude weapons that make no sense to throw,
+       such as whips, bows, slings, rubber hoses. */
+
+    if (uslinging(state) && obj.oclass === GEM_CLASS)
+        return GETOBJ_SUGGEST;
+
+    if (throws_rocks(state.youmonst?.data ?? state.mons[state.u.umonnum])
+        && obj.otyp === BOULDER)
+        return GETOBJ_SUGGEST;
+
+    return GETOBJ_DOWNPLAY;
+}
+
+// C ref: dothrow.c dothrow() (350-376), "the #throw command". It calls three
+// functions and nothing else.
+export async function dothrow(state = game) {
+    /*
+     * Since some characters shoot multiple missiles at one time,
+     * allow user to specify a count prefix for 'f' or 't' to limit
+     * number of items thrown (to avoid possibly hitting something
+     * behind target after killing it, or perhaps to conserve ammo).
+     *
+     * Prior to 3.3.0, command ``3t'' meant ``t(shoot) t(shoot) t(shoot)''
+     * and took 3 turns.  Now it means ``t(shoot at most 3 missiles)''.
+     *
+     * [3.6.0:  shot count setup has been moved into ok_to_throw().]
+     *
+     * That count is 0 or 1 here. js/cmd.js parse() collects it, and rhack()
+     * refuses a count that leaves gm.multi above 0 for every row carrying no
+     * occupation text, the "throw" row included, so `3t` never reaches this
+     * function; `1t` does, and ok_to_throw() reads its 1 as a one-missile
+     * shot limit.
+     */
+    const { ok, shotlimit } = await ok_to_throw(state);
+    if (!ok) return ECMD_OK;
+
+    const obj = await getobj(
+        'throw', throw_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+    );
+    /* it is also possible to throw food */
+    /* (or jewels, or iron balls... ) */
+
+    return obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
+}
+
+// C ref: dothrow.c autoquiver() (381-441). Scan the linked inventory in its
+// existing order and let the last eligible item in each category replace the
+// prior candidate, then choose the source-priority category once at the end.
+export function autoquiver(state = game) {
+    if (state.uquiver) return;
+
+    let oammo = null;
+    let omissile = null;
+    let omisc = null;
+    let altammo = null;
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (otmp.owornmask || otmp.oartifact || !otmp.dknown) {
+            continue;
+        }
+
+        const type = objectType(otmp, state);
+        if (otmp.otyp === ROCK
+            || (otmp.otyp === FLINT && type.oc_name_known)
+            || (otmp.oclass === GEM_CLASS && type.oc_material === GLASS
+                && type.oc_name_known)) {
+            if (uslinging(state)) {
+                oammo = otmp;
+            } else if (ammo_and_launcher(otmp, state.uswapwep, state)) {
+                altammo = otmp;
+            } else if (!omisc) {
+                omisc = otmp;
+            }
+        } else if (otmp.oclass === GEM_CLASS) {
+            // Non-rock gems are ammo, but the player must select them.
+            continue;
+        } else if (is_ammo(otmp, state)) {
+            if (ammo_and_launcher(otmp, state.uwep, state)) {
+                oammo = otmp;
+            } else if (ammo_and_launcher(otmp, state.uswapwep, state)) {
+                altammo = otmp;
+            } else {
+                omisc = otmp;
+            }
+        } else if (is_missile(otmp, state)) {
+            omissile = otmp;
+        } else if (otmp.oclass === WEAPON_CLASS
+                   && throwing_weapon(otmp, state)) {
+            if (type.oc_skill === P_DAGGER && !omissile) {
+                omissile = otmp;
+            } else if (otmp.otyp !== AKLYS) {
+                omisc = otmp;
+            }
+        }
+    }
+
+    const selected = oammo || omissile || altammo || omisc;
+    if (selected) setuqwep(selected, setwornEnv(state));
+}
+
+// C ref: dothrow.c find_launcher() (443-462). "look through hero inventory
+// for launcher matching ammo, avoiding known cursed items."
+export function find_launcher(ammo, state = game) {
+    if (!ammo) return null;
+
+    let oX = null;
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (otmp.cursed && otmp.bknown)
+            continue; /* known to be cursed, so skip */
+        if (ammo_and_launcher(ammo, otmp, state)) {
+            if (otmp.bknown)
+                return otmp; /* known-B or known-U */
+            if (!oX)
+                oX = otmp; /* unknown-BUC; used if no known-BU item found */
+        }
+    }
+    return oX;
+}
+
+// C ref: dothrow.c throwing_weapon() (1430-1438). Ammo is excluded by the
+// source predicate; daggers and piercing knives remain throwers, while swords
+// and non-piercing blades do not.
+export function throwing_weapon(obj, state = game) {
+    const type = objectType(obj, state);
+    return is_missile(obj, state)
+        || is_spear(obj, state)
+        || (is_blade(obj, state) && !is_sword(obj, state)
+            && Boolean(type.oc_dir & PIERCE))
+        || obj.otyp === WAR_HAMMER
+        || obj.otyp === AKLYS;
+}
+
+// C ref: dothrow.c dofire() (468-586), "the #fire command -- throw from the
+// quiver or use wielded polearm".
+export async function dofire(state = game) {
+    const { ok, shotlimit } = await ok_to_throw(state);
+    if (!ok) return ECMD_OK;
+
+    let obj = state.uquiver ?? null;
+    let res = ECMD_OK;
+    let skipFireassist = false;
+
+    /* if wielding a throw-and-return weapon, throw it if quiver is empty
+       or has ammo rather than missiles */
+    if (state.uwep && autoReturns(state.uwep, state.uwep.owornmask, state)
+        && (!obj || is_ammo(obj, state))
+        && (state.uwep.oartifact !== ART_MJOLLNIR
+            || acurr(state, A_STR) >= STR19(25))) {
+        obj = state.uwep;
+        skipFireassist = true;
+    } else if (!obj) {
+        if (!state.flags.autoquiver) {
+            if (state.uwep && is_pole(state.uwep, state)) {
+                return await use_pole(state.uwep, true, state);
+            } else if (state.uwep && state.uwep.otyp === BULLWHIP) {
+                return await use_whip(state.uwep, state);
+            } else if (state.iflags.fireassist
+                       && state.uswapwep && is_pole(state.uswapwep, state)
+                       && !(state.uswapwep.cursed
+                            && state.uswapwep.bknown)) {
+                /* we have a known not-cursed polearm as swap weapon.
+                   swap to it and retry */
+                cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
+                cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
+                return ECMD_OK; /* haven't taken any time yet */
+            } else {
+                await ttyPline('You have no ammunition readied.', state);
+            }
+        } else {
+            autoquiver(state);
+            obj = state.uquiver ?? null;
+            if (obj) {
+                // dothrow.c temporarily removes W_QUIVER so prinv() does not
+                // include the convenience-slot marker in its feedback.
+                obj.owornmask &= ~W_QUIVER;
+                await prinv('You ready:', obj, 0, { state });
+                obj.owornmask |= W_QUIVER;
+            } else {
+                await ttyPline(
+                    'You have nothing appropriate for your quiver.', state,
+                );
+            }
+        }
+    }
+
+    /* if autoquiver is disabled or has failed, prompt for missile */
+    if (!obj) {
+        /* in case we're using ^A to repeat prior 'f' command, don't
+           use direction of previous throw as getobj()'s choice here */
+        state.in_doagain = 0;
+
+        /* this gives its own feedback about populating the quiver slot */
+        res = await doquiver_core('fire', state);
+        if (res !== ECMD_OK && res !== ECMD_TIME)
+            return res;
+
+        obj = state.uquiver ?? null;
+    }
+
+    /* C's `skip_fireassist` flag is set when a wielded returner is thrown. */
+    if (state.uquiver && is_ammo(state.uquiver, state)
+        && state.iflags.fireassist && !skipFireassist) {
+        if (state.uwep && is_pole(state.uwep, state)) {
+            /* C asks could_pole_mon() whether anything is in reach. Only an
+               existing reachable target sends this automatic path to
+               use_pole(); otherwise dofire() continues to launcher search. */
+            if (await could_pole_mon(state))
+                return await use_pole(state.uwep, true, state);
+        }
+        /* Try to find a launcher */
+        if (ammo_and_launcher(state.uquiver, state.uwep, state)) {
+            obj = state.uquiver;
+        } else if (ammo_and_launcher(state.uquiver, state.uswapwep, state)) {
+            /* swap weapons and retry fire */
+            cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
+            cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
+            return ECMD_OK;
+        } else {
+            /* wield launcher, retry fire */
+            const launcher = find_launcher(state.uquiver, state);
+            if (launcher) {
+                if (state.uwep && !state.flags.pushweapon)
+                    cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
+                cmdq_add_ec(CQ_CANNED, extcmdRow('wield'), state);
+                cmdq_add_key(CQ_CANNED, launcher.invlet, state);
+                cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
+                return res;
+            }
+        }
+    }
+
+    const altres = obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
+    return res === ECMD_TIME ? res : altres;
+}
+
+// C ref: dothrow.c endmultishot() (590-601). If a multi-shot volley is in
+// progress, stop it after the current shot and, for a verbose caller outside
+// monster movement, report which shot or toss was last completed.
+export async function endmultishot(verbose, state = game) {
+    state.m_shot ??= {};
+    if ((state.m_shot.i ?? 0) < (state.m_shot.n ?? 0)) {
+        if (verbose && !state.context?.mon_moving) {
+            await ttyPline(
+                `You stop ${state.m_shot.s ? 'firing' : 'throwing'} after the `
+                    + `${state.m_shot.i}${ordin(state.m_shot.i)} `
+                    + `${state.m_shot.s ? 'shot' : 'toss'}.`,
+                state,
+            );
+        }
+        state.m_shot.n = state.m_shot.i;
+    }
+}
+
+// C ref: dothrow.c throw_obj() (87-293), "throw the selected object, asking
+// for direction". Implements the complete function including its discarded
+// void-helper boundaries. Decides the volley size, then hands each missile to
+// throwit().
+export async function throw_obj(obj, shotlimit, state = game) {
+    const save_osplit = { ...(state.context.objsplit ?? {}) };
+    let res = ECMD_TIME;
+    let unsplitTarget = obj;
+
+    /* ask "in what direction?" */
+    if (!await getdir(null, state)) {
+        /* No direction specified, so cancel the throw */
+        res = ECMD_CANCEL; /* no time passes */
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+
+    /*
+     * Throwing gold is usually for getting rid of it when
+     * a leprechaun approaches, or for bribing an oncoming
+     * angry monster.  So throw the whole object.
+     *
+     * If the gold is in quiver, throw one coin at a time,
+     * possibly using a sling.
+     */
+    if (obj.oclass === COIN_CLASS && obj !== state.uquiver) {
+        /* throw_gold will unsplit the stack itself if necessary and may have
+           freed the object, so don't route through unsplit_stack here */
+        return await throw_gold(obj, state);
+    }
+
+    if (!await canletgo(obj, 'throw', state)) {
+        res = ECMD_OK;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    if (is_art(obj, ART_MJOLLNIR) && obj !== state.uwep) {
+        await ttyPline(
+            `${The(xnameFresh(obj, state), state)} must be wielded before it can be thrown.`,
+            state,
+        );
+        res = ECMD_OK;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    if ((is_art(obj, ART_MJOLLNIR) && acurr(state, A_STR) < STR19(25))
+        || (obj.otyp === BOULDER
+            && !throws_rocks(state.youmonst?.data
+                ?? state.mons[state.u.umonnum]))) {
+        await ttyPline("It's too heavy.", state);
+        res = ECMD_TIME;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    if (!state.u.dx && !state.u.dy && !state.u.dz) {
+        await ttyPline('You cannot throw an object at yourself.', state);
+        res = ECMD_OK;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    u_wipe_engr(2, { state });
+    if (!state.uarmg && obj.otyp === CORPSE
+        && touch_petrifies(state.mons[obj.corpsenm])
+        && !propertyHeld(state, STONE_RES)) {
+        await ttyPline(
+            `You throw ${corpse_xname(obj, null, CXN_PFX_THE, state)} `
+                + `with your bare ${makeplural(body_part(HAND, state.youmonst))}.`,
+            state,
+        );
+        state.svk ??= {};
+        state.svk.killer ??= {};
+        state.svk.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;
+        await instapetrify(state.svk.killer.name, state);
+    }
+    if (welded(obj, state)) {
+        // canletgo() above rejects an actually welded wielded item first. Keep
+        // this source branch and call its canonical message helper.
+        await weldmsg(obj, state);
+        res = ECMD_TIME;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    if (is_wet_towel(obj, state)) {
+        // dothrow.c discards weapon.c:dry_a_towel()'s void result, then throws.
+        await dry_a_towel(obj, -1, false, state);
+    }
+
+    /* Multishot calculations
+     * (potential volley of up to N missiles; default for N is 1)
+     */
+    let multishot = 1;
+    const skill = objectType(obj, state).oc_skill;
+    if (obj.quan > 1 /* no point checking if there's only 1 */
+        /* ammo requires corresponding launcher be wielded */
+        && (is_ammo(obj, state)
+            ? matching_launcher(obj, state.uwep, state)
+            /* otherwise any stackable (non-ammo) weapon */
+            : obj.oclass === WEAPON_CLASS)
+        && !(propertyHeld(state, CONFUSION)
+            || propertyHeld(state, STUNNED))) {
+        /* some roles don't get a volley bonus until becoming expert */
+        const role = state.urole.mnum;
+        const weakmultishot = (role === PM_WIZARD || role === PM_CLERIC
+            || (role === PM_HEALER && skill !== P_KNIFE)
+            || (role === PM_TOURIST && skill !== -P_DART)
+            /* poor dexterity also inhibits multishot */
+            || propertyHeld(state, FUMBLING)
+            || acurr(state, A_DEX) <= 6);
+
+        /* Bonus if the player is proficient in this weapon... */
+        switch (P_SKILL(weapon_type(obj, state), state)) {
+        case P_EXPERT:
+            multishot++;
+            /* FALLTHRU */
+        case P_SKILLED:
+            if (!weakmultishot)
+                multishot++;
+            break;
+        default: /* basic or unskilled: no bonus */
+            break;
+        }
+        /* ...or is using a special weapon for their role... */
+        multishot += multishot_class_bonus(role, obj, state.uwep, state);
+
+        /* ...or using their race's special bow; no bonus for spears */
+        if (!weakmultishot) {
+            switch (state.urace.mnum) {
+            case PM_ELF:
+                if (obj.otyp === ELVEN_ARROW && state.uwep
+                    && state.uwep.otyp === ELVEN_BOW)
+                    multishot++;
+                break;
+            case PM_ORC:
+                if (obj.otyp === ORCISH_ARROW && state.uwep
+                    && state.uwep.otyp === ORCISH_BOW)
+                    multishot++;
+                break;
+            case PM_GNOME:
+                /* arbitrary; there isn't any gnome-specific gear */
+                if (skill === -P_CROSSBOW)
+                    multishot++;
+                break;
+            case PM_HUMAN:
+            case PM_DWARF:
+            default:
+                break; /* No bonus */
+            }
+
+            /* dothrow.c:220-222 awards +1 only for this role's quest artifact. */
+            if (state.uwep && is_quest_artifact(state.uwep, state)
+                && ammo_and_launcher(obj, state.uwep, state)) {
+                multishot++;
+            }
+        }
+
+        /* crossbows are slow to load; high strength loads them quickly */
+        if (multishot > 1 && skill === -P_CROSSBOW
+            && ammo_and_launcher(obj, state.uwep, state)
+            && acurrstr(state) < (state.urace.mnum === PM_GNOME ? 16 : 18)) {
+            multishot = rnd(multishot);
+        }
+
+        multishot = rnd(multishot);
+        if (multishot > obj.quan)
+            multishot = obj.quan;
+        if (shotlimit > 0 && multishot > shotlimit)
+            multishot = shotlimit;
+    }
+
+    state.m_shot ??= {};
+    state.m_shot.s = Boolean(ammo_and_launcher(obj, state.uwep, state));
+    /* give a message if shooting more than one, or if player
+       attempted to specify a count */
+    if (multishot > 1 || shotlimit > 0) {
+        /* "You shoot N arrows." or "You throw N daggers." */
+        await ttyPline(
+            `You ${state.m_shot.s ? 'shoot' : 'throw'} ${multishot} `
+            + `${multishot === 1
+                ? singular(obj, xnameFresh, state) : xnameFresh(obj, state)}.`,
+            state,
+        );
+    }
+
+    const wep_mask = obj.owornmask;
+    let oldslot = null;
+    state.m_shot.o = obj.otyp;
+    state.m_shot.n = multishot;
+    for (state.m_shot.i = 1;
+        state.m_shot.i <= state.m_shot.n;
+        state.m_shot.i++) {
+        const twoweap = state.u.twoweap;
+        /* split this object off from its slot if necessary */
+        let otmp;
+        if (obj.quan > 1) {
+            otmp = splitobj(obj, 1, { state });
+        } else {
+            otmp = obj;
+            if ((otmp.owornmask & W_QUIVER)
+                && otmp === state.uquiver) {
+                // dothrow.c remove_worn_item() reaches uqwepgone() for the
+                // quiver slot; clear that slot before freeinv() consumes the
+                // singleton, and refresh the inventory as uqwepgone() does.
+                setuqwep(null, setwornEnv(state));
+                update_inventory({ state });
+            } else if (otmp.owornmask) {
+                // dothrow.c:263 removes a singleton worn item before freeinv;
+                // the C call's result is discarded, but its slot effects must
+                // finish before the object leaves the hero's inventory.
+                await remove_worn_item(otmp, false, state);
+            }
+            oldslot = obj.nobj;
+            /* obj will leave inventory and may be freed by throwit */
+            obj = null;
+            unsplitTarget = null;
+        }
+        await freeinv(otmp, { state });
+        await throwit(otmp, wep_mask, twoweap, oldslot, state);
+        if (state.program_state?.gameover) return ECMD_TIME;
+        await encumber_msg(state);
+    }
+    state.m_shot.n = 0;
+    state.m_shot.i = 0;
+    state.m_shot.o = STRANGE_OBJECT;
+    state.m_shot.s = false;
+
+    return finishThrowObj(res, unsplitTarget, save_osplit, state);
+}
+
+// C ref: throw_obj()'s `unsplit_stack:` label (270-285). The saved split
+// context is restored before the existing mkobj.c unsplitobj() helper; C
+// discards that helper's returned object pointer.
+function finishThrowObj(res, obj, save_osplit, state) {
+    if (obj && obj !== state.uquiver
+        && (obj.o_id === save_osplit.parent_oid
+            || obj.o_id === save_osplit.child_oid)) {
+        state.context.objsplit = save_osplit;
+        unsplitobj(obj, { state });
+    }
+    return res;
+}
+
+// C ref: mondata.h befriend_with_obj(). This macro is pure: domestic food
+// objects pacify ordinary pets, bananas pacify monkeys and apes, and horses
+// accept only vegetarian food or lichen corpses.
+export function befriendWithObject(species, obj, state = game) {
+    const type = objectType(obj, state);
+    if (species?.pmidx === PM_MONKEY || species?.pmidx === PM_APE)
+        return obj.otyp === BANANA;
+    return is_domestic(species)
+        && obj.oclass === FOOD_CLASS
+        && (species.mlet !== S_UNICORN
+            || type.oc_material === VEGGY
+            || (obj.otyp === CORPSE && obj.corpsenm === PM_LICHEN));
+}
+
+// C ref: mondata.h digests(). The macro recognizes an engulfing attack whose
+// damage type is AD_DGST; keep it local because the C macro has no callable
+// source function or separate state value.
+export function digests(species) {
+    return Boolean(species?.mattk?.some((attack) =>
+        attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST));
+}
+
+// C's gt.thrownobj is the single transit slot for a thrown object.  Keep this
+// grouped field canonical: legacy root-level aliases make mpickobj() and
+// object deletion disagree about whether the missile is still in flight.
+function thrownObject(state) {
+    return state.gt?.thrownobj ?? null;
+}
+
+function setThrownObject(state, obj) {
+    state.gt ??= {};
+    state.gt.thrownobj = obj;
+}
+
+function clearThrownObject(state) {
+    state.gt ??= {};
+    state.gt.thrownobj = null;
+}
+
+// C ref: dothrow.c throwit_return() (2459-2465).  Auto-return is a
+// per-throw flag, while gt.thrownobj is cleared only for the branches that
+// consumed or caught the object.  Keep both values in their source locations
+// so a later caller cannot observe a stale returning missile.
+function throwit_return(clearObject, state) {
+    state.iflags ??= {};
+    state.iflags.returning_missile = null;
+    if (clearObject) clearThrownObject(state);
+}
+
+// C ref: dothrow.c swallowit() (2467-2475).  The monster pickup result is
+// deliberately discarded by C; mpickobj() owns the object transfer and the
+// transit slot.  The iron ball is the one object which stays attached rather
+// than entering the engulfer's inventory.
+function swallowThrownObject(obj, state) {
+    if (obj !== state.uball) {
+        mpickobj(state.u.ustuck, obj, { state });
+        throwit_return(false, state);
+    } else {
+        throwit_return(true, state);
+    }
+}
+
+// C ref: dothrow.c return_throw_to_inv() (1855-1907).  A split object is
+// reinserted temporarily so unsplitobj() can find both halves, then falls back
+// to addinv_before() when the other half is gone.  The result is used by the
+// caller to restore the wielded slot, so preserve the source pointer result.
+async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
+    if (!obj) return null;
+    const split = state.context?.objsplit;
+    const splitObject = split && (obj.o_id === split.parent_oid
+        || obj.o_id === split.child_oid);
+    let mergedObject = null;
+    if (splitObject) {
+        // C: obj is temporarily the inventory head before unsplitobj() scans
+        // for its sibling.  freeinv() leaves a returned missile OBJ_FREE.
+        obj.nobj = state.invent;
+        state.invent = obj;
+        obj.where = OBJ_INVENT;
+        mergedObject = unsplitobj(obj, { state });
+        if (mergedObject) obj = mergedObject;
+        else {
+            state.invent = obj.nobj;
+            obj.nobj = null;
+            obj.where = OBJ_FREE;
+        }
+    }
+    let result = obj;
+    if (!mergedObject) {
+        obj.nomerge = 1;
+        result = addinv_before(obj, oldslot, { state });
+        obj.nomerge = 0;
+        if (!result) result = obj;
+        if ((result.owornmask & W_QUIVER)
+            && ((result.owornmask | wepMask) & (W_WEP | W_SWAPWEP))) {
+            setuqwep(null, { state });
+        }
+        if ((wepMask & W_WEP) && !state.uwep)
+            await setuwep(result, { state });
+        else if ((wepMask & W_SWAPWEP) && !state.uswapwep)
+            setuswapwep(result, { state });
+        else if ((wepMask & W_QUIVER) && !state.uquiver)
+            setuqwep(result, { state });
+        if (twoweap && !state.u.twoweap) set_twoweap(true, state);
+    }
+    await encumber_msg(state);
+    return result;
+}
+
+// C ref: dothrow.c tmiss() (1951-1973). A thrown object uses the missile
+// name in the miss message, wakes a target one third of the time, and hides
+// the target's real name when it is not a valid visible monster appearance.
+async function tmiss(obj, mon, maybeWakeup, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { rn2 };
+    const missile = mshot_xname(obj, state);
+    if (!canseemon(mon, state)
+        || (M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)) {
+        await message(
+            `${The(missile, state)} ${otense(obj, 'miss', state)}.`,
+            state,
+            env,
+        );
+    } else {
+        await miss(missile, mon, state);
+    }
+    if (maybeWakeup && !random.rn2(3))
+        await wakeup(mon, true, { ...env, state, random });
+}
+
+// C ref: dothrow.c throwit_mon_hit() (1482-1506). bhit() supplies the target
+// and leaves the object in gt.thrownobj; this wrapper performs the source's
+// bookkeeping before and after thitmonst().
+export async function throwit_mon_hit(mon, obj, state = game) {
+    if (!mon) return false;
+    if (mon.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
+        return true;
+    await snuff_candle(obj, { state });
+    state.gn ??= {};
+    state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
+        || state.gb.bhitpos.y !== mon.my;
+    const objGone = await thitmonst(mon, obj, state);
+    const after = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+    if (after?.isshk
+        && (!inside_shop(state.u.ux, state.u.uy, state)
+            || !in_rooms(after.mx, after.my, SHOPBASE, state).includes(
+                state.u.ushops?.[0],
+            ))) {
+        // C discards hot_pursuit()'s return. Its shopkeeper movement arm is
+        // still unported, so preserve the source boundary without changing
+        // the missile's landing state or adding a replacement RNG draw.
+        note_unported('shk.c hot_pursuit');
+    }
+    if (objGone) clearThrownObject(state);
+    return false;
+}
+
+// C ref: dothrow.c gem_accept() (2309-2380). A unicorn's gift changes Luck,
+// turns the creature peaceful, and either gives it the gem or lets it keep
+// the object while relocating. The inventory and teleport owners are called
+// through their existing source APIs so their lifecycle checks remain active.
+async function gem_accept(mon, obj, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state, random: rawEnv.random ?? { rn2, rnd } };
+    const message = env.message ?? ttyPline;
+    const type = objectType(obj, state);
+    const isBuddy = sgn(mon.data.maligntyp ?? 0)
+        === sgn(state.u.ualign?.type ?? 0);
+    const isGem = type.oc_material === GEMSTONE;
+    const known = Boolean(obj.dknown && type.oc_name_known);
+    const guessed = Boolean(obj.oextra?.oname || type.oc_uname);
+    let text = Monnam(mon, state);
+    let accepted = true;
+
+    mon.mpeaceful = 1;
+    mon.mavenge = 0;
+    if (known) {
+        if (isGem) {
+            if (isBuddy) {
+                text += ' gratefully';
+                change_luck(5, state);
+            } else {
+                text += ' hesitatingly';
+                change_luck(env.random.rn2(7) - 3, state);
+            }
+        } else {
+            text += ' is not interested in your junk.';
+            accepted = false;
+        }
+    } else if (guessed) {
+        if (isGem) {
+            if (isBuddy) {
+                text += ' gratefully';
+                change_luck(2, state);
+            } else {
+                text += ' hesitatingly';
+                change_luck(env.random.rn2(3) - 1, state);
+            }
+        } else {
+            text += ' is not interested in your junk.';
+            accepted = false;
+        }
+    } else if (isGem) {
+        if (isBuddy) {
+            text += ' gratefully';
+            change_luck(1, state);
+        } else {
+            text += ' hesitatingly';
+            change_luck(env.random.rn2(3) - 1, state);
+        }
+    } else {
+        text += ' graciously';
+    }
+
+    let ret = 0;
+    if (accepted) {
+        text += ' accepts your gift.';
+        if (state.u.ushops?.[0] || obj.unpaid)
+            await check_shop_obj(obj, mon.mx, mon.my, true, state, env);
+        mpickobj(mon, obj, {
+            ...env,
+            canSeeMonster: (target) => canseemon(target, state),
+        });
+        ret = 1;
+    }
+
+    if (!heroIsBlind(state)) await message(text, state, env);
+    if (!(await tele_restrict(mon, state, { ...env, message }))) {
+        rloc(mon, RLOC_MSG, {
+            ...env,
+            state,
+            message,
+            random: env.random,
+            canSeeMonster: (target) => canseemon(target, state),
+        });
+    }
+    return ret;
+}
+
+// C ref: dothrow.c throwit() (1507-1849), "throw an object, NB: obj may be
+// consumed in the process". Sends one missile on its way and disposes of it
+// where it stops.
+export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
+    const u = state.u;
+
+    const arw = autoreturn_weapon(obj);
+    let impaired = propertyHeld(state, CONFUSION)
+        || propertyHeld(state, STUNNED)
+        || heroIsBlind(state)
+        || hallucinating(state)
+        || propertyHeld(state, FUMBLING);
+    const tetheredWeapon = Boolean(arw?.tethered && (wep_mask & W_WEP));
+
+    state.gn ??= {};
+    state.gn.notonhead = false;
+    if ((obj.cursed || obj.greased) && (u.dx || u.dy) && !rn2(7)) {
+        let slipok = true;
+        if (ammo_and_launcher(obj, state.uwep, state)) {
+            await ttyPline(`${Tobjnam(obj, 'misfire', state)}!`, state);
+        } else if (obj.greased || throwing_weapon(obj, state)) {
+            await ttyPline(
+                `${Tobjnam(obj, 'slip', state)} as you throw it!`, state,
+            );
+        } else {
+            slipok = false;
+        }
+        if (slipok) {
+            u.dx = rn2(3) - 1;
+            u.dy = rn2(3) - 1;
+            if (!u.dx && !u.dy) u.dz = 1;
+            impaired = true;
+        }
+    }
+
+    const polyd = Upolyd(u);
+    const currentHp = polyd ? u.mh : u.uhp;
+    const maxHp = polyd ? u.mhmax : u.uhpmax;
+    if ((u.dx || u.dy || u.dz < 1)
+        && calc_capacity(obj.owt, state) > SLT_ENCUMBER
+        && currentHp < (polyd ? 5 : 10) && currentHp !== maxHp
+        && obj.owt > currentHp * 2 && !Is_airlevel(u.uz)) {
+        await ttyPline(
+            `You have so little stamina, ${the(xnameFresh(obj, state), state)}`
+            + ' drops from your grasp.', state,
+        );
+        await exercise(A_CON, false, state, { rn2 },
+            { encumberMessage: encumber_msg });
+        u.dx = 0;
+        u.dy = 0;
+        u.dz = 1;
+    }
+
+    setThrownObject(state, obj);
+    state.gb ??= {};
+    obj.how_lost = LOST_THROWN;
+    state.iflags ??= {};
+    state.iflags.returning_missile = autoReturns(obj, wep_mask, state)
+        ? obj : null;
+
+    let mon;
+    if (u.uswallow) {
+        if (obj === state.uball) {
+            state.uball.ox = state.uchain.ox = u.ux;
+            state.uball.oy = state.uchain.oy = u.uy;
+        }
+        mon = u.ustuck;
+        state.gb.bhitpos = { x: mon.mx, y: mon.my };
+        if (tetheredWeapon)
+            await tmp_at(DISP_TETHER, obj_to_glyph(obj, state), state);
+    } else if (u.dz) {
+        if (u.dz < 0 && state.iflags.returning_missile && !impaired) {
+            await ttyPline(
+                `${Tobjnam(obj, 'hit', state)} the ${ceiling(u.ux, u.uy, state)} `
+                    + 'and returns to your hand!',
+                state,
+            );
+            obj = await return_throw_to_inv(
+                obj, wep_mask, twoweap, oldslot, state,
+            );
+        } else if (u.dz < 0) {
+            // dothrow.c:1589 evaluates rn2(5) before checking Underwater;
+            // toss_up()'s boolean is discarded, but all of its effects run.
+            await toss_up(
+                obj,
+                Boolean(rn2(5) && !u.uinwater),
+                state,
+            );
+        } else if (u.dz > 0 && u.usteed
+            && obj.oclass === POTION_CLASS && rn2(6)) {
+            await potionhit(u.usteed, obj, POTHIT_HERO_THROW, { state });
+        } else {
+            await hitfloor(obj, true, state);
+        }
+        throwit_return(true, state);
+        return;
+    } else if (obj.otyp === BOOMERANG && !u.uinwater) {
+        if (Is_airlevel(u.uz) || Levitation(state))
+            await hurtle(-u.dx, -u.dy, 1, true, state);
+        mon = await boomhit(
+            obj, u.dx, u.dy, state, throwit_mon_hit, endmultishot,
+        );
+        if (state.program_state?.gameover) return;
+        state.iflags.returning_missile = null;
+        if (mon === state.youmonst) {
+            await exercise(A_DEX, true, state, { rn2 });
+            obj = await return_throw_to_inv(
+                obj, wep_mask, twoweap, oldslot, state,
+            );
+            throwit_return(true, state);
+            return;
+        }
+    } else {
+        const crossbowing = Boolean(ammo_and_launcher(
+            obj, state.uwep, state,
+        ) && weapon_type(state.uwep, state) === P_CROSSBOW);
+        let urange = Math.trunc((crossbowing ? 18 : acurrstr(state)) / 2);
+        let range = obj.otyp === HEAVY_IRON_BALL
+            ? urange - Math.trunc(obj.owt / 100)
+            : urange - Math.trunc(obj.owt / 40);
+        if (obj === state.uball) {
+            if (u.ustuck) range = 1;
+            else if (range >= 5) range = 5;
+        }
+        if (range < 1) range = 1;
+
+        if (is_ammo(obj, state)) {
+            if (ammo_and_launcher(obj, state.uwep, state)) {
+                if (crossbowing) range = BOLT_LIM;
+                else range++;
+            } else if (obj.oclass !== GEM_CLASS) {
+                range = Math.trunc(range / 2);
+                await ttyPline(
+                    `You aren't wielding ${an(skill_name(
+                        weapon_type(obj, state), state,
+                    ))}, so you throw your ${weapon_descr(obj, state)} by `
+                    + `${body_part(HAND, state.youmonst)}.`, state,
+                );
+            }
+        }
+
+        if (Is_airlevel(u.uz) || Levitation(state)) {
+            urange -= range;
+            if (urange < 1) urange = 1;
+            range -= urange;
+            if (range < 1) range = 1;
+        }
+        if (obj.otyp === BOULDER) range = 20;
+        else if (is_art(obj, ART_MJOLLNIR))
+            range = Math.trunc((range + 1) / 2);
+        else if (tetheredWeapon)
+            range = Math.min(range, Math.floor(Math.sqrt(arw.range)));
+        else if (obj === state.uball && u.utrap
+            && u.utraptype === TT_INFLOOR) range = 1;
+        if (u.uinwater) range = 1;
+
+        const pobj = { obj };
+        mon = await bhit(
+            u.dx, u.dy, range,
+            tetheredWeapon ? THROWN_TETHERED_WEAPON : THROWN_WEAPON,
+            null, null, pobj, state,
+        );
+        obj = pobj.obj;
+        setThrownObject(state, obj);
+        if (Is_airlevel(u.uz) || Levitation(state))
+            await hurtle(-u.dx, -u.dy, urange, true, state);
+        if (!obj) {
+            if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
+            throwit_return(false, state);
+            return;
+        }
+    }
+
+    if (mon) {
+        const caught = await throwit_mon_hit(mon, obj, state);
+        if (caught) {
+            throwit_return(true, state);
+            return;
+        }
+    }
+    if (!thrownObject(state)) {
+        if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
+        throwit_return(false, state);
+        return;
+    }
+    if (u.uswallow && !state.iflags.returning_missile) {
+        swallowThrownObject(obj, state);
+        return;
+    }
+
+    if (state.iflags.returning_missile) {
+        if (rn2(100)) {
+            if (tetheredWeapon)
+                await tmp_at(DISP_END, BACKTRACK, state);
+            else note_unported('dothrow.c sho_obj_return_to_u');
+            if (!impaired && rn2(100)) {
+                await ttyPline(
+                    `${Tobjnam(obj, 'return', state)} to your hand!`, state,
+                );
+                // C dothrow.c:1721-1728 uses addinv_before directly here,
+                // then reports encumbrance before restoring weapon slots.
+                obj = await addinv_before(obj, oldslot, { state });
+                await encumber_msg(state);
+                if (obj.owornmask & W_QUIVER) setuqwep(null, { state });
+                await setuwep(obj, { state });
+                set_twoweap(twoweap, state);
+                if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
+                    newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
+            } else {
+                const damageRoll = rn2(2);
+                if (!damageRoll) {
+                    await ttyPline(
+                        heroIsBlind(state)
+                            ? `Something lands ${
+                                Levitation(state) ? 'beneath' : 'at'} your ${
+                                makeplural(body_part(FOOT, state.youmonst))}.`
+                            : `${Tobjnam(obj, 'return', state)} back to you, `
+                                + `landing ${Levitation(state) ? 'beneath' : 'at'} `
+                                + `your ${makeplural(body_part(FOOT, state.youmonst))}.`, state,
+                    );
+                } else {
+                    let damage = damageRoll + rnd(3);
+                    await ttyPline(
+                        heroIsBlind(state)
+                            ? `${Tobjnam(obj, 'hit', state)} your ${body_part(ARM, state.youmonst)}!`
+                            : `${Tobjnam(obj, 'fly', state)} back toward you, `
+                                + `hitting your ${body_part(ARM, state.youmonst)}!`, state,
+                    );
+                    if (obj.oartifact) {
+                        const damagePtr = { value: damage };
+                        await artifact_hit(
+                            null, state.youmonst, obj, damagePtr, 0, state,
+                        );
+                        if (state.program_state?.gameover) return;
+                        damage = damagePtr.value;
+                    }
+                    await losehp(
+                        heroHalfPhysicalDamage(damage, state),
+                        killer_xname(obj, state), KILLED_BY, state,
+                    );
+                    if (state.program_state?.gameover) return;
+                }
+                if (u.uswallow) {
+                    swallowThrownObject(obj, state);
+                    return;
+                }
+                if (!await ship_object(obj, u.ux, u.uy, false, { state }))
+                    await dropy(obj, { state });
+            }
+            throwit_return(true, state);
+            return;
+        }
+        if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
+        await ttyPline(`${Tobjnam(obj, 'fail', state)} to return!`, state);
+        if (u.uswallow) {
+            swallowThrownObject(obj, state);
+            return;
+        }
+    }
+
+    const bx = state.gb.bhitpos.x;
+    const by = state.gb.bhitpos.y;
+    const location = state.level.at(bx, by);
+    if ((!IS_SOFT(location.typ) && breaktest(obj, { state }))
+        || obj.oclass === VENOM_CLASS) {
+        await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
+        await tmp_at(bx, by, state);
+        await nh_delay_output(state);
+        await tmp_at(DISP_END, 0, state);
+        await breakmsg(
+            obj,
+            cansee(bx, by, state),
+            { state, message: ttyPline },
+        );
+        if (await breakobj(obj, bx, by, true, true, { state })) {
+            throwit_return(true, state);
+            return;
+        }
+    }
+    if (!Deaf(state) && !u.uinwater
+        && (is_pool(bx, by, state)
+            || (is_lava(bx, by, state) && !is_flammable(obj, state)))) {
+        note_unported('sounds.c Soundeffect');
+        await ttyPline(
+            weight(obj, { state }) > WT_SPLASH_THRESHOLD ? 'Splash!' : 'Plop!',
+            state,
+        );
+    }
+    if (await flooreffects(obj, bx, by, 'fall', { state })) {
+        throwit_return(true, state);
+        return;
+    }
+    await obj_no_longer_held(obj, { state });
+    if (mon?.isshk && is_pick(obj, state)) {
+        if (cansee(bx, by, state)) {
+            await ttyPline(
+                `${Monnam(mon, state)} snatches up ${the(
+                    xnameFresh(obj, state), state,
+                )}.`, state,
+            );
+        }
+        if (state.u.ushops?.[0] || obj.unpaid)
+            await check_shop_obj(obj, bx, by, false, state);
+        mpickobj(mon, obj, {
+            state,
+            canSeeMonster: (target) => canseemon(target, state),
+        });
+        throwit_return(true, state);
+        return;
+    }
+    await snuff_candle(obj, { state });
+    if (!mon && await ship_object(obj, bx, by, false, { state })) {
+        throwit_return(true, state);
+        return;
+    }
+    clearThrownObject(state);
+    place_object(obj, bx, by, {
+        state,
+        hooks: {
+            blockPoint: (x, y, env) => block_point(x, y, env.state),
+        },
+    });
+    if (!IS_SOFT(location.typ)) {
+        // dothrow.c passes the hero's launch square, not the landing square.
+        await container_impact_dmg(obj, state.u.ux, state.u.uy, { state });
+        impact_disturbs_zombies(obj, true, state);
+    }
+    if ((state.u.ushops?.[0] || obj.unpaid) && obj !== state.uball)
+        await check_shop_obj(obj, bx, by, false, state);
+    stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
+    if (obj === state.uball)
+        await drop_ball(bx, by, state);
+    if (cansee(bx, by, state)) newsym(bx, by);
+    if (obj_sheds_light(obj, state)) state.vision_full_recalc = 1;
+    throwit_return(false, state);
+}
+
+// C ref: dothrow.c thitmonst() (2011-2304). This is the shared hit gate for
+// thrown objects, kicked objects, and polearms applied at range. Its source
+// object-class branches stay in this one function so hmode, random order,
+// hmon() return handling, and the caller's object lifecycle remain coupled.
+export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { rn1, rn2, rnd };
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    // Existing partial owners may still report an unported discarded or
+    // impossible branch. Keep this source function running so such a gap
+    // cannot replace a source arm with a new throw or consume extra RNG.
+    const unsupported = env.unsupported
+        ?? ((what) => note_unported(`dothrow.c ${what}`));
+    const operationEnv = {
+        ...env,
+        state,
+        random,
+        message,
+        unsupported,
+    };
+    // attrib.c:exercise() takes the RNG object itself, not this surrounding
+    // operation environment. Strength exercise also owns the trailing
+    // pickup.c:encumber_msg() call once play has begun.
+    const exerciseHooks = {
+        encumberMessage: (exerciseState) => encumber_msg(
+            exerciseState,
+            { message },
+        ),
+    };
+    const u = state.u;
+    const otyp = obj.otyp;
+    const guaranteedHit = engulfing_u(mon, state);
+    const hmode = obj === state.uwep ? HMON_APPLIED
+        : obj === state.gk?.kickedobj ? HMON_KICKED : HMON_THROWN;
+
+    /* C's maybe_polyd() selects the current form while polymorphed and the
+       hero's level or race while unpolymorphed. */
+    const polyd = Upolyd(u);
+    let tmp = -1 + (u.uluck ?? 0) + (u.moreluck ?? 0)
+        + find_mac(mon, state) + (u.uhitinc ?? 0)
+        + (polyd
+            ? (state.youmonst?.data?.mlevel ?? 0)
+            : (u.ulevel ?? 0));
+    const dex = acurr(state, A_DEX);
+    if (dex < 4) tmp -= 3;
+    else if (dex < 6) tmp -= 2;
+    else if (dex < 8) tmp -= 1;
+    else if (dex >= 14) tmp += dex - 14;
+
+    let disttmp = 3 - distmin(u.ux, u.uy, mon.mx, mon.my);
+    if (disttmp < -4) disttmp = -4;
+    tmp += disttmp;
+
+    if (state.uarmg && state.uwep
+        && objectType(state.uwep, state).oc_skill === P_BOW) {
+        switch (state.uarmg.otyp) {
+        case GAUNTLETS_OF_FUMBLING:
+            tmp -= 3;
+            break;
+        case GAUNTLETS_OF_POWER:
+            tmp -= 2;
+            break;
+        case LEATHER_GLOVES:
+        case GAUNTLETS_OF_DEXTERITY:
+            break;
+        default:
+            // C's impossible() diagnostic has no gameplay effect.
+            note_unported('pline.c impossible unknown glove type');
+            break;
+        }
+    }
+
+    tmp += omon_adj(mon, obj, true, { state, random });
+    if (is_orc(mon.data)
+        && (polyd
+            ? is_elf(state.youmonst?.data)
+            : state.urace?.mnum === PM_ELF))
+        tmp++;
+    if (guaranteedHit) tmp += 1000;
+
+    /* Real gems have their unicorn interaction before the attack roll. */
+    if (obj.oclass === GEM_CLASS && is_unicorn(mon.data)
+        && objectType(obj, state).oc_material !== MINERAL
+        && !uslinging(state)) {
+        if (helpless(mon)) {
+            await tmiss(obj, mon, false, state, operationEnv);
+            return 0;
+        }
+        if (mon.mtame) {
+            // C's tame-unicorn arm catches and drops the gift; it does not
+            // enter gem_accept() or change Luck.
+            await message(
+                `${Monnam(mon, state)} catches and drops ${the(xnameFresh(obj, state), state)}.`,
+                state,
+            );
+            return 0;
+        }
+        await message(
+            `${Monnam(mon, state)} catches ${the(xnameFresh(obj, state), state)}.`,
+            state,
+        );
+        return gem_accept(mon, obj, state, operationEnv);
+    }
+
+    /* C's special_obj_hits_leader() branch depends on quest and invocation
+       state. The predicate is pure; its side effects remain below. */
+    if (hmode !== HMON_APPLIED
+        && mon.m_id && state.svq?.quest_status?.leader_m_id === mon.m_id
+        && (is_quest_artifact(obj, state)
+            || objectType(obj, state).oc_unique
+            || (otyp === FAKE_AMULET_OF_YENDOR && !obj.known))) {
+        mon.msleeping = 0;
+        mon.mstrategy = (mon.mstrategy ?? 0) & ~STRAT_WAITMASK;
+        if (mon.mcanmove) {
+            await message(
+                `${Some_Monnam(mon, state, operationEnv)} catches ${the(xnameFresh(obj, state), state)}.`,
+                state,
+            );
+            if ((state.u.uevent?.invoked
+                 && objectType(obj, state).oc_unique
+                 && otyp !== AMULET_OF_YENDOR)
+                || !mon.mpeaceful) {
+                if (mon.mpeaceful && !Deaf(state)) {
+                    fully_identify_obj(obj, state);
+                    await verbalize(
+                        `${s_suffix(The(xnameFresh(obj, state), state))} part in this is finished.`,
+                        state,
+                        { message },
+                    );
+                    await verbalize(
+                        `We will guard it in case it is ever needed again, ${align_gname(state.u.ualignbase?.[A_ORIGINAL], state)} forbid.`,
+                        state,
+                        { message },
+                    );
+                }
+                if (state.u.ushops?.[0] || obj.unpaid)
+                    await check_shop_obj(obj, mon.mx, mon.my, false, state,
+                        operationEnv);
+                mpickobj(mon, obj, operationEnv);
+            } else {
+                await finish_quest(obj, operationEnv);
+                const next2u = monnear(mon, u.ux, u.uy, state);
+                await message(
+                    `${Some_Monnam(mon, state, operationEnv)} `
+                    + `${next2u ? 'hands' : 'tosses'} `
+                    + `${the(xnameFresh(obj, state), state)} back to you.`,
+                    state,
+                );
+                if (!next2u)
+                    note_unported('dothrow.c sho_obj_return_to_u');
+                obj = addinv(obj, operationEnv);
+                await encumber_msg(state, { message });
+            }
+            return 1;
+        }
+        return 0;
+    }
+
+    const dieroll = random.rnd(20);
+
+    if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
+        || obj.oclass === GEM_CLASS) {
+        if (hmode === HMON_KICKED) {
+            tmp -= (is_ammo(obj, state) ? 5 : 3);
+        } else if (is_ammo(obj, state)) {
+            if (!ammo_and_launcher(obj, state.uwep, state)) {
+                tmp -= 4;
+            } else {
+                tmp += (state.uwep.spe ?? 0)
+                    - greatest_erosion(state.uwep);
+                tmp += weapon_hit_bonus(state.uwep, state);
+                if (state.uwep.oartifact)
+                    tmp += spec_abon(state.uwep, mon, state, operationEnv);
+                if ((state.urace?.mnum === PM_ELF
+                     || state.urole?.mnum === PM_SAMURAI)
+                    && (!polyd
+                        || your_race(state.youmonst?.data, state))
+                    && objectType(state.uwep, state).oc_skill === P_BOW) {
+                    ++tmp;
+                    if ((state.urace?.mnum === PM_ELF
+                         && state.uwep.otyp === ELVEN_BOW)
+                        || (state.urole?.mnum === PM_SAMURAI
+                            && state.uwep.otyp === YUMI))
+                        ++tmp;
+                }
+            }
+        } else {
+            if (otyp === BOOMERANG) tmp += 4;
+            else if (throwing_weapon(obj, state)) tmp += 2;
+            else if (obj === thrownObject(state)) tmp -= 2;
+            tmp += weapon_hit_bonus(obj, state);
+        }
+
+        if (tmp >= dieroll) {
+            const wasThrown = Boolean(thrownObject(state));
+            const chopper = is_axe(obj, state);
+            if (hmode === HMON_APPLIED) {
+                state.u.uconduct ??= {};
+                state.u.uconduct.weaphit = Math.trunc(
+                    state.u.uconduct.weaphit ?? 0,
+                ) + 1;
+            }
+            const alive = await hmon(
+                mon, obj, hmode, dieroll, state, operationEnv,
+            );
+            if (alive && mon.wormno)
+                await cutworm(
+                    mon,
+                    state.gb.bhitpos.x,
+                    state.gb.bhitpos.y,
+                    chopper,
+                    operationEnv,
+                );
+            await exercise(A_DEX, true, state, random, exerciseHooks);
+            if (wasThrown && !thrownObject(state)) return 1;
+            if (should_mulch_missile(obj, state, operationEnv)) {
+                if (state.u.ushops?.[0] || obj.unpaid)
+                    await check_shop_obj(obj, state.gb.bhitpos.x,
+                        state.gb.bhitpos.y, true, state, operationEnv);
+                obfree(obj, null, operationEnv);
+                return 1;
+            }
+            // C discards passive_obj()'s result, but its source effects and
+            // any terminal messages still precede throwit's return.
+            await passive_obj(mon, obj, null, state, operationEnv);
+        } else {
+            await tmiss(obj, mon, true, state, operationEnv);
+            if (hmode === HMON_APPLIED)
+                await wakeup(mon, true, operationEnv);
+        }
+    } else if (otyp === HEAVY_IRON_BALL) {
+        await exercise(A_STR, true, state, random, exerciseHooks);
+        if (tmp >= dieroll) {
+            const wasSwallowed = guaranteedHit;
+            await exercise(A_DEX, true, state, random, exerciseHooks);
+            const alive = await hmon(
+                mon, obj, hmode, dieroll, state, operationEnv,
+            );
+            if (!alive && wasSwallowed && !u.uswallow
+                && obj === state.uball)
+                return 1;
+        } else {
+            await tmiss(obj, mon, true, state, operationEnv);
+        }
+    } else if (otyp === BOULDER) {
+        await exercise(A_STR, true, state, random, exerciseHooks);
+        if (tmp >= dieroll) {
+            await exercise(A_DEX, true, state, random, exerciseHooks);
+            await hmon(mon, obj, hmode, dieroll, state, operationEnv);
+        } else {
+            await tmiss(obj, mon, true, state, operationEnv);
+        }
+    } else if ((otyp === EGG || otyp === CREAM_PIE || otyp === BLINDING_VENOM
+               || otyp === ACID_VENOM)
+              && (guaranteedHit || dex > random.rnd(25))) {
+        await hmon(mon, obj, hmode, dieroll, state, operationEnv);
+        return 1;
+    } else if (obj.oclass === POTION_CLASS
+               && (guaranteedHit || dex > random.rnd(25))) {
+        // dothrow.c:2264 discards the result, but potionhit owns both target
+        // effects and the potion's object lifetime.
+        await potionhit(mon, obj, POTHIT_HERO_THROW, operationEnv);
+        return 1;
+    } else if (befriendWithObject(mon.data, obj, state)
+               || (mon.mtame && dogfood(mon, obj, operationEnv) <= ACCFOOD)) {
+        // tamedog() returns whether it consumed the object. Preserve that
+        // return-valued boundary rather than converting a failed taming into
+        // a source-level miss.
+        const tamed = await tamedog(mon, obj, true, operationEnv);
+        if (tamed) {
+            return 1;
+        }
+        await tmiss(obj, mon, false, state, operationEnv);
+        mon.msleeping = 0;
+        mon.mstrategy = (mon.mstrategy ?? 0) & ~STRAT_WAITMASK;
+    } else if (guaranteedHit) {
+        await wakeup(mon, true, operationEnv);
+        const md = u.ustuck?.data ?? mon.data;
+        if (otyp === CORPSE && touch_petrifies(state.mons?.[obj.corpsenm])) {
+            if (is_animal(md)) {
+                await minstapetrify(
+                    u.ustuck, true, state, operationEnv,
+                );
+                if (!u.uswallow) {
+                    // C consumes the cockatrice corpse after the swallowed
+                    // target is petrified. delobj() is implemented here and
+                    // must own the object lifecycle (including obj_resists).
+                    delobj(obj, { state });
+                    return 1;
+                }
+            }
+        }
+        const trail = digests(md) ? ' entrails'
+            : is_whirly(md) ? ' currents' : '';
+        let monname = mon_nam(mon, state);
+        if (trail) monname = s_suffix(monname);
+        await message(
+            `${Tobjnam(obj, 'vanish', state)} into ${monname}${trail}.`,
+            state,
+        );
+    } else {
+        await tmiss(obj, mon, true, state, operationEnv);
+    }
+
+    return 0;
+}
+
+// C ref: dothrow.c harmless_missile() (1220-1248). A pure predicate: TRUE when
+// the thrown object is too soft, light, or fragile to cause meaningful noise
+// or damage when it hits iron bars. Used by hit_bars() to select the sound
+// effect and by hits_bars() indirectly through hit_bars().
+export function harmless_missile(obj, state = game) {
+    const otyp = obj.otyp;
+    switch (otyp) {
+    case SLING:
+    case EUCALYPTUS_LEAF:
+    case KELP_FROND:
+    case SPRIG_OF_WOLFSBANE:
+    case FORTUNE_COOKIE:
+    case PANCAKE:
+        return true;
+    case RUBBER_HOSE:
+    case BAG_OF_TRICKS:
+        return obj.spe < 1;
+    case SACK:
+    case OILSKIN_SACK:
+    case BAG_OF_HOLDING:
+        return !Has_contents(obj);
+    default:
+        if (obj.oclass === SCROLL_CLASS)
+            return true;
+        if (objectType(otyp, state).oc_material === CLOTH)
+            return true;
+        break;
+    }
+    return false;
+}
+
+// C ref: hack.c impact_disturbs_zombies() (1786-1794) over obj.h is_flimsy()
+// (418-420). A heavy landing wakes buried zombies; a light or soft object
+// leaves them alone.
+export function impact_disturbs_zombies(obj, violent, state = game) {
+    /* if object won't make a noticeable impact, let buried zombies rest */
+    if (obj.owt < (violent ? 10 : 100) || is_flimsy(obj, state))
+        return;
+
+    disturb_buried_zombies(obj.ox, obj.oy, state);
+}
+
+// C ref: dothrow.c omon_adj() (1913-1947). Adjust to-hit for the target
+// monster's size, status (sleeping, immobilized), and the specific object
+// thrown. Called from ohitmon() (mthrowu.c) and thitmonst() (dothrow.c).
+export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    let tmp = 0;
+
+    /* size of target affects the chance of hitting */
+    tmp += (mon.data.msize - MZ_MEDIUM); /* -2..+5 */
+    /* sleeping target is more likely to be hit */
+    if (mon.msleeping) {
+        tmp += 2;
+    }
+    /* ditto for immobilized target */
+    if (!mon.mcanmove || !mon.data.mmove) {
+        tmp += 4;
+        if (mon_notices && mon.data.mmove && !random.rn2(10)) {
+            mon.mcanmove = 1;
+            mon.mfrozen = 0;
+        }
+    }
+    /* some objects are more likely to hit than others */
+    switch (obj.otyp) {
+    case HEAVY_IRON_BALL:
+        if (obj !== state.uball)
+            tmp += 2;
+        break;
+    case BOULDER:
+        tmp += 6;
+        break;
+    default:
+        if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
+            || obj.oclass === GEM_CLASS)
+            tmp += hitval(obj, mon, state, rawEnv);
+        break;
+    }
+    return tmp;
+}
+
+// C ref: dothrow.c throw_gold() (2655-2731). The coin arm of throw_obj(), and
+// the one arm `t` can reach that `f` cannot: C guards it on
+// `obj->oclass == COIN_CLASS && obj != uquiver`, and dofire() always throws
+// the quiver. The selected stack leaves the hand at once, so there is no
+// volley or in-function split; a count-selected object can still arrive with
+// getobj()'s split context, which the self-throw branch reunites. throwit() is
+// never involved.
+//
+// The tail from flooreffects() down looks like throwit()'s and is not it.
+// throwit() also calls obj_no_longer_held(), container_impact_dmg(),
+// impact_disturbs_zombies() and check_shop_obj(), and guards its newsym() with
+// cansee(); throw_gold() does none of that, calls sellobj() instead of
+// check_shop_obj(), and calls newsym() unconditionally. The two tails are kept
+// separate because sharing one would draw the wrong screen.
+//
+// This whole function is kept separate from throwit() because its gold path
+// has different self-throw recovery, swallowed-monster transfer, and shop
+// sale behavior.
+async function throw_gold(obj, state = game) {
+    const u = state.u;
+
+    if (!u.dx && !u.dy && !u.dz) {
+        await ttyPline('You cannot throw gold at yourself.', state);
+        /* If we tried to throw part of a stack, force it to merge back
+           together (same as in throw_obj).  Essential for gold. */
+        const objsplit = state.context.objsplit ?? {};
+        if (obj.o_id === objsplit.parent_oid
+            || obj.o_id === objsplit.child_oid) {
+            // C discards unsplitobj()'s result; the existing mkobj.c owner
+            // reunites the count-selected gold with its original stack.
+            unsplitobj(obj, { state });
+        }
+        return ECMD_CANCEL;
+    }
+    await freeinv(obj, { state });
+    if (u.uswallow) {
+        const swallower = mon_nam(u.ustuck, state);
+        const target = digests(u.ustuck.data)
+            ? `${s_suffix(swallower)} entrails`
+            : swallower;
+        await ttyPline(`The gold disappears into ${target}.`, state);
+        // C transfers the freed gold to the engulfer's inventory. add_to_minv
+        // also handles merging into a compatible existing monster stack.
+        add_to_minv(u.ustuck, obj, { state });
+        return ECMD_TIME;
+    }
+
+    /* C's gb.bhitpos is a struct member and always exists; this port creates
+       the struct on first use, and both arms below write into it. */
+    state.gb ??= {};
+    if (u.dz) {
+        if (u.dz < 0 && !Is_airlevel(u.uz) && !u.uinwater
+            && !Is_waterlevel(u.uz)) {
+            await ttyPline(
+                `The gold hits the ${ceiling(u.ux, u.uy, state)}, then falls `
+                + `back on top of your ${body_part(HEAD, state.youmonst)}.`,
+                state,
+            );
+            /* some self damage? */
+            if (state.uarmh) {
+                await ttyPline(
+                    'Fortunately, you are wearing '
+                    + `${an(helm_simple_name(state.uarmh, state))}!`,
+                    state,
+                );
+            }
+        }
+        state.gb.bhitpos = { x: u.ux, y: u.uy };
+    } else {
+        /* consistent with range for normal objects */
+        const range = Math.trunc(acurrstr(state) / 2)
+            - Math.trunc(obj.owt / 40);
+
+        /* see if the gold has a place to move into */
+        const odx = u.ux + u.dx;
+        const ody = u.uy + u.dy;
+        if (!isok(odx, ody)
+            || !ZAP_POS(state.level.at(odx, ody).typ)
+            || closed_door(odx, ody, state)) {
+            state.gb.bhitpos = { x: u.ux, y: u.uy };
+        } else {
+            const pobj = { obj };
+            const mon = await bhit(u.dx, u.dy, range, THROWN_WEAPON, null, null,
+                pobj, state);
+            obj = pobj.obj;
+            if (!obj)
+                return ECMD_TIME; /* object is gone */
+            if (mon) {
+                /* ghitm() transfers caught gold to the monster. Otherwise
+                   the shared tail places it at bhitpos. */
+                if (await ghitm(mon, obj, state)) return ECMD_TIME;
+            } else {
+                if (await ship_object(obj, state.gb.bhitpos.x,
+                    state.gb.bhitpos.y, false, { state }))
+                    return ECMD_TIME;
+            }
+        }
+    }
+
+    if (await flooreffects(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', {
+        state,
+        unsupported: (what) => {
+            throw new UnsupportedThrowError(what);
+        },
+    }))
+        return ECMD_TIME;
+    if (u.dz > 0) {
+        await ttyPline(
+            'The gold hits the '
+            + `${surface(state.gb.bhitpos.x, state.gb.bhitpos.y, state)}.`,
+            state,
+        );
+    }
+    place_object(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, { state });
+    /* `*u.ushops` is the first entry of the room list naming shops the hero
+       stands in; sellobj() owns all further shop checks. */
+    if (u.ushops?.[0])
+        await sellobj(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+    /* stackobj() merges the landing gold into a compatible floor pile, which
+       extracts the object it merged with; invent.c obj_extract_self() takes
+       that operation from its caller, as throwit() above does. */
+    stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
+    newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
+    return ECMD_TIME;
+}
