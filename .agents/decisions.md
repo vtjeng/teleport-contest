@@ -1118,3 +1118,38 @@ change or rerun. Cache-only hook bypass is an attestation, not a new lint pass.
 Main and independent review found no remaining concrete blocker. Public C
 parity, certification, discovery, score gain and operational benefit are not
 claimed; normal hosted acceptance and publication remain pending here.
+
+### 2026-10-19 — Statue contents through the runtime monster pickup owner
+
+The selected source stage changes only animate_statue's local dynamic steal
+binding and existing awaited contents call to mpickobjRuntime. Whole C
+animate_statue 725–900, current defaults and all three outer await owners were
+reviewed. Existing runtime helper, creation, equipment, worn removal and statue
+deletion order stay source-owned; other legacy transfer callers remain pending.
+
+The sole exact 19,101-byte 284c qualification entered ANIMATE_SPELL once.
+Statue 79 held cobj [81,80]; actual head 81 transferred to real goblin 82,
+then child 80 was extracted before the legacy missing-absorb refusal. Both
+shrink timers remained. This reached the production transfer; it did not return
+normally or certify public C parity. Prior parked owners and spent allowances
+remain distinct.
+
+The first implementation regression stopped at an incorrect cursed=true
+expectation after real uncurse, before its intended target assertion. Main
+allowed only expected=false within the original deadline. Final frozen 282f
+then produced a meaningful original 20/1 missing-absorb failure BEFORE the first
+game edit. The initial harness miss and all raw evidence remain distinct.
+
+The same final test passed 21/21 after the two-name source change; focused lint
+and normal commit-hook lint passed. Main and independent review bound the
+committed 42,517,840-byte envelope SHA
+8f5ffa299ca938141d312d71fdd9139c36984ce25873bdaf743063613b42f043,
+all 121 literal files and exact source/test/fixture bytes. Green directly records
+81 surviving with mass 40 in goblin 82, 80 deleted and untimed, statue 79 deleted
+and unlinked, and the sole survivor shrink timer at deadline 26. Actual return,
+hero/level identities, inventory, prior floor objects and handler restoration
+are preserved without observer errors.
+
+Normal hosted acceptance/publication remain pending at this record. This is a
+source parity correction with runtime-pending scope, without discovery, source
+certification, fixed-workload gain or global migration claims.

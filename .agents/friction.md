@@ -1940,3 +1940,34 @@ Source/fixture stay unchanged; prior `6e2d` and `9ae79` raw remain distinct.
   linked correction; 9ad4175 commits the unchanged envelope and metadata without
   rerunning checks. Existing immutable-evidence requirements apply; benefit is
   unmeasured and no new helper, rule or gate is introduced.
+
+### 2026-10-19 — Shopdig source preparation and terminal linking miss
+
+- Source `0a73` → linked `61ff` capture/default corrections → Main final review;
+  peer review caught double graph encoding before runtime, corrected to one pass.
+- Exact 36,759-byte `f63a` passed final peer review and current-pin rebinding.
+- Sole actual `5ec4` then failed ESM linking: `obj_extract_self` came from
+  `js/obj.js`, although its owner is `invent.js`; the body never executed.
+  Exit 1, stdout 0 B and full 651-byte stderr remain; no output directory or receipts.
+- Main and peer review own the binding-audit miss; matching hashes did not prove
+  named exports. No retry, code, goal closure, new rule/helper/gate or measured benefit.
+
+
+### 2026-10-19 — Animate proposed-fixture source corrections
+
+- Source `b334` had uninitialized ISAAC, `mkdtemp`/`mkdir`, missing-multi,
+  cyclic intent, grouped-clock and capture contradictions found before selection.
+- Linked `5dc2` returned within five minutes, but its new `o.timed === true`
+  guard contradicted the canonical numeric timer count `1`; no physical slot started.
+- Main's `284c` final uses numeric `timed`, mandatory RNG failures, copied graphs
+  and one encoding; full peer review preceded a separately selected sole invocation.
+- Actual `2893` reached `ANIMATE_SPELL`: child 81 transferred first, child 80 was
+  extracted, then `mpickobj` threw for missing `absorbGlob`; exit 1 is no normal return.
+- No retry, new rule/helper/gate or measured prevented-attempt benefit follows;
+  earlier immutable results and all prior scopes/caps remain intact.
+
+- The first implementation regression expected `cursed=true` after the fixture's
+  real `uncurse`; Main allowed only expected=false before any game edit, within
+  the original deadline. Initial b312 harness miss remains separate from final
+  282f's genuine original 20/1 target red and the same 21/21 green. Full source,
+  test, fixture and raw chronology were independently bound; benefit is unmeasured.
