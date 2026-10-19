@@ -161,7 +161,7 @@ import {
     WORN_BOOTS,
     plur,
 } from './const.js';
-import { newsym, see_monsters } from './display.js';
+import { newsym, see_monsters, set_mimic_blocking } from './display.js';
 import { hcolor, hliquid, obj_pmname, x_monnam } from './do_name.js';
 import { has_ceiling, on_level, surface } from './dungeon.js';
 import { makeplural, makesingular } from './fruit.js';
@@ -932,8 +932,6 @@ function extremeattr(attrindx, state) {
 // installed the ring. oldprop is read before the defensive weapon-slot
 // cleanup, and only its W_RING bits are masked for a single matching ring.
 //
-// C's set_mimic_blocking() result is discarded; keep that precise display.c
-// boundary while still running the existing see_monsters() helper.
 export async function Ring_on(obj, state = game, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     const oldprop = state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic
@@ -980,7 +978,7 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
         await see_monsters(state, { ...env, redraw: env.redraw });
         break;
     case RIN_SEE_INVISIBLE: {
-        note_unported('display.c set_mimic_blocking');
+        set_mimic_blocking(state);
         await see_monsters(state, env);
         const invisibility = state.u.uprops[INVIS];
         const invisible = Boolean((invisibility?.intrinsic
@@ -1050,7 +1048,7 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
 // mirrors Ring_on() with the inverse operation for each ring type.
 //
 // The switch preserves each ring's inverse effect. C's discarded impossible()
-// diagnostic and set_mimic_blocking() call remain explicit gaps.
+// diagnostic remains an explicit gap.
 async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     const mask = obj.owornmask & W_RING;
@@ -1101,7 +1099,7 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         const invisible = Boolean((invisibility?.intrinsic
             || invisibility?.extrinsic) && !invisibility?.blocked);
         if (!canSeeInvisible) {
-            note_unported('display.c set_mimic_blocking');
+            set_mimic_blocking(state);
             await see_monsters(state, env);
         }
         if (invisible && !canSeeInvisible && !heroIsBlind(state)) {

@@ -3,12 +3,15 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    COLNO, COULD_SEE, IN_SIGHT, POOL, ROOM, ROWNO,
+    COLNO, COULD_SEE, IN_SIGHT, M_AP_OBJECT, POOL, ROOM, ROWNO,
+    SEE_INVIS,
 } from '../js/const.js';
 import {
-    do_clear_area_async, makeVisionBuffers, recalc_block_point,
+    does_block, do_clear_area_async, makeVisionBuffers, recalc_block_point,
     vision_recalc, vision_reset,
 } from '../js/vision.js';
+import { set_mimic_blocking } from '../js/display.js';
+import { BOULDER } from '../js/objects.js';
 import { GameMap } from '../js/game.js';
 
 const VISION_C = readFileSync(
@@ -82,6 +85,38 @@ test('vision_reset publishes the source ready and deferred recalculation flags',
     vision_reset(state);
     assert.equal(state.iflags.vision_inited, true);
     assert.equal(state.vision_full_recalc, 1);
+});
+
+test('See Invisible toggle updates light blocking for living invisible boulder mimics', () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/display.c',
+        import.meta.url), 'utf8');
+    assert.match(source,
+        /mimic_light_blocking\(struct monst \*mtmp\)[\s\S]*?mtmp->minvis && is_lightblocker_mappear\(mtmp\)[\s\S]*?if \(See_invisible\)[\s\S]*?block_point\(mtmp->mx, mtmp->my\)[\s\S]*?unblock_point\(mtmp->mx, mtmp->my\)/u);
+    assert.match(source, /set_mimic_blocking\(void\)[\s\S]*?iter_mons\(mimic_light_blocking\)/u);
+    const level = new GameMap();
+    level.at(10, 10).typ = ROOM;
+    const mimic = { mx: 10, my: 10, mhp: 10, minvis: 1,
+        m_ap_type: M_AP_OBJECT, mappearance: BOULDER, nmon: null };
+    level.monlist = mimic;
+    level.monsters[10][10] = mimic;
+    const state = { level, u: { uprops: { [SEE_INVIS]: {
+        intrinsic: 0, extrinsic: 0,
+    } } }, viz_array: Array.from({ length: ROWNO },
+        () => new Uint8Array(COLNO)), vision_full_recalc: 0 };
+    state.viz_array[10][10] = COULD_SEE;
+    vision_reset(state);
+    state.vision_full_recalc = 0;
+    assert.equal(does_block(10, 10, null, state), false);
+
+    state.u.uprops[SEE_INVIS].intrinsic = 1;
+    set_mimic_blocking(state);
+    assert.equal(state.vision_full_recalc, 1);
+    assert.equal(does_block(10, 10, null, state), true);
+    state.vision_full_recalc = 0;
+    state.u.uprops[SEE_INVIS].intrinsic = 0;
+    set_mimic_blocking(state);
+    assert.equal(state.vision_full_recalc, 1);
+    assert.equal(does_block(10, 10, null, state), false);
 });
 
 test('underwater sight includes only adjacent pool squares', () => {

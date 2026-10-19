@@ -158,7 +158,7 @@ import { on_level,
     surface } from './dungeon.js';
 import { pluslvl, more_experienced, newexplevel } from './exper.js';
 import { canseemon, canspotmon, newsym,
-    see_monsters } from './display.js';
+    see_monsters, set_mimic_blocking } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import { is_ice,
@@ -3946,7 +3946,7 @@ async function eataccessory(otmp, state, env) {
 
         switch (typ) {
         case RIN_SEE_INVISIBLE: {
-            note_unported('display.c set_mimic_blocking');
+            set_mimic_blocking(state);
             await see_monsters(state, { ...env,
                 redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
             const invis = state.u.uprops[INVIS];

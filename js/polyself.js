@@ -173,7 +173,7 @@ import {
     cloak_simple_name, cxname, helm_simple_name, otense, simpleonames, an, the, vtense, yname, the_unique_pm, } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { max_rank_sz } from './u_init.js';
-import { bot, newsym, rank_of, see_monsters } from './display.js';
+import { bot, newsym, rank_of, see_monsters, set_mimic_blocking } from './display.js';
 import { encumber_msg } from './pickup.js';
 import { useup, update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
@@ -1396,8 +1396,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
 // mimicked appearance, announce the change with `fmt` and `arg`, and die if
 // the hero genocided her own role or race while polymorphed.
 //
-// display.c set_mimic_blocking() remains unported and its discarded result is
-// recorded as a gap. The self-genocide arm uses end.c dealloc_killer().
+// The self-genocide arm uses end.c dealloc_killer().
 async function polyman(fmt, arg, state, rawEnv = {}) {
     const u = state.u;
     // C polyman() always uses urgent_pline() for the form-change line.  The
@@ -1460,7 +1459,7 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
     }
 
     if (See_invisible(state) !== had_see_invis)
-        note_unported('display.c set_mimic_blocking'); /* See_invisible just toggled */
+        set_mimic_blocking(state); /* See_invisible just toggled */
 
     if (u.twoweap && !could_twoweap(state.youmonst.data))
         await untwoweapon(state);

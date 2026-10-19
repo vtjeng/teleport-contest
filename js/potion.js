@@ -151,7 +151,8 @@ import {
 import { acurr, adjattrib, exercise, poisontell } from './attrib.js';
 import { permapoisoned, Sting_effects } from './artifacts.js';
 import {
-    bot, newsym, see_monsters, see_objects, see_traps, swallowed, tmp_at,
+    bot, newsym, see_monsters, see_objects, see_traps, set_mimic_blocking,
+    swallowed, tmp_at,
 } from './display.js';
 import { doup, goto_level, heal_legs, trycall } from './do.js';
 import {
@@ -1622,9 +1623,7 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
         state.u.uprops[SEE_INVIS].intrinsic |= FROMOUTSIDE;
     else
         incr_itimeout(state.u.uprops[SEE_INVIS], random.rn1(100, 750));
-    // C's set_mimic_blocking() return is discarded. Record the unported gap
-    // and continue with the source's visible-monster and hero redraws.
-    note_unported('display.c set_mimic_blocking');
+    set_mimic_blocking(state);
     await see_monsters(state, { ...env, message,
         redraw: env.redraw ?? (env.planning ? () => {} : undefined) });
     newsym(state.u.ux, state.u.uy);

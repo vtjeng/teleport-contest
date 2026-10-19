@@ -3508,7 +3508,7 @@ test('Ring_on warning redraws the level through its caller seam', async () => {
         'see_monsters() redraws the hero square');
 });
 
-test('Ring_on see-invisible branch preserves redraw, message, and named gap order',
+test('Ring_on see-invisible branch preserves redraw and message order',
     async () => {
     // do_wear.c:1288-1297. FROMOUTSIDE makes the hero invisible; the newly
     // worn ring supplies SEE_INVIS only through its W_RINGL extrinsic.
@@ -3538,7 +3538,7 @@ test('Ring_on see-invisible branch preserves redraw, message, and named gap orde
     assert.deepEqual(events[messageAt], [
         'message', 'Suddenly you are transparent, but there!',
     ]);
-    assert.ok(game.unported.has('display.c set_mimic_blocking'));
+    assert.ok(!game.unported.has('display.c set_mimic_blocking'));
 });
 
 test('Ring_on invisibility branch learns, redraws, then uses self message',

@@ -1075,10 +1075,8 @@ export async function attrcurse(state = game, rawEnv = {}) {
         } else if (propertyId === SEE_INVIS) {
             const seeInvisible = u.uprops[SEE_INVIS];
             if (!(seeInvisible?.intrinsic || seeInvisible?.extrinsic)) {
-                // display.c set_mimic_blocking() is a discarded-void helper;
-                // its mimic detection side effects remain a named source gap.
-                note_unported('display.c set_mimic_blocking');
-                const { newsym, see_monsters } = await import('./display.js');
+                const { newsym, see_monsters, set_mimic_blocking } = await import('./display.js');
+                set_mimic_blocking(state);
                 await see_monsters(state);
                 newsym(u.ux, u.uy, state);
             }

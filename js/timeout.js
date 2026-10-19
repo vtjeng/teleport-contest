@@ -125,7 +125,7 @@ import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
 import { Stone_resistance, artifact_light } from './artifacts.js';
 import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
-import { canseemon, newsym, see_monsters, vobj_at } from './display.js';
+import { canseemon, newsym, see_monsters, set_mimic_blocking, vobj_at } from './display.js';
 import {
     a_monnam, hcolor, m_monnam, Monnam, rndmonnam, x_monnam,
 } from './do_name.js';
@@ -1606,7 +1606,7 @@ async function decrement_property_timeouts(state, env) {
             }
             break;
         case SEE_INVIS:
-            if (!env.planning) note_unported('display.c set_mimic_blocking');
+            set_mimic_blocking(state);
             await see_monsters(state, { ...env,
                 redraw: env.redraw ?? env.newsym
                     ?? (env.planning ? () => {} : undefined) });

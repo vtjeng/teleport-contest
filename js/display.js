@@ -44,7 +44,11 @@ import {
     In_hell, depth, dunlev, endgamelevelname, on_level, update_lastseentyp,
 } from './dungeon.js';
 import { money_cnt, sobj_at } from './invent.js';
-import { cansee, couldsee, seenv_matrix, vision_recalc } from './vision.js';
+import {
+    block_point, cansee, couldsee, is_lightblocker_mappear,
+    seenv_matrix, unblock_point, vision_recalc,
+} from './vision.js';
+import { iter_mons } from './mon.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
 import {
@@ -4048,6 +4052,21 @@ export function newsym(x, y) {
 }
 
 // ── see_monsters ──
+// C ref: display.c mimic_light_blocking() and set_mimic_blocking().  The
+// caller has already changed See_invisible before this traversal starts.
+export function set_mimic_blocking(state = game) {
+    const seeInvisible = state.u?.uprops?.[SEE_INVIS];
+    const canSeeInvisible = Boolean(seeInvisible?.intrinsic
+        || seeInvisible?.extrinsic);
+    iter_mons((monster) => {
+        if (!monster.minvis || !is_lightblocker_mappear(monster)) return;
+        if (canSeeInvisible)
+            block_point(monster.mx, monster.my, state);
+        else
+            unblock_point(monster.mx, monster.my, state);
+    }, state);
+}
+
 // C ref: display.c see_monsters() (1486-1529). Redraws every monster on the
 // level after something changed what the hero can perceive. `redraw` is an
 // optional caller-owned seam for planning clones: newsym() still draws the
