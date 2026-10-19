@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T07:41:12.402Z",
+  "capturedAt": "2026-10-19T08:23:23.128Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T07:41:12.402Z",
+    "asOf": "2026-10-19T08:23:23.128Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5752,6 +5752,48 @@
           {
             "kind": "packet",
             "digest": "36b2d0622b36272bfda4480528782138c5bdb75837dbc3cb93690190e44157fa"
+          }
+        ]
+      },
+      {
+        "id": "v99-positive-genocided-class-sort-cfirst-20261019",
+        "batch": "v99",
+        "claimedAt": "2026-10-19T07:47:25.541Z",
+        "closedAt": "2026-10-19T07:56:43.314Z",
+        "terminal": "result",
+        "outcome": "miss",
+        "packetDigest": "5c0ec524c74e18ad9307fb48902bf1a6438b178eed494952a2b5bc671ba4e266",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "5c0ec524c74e18ad9307fb48902bf1a6438b178eed494952a2b5bc671ba4e266"
+          }
+        ]
+      },
+      {
+        "id": "v99-cinventory-alternate-length-source-20261019",
+        "batch": "v99",
+        "claimedAt": "2026-10-19T07:59:06.697Z",
+        "closedAt": "2026-10-19T08:02:12.449Z",
+        "terminal": "result",
+        "outcome": "deferred",
+        "packetDigest": "42e1742e202f109d3e3d616bc752a6ab0c91dd50618a5eb9cddbb7ac700464f9",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "42e1742e202f109d3e3d616bc752a6ab0c91dd50618a5eb9cddbb7ac700464f9"
           }
         ]
       }
@@ -178216,6 +178258,68 @@
         "worker": "Worker-3",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T07:47:25.541Z",
+        "id": "queue:0da877f2-04b5-42b4-ade4-a79b50336bad",
+        "type": "assign",
+        "task": "v99-positive-genocided-class-sort-cfirst-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T07:56:43.314Z",
+        "id": "queue:33ae9275-719d-4417-a386-667d8e3d000c",
+        "type": "queue-complete",
+        "task": "v99-positive-genocided-class-sort-cfirst-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T07:56:43.314Z",
+        "id": "queue:33ae9275-719d-4417-a386-667d8e3d000c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T07:59:06.697Z",
+        "id": "queue:0725bff7-206e-40e9-9ab5-059d03f3b3ae",
+        "type": "assign",
+        "task": "v99-cinventory-alternate-length-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T08:02:12.449Z",
+        "id": "queue:144be48e-2fde-4168-b566-9d06270c69fd",
+        "type": "queue-complete",
+        "task": "v99-cinventory-alternate-length-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T08:02:12.449Z",
+        "id": "queue:144be48e-2fde-4168-b566-9d06270c69fd:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -178441,7 +178545,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 694,
+      "completed": 696,
       "superseded": 101
     },
     "workers": [
@@ -190418,6 +190522,36 @@
         "readyAt": "2026-10-19T07:22:49.507Z",
         "claimedAt": "2026-10-19T07:23:32.328Z",
         "completedAt": "2026-10-19T07:31:18.401Z"
+      },
+      {
+        "id": "v99-positive-genocided-class-sort-cfirst-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T07:46:52.732Z",
+        "claimedAt": "2026-10-19T07:47:25.541Z",
+        "completedAt": "2026-10-19T07:56:43.314Z"
+      },
+      {
+        "id": "v99-cinventory-alternate-length-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T07:58:18.466Z",
+        "claimedAt": "2026-10-19T07:59:06.697Z",
+        "completedAt": "2026-10-19T08:02:12.449Z"
       }
     ]
   },
