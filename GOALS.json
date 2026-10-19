@@ -328728,6 +328728,147 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-glob-organizer-runtime-source-parity-20261019",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement doorganize_core from invent.c",
+      "cFile": "invent.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-glob-organizer-runtime-source-parity-20261019",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doorganize_core",
+          "line": 5068,
+          "endLine": 5289,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 5068,
+        "to": 5289
+      },
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-glob-organizer-runtime-source-parity-20261019",
+        "assignmentBase": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+          "authorization": "Standing explicit user source-parity correction. Main separately selects NEW<=15min whole organizer core runtime migration after exact actual4cea and complete Main+CL C/JS/default/input closure. Independent from concurrent container stage: source unit/core region/test file distinct, existing mergedRuntime unchanged; ordinary grouping gates apply.",
+          "currentBehavior": "Actual exact18956Bd701 public doorganize once on b182 accepted source, canonical globs65/66 inventory i/j, actual CQ_CANNED j→i consumed; selected66 extractedFREE then syncmerged missingabsorb. Survivor65 remainsINVENT20/i, timers26/28 and RNG2382 unchanged, handler restored/no observer/save/restore errors. Accepted d92 only changed floor stacking, this organizer path unchanged.",
+          "expectedBehavior": "Whole Cdoorganize_core seven existing merged calls use awaited actual mergedRuntime boolean/completion before collect/destination/split/rollback/reinsert/prinv/update/return tails. Keep local pure oname accessor, source naming/selection/split semantics, existing public async wrappers unchanged. Actual primary survivor65 INVENTmass40 quan1 age1 letteri,66deleted/unlinked, only65 SHRINKdeadline26, actual commandqueueempty/otherinventory retained/hero refs and handler. No new helper/API/global transfer change.",
+          "units": [
+            "invent.c:doorganize_core"
+          ],
+          "allowedPaths": [
+            "js/invent.js",
+            "scripts/invent.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/invent.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/invent.js",
+              "symbol": "doorganize",
+              "source": "Whole Cdoorganize4981+ public getobj→core existing returned thenable already awaited by public command dispatch; exact real queued input target."
+            },
+            {
+              "path": "js/invent.js",
+              "symbol": "adjust_split",
+              "source": "Existing async outward wrapper realgetobj/count/split→return doorganize_core; unchanged propagation. Globquan1 excludes legitimate split producer, other source split/rollback semantics still preserved in whole core."
+            },
+            {
+              "path": "js/invent.js",
+              "symbol": "doorganize_core",
+              "source": "WHOLE C5068–5290 reviewed. All seven merged sites: three cancelled/invalid destination rollback sites, collect/destination actualbool sites, split merge and fullpack rollback. Await existing runtime merge before each source tail, save next pointer/source identities."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "31dc40ca6080ee5c9a7aeb2361f4f7b30d5d11dc"
+            },
+            {
+              "path": "scripts/invent.test.mjs",
+              "object": "0fe94768a8752ea142138f1883164dd84400ce64"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/timeout.js",
+              "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/cmd.js",
+              "object": "74600753d452ebee099f2764f6c54ac38de36e3f"
+            },
+            {
+              "path": "js/topl.js",
+              "object": "d9ebd1631efba583f5ba859c5221a7e1fedba3bf"
+            },
+            {
+              "path": "js/input.js",
+              "object": "17bcebe1dfa171d45c8cfc2cc999588b7812f0b2"
+            },
+            {
+              "path": "js/tty_message.js",
+              "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/terminal.js",
+              "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            },
+            {
+              "path": "js/pline.js",
+              "object": "c5c26cb6018f9096441cce80559ae1c47d29e3d1"
+            }
+          ]
+        },
+        "reviewSha256": "074d629b2b2326143a6f3004555e9b24f5844246b0caabf299ffe70c96be3bc7"
+      }
     }
   ]
 }

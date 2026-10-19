@@ -964,3 +964,27 @@ inventory/buried objects and level identities retained. Dig 38, inventory 125
 and lint pass. No public play, C parity, global transfer completion or source
 certification is claimed. Operational benefit is unmeasured. Exact hosted
 checkpoint, saved no-regression acceptance and publication remain pending.
+
+### 2026-10-19 — Await organizer merges through the whole command core
+
+Unearth runtime floor stacking is accepted and published as 7efe7b11, with
+normal publication CI complete. Delivery ae098ddd changes exactly seven
+merge sites in whole invent.c:doorganize_core to await the existing runtime
+merger before their source-ordered boolean branches and continuation tails.
+The public doorganize and adjust_split wrappers already propagate this async
+core. Selection, naming, split rollback, inventory reinsertion and messages
+retain their existing source owners; the local oname helper is a pure accessor.
+
+The unchanged 3c7d focused test reached the actual public CQ_CANNED j-to-i
+route and missing absorption before the first production edit, then passed
+after the repair. Exact tracked d701 fixture, all 65 literal evidence files,
+raw target pair and lint are retained. The actual survivor 65 has mass 40,
+quantity one and letter i, selected 66 is deleted/unlinked and only survivor
+timer 26 remains. Queue, unrelated inventory, level identities and handler
+restoration are verified. The test's not-in-inventory assertion is weaker than
+the direct saved deleted-state observation; no stronger test claim is made.
+
+Container/creator and other transfer caller groups remain separate pending
+work. This stage is source-parity-runtime-pending, without public recordings,
+C parity, source certification, global completion or measured benefit. Hosted
+checkpoint, saved acceptance and publication remain pending at this record.
