@@ -329887,7 +329887,7 @@
     {
       "id": "fix-glob-animate-statue-contents-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement animate_statue from trap.c",
       "cFile": "trap.c",
       "sessions": [],
@@ -329895,7 +329895,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a",
       "delivered": null,
       "functions": [
         {
@@ -330075,6 +330075,76 @@
           "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-animate2893-independent-actual-review.json"
         },
         "reviewSha256": "ab3205fc4632d9bbf2019e29e0cc50962d6671d106b861de8f5093c1a9baca29"
+      },
+      "closeStanding": {
+        "sha": "2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a/run-hosted-jpDvl7/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "animate_statue",
+            "sourceFile": "trap.c",
+            "implementation": "js/trap.js",
+            "symbol": "animate_statue",
+            "sourceReview": "Reviewed complete trap.c animate_statue (725-900) and current JS animate_statue. Only the local dynamic steal dependency and awaited contained-object transfer call now use mpickobjRuntime. The same objectEnv, cobj head extraction/order, await before next item, equipment/worn cleanup and statue deletion remain in source order. Existing runtime companion and all other arms/callers are unchanged. This is a caller-only runtime-pending claim.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "animate_statue",
+                "source": "Whole C725-900 and JS3368-3580 reviewed Main+CL. Only local dynamic dependency name mpickobjRuntime and same awaited loop call3558; extraction before transfer, await before next cobj then m_dowear creation synchronous/worn cleanup/delobj. All other arms/defaults/flags/outputs/RNG unchanged."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "activate_statue_trap",
+                "source": "Existing await animate_statue before unique retry and feel_newsym tail, whole callsite read; no change."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "pray_revive",
+                "source": "Actual pray_revive animation branch near1793 already returns Boolean(await animate_statue) before caller tail; source read, no edit."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "stone_to_flesh_obj",
+                "source": "Existing await animate_statue ANIMATE_SPELL before common object callback tail; whole relevant branch read, no edit."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "mpickobjRuntime",
+                "source": "Accepted full runtime companion preserves carry-beforetransfer, resolved freed boolean and snuff-aftertransfer with actual objectEnv. No helper/provider/planning/global change; positive light snuff not exercised by globs."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zapyourself.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "This submitted runtime-pending caller stage covers only the selected animate_statue contained-object transfer path. Existing mpickobjRuntime is an accepted read-only runtime companion. Other animate_statue arms and legacy mpickobj consumers remain unchanged and are not certified.",
+        "entryPoints": [
+          {
+            "name": "animate_statue",
+            "functions": [
+              {
+                "sourceFile": "trap.c",
+                "name": "animate_statue"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

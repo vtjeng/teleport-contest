@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T03:13:47.733Z",
+  "capturedAt": "2026-10-19T04:19:04.558Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T03:13:47.733Z",
+    "asOf": "2026-10-19T04:19:04.558Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 382,
+      "mainSupportAssignments": 386,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -176812,6 +176812,225 @@
         "type": "accepted",
         "at": "2026-10-19T03:12:55.024Z",
         "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-public-tip-container-runtime-source-parity-20261019-8e27636744fc43fcad350e4950f3270e2de5ea6e",
+        "type": "published",
+        "at": "2026-10-19T03:14:13.066Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "commit": "8e27636744fc43fcad350e4950f3270e2de5ea6e"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:20:40.967Z",
+        "id": "queue:0d7a369d-cc80-443b-aebd-144f8458c6c8",
+        "type": "assign",
+        "task": "glob-shopdig-indebted-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:22:30.544Z",
+        "id": "queue:40562d07-8ae0-4bf2-bf25-f8f144e892f0",
+        "type": "queue-complete",
+        "task": "glob-shopdig-indebted-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:22:30.544Z",
+        "id": "queue:40562d07-8ae0-4bf2-bf25-f8f144e892f0:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:27:51.645Z",
+        "id": "queue:8e667e2d-a6f6-43ff-b306-f3d97693cbe7",
+        "type": "assign",
+        "task": "glob-animate-statue-contained-pair-proposed-fixture-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:32:33.080Z",
+        "id": "queue:162dc56e-e099-46ea-8ca8-f7a45bb56568",
+        "type": "queue-complete",
+        "task": "glob-animate-statue-contained-pair-proposed-fixture-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:32:33.080Z",
+        "id": "queue:162dc56e-e099-46ea-8ca8-f7a45bb56568:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:35:07.503Z",
+        "id": "queue:5cbe281e-8e67-46b2-9fc6-f95a91b25a83",
+        "type": "assign",
+        "task": "glob-animate-statue-contained-pair-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:39:31.442Z",
+        "id": "queue:78a17a1b-e94f-49f9-ac8c-c2dad7881283",
+        "type": "queue-complete",
+        "task": "glob-animate-statue-contained-pair-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:39:31.442Z",
+        "id": "queue:78a17a1b-e94f-49f9-ac8c-c2dad7881283:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:45:30.992Z",
+        "id": "queue:89d3fbdd-019a-47ab-9b6e-959f3bf61c1e",
+        "type": "assign",
+        "task": "glob-animate-statue-contained-pair-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:48:12.413Z",
+        "id": "queue:a819de79-bd09-42d9-b6a3-d63c184794a2",
+        "type": "queue-complete",
+        "task": "glob-animate-statue-contained-pair-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:48:12.413Z",
+        "id": "queue:a819de79-bd09-42d9-b6a3-d63c184794a2:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:57:24.407Z",
+        "id": "queue:f3eb3720-b8bc-42e0-b05d-4a2c7bd1db8f",
+        "type": "assign",
+        "task": "fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T04:07:10.226Z",
+        "id": "ready-5f1d401efb71d70a73e8acb8c2cecd180991d661:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-glob-animate-statue-contents-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-5f1d401efb71d70a73e8acb8c2cecd180991d661",
+        "type": "ready",
+        "at": "2026-10-19T04:07:10.226Z",
+        "task": "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "delivery": "5f1d401efb71d70a73e8acb8c2cecd180991d661"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T04:07:10.226Z",
+        "id": "ready-5f1d401efb71d70a73e8acb8c2cecd180991d661:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T04:07:10.226Z",
+        "id": "ready-5f1d401efb71d70a73e8acb8c2cecd180991d661:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-animate-5f1d-20261019",
+        "type": "received",
+        "at": "2026-10-19T04:07:21.182Z",
+        "task": "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "delivery": "5f1d401efb71d70a73e8acb8c2cecd180991d661"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-animate-5f1d-20261019",
+        "type": "activity",
+        "at": "2026-10-19T04:07:34.193Z",
+        "task": "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "phase": "review",
+        "reason": "Review exact animate runtime caller source/test/tracked fixture and literal original-red/repaired-green envelope; prior harness miss retained."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a-8f4bce77dfde8f67f02fe469584faf410e8a1f177e78aa5cb703aaa07782b6ca-delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "type": "integrating",
+        "at": "2026-10-19T04:10:22.698Z",
+        "task": "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "integration": "2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a",
+        "validationGroup": [
+          "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019-2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a-validated",
+        "type": "validated",
+        "at": "2026-10-19T04:17:21.922Z",
+        "task": "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019-2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a-accepted",
+        "type": "accepted",
+        "at": "2026-10-19T04:18:05.561Z",
+        "task": "delivery:fix-glob-animate-statue-contents-runtime-source-parity-20261019"
       }
     ]
   },
@@ -177037,7 +177256,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 656,
+      "completed": 661,
       "superseded": 101
     },
     "workers": [
@@ -188444,12 +188663,87 @@
         "readyAt": "2026-10-19T03:06:31.957Z",
         "claimedAt": "2026-10-19T03:06:42.696Z",
         "completedAt": "2026-10-19T03:10:45.781Z"
+      },
+      {
+        "id": "glob-shopdig-indebted-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T03:20:21.459Z",
+        "claimedAt": "2026-10-19T03:20:40.967Z",
+        "completedAt": "2026-10-19T03:22:30.544Z"
+      },
+      {
+        "id": "glob-animate-statue-contained-pair-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T03:27:31.694Z",
+        "claimedAt": "2026-10-19T03:27:51.645Z",
+        "completedAt": "2026-10-19T03:32:33.080Z"
+      },
+      {
+        "id": "glob-animate-statue-contained-pair-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T03:34:34.733Z",
+        "claimedAt": "2026-10-19T03:35:07.503Z",
+        "completedAt": "2026-10-19T03:39:31.442Z"
+      },
+      {
+        "id": "glob-animate-statue-contained-pair-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T03:45:02.166Z",
+        "claimedAt": "2026-10-19T03:45:30.992Z",
+        "completedAt": "2026-10-19T03:48:12.413Z"
+      },
+      {
+        "id": "fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T03:57:00.541Z",
+        "claimedAt": "2026-10-19T03:57:24.407Z",
+        "completedAt": "2026-10-19T04:07:10.226Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd",
-    "measuredAt": "2026-10-19T03:10:28.967Z",
+    "executionCommit": "2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a",
+    "measuredAt": "2026-10-19T04:16:02.052Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
