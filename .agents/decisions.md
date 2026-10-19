@@ -1153,3 +1153,66 @@ are preserved without observer errors.
 Normal hosted acceptance/publication remain pending at this record. This is a
 source parity correction with runtime-pending scope, without discovery, source
 certification, fixed-workload gain or global migration claims.
+
+### 2026-10-19 — Monster consumption waits for runtime object transfer
+
+The selected two-unit stage changes only the existing async meatbox child call
+and meatobj direct-engulf call to await mpickobjRuntime with the same rawEnv.
+Whole source units and outer await owners were reviewed; helpers and the other
+legacy callers remain outside this stage. The runtime witness covers SACK child
+consumption; direct engulf is source-selected without a separate runtime witness.
+
+The fixed real cube/SACK qualification reached meatobj -> m_consume_obj ->
+meatbox after natural rn2(100)=63 selected eating. Child 83 was extracted before
+legacy pickup refused absorbGlob; resident 80 and both shrink timers remained.
+Final frozen test 0234 produced a genuine original 7/1 target failure before the
+first game edit, then the identical test passed 8/8 with lint zero. Green records
+80 in monster inventory with mass40, child83 and SACK82 deleted, sole80 shrink
+at26, unrelated ROT timer237 retained, return1 and restored references/handler.
+
+Delivery5594's committed 12,942,391-byte envelope SHA
+ac7c62f9b14598582995188f56bbe32e8abe2613235c2e2dcb71540416500de6
+binds111 literal artifacts. Main and independent review verified every byte,
+whole game/test delta and original/green raw chronology. Complete inherited
+environment was not serialized; exact command, cwd, overrides and raw captures
+are available. Metadata-only6e03 represents noncontiguous meatbox/meatobj as
+primary plus required function, preserving the exact reviewed units and all
+source/test/fixture/raw/envelope bytes. Its cache-only hook bypass is not a new
+lint pass. Normal hosted acceptance/publication remain pending at this record;
+no public C replay, source certification, global migration or score gain claimed.
+
+## Earlier worker ownership (2026-10-19 04:47–04:49 UTC)
+
+Coordinator relayed Vincent’s useful-utilization priority. PA’s saved 03:00–04:43 ledger baseline measures claimed lane time 11.66%, all workers unassigned 67.352 wall minutes, and 63.750 minutes before enqueue; claimed time is not CPU. Exact avoidable time remains unknown.
+
+Work lead adopted the existing architecture instruction to enqueue a distinct bounded source question once its owner, safe scope, prerequisites and stop are clear. Workers own fixture/lifecycle design; a complete lead-authored fixture is not an enqueue prerequisite. W2 claimed cube meatobj/SACK design at 04:47:54.113, W3 Water initializer/contents lifecycle at 04:48:17.872, and W1 non-species object-shipping/arrival lifecycle at 04:49:06.848, while Main independently bound the prior nymph actual result. Each uses accepted 9df550 pins, exact prior-owner gates and zero execution/code authority.
+
+The preceding nymph result is a terminal natural different-item theft, not glob absorption. Its physical budget remains spent. The three directions later produced corrected source proposals. Cube and Water reached real transfer targets and selected repairs; shipping naturally returned false before arrival target. Cube and Water implementation acceptance remains pending; source/correction effort and claimed lanes alone establish no improvement. PA owns the comparable 04:43–06:26 saved-event follow-up. Main retains independent source review, finite physical selection, meaningful original red before code, and normal hosted acceptance/publication gates.
+
+### 2026-10-19 — Water bubble contents wait for floor stacking
+
+The selected mv_bubble source unit changes its existing contents-loop stack call
+to await stackobjRuntime with the already imported objectGenerationEnv({state}).
+The adapter supplies canonical floor extraction; place_object and remove_object
+already use it in this owner. Existing async finishContents/movebubbles await
+ordering and initial/no-contents eager behavior are preserved; helpers and other
+legacy callers remain outside this stage.
+
+The separate sole fixed debug/real-Amulet/Water initializer qualification1aae
+reached missing absorbGlob during actual contents relocation. The initial test
+had a copyFileSync options-object harness error. Main authorized numeric copy
+flags and source-shaped moved-cell/deleted-owner assertions before FIRST game
+edit. Final frozen036b then failed14/1 at the actual original absorbGlob target.
+The first coded attempt lacked extractExternalObject; this raw failure remains.
+Main and peer source review closed the existing canonical adapter dependency.
+The same036b test then passed15/15 with lint zero; no post-code test edit.
+
+Committed e8bd's 13,457,108-byte envelope SHA
+c17d8b78b4babacbfb191ade3bb2df0e39d915a9167a5aff8cdd1c3a7b6ebf92
+binds146 literal artifacts, unchanged35,594-bytee445 fixture and all four attempt
+receipt sets. Main directly decoded green:172 survives FLOOR40 at6,2,171 deleted
+and untimed, sole172 shrink deadline27, every bubble contents list empty,
+returned undefined/targetCalls1 and restored handler/reference identities with
+no other errors. The real bubble movement legitimately moves hero25,8 to24,8
+atHP13. Normal hosted group acceptance/publication remain pending here; no
+public C replay, global family adoption or source certification is asserted.

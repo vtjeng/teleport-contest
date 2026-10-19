@@ -1971,3 +1971,19 @@ Source/fixture stay unchanged; prior `6e2d` and `9ae79` raw remain distinct.
   the original deadline. Initial b312 harness miss remains separate from final
   282f's genuine original 20/1 target red and the same 21/21 green. Full source,
   test, fixture and raw chronology were independently bound; benefit is unmeasured.
+
+### Cube/Water source ownership and evidence closure
+
+- Existing workers owned the three bounded source directions before Main completed
+  the preceding nymph outcome review; later static corrections remained necessary.
+- Cube reached its real child-transfer target and yielded reviewed repair5594;
+  registration then rejected noncontiguous context as a range. Linked metadata-only
+  rework uses the existing primary/required-unit representation, retaining all raw runs.
+- Water's initial copyFileSync harness miss preceded corrected genuine pre-first-code
+  red; the first repair lacked extractExternalObject. Canonical environment correction
+  yielded the reported same 15 green/lint; retain each actual run and its chronology.
+- Shipping's sole invocation returned shipfalse/target0; its immutable review is separate.
+- Zero disk space blocked cube metadata writes during an active claim; verified
+  reversible recovery retained paths. Claim occupancy includes this blocked ownership.
+- Accepted usefulness and the fixed-window comparison remain pending; no causal or
+  public replay/score gain is established by source output, busy lanes, or target reach.
