@@ -1892,3 +1892,32 @@ no new qualification, validator/review weakening, gate or benefit claim.
 children, sole 68 timer at 25 and survivor checks remain. The new frozen pair
 follows `e527`, under a five-minute rework cap and the original wall deadline.
 Source/fixture stay unchanged; prior `6e2d` and `9ae79` raw remain distinct.
+
+
+### 2026-10-19 — Source fixture review and terminal setup misses
+
+- Custom `6a2d` made one physical invocation: parent 1, callback 0, no transfer.
+  Species/coordinate admission review missed the second constructor gate:
+  the default synchronous `makemon` route required its async tail owner.
+- Monstone `1571` was source only: uncommitted-artifact completion refusal,
+  automatic commit-hook lint, six-minute overrun and ledger-lock refusal;
+  terminal closure preserved partial evidence without runtime execution.
+- Linked source-only `6781` had a missing brace caught before physical
+  selection; Main corrected/froze the final fixture before the sole invocation.
+- Monstone `5de7` returned an actor, then its required snapshot used free
+  identifier `minvent` instead of `minv`, missed by Main and peer review.
+  `entered=0`, `afterCall=null` and observer errors remain explicit; exit 0
+  serialized the error. Both physical families are held, with no retry.
+- Existing final-body source/observer/default-binding audit applies; benefit is unmeasured.
+
+- Stash `a6b6` stopped before the target with both live timers present; its
+  timer predicate used `state.svm.moves` instead of JS root `state.moves`.
+  Main and peer review missed this source-owner predicate. The raw clock value
+  was absent, limiting causal proof. Separately selected clock-corrected `399c`
+  reached `use_container`'s missing `absorbGlob` path without observer error; the first cap stays spent.
+
+- Stash c655 reached the genuine pre-code target failure and passed after the
+  caller repair, then lint rejected an unused test import. Main authorized only
+  that import removal within the original cap. Final 7ce01 red/green is after
+  the draft; earlier c655 bytes and raw runs remain separate. No new rule,
+  helper, gate or measured prevention benefit follows from this correction.

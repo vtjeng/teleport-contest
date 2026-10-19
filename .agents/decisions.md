@@ -1045,3 +1045,43 @@ fields without a new test claim.
 This stage remains source-parity-runtime-pending. It does not certify public
 input parity, source completeness or global caller migration. Normal hosted
 checkpoint, saved acceptance and publication remain pending at this record.
+
+
+### 2026-10-19 — Await the public stash container transfer
+
+Delivery ad89f8af wires only in_container's existing transfer tail to the accepted
+addToContainerRuntime owner, preserving objectNoLongerHeld, its environment and
+the conditional await before parent weight and status updates. Existing public
+use_container and menu callers already await this path. Other container callers,
+including tipping, remain pending; no helper or global migration is claimed.
+
+The tracked exact 16486-byte ffc9 fixture uses real held-SACK initialization,
+canonical insertion and weight writers, then public s plus the actual invlet.
+The first qualification a6b6 had both shrink timers but used the wrong grouped
+clock in a fixture guard and never entered the action. Main and peer review own
+that miss; its raw clock primitive was absent. A separately selected corrected
+clock qualification 399c reached the real missing absorption after freeinv.
+Its first allowance remains spent; this is not an automatic retry or reset.
+
+Frozen c655 produced a genuine missing-hook failure before the first game edit,
+then passed on the narrow repair. Lint found one unused test import. Main
+explicitly authorized removing only that import within the original deadline.
+Final 7ce01 was frozen after the draft and produced the same-byte original red,
+repaired green and lint pass. Earlier raw runs and test bytes remain retained.
+All 47 literal evidence files are hash-bound with the committed source, final
+test and unchanged fixture. Green public return is one, survivor 66 is contained
+with mass 40, incoming 68 is deleted and untimed, SACK weight is 55 and only
+survivor shrink timer 27 remains. Normal container context clears, input drains,
+and hero/level references and handler restoration are directly observed.
+
+The separately selected force-box 7e7e qualification stopped before occupation:
+boxlock's pending Klunk message consumed the queued y during More handling;
+the next rendered More had topline two and the fixture refused it. Public
+force entry was one and callback count zero. This is an input-lifetime fixture
+miss, owned by Main and peer review, with no force outcome or game defect;
+that physical family is held without retry. Its full raw evidence is retained.
+
+This stash stage remains source-parity-runtime-pending, without public C parity,
+source certification, discovery, score gain or global completion. Operational
+benefit is unmeasured. Hosted checkpoint, saved acceptance and publication
+remain pending at this record.
