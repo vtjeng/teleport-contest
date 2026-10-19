@@ -1,5 +1,27 @@
 # Teleport agent instructions
 
+## Temporary single-agent operating mode
+
+Vincent directed this workflow change on 2026-10-19. It overrides the agent
+topology, dispatch, and continuous-loop instructions below until Vincent
+explicitly changes the mode:
+
+- Dot is the only active hands-on agent. Perform source inspection, setup,
+  implementation, review, and validation sequentially in this workspace.
+- Do not delegate, claim work for another agent, respawn a lead or worker, or
+  run automated dispatch, polling, or dashboard-refresh loops. The historical
+  role and queue procedures below remain reference material, not active
+  execution routing.
+- Preserve existing commits, results, queue history, and partial evidence.
+  Reconcile saved ownership and any in-flight command before starting related
+  work; do not duplicate or erase prior work.
+- Keep the existing source-tracing, test, validation, acceptance, scoring, and
+  publication requirements. Single-agent mode changes who performs the steps,
+  not the evidence or correctness gates.
+- On restart, resume in this single-agent mode and consult the current
+  continuation state before acting. Keep this mode until Vincent explicitly
+  changes it.
+
 ## Goal and authoritative sources
 
 Build a maintainable JavaScript port of NetHack 5.0 that behaves correctly for
