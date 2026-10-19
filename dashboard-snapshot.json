@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T00:28:06.016Z",
+  "capturedAt": "2026-10-19T00:40:23.255Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T00:28:06.016Z",
+    "asOf": "2026-10-19T00:40:23.255Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 361,
+      "mainSupportAssignments": 362,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -175806,23 +175806,66 @@
         "type": "accepted",
         "at": "2026-10-19T00:26:28.188Z",
         "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-organizer-runtime-source-parity-20261019-5f33eb194a72f6da096be01c0bca744d60162b78",
+        "type": "published",
+        "at": "2026-10-19T00:28:30.738Z",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "commit": "5f33eb194a72f6da096be01c0bca744d60162b78"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "container-c3c3-received-20261019",
+        "type": "received",
+        "at": "2026-10-19T00:29:22.629Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "delivery": "c3c3c9ae2456ca5bfda73805ce17459045a8a321"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-e9b604b73c50a6bc95c7427008e72a2590d83be5-85758d1c6e7a645df9fa6f8cd6c188dc1a29f500af3d61a5997645f4ffd4f7c0-delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "type": "integrating",
+        "at": "2026-10-19T00:30:02.563Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "integration": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+        "validationGroup": [
+          "delivery:fix-glob-special-container-runtime-source-parity-20261019"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-special-container-runtime-source-parity-20261019-e9b604b73c50a6bc95c7427008e72a2590d83be5-validated",
+        "type": "validated",
+        "at": "2026-10-19T00:37:38.845Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-special-container-runtime-source-parity-20261019-e9b604b73c50a6bc95c7427008e72a2590d83be5-accepted",
+        "type": "accepted",
+        "at": "2026-10-19T00:38:13.389Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:39:46.970Z",
+        "id": "queue:b88ce905-519d-4139-8d34-814bd7e1aecc",
+        "type": "assign",
+        "task": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [
-      {
-        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
-        "worker": "Worker-2",
-        "goal": "fix-glob-special-container-runtime-source-parity-20261019",
-        "kind": "implementation",
-        "status": "ready",
-        "delivery": "c3c3c9ae2456ca5bfda73805ce17459045a8a321",
-        "since": "2026-10-19T00:19:45.614Z",
-        "blockedBy": [],
-        "unblocks": 0
-      }
-    ],
+    "deliveries": [],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -176028,47 +176071,42 @@
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
       },
-      "delivery:fix-glob-special-container-runtime-source-parity-20261019": {
-        "id": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+      "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019": {
+        "id": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
         "worker": "Worker-2",
-        "status": "ready",
+        "status": "working",
         "seed": null,
         "reservations": [
-          "source:mkobj.c:add_to_container",
-          "source:sp_lev.c:create_object",
-          "source:sp_lev.c:lspo_object"
+          "source:sp_lev.c:create_object"
         ]
       }
     },
     "reservations": {
-      "source:mkobj.c:add_to_container": {
-        "tasks": [
-          "delivery:fix-glob-special-container-runtime-source-parity-20261019"
-        ]
-      },
       "source:sp_lev.c:create_object": {
         "tasks": [
-          "delivery:fix-glob-special-container-runtime-source-parity-20261019"
-        ]
-      },
-      "source:sp_lev.c:lspo_object": {
-        "tasks": [
-          "delivery:fix-glob-special-container-runtime-source-parity-20261019"
+          "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019"
         ]
       }
     }
   },
   "assignmentQueue": {
-    "readySessions": null,
+    "readySessions": 0,
     "threshold": 5,
-    "preferred": null,
-    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
-    "ready": [],
+    "preferred": "exploration",
+    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "ready": [
+      "glob-special-monster-inventory-proposed-fixture-source-20261019"
+    ],
     "blocked": [],
-    "claimed": [],
+    "claimed": [
+      {
+        "task": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "worker": "Worker-2"
+      }
+    ],
     "counts": {
-      "ready": 0,
-      "claimed": 0,
+      "ready": 1,
+      "claimed": 1,
       "blocked": 0,
       "completed": 631,
       "superseded": 101
@@ -176081,8 +176119,8 @@
       },
       {
         "worker": "Worker-2",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "state": "active"
       },
       {
         "worker": "Worker-3",
@@ -187102,12 +187140,42 @@
         "readyAt": "2026-10-19T00:23:18.504Z",
         "claimedAt": "2026-10-19T00:23:43.885Z",
         "completedAt": "2026-10-19T00:25:00.513Z"
+      },
+      {
+        "id": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T00:39:26.337Z",
+        "claimedAt": "2026-10-19T00:39:46.970Z",
+        "completedAt": null
+      },
+      {
+        "id": "glob-special-monster-inventory-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "ready",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": null,
+        "target": null,
+        "readyAt": "2026-10-19T00:40:04.254Z",
+        "claimedAt": null,
+        "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "062cb28cfa6f1ffd049f89cb1be89b2444eb76ce",
-    "measuredAt": "2026-10-19T00:24:11.560Z",
+    "executionCommit": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+    "measuredAt": "2026-10-19T00:36:14.890Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

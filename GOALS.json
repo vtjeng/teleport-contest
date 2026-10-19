@@ -328936,7 +328936,7 @@
     {
       "id": "fix-glob-special-container-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement add_to_container from mkobj.c",
       "cFile": "mkobj.c",
       "sessions": [],
@@ -328944,7 +328944,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
       "delivered": null,
       "functions": [
         {
@@ -329101,6 +329101,110 @@
           ]
         },
         "reviewSha256": "4fc71a3aa7b185485ab6042ace5084332e58dfbefb514ce87bc80eb802969210"
+      },
+      "closeStanding": {
+        "sha": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "062cb28cfa6f1ffd049f89cb1be89b2444eb76ce",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/e9b604b73c50a6bc95c7427008e72a2590d83be5/run-hosted-afLsTF/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "add_to_container",
+            "sourceFile": "mkobj.c",
+            "implementation": "js/invent.js",
+            "symbol": "addToContainerRuntime",
+            "sourceReview": "New hybrid helper preserves legacy add_to_container, validates FREE/no-links, performs the C release-before-scan sequence, awaits each mergedRuntime result in cobj order, returns the actual survivor on absorption or links once at end.",
+            "pure": false,
+            "tests": [
+              "scripts/sp-lev-object.test.mjs",
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "putInCurrentContainer",
+                "source": "Ccreate_object container branch remove_object→add_to_container complete→parent weight, before subsequent fields/container initialization; retain null-parent uncreation."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "add_to_container",
+                "source": "Whole Cmkobj2676–2699; legacy helper stays unchanged, runtime companion waits canonical objectNoLongerHeld then source scan before actual survivor or insertion. Existing runtime merged owns exactly one pudding then obj_absorb."
+              }
+            ]
+          },
+          {
+            "name": "create_object",
+            "sourceFile": "sp_lev.c",
+            "implementation": "js/sp_lev_object.js",
+            "symbol": "createOneObject",
+            "sourceReview": "The actual container path resolves placement before parent weight recomputation and creator continuation (container push, Medusa population, achievement and finalization); eager ordinary results and pending unselected branches remain intact.",
+            "pure": false,
+            "tests": [
+              "scripts/sp-lev-object.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "createOneObject",
+                "source": "Whole Ccreate_object2193–2442 reviewed, runtime container placement result must resolve before pushContainer/populateMedusa/achievement/topfloor finalization; other existing minv/Medusa direct-transfer/topfloor stack migrations explicitly pending."
+              }
+            ]
+          },
+          {
+            "name": "lspo_object",
+            "sourceFile": "sp_lev.c",
+            "implementation": "js/sp_lev_object.js",
+            "symbol": "lspo_object",
+            "sourceReview": "Existing quantity recursion, contents callback, completion flag and finally cleanup wait on thenable creation and return the true survivor.",
+            "pure": false,
+            "tests": [
+              "scripts/sp-lev-object.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "lspo_object",
+                "source": "Whole Clspo_object3557–3756 quantity→contents callback→container pop/free→return; existing thenable recursion and finally cleanup preserve actual object and eager returns."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Immutable 21,882-byte fixture invokes actual exported lspo_object, a normal contents callback, and two floor-created glob children. Path: lspo_object -> createOneObject -> placeSpecialObject -> putInCurrentContainer -> addToContainerRuntime -> mergedRuntime. Continuation waits before parent weight and creator/lspo callback completion. Other reviewed branches remain pending.",
+        "entryPoints": [
+          {
+            "name": "lspo_object actual parent and children callback route",
+            "functions": [
+              {
+                "sourceFile": "mkobj.c",
+                "name": "add_to_container"
+              },
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "create_object"
+              },
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "lspo_object"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
