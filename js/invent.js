@@ -5574,14 +5574,14 @@ async function doorganize_core(obj, state = game, hooks = {}) {
             if (!displayed) continue;
             letValue = displayed;
             if (letValue === '\x1b') {
-                if (splitting) merged(splitting, obj, { state, hooks });
+                if (splitting) await mergedRuntime(splitting, obj, { state, hooks });
                 if (!everMind) await ttyPline(Never_mind, state);
                 return ECMD_OK;
             }
         }
         if (quitchars.includes(letValue)
             || (splitting && letValue === obj.invlet)) {
-            if (splitting) merged(splitting, obj, { state, hooks });
+            if (splitting) await mergedRuntime(splitting, obj, { state, hooks });
             if (!everMind) await ttyPline(Never_mind, state);
             return ECMD_OK;
         }
@@ -5593,7 +5593,7 @@ async function doorganize_core(obj, state = game, hooks = {}) {
         if ((letter(letValue) && letValue !== '@')
             || (available.includes(letValue) && letValue !== '-')) break;
         if (tryCount === 5) {
-            if (splitting) merged(splitting, obj, { state, hooks });
+            if (splitting) await mergedRuntime(splitting, obj, { state, hooks });
             if (!everMind) await ttyPline(Never_mind, state);
             return ECMD_OK;
         }
@@ -5609,7 +5609,7 @@ async function doorganize_core(obj, state = game, hooks = {}) {
         const objectName = oname(obj);
         if (collect) {
             if ((!currentName || (objectName && currentName === objectName))
-                && merged(current, obj, { state, hooks })) {
+                && await mergedRuntime(current, obj, { state, hooks })) {
                 obj = current;
                 const afterCurrent = obj.nobj;
                 state.invent = extract_nobj(obj, inventoryHead(state));
@@ -5618,7 +5618,7 @@ async function doorganize_core(obj, state = game, hooks = {}) {
             }
         } else if (current.invlet === letValue) {
             if ((!currentName || (objectName && currentName === objectName))
-                && merged(current, obj, { state, hooks })) {
+                && await mergedRuntime(current, obj, { state, hooks })) {
                 adjType = 'Merging:';
                 obj = current;
                 state.invent = extract_nobj(obj, inventoryHead(state));
@@ -5635,12 +5635,12 @@ async function doorganize_core(obj, state = game, hooks = {}) {
                     obj.oextra ??= {};
                     obj.oextra.oname = savedName;
                 }
-                if (merged(current, obj, { state, hooks })) {
+                if (await mergedRuntime(current, obj, { state, hooks })) {
                     adjType = 'Splitting and merging:';
                     obj = current;
                     state.invent = extract_nobj(obj, inventoryHead(state));
                 } else if (inv_cnt(false, state) >= INVLET_BASIC) {
-                    merged(splitting, obj, { state, hooks });
+                    await mergedRuntime(splitting, obj, { state, hooks });
                     await ttyPline('Your pack is too full.', state);
                     return ECMD_OK;
                 } else {

@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import test from 'node:test';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 
-import { ALTAR, AM_LAWFUL, COLNO, ROOM, ROWNO } from '../js/const.js';
+import { ALTAR, AM_LAWFUL, COLNO, OBJ_INVENT, ROOM, ROWNO, TIMER_OBJECT } from '../js/const.js';
 import {
     consume_obj_charge,
     display_binventory,
@@ -289,4 +292,72 @@ test('obfree wires the apply.c o_unleash source owner', () => {
     const body = INVENT_JS.slice(start, INVENT_JS.indexOf('\n}', start));
     assert.match(body, /if \(obj\.otyp === LEASH && obj\.leashmon\)\s*o_unleash\(obj, env\);/u);
     assert.doesNotMatch(body, /unleashObject/u);
+});
+
+
+test('doorganize awaits the canonical glob merge and preserves the survivor', () => {
+    const fixturePath = '.cache/glob-organizer-main-reviewed-default-qualification-20261019/attempt.mjs';
+    const expectedFixtureSha = 'd7014275abdb9655b45d8dd4461c2ed32b6638cf11a20d5bf2695a0bb851bcbe';
+    const fixture = readFileSync(fixturePath);
+    assert.equal(fixture.length, 18956);
+    assert.equal(createHash('sha256').update(fixture).digest('hex'), expectedFixtureSha);
+
+    const captureRoot = '.cache/fix-glob-organizer-runtime-source-parity-20261019/regression-captures';
+    mkdirSync(captureRoot, { recursive: true });
+    const captureDir = mkdtempSync(join(captureRoot, 'run-'));
+    const child = spawnSync(process.execPath, [fixturePath], {
+        cwd: process.cwd(), encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
+    });
+    const stdout = child.stdout ?? '';
+    const stderr = child.stderr ?? '';
+    writeFileSync(join(captureDir, 'child.stdout.raw'), stdout);
+    writeFileSync(join(captureDir, 'child.stderr.raw'), stderr);
+    writeFileSync(join(captureDir, 'child.exit.json'), JSON.stringify({
+        status: child.status, signal: child.signal,
+        error: child.error ? { name: child.error.name, message: child.error.message } : null,
+    }, null, 2) + '\n');
+    assert.equal(child.error, undefined, 'frozen fixture process launched');
+    assert.equal(child.status, 0, 'frozen fixture emitted its captured outcome');
+    const summary = JSON.parse(stdout.trim().split('\n').at(-1));
+    writeFileSync(join(captureDir, 'child-summary.json'), JSON.stringify(summary, null, 2) + '\n');
+
+    // A child exit of zero is insufficient: the fixture catches target throws.
+    // Require the real exported entry to return before examining final state.
+    assert.equal(summary.actualEntered, true, 'public doorganize was actually entered');
+    assert.equal(summary.invocationCount, 1, 'exactly one public invocation');
+    assert.equal(summary.phase, 'target-returned',
+        `expected target return; got ${summary.phase}: ${summary.targetResult?.error?.message ?? 'no target error'}`);
+    assert.equal(summary.targetResult?.kind, 'returned');
+    assert.equal(summary.primaryError, null);
+
+    const finalPath = join(summary.outputDir, '07-final-restored-observation.json');
+    const final = JSON.parse(readFileSync(finalPath, 'utf8'));
+    const before = final.beforeTarget;
+    const after = final.afterTarget;
+    const firstId = final.setup.firstId;
+    const secondId = final.setup.secondId;
+    assert.ok(before.inventory.ids.includes(firstId));
+    for (const id of final.setup.originalInventoryIds)
+        assert.ok(after.inventory.ids.includes(id), `original inventory object ${id} remains`);
+    assert.ok(after.inventory.ids.includes(firstId), 'destination glob survives in inventory');
+    assert.ok(!after.inventory.ids.includes(secondId), 'selected glob is unlinked');
+    const survivor = after.inventory.objects.find((row) => row.o_id === firstId);
+    const absorbed = after.inventory.objects.find((row) => row.o_id === secondId);
+    assert.equal(survivor.where, OBJ_INVENT);
+    assert.equal(survivor.quan, 1);
+    assert.equal(survivor.owt, 40);
+    assert.equal(survivor.invlet, 'i');
+    assert.notEqual(absorbed.where, OBJ_INVENT);
+    assert.deepEqual(after.timers.rows.map((row) => [row.o_id, row.kind, row.func_index, row.timeout]),
+        [[firstId, TIMER_OBJECT, 7, 26]]);
+    assert.deepEqual(after.input.canned, []);
+    assert.deepEqual(after.input.repeat, []);
+    assert.equal(after.hero.uhp, before.hero.uhp);
+    assert.equal(after.hero.actorSameIdentity, true);
+    assert.equal(after.hero.currentLevelSameIdentity, true);
+    assert.equal(after.hero.levelDescriptorSameIdentity, true);
+    assert.equal(final.handlerRestored, true);
+    assert.equal(final.observerError, null);
+    assert.equal(final.restoreError, null);
+    assert.equal(final.saveError, null);
 });
