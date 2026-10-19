@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-18T23:32:16.778Z",
+  "capturedAt": "2026-10-19T00:07:35.518Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-18T23:32:16.778Z",
+    "asOf": "2026-10-19T00:07:35.518Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 354,
+      "mainSupportAssignments": 359,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -175260,6 +175260,316 @@
         "output": "exploration",
         "target": null,
         "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:32:25.755Z",
+        "id": "queue:b35503c6-5d0a-4d3d-89ee-7706a676a551",
+        "type": "queue-complete",
+        "task": "glob-special-container-proposed-fixture-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:32:25.755Z",
+        "id": "queue:b35503c6-5d0a-4d3d-89ee-7706a676a551:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:33:56.861Z",
+        "id": "queue:9b546ec2-f915-4ec0-a284-fbc7b3d146ca",
+        "type": "queue-complete",
+        "task": "glob-unearth-main-reviewed-default-qualification-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:33:56.861Z",
+        "id": "queue:9b546ec2-f915-4ec0-a284-fbc7b3d146ca:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:36:58.367Z",
+        "id": "queue:076e7a5d-5101-493a-8af7-279562e232e2",
+        "type": "assign",
+        "task": "glob-special-container-capture-correction-source-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:39:02.484Z",
+        "id": "queue:c5ee2bab-80f6-4646-84f3-8d6d3a9e423a",
+        "type": "assign",
+        "task": "fix-glob-unearth-runtime-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:40:33.961Z",
+        "id": "queue:f6c77996-f192-4337-b473-21237399dac2",
+        "type": "queue-complete",
+        "task": "glob-special-container-capture-correction-source-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:40:33.961Z",
+        "id": "queue:f6c77996-f192-4337-b473-21237399dac2:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:46:02.499Z",
+        "id": "queue:11aec594-0724-4e36-ba03-f6de63f6b64c",
+        "type": "assign",
+        "task": "glob-organizer-proposed-fixture-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:47:20.719Z",
+        "id": "queue:297c3f51-a5d3-4edf-9b28-aefd7d560513",
+        "type": "assign",
+        "task": "glob-special-container-main-reviewed-default-qualification-20261018",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:48:15.814Z",
+        "id": "ready-8eb8f50a45c40bbeee2bed799ba3be59a70ec691:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-glob-unearth-runtime-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-8eb8f50a45c40bbeee2bed799ba3be59a70ec691",
+        "type": "ready",
+        "at": "2026-10-18T23:48:15.814Z",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "delivery": "8eb8f50a45c40bbeee2bed799ba3be59a70ec691"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:48:15.814Z",
+        "id": "ready-8eb8f50a45c40bbeee2bed799ba3be59a70ec691:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-unearth-runtime-source-parity-20261018",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:48:15.814Z",
+        "id": "ready-8eb8f50a45c40bbeee2bed799ba3be59a70ec691:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "worker2-glob-unearth-idle-20261018-2348",
+        "type": "turn",
+        "at": "2026-10-18T23:48:41.291Z",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Submitted the unearth stack correction; waiting for Work lead review and the next queued task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "unearth-runtime-8eb-main-review-20261018",
+        "type": "activity",
+        "at": "2026-10-18T23:49:03.740Z",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "phase": "review",
+        "reason": "Reviewing the scoped unearth runtime delivery, preserved primary red and approved observer correction chronology before exact hosted integration."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:49:07.418Z",
+        "id": "queue:44ad0b7b-4eb7-4bcd-804a-59217358e613",
+        "type": "queue-complete",
+        "task": "glob-special-container-main-reviewed-default-qualification-20261018",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:49:07.418Z",
+        "id": "queue:44ad0b7b-4eb7-4bcd-804a-59217358e613:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:51:55.862Z",
+        "id": "queue:8fec6f90-c3c5-4586-9656-f595eaf2d8c3",
+        "type": "queue-complete",
+        "task": "glob-organizer-proposed-fixture-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:51:55.862Z",
+        "id": "queue:8fec6f90-c3c5-4586-9656-f595eaf2d8c3:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "unearth-8eb-received-20261018",
+        "type": "received",
+        "at": "2026-10-18T23:54:03.927Z",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "delivery": "8eb8f50a45c40bbeee2bed799ba3be59a70ec691"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:56:13.681Z",
+        "id": "queue:5e418d3a-3227-4626-8681-82537de14f05",
+        "type": "assign",
+        "task": "glob-organizer-capture-correction-source-20261018",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-d92ffdf50be774392818300b9fefbde5c79d6a48-2292f09ec06605d264833bef7a7631b11a543061203f7d717db292e8ffeff624-delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "type": "integrating",
+        "at": "2026-10-18T23:56:24.158Z",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "integration": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+        "validationGroup": [
+          "delivery:fix-glob-unearth-runtime-source-parity-20261018"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:58:32.112Z",
+        "id": "queue:4ac555ac-b997-486b-8ace-b79792eddc7b",
+        "type": "queue-complete",
+        "task": "glob-organizer-capture-correction-source-20261018",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-18T23:58:32.112Z",
+        "id": "queue:4ac555ac-b997-486b-8ace-b79792eddc7b:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:02:30.766Z",
+        "id": "queue:810cd961-d782-4224-a149-44a640734d39",
+        "type": "assign",
+        "task": "glob-organizer-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-unearth-runtime-source-parity-20261018-d92ffdf50be774392818300b9fefbde5c79d6a48-validated",
+        "type": "validated",
+        "at": "2026-10-19T00:03:30.421Z",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-unearth-runtime-source-parity-20261018-d92ffdf50be774392818300b9fefbde5c79d6a48-accepted",
+        "type": "accepted",
+        "at": "2026-10-19T00:04:11.067Z",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:04:15.936Z",
+        "id": "queue:715c1988-9d57-4872-b3c0-b905beba1594",
+        "type": "queue-complete",
+        "task": "glob-organizer-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:04:15.936Z",
+        "id": "queue:715c1988-9d57-4872-b3c0-b905beba1594:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:05:13.216Z",
+        "id": "queue:64a502f9-41da-414f-b4a9-4f283106e9fd",
+        "type": "assign",
+        "task": "fix-glob-special-container-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:07:27.922Z",
+        "id": "queue:ac7a4994-b176-4adc-aa22-674dc0c32fa0",
+        "type": "assign",
+        "task": "fix-glob-organizer-runtime-source-parity-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
       }
     ]
   },
@@ -175469,49 +175779,90 @@
           "source:fountain.c:gush"
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
+      },
+      "delivery:fix-glob-special-container-runtime-source-parity-20261019": {
+        "id": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:mkobj.c:add_to_container",
+          "source:sp_lev.c:create_object",
+          "source:sp_lev.c:lspo_object"
+        ]
+      },
+      "delivery:fix-glob-organizer-runtime-source-parity-20261019": {
+        "id": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "worker": "Worker-1",
+        "status": "working",
+        "seed": null,
+        "reservations": [
+          "source:invent.c:doorganize_core"
+        ]
       }
     },
-    "reservations": {}
+    "reservations": {
+      "source:mkobj.c:add_to_container": {
+        "tasks": [
+          "delivery:fix-glob-special-container-runtime-source-parity-20261019"
+        ]
+      },
+      "source:sp_lev.c:create_object": {
+        "tasks": [
+          "delivery:fix-glob-special-container-runtime-source-parity-20261019"
+        ]
+      },
+      "source:sp_lev.c:lspo_object": {
+        "tasks": [
+          "delivery:fix-glob-special-container-runtime-source-parity-20261019"
+        ]
+      },
+      "source:invent.c:doorganize_core": {
+        "tasks": [
+          "delivery:fix-glob-organizer-runtime-source-parity-20261019"
+        ]
+      }
+    }
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
     "claimed": [
       {
-        "task": "glob-special-container-proposed-fixture-source-20261018",
-        "worker": "Worker-3"
+        "task": "fix-glob-special-container-runtime-source-parity-20261019",
+        "worker": "Worker-2"
       },
       {
-        "task": "glob-unearth-main-reviewed-default-qualification-20261018",
-        "worker": "Worker-2"
+        "task": "fix-glob-organizer-runtime-source-parity-20261019",
+        "worker": "Worker-1"
       }
     ],
     "counts": {
       "ready": 0,
       "claimed": 2,
       "blocked": 0,
-      "completed": 618,
+      "completed": 626,
       "superseded": 101
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "fix-glob-organizer-runtime-source-parity-20261019",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": "glob-unearth-main-reviewed-default-qualification-20261018",
+        "assignment": "fix-glob-special-container-runtime-source-parity-20261019",
         "state": "active"
       },
       {
         "worker": "Worker-3",
-        "assignment": "glob-special-container-proposed-fixture-source-20261018",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       }
     ],
     "tasks": [
@@ -186336,7 +186687,7 @@
         "id": "glob-special-container-proposed-fixture-source-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -186345,13 +186696,13 @@
         "target": null,
         "readyAt": "2026-10-18T23:25:58.938Z",
         "claimedAt": "2026-10-18T23:26:32.809Z",
-        "completedAt": null
+        "completedAt": "2026-10-18T23:32:25.755Z"
       },
       {
         "id": "glob-unearth-main-reviewed-default-qualification-20261018",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -186360,13 +186711,133 @@
         "target": null,
         "readyAt": "2026-10-18T23:30:52.186Z",
         "claimedAt": "2026-10-18T23:31:12.523Z",
+        "completedAt": "2026-10-18T23:33:56.861Z"
+      },
+      {
+        "id": "glob-special-container-capture-correction-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T23:36:37.471Z",
+        "claimedAt": "2026-10-18T23:36:58.367Z",
+        "completedAt": "2026-10-18T23:40:33.961Z"
+      },
+      {
+        "id": "fix-glob-unearth-runtime-source-parity-20261018",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-18T23:38:37.230Z",
+        "claimedAt": "2026-10-18T23:39:02.484Z",
+        "completedAt": "2026-10-18T23:48:15.814Z"
+      },
+      {
+        "id": "glob-organizer-proposed-fixture-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T23:45:36.945Z",
+        "claimedAt": "2026-10-18T23:46:02.499Z",
+        "completedAt": "2026-10-18T23:51:55.862Z"
+      },
+      {
+        "id": "glob-special-container-main-reviewed-default-qualification-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-18T23:46:50.963Z",
+        "claimedAt": "2026-10-18T23:47:20.719Z",
+        "completedAt": "2026-10-18T23:49:07.418Z"
+      },
+      {
+        "id": "glob-organizer-capture-correction-source-20261018",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-18T23:56:00.353Z",
+        "claimedAt": "2026-10-18T23:56:13.681Z",
+        "completedAt": "2026-10-18T23:58:32.112Z"
+      },
+      {
+        "id": "glob-organizer-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T00:02:13.058Z",
+        "claimedAt": "2026-10-19T00:02:30.766Z",
+        "completedAt": "2026-10-19T00:04:15.936Z"
+      },
+      {
+        "id": "fix-glob-special-container-runtime-source-parity-20261019",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T00:04:50.086Z",
+        "claimedAt": "2026-10-19T00:05:13.216Z",
+        "completedAt": null
+      },
+      {
+        "id": "fix-glob-organizer-runtime-source-parity-20261019",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T00:07:00.851Z",
+        "claimedAt": "2026-10-19T00:07:27.922Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070",
-    "measuredAt": "2026-10-18T23:20:48.338Z",
+    "executionCommit": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+    "measuredAt": "2026-10-19T00:01:52.287Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

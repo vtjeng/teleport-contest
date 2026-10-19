@@ -328488,7 +328488,7 @@
     {
       "id": "fix-glob-unearth-runtime-source-parity-20261018",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement stackobj from invent.c",
       "cFile": "invent.c",
       "sessions": [],
@@ -328496,7 +328496,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d92ffdf50be774392818300b9fefbde5c79d6a48",
       "delivered": null,
       "functions": [
         {
@@ -328641,6 +328641,92 @@
           ]
         },
         "reviewSha256": "c8d3baa17ef726d04be7220862ded23b3fda15ea471af8e82d519532c36f21c4"
+      },
+      "closeStanding": {
+        "sha": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "c9a537ad8c83eaa7f5a9db2c63d8d48f318ce070",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/d92ffdf50be774392818300b9fefbde5c79d6a48/run-hosted-zGfbGT/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "stackobj",
+            "sourceFile": "invent.c",
+            "implementation": "js/invent.js",
+            "symbol": "stackobjRuntime",
+            "sourceReview": "Matches the pinned source invent.c:stackobj (4366-4375): scan the actual square nexthere chain, skip the newly placed object, pass each candidate to mergedRuntime, await an eligible pending merge before ending at the first true result, and preserve the synchronous stackobj API for unselected callers. The current assignment validates this path as runtime-pending only.",
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "stackobj",
+                "source": "WHOLE Cinvent4366-4376: scans actual square nexthere, skips obj itself, merged target is newly placed obj. Stop after FIRST successful merge, await real runtime merge before break; legacy stackobj sync API unchanged, othercaller families pending."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "unearth_objs",
+                "source": "WHOLE Cdig2086-2116: save next buried pointer, punishment restoration branch alreadyreturnedthen/expose(next); ordinary extract/stopROT/place/stack BEFORE next/engraving/redraw. Wire BOTH existing stack sites2613/2616 through runtime helper and preserve full rawenv/conditional-placement hybrid/eager behavior."
+              }
+            ]
+          },
+          {
+            "name": "unearth_objs",
+            "sourceFile": "dig.c",
+            "implementation": "js/dig.js",
+            "symbol": "unearth_objs",
+            "sourceReview": "Matches the pinned source dig.c:unearth_objs (2086-2112): save the next buried pointer before mutation, retain the punishment restoration branch, extract/stop only ROT_ORGANIC/place/stack each selected object, and finish each runtime stack before exposing the next buried object or finishing engraving/redraw. Preserve the existing awaited liquid_flow and melt_ice production callers and full composed environment. The current assignment validates only the selected default fixture path.",
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "unearth_objs",
+                "source": "WHOLE Cdig2086-2116: save next buried pointer, punishment restoration branch alreadyreturnedthen/expose(next); ordinary extract/stopROT/place/stack BEFORE next/engraving/redraw. Wire BOTH existing stack sites2613/2616 through runtime helper and preserve full rawenv/conditional-placement hybrid/eager behavior."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "liquid_flow",
+                "source": "Existing only external dig1394 call alreadyawaits unearth_objs with full composedenv BEFORE subsequent liquid damage. No caller edit; preserve source continuations."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "melt_ice",
+                "source": "Existing other external call zap5042 alreadyawaits unearth_objs(x,y,env) before vision/redraw/message/boulder tail. No source or API expansion."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The fixed invocation enters canonical startup, buries the real same-type glob pair, then calls exported unearth_objs once with the default production environment. It reaches stackobjRuntime via the existing default unearth path. Existing liquid_flow and melt_ice callers already await unearth_objs; no caller migration was needed. The selected case validates only this unearth stage.",
+        "entryPoints": [
+          {
+            "name": "canonical default exported unearth_objs floor-glob entry",
+            "functions": [
+              "stackobj",
+              {
+                "sourceFile": "dig.c",
+                "name": "unearth_objs"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
