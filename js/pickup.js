@@ -4244,7 +4244,7 @@ async function tipcontainer(box, state) {
                 nobj = null;
                 await losehp(d(6, 6), 'magical explosion', KILLED_BY_AN, state);
             } else {
-                const addition = add_to_container(targetbox, otmp, { state });
+                const addition = addToContainerRuntime(targetbox, otmp, { state });
                 if (addition && typeof addition.then === 'function') await addition;
             }
         } else if (highdrop) {

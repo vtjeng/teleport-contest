@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import test from 'node:test';
 
 import {
@@ -386,9 +386,11 @@ test('public dotip transfers a contained glob through the runtime container writ
     const targetSack = after.sacks.find(row => row.object.oid === 68);
     assert.ok(sourceSack && targetSack);
     assert.equal(sourceSack.object.where, OBJ_INVENT);
+    assert.equal(sourceSack.object.owt, 15);
     assert.equal(sourceSack.massByWeight, 15);
     assert.deepEqual(sourceSack.tree.contents.rows, []);
     assert.equal(targetSack.object.where, OBJ_INVENT);
+    assert.equal(targetSack.object.owt, 55);
     assert.equal(targetSack.massByWeight, 55);
     assert.deepEqual(targetSack.tree.contents.rows.map(row => row.oid), [69]);
     assert.equal(after.timers.rows.filter(row => row.argOid === 66).length, 0);
