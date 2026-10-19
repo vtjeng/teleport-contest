@@ -1,0 +1,142 @@
+{
+  "goal": "fix-glob-public-stash-container-runtime-source-parity-20261019",
+  "kind": "file-port",
+  "sourceFile": "pickup.c",
+  "cFile": "pickup.c",
+  "functions": [
+    "in_container"
+  ],
+  "lineRanges": [
+    "2558-2710"
+  ],
+  "cLines": 153,
+  "jsFile": "js/pickup.js",
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-public-stash-container-runtime-source-parity-20261019",
+    "assignmentBase": "f692954a05d46f0bc7f1557f89d8c7310973609a",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "f692954a05d46f0bc7f1557f89d8c7310973609a",
+      "authorization": "Standing user-authorized glob runtime architecture/caller source-parity continuation. Main explicitly selects NEW<=15min INCLUDING packaging narrow public stash container caller stage after actual399c and full Main+CL C/JS/default/caller/receipt review. Runtime-pending only, no global caller completion/public C parity/source certification or score/discovery gain.",
+      "currentBehavior": "Exact16486Bffc9 publicuse_container real s+j entry reaches in_container3262 then legacyadd_to_container/preflightMerged missingabsorbGlob. Actual399c entered1/exit2 afterfreeinv: SACK65INVENT35/cobj66CONTAINED20 and incoming68FREE20/unlinked, bothSHRINKtimers27, rootmoves1; retainedcurrent_container65, inputqueueempty/RNG2383 unchanged/HP13+allrefs+handlertrue/noobserver-save-restoreerror. Earliera6clockfixturemiss entered0 is separate spent firstattempt, not targetred.",
+      "expectedBehavior": "Only in_container transfer tail uses existingaccepted addToContainerRuntime withsameobjectNoLongerHeld hook/env and resolveshybridresult BEFOREparentweight andbot; preserveallprefixes/guards/messages/billing/icebox/explosion and existing awaiters/normalcontextcleanup. Real66survivesCONTAINEDmass40/quan1/age1,68DELETED/unlinked/timed0/no68timer, SACK65weight55/cobj[66], only66SHRINKdeadline27, publicreturn1/contextnull/queueempty/otherinventoryunchanged/restoration+refs maintained. Existinghelper/globalcallerfamilies unchanged.",
+      "units": [
+        "pickup.c:in_container"
+      ],
+      "allowedPaths": [
+        "js/pickup.js",
+        "scripts/pickup.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/pickup.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/pickup.js",
+          "symbol": "in_container",
+          "source": "Whole C pickup.c in_container2558–2710 + fullJS3065–3273 reviewed, selectedtransfer replaceslegacyhelperonly. Preserveexistingconditionalawait before containerweight/bot, objectNoLongerHeld provider, freeinv andearlierorder. No privateexport/APInewthrow/helper edit."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "use_container",
+          "source": "Publicexistingstash_one path2436 alreadyawaitsin_container before used/updateinventory/sellobj_state/current_containercleanup; exactactuals+j queueprovesentry. READONLYcaller unless a specificallynamed source blocker; no UX rewrite."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "menu_loot",
+          "source": "Directone-item andmanualselection branches3539/3571 plus inout_func loop alreadyawaitbefore nextobject/rollback/finish; source awaitcontract read, no caller expansion."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "addToContainerRuntime",
+          "source": "READONLYaccepted whole add_to_container helper companion, actualsurvivor and release-before-scan/hybridmergedRuntime/defaultabsorption alreadyimplemented; preserveexistinghook/environment, no invent edits."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "scripts/pickup.test.mjs",
+          "object": "18493461ee6b4a3f6c8d3f91cf406eb1ef2d6206"
+        },
+        {
+          "path": "js/pickup.js",
+          "object": "f33c1d21340e7a78649033c4e703967b037e5123"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        },
+        {
+          "path": "js/worn.js",
+          "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+        },
+        {
+          "path": "js/mondata.js",
+          "object": "a2ed0919963fc18468d0a5ff0b02ee388157afa6"
+        },
+        {
+          "path": "js/pline.js",
+          "object": "c5c26cb6018f9096441cce80559ae1c47d29e3d1"
+        },
+        {
+          "path": "js/objnam.js",
+          "object": "cff691875b79c9f0328e954337567988ddb94d16"
+        }
+      ],
+      "actualResult": "399caae1839a9664c5b8e0646473dd4d60d345aa61fbd0e33dec85607deafae0",
+      "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-stash399c-independent-actual-review.json"
+    },
+    "reviewSha256": "2af09b9407ceae4c2f684b20a4206082d5c09505a8d6967813d48331adbe5b3f"
+  },
+  "evidenceRequired": "source-parity runtime-pending claim for the reviewed caller only; no whole-file certification"
+}

@@ -1,0 +1,21 @@
+diff --git a/js/pickup.js b/js/pickup.js
+index f33c1d213..690bc4319 100644
+--- a/js/pickup.js
++++ b/js/pickup.js
+@@ -181,6 +181,7 @@ import {
+ import {
+     INVLET_BASIC,
+     add_to_container,
++    addToContainerRuntime,
+     add_to_minv,
+     addinv_runtime,
+     freeinv,
+@@ -3259,7 +3260,7 @@ async function in_container(obj, state) {
+         await sellobj(obj, state.gc.current_container.ox,
+             state.gc.current_container.oy, state);
+     }
+-    const addition = add_to_container(state.gc.current_container, obj, {
++    const addition = addToContainerRuntime(state.gc.current_container, obj, {
+         state,
+         hooks: { objectNoLongerHeld: obj_no_longer_held },
+     });

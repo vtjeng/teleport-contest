@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 import test from 'node:test';
 
 import {
@@ -2492,6 +2495,100 @@ test('in_container preserves C icebox and discarded-void call order', async () =
     assert.doesNotMatch(ageMacro, /MAGIC_LAMP/u);
     assert.doesNotMatch(jsBody, /UnsupportedPickupError/u);
 });
+
+test('public held-SACK glob stash awaits the real contained-object transfer',
+    async () => {
+        const repoRoot = process.cwd();
+        const taskDir = resolve(repoRoot,
+            '.cache/glob-public-stash-runtime-source-parity-20261019');
+        const fixture = resolve(repoRoot,
+            '.cache/glob-public-stash-source-clock-reviewed-qualification-20261019/attempt.mjs');
+        const fixtureBytes = await readFile(fixture);
+        assert.equal(fixtureBytes.length, 16486,
+            'run the exact reviewed canonical fixture bytes');
+        assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
+            'ffc92d4c0b8f936908da7ead55d3c4bf3d9fec57733f90fcd6232b98403e58c9',
+            'fixture remains the immutable clock-corrected qualification body');
+
+        await mkdir(taskDir, { recursive: true });
+        const captureDir = await mkdtemp(join(taskDir, 'primary-'));
+        const outdir = join(captureDir, 'run');
+        const command = [process.execPath, fixture];
+        const child = spawnSync(command[0], command.slice(1), {
+            cwd: repoRoot,
+            env: { ...process.env, STASH_OUTPUT_DIR: outdir },
+            encoding: 'buffer',
+            timeout: 120_000,
+        });
+        await writeFile(join(captureDir, 'stdout.bin'), child.stdout ?? Buffer.alloc(0));
+        await writeFile(join(captureDir, 'stderr.bin'), child.stderr ?? Buffer.alloc(0));
+        await writeFile(join(captureDir, 'exit-status.json'), `${JSON.stringify({
+            status: child.status,
+            signal: child.signal,
+            error: child.error ? String(child.error) : null,
+            command,
+            cwd: repoRoot,
+            fixtureBytes: fixtureBytes.length,
+            fixtureSha256: createHash('sha256').update(fixtureBytes).digest('hex'),
+        }, null, 2)}\n`);
+        const readReceipt = async (name) => JSON.parse(
+            await readFile(join(outdir, `${name}.json`), 'utf8'));
+        const final = await readReceipt('final');
+
+        assert.equal(final.started, true, 'canonical fixed game startup completed');
+        assert.equal(final.entered, 1,
+            'the real public use_container call reached in_container');
+        assert.equal(final.handlerRestored, true,
+            'the exact original More handler was restored');
+        assert.equal(final.observerError, null);
+        assert.equal(final.saveError, null);
+        assert.equal(final.restoreError, null);
+        assert.equal(final.before.inner.o_id, 66);
+        assert.equal(final.before.inner.where, OBJ_CONTAINED);
+        assert.equal(final.before.inner.owt, 20);
+        assert.equal(final.before.heldGlob.o_id, 68);
+        assert.equal(final.before.heldGlob.where, OBJ_INVENT);
+        assert.equal(final.before.sack.o_id, 65);
+        assert.equal(final.before.sack.owt, 35);
+        assert.deepEqual(final.before.sack.cobj.ids, [66]);
+
+        if (final.primaryError) {
+            assert.equal(final.primaryError.operation, 'use_container');
+            assert.equal(final.primaryError.sourceOperation, 'absorbGlob');
+            assert.equal(final.primaryError.otyp, 271);
+            assert.match(final.primaryError.stack,
+                /add_to_container[\s\S]*?in_container[\s\S]*?use_container/u);
+        }
+        assert.equal(final.primaryError, null,
+            'the public stash action must complete instead of surfacing the missing absorbGlob hook');
+        assert.equal(child.status, 0, 'the target completed without a caught failure');
+        assert.equal(final.targetResult, 1);
+
+        assert.equal(final.after.inner.o_id, 66);
+        assert.equal(final.after.inner.where, OBJ_CONTAINED);
+        assert.equal(final.after.inner.owt, 40);
+        assert.equal(final.after.inner.quan, 1);
+        assert.equal(final.after.inner.age, 1);
+        assert.deepEqual(final.after.inner.owner.o_id, 65);
+        assert.equal(final.after.heldGlob.o_id, 68);
+        assert.equal(final.after.heldGlob.where, OBJ_DELETED);
+        assert.equal(final.after.heldGlob.nobj, null);
+        assert.equal(final.after.sack.o_id, 65);
+        assert.equal(final.after.sack.owt, 55);
+        assert.deepEqual(final.after.sack.cobj.ids, [66]);
+        assert.deepEqual(final.before.hero.inventory.ids.filter(id => id !== 68),
+            final.after.hero.inventory.ids);
+        assert.equal(final.after.contexts.gc.current_container, null);
+        assert.equal(final.after.display.queueLength, 0);
+        assert.equal(final.after.clock.root.value, 1);
+        assert.equal(final.identities.sameHero, true);
+        assert.equal(final.identities.sameLevel, true);
+        assert.equal(final.identities.sameUz, true);
+        assert.equal(final.identities.samePosition, true);
+        const liveShrinkTimers = final.after.timers.filter(timer =>
+            timer.kind === 3 && timer.func_index === 7 && timer.timeout === 27);
+        assert.deepEqual(liveShrinkTimers.map(timer => timer.argId), [66]);
+    });
 
 test('menu_loot awaits real artifact rejection before container extraction',
     async () => {

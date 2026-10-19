@@ -1,0 +1,77 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "This submitted runtime-pending source-parity stage covers only the selected live path: pickup.c:in_container, reached through the existing public use_container action. The adjacent addToContainerRuntime is an accepted read-only dependency. Existing public use_container/menu_loot callers already await the helper; other legacy container and inventory caller families are unchanged and not certified here.",
+  "entryPoints": [
+    {
+      "name": "use_container",
+      "functions": [
+        {
+          "sourceFile": "pickup.c",
+          "name": "in_container"
+        }
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "functions": [
+    {
+      "name": "in_container",
+      "sourceFile": "pickup.c",
+      "implementation": "js/pickup.js",
+      "symbol": "in_container",
+      "sourceReview": "Reviewed the complete C pickup.c:in_container (2558–2710) and its JS implementation. The selected transfer now uses the existing addToContainerRuntime with the same state and objectNoLongerHeld hook, and awaits its hybrid result before the existing container-weight and bot tails. Earlier freeinv/order, guards, messages, billing, icebox/explosion behavior, cleanup, and adjacent helper are unchanged. This is a caller-only runtime-pending claim.",
+      "callers": [
+        {
+          "path": "js/pickup.js",
+          "symbol": "in_container",
+          "source": "Whole C pickup.c in_container2558–2710 + fullJS3065–3273 reviewed, selectedtransfer replaceslegacyhelperonly. Preserveexistingconditionalawait before containerweight/bot, objectNoLongerHeld provider, freeinv andearlierorder. No privateexport/APInewthrow/helper edit."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "use_container",
+          "source": "Publicexistingstash_one path2436 alreadyawaitsin_container before used/updateinventory/sellobj_state/current_containercleanup; exactactuals+j queueprovesentry. READONLYcaller unless a specificallynamed source blocker; no UX rewrite."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "menu_loot",
+          "source": "Directone-item andmanualselection branches3539/3571 plus inout_func loop alreadyawaitbefore nextobject/rollback/finish; source awaitcontract read, no caller expansion."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "addToContainerRuntime",
+          "source": "READONLYaccepted whole add_to_container helper companion, actualsurvivor and release-before-scan/hybridmergedRuntime/defaultabsorption alreadyimplemented; preserveexistinghook/environment, no invent edits."
+        }
+      ],
+      "pure": false,
+      "tests": [
+        "scripts/pickup.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "f692954a05d46f0bc7f1557f89d8c7310973609a",
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=public held-SACK glob stash awaits the real contained-object transfer",
+        "scripts/pickup.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "✖ public held-SACK glob stash awaits the real contained-object transfer (623.876473ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1158.061889\n\n✖ failing tests:\n\ntest at scripts/pickup.test.mjs:2499:1\n✖ public held-SACK glob stash awaits the real contained-object transfer (623.876473ms)\n  AssertionError [ERR_ASSERTION]: the public stash action must complete instead of surfacing the missing absorbGlob hook\n  + actual - expected\n  \n  + {\n  +   message: 'absorbGlob is not available for otyp 271',\n  +   name: 'UnsupportedObjectOperationError',\n  +   operation: 'use_container',\n  +   otyp: 271,\n  +   sourceOperation: 'absorbGlob',\n  +   stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\\n' +\n  +     '    at requiredHook (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:2669:15)\\n' +\n  +     '    at preflightMerged (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:3968:9)\\n' +\n  +     '    at beginMerged (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:3794:10)\\n' +\n  +     '    at merged (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:3884:18)\\n' +\n  +     '    at attach (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:5072:17)\\n' +\n  +     '    at add_to_container (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:5087:12)\\n' +\n  +     '    at in_container (file:///workspace/teleport-contest-worker1-recovery/js/pickup.js:3262:22)\\n' +\n  +     '    at async use_container (file:///workspace/teleport-contest-worker1-recovery/js/pickup.js:2436:21)\\n' +\n  +     '    at async file:///workspace/teleport-contest-worker1-recovery/.cache/glob-public-stash-source-clock-reviewed-qualification-20261019/attempt.mjs:92:16'\n  + }\n  - null\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker1-recovery/scripts/pickup.test.mjs:2562:16)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: { name: 'UnsupportedObjectOperationError', message: 'absorbGlob is not available for otyp 271', stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\\n    at requiredHook (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:2669:15)\\n    at preflightMerged (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:3968:9)\\n    at beginMerged (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:3794:10)\\n    at merged (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:3884:18)\\n    at attach (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:5072:17)\\n    at add_to_container (file:///workspace/teleport-contest-worker1-recovery/js/invent.js:5087:12)\\n    at in_container (file:///workspace/teleport-contest-worker1-recovery/js/pickup.js:3262:22)\\n    at async use_container (file:///workspace/teleport-contest-worker1-recovery/js/pickup.js:2436:21)\\n    at async file:///workspace/teleport-contest-worker1-recovery/.cache/glob-public-stash-source-clock-reviewed-qualification-20261019/attempt.mjs:92:16', operation: 'use_container', sourceOperation: 'absorbGlob', otyp: 271 },\n    expected: null,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=public held-SACK glob stash awaits the real contained-object transfer",
+        "scripts/pickup.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "✔ public held-SACK glob stash awaits the real contained-object transfer (605.677599ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1128.793248\n"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "--test-name-pattern=public held-SACK glob stash awaits the real contained-object transfer",
+      "scripts/pickup.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/glob-public-stash-runtime-source-parity-20261019/final-green.stdout.log"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker1-recovery/.cache/glob-public-stash-runtime-source-parity-20261019/final-lint.stdout.log"
+  }
+]
