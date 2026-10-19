@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T00:07:35.518Z",
+  "capturedAt": "2026-10-19T00:28:06.016Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T00:07:35.518Z",
+    "asOf": "2026-10-19T00:28:06.016Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 359,
+      "mainSupportAssignments": 361,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -175570,11 +175570,259 @@
         "output": "implementation",
         "target": null,
         "selectionReason": "Prioritize urgent rework or an unblocker. Queue evidence is stale or missing; refresh before ordinary claims."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-unearth-runtime-source-parity-20261018-7efe7b11b933811e0f7e78a01ee95fbcc1a60f77",
+        "type": "published",
+        "at": "2026-10-19T00:07:56.567Z",
+        "task": "delivery:fix-glob-unearth-runtime-source-parity-20261018",
+        "commit": "7efe7b11b933811e0f7e78a01ee95fbcc1a60f77"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:09:43.718Z",
+        "id": "queue:04702783-15c9-444a-9ff9-bb070e1dce24",
+        "type": "assign",
+        "task": "glob-special-floor-creator-proposed-fixture-source-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:12:39.398Z",
+        "id": "queue:c4a08228-ac2b-463c-9cfd-f8879a2083f7",
+        "type": "queue-complete",
+        "task": "glob-special-floor-creator-proposed-fixture-source-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:12:39.398Z",
+        "id": "queue:c4a08228-ac2b-463c-9cfd-f8879a2083f7:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:13:08.067Z",
+        "id": "ready-ae098dddb066278f17d0a3876d08f4a261148a0a:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-glob-organizer-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-ae098dddb066278f17d0a3876d08f4a261148a0a",
+        "type": "ready",
+        "at": "2026-10-19T00:13:08.067Z",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "delivery": "ae098dddb066278f17d0a3876d08f4a261148a0a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:13:08.067Z",
+        "id": "ready-ae098dddb066278f17d0a3876d08f4a261148a0a:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-organizer-runtime-source-parity-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:13:08.067Z",
+        "id": "ready-ae098dddb066278f17d0a3876d08f4a261148a0a:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "organizer-ae098-main-review-20261019",
+        "type": "activity",
+        "at": "2026-10-19T00:13:37.945Z",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "phase": "review",
+        "reason": "Review exact whole organizer core delta and immutable pre-code frozen regression/fixture/raw delivery before integration."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:14:25.902Z",
+        "id": "ready-e527b89e14925aa9a1c87cdfab61fd8ba6371c35:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-glob-special-container-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-e527b89e14925aa9a1c87cdfab61fd8ba6371c35",
+        "type": "ready",
+        "at": "2026-10-19T00:14:25.902Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "delivery": "e527b89e14925aa9a1c87cdfab61fd8ba6371c35"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:14:25.902Z",
+        "id": "ready-e527b89e14925aa9a1c87cdfab61fd8ba6371c35:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-special-container-runtime-source-parity-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:14:25.902Z",
+        "id": "ready-e527b89e14925aa9a1c87cdfab61fd8ba6371c35:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "container-e527-main-review-20261019",
+        "type": "activity",
+        "at": "2026-10-19T00:15:08.988Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "phase": "review",
+        "reason": "Bind final container runtime source, exact tracked fixture and preserved original direct red plus authorized after-draft focused wrapper pair."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "container-e527-vacuous-assertion-feedback-20261019",
+        "type": "feedback",
+        "at": "2026-10-19T00:16:16.902Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "delivery": "e527b89e14925aa9a1c87cdfab61fd8ba6371c35"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "organizer-ae098-received-20261019",
+        "type": "received",
+        "at": "2026-10-19T00:16:50.428Z",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "delivery": "ae098dddb066278f17d0a3876d08f4a261148a0a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:16:56.146Z",
+        "id": "queue:de0ccbb1-0c16-4cb0-bf12-d1c1c59ca258",
+        "type": "assign",
+        "task": "rework:delivery:fix-glob-special-container-runtime-source-parity-20261019:e527b89e14925aa9a1c87cdfab61fd8ba6371c35",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "e527b89e14925aa9a1c87cdfab61fd8ba6371c35",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-062cb28cfa6f1ffd049f89cb1be89b2444eb76ce-eccec6e24d71a1593ca92b84276e31e6a42f185875539c57803854f68b46fcdd-delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "type": "integrating",
+        "at": "2026-10-19T00:18:04.229Z",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "integration": "062cb28cfa6f1ffd049f89cb1be89b2444eb76ce",
+        "validationGroup": [
+          "delivery:fix-glob-organizer-runtime-source-parity-20261019"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-c3c3c9ae2456ca5bfda73805ce17459045a8a321",
+        "type": "ready",
+        "at": "2026-10-19T00:19:45.614Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "delivery": "c3c3c9ae2456ca5bfda73805ce17459045a8a321"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:19:45.614Z",
+        "id": "ready-c3c3c9ae2456ca5bfda73805ce17459045a8a321:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-glob-special-container-runtime-source-parity-20261019:e527b89e14925aa9a1c87cdfab61fd8ba6371c35",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:19:45.614Z",
+        "id": "ready-c3c3c9ae2456ca5bfda73805ce17459045a8a321:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:23:43.885Z",
+        "id": "queue:e4b03e4e-1b6b-496a-8e81-c0876f757093",
+        "type": "assign",
+        "task": "glob-special-floor-creator-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:25:00.513Z",
+        "id": "queue:731ecff6-0856-44db-a35d-22337db8eb30",
+        "type": "queue-complete",
+        "task": "glob-special-floor-creator-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:25:00.513Z",
+        "id": "queue:731ecff6-0856-44db-a35d-22337db8eb30:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-organizer-runtime-source-parity-20261019-062cb28cfa6f1ffd049f89cb1be89b2444eb76ce-validated",
+        "type": "validated",
+        "at": "2026-10-19T00:25:47.704Z",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-organizer-runtime-source-parity-20261019-062cb28cfa6f1ffd049f89cb1be89b2444eb76ce-accepted",
+        "type": "accepted",
+        "at": "2026-10-19T00:26:28.188Z",
+        "task": "delivery:fix-glob-organizer-runtime-source-parity-20261019"
       }
     ]
   },
   "pendingMainWork": {
-    "deliveries": [],
+    "deliveries": [
+      {
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "goal": "fix-glob-special-container-runtime-source-parity-20261019",
+        "kind": "implementation",
+        "status": "ready",
+        "delivery": "c3c3c9ae2456ca5bfda73805ce17459045a8a321",
+        "since": "2026-10-19T00:19:45.614Z",
+        "blockedBy": [],
+        "unblocks": 0
+      }
+    ],
     "preparedBatches": [],
     "parkedTasks": [
       {
@@ -175783,21 +176031,12 @@
       "delivery:fix-glob-special-container-runtime-source-parity-20261019": {
         "id": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
         "worker": "Worker-2",
-        "status": "working",
+        "status": "ready",
         "seed": null,
         "reservations": [
           "source:mkobj.c:add_to_container",
           "source:sp_lev.c:create_object",
           "source:sp_lev.c:lspo_object"
-        ]
-      },
-      "delivery:fix-glob-organizer-runtime-source-parity-20261019": {
-        "id": "delivery:fix-glob-organizer-runtime-source-parity-20261019",
-        "worker": "Worker-1",
-        "status": "working",
-        "seed": null,
-        "reservations": [
-          "source:invent.c:doorganize_core"
         ]
       }
     },
@@ -175816,11 +176055,6 @@
         "tasks": [
           "delivery:fix-glob-special-container-runtime-source-parity-20261019"
         ]
-      },
-      "source:invent.c:doorganize_core": {
-        "tasks": [
-          "delivery:fix-glob-organizer-runtime-source-parity-20261019"
-        ]
       }
     }
   },
@@ -175831,33 +176065,24 @@
     "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "fix-glob-special-container-runtime-source-parity-20261019",
-        "worker": "Worker-2"
-      },
-      {
-        "task": "fix-glob-organizer-runtime-source-parity-20261019",
-        "worker": "Worker-1"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 2,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 626,
+      "completed": 631,
       "superseded": 101
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "fix-glob-organizer-runtime-source-parity-20261019",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
-        "assignment": "fix-glob-special-container-runtime-source-parity-20261019",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
@@ -186807,7 +187032,7 @@
         "id": "fix-glob-special-container-runtime-source-parity-20261019",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -186816,13 +187041,13 @@
         "target": null,
         "readyAt": "2026-10-19T00:04:50.086Z",
         "claimedAt": "2026-10-19T00:05:13.216Z",
-        "completedAt": null
+        "completedAt": "2026-10-19T00:14:25.902Z"
       },
       {
         "id": "fix-glob-organizer-runtime-source-parity-20261019",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -186831,13 +187056,58 @@
         "target": null,
         "readyAt": "2026-10-19T00:07:00.851Z",
         "claimedAt": "2026-10-19T00:07:27.922Z",
-        "completedAt": null
+        "completedAt": "2026-10-19T00:13:08.067Z"
+      },
+      {
+        "id": "glob-special-floor-creator-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-19T00:09:29.507Z",
+        "claimedAt": "2026-10-19T00:09:43.718Z",
+        "completedAt": "2026-10-19T00:12:39.398Z"
+      },
+      {
+        "id": "rework:delivery:fix-glob-special-container-runtime-source-parity-20261019:e527b89e14925aa9a1c87cdfab61fd8ba6371c35",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "e527b89e14925aa9a1c87cdfab61fd8ba6371c35",
+        "readyAt": "2026-10-19T00:16:16.902Z",
+        "claimedAt": "2026-10-19T00:16:56.146Z",
+        "completedAt": "2026-10-19T00:19:45.614Z"
+      },
+      {
+        "id": "glob-special-floor-creator-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-19T00:23:18.504Z",
+        "claimedAt": "2026-10-19T00:23:43.885Z",
+        "completedAt": "2026-10-19T00:25:00.513Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "d92ffdf50be774392818300b9fefbde5c79d6a48",
-    "measuredAt": "2026-10-19T00:01:52.287Z",
+    "executionCommit": "062cb28cfa6f1ffd049f89cb1be89b2444eb76ce",
+    "measuredAt": "2026-10-19T00:24:11.560Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

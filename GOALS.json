@@ -328732,7 +328732,7 @@
     {
       "id": "fix-glob-organizer-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement doorganize_core from invent.c",
       "cFile": "invent.c",
       "sessions": [],
@@ -328740,7 +328740,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "062cb28cfa6f1ffd049f89cb1be89b2444eb76ce",
       "delivered": null,
       "functions": [
         {
@@ -328868,6 +328868,69 @@
           ]
         },
         "reviewSha256": "074d629b2b2326143a6f3004555e9b24f5844246b0caabf299ffe70c96be3bc7"
+      },
+      "closeStanding": {
+        "sha": "062cb28cfa6f1ffd049f89cb1be89b2444eb76ce",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/062cb28cfa6f1ffd049f89cb1be89b2444eb76ce/run-hosted-ISB5Kz/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "doorganize_core",
+            "sourceFile": "invent.c",
+            "implementation": "js/invent.js",
+            "symbol": "doorganize_core",
+            "sourceReview": "Whole C invent.c:doorganize_core (5068–5290) now awaits the existing mergedRuntime at all seven direct merged call sites. Actual return booleans control the same collect/destination/split branches; glob message and absorption complete before source tail ownership, pointer updates, rollback, reinsertion/reordering, prinv, inventory update, and return. Cancellation and invalid-letter split rollback sites are awaited too. No helper/runtime merger/global API changes.",
+            "pure": false,
+            "tests": [
+              "scripts/invent.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize",
+                "source": "Whole Cdoorganize4981+ public getobj→core existing returned thenable already awaited by public command dispatch; exact real queued input target."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "adjust_split",
+                "source": "Existing async outward wrapper realgetobj/count/split→return doorganize_core; unchanged propagation. Globquan1 excludes legitimate split producer, other source split/rollback semantics still preserved in whole core."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize_core",
+                "source": "WHOLE C5068–5290 reviewed. All seven merged sites: three cancelled/invalid destination rollback sites, collect/destination actualbool sites, split merge and fullpack rollback. Await existing runtime merge before each source tail, save next pointer/source identities."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "The exact frozen d701 public doorganize fixture creates two real gray globs through mksobj→addinv_runtime and mksobj→addinv_nomerge, then queues actual observed letters through the real CQ_CANNED path. Original-code red entered exported doorganize once, selected second glob ID 66 with j and occupied destination ID 65 with i, extracted the selected glob, and threw at the actual destination merge because the legacy synchronous path lacks absorbGlob. After only the seven doorganize_core call sites were migrated to awaited mergedRuntime, the identical test and fixture returned normally: survivor ID 65 remains with quan1/mass40/invlet i and timer deadline26, selected ID 66 is unlinked with its timer stopped, all original inventory IDs remain, the command queue is consumed, hero/level identities are stable, and the More handler is restored. No C recording or public parity claim is made; evidence basis remains runtime-pending.",
+        "entryPoints": [
+          {
+            "name": "actual exported doorganize public entry and occupied-letter caller",
+            "functions": [
+              "doorganize_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "actual exported adjust_split wrapper and split/rollback caller",
+            "functions": [
+              "doorganize_core"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
