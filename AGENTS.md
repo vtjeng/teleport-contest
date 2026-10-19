@@ -6,7 +6,8 @@ Vincent directed this workflow change on 2026-10-19. It overrides the agent
 topology, dispatch, and continuous-loop instructions below until Vincent
 explicitly changes the mode:
 
-- Dot is the only active hands-on agent. Perform source inspection, setup,
+- Dot (Vincent) is the user and workflow owner. The Codex agent is the only
+  active hands-on executor; it performs source inspection, setup,
   implementation, review, and validation sequentially in this workspace.
 - Do not delegate, claim work for another agent, respawn a lead or worker, or
   run automated dispatch, polling, or dashboard-refresh loops. The historical
