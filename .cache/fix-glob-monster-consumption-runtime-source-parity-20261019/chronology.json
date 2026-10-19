@@ -1,0 +1,94 @@
+{
+  "task": "fix-glob-monster-consumption-runtime-source-parity-20261019",
+  "acceptedBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+  "originalSourceBlob": "e9b41c73fb036ad658a88511530eafb838e2a4e3",
+  "preEditFinalTestFreeze": {
+    "frozenAt": "2026-10-19T05:18:21.068695+00:00",
+    "phase": "final meaningful primary frozen before first production edit",
+    "acceptedBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+    "preproductionMonJsBlob": "e9b41c73fb036ad658a88511530eafb838e2a4e3",
+    "baseTestBlob": "44f59edcc89984d12fb974845c62dff2806ef25a",
+    "testBytes": 16741,
+    "testSha256": "0234c6068b6933418b9dd13965a6e6956d611a611e6f10e8513f5aef5bff3bcc",
+    "fixtureBytes": 30196,
+    "fixtureSha256": "24624e681f541bfdda3c834d82ed314047a5d09aad6b632cd2ceefbc0e9f7a88",
+    "fixturePath": ".cache/glob-cube-meatobj-main-reviewed-qualification-20261019/attempt.mjs",
+    "command": [
+      "node",
+      "--test",
+      "scripts/mon-consumption.test.mjs"
+    ],
+    "cwd": "/workspace/teleport-contest-worker2-recovery",
+    "environmentOverrides": {
+      "MON_CONSUMPTION_CAPTURE_DIR": ".cache/fix-glob-monster-consumption-runtime-source-parity-20261019/original-red"
+    },
+    "fixtureOutputChild": "fixture-output under requested capture dir, absent before test",
+    "fixedInput": {
+      "seed": 2026101801,
+      "datetime": "20261018120000",
+      "recorderIsDst": true,
+      "nethackrc": "OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n"
+    }
+  },
+  "originalRed": {
+    "startedAt": "2026-10-19T05:18:25.409624+00:00",
+    "endedAt": "2026-10-19T05:18:26.717996+00:00",
+    "command": [
+      "node",
+      "--test",
+      "scripts/mon-consumption.test.mjs"
+    ],
+    "cwd": "/workspace/teleport-contest-worker2-recovery",
+    "envOverrides": {
+      "MON_CONSUMPTION_CAPTURE_DIR": ".cache/fix-glob-monster-consumption-runtime-source-parity-20261019/original-red"
+    },
+    "testExitCode": 1,
+    "testSignal": null,
+    "stdoutBytes": 1719,
+    "stdoutSha256": "a8aff5b89cf27ceed815b84f994c74113210d55be8760b1ef8f9f7ae43ec3b18",
+    "stderrBytes": 0,
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "originalGreen": {
+    "startedAt": "2026-10-19T05:18:52.301509+00:00",
+    "endedAt": "2026-10-19T05:18:53.643950+00:00",
+    "command": [
+      "node",
+      "--test",
+      "scripts/mon-consumption.test.mjs"
+    ],
+    "cwd": "/workspace/teleport-contest-worker2-recovery",
+    "envOverrides": {
+      "MON_CONSUMPTION_CAPTURE_DIR": ".cache/fix-glob-monster-consumption-runtime-source-parity-20261019/original-green"
+    },
+    "testExitCode": 0,
+    "testSignal": null,
+    "stdoutBytes": 785,
+    "stdoutSha256": "4f23d7d068bea0d1dcf14fa00f0e5ac1f7e6c6c65a552a5f2fede9b4cb587340",
+    "stderrBytes": 0,
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "lint": {
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "cwd": "/workspace/teleport-contest-worker2-recovery",
+    "startedAt": "2026-10-19T05:19:19.941630+00:00",
+    "exitCode": 0,
+    "stdoutBytes": 54,
+    "stdoutSha256": "f8b045212c87825355f5fd99462819427f5f9af4ecbc9ca4ca0e824521bebe6c",
+    "stderrBytes": 0,
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rawFiles": [
+      "lint/stdout.raw",
+      "lint/stderr.raw",
+      "lint/process.json"
+    ]
+  },
+  "productionEdit": "After the genuine original-target red, exactly two call-site substitutions were made in js/mon.js: meatbox child path awaits mpickobjRuntime(mon, child, rawEnv), and meatobj direct-engulf path awaits mpickobjRuntime(mtmp, obj, rawEnv). No other production edits.",
+  "captureLimit": "Test process receipts preserve exact argv, cwd, task-specific overrides, raw streams, exit/signal, timestamps and fixture captures. The complete inherited environment was not serialized and is unavailable; no reconstruction is asserted.",
+  "runtimeScope": "The frozen fixture witnesses meatbox child transfer. The meatobj direct-engulf call is included from source review but is not separately runtime-witnessed.",
+  "outcome": "same final test bytes had meaningful original red before the first production edit and passed after the two selected edits; lint exit 0."
+}

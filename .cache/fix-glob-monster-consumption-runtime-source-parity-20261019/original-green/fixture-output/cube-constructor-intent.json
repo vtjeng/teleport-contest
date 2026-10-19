@@ -1,0 +1,15 @@
+{
+  "$id": 1,
+  "entered": false,
+  "count": 0,
+  "species": 8,
+  "x": 68,
+  "y": 4,
+  "flags": 1,
+  "terrain": {
+    "$id": 2,
+    "present": true,
+    "type": 25,
+    "passable": null
+  }
+}

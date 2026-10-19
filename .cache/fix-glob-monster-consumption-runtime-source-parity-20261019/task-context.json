@@ -1,0 +1,163 @@
+{
+  "goal": "fix-glob-monster-consumption-runtime-source-parity-20261019",
+  "kind": "file-port",
+  "sourceFile": "mon.c",
+  "cFile": "mon.c",
+  "functions": [
+    "meatbox",
+    "meatobj"
+  ],
+  "requiredFunctions": [],
+  "lineRanges": [
+    "1354-1390",
+    "1533-1653"
+  ],
+  "cLines": 158,
+  "jsFile": "js/mon.js",
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-monster-consumption-runtime-source-parity-20261019",
+    "assignmentBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+      "authorization": "Main explicitly selects NEW <=20min INCLUDING packaging narrow BOTH existing async owners mon.c meatbox1354-1390 and meatobj1533-1653 after Main+CL complete actual78f1/source/default/caller reviews. Whole two sites source-selected, runtime actual qualifies meatbox child only. Old1938/V69/passive16f7/public recording/caps unchanged. No global/source certification/public parity claim.",
+      "currentBehavior": "Exact30196B24624 sole meatobj: cube79PM8@(68,4)HP21,80MINVENT20/timer2@26,82SACKFLOOR35/cobj83CONTAINED20/timer3@28. rn2(100)=63 eatsSACK; meatobj->m_consume->meatbox extracts83 then legacympickobj preflight missingabsorb271.83FREE,82FLOOR15empty,80unchanged. HeroHP13/refs retained, RNG2495->2496, handlertrue/errorsonlyprimary, Node1 serializedtargetnotabsorption.",
+      "expectedBehavior": "Only two calls become await existing mpickobjRuntime with SAME full rawEnv: meatbox child and meatobj direct engulf. Preserve extraction/order before nextchild/m_consume deletion/minvis/redraw/finalmessages. Actualgreen80MINVENT40/quan1/age1/carrier79;83DELETED9/unlinked/timed0;82DELETED/unlinked;only80SHRINKdeadline26/root1, unrelated timers/originalinventory/floor/hero/refs unchanged,return1/restored/noerrors. Direct engulf source-selected but separate runtime witness not claimed.",
+      "units": [
+        "mon.c:meatbox",
+        "mon.c:meatobj"
+      ],
+      "allowedPaths": [
+        "js/mon.js",
+        "scripts/mon-consumption.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/mon-consumption.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/mon.js",
+          "symbol": "meatbox",
+          "source": "Whole C1354-1390/current1432-1479 read. Only legacy child call1457 becomes await mpickobjRuntime(mon,child,rawEnv); same extraction/icebox/flooralternative/source-loop and full environment."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "meatobj",
+          "source": "Whole C1533-1653/current1708-1813 read. Only direct engulf1766 becomes await mpickobjRuntime(mtmp,obj,rawEnv), before minvis/nextobject/finalmessage. Eating branch already awaits m_consume_obj."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "m_consume_obj",
+          "source": "Whole C1392-1453/current body read, already awaits meatbox before unpunish/delobj/food effects. No edit."
+        },
+        {
+          "path": "js/monmove.js",
+          "symbol": "postmov",
+          "source": "Existing await meatobj3587/awaitm_consume2001 with full env; no edits."
+        },
+        {
+          "path": "js/dogmove.js",
+          "symbol": "dog_eat",
+          "source": "Existing awaitm_consume672 with full environment; no edit."
+        },
+        {
+          "path": "js/steal.js",
+          "symbol": "mpickobjRuntime",
+          "source": "Accepted full runtime companion preserves carry/resolvebool/snuff/fullenv/planningboundary; unchanged. mon.js already imports it689; keep legacy mpickobj for pendingxkilled6136."
+        }
+      ],
+      "actualResult": "78f10518855ab54cd2e5db5888b6dc3a83fe31e71ead8b56c1573f7f2d9134a7",
+      "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-meatobj78f1-independent-actual-scope-review.json",
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/mon.js",
+          "object": "e9b41c73fb036ad658a88511530eafb838e2a4e3"
+        },
+        {
+          "path": "scripts/mon-consumption.test.mjs",
+          "object": "44f59edcc89984d12fb974845c62dff2806ef25a"
+        },
+        {
+          "path": "js/monmove.js",
+          "object": "7bbcd07786c21b9f1c5c4a06c46622888c86d916"
+        },
+        {
+          "path": "js/dogmove.js",
+          "object": "3776912ec2a67f15b3bd7466af466cf60d598f76"
+        },
+        {
+          "path": "js/steal.js",
+          "object": "795ac42409e8367d4b24b33bfbc92d1ed4e390bf"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/monster_object.js",
+          "object": "b7dfbd85bc3cfa0682cd9bbadf92d616f8d82a98"
+        },
+        {
+          "path": "js/makemon_create.js",
+          "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+        },
+        {
+          "path": "js/monsters.js",
+          "object": "1381545113e72cabfbc4c05f1d6f167964ecfcc7"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        }
+      ]
+    },
+    "reviewSha256": "ce8d7012fd307d0889cf0abbda52b41330e2f2c9e25ba4f9c7ebebf5106a110d"
+  }
+}

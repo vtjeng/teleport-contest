@@ -1,0 +1,127 @@
+{
+  "$id": 1,
+  "entered": false,
+  "count": 0,
+  "pairMergeEligible": true,
+  "factoryReceipts": {
+    "$id": 2,
+    "resident": {
+      "$id": 3,
+      "object": {
+        "$id": 4,
+        "id": 80,
+        "otyp": 271,
+        "where": 0,
+        "quan": 1,
+        "oclass": 7,
+        "baseWeight": 20,
+        "age": 1,
+        "owt": 20,
+        "globby": true,
+        "timed": 1,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "mass": null,
+        "olocked": false,
+        "otrapped": false
+      },
+      "timers": {
+        "$id": 5,
+        "$array": [
+          {
+            "$id": 6,
+            "exactArg": true,
+            "otyp": 271,
+            "where": 0,
+            "kind": 3,
+            "func_index": 7,
+            "timeout": 26,
+            "tid": 2,
+            "rootMoves": 1,
+            "future": true
+          }
+        ]
+      }
+    },
+    "sack": {
+      "$id": 7,
+      "id": 82,
+      "otyp": 217,
+      "where": 0,
+      "quan": 1,
+      "oclass": 6,
+      "baseWeight": 15,
+      "age": 1,
+      "owt": 15,
+      "globby": false,
+      "timed": 0,
+      "blessed": false,
+      "cursed": false,
+      "unpaid": false,
+      "no_charge": false,
+      "nomerge": false,
+      "how_lost": 0,
+      "mass": null,
+      "olocked": false,
+      "otrapped": false
+    },
+    "incoming": {
+      "$id": 8,
+      "object": {
+        "$id": 9,
+        "id": 83,
+        "otyp": 271,
+        "where": 0,
+        "quan": 1,
+        "oclass": 7,
+        "baseWeight": 20,
+        "age": 1,
+        "owt": 20,
+        "globby": true,
+        "timed": 1,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "mass": null,
+        "olocked": false,
+        "otrapped": false
+      },
+      "timers": {
+        "$id": 10,
+        "$array": [
+          {
+            "$id": 11,
+            "exactArg": true,
+            "otyp": 271,
+            "where": 0,
+            "kind": 3,
+            "func_index": 7,
+            "timeout": 28,
+            "tid": 3,
+            "rootMoves": 1,
+            "future": true
+          }
+        ]
+      }
+    }
+  },
+  "entry": "await meatobj(realCube,fullCanonicalEnv)",
+  "cubeId": 79,
+  "species": 8,
+  "residentId": 80,
+  "sackId": 82,
+  "containedGlobId": 83,
+  "fixedCell": {
+    "$id": 12,
+    "x": 68,
+    "y": 4
+  },
+  "expectedCSequence": "mon.c:meatobj -> m_consume_obj -> meatbox -> mpickobj"
+}

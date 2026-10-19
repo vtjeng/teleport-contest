@@ -1,0 +1,19 @@
+{
+  "startedAt": "2026-10-19T05:18:25.409624+00:00",
+  "endedAt": "2026-10-19T05:18:26.717996+00:00",
+  "command": [
+    "node",
+    "--test",
+    "scripts/mon-consumption.test.mjs"
+  ],
+  "cwd": "/workspace/teleport-contest-worker2-recovery",
+  "envOverrides": {
+    "MON_CONSUMPTION_CAPTURE_DIR": ".cache/fix-glob-monster-consumption-runtime-source-parity-20261019/original-red"
+  },
+  "testExitCode": 1,
+  "testSignal": null,
+  "stdoutBytes": 1719,
+  "stdoutSha256": "a8aff5b89cf27ceed815b84f994c74113210d55be8760b1ef8f9f7ae43ec3b18",
+  "stderrBytes": 0,
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

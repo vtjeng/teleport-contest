@@ -1,0 +1,259 @@
+{
+  "goal": "fix-glob-monster-consumption-runtime-source-parity-20261019",
+  "evidenceBasis": "source-parity-runtime-pending",
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-monster-consumption-runtime-source-parity-20261019",
+    "assignmentBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+      "authorization": "Main explicitly selects NEW <=20min INCLUDING packaging narrow BOTH existing async owners mon.c meatbox1354-1390 and meatobj1533-1653 after Main+CL complete actual78f1/source/default/caller reviews. Whole two sites source-selected, runtime actual qualifies meatbox child only. Old1938/V69/passive16f7/public recording/caps unchanged. No global/source certification/public parity claim.",
+      "currentBehavior": "Exact30196B24624 sole meatobj: cube79PM8@(68,4)HP21,80MINVENT20/timer2@26,82SACKFLOOR35/cobj83CONTAINED20/timer3@28. rn2(100)=63 eatsSACK; meatobj->m_consume->meatbox extracts83 then legacympickobj preflight missingabsorb271.83FREE,82FLOOR15empty,80unchanged. HeroHP13/refs retained, RNG2495->2496, handlertrue/errorsonlyprimary, Node1 serializedtargetnotabsorption.",
+      "expectedBehavior": "Only two calls become await existing mpickobjRuntime with SAME full rawEnv: meatbox child and meatobj direct engulf. Preserve extraction/order before nextchild/m_consume deletion/minvis/redraw/finalmessages. Actualgreen80MINVENT40/quan1/age1/carrier79;83DELETED9/unlinked/timed0;82DELETED/unlinked;only80SHRINKdeadline26/root1, unrelated timers/originalinventory/floor/hero/refs unchanged,return1/restored/noerrors. Direct engulf source-selected but separate runtime witness not claimed.",
+      "units": [
+        "mon.c:meatbox",
+        "mon.c:meatobj"
+      ],
+      "allowedPaths": [
+        "js/mon.js",
+        "scripts/mon-consumption.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/mon-consumption.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/mon.js",
+          "symbol": "meatbox",
+          "source": "Whole C1354-1390/current1432-1479 read. Only legacy child call1457 becomes await mpickobjRuntime(mon,child,rawEnv); same extraction/icebox/flooralternative/source-loop and full environment."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "meatobj",
+          "source": "Whole C1533-1653/current1708-1813 read. Only direct engulf1766 becomes await mpickobjRuntime(mtmp,obj,rawEnv), before minvis/nextobject/finalmessage. Eating branch already awaits m_consume_obj."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "m_consume_obj",
+          "source": "Whole C1392-1453/current body read, already awaits meatbox before unpunish/delobj/food effects. No edit."
+        },
+        {
+          "path": "js/monmove.js",
+          "symbol": "postmov",
+          "source": "Existing await meatobj3587/awaitm_consume2001 with full env; no edits."
+        },
+        {
+          "path": "js/dogmove.js",
+          "symbol": "dog_eat",
+          "source": "Existing awaitm_consume672 with full environment; no edit."
+        },
+        {
+          "path": "js/steal.js",
+          "symbol": "mpickobjRuntime",
+          "source": "Accepted full runtime companion preserves carry/resolvebool/snuff/fullenv/planningboundary; unchanged. mon.js already imports it689; keep legacy mpickobj for pendingxkilled6136."
+        }
+      ],
+      "actualResult": "78f10518855ab54cd2e5db5888b6dc3a83fe31e71ead8b56c1573f7f2d9134a7",
+      "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-meatobj78f1-independent-actual-scope-review.json",
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/mon.js",
+          "object": "e9b41c73fb036ad658a88511530eafb838e2a4e3"
+        },
+        {
+          "path": "scripts/mon-consumption.test.mjs",
+          "object": "44f59edcc89984d12fb974845c62dff2806ef25a"
+        },
+        {
+          "path": "js/monmove.js",
+          "object": "7bbcd07786c21b9f1c5c4a06c46622888c86d916"
+        },
+        {
+          "path": "js/dogmove.js",
+          "object": "3776912ec2a67f15b3bd7466af466cf60d598f76"
+        },
+        {
+          "path": "js/steal.js",
+          "object": "795ac42409e8367d4b24b33bfbc92d1ed4e390bf"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/monster_object.js",
+          "object": "b7dfbd85bc3cfa0682cd9bbadf92d616f8d82a98"
+        },
+        {
+          "path": "js/makemon_create.js",
+          "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+        },
+        {
+          "path": "js/monsters.js",
+          "object": "1381545113e72cabfbc4c05f1d6f167964ecfcc7"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        }
+      ]
+    },
+    "reviewSha256": "ce8d7012fd307d0889cf0abbda52b41330e2f2c9e25ba4f9c7ebebf5106a110d"
+  },
+  "entryPointReview": "The frozen real exported meatobj fixture reaches meatobj \u2192 m_consume_obj \u2192 meatbox and consumes a real SACK before its contained child reaches the monster-inventory merge path. The final same-byte test observes the repaired awaited mpickobjRuntime continuation and verifies the natural merge outcome. The separate direct-engulf mpickobjRuntime call in meatobj is included because Main selected both whole source units; this fixture does not enter that direct-engulf branch, so no separate runtime witness is claimed for it. No whole-file, global caller-family, C-parity, or public-action claim is made.",
+  "entryPoints": [
+    {
+      "name": "fixed real meatobj eater route through meatbox child transfer",
+      "functions": [
+        "meatobj",
+        "meatbox"
+      ],
+      "recordings": []
+    }
+  ],
+  "functions": [
+    {
+      "name": "meatbox",
+      "sourceFile": "mon.c",
+      "implementation": "js/mon.js",
+      "symbol": "meatbox",
+      "sourceReview": "C mon.c:meatbox (1354\u20131390): after the unchanged real child extraction and ICE_BOX removal, the engulf-contents branch now awaits mpickobjRuntime(mon, child, rawEnv). The alternative floor-effects branch, placement path, loop order and all prior effects are unchanged.",
+      "callers": [
+        {
+          "path": "js/mon.js",
+          "symbol": "meatbox",
+          "source": "Whole C1354-1390/current1432-1479 read. Only legacy child call1457 becomes await mpickobjRuntime(mon,child,rawEnv); same extraction/icebox/flooralternative/source-loop and full environment."
+        },
+        {
+          "path": "js/mon.js",
+          "symbol": "m_consume_obj",
+          "source": "Whole C1392-1453/current body read, already awaits meatbox before unpunish/delobj/food effects. No edit."
+        },
+        {
+          "path": "js/steal.js",
+          "symbol": "mpickobjRuntime",
+          "source": "Accepted full runtime companion preserves carry/resolvebool/snuff/fullenv/planningboundary; unchanged. mon.js already imports it689; keep legacy mpickobj for pendingxkilled6136."
+        }
+      ],
+      "pure": false,
+      "tests": [
+        "scripts/mon-consumption.test.mjs"
+      ],
+      "recordings": []
+    },
+    {
+      "name": "meatobj",
+      "sourceFile": "mon.c",
+      "implementation": "js/mon.js",
+      "symbol": "meatobj",
+      "sourceReview": "C mon.c:meatobj (1533\u20131653): after the unchanged real object extraction, the direct-engulf branch now awaits mpickobjRuntime(mtmp, obj, rawEnv) before minvis, next-object processing and final messages. The eat branch and awaited m_consume_obj are unchanged. The fixture exercises the meatbox child route; direct engulf remains source-selected but has no separate runtime witness.",
+      "callers": [
+        {
+          "path": "js/mon.js",
+          "symbol": "meatobj",
+          "source": "Whole C1533-1653/current1708-1813 read. Only direct engulf1766 becomes await mpickobjRuntime(mtmp,obj,rawEnv), before minvis/nextobject/finalmessage. Eating branch already awaits m_consume_obj."
+        },
+        {
+          "path": "js/monmove.js",
+          "symbol": "postmov",
+          "source": "Existing await meatobj3587/awaitm_consume2001 with full env; no edits."
+        },
+        {
+          "path": "js/dogmove.js",
+          "symbol": "dog_eat",
+          "source": "Existing awaitm_consume672 with full environment; no edit."
+        }
+      ],
+      "pure": false,
+      "tests": [
+        "scripts/mon-consumption.test.mjs"
+      ],
+      "recordings": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+      "command": [
+        "node",
+        "--test",
+        "scripts/mon-consumption.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "\u2714 meatobj imports and applies source slimeproof for green slime glob (1.820299ms)\n\u2714 m_consume_obj turns an eater into green slime after consuming a glob (7.071819ms)\n\u2714 meatobj gates hidden slurping messages by C verbosity, acoustics, and deafness (9.943766ms)\n\u2714 meatmetal consumes the first acceptable metallic object (2.36627ms)\n\u2714 meatmetal routes offscreen crunch through the C acoustics gate (2.925225ms)\n\u2714 meatcorpse consumes one ordinary corpse and leaves the monster alive (2.948719ms)\n\u2714 mon_give_prop records resistance and mpickgold transfers coins (2.087833ms)\n\u2716 meatbox and meatobj await the real monster-inventory glob merge (634.383915ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 7\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 1262.479195\n\n\u2716 failing tests:\n\ntest at scripts/mon-consumption.test.mjs:257:1\n\u2716 meatbox and meatobj await the real monster-inventory glob merge (634.383915ms)\n  AssertionError [ERR_ASSERTION]: real meatbox child merge reached the missing absorbGlob hook; fixture exit=1\n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/mon-consumption.test.mjs:366:16)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: undefined,\n    operator: 'fail',\n    diff: 'simple'\n  }\n",
+      "rawStdout": "original-red/test.stdout.raw",
+      "rawStderr": "original-red/test.stderr.raw",
+      "process": "original-red/test-process.json",
+      "fixtureCapture": "original-red/fixture-process.json"
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/mon-consumption.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "\u2714 meatobj imports and applies source slimeproof for green slime glob (2.18781ms)\n\u2714 m_consume_obj turns an eater into green slime after consuming a glob (13.891819ms)\n\u2714 meatobj gates hidden slurping messages by C verbosity, acoustics, and deafness (13.122182ms)\n\u2714 meatmetal consumes the first acceptable metallic object (2.267027ms)\n\u2714 meatmetal routes offscreen crunch through the C acoustics gate (7.606205ms)\n\u2714 meatcorpse consumes one ordinary corpse and leaves the monster alive (4.092135ms)\n\u2714 mon_give_prop records resistance and mpickgold transfers coins (2.377153ms)\n\u2714 meatbox and meatobj await the real monster-inventory glob merge (692.648499ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 1293.013745\n",
+      "rawStdout": "original-green/test.stdout.raw",
+      "rawStderr": "original-green/test.stderr.raw",
+      "process": "original-green/test-process.json",
+      "fixtureCapture": "original-green/fixture-process.json"
+    }
+  },
+  "runtimeOutcome": {
+    "original": "Actual real meatobj count one; targeted missing absorbGlob for gray glob 271 thrown at preflightMerged through mpickobj \u2192 meatbox \u2192 m_consume_obj \u2192 meatobj. Fixture process exit 1. No setup/observer/save/restore/capture error; handler restored.",
+    "repaired": "Same frozen test and exact fixed fixture pass. The test asserts actual resident glob id80 survives in cube id79 with owt40, child id83 and sack id82 are deleted/unlinked, only resident SHRINK_GLOB timer remains at timeout26 with unrelated timer unchanged, original inventory/floor and source hero state retained, actual return1, handler restored and no error.",
+    "runtimeScopeLimit": "The witnessed child transfer is a direct runtime witness for the meatbox awaited call. The second selected direct-engulf site is source-fixed as required but not separately runtime-qualified."
+  },
+  "limitations": [
+    "No C run, aggregate suite, new qualification, or global caller-family claim.",
+    "The candidate only covers the selected two mpickobj call sites; legacy xkilled and other callers remain unchanged.",
+    "The run receipt records the exact command, working directory, task-specific environment overrides, raw stdout/stderr, child status and captured fixture outputs. It does not serialize the complete inherited process environment; no claim is made about unrecorded inherited variables."
+  ]
+}

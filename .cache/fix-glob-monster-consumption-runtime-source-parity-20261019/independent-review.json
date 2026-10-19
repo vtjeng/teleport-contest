@@ -1,0 +1,77 @@
+{
+  "reviewedAt": "2026-10-19T05:13:38.588095+00:00",
+  "digest": "78f10518855ab54cd2e5db5888b6dc3a83fe31e71ead8b56c1573f7f2d9134a7",
+  "verification": "Outer/envelope/allliteral files/all40runreceipts lengths/SHA checked; exact30196B24624body/currentmainenvelope/freeze/provenance19actual9dfGitpins bound; independentlydecoded fullbefore/after/final/error/restore/command/RNG, notsummaryonly.",
+  "conclusion": "Meaningful ACTUAL intended missingabsorb reproduction, not completedabsorption. Supports Main separately selecting narrow existingcaller sourceParity stage; no codeauthority from CL.",
+  "actual": {
+    "oneNode": true,
+    "start": "2026-10-19T05:10:34.043671+00:00",
+    "end": "2026-10-19T05:10:34.835957+00:00",
+    "exit": 1,
+    "stdout": 0,
+    "stderr": 0,
+    "meatobjCalls": 1,
+    "hero": [
+      67,
+      4
+    ],
+    "HP": 13,
+    "actor": {
+      "id": 79,
+      "PM": 8,
+      "xy": [
+        68,
+        4
+      ],
+      "HP": 21,
+      "tame": 0,
+      "grid": 79
+    },
+    "before": {
+      "resident80": "MINVENT/20/quan1/age1/timed1/carry79",
+      "SACK82": "FLOOR/35/cobj83",
+      "incoming83": "CONTAINED/20/quan1/age1/timed1/parent82",
+      "timers": [
+        {
+          "arg": 80,
+          "id": 2,
+          "deadline": 26,
+          "kind": 3,
+          "function": 7
+        },
+        {
+          "arg": 83,
+          "id": 3,
+          "deadline": 28,
+          "kind": 3,
+          "function": 7
+        }
+      ]
+    },
+    "draw": "rn2(100)=63 actualSACKnonresistance/eating",
+    "stack": "meatobj1789\u2192m_consume_obj1505\u2192meatbox1457\u2192mpickobj323\u2192add_to_minv5012\u2192merged\u2192preflightMerged3968\u2192requiredHook(absorbGlob),otyp271",
+    "after": {
+      "resident80": "MINVENT20 unchanged",
+      "SACK82": "FLOOR15empty",
+      "incoming83": "FREE20unlinked",
+      "timers": "bothsame26/28 unchanged by refusal",
+      "RNGCounter": [
+        2495,
+        2496
+      ],
+      "allLiveRefsHeroPositionHPOriginalFloorInvent": "unchanged",
+      "handlerRestored": true,
+      "errors": "ONLYprimaryUnsupportedObjectOperationError absorbGlob271;setup/observer/save/restore/captureNULL"
+    }
+  },
+  "wholeScopeReview": {
+    "source": "WHOLE Cmeatbox1354\u20131390 and meatobj1533\u20131653, m_consume_objcaller1392\u20131453/currentJS/default lifecycle and outward await owners read.",
+    "narrowObserved": "meatbox cube childmpickobj can use existing awaited mpickobjRuntime(mon,child,rawEnv); importalreadyexistsmon689. Existingextract/icebox/flooreffects/placement/order untouched.",
+    "separatePotential": "meatobj directengulf oldmpickobj1765 is separateasync owner; if Mainselects BOTHwholeunits, explicitawait(fullrawEnv) retains originalorder beforecountertail/redraw/summary/sourcecaller. ActualfloorSACK witness covers childroute, not automaticallydirectengulf target.",
+    "callers": "m_consume_objawaitsmeatbox; dog_eat/gelcube_digests/food helpers awaitm_consume; monmove3587awaitsmeatobj; nooutwardasyncAPIchange.",
+    "planning": "rawEnv propagates from consumptionEnv{...env,message,redraw}; existing runtimehelper eligibleplanning guard beforemergeprefix. ClonedfloorSACKchild/minv refs sourceclone map, childextraction/containerweight are clonedlocal. No generalclone/armor/defaultttyclaim; helperunchanged/globalfamilypending.",
+    "expectedObservedGreen": "Resident80MINVENT40/quan1age1carrier79; incoming83deleted/timed0;SACK82deletedempty;only80SHRINKtimerdeadline26,return1/rootmoves1/heroHPrefsrestored. Formula remainingtarget25+incomingalreadystoppeddefault25\u219225delay\u219226deadline.",
+    "gate": "Meaningful finalnamedexistingtest originalred BEFORE firstsourceedit and SAMEfinalbytesgreen,trackedexact24624fixture/literalraw. Oldport/V69/16f7caps unchanged."
+  },
+  "execution": "CLread-onlysource/hash/Git/dataandcacheonly; no import/parser/game/test/lint/C/code/queue."
+}

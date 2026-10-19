@@ -1,0 +1,17 @@
+{
+  "$id": 1,
+  "entered": false,
+  "count": 0,
+  "owners": {
+    "$id": 2,
+    "cubeNmon": true,
+    "cubeGrid": true,
+    "residentMinv": true,
+    "sackFloor": true,
+    "sackTile": true,
+    "incomingContained": true,
+    "originalInventory": true,
+    "originalFloor": true
+  },
+  "pairMergeEligible": true
+}

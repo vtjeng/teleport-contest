@@ -1,8 +1,19 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import {
+    existsSync,
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    readdirSync,
+    writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
-import { FIRE_RES, OBJ_DELETED, ROWNO, COLNO, ROOM } from '../js/const.js';
+import { FIRE_RES, OBJ_CONTAINED, OBJ_DELETED, OBJ_FLOOR, OBJ_MINVENT, ROWNO, COLNO, ROOM } from '../js/const.js';
 
 const C_MON_SOURCE = readFileSync('nethack-c/upstream/src/mon.c', 'utf8');
 const JS_MON_SOURCE = readFileSync('js/mon.js', 'utf8');
@@ -241,4 +252,166 @@ test('mon_give_prop records resistance and mpickgold transfers coins', async () 
     mpickgold(mole, { state });
     assert.equal(gold.where, 4); // OBJ_MINVENT in monst.h's object-location enum.
     assert.equal(mole.minvent, gold);
+});
+
+test('meatbox and meatobj await the real monster-inventory glob merge', () => {
+    const fixture = resolve('.cache/glob-cube-meatobj-main-reviewed-qualification-20261019/attempt.mjs');
+    const fixtureBytes = readFileSync(fixture);
+    assert.equal(fixtureBytes.length, 30196, 'the reviewed fixed-input fixture is unchanged');
+    assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
+        '24624e681f541bfdda3c834d82ed314047a5d09aad6b632cd2ceefbc0e9f7a88');
+
+    const requestedCapture = process.env.MON_CONSUMPTION_CAPTURE_DIR;
+    const captureDir = requestedCapture
+        ? resolve(requestedCapture)
+        : mkdtempSync(join(tmpdir(), 'mon-consumption-glob-'));
+    if (requestedCapture) {
+        assert.equal(existsSync(captureDir), false, 'capture directory must be unique and absent');
+        mkdirSync(captureDir, { recursive: false });
+    }
+    const outputDir = join(captureDir, 'fixture-output');
+    assert.equal(existsSync(outputDir), false, 'fixture output directory must be fresh');
+
+    const command = [process.execPath, fixture];
+    const startedAt = new Date().toISOString();
+    const child = spawnSync(command[0], command.slice(1), {
+        cwd: process.cwd(),
+        env: { ...process.env, CUBE_MEATOBJ_OUTPUT_DIR: outputDir },
+        maxBuffer: 32 * 1024 * 1024,
+    });
+    const endedAt = new Date().toISOString();
+    const stdout = child.stdout ?? Buffer.alloc(0);
+    const stderr = child.stderr ?? Buffer.alloc(0);
+    writeFileSync(join(captureDir, 'fixture.stdout.raw'), stdout);
+    writeFileSync(join(captureDir, 'fixture.stderr.raw'), stderr);
+
+    const outputFiles = [];
+    function collectFiles(dir, relative = '') {
+        if (!existsSync(dir)) return;
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+            const childRelative = join(relative, entry.name);
+            const absolute = join(dir, entry.name);
+            if (entry.isDirectory()) collectFiles(absolute, childRelative);
+            else if (entry.isFile()) {
+                const bytes = readFileSync(absolute);
+                outputFiles.push({
+                    name: childRelative,
+                    bytes: bytes.length,
+                    sha256: createHash('sha256').update(bytes).digest('hex'),
+                });
+            }
+        }
+    }
+    collectFiles(outputDir);
+    outputFiles.sort((a, b) => a.name.localeCompare(b.name));
+    const processReceipt = {
+        startedAt,
+        endedAt,
+        command,
+        cwd: process.cwd(),
+        environmentOverride: { CUBE_MEATOBJ_OUTPUT_DIR: outputDir },
+        fixtureBytes: fixtureBytes.length,
+        fixtureSha256: createHash('sha256').update(fixtureBytes).digest('hex'),
+        status: child.status,
+        signal: child.signal,
+        spawnError: child.error ? { name: child.error.name, message: child.error.message } : null,
+        stdout: { bytes: stdout.length, sha256: createHash('sha256').update(stdout).digest('hex') },
+        stderr: { bytes: stderr.length, sha256: createHash('sha256').update(stderr).digest('hex') },
+        outputFiles,
+    };
+    writeFileSync(join(captureDir, 'fixture-process.json'), `${JSON.stringify(processReceipt, null, 2)}\n`);
+
+    // Receipts and raw bytes are durable before any assertion can fail.
+    const receipt = (name) => JSON.parse(readFileSync(join(outputDir, name), 'utf8'));
+    const before = receipt('before-meatobj.json');
+    const after = receipt('after-meatobj.json');
+    const target = receipt('target-return.json');
+    const ready = receipt('target-ready.json');
+    const restoration = receipt('restoration.json');
+    const final = receipt('final.json');
+
+    assert.equal(child.error, undefined, 'fixture process was created');
+    assert.equal(child.signal, null, 'fixture process was not signalled');
+    assert.equal(target.counter, 1, 'the real meatobj target was entered once');
+    assert.equal(final.counters.meatobj, 1, 'the retained fixture counter records one target call');
+    assert.equal(ready.pairMergeEligible, true);
+    for (const owner of [
+        'cubeNmon', 'cubeGrid', 'residentMinv', 'sackFloor', 'sackTile',
+        'incomingContained', 'originalInventory', 'originalFloor',
+    ]) assert.equal(ready.owners[owner], true, `pretarget owner ${owner}`);
+    assert.equal(before.cube.id, 79);
+    assert.deepEqual(before.cube.xy.$array, [68, 4]);
+    assert.equal(before.resident.id, 80);
+    assert.equal(before.resident.where, OBJ_MINVENT);
+    assert.equal(before.resident.owt, 20);
+    assert.equal(before.sack.id, 82);
+    assert.equal(before.sack.where, OBJ_FLOOR);
+    assert.equal(before.sack.owt, 35);
+    assert.equal(before.incoming.id, 83);
+    assert.equal(before.incoming.where, OBJ_CONTAINED);
+    assert.equal(restoration.handlerRestored, true);
+    for (const error of ['setup', 'observer', 'save', 'restore', 'capture'])
+        assert.equal(final.errors[error], null, `no ${error} error`);
+
+    if (child.status !== 0) {
+        // Verify the genuine primary target failure before recording a red test.
+        assert.equal(target.returned, false);
+        assert.equal(target.thrown?.name, 'UnsupportedObjectOperationError');
+        assert.equal(target.thrown?.operation, 'absorbGlob');
+        assert.equal(target.thrown?.otyp, 271);
+        assert.equal(target.thrown?.phase, 'meatobj');
+        assert.match(target.thrown?.stack ?? '', /at meatbox \(/u);
+        assert.match(target.thrown?.stack ?? '', /at mpickobj \(/u);
+        assert.match(target.thrown?.stack ?? '', /absorbGlob is not available for otyp 271/u);
+        assert.fail(`real meatbox child merge reached the missing absorbGlob hook; fixture exit=${child.status}`);
+    }
+
+    assert.equal(child.status, 0, 'the real monster inventory merge completes without a source error');
+    assert.equal(target.returned, true);
+    assert.equal(target.value, 1);
+    assert.equal(target.thrown, null);
+    assert.deepEqual(final.errors, {
+        $id: final.errors.$id,
+        primary: null,
+        setup: null,
+        observer: null,
+        save: null,
+        restore: null,
+        capture: null,
+    });
+
+    assert.equal(after.resident.id, 80);
+    assert.equal(after.resident.where, OBJ_MINVENT);
+    assert.equal(after.resident.quan, 1);
+    assert.equal(after.resident.age, 1);
+    assert.equal(after.resident.owt, 40);
+    assert.equal(after.cube.id, 79);
+    assert.deepEqual(after.cube.minv.$array.map((object) => object.id), [80]);
+    assert.equal(after.cube.minv.$array[0].ocarryId, 79);
+    assert.equal(after.incoming.id, 83);
+    assert.equal(after.incoming.where, OBJ_DELETED);
+    assert.equal(after.sack.id, 82);
+    assert.equal(after.sack.where, OBJ_DELETED);
+    assert.deepEqual(after.sack.children.$array, []);
+    assert.equal(after.floorList.$array.some((object) => object.id === 82 || object.id === 83), false);
+    assert.deepEqual(after.floorContents.$array.map((object) => object.id),
+        before.floorContents.$array.map((object) => object.id));
+    assert.deepEqual(after.inventoryContents.$array.map((object) => object.id),
+        before.inventoryContents.$array.map((object) => object.id));
+    assert.deepEqual(after.hero.startingInventoryIds.$array, before.hero.startingInventoryIds.$array);
+    assert.equal(after.hero.startingInventoryRefsRetained, true);
+    assert.equal(after.hero.hp, 13);
+    assert.equal(after.hero.gameover, false);
+    assert.equal(after.stateRefs.sameHeroPosition, true);
+    assert.equal(after.stateRefs.game, true);
+    assert.equal(after.stateRefs.hero, true);
+    assert.equal(after.stateRefs.level, true);
+
+    const afterTimers = after.timers.$array;
+    const residentShrink = afterTimers.filter((timer) => timer.objectId === 80
+        && timer.kind === 3 && timer.func_index === 7);
+    assert.deepEqual(residentShrink.map((timer) => timer.timeout), [26]);
+    assert.equal(afterTimers.some((timer) => timer.objectId === 83), false);
+    assert.equal(afterTimers.some((timer) => timer.objectId === 2
+        && timer.kind === 3 && timer.func_index === 1 && timer.timeout === 237), true);
 });

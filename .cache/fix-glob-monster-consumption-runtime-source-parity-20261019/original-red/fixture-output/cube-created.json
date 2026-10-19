@@ -1,0 +1,8421 @@
+{
+  "$id": 1,
+  "stage": "cube-created",
+  "rootMoves": 1,
+  "stateRefs": {
+    "$id": 2,
+    "game": true,
+    "hero": true,
+    "level": true,
+    "levelInfo": true,
+    "initialHero": {
+      "$id": 3,
+      "x": 67,
+      "y": 4
+    },
+    "currentHero": {
+      "$id": 4,
+      "x": 67,
+      "y": 4
+    },
+    "sameHeroPosition": true
+  },
+  "hero": {
+    "$id": 5,
+    "hp": 13,
+    "gameover": false,
+    "upolyd": false,
+    "multi": 0,
+    "inventory": {
+      "$id": 6,
+      "$array": [
+        {
+          "$id": 7,
+          "id": 64,
+          "otyp": 82,
+          "where": 3,
+          "quan": 1,
+          "age": 1,
+          "owt": 20,
+          "globby": false,
+          "timed": 0,
+          "oclass": 2,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        },
+        {
+          "$id": 8,
+          "id": 66,
+          "otyp": 135,
+          "where": 3,
+          "quan": 1,
+          "age": 1,
+          "owt": 30,
+          "globby": false,
+          "timed": 0,
+          "oclass": 3,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        },
+        {
+          "$id": 9,
+          "id": 68,
+          "otyp": 92,
+          "where": 3,
+          "quan": 1,
+          "age": 1,
+          "owt": 3,
+          "globby": false,
+          "timed": 0,
+          "oclass": 3,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        },
+        {
+          "$id": 10,
+          "id": 70,
+          "otyp": 293,
+          "where": 3,
+          "quan": 3,
+          "age": 1,
+          "owt": 60,
+          "globby": false,
+          "timed": 0,
+          "oclass": 7,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        },
+        {
+          "$id": 11,
+          "id": 75,
+          "otyp": 259,
+          "where": 3,
+          "quan": 1,
+          "age": 1,
+          "owt": 100,
+          "globby": false,
+          "timed": 0,
+          "oclass": 6,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        },
+        {
+          "$id": 12,
+          "id": 76,
+          "otyp": 238,
+          "where": 3,
+          "quan": 1,
+          "age": 1,
+          "owt": 100,
+          "globby": false,
+          "timed": 0,
+          "oclass": 6,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        },
+        {
+          "$id": 13,
+          "id": 77,
+          "otyp": 472,
+          "where": 3,
+          "quan": 1,
+          "age": 1,
+          "owt": 10,
+          "globby": false,
+          "timed": 0,
+          "oclass": 13,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        },
+        {
+          "$id": 14,
+          "id": 78,
+          "otyp": 217,
+          "where": 3,
+          "quan": 1,
+          "age": 1,
+          "owt": 15,
+          "globby": false,
+          "timed": 0,
+          "oclass": 6,
+          "mass": null,
+          "blessed": false,
+          "cursed": false,
+          "unpaid": false,
+          "no_charge": false,
+          "nomerge": false,
+          "how_lost": 0,
+          "ox": 0,
+          "oy": 0
+        }
+      ]
+    },
+    "startingInventoryIds": {
+      "$id": 15,
+      "$array": [
+        64,
+        66,
+        68,
+        70,
+        75,
+        76,
+        77,
+        78
+      ]
+    },
+    "startingInventoryRefsRetained": true,
+    "sourceFields": {
+      "$id": 16,
+      "context": {
+        "$id": 17,
+        "move": 0,
+        "door_opened": false,
+        "stethoscope_seq": 0,
+        "current_fruit": 1,
+        "ident": 80,
+        "warnlevel": 1,
+        "next_attrib_check": 600,
+        "tribute": {
+          "$id": 18,
+          "enabled": true
+        },
+        "achieveo": {
+          "$id": 19,
+          "mines_prize_oid": 0,
+          "soko_prize_oid": 0,
+          "castle_prize_old": 0,
+          "mines_prize_otyp": 0,
+          "soko_prize_otyp": 0,
+          "castle_prize_otyp": 0,
+          "minetn_reached": false
+        },
+        "warntype": {
+          "$id": 20,
+          "obj": 0,
+          "speciesidx": -1,
+          "species": null,
+          "polyd": 0
+        },
+        "startingpet_typ": -1,
+        "rndencode": 2122,
+        "seer_turn": 20
+      },
+      "go": {
+        "$id": 21,
+        "opt_phase": 3,
+        "opt_initial": true,
+        "opt_from_file": true,
+        "opt_need_redraw": false,
+        "opt_need_glyph_reset": false,
+        "opt_symset_changed": false,
+        "opt_update_basic_palette": false,
+        "ov_primary_syms": {
+          "$id": 22,
+          "$array": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "ov_primary_utf8_syms": {
+          "$id": 23,
+          "$array": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "ov_rogue_syms": {
+          "$id": 24,
+          "$array": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "ov_rogue_utf8_syms": {
+          "$id": 25,
+          "$array": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "oclass_prob_totals": {
+          "$id": 26,
+          "$array": [
+            0,
+            0,
+            1002,
+            1000,
+            28,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        }
+      },
+      "gs": {
+        "$id": 27,
+        "sell_response": "a",
+        "sell_how": 0,
+        "symset": {
+          "$id": 28,
+          "$array": [
+            {
+              "$id": 29,
+              "name": null,
+              "explicitly": false,
+              "desc": null,
+              "handling": 0,
+              "nocolor": 0,
+              "primary": 0,
+              "rogue": 0,
+              "glyphs": {
+                "$id": 30
+              }
+            },
+            {
+              "$id": 31,
+              "name": null,
+              "explicitly": false,
+              "desc": null,
+              "handling": 0,
+              "nocolor": 1,
+              "primary": 0,
+              "rogue": 0,
+              "glyphs": {
+                "$id": 32
+              }
+            }
+          ]
+        },
+        "showsyms": {
+          "$id": 33,
+          "$array": [
+            32,
+            124,
+            45,
+            45,
+            45,
+            45,
+            45,
+            45,
+            45,
+            45,
+            124,
+            124,
+            46,
+            45,
+            124,
+            43,
+            43,
+            35,
+            35,
+            46,
+            46,
+            96,
+            35,
+            35,
+            35,
+            60,
+            62,
+            60,
+            62,
+            60,
+            62,
+            60,
+            62,
+            95,
+            124,
+            92,
+            123,
+            123,
+            125,
+            46,
+            125,
+            125,
+            46,
+            46,
+            35,
+            35,
+            32,
+            35,
+            125,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            94,
+            34,
+            94,
+            94,
+            94,
+            94,
+            126,
+            94,
+            94,
+            124,
+            45,
+            92,
+            47,
+            42,
+            33,
+            41,
+            40,
+            48,
+            35,
+            64,
+            42,
+            35,
+            36,
+            47,
+            45,
+            92,
+            124,
+            124,
+            92,
+            45,
+            47,
+            47,
+            45,
+            92,
+            124,
+            32,
+            124,
+            92,
+            45,
+            47,
+            0,
+            93,
+            41,
+            91,
+            61,
+            34,
+            40,
+            37,
+            33,
+            63,
+            43,
+            47,
+            36,
+            42,
+            96,
+            48,
+            95,
+            46,
+            0,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            64,
+            32,
+            39,
+            38,
+            59,
+            58,
+            126,
+            93,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            32,
+            32,
+            96,
+            73,
+            0,
+            0
+          ]
+        },
+        "showutf8": {
+          "$id": 34,
+          "$array": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "gc": {
+        "$id": 35,
+        "crash_email": null,
+        "crash_name": null,
+        "crash_urlmax": -1,
+        "config_section_chosen": null,
+        "config_section_current": null,
+        "chosen_windowtype": "",
+        "chosen_soundlib": 0,
+        "corpsenm_digested": -1,
+        "currentgraphics": 0
+      },
+      "gv": {
+        "$id": 36,
+        "voice": {
+          "$id": 37,
+          "serialno": 0,
+          "gender": 0,
+          "tone": 0,
+          "volume": 0,
+          "moreinfo": 0,
+          "mon": null,
+          "nameid": null
+        }
+      },
+      "iflags": {
+        "$id": 38,
+        "prev_decor": 0,
+        "wc_align_message": 3,
+        "wc_align_status": 4,
+        "wc2_statuslines": 2,
+        "wc2_petattr": 7,
+        "wc2_windowborders": 2,
+        "hilite_delta": 0,
+        "status_hilites": {
+          "$id": 39,
+          "$array": []
+        },
+        "status_conditions": {
+          "$id": 40,
+          "barehanded": false,
+          "blind": true,
+          "busy": false,
+          "conf": true,
+          "deaf": true,
+          "iron": true,
+          "fly": true,
+          "foodpois": true,
+          "glowhands": false,
+          "grab": true,
+          "hallucinat": true,
+          "held": false,
+          "ice": false,
+          "lava": true,
+          "levitate": true,
+          "paralyzed": false,
+          "ride": true,
+          "sleep": false,
+          "slime": true,
+          "slip": false,
+          "stone": true,
+          "strngl": true,
+          "stun": true,
+          "submerged": false,
+          "termill": true,
+          "tethered": false,
+          "trap": false,
+          "unconscious": false,
+          "woundedlegs": false,
+          "holding": false
+        },
+        "num_pad": false,
+        "num_pad_mode": 0,
+        "getpos_coords": "n",
+        "mapped_menu_cmds": "",
+        "mapped_menu_op": "",
+        "menu_headings": {
+          "$id": 41,
+          "attr": 7,
+          "color": 8
+        },
+        "msg_history": 20,
+        "wc_scroll_amount": 0,
+        "wc_scroll_margin": 0,
+        "wc_tile_file": null,
+        "wc_tile_height": 0,
+        "wc_tile_width": 0,
+        "wcolors": {
+          "$id": 42,
+          "$array": [
+            {
+              "$id": 43,
+              "fg": null,
+              "bg": null
+            },
+            {
+              "$id": 44,
+              "fg": null,
+              "bg": null
+            },
+            {
+              "$id": 45,
+              "fg": null,
+              "bg": null
+            },
+            {
+              "$id": 46,
+              "fg": null,
+              "bg": null
+            }
+          ]
+        },
+        "wc_vary_msgcount": 0,
+        "wc_mouse_support": 0,
+        "wc_map_mode": 0,
+        "wc_player_selection": 0,
+        "perminv_mode": 0,
+        "wc2_term_cols": 0,
+        "wc2_term_rows": 0,
+        "prevmsg_window": "s",
+        "menuinvertmode": 1,
+        "getloc_filter": 0,
+        "altmeta": false,
+        "wc_ascii_map": true,
+        "autodescribe": true,
+        "bgcolors": true,
+        "cmdassist": true,
+        "wc_color": true,
+        "customcolors": true,
+        "customsymbols": true,
+        "debug_hunger": false,
+        "debug_mongen": false,
+        "debug_overwrite_stairs": false,
+        "wc_eight_bit_input": false,
+        "extmenu": false,
+        "fireassist": true,
+        "force_invmenu": false,
+        "wc2_fullscreen": false,
+        "wc2_guicolor": true,
+        "herecmd_menu": false,
+        "wc_hilite_pet": false,
+        "hilite_pile": false,
+        "wc2_hitpointbar": false,
+        "idlecheckpoint": false,
+        "menu_overlay": true,
+        "menu_tab_sep": false,
+        "use_menu_color": false,
+        "mon_polycontrol": false,
+        "mon_telecontrol": false,
+        "news": false,
+        "perm_invent": false,
+        "wc_popup_dialog": false,
+        "wc_preload_tiles": true,
+        "pricequotes": false,
+        "query_menu": false,
+        "sanity_check": false,
+        "wc2_selectsaved": true,
+        "showdamage": false,
+        "wc2_softkeyboard": false,
+        "sounds": false,
+        "wc_splash_screen": false,
+        "status_updates": true,
+        "wc_tiled_map": false,
+        "toptenwin": false,
+        "trav_debug": false,
+        "wc2_darkgray": true,
+        "wc_inverse": true,
+        "use_truecolor": false,
+        "voices": false,
+        "getloc_usemenu": false,
+        "getloc_moveskip": false,
+        "wizmgender": false,
+        "wizweight": false,
+        "wc2_wraptext": false,
+        "menuobjsyms": 4,
+        "menu_head_objsym": false,
+        "use_menu_glyphs": true,
+        "cbreak": true,
+        "terrain_typ": 37,
+        "vision_inited": true,
+        "tux_penalty": false,
+        "last_msg": 0
+      },
+      "program_state": {
+        "$id": 47,
+        "in_role_selection": 0,
+        "in_docrt": false,
+        "beyond_savefile_load": 1,
+        "in_moveloop": 1
+      },
+      "nomovemsg": {
+        "$undefined": true
+      },
+      "multi_reason": {
+        "$undefined": true
+      },
+      "afternmv": {
+        "$undefined": true
+      }
+    }
+  },
+  "cube": {
+    "$id": 48,
+    "id": 79,
+    "ptr": 8,
+    "xy": {
+      "$id": 49,
+      "$array": [
+        68,
+        4
+      ]
+    },
+    "hp": 21,
+    "tame": 0,
+    "peaceful": false,
+    "minv": {
+      "$id": 50,
+      "$array": []
+    }
+  },
+  "cubeTileId": 79,
+  "nmon": {
+    "$id": 51,
+    "$array": [
+      {
+        "$id": 52,
+        "id": 79,
+        "species": 8,
+        "x": 68,
+        "y": 4,
+        "hp": 21,
+        "tame": 0,
+        "peaceful": false,
+        "minv": {
+          "$id": 53,
+          "$array": []
+        }
+      },
+      {
+        "$id": 54,
+        "id": 41,
+        "species": 59,
+        "x": 66,
+        "y": 15,
+        "hp": 2,
+        "tame": 0,
+        "peaceful": false,
+        "minv": {
+          "$id": 55,
+          "$array": [
+            {
+              "$id": 56,
+              "id": 43,
+              "otyp": 24,
+              "where": 4,
+              "quan": 11,
+              "age": 1,
+              "owt": 11,
+              "globby": false,
+              "timed": 0,
+              "oclass": 2,
+              "mass": null,
+              "blessed": false,
+              "cursed": false,
+              "unpaid": false,
+              "no_charge": false,
+              "nomerge": false,
+              "how_lost": 0,
+              "ox": 0,
+              "oy": 0,
+              "ocarryId": 41
+            }
+          ]
+        }
+      },
+      {
+        "$id": 57,
+        "id": 23,
+        "species": 12,
+        "x": 20,
+        "y": 15,
+        "hp": 2,
+        "tame": 0,
+        "peaceful": false,
+        "minv": {
+          "$id": 58,
+          "$array": []
+        }
+      },
+      {
+        "$id": 59,
+        "id": 9,
+        "species": 158,
+        "x": 5,
+        "y": 10,
+        "hp": 2,
+        "tame": 0,
+        "peaceful": false,
+        "minv": {
+          "$id": 60,
+          "$array": []
+        }
+      }
+    ]
+  },
+  "floorList": {
+    "$id": 61,
+    "$array": [
+      {
+        "$id": 62,
+        "id": 63,
+        "otyp": 438,
+        "where": 1,
+        "quan": 2,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 46,
+        "oy": 7,
+        "nexthereId": null
+      },
+      {
+        "$id": 63,
+        "id": 61,
+        "otyp": 462,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 13,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 45,
+        "oy": 15,
+        "nexthereId": null
+      },
+      {
+        "$id": 64,
+        "id": 58,
+        "otyp": 438,
+        "where": 1,
+        "quan": 60,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 37,
+        "oy": 13,
+        "nexthereId": null
+      },
+      {
+        "$id": 65,
+        "id": 56,
+        "otyp": 438,
+        "where": 1,
+        "quan": 26,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 24,
+        "oy": 18,
+        "nexthereId": null
+      },
+      {
+        "$id": 66,
+        "id": 55,
+        "otyp": 438,
+        "where": 1,
+        "quan": 39,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 19,
+        "oy": 3,
+        "nexthereId": null
+      },
+      {
+        "$id": 67,
+        "id": 53,
+        "otyp": 438,
+        "where": 1,
+        "quan": 49,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 10,
+        "oy": 16,
+        "nexthereId": null
+      },
+      {
+        "$id": 68,
+        "id": 51,
+        "otyp": 438,
+        "where": 1,
+        "quan": 55,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 8,
+        "oy": 14,
+        "nexthereId": null
+      },
+      {
+        "$id": 69,
+        "id": 47,
+        "otyp": 130,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 250,
+        "globby": false,
+        "timed": 0,
+        "oclass": 3,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 73,
+        "oy": 5,
+        "nexthereId": null
+      },
+      {
+        "$id": 70,
+        "id": 45,
+        "otyp": 432,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 7,
+        "globby": false,
+        "timed": 0,
+        "oclass": 11,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 71,
+        "oy": 17,
+        "nexthereId": null
+      },
+      {
+        "$id": 71,
+        "id": 40,
+        "otyp": 322,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 20,
+        "globby": false,
+        "timed": 0,
+        "oclass": 8,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 54,
+        "oy": 16,
+        "nexthereId": null
+      },
+      {
+        "$id": 72,
+        "id": 38,
+        "otyp": 24,
+        "where": 1,
+        "quan": 8,
+        "age": 1,
+        "owt": 8,
+        "globby": false,
+        "timed": 0,
+        "oclass": 2,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 38,
+        "oy": 4,
+        "nexthereId": 36
+      },
+      {
+        "$id": 73,
+        "id": 36,
+        "otyp": 25,
+        "where": 1,
+        "quan": 6,
+        "age": 1,
+        "owt": 6,
+        "globby": false,
+        "timed": 0,
+        "oclass": 2,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 38,
+        "oy": 4,
+        "nexthereId": null
+      },
+      {
+        "$id": 74,
+        "id": 27,
+        "otyp": 287,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 10,
+        "globby": false,
+        "timed": 0,
+        "oclass": 7,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 29,
+        "oy": 16,
+        "nexthereId": null
+      },
+      {
+        "$id": 75,
+        "id": 26,
+        "otyp": 163,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 10,
+        "globby": false,
+        "timed": 0,
+        "oclass": 3,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 27,
+        "oy": 3,
+        "nexthereId": null
+      },
+      {
+        "$id": 76,
+        "id": 25,
+        "otyp": 438,
+        "where": 1,
+        "quan": 3,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 28,
+        "oy": 4,
+        "nexthereId": null
+      },
+      {
+        "$id": 77,
+        "id": 17,
+        "otyp": 215,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 660,
+        "globby": false,
+        "timed": 0,
+        "oclass": 6,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 16,
+        "oy": 7,
+        "nexthereId": null
+      },
+      {
+        "$id": 78,
+        "id": 16,
+        "otyp": 476,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 300,
+        "globby": false,
+        "timed": 0,
+        "oclass": 14,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 17,
+        "oy": 9,
+        "nexthereId": null
+      },
+      {
+        "$id": 79,
+        "id": 13,
+        "otyp": 214,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 351,
+        "globby": false,
+        "timed": 0,
+        "oclass": 6,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 5,
+        "oy": 9,
+        "nexthereId": 11
+      },
+      {
+        "$id": 80,
+        "id": 11,
+        "otyp": 438,
+        "where": 1,
+        "quan": 4,
+        "age": 1,
+        "owt": 1,
+        "globby": false,
+        "timed": 0,
+        "oclass": 12,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 5,
+        "oy": 9,
+        "nexthereId": null
+      },
+      {
+        "$id": 81,
+        "id": 8,
+        "otyp": 410,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 7,
+        "globby": false,
+        "timed": 0,
+        "oclass": 11,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 56,
+        "oy": 19,
+        "nexthereId": 7
+      },
+      {
+        "$id": 82,
+        "id": 7,
+        "otyp": 333,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 5,
+        "globby": false,
+        "timed": 0,
+        "oclass": 9,
+        "mass": null,
+        "blessed": false,
+        "cursed": true,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 56,
+        "oy": 19,
+        "nexthereId": null
+      },
+      {
+        "$id": 83,
+        "id": 6,
+        "otyp": 285,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 5,
+        "globby": false,
+        "timed": 0,
+        "oclass": 7,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 21,
+        "oy": 12,
+        "nexthereId": 4
+      },
+      {
+        "$id": 84,
+        "id": 4,
+        "otyp": 333,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 5,
+        "globby": false,
+        "timed": 0,
+        "oclass": 9,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 21,
+        "oy": 12,
+        "nexthereId": 2
+      },
+      {
+        "$id": 85,
+        "id": 2,
+        "otyp": 265,
+        "where": 1,
+        "quan": 1,
+        "age": 1,
+        "owt": 1450,
+        "globby": false,
+        "timed": 1,
+        "oclass": 7,
+        "mass": null,
+        "blessed": false,
+        "cursed": false,
+        "unpaid": false,
+        "no_charge": false,
+        "nomerge": false,
+        "how_lost": 0,
+        "ox": 21,
+        "oy": 12,
+        "nexthereId": null
+      }
+    ]
+  },
+  "ownerChecks": {
+    "$id": 86,
+    "cubeNmon": true,
+    "cubeGrid": true,
+    "residentMinv": false,
+    "sackFloor": false,
+    "sackTile": false,
+    "incomingContained": false,
+    "originalInventory": true,
+    "originalFloor": true
+  },
+  "floorPile": {
+    "$id": 87,
+    "$array": []
+  },
+  "resident": null,
+  "sack": null,
+  "inventoryContents": {
+    "$id": 88,
+    "$array": [
+      {
+        "$id": 89,
+        "id": 64,
+        "children": {
+          "$id": 90,
+          "$array": []
+        }
+      },
+      {
+        "$id": 91,
+        "id": 66,
+        "children": {
+          "$id": 92,
+          "$array": []
+        }
+      },
+      {
+        "$id": 93,
+        "id": 68,
+        "children": {
+          "$id": 94,
+          "$array": []
+        }
+      },
+      {
+        "$id": 95,
+        "id": 70,
+        "children": {
+          "$id": 96,
+          "$array": []
+        }
+      },
+      {
+        "$id": 97,
+        "id": 75,
+        "children": {
+          "$id": 98,
+          "$array": []
+        }
+      },
+      {
+        "$id": 99,
+        "id": 76,
+        "children": {
+          "$id": 100,
+          "$array": []
+        }
+      },
+      {
+        "$id": 101,
+        "id": 77,
+        "children": {
+          "$id": 102,
+          "$array": []
+        }
+      },
+      {
+        "$id": 103,
+        "id": 78,
+        "children": {
+          "$id": 104,
+          "$array": []
+        }
+      }
+    ]
+  },
+  "floorContents": {
+    "$id": 105,
+    "$array": [
+      {
+        "$id": 106,
+        "id": 63,
+        "children": {
+          "$id": 107,
+          "$array": []
+        }
+      },
+      {
+        "$id": 108,
+        "id": 61,
+        "children": {
+          "$id": 109,
+          "$array": []
+        }
+      },
+      {
+        "$id": 110,
+        "id": 58,
+        "children": {
+          "$id": 111,
+          "$array": []
+        }
+      },
+      {
+        "$id": 112,
+        "id": 56,
+        "children": {
+          "$id": 113,
+          "$array": []
+        }
+      },
+      {
+        "$id": 114,
+        "id": 55,
+        "children": {
+          "$id": 115,
+          "$array": []
+        }
+      },
+      {
+        "$id": 116,
+        "id": 53,
+        "children": {
+          "$id": 117,
+          "$array": []
+        }
+      },
+      {
+        "$id": 118,
+        "id": 51,
+        "children": {
+          "$id": 119,
+          "$array": []
+        }
+      },
+      {
+        "$id": 120,
+        "id": 47,
+        "children": {
+          "$id": 121,
+          "$array": []
+        }
+      },
+      {
+        "$id": 122,
+        "id": 45,
+        "children": {
+          "$id": 123,
+          "$array": []
+        }
+      },
+      {
+        "$id": 124,
+        "id": 40,
+        "children": {
+          "$id": 125,
+          "$array": []
+        }
+      },
+      {
+        "$id": 126,
+        "id": 38,
+        "children": {
+          "$id": 127,
+          "$array": []
+        }
+      },
+      {
+        "$id": 128,
+        "id": 36,
+        "children": {
+          "$id": 129,
+          "$array": []
+        }
+      },
+      {
+        "$id": 130,
+        "id": 27,
+        "children": {
+          "$id": 131,
+          "$array": []
+        }
+      },
+      {
+        "$id": 132,
+        "id": 26,
+        "children": {
+          "$id": 133,
+          "$array": []
+        }
+      },
+      {
+        "$id": 134,
+        "id": 25,
+        "children": {
+          "$id": 135,
+          "$array": []
+        }
+      },
+      {
+        "$id": 136,
+        "id": 17,
+        "children": {
+          "$id": 137,
+          "$array": [
+            {
+              "$id": 138,
+              "id": 21,
+              "otyp": 302,
+              "where": 2,
+              "quan": 1,
+              "oclass": 8,
+              "baseWeight": 20,
+              "age": 1,
+              "owt": 20,
+              "globby": false,
+              "timed": 0,
+              "blessed": false,
+              "cursed": true,
+              "unpaid": false,
+              "no_charge": false,
+              "nomerge": false,
+              "how_lost": 0,
+              "mass": null,
+              "olocked": false,
+              "otrapped": false,
+              "children": {
+                "$id": 139,
+                "$array": []
+              }
+            },
+            {
+              "$id": 140,
+              "id": 19,
+              "otyp": 307,
+              "where": 2,
+              "quan": 2,
+              "oclass": 8,
+              "baseWeight": 20,
+              "age": 1,
+              "owt": 40,
+              "globby": false,
+              "timed": 0,
+              "blessed": true,
+              "cursed": false,
+              "unpaid": false,
+              "no_charge": false,
+              "nomerge": false,
+              "how_lost": 0,
+              "mass": null,
+              "olocked": false,
+              "otrapped": false,
+              "children": {
+                "$id": 141,
+                "$array": []
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$id": 142,
+        "id": 16,
+        "children": {
+          "$id": 143,
+          "$array": []
+        }
+      },
+      {
+        "$id": 144,
+        "id": 13,
+        "children": {
+          "$id": 145,
+          "$array": [
+            {
+              "$id": 146,
+              "id": 14,
+              "otyp": 461,
+              "where": 2,
+              "quan": 1,
+              "oclass": 13,
+              "baseWeight": 1,
+              "age": 1,
+              "owt": 1,
+              "globby": false,
+              "timed": 0,
+              "blessed": false,
+              "cursed": false,
+              "unpaid": false,
+              "no_charge": false,
+              "nomerge": false,
+              "how_lost": 0,
+              "mass": null,
+              "olocked": false,
+              "otrapped": false,
+              "children": {
+                "$id": 147,
+                "$array": []
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$id": 148,
+        "id": 11,
+        "children": {
+          "$id": 149,
+          "$array": []
+        }
+      },
+      {
+        "$id": 150,
+        "id": 8,
+        "children": {
+          "$id": 151,
+          "$array": []
+        }
+      },
+      {
+        "$id": 152,
+        "id": 7,
+        "children": {
+          "$id": 153,
+          "$array": []
+        }
+      },
+      {
+        "$id": 154,
+        "id": 6,
+        "children": {
+          "$id": 155,
+          "$array": []
+        }
+      },
+      {
+        "$id": 156,
+        "id": 4,
+        "children": {
+          "$id": 157,
+          "$array": []
+        }
+      },
+      {
+        "$id": 158,
+        "id": 2,
+        "children": {
+          "$id": 159,
+          "$array": []
+        }
+      }
+    ]
+  },
+  "incoming": null,
+  "clock": {
+    "$id": 160,
+    "moves": {
+      "$id": 161,
+      "present": true,
+      "type": "number",
+      "value": 1
+    },
+    "multi": {
+      "$id": 162,
+      "present": false,
+      "type": "undefined",
+      "value": {
+        "$id": 163,
+        "absentOrUndefined": true
+      }
+    },
+    "gameover": {
+      "$id": 164,
+      "present": false,
+      "type": "undefined",
+      "value": {
+        "$id": 165,
+        "absentOrUndefined": true
+      }
+    }
+  },
+  "timers": {
+    "$id": 166,
+    "$array": [
+      {
+        "$id": 167,
+        "objectId": 2,
+        "objectOtyp": 265,
+        "objectWhere": 1,
+        "objectMass": null,
+        "targetObjectId": null,
+        "exactArg": false,
+        "kind": 3,
+        "func_index": 1,
+        "timeout": 237,
+        "tid": 1,
+        "rootMoves": 1,
+        "future": true,
+        "timerObject": true,
+        "shrinkGlob": false
+      }
+    ]
+  },
+  "rng": {
+    "$id": 168,
+    "length": 2490,
+    "log": {
+      "$id": 169,
+      "$array": [
+        "rn2(2)=0",
+        "rn2(2)=1",
+        "rn2(4)=1",
+        "rn2(11)=1",
+        "rn2(10)=1",
+        "rn2(9)=7",
+        "rn2(8)=0",
+        "rn2(7)=1",
+        "rn2(6)=3",
+        "rn2(5)=0",
+        "rn2(4)=2",
+        "rn2(3)=0",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(25)=2",
+        "rn2(24)=14",
+        "rn2(23)=11",
+        "rn2(22)=8",
+        "rn2(21)=4",
+        "rn2(20)=10",
+        "rn2(19)=8",
+        "rn2(18)=2",
+        "rn2(17)=5",
+        "rn2(16)=14",
+        "rn2(15)=7",
+        "rn2(14)=11",
+        "rn2(13)=6",
+        "rn2(12)=5",
+        "rn2(11)=6",
+        "rn2(10)=5",
+        "rn2(9)=0",
+        "rn2(8)=2",
+        "rn2(7)=2",
+        "rn2(6)=1",
+        "rn2(5)=2",
+        "rn2(4)=3",
+        "rn2(3)=0",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(28)=5",
+        "rn2(27)=17",
+        "rn2(26)=24",
+        "rn2(25)=16",
+        "rn2(24)=6",
+        "rn2(23)=14",
+        "rn2(22)=9",
+        "rn2(21)=19",
+        "rn2(20)=11",
+        "rn2(19)=5",
+        "rn2(18)=5",
+        "rn2(17)=10",
+        "rn2(16)=6",
+        "rn2(15)=9",
+        "rn2(14)=12",
+        "rn2(13)=7",
+        "rn2(12)=3",
+        "rn2(11)=4",
+        "rn2(10)=8",
+        "rn2(9)=0",
+        "rn2(8)=3",
+        "rn2(7)=5",
+        "rn2(6)=1",
+        "rn2(5)=0",
+        "rn2(4)=2",
+        "rn2(3)=2",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(41)=20",
+        "rn2(40)=33",
+        "rn2(39)=19",
+        "rn2(38)=15",
+        "rn2(37)=27",
+        "rn2(36)=23",
+        "rn2(35)=11",
+        "rn2(34)=2",
+        "rn2(33)=27",
+        "rn2(32)=31",
+        "rn2(31)=30",
+        "rn2(30)=21",
+        "rn2(29)=28",
+        "rn2(28)=25",
+        "rn2(27)=11",
+        "rn2(26)=12",
+        "rn2(25)=5",
+        "rn2(24)=12",
+        "rn2(23)=22",
+        "rn2(22)=17",
+        "rn2(21)=5",
+        "rn2(20)=15",
+        "rn2(19)=9",
+        "rn2(18)=8",
+        "rn2(17)=9",
+        "rn2(16)=3",
+        "rn2(15)=8",
+        "rn2(14)=12",
+        "rn2(13)=11",
+        "rn2(12)=11",
+        "rn2(11)=4",
+        "rn2(10)=8",
+        "rn2(9)=7",
+        "rn2(8)=4",
+        "rn2(7)=2",
+        "rn2(6)=2",
+        "rn2(5)=1",
+        "rn2(4)=3",
+        "rn2(3)=2",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(41)=26",
+        "rn2(40)=4",
+        "rn2(39)=16",
+        "rn2(38)=18",
+        "rn2(37)=27",
+        "rn2(36)=17",
+        "rn2(35)=29",
+        "rn2(34)=16",
+        "rn2(33)=31",
+        "rn2(32)=7",
+        "rn2(31)=23",
+        "rn2(30)=22",
+        "rn2(29)=8",
+        "rn2(28)=17",
+        "rn2(27)=25",
+        "rn2(26)=18",
+        "rn2(25)=2",
+        "rn2(24)=20",
+        "rn2(23)=11",
+        "rn2(22)=0",
+        "rn2(21)=18",
+        "rn2(20)=12",
+        "rn2(19)=16",
+        "rn2(18)=6",
+        "rn2(17)=5",
+        "rn2(16)=4",
+        "rn2(15)=11",
+        "rn2(14)=11",
+        "rn2(13)=4",
+        "rn2(12)=1",
+        "rn2(11)=2",
+        "rn2(10)=1",
+        "rn2(9)=3",
+        "rn2(8)=2",
+        "rn2(7)=1",
+        "rn2(6)=4",
+        "rn2(5)=3",
+        "rn2(4)=0",
+        "rn2(3)=0",
+        "rn2(2)=0",
+        "rn2(1)=0",
+        "rn2(28)=6",
+        "rn2(27)=5",
+        "rn2(26)=23",
+        "rn2(25)=20",
+        "rn2(24)=7",
+        "rn2(23)=4",
+        "rn2(22)=17",
+        "rn2(21)=11",
+        "rn2(20)=2",
+        "rn2(19)=0",
+        "rn2(18)=1",
+        "rn2(17)=2",
+        "rn2(16)=8",
+        "rn2(15)=12",
+        "rn2(14)=10",
+        "rn2(13)=9",
+        "rn2(12)=8",
+        "rn2(11)=2",
+        "rn2(10)=9",
+        "rn2(9)=8",
+        "rn2(8)=6",
+        "rn2(7)=5",
+        "rn2(6)=0",
+        "rn2(5)=2",
+        "rn2(4)=0",
+        "rn2(3)=0",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(4)=3",
+        "rn2(3)=2",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(4)=1",
+        "rn2(3)=2",
+        "rn2(2)=0",
+        "rn2(1)=0",
+        "rn2(4)=3",
+        "rn2(3)=2",
+        "rn2(2)=1",
+        "rn2(1)=0",
+        "rn2(7)=3",
+        "rn2(6)=3",
+        "rn2(5)=0",
+        "rn2(4)=2",
+        "rn2(3)=2",
+        "rn2(2)=0",
+        "rn2(1)=0",
+        "rn2(2)=0",
+        "rn2(100)=54",
+        "rn2(3)=1",
+        "rn2(2)=1",
+        "rn2(100)=98",
+        "rn2(5)=0",
+        "rn2(100)=50",
+        "rn2(100)=46",
+        "rn2(100)=49",
+        "rn2(100)=23",
+        "rn2(100)=10",
+        "rn2(4)=2",
+        "rn2(5)=0",
+        "rn2(4)=2",
+        "rn2(1)=0",
+        "rn2(100)=51",
+        "rn2(5)=2",
+        "rn2(1)=0",
+        "rn2(100)=16",
+        "rn2(100)=7",
+        "rn2(100)=85",
+        "rn2(100)=12",
+        "rn2(100)=30",
+        "rn2(100)=34",
+        "rn2(100)=34",
+        "rn2(100)=55",
+        "rn2(100)=51",
+        "rn2(100)=90",
+        "rn2(100)=91",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(4)=2",
+        "rn2(3)=1",
+        "rn2(5)=2",
+        "rn2(6)=4",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(5)=4",
+        "rn2(3)=1",
+        "rn2(2)=1",
+        "rn2(100)=20",
+        "rn2(2)=0",
+        "rn2(3)=2",
+        "rn2(100)=45",
+        "rn2(100)=22",
+        "rn2(2)=0",
+        "rn2(1)=0",
+        "rn2(100)=53",
+        "rn2(2)=1",
+        "rn2(2)=1",
+        "rn2(100)=28",
+        "rn2(100)=2",
+        "rn2(100)=66",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(100)=29",
+        "rn2(1)=0",
+        "rn2(100)=74",
+        "rn2(100)=57",
+        "rn2(100)=87",
+        "rn2(100)=80",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(100)=68",
+        "rn2(4)=3",
+        "rn2(100)=48",
+        "rn2(1)=0",
+        "rn2(100)=41",
+        "rn2(5)=3",
+        "rn2(100)=41",
+        "rn2(100)=43",
+        "rn2(100)=21",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(100)=16",
+        "rn2(1)=0",
+        "rn2(100)=92",
+        "rn2(100)=70",
+        "rn2(100)=33",
+        "rn2(100)=64",
+        "rn2(100)=83",
+        "rn2(100)=49",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(100)=61",
+        "rn2(100)=50",
+        "rn2(100)=12",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(7)=3",
+        "rn2(7)=2",
+        "rn2(7)=1",
+        "rn2(7)=0",
+        "rn2(7)=5",
+        "rn2(10)=1",
+        "rn2(3)=0",
+        "rn2(2)=0",
+        "rn2(3)=0",
+        "rn2(5)=3",
+        "rn2(3)=1",
+        "rn2(2)=0",
+        "rn2(1)=0",
+        "rn2(1000)=972",
+        "rn2(1001)=610",
+        "rn2(1002)=606",
+        "rn2(1003)=527",
+        "rn2(1004)=528",
+        "rn2(1010)=309",
+        "rn2(1012)=432",
+        "rn2(1014)=975",
+        "rn2(1015)=255",
+        "rn2(1016)=115",
+        "rn2(1017)=784",
+        "rn2(1018)=122",
+        "rn2(1019)=459",
+        "rn2(1020)=944",
+        "rn2(1021)=453",
+        "rn2(1022)=525",
+        "rn2(1023)=729",
+        "rn2(1024)=333",
+        "rn2(1025)=820",
+        "rn2(1026)=509",
+        "rn2(1027)=174",
+        "rn2(1028)=888",
+        "rn2(1029)=365",
+        "rn2(1030)=326",
+        "rn2(1031)=734",
+        "rn2(1032)=847",
+        "rn2(1033)=349",
+        "rn2(1034)=302",
+        "rn2(1035)=145",
+        "rn2(1036)=988",
+        "rn2(100)=30",
+        "rnd(2)=2",
+        "rn2(77)=53",
+        "rn2(1)=0",
+        "rn2(12)=5",
+        "rn2(4)=3",
+        "rn2(65)=63",
+        "rn2(10)=1",
+        "rn2(2)=1",
+        "rn2(1000)=301",
+        "rn2(1001)=656",
+        "rn2(1002)=824",
+        "rn2(1003)=208",
+        "rn2(1004)=442",
+        "rn2(1010)=902",
+        "rn2(1012)=82",
+        "rn2(1014)=592",
+        "rn2(1015)=553",
+        "rn2(1016)=231",
+        "rn2(1017)=217",
+        "rn2(1018)=439",
+        "rn2(1019)=762",
+        "rn2(1020)=990",
+        "rn2(1021)=111",
+        "rn2(1022)=858",
+        "rn2(1023)=864",
+        "rn2(1024)=409",
+        "rn2(1025)=872",
+        "rn2(1026)=97",
+        "rn2(1027)=189",
+        "rn2(1028)=798",
+        "rn2(1029)=518",
+        "rn2(1030)=471",
+        "rn2(1031)=119",
+        "rn2(1032)=350",
+        "rn2(1033)=791",
+        "rn2(1034)=541",
+        "rn2(1035)=114",
+        "rn2(1036)=391",
+        "rn2(100)=39",
+        "rnd(2)=2",
+        "rn2(77)=61",
+        "rn2(2)=0",
+        "rn2(12)=0",
+        "rn2(4)=0",
+        "rn2(54)=12",
+        "rn2(13)=5",
+        "rn2(1)=0",
+        "rn2(3)=0",
+        "rn2(1000)=975",
+        "rn2(1001)=103",
+        "rn2(1002)=847",
+        "rn2(1003)=977",
+        "rn2(1004)=116",
+        "rn2(1010)=983",
+        "rn2(1012)=579",
+        "rn2(1014)=821",
+        "rn2(1015)=741",
+        "rn2(1016)=808",
+        "rn2(1017)=328",
+        "rn2(1018)=968",
+        "rn2(1019)=254",
+        "rn2(1020)=283",
+        "rn2(1021)=527",
+        "rn2(1022)=400",
+        "rn2(1023)=621",
+        "rn2(1024)=411",
+        "rn2(1025)=865",
+        "rn2(1026)=827",
+        "rn2(1027)=913",
+        "rn2(1028)=326",
+        "rn2(1029)=388",
+        "rn2(1030)=336",
+        "rn2(1031)=697",
+        "rn2(1032)=360",
+        "rn2(1033)=285",
+        "rn2(1034)=310",
+        "rn2(1035)=916",
+        "rn2(1036)=748",
+        "rn2(100)=56",
+        "rnd(2)=2",
+        "rn2(77)=44",
+        "rn2(3)=0",
+        "rn2(12)=6",
+        "rn2(4)=2",
+        "rn2(3)=2",
+        "rn2(12)=6",
+        "rn2(4)=1",
+        "rn2(28)=24",
+        "rn2(12)=9",
+        "rn2(2)=0",
+        "rn2(3)=0",
+        "rn2(4)=3",
+        "rn2(1000)=827",
+        "rn2(1001)=562",
+        "rn2(1002)=593",
+        "rn2(1003)=614",
+        "rn2(1004)=978",
+        "rn2(1010)=461",
+        "rn2(1012)=945",
+        "rn2(1014)=108",
+        "rn2(1015)=243",
+        "rn2(1016)=548",
+        "rn2(1017)=224",
+        "rn2(1018)=231",
+        "rn2(1019)=420",
+        "rn2(1020)=1",
+        "rn2(1021)=542",
+        "rn2(1022)=124",
+        "rn2(1023)=1010",
+        "rn2(1024)=215",
+        "rn2(1025)=985",
+        "rn2(1026)=729",
+        "rn2(1027)=633",
+        "rn2(1028)=986",
+        "rn2(1029)=221",
+        "rn2(1030)=470",
+        "rn2(1031)=618",
+        "rn2(1032)=4",
+        "rn2(1033)=1028",
+        "rn2(1034)=901",
+        "rn2(1035)=753",
+        "rn2(1036)=1029",
+        "rn2(100)=90",
+        "rnd(2)=1",
+        "rn2(77)=2",
+        "rn2(4)=1",
+        "rn2(8)=4",
+        "rn2(4)=1",
+        "rn2(4)=1",
+        "rn2(8)=6",
+        "rn2(4)=3",
+        "rn2(4)=0",
+        "rn2(12)=6",
+        "rn2(4)=3",
+        "rn2(4)=2",
+        "rn2(8)=0",
+        "rn2(4)=3",
+        "rn2(16)=13",
+        "rn2(10)=1",
+        "rn2(3)=2",
+        "rn2(5)=0",
+        "rn2(1000)=959",
+        "rn2(1001)=207",
+        "rn2(1002)=213",
+        "rn2(1003)=422",
+        "rn2(1004)=850",
+        "rn2(1010)=679",
+        "rn2(1012)=37",
+        "rn2(1014)=500",
+        "rn2(1015)=376",
+        "rn2(1016)=156",
+        "rn2(1017)=1002",
+        "rn2(1018)=568",
+        "rn2(1019)=381",
+        "rn2(1020)=618",
+        "rn2(1021)=78",
+        "rn2(1022)=817",
+        "rn2(1023)=841",
+        "rn2(1024)=806",
+        "rn2(1025)=281",
+        "rn2(1026)=124",
+        "rn2(1027)=510",
+        "rn2(1028)=515",
+        "rn2(1029)=217",
+        "rn2(1030)=591",
+        "rn2(1031)=288",
+        "rn2(1032)=907",
+        "rn2(1033)=157",
+        "rn2(1034)=604",
+        "rn2(1035)=910",
+        "rn2(1036)=282",
+        "rn2(100)=70",
+        "rnd(2)=1",
+        "rn2(77)=28",
+        "rn2(5)=3",
+        "rn2(8)=2",
+        "rn2(4)=0",
+        "rn2(10)=6",
+        "rn2(8)=5",
+        "rn2(5)=0",
+        "rn2(1000)=229",
+        "rn2(1001)=962",
+        "rn2(1002)=474",
+        "rn2(1003)=58",
+        "rn2(1004)=833",
+        "rn2(1010)=754",
+        "rn2(1012)=740",
+        "rn2(1014)=699",
+        "rn2(1015)=616",
+        "rn2(1016)=630",
+        "rn2(1017)=57",
+        "rn2(1018)=765",
+        "rn2(1019)=1011",
+        "rn2(1020)=152",
+        "rn2(1021)=261",
+        "rn2(1022)=159",
+        "rn2(1023)=643",
+        "rn2(1024)=222",
+        "rn2(1025)=279",
+        "rn2(1026)=124",
+        "rn2(1027)=993",
+        "rn2(1028)=228",
+        "rn2(1029)=849",
+        "rn2(1030)=153",
+        "rn2(1031)=853",
+        "rn2(1032)=420",
+        "rn2(1033)=256",
+        "rn2(1034)=188",
+        "rn2(1035)=431",
+        "rn2(1036)=831",
+        "rn2(100)=50",
+        "rnd(2)=1",
+        "rn2(77)=48",
+        "rn2(5)=0",
+        "rn2(8)=7",
+        "rn2(4)=2",
+        "rn2(5)=2",
+        "rn2(8)=3",
+        "rn2(4)=1",
+        "rn2(5)=0",
+        "rn2(8)=7",
+        "rn2(4)=0",
+        "rn2(5)=2",
+        "rn2(8)=6",
+        "rn2(4)=1",
+        "rn2(5)=4",
+        "rn2(8)=0",
+        "rn2(4)=3",
+        "rn2(5)=2",
+        "rn2(8)=0",
+        "rn2(4)=3",
+        "rn2(5)=4",
+        "rn2(5)=2",
+        "rn2(5)=1",
+        "rn2(2)=0",
+        "rn2(1000)=893",
+        "rn2(1001)=950",
+        "rn2(1002)=274",
+        "rn2(1003)=43",
+        "rn2(1004)=533",
+        "rn2(1010)=449",
+        "rn2(1012)=848",
+        "rn2(1014)=540",
+        "rn2(1015)=49",
+        "rn2(1016)=133",
+        "rn2(1017)=32",
+        "rn2(1018)=577",
+        "rn2(1019)=382",
+        "rn2(1020)=549",
+        "rn2(1021)=394",
+        "rn2(1022)=13",
+        "rn2(1023)=796",
+        "rn2(1024)=614",
+        "rn2(1025)=322",
+        "rn2(1026)=565",
+        "rn2(1027)=425",
+        "rn2(1028)=23",
+        "rn2(1029)=808",
+        "rn2(1030)=425",
+        "rn2(1031)=529",
+        "rn2(1032)=135",
+        "rn2(1033)=99",
+        "rn2(1034)=738",
+        "rn2(1035)=730",
+        "rn2(1036)=613",
+        "rn2(100)=57",
+        "rnd(2)=2",
+        "rn2(77)=68",
+        "rn2(5)=0",
+        "rn2(8)=7",
+        "rn2(4)=0",
+        "rn2(7)=2",
+        "rn2(4)=1",
+        "rn2(4)=3",
+        "rn2(2)=1",
+        "rn2(4)=0",
+        "rn2(6)=5",
+        "rn2(4)=0",
+        "rn2(3)=1",
+        "rn2(2)=0",
+        "rn2(1000)=361",
+        "rn2(1001)=516",
+        "rn2(1002)=723",
+        "rn2(1003)=827",
+        "rn2(1004)=836",
+        "rn2(1010)=13",
+        "rn2(1012)=368",
+        "rn2(1014)=519",
+        "rn2(1015)=322",
+        "rn2(1016)=29",
+        "rn2(1017)=686",
+        "rn2(1018)=477",
+        "rn2(1019)=363",
+        "rn2(1020)=885",
+        "rn2(1021)=950",
+        "rn2(1022)=314",
+        "rn2(1023)=297",
+        "rn2(1024)=455",
+        "rn2(1025)=834",
+        "rn2(1026)=768",
+        "rn2(1027)=881",
+        "rn2(1028)=245",
+        "rn2(1029)=712",
+        "rn2(1030)=577",
+        "rn2(1031)=647",
+        "rn2(1032)=634",
+        "rn2(1033)=592",
+        "rn2(1034)=703",
+        "rn2(1035)=324",
+        "rn2(1036)=940",
+        "rn2(100)=93",
+        "rnd(2)=1",
+        "rn2(77)=46",
+        "rn2(3)=2",
+        "rn2(8)=5",
+        "rn2(4)=0",
+        "rn2(3)=0",
+        "rn2(8)=0",
+        "rn2(4)=3",
+        "rn2(3)=2",
+        "rn2(8)=5",
+        "rn2(4)=3",
+        "rn2(3)=0",
+        "rn2(8)=3",
+        "rn2(4)=3",
+        "rn2(3)=2",
+        "rn2(8)=0",
+        "rn2(4)=3",
+        "rn2(3)=1",
+        "rn2(8)=4",
+        "rn2(4)=1",
+        "rn2(3)=1",
+        "rn2(8)=7",
+        "rn2(4)=1",
+        "rn2(3)=1",
+        "rn2(8)=7",
+        "rn2(4)=3",
+        "rn2(3)=0",
+        "rn2(8)=6",
+        "rn2(4)=2",
+        "rn2(3)=1",
+        "rn2(8)=0",
+        "rn2(4)=1",
+        "rn2(3)=0",
+        "rn2(12)=5",
+        "rn2(7)=4",
+        "rn2(2)=0",
+        "rn2(2)=0",
+        "rn2(1000)=765",
+        "rn2(1001)=401",
+        "rn2(1002)=442",
+        "rn2(1003)=260",
+        "rn2(1004)=19",
+        "rn2(1010)=263",
+        "rn2(1012)=389",
+        "rn2(1014)=434",
+        "rn2(1015)=859",
+        "rn2(1016)=907",
+        "rn2(1017)=510",
+        "rn2(1018)=652",
+        "rn2(1019)=576",
+        "rn2(1020)=18",
+        "rn2(1021)=959",
+        "rn2(1022)=475",
+        "rn2(1023)=136",
+        "rn2(1024)=383",
+        "rn2(1025)=363",
+        "rn2(1026)=808",
+        "rn2(1027)=819",
+        "rn2(1028)=788",
+        "rn2(1029)=133",
+        "rn2(1030)=458",
+        "rn2(1031)=217",
+        "rn2(1032)=420",
+        "rn2(1033)=380",
+        "rn2(1034)=275",
+        "rn2(1035)=52",
+        "rn2(1036)=50",
+        "rn2(100)=23",
+        "rnd(2)=2",
+        "rn2(77)=55",
+        "rn2(2)=0",
+        "rn2(8)=2",
+        "rn2(4)=1",
+        "rn2(2)=1",
+        "rn2(8)=1",
+        "rn2(4)=0",
+        "rn2(7)=6",
+        "rn2(4)=0",
+        "rn2(1)=0",
+        "rn2(2)=1",
+        "rn2(1000)=158",
+        "rn2(1001)=871",
+        "rn2(1002)=769",
+        "rn2(1003)=737",
+        "rn2(1004)=55",
+        "rn2(1010)=240",
+        "rn2(1012)=588",
+        "rn2(1014)=869",
+        "rn2(1015)=452",
+        "rn2(1016)=169",
+        "rn2(1017)=192",
+        "rn2(1018)=516",
+        "rn2(1019)=352",
+        "rn2(1020)=716",
+        "rn2(1021)=30",
+        "rn2(1022)=418",
+        "rn2(1023)=469",
+        "rn2(1024)=14",
+        "rn2(1025)=378",
+        "rn2(1026)=874",
+        "rn2(1027)=801",
+        "rn2(1028)=346",
+        "rn2(1029)=233",
+        "rn2(1030)=253",
+        "rn2(1031)=712",
+        "rn2(1032)=930",
+        "rn2(1033)=417",
+        "rn2(1034)=817",
+        "rn2(1035)=559",
+        "rn2(1036)=16",
+        "rn2(100)=81",
+        "rnd(2)=1",
+        "rn2(77)=10",
+        "rn2(1)=0",
+        "rn2(8)=3",
+        "rn2(4)=1",
+        "rn2(1)=0",
+        "rn2(8)=2",
+        "rn2(4)=1",
+        "rn2(1)=0",
+        "rn2(8)=5",
+        "rn2(4)=0",
+        "rn2(1)=0",
+        "rn2(8)=5",
+        "rn2(4)=3",
+        "rn2(1)=0",
+        "rn2(8)=3",
+        "rn2(4)=2",
+        "rn2(1)=0",
+        "rn2(8)=6",
+        "rn2(4)=1",
+        "rn2(1)=0",
+        "rn2(8)=1",
+        "rn2(4)=3",
+        "rn2(1)=0",
+        "rn2(8)=7",
+        "rn2(4)=0",
+        "rn2(1)=0",
+        "rn2(8)=1",
+        "rn2(4)=0",
+        "rn2(4)=3",
+        "rn2(2)=1",
+        "rn2(10)=4",
+        "rn2(3)=2",
+        "rn2(6)=1",
+        "rn2(4)=3",
+        "rn2(3)=0",
+        "rn2(4)=2",
+        "rn2(3)=0",
+        "rn2(4)=1",
+        "rn2(3)=0",
+        "rn2(4)=1",
+        "rn2(3)=1",
+        "rn2(2)=0",
+        "rn2(3)=1",
+        "rn2(3)=0",
+        "rn2(5)=4",
+        "rn2(6)=4",
+        "rn2(50)=8",
+        "rn2(3)=2",
+        "rn2(3)=2",
+        "rn2(5)=0",
+        "rn2(4)=0",
+        "rn2(3)=1",
+        "rn2(2)=0",
+        "rn2(3)=2",
+        "rn2(4)=3",
+        "rn2(3)=2",
+        "rn2(3)=2",
+        "rn2(50)=42",
+        "rn2(3)=1",
+        "rn2(3)=0",
+        "rn2(11)=9",
+        "rn2(10)=9",
+        "rn2(9)=1",
+        "rn2(8)=6",
+        "rn2(7)=6",
+        "rn2(6)=4",
+        "rn2(5)=1",
+        "rn2(4)=3",
+        "rn2(3)=0",
+        "rn2(4)=0",
+        "rn2(3)=1",
+        "rn2(3)=0",
+        "rn2(5)=3",
+        "rn2(6)=0",
+        "rn2(50)=1",
+        "rn2(4)=0",
+        "rn2(3)=0",
+        "rn2(3)=1",
+        "rn2(2)=0",
+        "rn2(3)=1",
+        "rn2(3)=0",
+        "rn2(5)=0",
+        "rn2(50)=49",
+        "rn2(6)=1",
+        "rn2(6)=5",
+        "rn2(3)=0",
+        "rn2(4)=0",
+        "rn2(5)=0",
+        "rn2(3)=0",
+        "rn2(5)=4",
+        "rn2(6)=4",
+        "rn2(3)=0",
+        "rn2(5)=3",
+        "rn2(6)=5",
+        "rn2(50)=24",
+        "rn2(6)=2",
+        "rn2(3)=0",
+        "rn2(3)=2",
+        "rn2(2)=0",
+        "rn2(3)=2",
+        "rn2(2)=1",
+        "rn2(2)=1",
+        "rn2(3)=2",
+        "rn2(3)=0",
+        "rn2(5)=0",
+        "rn2(50)=8",
+        "rn2(9)=1",
+        "rn2(5)=2",
+        "rn2(3)=2",
+        "rn2(2)=0",
+        "rn2(3)=2",
+        "rn2(2)=0",
+        "rn2(3)=0",
+        "rn2(4)=3",
+        "rn2(3)=0",
+        "rn2(4)=0",
+        "rn2(3)=2",
+        "rn2(3)=2",
+        "rn2(50)=28",
+        "rn2(3)=1",
+        "rn2(3)=2",
+        "rn2(5)=0",
+        "rn2(3)=1",
+        "rn2(3)=2",
+        "rn2(50)=13",
+        "rn2(10)=1",
+        "rn2(8)=2",
+        "rn2(2)=1",
+        "rn2(2)=0",
+        "rn2(3)=2",
+        "rn2(3)=2",
+        "rn2(50)=47",
+        "rn2(10)=0",
+        "rn2(10)=6",
+        "rn2(8)=6",
+        "rn2(3)=0",
+        "rn2(3)=1",
+        "rn2(3)=1",
+        "rn2(3)=1",
+        "rn2(3)=0",
+        "rn2(35)=26",
+        "rn2(50)=37",
+        "rn2(9)=8",
+        "rn2(35)=19",
+        "rn2(50)=26",
+        "rn2(8)=3",
+        "rn2(35)=9",
+        "rn2(50)=34",
+        "rn2(7)=5",
+        "rn2(35)=15",
+        "rn2(50)=40",
+        "rn2(6)=0",
+        "rn2(35)=24",
+        "rn2(50)=12",
+        "rn2(7)=6",
+        "rn2(35)=13",
+        "rn2(50)=13",
+        "rn2(6)=5",
+        "rn2(35)=32",
+        "rn2(50)=34",
+        "rn2(5)=1",
+        "rn2(35)=34",
+        "rn2(50)=9",
+        "rn2(4)=3",
+        "rn2(35)=9",
+        "rn2(50)=22",
+        "rn2(3)=1",
+        "rn2(35)=5",
+        "rn2(50)=3",
+        "rn2(2)=0",
+        "rn2(35)=0",
+        "rn2(3)=0",
+        "rn2(5)=2",
+        "rn2(6)=4",
+        "rn2(10)=4",
+        "rn2(8)=6",
+        "rn2(6)=4",
+        "rn2(3)=0",
+        "rn2(35)=31",
+        "rn2(50)=39",
+        "rn2(31)=2",
+        "rn2(35)=21",
+        "rn2(50)=14",
+        "rn2(30)=5",
+        "rn2(35)=1",
+        "rn2(50)=26",
+        "rn2(29)=20",
+        "rn2(35)=15",
+        "rn2(50)=36",
+        "rn2(28)=27",
+        "rn2(35)=23",
+        "rn2(50)=22",
+        "rn2(27)=23",
+        "rn2(35)=13",
+        "rn2(50)=29",
+        "rn2(26)=20",
+        "rn2(35)=5",
+        "rn2(50)=49",
+        "rn2(25)=19",
+        "rn2(35)=31",
+        "rn2(50)=33",
+        "rn2(24)=18",
+        "rn2(35)=21",
+        "rn2(50)=44",
+        "rn2(23)=11",
+        "rn2(35)=31",
+        "rn2(50)=8",
+        "rn2(22)=2",
+        "rn2(35)=12",
+        "rn2(50)=32",
+        "rn2(21)=3",
+        "rn2(35)=20",
+        "rn2(50)=4",
+        "rn2(20)=8",
+        "rn2(35)=0",
+        "rn2(3)=2",
+        "rn2(10)=2",
+        "rn2(8)=2",
+        "rn2(3)=0",
+        "rn2(3)=2",
+        "rn2(3)=0",
+        "rn2(3)=2",
+        "rn2(3)=1",
+        "rn2(6)=1",
+        "rn2(10)=4",
+        "rn2(8)=5",
+        "rn2(6)=5",
+        "rn2(6)=5",
+        "rn2(6)=0",
+        "rn2(6)=3",
+        "rn2(6)=5",
+        "rn2(6)=3",
+        "rn2(6)=4",
+        "rn2(3)=0",
+        "rnd(6)=3",
+        "rn2(10)=2",
+        "rn2(2)=0",
+        "rn2(4)=3",
+        "rn2(4)=2",
+        "rn2(7)=0",
+        "rn2(5)=0",
+        "rn2(3)=2",
+        "rn2(9)=8",
+        "rn2(9)=8",
+        "rn2(9)=4",
+        "rn2(9)=4",
+        "rn2(9)=1",
+        "rn2(2)=1",
+        "rnd(4)=4",
+        "rnd(2)=2",
+        "rn2(3)=1",
+        "rn2(4)=1",
+        "rn2(5)=1",
+        "rn2(7)=0",
+        "rn2(8)=5",
+        "rn2(11)=5",
+        "rn2(15)=0",
+        "rn2(16)=13",
+        "rn2(21)=10",
+        "rn2(1000)=931",
+        "rn2(4)=2",
+        "rne(4)=1",
+        "rn2(2)=0",
+        "rnz(25)=12",
+        "rnd(2)=2",
+        "rn2(4)=1",
+        "rn2(3)=0",
+        "rnd(100)=23",
+        "rnd(1000)=335",
+        "rnd(2)=1",
+        "rn2(6)=1",
+        "rn2(10)=7",
+        "rn2(2)=1",
+        "rn2(5)=4",
+        "rn2(4)=3",
+        "rn2(7)=0",
+        "rn2(5)=1",
+        "rnd(2)=1",
+        "rn2(4)=0",
+        "rn2(2)=0",
+        "rn2(3)=0",
+        "rnd(100)=95",
+        "rnd(1000)=1",
+        "rnd(2)=1",
+        "rn2(5)=2",
+        "rn2(17)=16",
+        "rn2(10)=9",
+        "rn2(5)=0",
+        "rn2(2)=1",
+        "rn2(8)=7",
+        "rn2(4)=3",
+        "rn2(7)=2",
+        "rn2(5)=2",
+        "rn2(5)=3",
+        "rn2(3)=2",
+        "rn2(9)=8",
+        "rn2(8)=1",
+        "rn2(6)=1",
+        "rn2(10)=1",
+        "rn2(3)=0",
+        "rn2(3)=2",
+        "rn2(4)=3",
+        "rn2(3)=2",
+        "rn2(4)=3",
+        "rn2(5)=1",
+        "rn2(7)=5",
+        "rn2(8)=1",
+        "rn2(11)=6",
+        "rn2(15)=2",
+        "rn2(16)=7",
+        "rn2(21)=10",
+        "rnd(2)=2",
+        "rnd(4)=2",
+        "rn2(50)=38",
+        "rn2(100)=48",
+        "rn2(100)=99",
+        "rn2(8)=1",
+        "rn2(3)=0",
+        "rn2(3)=2",
+        "rn2(4)=2",
+        "rnd(2)=1",
+        "rnd(3)=3",
+        "rnd(2)=2",
+        "rn2(10)=2",
+        "rn2(60)=45",
+        "rn2(60)=30",
+        "rn2(78)=26",
+        "rn2(20)=19",
+        "rn2(25)=0",
+        "rn2(3)=2",
+        "rn2(4)=2",
+        "rn2(3)=1",
+        "rnd(2)=1",
+        "rn2(5)=0",
+        "rn2(10)=6",
+        "rn2(4)=1",
+        "rnd(100)=13",
+        "rnd(1000)=194",
+        "rnd(2)=2",
+        "rn2(6)=3",
+        "rn2(30)=15",
+        "rn2(3)=2",
+        "rn2(3)=2",
+        "rn2(8)=6",
+        "rn2(3)=2",
+        "rn2(10)=2",
+        "rn2(60)=17",
+        "rn2(60)=11",
+        "rn2(78)=17",
+        "rn2(20)=0",
+        "rn2(3)=2",
+        "rn2(3)=2",
+        "rnd(2)=1",
+        "rn2(3)=2",
+        "rn2(4)=1",
+        "rn2(5)=3",
+        "rn2(7)=2",
+        "rn2(8)=6",
+        "rn2(11)=4",
+        "rn2(15)=3",
+        "rn2(16)=3",
+        "rn2(21)=5",
+        "rn2(10)=0",
+        "rn2(3)=1",
+        "rn2(3)=0",
+        "rn2(3)=2",
+        "rn2(3)=1",
+        "rnd(2)=2",
+        "rn2(6)=3",
+        "rn2(2)=1",
+        "rnd(2)=2",
+        "rn2(4)=0",
+        "rn2(2)=1",
+        "rn2(2)=1",
+        "rn2(5)=1",
+        "rn2(3)=2",
+        "rn2(10)=5",
+        "rnd(1000)=227",
+        "rnd(2)=2",
+        "rn2(4)=0",
+        "rn2(2)=0",
+        "rn2(30)=26",
+        "rn2(3)=1",
+        "rn2(3)=0",
+        "rn2(4)=2",
+        "rn2(3)=1",
+        "rn2(3)=2",
+        "rn2(4)=1",
+        "rn2(5)=2",
+        "rn2(7)=2",
+        "rn2(8)=3",
+        "rn2(11)=10",
+        "rn2(15)=11",
+        "rn2(16)=10",
+        "rn2(21)=7",
+        "rnd(2)=2",
+        "rnd(4)=2",
+        "rn2(2)=0",
+        "rn2(50)=15",
+        "rn2(100)=81",
+        "rn2(100)=60",
+        "rn2(8)=2",
+        "rn2(3)=2",
+        "rn2(10)=6",
+        "rn2(60)=17",
+        "rn2(60)=35",
+        "rn2(78)=32",
+        "rn2(20)=1",
+        "rn2(25)=10",
+        "rn2(30)=2",
+        "rn2(3)=1",
+        "rn2(3)=2",
+        "rn2(8)=1",
+        "rn2(3)=0",
+        "rn2(4)=1",
+        "rn2(3)=1",
+        "rnd(2)=1",
+        "rnd(3)=2",
+        "rnd(2)=1",
+        "rn2(10)=1",
+        "rn2(60)=30",
+        "rn2(60)=43",
+        "rn2(78)=34",
+        "rn2(20)=14",
+        "rn2(25)=3",
+        "rn2(30)=23",
+        "rn2(3)=0",
+        "rn2(4)=0",
+        "rn2(3)=0",
+        "rnd(100)=21",
+        "rnd(1000)=895",
+        "rnd(2)=1",
+        "rn2(10)=4",
+        "rn2(11)=2",
+        "rn2(10)=9",
+        "rn2(10)=6",
+        "rn2(40)=15",
+        "rn2(100)=28",
+        "rn2(80)=10",
+        "rn2(80)=56",
+        "rn2(1000)=169",
+        "rn2(5)=1",
+        "rn2(3)=1",
+        "rn2(8)=0",
+        "rnd(25)=24",
+        "rnd(25)=6",
+        "rnd(25)=18",
+        "rnd(25)=21",
+        "rn2(3)=2",
+        "rn2(6)=0",
+        "rnd(4)=4",
+        "rn2(8)=2",
+        "rn2(3)=2",
+        "rn2(10)=0",
+        "rn2(3)=2",
+        "rn2(6)=3",
+        "rn2(7)=0",
+        "rn2(60)=5",
+        "rn2(60)=48",
+        "rn2(78)=66",
+        "rn2(20)=12",
+        "rn2(25)=18",
+        "rn2(30)=13",
+        "rn2(3)=0",
+        "rn2(3)=1",
+        "rn2(6)=4",
+        "rnd(100)=38",
+        "rnd(1000)=404",
+        "rnd(2)=2",
+        "rn2(6)=1",
+        "rn2(5)=3",
+        "rn2(3)=1",
+        "rn2(8)=3",
+        "rn2(3)=2",
+        "rn2(10)=3",
+        "rn2(60)=34",
+        "rn2(60)=40",
+        "rn2(78)=0",
+        "rn2(10)=6",
+        "rn2(3)=0",
+        "rn2(6)=3",
+        "rn2(24075)=5955",
+        "rn2(3)=0",
+        "rnd(2)=1",
+        "rnd(20)=11",
+        "rnd(5)=1",
+        "rn2(5)=4",
+        "rnd(100)=88",
+        "rnd(1000)=590",
+        "rnd(2)=2",
+        "rn2(4)=3",
+        "rnd(100)=84",
+        "rnd(1000)=817",
+        "rnd(2)=2",
+        "rn2(4)=0",
+        "rn2(2)=1",
+        "rnd(100)=27",
+        "rnd(1000)=856",
+        "rnd(2)=1",
+        "rn2(6)=3",
+        "rnd(100)=34",
+        "rnd(1000)=327",
+        "rnd(2)=1",
+        "rn2(6)=1",
+        "rn2(20)=4",
+        "rn2(25)=12",
+        "rn2(30)=18",
+        "rn2(3)=0",
+        "rn2(3)=0",
+        "rn2(6)=3",
+        "rn2(3)=1",
+        "rn2(6)=1",
+        "rnd(100)=7",
+        "rnd(1002)=243",
+        "rnd(2)=2",
+        "rn2(6)=0",
+        "rn2(11)=0",
+        "rn2(3)=0",
+        "rn2(3)=0",
+        "rn2(3)=1",
+        "rne(3)=3",
+        "rn2(2)=0",
+        "rn2(100)=83",
+        "rn2(20)=11",
+        "rn2(100)=10",
+        "rn2(80)=66",
+        "rn2(80)=37",
+        "rn2(1000)=812",
+        "rn2(5)=0",
+        "rn2(3)=1",
+        "rn2(6)=1",
+        "rnd(100)=2",
+        "rnd(1002)=206",
+        "rnd(2)=2",
+        "rn2(6)=2",
+        "rn2(11)=10",
+        "rn2(10)=1",
+        "rn2(10)=9",
+        "rn2(100)=48",
+        "rn2(20)=0",
+        "rn2(100)=1",
+        "rn2(80)=76",
+        "rn2(80)=13",
+        "rn2(1000)=952",
+        "rn2(5)=1",
+        "rn2(3)=2",
+        "rn2(8)=4",
+        "rn2(3)=1",
+        "rn2(10)=1",
+        "rn2(60)=16",
+        "rn2(60)=34",
+        "rn2(78)=34",
+        "rn2(20)=9",
+        "rn2(25)=13",
+        "rn2(30)=4",
+        "rn2(3)=2",
+        "rn2(3)=1",
+        "rn2(8)=6",
+        "rn2(3)=1",
+        "rn2(10)=8",
+        "rn2(60)=41",
+        "rn2(60)=28",
+        "rn2(78)=36",
+        "rn2(20)=4",
+        "rn2(25)=4",
+        "rn2(30)=5",
+        "rn2(3)=0",
+        "rn2(5)=2",
+        "rn2(3)=1",
+        "rnd(100)=61",
+        "rnd(1000)=954",
+        "rnd(2)=1",
+        "rn2(4)=3",
+        "rn2(5)=3",
+        "rn2(3)=0",
+        "rn2(10)=1",
+        "rn2(3)=0",
+        "rn2(3)=1",
+        "rn2(4)=3",
+        "rn2(5)=0",
+        "rn2(7)=4",
+        "rn2(8)=2",
+        "rn2(11)=10",
+        "rn2(15)=6",
+        "rn2(16)=14",
+        "rn2(21)=12",
+        "rnd(2)=2",
+        "rnd(4)=1",
+        "rn2(2)=0",
+        "rn2(4)=0",
+        "rnd(2)=2",
+        "rn2(6)=3",
+        "rn2(11)=10",
+        "rn2(10)=4",
+        "rn2(10)=8",
+        "rn2(100)=78",
+        "rn2(100)=96",
+        "rn2(80)=51",
+        "rn2(80)=16",
+        "rn2(1000)=385",
+        "rn2(12)=8",
+        "rn2(75)=71",
+        "rn2(50)=37",
+        "rn2(100)=31",
+        "rn2(100)=47",
+        "rn2(8)=1",
+        "rn2(3)=2",
+        "rn2(10)=2",
+        "rn2(60)=59",
+        "rn2(60)=57",
+        "rn2(78)=71",
+        "rn2(20)=10",
+        "rn2(25)=14",
+        "rn2(30)=22",
+        "rn2(3)=0",
+        "rn2(10)=6",
+        "rn2(3)=2",
+        "rnd(100)=94",
+        "rnd(1000)=908",
+        "rnd(2)=2",
+        "rn2(5)=4",
+        "rn2(17)=14",
+        "rn2(5)=1",
+        "rn2(3)=2",
+        "rn2(8)=2",
+        "rn2(3)=2",
+        "rn2(10)=4",
+        "rn2(60)=42",
+        "rn2(60)=46",
+        "rn2(78)=55",
+        "rn2(20)=17",
+        "rn2(25)=11",
+        "rn2(30)=7",
+        "rn2(3)=0",
+        "rn2(8)=1",
+        "rn2(6)=1",
+        "rn2(8)=7",
+        "rn2(6)=2",
+        "rnd(100)=13",
+        "rnd(1000)=382",
+        "rnd(2)=2",
+        "rn2(10)=4",
+        "rn2(11)=7",
+        "rn2(10)=7",
+        "rn2(10)=7",
+        "rn2(40)=11",
+        "rn2(100)=60",
+        "rn2(80)=11",
+        "rn2(80)=71",
+        "rn2(1000)=564",
+        "rn2(5)=4",
+        "rn2(1000)=874",
+        "rn2(1000)=364",
+        "rn2(1000)=614",
+        "rn2(1000)=41",
+        "rn2(1000)=477",
+        "rn2(1000)=515",
+        "rn2(1000)=461",
+        "rn2(1000)=625",
+        "rn2(1000)=633",
+        "rn2(1000)=549",
+        "rn2(1000)=524",
+        "rn2(1000)=586",
+        "rn2(1000)=879",
+        "rn2(1000)=22",
+        "rn2(1000)=827",
+        "rn2(1000)=266",
+        "rn2(1000)=215",
+        "rn2(1000)=303",
+        "rn2(1000)=474",
+        "rn2(1000)=110",
+        "rn2(1000)=174",
+        "rn2(1000)=607",
+        "rn2(1000)=322",
+        "rn2(1000)=152",
+        "rn2(1000)=273",
+        "rn2(1000)=590",
+        "rn2(1000)=155",
+        "rn2(1000)=848",
+        "rn2(1000)=960",
+        "rn2(1000)=976",
+        "rn2(1000)=110",
+        "rn2(1000)=243",
+        "rn2(1000)=485",
+        "rn2(1000)=433",
+        "rn2(1000)=6",
+        "rnd(2)=2",
+        "rnd(60)=17",
+        "rn2(3)=0",
+        "rn2(1000)=325",
+        "rn2(1000)=160",
+        "rn2(1000)=489",
+        "rn2(1000)=292",
+        "rn2(1000)=145",
+        "rn2(1000)=414",
+        "rn2(1000)=338",
+        "rn2(1000)=393",
+        "rn2(1000)=875",
+        "rn2(1000)=446",
+        "rn2(1000)=429",
+        "rn2(1000)=641",
+        "rn2(1000)=113",
+        "rn2(1000)=880",
+        "rn2(1000)=123",
+        "rn2(1000)=269",
+        "rn2(1000)=78",
+        "rn2(1000)=961",
+        "rn2(1000)=526",
+        "rn2(1000)=478",
+        "rn2(1000)=606",
+        "rn2(1000)=27",
+        "rn2(1000)=771",
+        "rn2(1000)=115",
+        "rn2(1000)=915",
+        "rn2(1000)=416",
+        "rn2(1000)=491",
+        "rn2(1000)=774",
+        "rn2(1000)=142",
+        "rn2(1000)=587",
+        "rn2(1000)=739",
+        "rn2(1000)=888",
+        "rn2(1000)=73",
+        "rn2(1000)=832",
+        "rn2(1000)=936",
+        "rn2(1000)=958",
+        "rn2(1000)=697",
+        "rn2(1000)=316",
+        "rn2(1000)=86",
+        "rn2(1000)=953",
+        "rn2(1000)=85",
+        "rn2(1000)=747",
+        "rn2(1000)=48",
+        "rn2(1000)=610",
+        "rn2(1000)=888",
+        "rn2(1000)=636",
+        "rn2(1000)=122",
+        "rn2(1000)=903",
+        "rn2(1000)=296",
+        "rn2(1000)=443",
+        "rn2(1000)=728",
+        "rn2(1000)=733",
+        "rn2(1000)=861",
+        "rn2(1000)=232",
+        "rn2(1000)=464",
+        "rn2(1000)=276",
+        "rn2(1000)=20",
+        "rn2(1000)=332",
+        "rn2(1000)=415",
+        "rn2(1000)=590",
+        "rn2(1000)=682",
+        "rn2(1000)=683",
+        "rn2(1000)=995",
+        "rn2(1000)=987",
+        "rn2(1000)=882",
+        "rn2(1000)=131",
+        "rn2(1000)=23",
+        "rn2(1000)=172",
+        "rn2(1000)=6",
+        "rn2(1000)=23",
+        "rn2(1000)=133",
+        "rn2(1000)=583",
+        "rn2(1000)=251",
+        "rn2(1000)=625",
+        "rn2(1000)=98",
+        "rn2(1000)=162",
+        "rn2(1000)=966",
+        "rn2(1000)=420",
+        "rn2(1000)=631",
+        "rn2(1000)=302",
+        "rn2(1000)=155",
+        "rn2(1000)=792",
+        "rn2(1000)=83",
+        "rn2(1000)=648",
+        "rn2(1000)=72",
+        "rn2(1000)=565",
+        "rn2(1000)=666",
+        "rn2(1000)=125",
+        "rn2(1000)=901",
+        "rn2(1000)=757",
+        "rn2(1000)=311",
+        "rn2(1000)=889",
+        "rn2(1000)=189",
+        "rn2(1000)=201",
+        "rn2(1000)=504",
+        "rn2(1000)=255",
+        "rn2(1000)=283",
+        "rn2(1000)=185",
+        "rn2(1000)=395",
+        "rn2(1000)=745",
+        "rn2(1000)=779",
+        "rn2(1000)=265",
+        "rn2(1000)=142",
+        "rn2(1000)=760",
+        "rn2(1000)=500",
+        "rn2(1000)=570",
+        "rn2(1000)=869",
+        "rn2(1000)=816",
+        "rn2(1000)=353",
+        "rn2(1000)=562",
+        "rn2(1000)=695",
+        "rn2(1000)=653",
+        "rn2(1000)=979",
+        "rn2(1000)=16",
+        "rnd(2)=2",
+        "rnd(60)=54",
+        "rn2(3)=2",
+        "rn2(1000)=751",
+        "rn2(1000)=109",
+        "rn2(1000)=741",
+        "rn2(1000)=348",
+        "rn2(1000)=31",
+        "rn2(1000)=940",
+        "rn2(1000)=187",
+        "rn2(1000)=622",
+        "rn2(1000)=78",
+        "rn2(1000)=702",
+        "rn2(1000)=605",
+        "rn2(1000)=818",
+        "rn2(1000)=217",
+        "rn2(1000)=688",
+        "rn2(1000)=55",
+        "rn2(1000)=225",
+        "rn2(1000)=336",
+        "rn2(1000)=391",
+        "rn2(1000)=940",
+        "rn2(1000)=909",
+        "rn2(1000)=521",
+        "rn2(1000)=694",
+        "rn2(1000)=363",
+        "rn2(1000)=991",
+        "rn2(1000)=236",
+        "rn2(1000)=476",
+        "rn2(1000)=196",
+        "rn2(1000)=534",
+        "rn2(1000)=118",
+        "rn2(1000)=203",
+        "rn2(1000)=33",
+        "rn2(1000)=994",
+        "rn2(1000)=663",
+        "rn2(1000)=392",
+        "rn2(1000)=796",
+        "rn2(1000)=195",
+        "rn2(1000)=615",
+        "rn2(1000)=409",
+        "rn2(1000)=635",
+        "rn2(1000)=299",
+        "rn2(1000)=958",
+        "rn2(1000)=864",
+        "rn2(1000)=477",
+        "rn2(1000)=863",
+        "rn2(1000)=420",
+        "rn2(1000)=617",
+        "rn2(1000)=434",
+        "rn2(1000)=436",
+        "rn2(1000)=334",
+        "rn2(1000)=224",
+        "rn2(1000)=179",
+        "rn2(1000)=316",
+        "rn2(1000)=766",
+        "rn2(1000)=286",
+        "rn2(1000)=925",
+        "rn2(1000)=929",
+        "rn2(1000)=235",
+        "rn2(1000)=315",
+        "rn2(1000)=803",
+        "rn2(1000)=11",
+        "rnd(2)=2",
+        "rnd(60)=48",
+        "rn2(3)=1",
+        "rn2(1000)=427",
+        "rn2(1000)=467",
+        "rn2(1000)=612",
+        "rn2(1000)=164",
+        "rn2(1000)=304",
+        "rn2(1000)=378",
+        "rn2(1000)=26",
+        "rn2(1000)=200",
+        "rn2(1000)=579",
+        "rn2(1000)=925",
+        "rn2(1000)=292",
+        "rn2(1000)=561",
+        "rn2(1000)=412",
+        "rn2(1000)=144",
+        "rn2(1000)=867",
+        "rn2(1000)=683",
+        "rn2(1000)=672",
+        "rn2(1000)=527",
+        "rn2(1000)=641",
+        "rn2(1000)=866",
+        "rn2(1000)=798",
+        "rn2(1000)=577",
+        "rn2(1000)=572",
+        "rn2(1000)=130",
+        "rn2(1000)=619",
+        "rn2(1000)=727",
+        "rn2(1000)=832",
+        "rn2(1000)=871",
+        "rn2(1000)=546",
+        "rn2(1000)=483",
+        "rn2(1000)=821",
+        "rn2(1000)=378",
+        "rn2(1000)=464",
+        "rn2(1000)=149",
+        "rn2(1000)=768",
+        "rn2(1000)=84",
+        "rn2(1000)=901",
+        "rn2(1000)=814",
+        "rn2(1000)=560",
+        "rn2(1000)=714",
+        "rn2(1000)=486",
+        "rn2(1000)=723",
+        "rn2(1000)=446",
+        "rn2(1000)=682",
+        "rn2(1000)=488",
+        "rn2(1000)=157",
+        "rn2(1000)=37",
+        "rn2(1000)=559",
+        "rn2(1000)=10",
+        "rn2(1000)=523",
+        "rn2(1000)=443",
+        "rn2(1000)=950",
+        "rn2(1000)=124",
+        "rn2(1000)=603",
+        "rn2(1000)=773",
+        "rn2(1000)=519",
+        "rn2(1000)=266",
+        "rn2(1000)=965",
+        "rn2(1000)=481",
+        "rn2(1000)=798",
+        "rn2(1000)=872",
+        "rn2(1000)=522",
+        "rn2(1000)=342",
+        "rn2(1000)=222",
+        "rn2(1000)=50",
+        "rn2(1000)=887",
+        "rn2(1000)=330",
+        "rn2(1000)=400",
+        "rn2(1000)=359",
+        "rn2(1000)=531",
+        "rn2(1000)=741",
+        "rn2(1000)=627",
+        "rn2(1000)=404",
+        "rn2(1000)=558",
+        "rn2(1000)=376",
+        "rn2(1000)=707",
+        "rn2(1000)=43",
+        "rn2(1000)=89",
+        "rn2(1000)=699",
+        "rn2(1000)=211",
+        "rn2(1000)=429",
+        "rn2(1000)=430",
+        "rn2(1000)=617",
+        "rn2(1000)=607",
+        "rn2(1000)=746",
+        "rn2(1000)=839",
+        "rn2(1000)=78",
+        "rn2(1000)=201",
+        "rn2(1000)=728",
+        "rn2(1000)=818",
+        "rn2(1000)=973",
+        "rn2(1000)=352",
+        "rn2(1000)=23",
+        "rn2(1000)=170",
+        "rn2(1000)=64",
+        "rn2(1000)=943",
+        "rn2(1000)=662",
+        "rn2(1000)=142",
+        "rn2(1000)=326",
+        "rn2(1000)=675",
+        "rn2(1000)=166",
+        "rn2(1000)=247",
+        "rn2(1000)=816",
+        "rn2(1000)=286",
+        "rn2(1000)=996",
+        "rn2(1000)=789",
+        "rn2(1000)=700",
+        "rn2(1000)=300",
+        "rn2(1000)=293",
+        "rn2(1000)=188",
+        "rn2(1000)=175",
+        "rn2(1000)=50",
+        "rn2(1000)=12",
+        "rn2(1000)=77",
+        "rn2(1000)=947",
+        "rn2(1000)=977",
+        "rn2(1000)=148",
+        "rn2(1000)=97",
+        "rn2(1000)=49",
+        "rn2(1000)=966",
+        "rn2(1000)=843",
+        "rn2(1000)=856",
+        "rn2(1000)=70",
+        "rn2(1000)=208",
+        "rn2(1000)=859",
+        "rn2(1000)=301",
+        "rn2(1000)=865",
+        "rn2(1000)=712",
+        "rn2(1000)=939",
+        "rn2(1000)=937",
+        "rn2(1000)=664",
+        "rn2(1000)=65",
+        "rn2(1000)=473",
+        "rn2(1000)=920",
+        "rn2(1000)=966",
+        "rn2(1000)=509",
+        "rn2(1000)=202",
+        "rn2(1000)=581",
+        "rn2(1000)=870",
+        "rn2(1000)=385",
+        "rn2(1000)=355",
+        "rn2(1000)=823",
+        "rn2(1000)=200",
+        "rn2(1000)=851",
+        "rn2(1000)=128",
+        "rn2(1000)=855",
+        "rn2(1000)=223",
+        "rn2(1000)=292",
+        "rn2(1000)=464",
+        "rn2(1000)=611",
+        "rn2(1000)=244",
+        "rn2(1000)=347",
+        "rn2(1000)=402",
+        "rn2(1000)=901",
+        "rn2(1000)=597",
+        "rn2(1000)=804",
+        "rn2(1000)=124",
+        "rn2(1000)=570",
+        "rn2(1000)=832",
+        "rn2(1000)=836",
+        "rn2(1000)=790",
+        "rn2(1000)=5",
+        "rnd(2)=1",
+        "rnd(60)=38",
+        "rn2(3)=2",
+        "rn2(1000)=489",
+        "rn2(1000)=335",
+        "rn2(1000)=461",
+        "rn2(1000)=361",
+        "rn2(1000)=317",
+        "rn2(1000)=887",
+        "rn2(1000)=431",
+        "rn2(1000)=166",
+        "rn2(1000)=871",
+        "rn2(1000)=803",
+        "rn2(1000)=39",
+        "rn2(1000)=542",
+        "rn2(1000)=502",
+        "rn2(1000)=924",
+        "rn2(1000)=231",
+        "rn2(1000)=789",
+        "rn2(1000)=440",
+        "rn2(1000)=499",
+        "rn2(1000)=310",
+        "rn2(1000)=147",
+        "rn2(1000)=125",
+        "rn2(1000)=133",
+        "rn2(1000)=612",
+        "rn2(1000)=222",
+        "rn2(1000)=471",
+        "rn2(1000)=357",
+        "rn2(1000)=208",
+        "rn2(1000)=164",
+        "rn2(1000)=398",
+        "rn2(1000)=996",
+        "rn2(1000)=153",
+        "rn2(1000)=768",
+        "rn2(1000)=24",
+        "rn2(1000)=705",
+        "rn2(1000)=793",
+        "rn2(1000)=762",
+        "rn2(1000)=512",
+        "rn2(1000)=723",
+        "rn2(1000)=526",
+        "rn2(1000)=98",
+        "rn2(1000)=587",
+        "rn2(1000)=793",
+        "rn2(1000)=33",
+        "rn2(1000)=576",
+        "rn2(1000)=139",
+        "rn2(1000)=433",
+        "rn2(1000)=986",
+        "rn2(1000)=606",
+        "rn2(1000)=463",
+        "rn2(1000)=693",
+        "rn2(1000)=944",
+        "rn2(1000)=238",
+        "rn2(1000)=971",
+        "rn2(1000)=461",
+        "rn2(1000)=912",
+        "rn2(1000)=954",
+        "rn2(1000)=469",
+        "rn2(1000)=704",
+        "rn2(1000)=190",
+        "rn2(1000)=644",
+        "rn2(1000)=819",
+        "rn2(1000)=474",
+        "rn2(1000)=887",
+        "rn2(1000)=509",
+        "rn2(1000)=886",
+        "rn2(1000)=358",
+        "rn2(1000)=190",
+        "rn2(1000)=821",
+        "rn2(1000)=751",
+        "rn2(1000)=79",
+        "rn2(1000)=201",
+        "rn2(1000)=5",
+        "rnd(2)=2",
+        "rnd(60)=25",
+        "rn2(3)=1",
+        "rn2(1000)=590",
+        "rn2(1000)=401",
+        "rn2(1000)=539",
+        "rn2(1000)=969",
+        "rn2(1000)=958",
+        "rn2(1000)=268",
+        "rn2(1000)=826",
+        "rn2(1000)=587",
+        "rn2(1000)=893",
+        "rn2(1000)=831",
+        "rn2(1000)=680",
+        "rn2(1000)=626",
+        "rn2(1000)=421",
+        "rn2(1000)=356",
+        "rn2(1000)=387",
+        "rn2(1000)=987",
+        "rn2(1000)=525",
+        "rn2(1000)=135",
+        "rn2(1000)=524",
+        "rn2(1000)=774",
+        "rn2(1000)=10",
+        "rn2(1000)=548",
+        "rn2(1000)=418",
+        "rn2(1000)=707",
+        "rn2(1000)=505",
+        "rn2(1000)=481",
+        "rn2(1000)=625",
+        "rn2(1000)=129",
+        "rn2(1000)=76",
+        "rn2(1000)=614",
+        "rn2(1000)=437",
+        "rn2(1000)=291",
+        "rn2(1000)=176",
+        "rn2(1000)=278",
+        "rn2(1000)=427",
+        "rn2(1000)=773",
+        "rn2(1000)=610",
+        "rn2(1000)=963",
+        "rn2(1000)=622",
+        "rn2(1000)=678",
+        "rn2(1000)=938",
+        "rn2(1000)=145",
+        "rn2(1000)=219",
+        "rn2(1000)=672",
+        "rn2(1000)=117",
+        "rn2(1000)=840",
+        "rn2(1000)=385",
+        "rn2(1000)=774",
+        "rn2(1000)=79",
+        "rn2(1000)=472",
+        "rn2(1000)=692",
+        "rn2(1000)=149",
+        "rn2(1000)=796",
+        "rn2(1000)=418",
+        "rn2(1000)=865",
+        "rn2(1000)=354",
+        "rn2(1000)=726",
+        "rn2(1000)=431",
+        "rn2(1000)=924",
+        "rn2(1000)=151",
+        "rn2(1000)=694",
+        "rn2(1000)=470",
+        "rn2(1000)=896",
+        "rn2(1000)=49",
+        "rn2(1000)=217",
+        "rn2(1000)=483",
+        "rn2(1000)=692",
+        "rn2(1000)=395",
+        "rn2(1000)=877",
+        "rn2(1000)=494",
+        "rn2(1000)=136",
+        "rn2(1000)=656",
+        "rn2(1000)=317",
+        "rn2(1000)=478",
+        "rn2(1000)=276",
+        "rn2(1000)=386",
+        "rn2(1000)=757",
+        "rn2(1000)=912",
+        "rn2(1000)=100",
+        "rn2(1000)=904",
+        "rn2(1000)=970",
+        "rn2(1000)=292",
+        "rn2(1000)=891",
+        "rn2(1000)=390",
+        "rn2(1000)=67",
+        "rn2(1000)=804",
+        "rn2(1000)=663",
+        "rn2(1000)=344",
+        "rn2(1000)=151",
+        "rn2(1000)=637",
+        "rn2(1000)=764",
+        "rn2(1000)=11",
+        "rnd(2)=1",
+        "rnd(60)=59",
+        "rn2(3)=1",
+        "rn2(1000)=234",
+        "rn2(1000)=266",
+        "rn2(1000)=567",
+        "rn2(1000)=75",
+        "rn2(1000)=746",
+        "rn2(1000)=880",
+        "rn2(1000)=324",
+        "rn2(1000)=55",
+        "rn2(1000)=759",
+        "rn2(1000)=424",
+        "rn2(1000)=496",
+        "rn2(1000)=837",
+        "rn2(1000)=66",
+        "rn2(1000)=433",
+        "rn2(1000)=358",
+        "rn2(1000)=930",
+        "rn2(1000)=578",
+        "rn2(1000)=898",
+        "rn2(1000)=653",
+        "rn2(1000)=394",
+        "rn2(1000)=184",
+        "rn2(1000)=284",
+        "rn2(1000)=599",
+        "rn2(1000)=864",
+        "rn2(1000)=798",
+        "rn2(1000)=784",
+        "rn2(1000)=545",
+        "rn2(1000)=210",
+        "rn2(1000)=27",
+        "rn2(1000)=423",
+        "rn2(1000)=514",
+        "rn2(1000)=720",
+        "rn2(1000)=905",
+        "rn2(1000)=98",
+        "rn2(1000)=819",
+        "rn2(1000)=485",
+        "rn2(1000)=492",
+        "rn2(1000)=881",
+        "rn2(1000)=492",
+        "rn2(1000)=535",
+        "rn2(1000)=778",
+        "rn2(1000)=890",
+        "rn2(1000)=609",
+        "rn2(1000)=243",
+        "rn2(1000)=441",
+        "rn2(1000)=279",
+        "rn2(1000)=352",
+        "rn2(1000)=445",
+        "rn2(1000)=100",
+        "rn2(1000)=604",
+        "rn2(1000)=793",
+        "rn2(1000)=533",
+        "rn2(1000)=402",
+        "rn2(1000)=623",
+        "rn2(1000)=870",
+        "rn2(1000)=514",
+        "rn2(1000)=834",
+        "rn2(1000)=26",
+        "rn2(1000)=240",
+        "rn2(1000)=863",
+        "rn2(1000)=684",
+        "rn2(1000)=52",
+        "rn2(1000)=560",
+        "rn2(1000)=849",
+        "rn2(1000)=844",
+        "rn2(1000)=700",
+        "rn2(1000)=921",
+        "rn2(1000)=981",
+        "rn2(1000)=808",
+        "rn2(1000)=742",
+        "rn2(1000)=677",
+        "rn2(1000)=104",
+        "rn2(1000)=325",
+        "rn2(1000)=96",
+        "rn2(1000)=809",
+        "rn2(1000)=712",
+        "rn2(1000)=371",
+        "rn2(1000)=192",
+        "rn2(1000)=527",
+        "rn2(1000)=191",
+        "rn2(1000)=350",
+        "rn2(1000)=881",
+        "rn2(1000)=547",
+        "rn2(1000)=51",
+        "rn2(1000)=346",
+        "rn2(1000)=730",
+        "rn2(1000)=272",
+        "rn2(1000)=99",
+        "rn2(1000)=122",
+        "rn2(1000)=666",
+        "rn2(1000)=869",
+        "rn2(1000)=117",
+        "rn2(1000)=796",
+        "rn2(1000)=236",
+        "rn2(1000)=252",
+        "rn2(1000)=988",
+        "rn2(1000)=368",
+        "rn2(1000)=914",
+        "rn2(1000)=781",
+        "rn2(1000)=246",
+        "rn2(1000)=588",
+        "rn2(1000)=154",
+        "rn2(1000)=952",
+        "rn2(1000)=339",
+        "rn2(1000)=730",
+        "rn2(1000)=44",
+        "rn2(1000)=228",
+        "rn2(1000)=216",
+        "rn2(1000)=505",
+        "rn2(1000)=174",
+        "rn2(1000)=220",
+        "rn2(1000)=672",
+        "rn2(1000)=567",
+        "rn2(1000)=63",
+        "rn2(1000)=473",
+        "rn2(1000)=919",
+        "rn2(1000)=18",
+        "rn2(1000)=485",
+        "rn2(1000)=163",
+        "rn2(1000)=597",
+        "rn2(1000)=83",
+        "rn2(1000)=975",
+        "rn2(1000)=537",
+        "rn2(1000)=430",
+        "rn2(1000)=672",
+        "rn2(1000)=952",
+        "rn2(1000)=135",
+        "rn2(1000)=998",
+        "rn2(1000)=93",
+        "rn2(1000)=428",
+        "rn2(1000)=945",
+        "rn2(1000)=572",
+        "rn2(1000)=951",
+        "rn2(1000)=950",
+        "rn2(1000)=742",
+        "rn2(1000)=818",
+        "rn2(1000)=139",
+        "rn2(1000)=243",
+        "rn2(1000)=870",
+        "rn2(1000)=968",
+        "rn2(1000)=269",
+        "rn2(1000)=18",
+        "rnd(2)=2",
+        "rnd(60)=29",
+        "rn2(3)=0",
+        "rn2(1000)=101",
+        "rn2(1000)=937",
+        "rn2(1000)=3",
+        "rnd(2)=2",
+        "rnd(1000)=276",
+        "rnd(2)=1",
+        "rn2(6)=1",
+        "rn2(3)=2",
+        "rnd(1000)=79",
+        "rnd(2)=1",
+        "rn2(6)=5",
+        "rn2(3)=0",
+        "rn2(1000)=617",
+        "rn2(1000)=760",
+        "rn2(1000)=227",
+        "rn2(1000)=630",
+        "rn2(1000)=225",
+        "rn2(1000)=474",
+        "rn2(1000)=779",
+        "rn2(1000)=721",
+        "rn2(1000)=3",
+        "rnd(2)=1",
+        "rnd(60)=1",
+        "rn2(3)=2",
+        "rn2(1000)=864",
+        "rn2(1000)=449",
+        "rn2(1000)=807",
+        "rn2(1000)=640",
+        "rn2(1000)=895",
+        "rn2(1000)=289",
+        "rn2(1000)=546",
+        "rn2(1000)=456",
+        "rn2(1000)=114",
+        "rn2(1000)=157",
+        "rn2(1000)=951",
+        "rn2(1000)=155",
+        "rn2(1000)=83",
+        "rn2(1000)=790",
+        "rn2(1000)=461",
+        "rn2(1000)=497",
+        "rn2(1000)=747",
+        "rn2(1000)=889",
+        "rn2(1000)=598",
+        "rn2(1000)=437",
+        "rn2(1000)=181",
+        "rn2(1000)=58",
+        "rn2(1000)=214",
+        "rn2(1000)=55",
+        "rn2(1000)=839",
+        "rn2(1000)=122",
+        "rn2(1000)=792",
+        "rn2(1000)=305",
+        "rn2(1000)=509",
+        "rn2(1000)=991",
+        "rn2(1000)=540",
+        "rn2(1000)=718",
+        "rn2(1000)=790",
+        "rn2(1000)=393",
+        "rn2(1000)=290",
+        "rn2(1000)=68",
+        "rn2(1000)=983",
+        "rn2(1000)=305",
+        "rn2(1000)=145",
+        "rn2(1000)=342",
+        "rn2(1000)=300",
+        "rn2(1000)=421",
+        "rn2(1000)=561",
+        "rn2(1000)=492",
+        "rn2(1000)=556",
+        "rn2(1000)=759",
+        "rn2(1000)=767",
+        "rn2(1000)=765",
+        "rn2(1000)=175",
+        "rn2(1000)=857",
+        "rn2(1000)=825",
+        "rn2(1000)=527",
+        "rn2(1000)=446",
+        "rn2(1000)=459",
+        "rn2(1000)=690",
+        "rn2(1000)=103",
+        "rn2(1000)=775",
+        "rn2(1000)=783",
+        "rn2(1000)=912",
+        "rn2(1000)=225",
+        "rn2(1000)=908",
+        "rn2(1000)=71",
+        "rn2(1000)=962",
+        "rn2(1000)=651",
+        "rn2(1000)=889",
+        "rn2(1000)=112",
+        "rn2(1000)=754",
+        "rn2(1000)=450",
+        "rn2(1000)=69",
+        "rn2(1000)=606",
+        "rn2(1000)=370",
+        "rn2(1000)=554",
+        "rn2(1000)=57",
+        "rn2(1000)=589",
+        "rn2(1000)=476",
+        "rn2(1000)=548",
+        "rn2(1000)=42",
+        "rn2(1000)=423",
+        "rn2(1000)=724",
+        "rn2(1000)=550",
+        "rn2(1000)=950",
+        "rn2(1000)=109",
+        "rn2(1000)=953",
+        "rn2(1000)=870",
+        "rn2(1000)=458",
+        "rn2(1000)=918",
+        "rn2(1000)=437",
+        "rn2(1000)=35",
+        "rn2(1000)=86",
+        "rn2(1000)=870",
+        "rn2(1000)=238",
+        "rn2(1000)=716",
+        "rn2(1000)=197",
+        "rn2(1000)=240",
+        "rn2(1000)=354",
+        "rn2(1000)=712",
+        "rn2(1000)=23",
+        "rn2(1000)=791",
+        "rn2(1000)=571",
+        "rn2(1000)=76",
+        "rn2(1000)=748",
+        "rn2(1000)=872",
+        "rn2(1000)=259",
+        "rn2(1000)=106",
+        "rn2(1000)=86",
+        "rn2(1000)=655",
+        "rn2(1000)=637",
+        "rn2(1000)=769",
+        "rn2(1000)=826",
+        "rn2(1000)=943",
+        "rn2(1000)=642",
+        "rn2(1000)=129",
+        "rn2(1000)=424",
+        "rn2(1000)=422",
+        "rn2(1000)=906",
+        "rn2(1000)=126",
+        "rn2(1000)=574",
+        "rn2(1000)=292",
+        "rn2(1000)=338",
+        "rn2(1000)=981",
+        "rn2(1000)=690",
+        "rn2(1000)=95",
+        "rn2(1000)=437",
+        "rn2(1000)=122",
+        "rn2(1000)=574",
+        "rn2(1000)=987",
+        "rn2(1000)=45",
+        "rn2(1000)=583",
+        "rn2(1000)=510",
+        "rn2(1000)=712",
+        "rn2(1000)=763",
+        "rn2(1000)=606",
+        "rn2(1000)=651",
+        "rn2(1000)=908",
+        "rn2(1000)=688",
+        "rn2(1000)=861",
+        "rn2(1000)=50",
+        "rn2(1000)=500",
+        "rn2(1000)=259",
+        "rn2(1000)=804",
+        "rn2(1000)=476",
+        "rn2(1000)=127",
+        "rn2(1000)=512",
+        "rn2(1000)=511",
+        "rn2(1000)=155",
+        "rn2(1000)=125",
+        "rn2(1000)=657",
+        "rn2(1000)=312",
+        "rn2(1000)=511",
+        "rn2(1000)=222",
+        "rn2(1000)=473",
+        "rn2(1000)=903",
+        "rn2(1000)=759",
+        "rn2(1000)=590",
+        "rn2(1000)=377",
+        "rn2(1000)=748",
+        "rn2(1000)=908",
+        "rn2(1000)=90",
+        "rn2(1000)=298",
+        "rn2(1000)=31",
+        "rn2(1000)=895",
+        "rn2(1000)=425",
+        "rn2(1000)=981",
+        "rn2(1000)=334",
+        "rn2(1000)=614",
+        "rn2(1000)=854",
+        "rn2(1000)=397",
+        "rn2(1000)=743",
+        "rn2(1000)=540",
+        "rn2(1000)=744",
+        "rn2(1000)=16",
+        "rn2(1000)=179",
+        "rn2(1000)=579",
+        "rn2(1000)=855",
+        "rn2(1000)=763",
+        "rn2(1000)=223",
+        "rn2(1000)=866",
+        "rn2(1000)=482",
+        "rn2(1000)=586",
+        "rn2(1000)=259",
+        "rn2(1000)=244",
+        "rn2(1000)=879",
+        "rn2(1000)=886",
+        "rn2(1000)=513",
+        "rn2(1000)=23",
+        "rn2(1000)=926",
+        "rn2(1000)=129",
+        "rn2(1000)=200",
+        "rn2(1000)=115",
+        "rn2(1000)=717",
+        "rn2(1000)=487",
+        "rn2(1000)=360",
+        "rn2(1000)=895",
+        "rn2(1000)=750",
+        "rn2(1000)=921",
+        "rn2(1000)=432",
+        "rn2(1000)=515",
+        "rn2(1000)=183",
+        "rn2(1000)=939",
+        "rn2(1000)=245",
+        "rn2(1000)=361",
+        "rn2(1000)=497",
+        "rn2(1000)=592",
+        "rn2(1000)=435",
+        "rn2(1000)=778",
+        "rn2(1000)=98",
+        "rn2(1000)=95",
+        "rn2(1000)=475",
+        "rn2(1000)=916",
+        "rn2(1000)=203",
+        "rn2(1000)=695",
+        "rn2(1000)=23",
+        "rn2(1000)=234",
+        "rn2(1000)=655",
+        "rn2(1000)=784",
+        "rn2(1000)=387",
+        "rn2(1000)=508",
+        "rn2(1000)=860",
+        "rn2(1000)=782",
+        "rn2(1000)=245",
+        "rn2(1000)=745",
+        "rn2(1000)=987",
+        "rn2(1000)=178",
+        "rn2(1000)=650",
+        "rn2(1000)=193",
+        "rn2(1000)=70",
+        "rn2(1000)=268",
+        "rn2(1000)=928",
+        "rn2(1000)=760",
+        "rn2(1000)=822",
+        "rn2(1000)=872",
+        "rn2(1000)=687",
+        "rn2(1000)=232",
+        "rn2(1000)=211",
+        "rn2(1000)=867",
+        "rn2(1000)=321",
+        "rn2(1000)=520",
+        "rn2(1000)=913",
+        "rn2(1000)=870",
+        "rn2(1000)=23",
+        "rn2(1000)=839",
+        "rn2(1000)=209",
+        "rn2(1000)=271",
+        "rn2(1000)=601",
+        "rn2(1000)=744",
+        "rn2(1000)=513",
+        "rn2(1000)=368",
+        "rn2(1000)=889",
+        "rn2(1000)=582",
+        "rn2(1000)=554",
+        "rn2(1000)=567",
+        "rn2(1000)=831",
+        "rn2(1000)=396",
+        "rn2(1000)=574",
+        "rn2(1000)=789",
+        "rn2(1000)=750",
+        "rn2(1000)=85",
+        "rn2(1000)=646",
+        "rn2(1000)=794",
+        "rn2(1000)=723",
+        "rn2(1000)=965",
+        "rn2(1000)=396",
+        "rn2(1000)=271",
+        "rn2(1000)=246",
+        "rn2(1000)=526",
+        "rn2(1000)=132",
+        "rn2(1000)=120",
+        "rn2(1000)=107",
+        "rn2(1000)=247",
+        "rn2(1000)=772",
+        "rn2(1000)=174",
+        "rn2(1000)=358",
+        "rn2(1000)=207",
+        "rn2(1000)=583",
+        "rn2(1000)=946",
+        "rn2(1)=0",
+        "rnd(2)=2",
+        "rn2(11)=3",
+        "rn2(10)=0",
+        "rn2(3)=1",
+        "rne(3)=1",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rnd(2)=2",
+        "rn2(10)=3",
+        "rn2(11)=9",
+        "rn2(10)=6",
+        "rn2(10)=5",
+        "rn2(1)=0",
+        "rnd(2)=2",
+        "rn2(10)=4",
+        "rn2(11)=0",
+        "rn2(3)=1",
+        "rne(3)=1",
+        "rn2(1)=0",
+        "rnd(2)=2",
+        "rn2(6)=4",
+        "rnd(2)=2",
+        "rn2(6)=1",
+        "rnd(2)=1",
+        "rn2(6)=5",
+        "rn2(1)=0",
+        "rnd(2)=1",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rnd(2)=1",
+        "rn2(70)=41",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rnd(2)=1",
+        "rn2(6)=1",
+        "rn2(1)=0",
+        "rnd(2)=1",
+        "rn2(1)=0",
+        "rn2(1)=0",
+        "rn2(10)=9",
+        "rn2(4)=2",
+        "rn2(5)=1",
+        "rn2(100)=0",
+        "rn2(100)=28",
+        "rn2(100)=88",
+        "rn2(100)=35",
+        "rn2(100)=28",
+        "rn2(100)=59",
+        "rn2(100)=85",
+        "rn2(100)=14",
+        "rn2(100)=45",
+        "rn2(100)=58",
+        "rn2(100)=63",
+        "rn2(100)=20",
+        "rn2(100)=81",
+        "rn2(100)=56",
+        "rn2(100)=61",
+        "rn2(100)=43",
+        "rn2(100)=92",
+        "rn2(100)=48",
+        "rn2(100)=16",
+        "rn2(100)=91",
+        "rn2(100)=93",
+        "rn2(100)=1",
+        "rn2(100)=98",
+        "rn2(100)=60",
+        "rn2(100)=42",
+        "rn2(100)=59",
+        "rn2(100)=26",
+        "rn2(20)=2",
+        "rn2(20)=3",
+        "rn2(20)=7",
+        "rn2(20)=4",
+        "rn2(20)=18",
+        "rn2(20)=7",
+        "rnd(9000)=2122",
+        "rnd(30)=20",
+        "rnd(2)=1",
+        "d(5,8)=21"
+      ]
+    },
+    "coreCtx": {
+      "$id": 170,
+      "a": {
+        "$bigint": "5743553629760631549"
+      },
+      "b": {
+        "$bigint": "2749970517214460579"
+      },
+      "c": {
+        "$bigint": "10"
+      },
+      "n": 71,
+      "r": {
+        "$id": 171,
+        "$array": [
+          {
+            "$bigint": "8896078101825207056"
+          },
+          {
+            "$bigint": "1306071453632725837"
+          },
+          {
+            "$bigint": "15908061333122521953"
+          },
+          {
+            "$bigint": "14914824090939519498"
+          },
+          {
+            "$bigint": "14125487111686423178"
+          },
+          {
+            "$bigint": "1700567273370701277"
+          },
+          {
+            "$bigint": "1080420324454165359"
+          },
+          {
+            "$bigint": "10671041195915839752"
+          },
+          {
+            "$bigint": "12001022880444694879"
+          },
+          {
+            "$bigint": "3358667926469957906"
+          },
+          {
+            "$bigint": "13084948228284152640"
+          },
+          {
+            "$bigint": "3189934774379431873"
+          },
+          {
+            "$bigint": "226996696425429100"
+          },
+          {
+            "$bigint": "17467997815942221698"
+          },
+          {
+            "$bigint": "15214934762955693684"
+          },
+          {
+            "$bigint": "16223012452760466911"
+          },
+          {
+            "$bigint": "980116331486910776"
+          },
+          {
+            "$bigint": "5504970480819509836"
+          },
+          {
+            "$bigint": "18434108533461777822"
+          },
+          {
+            "$bigint": "12864783274248683320"
+          },
+          {
+            "$bigint": "9186784489428987436"
+          },
+          {
+            "$bigint": "11128522719656622463"
+          },
+          {
+            "$bigint": "2728651185049763057"
+          },
+          {
+            "$bigint": "8195404996391278894"
+          },
+          {
+            "$bigint": "15786115518390530352"
+          },
+          {
+            "$bigint": "3916927559483448397"
+          },
+          {
+            "$bigint": "4522895114820224520"
+          },
+          {
+            "$bigint": "3948210580569331268"
+          },
+          {
+            "$bigint": "9007919091275815219"
+          },
+          {
+            "$bigint": "14440035260678871077"
+          },
+          {
+            "$bigint": "9728956979614102485"
+          },
+          {
+            "$bigint": "17001022901406521695"
+          },
+          {
+            "$bigint": "3266269826619638435"
+          },
+          {
+            "$bigint": "18078205326824203856"
+          },
+          {
+            "$bigint": "8523497979643444975"
+          },
+          {
+            "$bigint": "1889196608539134713"
+          },
+          {
+            "$bigint": "17044925474786971219"
+          },
+          {
+            "$bigint": "16447231255993081348"
+          },
+          {
+            "$bigint": "5961831008718008024"
+          },
+          {
+            "$bigint": "15395768525619291197"
+          },
+          {
+            "$bigint": "11877694834921427655"
+          },
+          {
+            "$bigint": "7649780503122080730"
+          },
+          {
+            "$bigint": "15272388874194541596"
+          },
+          {
+            "$bigint": "7168214642036941802"
+          },
+          {
+            "$bigint": "4112423931505067769"
+          },
+          {
+            "$bigint": "239563865646959178"
+          },
+          {
+            "$bigint": "14719823192228202399"
+          },
+          {
+            "$bigint": "10101842644492509443"
+          },
+          {
+            "$bigint": "3619195616435897240"
+          },
+          {
+            "$bigint": "4115706376863304936"
+          },
+          {
+            "$bigint": "16051406128797585917"
+          },
+          {
+            "$bigint": "7511625151748363352"
+          },
+          {
+            "$bigint": "11081404246662670434"
+          },
+          {
+            "$bigint": "13406258330081928553"
+          },
+          {
+            "$bigint": "15724180149999296954"
+          },
+          {
+            "$bigint": "16566652218380416936"
+          },
+          {
+            "$bigint": "11315486800541219804"
+          },
+          {
+            "$bigint": "3899391476024822544"
+          },
+          {
+            "$bigint": "7630284602215977757"
+          },
+          {
+            "$bigint": "8536019688945865266"
+          },
+          {
+            "$bigint": "8187139024057045181"
+          },
+          {
+            "$bigint": "11677369803852699421"
+          },
+          {
+            "$bigint": "10064494718856904854"
+          },
+          {
+            "$bigint": "11108358340062599732"
+          },
+          {
+            "$bigint": "17228103730936588392"
+          },
+          {
+            "$bigint": "5025809283775343763"
+          },
+          {
+            "$bigint": "8724382664686531199"
+          },
+          {
+            "$bigint": "3194515676403250665"
+          },
+          {
+            "$bigint": "16016275851019350628"
+          },
+          {
+            "$bigint": "1826746999493085927"
+          },
+          {
+            "$bigint": "4839414358227705009"
+          },
+          {
+            "$bigint": "14241354821288660747"
+          },
+          {
+            "$bigint": "11383861611934769372"
+          },
+          {
+            "$bigint": "8613577821797935168"
+          },
+          {
+            "$bigint": "15245866467011151634"
+          },
+          {
+            "$bigint": "3112611701156783367"
+          },
+          {
+            "$bigint": "1744678016016570028"
+          },
+          {
+            "$bigint": "18373734799882027789"
+          },
+          {
+            "$bigint": "12515582310971618121"
+          },
+          {
+            "$bigint": "12835755184050946747"
+          },
+          {
+            "$bigint": "17975721480455396738"
+          },
+          {
+            "$bigint": "1525293634697958424"
+          },
+          {
+            "$bigint": "13131300993598746407"
+          },
+          {
+            "$bigint": "5512406389333810423"
+          },
+          {
+            "$bigint": "7876041811900985202"
+          },
+          {
+            "$bigint": "2721881496986968726"
+          },
+          {
+            "$bigint": "9558122055324713759"
+          },
+          {
+            "$bigint": "4518677331509689742"
+          },
+          {
+            "$bigint": "14092222660979671460"
+          },
+          {
+            "$bigint": "14823252485399922798"
+          },
+          {
+            "$bigint": "7775175411997834701"
+          },
+          {
+            "$bigint": "12258480541817008993"
+          },
+          {
+            "$bigint": "17768897014605945391"
+          },
+          {
+            "$bigint": "16871885743770362416"
+          },
+          {
+            "$bigint": "4076506887986135248"
+          },
+          {
+            "$bigint": "1040655065127739092"
+          },
+          {
+            "$bigint": "7827873643454961343"
+          },
+          {
+            "$bigint": "17797925480100093561"
+          },
+          {
+            "$bigint": "6226418069654784156"
+          },
+          {
+            "$bigint": "14144700102238589781"
+          },
+          {
+            "$bigint": "16140819935554987120"
+          },
+          {
+            "$bigint": "7714177908913512463"
+          },
+          {
+            "$bigint": "1570693317682429758"
+          },
+          {
+            "$bigint": "9379437176445290145"
+          },
+          {
+            "$bigint": "4162292503811249114"
+          },
+          {
+            "$bigint": "14916433608983752985"
+          },
+          {
+            "$bigint": "1486944570856878059"
+          },
+          {
+            "$bigint": "13220897804814029928"
+          },
+          {
+            "$bigint": "3218126989258858535"
+          },
+          {
+            "$bigint": "4479376454364922388"
+          },
+          {
+            "$bigint": "11032077286121050628"
+          },
+          {
+            "$bigint": "2288169642492401400"
+          },
+          {
+            "$bigint": "15861477087754511941"
+          },
+          {
+            "$bigint": "11805964076119827694"
+          },
+          {
+            "$bigint": "13199188449795289639"
+          },
+          {
+            "$bigint": "8668366952640641528"
+          },
+          {
+            "$bigint": "1361059660288240817"
+          },
+          {
+            "$bigint": "1201267737735420708"
+          },
+          {
+            "$bigint": "16570809975452701362"
+          },
+          {
+            "$bigint": "5701045641598601089"
+          },
+          {
+            "$bigint": "15521423397825125814"
+          },
+          {
+            "$bigint": "718297713541514044"
+          },
+          {
+            "$bigint": "13503215764685472249"
+          },
+          {
+            "$bigint": "11687648445683976821"
+          },
+          {
+            "$bigint": "8618408693646747698"
+          },
+          {
+            "$bigint": "5179769056085296769"
+          },
+          {
+            "$bigint": "7983446761230660164"
+          },
+          {
+            "$bigint": "7957813812665119558"
+          },
+          {
+            "$bigint": "18005441056791376061"
+          },
+          {
+            "$bigint": "10909014888790628831"
+          },
+          {
+            "$bigint": "18216766244987205066"
+          },
+          {
+            "$bigint": "17112405516606098785"
+          },
+          {
+            "$bigint": "5790535729357711685"
+          },
+          {
+            "$bigint": "17684248328712843388"
+          },
+          {
+            "$bigint": "16512407395974376779"
+          },
+          {
+            "$bigint": "5752358936994840966"
+          },
+          {
+            "$bigint": "8827343843721621733"
+          },
+          {
+            "$bigint": "5820620957548989042"
+          },
+          {
+            "$bigint": "5527786307527902594"
+          },
+          {
+            "$bigint": "15789371751443382049"
+          },
+          {
+            "$bigint": "3544301300498678939"
+          },
+          {
+            "$bigint": "15548990119006028365"
+          },
+          {
+            "$bigint": "16383367297163505876"
+          },
+          {
+            "$bigint": "9068291141864530860"
+          },
+          {
+            "$bigint": "3816900274895402273"
+          },
+          {
+            "$bigint": "10131412679831692375"
+          },
+          {
+            "$bigint": "11056378797009879519"
+          },
+          {
+            "$bigint": "16651002025814637589"
+          },
+          {
+            "$bigint": "9294681022212344722"
+          },
+          {
+            "$bigint": "13268592586466418850"
+          },
+          {
+            "$bigint": "7747398544773565362"
+          },
+          {
+            "$bigint": "3801365703683564285"
+          },
+          {
+            "$bigint": "17497922051280912193"
+          },
+          {
+            "$bigint": "204781478909662946"
+          },
+          {
+            "$bigint": "12740363238156758583"
+          },
+          {
+            "$bigint": "14918754784834979207"
+          },
+          {
+            "$bigint": "5015428442100500358"
+          },
+          {
+            "$bigint": "1031126756455647174"
+          },
+          {
+            "$bigint": "15355569889797429772"
+          },
+          {
+            "$bigint": "7205195306368124247"
+          },
+          {
+            "$bigint": "8810508226150563107"
+          },
+          {
+            "$bigint": "412253608132514120"
+          },
+          {
+            "$bigint": "16054526768176396132"
+          },
+          {
+            "$bigint": "13506928115244808526"
+          },
+          {
+            "$bigint": "2381975067061524246"
+          },
+          {
+            "$bigint": "17259000230944115271"
+          },
+          {
+            "$bigint": "13067259680830686396"
+          },
+          {
+            "$bigint": "3741675368571266965"
+          },
+          {
+            "$bigint": "7860784045285037723"
+          },
+          {
+            "$bigint": "14341158674351297794"
+          },
+          {
+            "$bigint": "13479362531544480646"
+          },
+          {
+            "$bigint": "3274177850595871085"
+          },
+          {
+            "$bigint": "4137951381583537750"
+          },
+          {
+            "$bigint": "12185173300742824789"
+          },
+          {
+            "$bigint": "5370437525276052574"
+          },
+          {
+            "$bigint": "2184352814935973396"
+          },
+          {
+            "$bigint": "11311978982131670831"
+          },
+          {
+            "$bigint": "14862356314260090567"
+          },
+          {
+            "$bigint": "4789927654665863554"
+          },
+          {
+            "$bigint": "6213267351620112582"
+          },
+          {
+            "$bigint": "16847823066897856889"
+          },
+          {
+            "$bigint": "14293091021730437368"
+          },
+          {
+            "$bigint": "18102445426196775513"
+          },
+          {
+            "$bigint": "995853722742651744"
+          },
+          {
+            "$bigint": "10829341354587237601"
+          },
+          {
+            "$bigint": "3940651064491268271"
+          },
+          {
+            "$bigint": "504991680114977209"
+          },
+          {
+            "$bigint": "1713321036559427839"
+          },
+          {
+            "$bigint": "15537617795690328023"
+          },
+          {
+            "$bigint": "5130907638454903870"
+          },
+          {
+            "$bigint": "2741696159029618913"
+          },
+          {
+            "$bigint": "7996380641157227520"
+          },
+          {
+            "$bigint": "13483516780645458321"
+          },
+          {
+            "$bigint": "15098961436457978867"
+          },
+          {
+            "$bigint": "4881630714358264211"
+          },
+          {
+            "$bigint": "9271168847965519232"
+          },
+          {
+            "$bigint": "12776830630412364687"
+          },
+          {
+            "$bigint": "5100093177865984872"
+          },
+          {
+            "$bigint": "16095883994661457822"
+          },
+          {
+            "$bigint": "571189718556753760"
+          },
+          {
+            "$bigint": "12486140543512291928"
+          },
+          {
+            "$bigint": "6322709585783150268"
+          },
+          {
+            "$bigint": "2697357811048209070"
+          },
+          {
+            "$bigint": "1416608481095158193"
+          },
+          {
+            "$bigint": "6048566761457088650"
+          },
+          {
+            "$bigint": "17837385210730963178"
+          },
+          {
+            "$bigint": "13669208874258778987"
+          },
+          {
+            "$bigint": "4277834092592855745"
+          },
+          {
+            "$bigint": "11031664446908979245"
+          },
+          {
+            "$bigint": "2455313266606177782"
+          },
+          {
+            "$bigint": "17426991763249497860"
+          },
+          {
+            "$bigint": "12238958077007151508"
+          },
+          {
+            "$bigint": "3444374516494402387"
+          },
+          {
+            "$bigint": "14172349210411190784"
+          },
+          {
+            "$bigint": "11236028545165910655"
+          },
+          {
+            "$bigint": "17164404201906685234"
+          },
+          {
+            "$bigint": "150554169035637023"
+          },
+          {
+            "$bigint": "13327693240557518695"
+          },
+          {
+            "$bigint": "11461800011892627203"
+          },
+          {
+            "$bigint": "15148937542278848916"
+          },
+          {
+            "$bigint": "16777902516209424475"
+          },
+          {
+            "$bigint": "11511612098757284095"
+          },
+          {
+            "$bigint": "9818421598725110098"
+          },
+          {
+            "$bigint": "288874743854086778"
+          },
+          {
+            "$bigint": "1876125672904186435"
+          },
+          {
+            "$bigint": "4120353662729939592"
+          },
+          {
+            "$bigint": "16190216229269183497"
+          },
+          {
+            "$bigint": "2624285082690448361"
+          },
+          {
+            "$bigint": "7476482369938024245"
+          },
+          {
+            "$bigint": "9762639807027545939"
+          },
+          {
+            "$bigint": "7167860668652716183"
+          },
+          {
+            "$bigint": "9059952233009317515"
+          },
+          {
+            "$bigint": "15259432802967784432"
+          },
+          {
+            "$bigint": "8453219869398958921"
+          },
+          {
+            "$bigint": "12006734024743989750"
+          },
+          {
+            "$bigint": "14968734989573340895"
+          },
+          {
+            "$bigint": "7959757365833207360"
+          },
+          {
+            "$bigint": "7566611310246984487"
+          },
+          {
+            "$bigint": "8263851218085652717"
+          },
+          {
+            "$bigint": "15888411034911273115"
+          },
+          {
+            "$bigint": "7862762341686310200"
+          },
+          {
+            "$bigint": "3585237415002756129"
+          },
+          {
+            "$bigint": "528074509302592926"
+          },
+          {
+            "$bigint": "18381806884576830023"
+          },
+          {
+            "$bigint": "1491089466435426513"
+          },
+          {
+            "$bigint": "11148024021045996886"
+          },
+          {
+            "$bigint": "12870524280361303879"
+          },
+          {
+            "$bigint": "7884968120569468244"
+          },
+          {
+            "$bigint": "4775767291465259259"
+          },
+          {
+            "$bigint": "7444842532824122586"
+          },
+          {
+            "$bigint": "1605462902425927482"
+          },
+          {
+            "$bigint": "6990197325329396866"
+          },
+          {
+            "$bigint": "10092616818196549223"
+          },
+          {
+            "$bigint": "14964686826417534763"
+          },
+          {
+            "$bigint": "15182595698445077855"
+          },
+          {
+            "$bigint": "2749970517214460579"
+          }
+        ]
+      },
+      "m": {
+        "$id": 172,
+        "$array": [
+          {
+            "$bigint": "17855512592375076741"
+          },
+          {
+            "$bigint": "11892169255260065695"
+          },
+          {
+            "$bigint": "8879917796835337000"
+          },
+          {
+            "$bigint": "16897413921295091132"
+          },
+          {
+            "$bigint": "1385715563908758213"
+          },
+          {
+            "$bigint": "11025436064711719718"
+          },
+          {
+            "$bigint": "12431959404370641025"
+          },
+          {
+            "$bigint": "5159022755559406329"
+          },
+          {
+            "$bigint": "14342682706688424511"
+          },
+          {
+            "$bigint": "16419040445684997166"
+          },
+          {
+            "$bigint": "5380798842923008143"
+          },
+          {
+            "$bigint": "5487687688283984174"
+          },
+          {
+            "$bigint": "14174245224872753975"
+          },
+          {
+            "$bigint": "12549051561598189953"
+          },
+          {
+            "$bigint": "13372448839207517548"
+          },
+          {
+            "$bigint": "461431720260855149"
+          },
+          {
+            "$bigint": "5115470635350607932"
+          },
+          {
+            "$bigint": "8220716469624944405"
+          },
+          {
+            "$bigint": "13826985696865605743"
+          },
+          {
+            "$bigint": "18330406476602966233"
+          },
+          {
+            "$bigint": "13950665508373403365"
+          },
+          {
+            "$bigint": "16525019462121376946"
+          },
+          {
+            "$bigint": "18122089335198243627"
+          },
+          {
+            "$bigint": "460042079748971143"
+          },
+          {
+            "$bigint": "17083802237817523214"
+          },
+          {
+            "$bigint": "8572950549948662470"
+          },
+          {
+            "$bigint": "3667574602131238586"
+          },
+          {
+            "$bigint": "7279708153447005006"
+          },
+          {
+            "$bigint": "15909122460568429410"
+          },
+          {
+            "$bigint": "8762287497993479662"
+          },
+          {
+            "$bigint": "6901763897885000701"
+          },
+          {
+            "$bigint": "12660257246942039810"
+          },
+          {
+            "$bigint": "16565842722698104510"
+          },
+          {
+            "$bigint": "7509776810026883395"
+          },
+          {
+            "$bigint": "8466978668808061516"
+          },
+          {
+            "$bigint": "16416111845804108801"
+          },
+          {
+            "$bigint": "4872686275783834023"
+          },
+          {
+            "$bigint": "14568754520259162295"
+          },
+          {
+            "$bigint": "3423204516152397003"
+          },
+          {
+            "$bigint": "14674532118011937226"
+          },
+          {
+            "$bigint": "7137026370115760882"
+          },
+          {
+            "$bigint": "12074823489234954482"
+          },
+          {
+            "$bigint": "5630783801423868993"
+          },
+          {
+            "$bigint": "12149359892089729721"
+          },
+          {
+            "$bigint": "10548433572918737367"
+          },
+          {
+            "$bigint": "4611962015475245872"
+          },
+          {
+            "$bigint": "9272011604211851350"
+          },
+          {
+            "$bigint": "5040923751782464584"
+          },
+          {
+            "$bigint": "6703237380750688038"
+          },
+          {
+            "$bigint": "3403809141091737295"
+          },
+          {
+            "$bigint": "13404399838117091075"
+          },
+          {
+            "$bigint": "16556607199735373243"
+          },
+          {
+            "$bigint": "4957695581786027317"
+          },
+          {
+            "$bigint": "5725760934025201923"
+          },
+          {
+            "$bigint": "12073664786049039644"
+          },
+          {
+            "$bigint": "17659381962635783625"
+          },
+          {
+            "$bigint": "15129157883260292649"
+          },
+          {
+            "$bigint": "9404328509686007657"
+          },
+          {
+            "$bigint": "16179349340110166038"
+          },
+          {
+            "$bigint": "11374118437611283335"
+          },
+          {
+            "$bigint": "18081634709295325181"
+          },
+          {
+            "$bigint": "3203236770311416759"
+          },
+          {
+            "$bigint": "4251776962356425780"
+          },
+          {
+            "$bigint": "1115141934140723576"
+          },
+          {
+            "$bigint": "16584200854448041365"
+          },
+          {
+            "$bigint": "720865288315346286"
+          },
+          {
+            "$bigint": "9138026122907765947"
+          },
+          {
+            "$bigint": "10311671838064749873"
+          },
+          {
+            "$bigint": "6242677798354171209"
+          },
+          {
+            "$bigint": "8762179710564777412"
+          },
+          {
+            "$bigint": "13230060189075882237"
+          },
+          {
+            "$bigint": "1044202135750115592"
+          },
+          {
+            "$bigint": "8432016205285960054"
+          },
+          {
+            "$bigint": "18358321667576830135"
+          },
+          {
+            "$bigint": "4967132291074670259"
+          },
+          {
+            "$bigint": "7716138947470313883"
+          },
+          {
+            "$bigint": "10425727028538748123"
+          },
+          {
+            "$bigint": "11642007683930322542"
+          },
+          {
+            "$bigint": "2337504202136279394"
+          },
+          {
+            "$bigint": "7666447649404532830"
+          },
+          {
+            "$bigint": "1283268976984398811"
+          },
+          {
+            "$bigint": "4580598246288876003"
+          },
+          {
+            "$bigint": "1700906846026608087"
+          },
+          {
+            "$bigint": "4263553706853869820"
+          },
+          {
+            "$bigint": "6040172848009405247"
+          },
+          {
+            "$bigint": "9522677923255994156"
+          },
+          {
+            "$bigint": "14587878438918910771"
+          },
+          {
+            "$bigint": "11473576709592726688"
+          },
+          {
+            "$bigint": "8497968073754852320"
+          },
+          {
+            "$bigint": "12219488025618017167"
+          },
+          {
+            "$bigint": "9598924259839204835"
+          },
+          {
+            "$bigint": "5852408710702860600"
+          },
+          {
+            "$bigint": "4426953734275539412"
+          },
+          {
+            "$bigint": "9671697281508078632"
+          },
+          {
+            "$bigint": "16192062272920473554"
+          },
+          {
+            "$bigint": "10362249421530807671"
+          },
+          {
+            "$bigint": "3300966796094356980"
+          },
+          {
+            "$bigint": "2018630091845866272"
+          },
+          {
+            "$bigint": "13747234209591577339"
+          },
+          {
+            "$bigint": "11670986230755953718"
+          },
+          {
+            "$bigint": "3870915474446603237"
+          },
+          {
+            "$bigint": "4204638235887549160"
+          },
+          {
+            "$bigint": "2931150291509580376"
+          },
+          {
+            "$bigint": "14824773147803183426"
+          },
+          {
+            "$bigint": "8185124525217029392"
+          },
+          {
+            "$bigint": "16886108422711234918"
+          },
+          {
+            "$bigint": "13607715185188681578"
+          },
+          {
+            "$bigint": "1767367816998361017"
+          },
+          {
+            "$bigint": "6685769385483080267"
+          },
+          {
+            "$bigint": "8837415564484606261"
+          },
+          {
+            "$bigint": "9255632400717197985"
+          },
+          {
+            "$bigint": "5351201118009966052"
+          },
+          {
+            "$bigint": "6382144677844282146"
+          },
+          {
+            "$bigint": "7620940673498935520"
+          },
+          {
+            "$bigint": "11139390838808920446"
+          },
+          {
+            "$bigint": "14616589245152341268"
+          },
+          {
+            "$bigint": "122806144527575924"
+          },
+          {
+            "$bigint": "2998758109411448130"
+          },
+          {
+            "$bigint": "5751639152685784061"
+          },
+          {
+            "$bigint": "15495742405587203428"
+          },
+          {
+            "$bigint": "5315698595110114492"
+          },
+          {
+            "$bigint": "10813729806867177416"
+          },
+          {
+            "$bigint": "10830896974445383044"
+          },
+          {
+            "$bigint": "16359450512347549893"
+          },
+          {
+            "$bigint": "5322517764094213256"
+          },
+          {
+            "$bigint": "16807031839313862628"
+          },
+          {
+            "$bigint": "18438925345637382204"
+          },
+          {
+            "$bigint": "8585042439101941687"
+          },
+          {
+            "$bigint": "5507822138681502006"
+          },
+          {
+            "$bigint": "11741954464884079901"
+          },
+          {
+            "$bigint": "360199179904981312"
+          },
+          {
+            "$bigint": "8113232182229585835"
+          },
+          {
+            "$bigint": "1660350152770670724"
+          },
+          {
+            "$bigint": "13139902125927982736"
+          },
+          {
+            "$bigint": "12179274230575202020"
+          },
+          {
+            "$bigint": "4414651162172563911"
+          },
+          {
+            "$bigint": "5299026508447647747"
+          },
+          {
+            "$bigint": "7697604552825322066"
+          },
+          {
+            "$bigint": "1230803352010485353"
+          },
+          {
+            "$bigint": "13803391308980398906"
+          },
+          {
+            "$bigint": "315176641969547090"
+          },
+          {
+            "$bigint": "11142785404280653143"
+          },
+          {
+            "$bigint": "17008085209873534782"
+          },
+          {
+            "$bigint": "5388462244249583242"
+          },
+          {
+            "$bigint": "83932052762130034"
+          },
+          {
+            "$bigint": "15163813801665023504"
+          },
+          {
+            "$bigint": "3510836269540793828"
+          },
+          {
+            "$bigint": "1822134398695542153"
+          },
+          {
+            "$bigint": "13798758536661829129"
+          },
+          {
+            "$bigint": "17437288601067617824"
+          },
+          {
+            "$bigint": "6559354519855698542"
+          },
+          {
+            "$bigint": "4253912459393015078"
+          },
+          {
+            "$bigint": "10650987140437712459"
+          },
+          {
+            "$bigint": "2003307759892047620"
+          },
+          {
+            "$bigint": "3353477329052984914"
+          },
+          {
+            "$bigint": "4245016271863503586"
+          },
+          {
+            "$bigint": "6747233282364589788"
+          },
+          {
+            "$bigint": "4279430350795295939"
+          },
+          {
+            "$bigint": "568156481855156302"
+          },
+          {
+            "$bigint": "7955532753423077043"
+          },
+          {
+            "$bigint": "5077507413729545065"
+          },
+          {
+            "$bigint": "12082868466136735736"
+          },
+          {
+            "$bigint": "17666271068683616368"
+          },
+          {
+            "$bigint": "1814209417790796699"
+          },
+          {
+            "$bigint": "14092732220370823607"
+          },
+          {
+            "$bigint": "16855410878353667063"
+          },
+          {
+            "$bigint": "13346477680090806784"
+          },
+          {
+            "$bigint": "2749738561178117135"
+          },
+          {
+            "$bigint": "17768293208545457661"
+          },
+          {
+            "$bigint": "11388024084077165292"
+          },
+          {
+            "$bigint": "15223195532090644924"
+          },
+          {
+            "$bigint": "4110480813167373927"
+          },
+          {
+            "$bigint": "13751280726403129909"
+          },
+          {
+            "$bigint": "18255771328519397686"
+          },
+          {
+            "$bigint": "14398607451507298195"
+          },
+          {
+            "$bigint": "4366500578230075201"
+          },
+          {
+            "$bigint": "6206236414649193200"
+          },
+          {
+            "$bigint": "17611990217930722159"
+          },
+          {
+            "$bigint": "6412591227716637524"
+          },
+          {
+            "$bigint": "14436674720286468864"
+          },
+          {
+            "$bigint": "18163736779253714664"
+          },
+          {
+            "$bigint": "13787591461468038560"
+          },
+          {
+            "$bigint": "10277464149714848216"
+          },
+          {
+            "$bigint": "6490734501192652071"
+          },
+          {
+            "$bigint": "16484415323290987355"
+          },
+          {
+            "$bigint": "4907337751992285333"
+          },
+          {
+            "$bigint": "3012328159405604818"
+          },
+          {
+            "$bigint": "16798407537486470743"
+          },
+          {
+            "$bigint": "11793270072831319265"
+          },
+          {
+            "$bigint": "15721225713296678068"
+          },
+          {
+            "$bigint": "9133197413818811958"
+          },
+          {
+            "$bigint": "7934110346325963083"
+          },
+          {
+            "$bigint": "4714483080256313836"
+          },
+          {
+            "$bigint": "10516349430566904026"
+          },
+          {
+            "$bigint": "15636321357995442713"
+          },
+          {
+            "$bigint": "5594989247884426308"
+          },
+          {
+            "$bigint": "8841829090411425697"
+          },
+          {
+            "$bigint": "16339610653101685699"
+          },
+          {
+            "$bigint": "6911783432443385093"
+          },
+          {
+            "$bigint": "4576036870611620579"
+          },
+          {
+            "$bigint": "6344684030703694444"
+          },
+          {
+            "$bigint": "3771468700961701133"
+          },
+          {
+            "$bigint": "13084040551995059745"
+          },
+          {
+            "$bigint": "409006326632232063"
+          },
+          {
+            "$bigint": "17689179417695296331"
+          },
+          {
+            "$bigint": "8265560545741063641"
+          },
+          {
+            "$bigint": "3452275844152080818"
+          },
+          {
+            "$bigint": "17177467551489897693"
+          },
+          {
+            "$bigint": "10118704597718903022"
+          },
+          {
+            "$bigint": "8058816446364615195"
+          },
+          {
+            "$bigint": "14170496122934558427"
+          },
+          {
+            "$bigint": "3255491259889143494"
+          },
+          {
+            "$bigint": "15409041947984864696"
+          },
+          {
+            "$bigint": "6875792958758879864"
+          },
+          {
+            "$bigint": "12651655997633594474"
+          },
+          {
+            "$bigint": "4470735787486912012"
+          },
+          {
+            "$bigint": "10096762862206304400"
+          },
+          {
+            "$bigint": "12359653095723775930"
+          },
+          {
+            "$bigint": "96702905610975795"
+          },
+          {
+            "$bigint": "17225432271972179886"
+          },
+          {
+            "$bigint": "10446260792721143530"
+          },
+          {
+            "$bigint": "456123105751745348"
+          },
+          {
+            "$bigint": "4045939143874550528"
+          },
+          {
+            "$bigint": "13068255917405548808"
+          },
+          {
+            "$bigint": "5833877831284284714"
+          },
+          {
+            "$bigint": "17380510107123790437"
+          },
+          {
+            "$bigint": "5753404528531077132"
+          },
+          {
+            "$bigint": "5776637048001035916"
+          },
+          {
+            "$bigint": "5460103001994445341"
+          },
+          {
+            "$bigint": "5377338027888176505"
+          },
+          {
+            "$bigint": "4927914511478408665"
+          },
+          {
+            "$bigint": "8514658946578266214"
+          },
+          {
+            "$bigint": "16471840224152689752"
+          },
+          {
+            "$bigint": "12664674034720179047"
+          },
+          {
+            "$bigint": "11357317734710428195"
+          },
+          {
+            "$bigint": "17965059204149719075"
+          },
+          {
+            "$bigint": "15642712800499780392"
+          },
+          {
+            "$bigint": "17103759107331552665"
+          },
+          {
+            "$bigint": "15545592132779521826"
+          },
+          {
+            "$bigint": "1982970047200155953"
+          },
+          {
+            "$bigint": "2439928588388988840"
+          },
+          {
+            "$bigint": "664670017640480842"
+          },
+          {
+            "$bigint": "15901677305315559534"
+          },
+          {
+            "$bigint": "13880138748859319003"
+          },
+          {
+            "$bigint": "10268127462657965397"
+          },
+          {
+            "$bigint": "8279215843031457767"
+          },
+          {
+            "$bigint": "11750237964546251484"
+          },
+          {
+            "$bigint": "9685696269583335073"
+          },
+          {
+            "$bigint": "8833283027260912572"
+          },
+          {
+            "$bigint": "7680254257158404890"
+          },
+          {
+            "$bigint": "13029508186461947321"
+          },
+          {
+            "$bigint": "9229657416258271367"
+          },
+          {
+            "$bigint": "3577493846497809272"
+          },
+          {
+            "$bigint": "6390603563376494728"
+          },
+          {
+            "$bigint": "5033771679751120009"
+          },
+          {
+            "$bigint": "9759113407943162794"
+          }
+        ]
+      }
+    },
+    "displayCtx": {
+      "$id": 173,
+      "a": {
+        "$bigint": "12636845273878091056"
+      },
+      "b": {
+        "$bigint": "14616724175298684572"
+      },
+      "c": {
+        "$bigint": "1"
+      },
+      "n": 256,
+      "r": {
+        "$id": 174,
+        "$array": [
+          {
+            "$bigint": "16510346463581706251"
+          },
+          {
+            "$bigint": "66503116456210029"
+          },
+          {
+            "$bigint": "2318205079210353920"
+          },
+          {
+            "$bigint": "12653142292876571409"
+          },
+          {
+            "$bigint": "15444463166190977711"
+          },
+          {
+            "$bigint": "8585988606740705866"
+          },
+          {
+            "$bigint": "16605150295529155702"
+          },
+          {
+            "$bigint": "6138110462701299928"
+          },
+          {
+            "$bigint": "9239086328118930855"
+          },
+          {
+            "$bigint": "8627046260909576899"
+          },
+          {
+            "$bigint": "12673858353257611753"
+          },
+          {
+            "$bigint": "4357968079821347559"
+          },
+          {
+            "$bigint": "10567229667892762298"
+          },
+          {
+            "$bigint": "1907478213924627522"
+          },
+          {
+            "$bigint": "16272847839716199445"
+          },
+          {
+            "$bigint": "1338757422846340235"
+          },
+          {
+            "$bigint": "2818572888808635464"
+          },
+          {
+            "$bigint": "11709691229535654620"
+          },
+          {
+            "$bigint": "2930482515857855605"
+          },
+          {
+            "$bigint": "2152348953586901548"
+          },
+          {
+            "$bigint": "13401996322298501734"
+          },
+          {
+            "$bigint": "261518843237925373"
+          },
+          {
+            "$bigint": "9836046206714266597"
+          },
+          {
+            "$bigint": "4835006056658008558"
+          },
+          {
+            "$bigint": "16971670010429823082"
+          },
+          {
+            "$bigint": "7744565805071812948"
+          },
+          {
+            "$bigint": "1172354906572344918"
+          },
+          {
+            "$bigint": "8319747655718929501"
+          },
+          {
+            "$bigint": "4800066732728653219"
+          },
+          {
+            "$bigint": "13382094208444637391"
+          },
+          {
+            "$bigint": "5856667112193103890"
+          },
+          {
+            "$bigint": "16053155945138566651"
+          },
+          {
+            "$bigint": "17789200428807177055"
+          },
+          {
+            "$bigint": "15731301371411032334"
+          },
+          {
+            "$bigint": "13320200274450381434"
+          },
+          {
+            "$bigint": "6798037740995562130"
+          },
+          {
+            "$bigint": "15608830275342465412"
+          },
+          {
+            "$bigint": "14651169544420525285"
+          },
+          {
+            "$bigint": "14548733405481849307"
+          },
+          {
+            "$bigint": "1513451258774735116"
+          },
+          {
+            "$bigint": "11202495820661511913"
+          },
+          {
+            "$bigint": "14193928905271731882"
+          },
+          {
+            "$bigint": "11084113113297219051"
+          },
+          {
+            "$bigint": "938922443516850286"
+          },
+          {
+            "$bigint": "12714309530769165630"
+          },
+          {
+            "$bigint": "17544799537848792205"
+          },
+          {
+            "$bigint": "16117896113758897058"
+          },
+          {
+            "$bigint": "51158864007757210"
+          },
+          {
+            "$bigint": "6026800377166518723"
+          },
+          {
+            "$bigint": "784988823400650449"
+          },
+          {
+            "$bigint": "18336490810778240746"
+          },
+          {
+            "$bigint": "6970672118445091950"
+          },
+          {
+            "$bigint": "9581471772561532530"
+          },
+          {
+            "$bigint": "16728791300840143998"
+          },
+          {
+            "$bigint": "14880748185126085435"
+          },
+          {
+            "$bigint": "1261634687026344208"
+          },
+          {
+            "$bigint": "182233305633850054"
+          },
+          {
+            "$bigint": "12055554586761814308"
+          },
+          {
+            "$bigint": "4142752455996550658"
+          },
+          {
+            "$bigint": "16144625610089929700"
+          },
+          {
+            "$bigint": "16573880939704720445"
+          },
+          {
+            "$bigint": "10615509513653238846"
+          },
+          {
+            "$bigint": "15252404228345654090"
+          },
+          {
+            "$bigint": "9670428742233671139"
+          },
+          {
+            "$bigint": "1520882144187941699"
+          },
+          {
+            "$bigint": "422338436006655241"
+          },
+          {
+            "$bigint": "112495670433222939"
+          },
+          {
+            "$bigint": "7714101044821883297"
+          },
+          {
+            "$bigint": "1198730837141804063"
+          },
+          {
+            "$bigint": "422118649575146923"
+          },
+          {
+            "$bigint": "290819190746934298"
+          },
+          {
+            "$bigint": "14025599847583442870"
+          },
+          {
+            "$bigint": "6553893651493170233"
+          },
+          {
+            "$bigint": "10485300203579972805"
+          },
+          {
+            "$bigint": "1417339739323505585"
+          },
+          {
+            "$bigint": "4319244972595279043"
+          },
+          {
+            "$bigint": "13395674672748030967"
+          },
+          {
+            "$bigint": "5119930784946289149"
+          },
+          {
+            "$bigint": "12633859968864717423"
+          },
+          {
+            "$bigint": "12793544394066844909"
+          },
+          {
+            "$bigint": "4349695189742151457"
+          },
+          {
+            "$bigint": "167074093504927395"
+          },
+          {
+            "$bigint": "14600731320296477588"
+          },
+          {
+            "$bigint": "1200092094874545462"
+          },
+          {
+            "$bigint": "16083109855296939858"
+          },
+          {
+            "$bigint": "2321569337051973846"
+          },
+          {
+            "$bigint": "3240785858270007622"
+          },
+          {
+            "$bigint": "16477132806064758860"
+          },
+          {
+            "$bigint": "10007180033297434619"
+          },
+          {
+            "$bigint": "15399701325860205015"
+          },
+          {
+            "$bigint": "8067865319527194248"
+          },
+          {
+            "$bigint": "6610347190110480579"
+          },
+          {
+            "$bigint": "873493710201697126"
+          },
+          {
+            "$bigint": "3349488644891939907"
+          },
+          {
+            "$bigint": "4002252308793249288"
+          },
+          {
+            "$bigint": "4287789915882833577"
+          },
+          {
+            "$bigint": "3832737426088277509"
+          },
+          {
+            "$bigint": "13193607863722424020"
+          },
+          {
+            "$bigint": "8111187305178899422"
+          },
+          {
+            "$bigint": "18329261918989926041"
+          },
+          {
+            "$bigint": "1803153764100444993"
+          },
+          {
+            "$bigint": "6911112314360800021"
+          },
+          {
+            "$bigint": "965596568997068719"
+          },
+          {
+            "$bigint": "12333219924737856470"
+          },
+          {
+            "$bigint": "4039061527571424663"
+          },
+          {
+            "$bigint": "1981671616998154175"
+          },
+          {
+            "$bigint": "11340930026439980098"
+          },
+          {
+            "$bigint": "10284119231873528874"
+          },
+          {
+            "$bigint": "18396993779908597412"
+          },
+          {
+            "$bigint": "13777699020522891699"
+          },
+          {
+            "$bigint": "8802494011070576668"
+          },
+          {
+            "$bigint": "6203921804468733123"
+          },
+          {
+            "$bigint": "12678534143782072756"
+          },
+          {
+            "$bigint": "5458624000834834635"
+          },
+          {
+            "$bigint": "17317030497890335298"
+          },
+          {
+            "$bigint": "16008855890182059783"
+          },
+          {
+            "$bigint": "9265070465705305881"
+          },
+          {
+            "$bigint": "4358886477984238070"
+          },
+          {
+            "$bigint": "3217971528948818281"
+          },
+          {
+            "$bigint": "8430397665196644843"
+          },
+          {
+            "$bigint": "12392685073218834129"
+          },
+          {
+            "$bigint": "5831342787150460586"
+          },
+          {
+            "$bigint": "12481404982034916308"
+          },
+          {
+            "$bigint": "3851865627274600172"
+          },
+          {
+            "$bigint": "9412440557683109136"
+          },
+          {
+            "$bigint": "8714318209102257195"
+          },
+          {
+            "$bigint": "5506162171689014252"
+          },
+          {
+            "$bigint": "14193414245628959478"
+          },
+          {
+            "$bigint": "9697015167194674176"
+          },
+          {
+            "$bigint": "4560212338798899053"
+          },
+          {
+            "$bigint": "9971224151066511716"
+          },
+          {
+            "$bigint": "4430445674519192377"
+          },
+          {
+            "$bigint": "5734637682245445160"
+          },
+          {
+            "$bigint": "15068671334954942254"
+          },
+          {
+            "$bigint": "8476841866685642649"
+          },
+          {
+            "$bigint": "12277743144293402771"
+          },
+          {
+            "$bigint": "13998305008833013012"
+          },
+          {
+            "$bigint": "7210543549648601181"
+          },
+          {
+            "$bigint": "12724249496087949159"
+          },
+          {
+            "$bigint": "17994287110037597533"
+          },
+          {
+            "$bigint": "14416127780400396200"
+          },
+          {
+            "$bigint": "2878829579631830574"
+          },
+          {
+            "$bigint": "15582496399232781869"
+          },
+          {
+            "$bigint": "13767173356597926377"
+          },
+          {
+            "$bigint": "485823309207303410"
+          },
+          {
+            "$bigint": "13336804510498493599"
+          },
+          {
+            "$bigint": "16204259081041727484"
+          },
+          {
+            "$bigint": "694817553780205317"
+          },
+          {
+            "$bigint": "8799865656995221667"
+          },
+          {
+            "$bigint": "703499331207330539"
+          },
+          {
+            "$bigint": "15468654444100502309"
+          },
+          {
+            "$bigint": "4741124290342471283"
+          },
+          {
+            "$bigint": "941040840498645521"
+          },
+          {
+            "$bigint": "13856438555410909586"
+          },
+          {
+            "$bigint": "17737618901174857897"
+          },
+          {
+            "$bigint": "5750687020668037388"
+          },
+          {
+            "$bigint": "11510396319309135505"
+          },
+          {
+            "$bigint": "2726057982130138198"
+          },
+          {
+            "$bigint": "6682452907498728298"
+          },
+          {
+            "$bigint": "8644719577500065411"
+          },
+          {
+            "$bigint": "12899208141015086564"
+          },
+          {
+            "$bigint": "6407253253264949888"
+          },
+          {
+            "$bigint": "7852376627277117338"
+          },
+          {
+            "$bigint": "17657164979970497827"
+          },
+          {
+            "$bigint": "6509964121711137641"
+          },
+          {
+            "$bigint": "2791588168900984994"
+          },
+          {
+            "$bigint": "8954224690317498952"
+          },
+          {
+            "$bigint": "8282621920108449055"
+          },
+          {
+            "$bigint": "9836550816045744824"
+          },
+          {
+            "$bigint": "14185733838525782715"
+          },
+          {
+            "$bigint": "4844760846407439772"
+          },
+          {
+            "$bigint": "3208126567755651996"
+          },
+          {
+            "$bigint": "2261201707567949930"
+          },
+          {
+            "$bigint": "5820742010232018934"
+          },
+          {
+            "$bigint": "6553226605104341687"
+          },
+          {
+            "$bigint": "16324201017876562857"
+          },
+          {
+            "$bigint": "8025020848430460777"
+          },
+          {
+            "$bigint": "3741175276374086121"
+          },
+          {
+            "$bigint": "10694059443005284779"
+          },
+          {
+            "$bigint": "13326658545114127199"
+          },
+          {
+            "$bigint": "9700264974238513482"
+          },
+          {
+            "$bigint": "7057580813069426698"
+          },
+          {
+            "$bigint": "11380768132157314216"
+          },
+          {
+            "$bigint": "17539425456882159263"
+          },
+          {
+            "$bigint": "3108617598305105659"
+          },
+          {
+            "$bigint": "5651524580046047201"
+          },
+          {
+            "$bigint": "16942954096519319134"
+          },
+          {
+            "$bigint": "9556861891618015953"
+          },
+          {
+            "$bigint": "9601804569740468481"
+          },
+          {
+            "$bigint": "7412042940779269898"
+          },
+          {
+            "$bigint": "9555292922783622961"
+          },
+          {
+            "$bigint": "2469956822787565196"
+          },
+          {
+            "$bigint": "6199972269816816138"
+          },
+          {
+            "$bigint": "18233376117221734820"
+          },
+          {
+            "$bigint": "5123783596938793627"
+          },
+          {
+            "$bigint": "10407107968829497735"
+          },
+          {
+            "$bigint": "9749811547997684651"
+          },
+          {
+            "$bigint": "5345272967226716529"
+          },
+          {
+            "$bigint": "7374706666526113608"
+          },
+          {
+            "$bigint": "6619167109533079017"
+          },
+          {
+            "$bigint": "16639350144443264583"
+          },
+          {
+            "$bigint": "15869661525205675116"
+          },
+          {
+            "$bigint": "8828627118900232530"
+          },
+          {
+            "$bigint": "3219382316840090964"
+          },
+          {
+            "$bigint": "5921002445061849734"
+          },
+          {
+            "$bigint": "3808341916668725067"
+          },
+          {
+            "$bigint": "12980125627840155929"
+          },
+          {
+            "$bigint": "3369536551579329784"
+          },
+          {
+            "$bigint": "2195225255659169051"
+          },
+          {
+            "$bigint": "17277026038483743628"
+          },
+          {
+            "$bigint": "16012493286611965251"
+          },
+          {
+            "$bigint": "5674469582423994235"
+          },
+          {
+            "$bigint": "661597770542001174"
+          },
+          {
+            "$bigint": "8277797739817273041"
+          },
+          {
+            "$bigint": "2925184707265644978"
+          },
+          {
+            "$bigint": "15356782564919179334"
+          },
+          {
+            "$bigint": "10105103787384697957"
+          },
+          {
+            "$bigint": "2494077488168730950"
+          },
+          {
+            "$bigint": "6783297307262313097"
+          },
+          {
+            "$bigint": "5915219988791721222"
+          },
+          {
+            "$bigint": "10986413680806583243"
+          },
+          {
+            "$bigint": "15532808350231121897"
+          },
+          {
+            "$bigint": "11172766169854264237"
+          },
+          {
+            "$bigint": "5945506526595061470"
+          },
+          {
+            "$bigint": "4238687770531382898"
+          },
+          {
+            "$bigint": "16142157122974106580"
+          },
+          {
+            "$bigint": "16298336304226127905"
+          },
+          {
+            "$bigint": "8799253540088250817"
+          },
+          {
+            "$bigint": "15954922235514873209"
+          },
+          {
+            "$bigint": "10436917495855769834"
+          },
+          {
+            "$bigint": "10454514283633847151"
+          },
+          {
+            "$bigint": "14025468239326861222"
+          },
+          {
+            "$bigint": "9924583043474068862"
+          },
+          {
+            "$bigint": "3908251573248590011"
+          },
+          {
+            "$bigint": "5814347767018492286"
+          },
+          {
+            "$bigint": "15943958597138744879"
+          },
+          {
+            "$bigint": "1872427882485583890"
+          },
+          {
+            "$bigint": "5229366891205548949"
+          },
+          {
+            "$bigint": "15576869306531406596"
+          },
+          {
+            "$bigint": "16289555835437366450"
+          },
+          {
+            "$bigint": "4323129116732021678"
+          },
+          {
+            "$bigint": "1470560375277132652"
+          },
+          {
+            "$bigint": "5800131102796512382"
+          },
+          {
+            "$bigint": "17884955903969372447"
+          },
+          {
+            "$bigint": "10422623079031359180"
+          },
+          {
+            "$bigint": "7135804659151078014"
+          },
+          {
+            "$bigint": "5994414655666661815"
+          },
+          {
+            "$bigint": "10868307542821705131"
+          },
+          {
+            "$bigint": "12725372511879733700"
+          },
+          {
+            "$bigint": "14864204185598623424"
+          },
+          {
+            "$bigint": "15220064159971202563"
+          },
+          {
+            "$bigint": "13939736294597143451"
+          },
+          {
+            "$bigint": "13799924497212357989"
+          },
+          {
+            "$bigint": "17184344224367398905"
+          },
+          {
+            "$bigint": "14080647172689879561"
+          },
+          {
+            "$bigint": "14616724175298684572"
+          }
+        ]
+      },
+      "m": {
+        "$id": 175,
+        "$array": [
+          {
+            "$bigint": "7830897821753390407"
+          },
+          {
+            "$bigint": "6720446546903758833"
+          },
+          {
+            "$bigint": "2005349411897773438"
+          },
+          {
+            "$bigint": "353362009600699468"
+          },
+          {
+            "$bigint": "11632609821675080508"
+          },
+          {
+            "$bigint": "3788479484234094266"
+          },
+          {
+            "$bigint": "8403953163786169000"
+          },
+          {
+            "$bigint": "4287437390837933796"
+          },
+          {
+            "$bigint": "822311386241820692"
+          },
+          {
+            "$bigint": "3685507761481877223"
+          },
+          {
+            "$bigint": "16019499831344559657"
+          },
+          {
+            "$bigint": "14573101753773044472"
+          },
+          {
+            "$bigint": "14449431629419395861"
+          },
+          {
+            "$bigint": "17729035434453236715"
+          },
+          {
+            "$bigint": "4715197101611888232"
+          },
+          {
+            "$bigint": "4968090469871637756"
+          },
+          {
+            "$bigint": "12577605665814530937"
+          },
+          {
+            "$bigint": "18351304888148070508"
+          },
+          {
+            "$bigint": "9162739575622951391"
+          },
+          {
+            "$bigint": "1690454795938673086"
+          },
+          {
+            "$bigint": "9911102439179403717"
+          },
+          {
+            "$bigint": "12399664206056807624"
+          },
+          {
+            "$bigint": "10425562233829443123"
+          },
+          {
+            "$bigint": "13612778106709303852"
+          },
+          {
+            "$bigint": "13435640326129139557"
+          },
+          {
+            "$bigint": "5013302841595018101"
+          },
+          {
+            "$bigint": "7235927835068564687"
+          },
+          {
+            "$bigint": "8795814556997343486"
+          },
+          {
+            "$bigint": "16432341374265301340"
+          },
+          {
+            "$bigint": "2396213361192265810"
+          },
+          {
+            "$bigint": "39845045936366950"
+          },
+          {
+            "$bigint": "14389816953460099362"
+          },
+          {
+            "$bigint": "10646190685488064661"
+          },
+          {
+            "$bigint": "11695301259253710365"
+          },
+          {
+            "$bigint": "12555072784399914709"
+          },
+          {
+            "$bigint": "13498460902640504070"
+          },
+          {
+            "$bigint": "16115721758389879473"
+          },
+          {
+            "$bigint": "8963566451170743952"
+          },
+          {
+            "$bigint": "4175793500894798085"
+          },
+          {
+            "$bigint": "8475357619235404268"
+          },
+          {
+            "$bigint": "12754642459324292922"
+          },
+          {
+            "$bigint": "1037511504311608296"
+          },
+          {
+            "$bigint": "5393996040997472199"
+          },
+          {
+            "$bigint": "11159979060232657065"
+          },
+          {
+            "$bigint": "16709988948846031720"
+          },
+          {
+            "$bigint": "3121574226644994314"
+          },
+          {
+            "$bigint": "10136294542563076285"
+          },
+          {
+            "$bigint": "5782111128220182636"
+          },
+          {
+            "$bigint": "17462440153160839097"
+          },
+          {
+            "$bigint": "6393447344905440982"
+          },
+          {
+            "$bigint": "5526197126603160857"
+          },
+          {
+            "$bigint": "11710410611954079779"
+          },
+          {
+            "$bigint": "11441565999820353816"
+          },
+          {
+            "$bigint": "14305426770194000911"
+          },
+          {
+            "$bigint": "12554245145304961671"
+          },
+          {
+            "$bigint": "6744277490243878372"
+          },
+          {
+            "$bigint": "2170028780905572508"
+          },
+          {
+            "$bigint": "16568103026318833226"
+          },
+          {
+            "$bigint": "17719277893789908112"
+          },
+          {
+            "$bigint": "11716743146137094334"
+          },
+          {
+            "$bigint": "3173518402118694134"
+          },
+          {
+            "$bigint": "9662430099196185427"
+          },
+          {
+            "$bigint": "4530653374008615641"
+          },
+          {
+            "$bigint": "7978565313138761363"
+          },
+          {
+            "$bigint": "6029281584033516238"
+          },
+          {
+            "$bigint": "18028735343405673788"
+          },
+          {
+            "$bigint": "10753570427070637958"
+          },
+          {
+            "$bigint": "5673456537889915447"
+          },
+          {
+            "$bigint": "3171031186137996464"
+          },
+          {
+            "$bigint": "5276462562769749612"
+          },
+          {
+            "$bigint": "12009331626853244"
+          },
+          {
+            "$bigint": "17142626170330908781"
+          },
+          {
+            "$bigint": "4345070494399029873"
+          },
+          {
+            "$bigint": "3457453101349392657"
+          },
+          {
+            "$bigint": "14550525668549352068"
+          },
+          {
+            "$bigint": "7786983557135393230"
+          },
+          {
+            "$bigint": "8174870589476838497"
+          },
+          {
+            "$bigint": "8942509199940438245"
+          },
+          {
+            "$bigint": "5274881976814617123"
+          },
+          {
+            "$bigint": "7720543704246693605"
+          },
+          {
+            "$bigint": "46655949337809589"
+          },
+          {
+            "$bigint": "310678548051302815"
+          },
+          {
+            "$bigint": "10604648990889599799"
+          },
+          {
+            "$bigint": "9498660780557213252"
+          },
+          {
+            "$bigint": "16829256664828038240"
+          },
+          {
+            "$bigint": "5080482971784588694"
+          },
+          {
+            "$bigint": "13830416902885557715"
+          },
+          {
+            "$bigint": "5339457683164420744"
+          },
+          {
+            "$bigint": "17751927666865559221"
+          },
+          {
+            "$bigint": "4615152155446118769"
+          },
+          {
+            "$bigint": "7499377220092798143"
+          },
+          {
+            "$bigint": "10413054212787709067"
+          },
+          {
+            "$bigint": "15492728817887632788"
+          },
+          {
+            "$bigint": "13266543656792334484"
+          },
+          {
+            "$bigint": "3768750846146185222"
+          },
+          {
+            "$bigint": "6466593982930546359"
+          },
+          {
+            "$bigint": "9278868052753322174"
+          },
+          {
+            "$bigint": "7766142992035237310"
+          },
+          {
+            "$bigint": "14679421045956327290"
+          },
+          {
+            "$bigint": "10940023569531467207"
+          },
+          {
+            "$bigint": "11198226939302301712"
+          },
+          {
+            "$bigint": "9544529010112387355"
+          },
+          {
+            "$bigint": "4078128074237867463"
+          },
+          {
+            "$bigint": "11438646215231424767"
+          },
+          {
+            "$bigint": "5853440581626122243"
+          },
+          {
+            "$bigint": "10828844555485876777"
+          },
+          {
+            "$bigint": "6333706466048016068"
+          },
+          {
+            "$bigint": "15013758360922319354"
+          },
+          {
+            "$bigint": "5424061067432517745"
+          },
+          {
+            "$bigint": "12747186129051812140"
+          },
+          {
+            "$bigint": "2520857457225746754"
+          },
+          {
+            "$bigint": "6517753084740750962"
+          },
+          {
+            "$bigint": "3144978436014427594"
+          },
+          {
+            "$bigint": "12290021177864907846"
+          },
+          {
+            "$bigint": "13772719821861927378"
+          },
+          {
+            "$bigint": "15148865403492623250"
+          },
+          {
+            "$bigint": "634367909795966088"
+          },
+          {
+            "$bigint": "8738631056030457694"
+          },
+          {
+            "$bigint": "16369007525245715192"
+          },
+          {
+            "$bigint": "4673415911294350371"
+          },
+          {
+            "$bigint": "14609139881994873012"
+          },
+          {
+            "$bigint": "3895719139471203604"
+          },
+          {
+            "$bigint": "3795519597931671800"
+          },
+          {
+            "$bigint": "3943143319174926450"
+          },
+          {
+            "$bigint": "12748122280717702064"
+          },
+          {
+            "$bigint": "12596437141173769703"
+          },
+          {
+            "$bigint": "4645148802394219844"
+          },
+          {
+            "$bigint": "11685349568134013077"
+          },
+          {
+            "$bigint": "10107422026918258494"
+          },
+          {
+            "$bigint": "14519759510140072250"
+          },
+          {
+            "$bigint": "11406787344020815424"
+          },
+          {
+            "$bigint": "10394504289665476513"
+          },
+          {
+            "$bigint": "12572155588422542275"
+          },
+          {
+            "$bigint": "2161008627395254232"
+          },
+          {
+            "$bigint": "2863539413237534377"
+          },
+          {
+            "$bigint": "15246910477079861235"
+          },
+          {
+            "$bigint": "13647465212045659393"
+          },
+          {
+            "$bigint": "9381493575991970731"
+          },
+          {
+            "$bigint": "1886414806587574775"
+          },
+          {
+            "$bigint": "15834911547800377711"
+          },
+          {
+            "$bigint": "18306562588358108740"
+          },
+          {
+            "$bigint": "13415802387731903659"
+          },
+          {
+            "$bigint": "7606063135194655116"
+          },
+          {
+            "$bigint": "2875729861892724911"
+          },
+          {
+            "$bigint": "5409419246878164782"
+          },
+          {
+            "$bigint": "6666891236885111309"
+          },
+          {
+            "$bigint": "11633146208547257868"
+          },
+          {
+            "$bigint": "17449174340114389547"
+          },
+          {
+            "$bigint": "3458364939883215884"
+          },
+          {
+            "$bigint": "9947728277440603703"
+          },
+          {
+            "$bigint": "3975102594527189477"
+          },
+          {
+            "$bigint": "13297349527398270163"
+          },
+          {
+            "$bigint": "12863208675808264362"
+          },
+          {
+            "$bigint": "6993084449387346574"
+          },
+          {
+            "$bigint": "11893647118078256496"
+          },
+          {
+            "$bigint": "6912024867305733514"
+          },
+          {
+            "$bigint": "14277490170982099414"
+          },
+          {
+            "$bigint": "4942294781750930797"
+          },
+          {
+            "$bigint": "4952204804806098497"
+          },
+          {
+            "$bigint": "15583971941982239513"
+          },
+          {
+            "$bigint": "17349393732746189612"
+          },
+          {
+            "$bigint": "17186305470318436700"
+          },
+          {
+            "$bigint": "3606712886183189437"
+          },
+          {
+            "$bigint": "1099914864646491978"
+          },
+          {
+            "$bigint": "14148694164082578687"
+          },
+          {
+            "$bigint": "10916107575627702221"
+          },
+          {
+            "$bigint": "12974978828440636269"
+          },
+          {
+            "$bigint": "12043866668210082756"
+          },
+          {
+            "$bigint": "14689133350794736536"
+          },
+          {
+            "$bigint": "6670352729147483066"
+          },
+          {
+            "$bigint": "12055965639750923033"
+          },
+          {
+            "$bigint": "11848743594310550354"
+          },
+          {
+            "$bigint": "16009541674456842246"
+          },
+          {
+            "$bigint": "1608598431416642486"
+          },
+          {
+            "$bigint": "6467504568671193455"
+          },
+          {
+            "$bigint": "14975731934037532098"
+          },
+          {
+            "$bigint": "14794212678473401668"
+          },
+          {
+            "$bigint": "11320350974517941166"
+          },
+          {
+            "$bigint": "16408525348726034213"
+          },
+          {
+            "$bigint": "204744010491455767"
+          },
+          {
+            "$bigint": "16766076950732466378"
+          },
+          {
+            "$bigint": "14430718455944205547"
+          },
+          {
+            "$bigint": "5907837406178637050"
+          },
+          {
+            "$bigint": "4224968898346233016"
+          },
+          {
+            "$bigint": "16063538480197787340"
+          },
+          {
+            "$bigint": "12621740753635816765"
+          },
+          {
+            "$bigint": "12332576802447018636"
+          },
+          {
+            "$bigint": "17362829455279487298"
+          },
+          {
+            "$bigint": "12307006095349840139"
+          },
+          {
+            "$bigint": "4408884420092873427"
+          },
+          {
+            "$bigint": "10111098226042194707"
+          },
+          {
+            "$bigint": "10632472419075511864"
+          },
+          {
+            "$bigint": "3894555579752584899"
+          },
+          {
+            "$bigint": "13323398482102443530"
+          },
+          {
+            "$bigint": "16092931013384325394"
+          },
+          {
+            "$bigint": "1649565909559050678"
+          },
+          {
+            "$bigint": "11773218686128231596"
+          },
+          {
+            "$bigint": "18149989595654800055"
+          },
+          {
+            "$bigint": "11895177297020246063"
+          },
+          {
+            "$bigint": "2508064767665534140"
+          },
+          {
+            "$bigint": "4230359858954625302"
+          },
+          {
+            "$bigint": "8754057146717190972"
+          },
+          {
+            "$bigint": "8563856266049806059"
+          },
+          {
+            "$bigint": "8155737569089302170"
+          },
+          {
+            "$bigint": "6528658266559652316"
+          },
+          {
+            "$bigint": "11668833196211182279"
+          },
+          {
+            "$bigint": "2129805055616761244"
+          },
+          {
+            "$bigint": "4224732427445855551"
+          },
+          {
+            "$bigint": "27303867786543225"
+          },
+          {
+            "$bigint": "10270139834527738784"
+          },
+          {
+            "$bigint": "13295105502612707593"
+          },
+          {
+            "$bigint": "2722640626459995699"
+          },
+          {
+            "$bigint": "7288625234592089621"
+          },
+          {
+            "$bigint": "2426376185110490012"
+          },
+          {
+            "$bigint": "10471042211474374538"
+          },
+          {
+            "$bigint": "13144665484456967022"
+          },
+          {
+            "$bigint": "1625562739475175987"
+          },
+          {
+            "$bigint": "10330296631916152962"
+          },
+          {
+            "$bigint": "2497242946899507453"
+          },
+          {
+            "$bigint": "5804738965586438895"
+          },
+          {
+            "$bigint": "650675665920423805"
+          },
+          {
+            "$bigint": "14204047641462124923"
+          },
+          {
+            "$bigint": "6011690547953817948"
+          },
+          {
+            "$bigint": "3597356934911890359"
+          },
+          {
+            "$bigint": "8380678631557846611"
+          },
+          {
+            "$bigint": "13382952768630911430"
+          },
+          {
+            "$bigint": "2522373290275602846"
+          },
+          {
+            "$bigint": "8818198865908110130"
+          },
+          {
+            "$bigint": "8809132363389779699"
+          },
+          {
+            "$bigint": "14142840279556333610"
+          },
+          {
+            "$bigint": "12800813444380575230"
+          },
+          {
+            "$bigint": "13372335196361716927"
+          },
+          {
+            "$bigint": "2766462458816752375"
+          },
+          {
+            "$bigint": "1340497069525442882"
+          },
+          {
+            "$bigint": "14265262519546546238"
+          },
+          {
+            "$bigint": "16091855116286932143"
+          },
+          {
+            "$bigint": "13160238885402970418"
+          },
+          {
+            "$bigint": "7586810353448855486"
+          },
+          {
+            "$bigint": "4504524840831962989"
+          },
+          {
+            "$bigint": "4337127090997523087"
+          },
+          {
+            "$bigint": "2638069507867496429"
+          },
+          {
+            "$bigint": "9400827807909794997"
+          },
+          {
+            "$bigint": "16640277189882056261"
+          },
+          {
+            "$bigint": "11679378632244448595"
+          },
+          {
+            "$bigint": "18300279283728343341"
+          },
+          {
+            "$bigint": "10874105859519576207"
+          },
+          {
+            "$bigint": "17650513084360389382"
+          },
+          {
+            "$bigint": "9672846105958445273"
+          },
+          {
+            "$bigint": "12414316712977269268"
+          },
+          {
+            "$bigint": "18281372389131719302"
+          },
+          {
+            "$bigint": "15081138528143724427"
+          },
+          {
+            "$bigint": "9862391705805616045"
+          },
+          {
+            "$bigint": "6254216375789941576"
+          },
+          {
+            "$bigint": "9982092078397865351"
+          },
+          {
+            "$bigint": "5700786404398067730"
+          },
+          {
+            "$bigint": "94144133676606169"
+          }
+        ]
+      }
+    },
+    "corePresent": true,
+    "displayPresent": true
+  },
+  "display": {
+    "$id": 176,
+    "serialized": "\n\n\n\u001b[64C----------\n\u001b[64C|........|\n\u001b[64C|.\u001b[97m@\u001b[36mb\u001b[39m.....|\n\u001b[64C|.......\u001b[36m[\u001b[39m|\n\u001b[64C|........|\n\u001b[64C|........|\n\u001b[64C|........|\n\u001b[64C---.------\n\n\n\n\n\n\n\n\n\n\n\nShopFireFixture the Digger     St:11 Dx:10 Co:10 In:15 Wi:18 Ch:11 Lawful\nDlvl:1 $:0 HP:13(13) Pw:2(2) AC:9 Xp:1",
+    "topMessage": "A gelatinous cube suddenly appears next to you!",
+    "topline": 1,
+    "waiting": false,
+    "queueValues": {
+      "$id": 177,
+      "$array": []
+    },
+    "queueLength": 0,
+    "waitEpoch": 1,
+    "resolverPending": false,
+    "resolverType": "undefined",
+    "activeOptionKeys": {
+      "$id": 178,
+      "$array": [
+        "keyMapper",
+        "onInterrupt",
+        "onEmptyQueue",
+        "bindings"
+      ]
+    }
+  }
+}

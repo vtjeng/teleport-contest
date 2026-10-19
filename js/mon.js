@@ -1454,7 +1454,7 @@ export async function meatbox(mon, obj, rawEnv = {}) {
         if (obj.otyp === ICE_BOX)
             removed_from_icebox(child, state);
         if (engulfContents) {
-            mpickobj(mon, child, rawEnv);
+            await mpickobjRuntime(mon, child, rawEnv);
         } else if (!await flooreffects(
             child,
             x,
@@ -1763,7 +1763,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
             else if (engulfed === 2)
                 messageText = `${capitalizedMonsterName(mtmp, state)} engulfs several objects.`;
             obj_extract_self(obj, objectGenerationEnv({ ...rawEnv, state }));
-            mpickobj(mtmp, obj, rawEnv);
+            await mpickobjRuntime(mtmp, obj, rawEnv);
         } else {
             count++;
             if (cansee(mtmp.mx, mtmp.my, state)) {

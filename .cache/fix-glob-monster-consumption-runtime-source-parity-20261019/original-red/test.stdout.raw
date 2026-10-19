@@ -1,0 +1,36 @@
+✔ meatobj imports and applies source slimeproof for green slime glob (1.820299ms)
+✔ m_consume_obj turns an eater into green slime after consuming a glob (7.071819ms)
+✔ meatobj gates hidden slurping messages by C verbosity, acoustics, and deafness (9.943766ms)
+✔ meatmetal consumes the first acceptable metallic object (2.36627ms)
+✔ meatmetal routes offscreen crunch through the C acoustics gate (2.925225ms)
+✔ meatcorpse consumes one ordinary corpse and leaves the monster alive (2.948719ms)
+✔ mon_give_prop records resistance and mpickgold transfers coins (2.087833ms)
+✖ meatbox and meatobj await the real monster-inventory glob merge (634.383915ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1262.479195
+
+✖ failing tests:
+
+test at scripts/mon-consumption.test.mjs:257:1
+✖ meatbox and meatobj await the real monster-inventory glob merge (634.383915ms)
+  AssertionError [ERR_ASSERTION]: real meatbox child merge reached the missing absorbGlob hook; fixture exit=1
+      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/mon-consumption.test.mjs:366:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }

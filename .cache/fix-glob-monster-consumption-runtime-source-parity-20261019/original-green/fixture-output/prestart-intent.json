@@ -1,0 +1,12 @@
+{
+  "$id": 1,
+  "entered": false,
+  "count": 0,
+  "input": {
+    "$id": 2,
+    "seed": 2026101801,
+    "datetime": "20261018120000",
+    "recorderIsDst": true,
+    "nethackrc": "OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n"
+  }
+}

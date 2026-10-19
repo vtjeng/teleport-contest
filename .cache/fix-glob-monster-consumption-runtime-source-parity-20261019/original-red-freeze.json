@@ -1,0 +1,28 @@
+{
+  "frozenAt": "2026-10-19T05:18:21.068695+00:00",
+  "phase": "final meaningful primary frozen before first production edit",
+  "acceptedBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+  "preproductionMonJsBlob": "e9b41c73fb036ad658a88511530eafb838e2a4e3",
+  "baseTestBlob": "44f59edcc89984d12fb974845c62dff2806ef25a",
+  "testBytes": 16741,
+  "testSha256": "0234c6068b6933418b9dd13965a6e6956d611a611e6f10e8513f5aef5bff3bcc",
+  "fixtureBytes": 30196,
+  "fixtureSha256": "24624e681f541bfdda3c834d82ed314047a5d09aad6b632cd2ceefbc0e9f7a88",
+  "fixturePath": ".cache/glob-cube-meatobj-main-reviewed-qualification-20261019/attempt.mjs",
+  "command": [
+    "node",
+    "--test",
+    "scripts/mon-consumption.test.mjs"
+  ],
+  "cwd": "/workspace/teleport-contest-worker2-recovery",
+  "environmentOverrides": {
+    "MON_CONSUMPTION_CAPTURE_DIR": ".cache/fix-glob-monster-consumption-runtime-source-parity-20261019/original-red"
+  },
+  "fixtureOutputChild": "fixture-output under requested capture dir, absent before test",
+  "fixedInput": {
+    "seed": 2026101801,
+    "datetime": "20261018120000",
+    "recorderIsDst": true,
+    "nethackrc": "OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n"
+  }
+}

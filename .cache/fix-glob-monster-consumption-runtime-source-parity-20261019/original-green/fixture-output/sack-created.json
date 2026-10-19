@@ -1,0 +1,26 @@
+{
+  "$id": 1,
+  "returned": true,
+  "object": {
+    "$id": 2,
+    "id": 82,
+    "otyp": 217,
+    "where": 0,
+    "quan": 1,
+    "oclass": 6,
+    "baseWeight": 15,
+    "age": 1,
+    "owt": 15,
+    "globby": false,
+    "timed": 0,
+    "blessed": false,
+    "cursed": false,
+    "unpaid": false,
+    "no_charge": false,
+    "nomerge": false,
+    "how_lost": 0,
+    "mass": null,
+    "olocked": false,
+    "otrapped": false
+  }
+}

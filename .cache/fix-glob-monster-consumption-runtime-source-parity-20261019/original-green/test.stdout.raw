@@ -1,0 +1,16 @@
+✔ meatobj imports and applies source slimeproof for green slime glob (2.18781ms)
+✔ m_consume_obj turns an eater into green slime after consuming a glob (13.891819ms)
+✔ meatobj gates hidden slurping messages by C verbosity, acoustics, and deafness (13.122182ms)
+✔ meatmetal consumes the first acceptable metallic object (2.267027ms)
+✔ meatmetal routes offscreen crunch through the C acoustics gate (7.606205ms)
+✔ meatcorpse consumes one ordinary corpse and leaves the monster alive (4.092135ms)
+✔ mon_give_prop records resistance and mpickgold transfers coins (2.377153ms)
+✔ meatbox and meatobj await the real monster-inventory glob merge (692.648499ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1293.013745

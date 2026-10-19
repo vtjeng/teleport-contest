@@ -1,0 +1,6 @@
+{
+  "$id": 1,
+  "entered": false,
+  "count": 0,
+  "factory": "mksobj(GLOB_OF_GRAY_OOZE,true,false,env)"
+}

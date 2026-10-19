@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/mon-consumption.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-monster-consumption-runtime-source-parity-20261019/original-green/test.stdout.raw"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-monster-consumption-runtime-source-parity-20261019/lint/stdout.raw"
+  }
+]

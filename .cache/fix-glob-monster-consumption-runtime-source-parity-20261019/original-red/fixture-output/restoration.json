@@ -1,0 +1,81 @@
+{
+  "$id": 1,
+  "handlerRestored": true,
+  "counters": {
+    "$id": 2,
+    "startup": 1,
+    "constructor": 1,
+    "residentFactory": 1,
+    "residentInsert": 1,
+    "sackFactory": 1,
+    "incomingFactory": 1,
+    "containerInsert": 1,
+    "containerWeight": 1,
+    "floorPlacement": 1,
+    "meatobj": 1
+  },
+  "errors": {
+    "$id": 3,
+    "primary": {
+      "$id": 4,
+      "name": "UnsupportedObjectOperationError",
+      "message": "absorbGlob is not available for otyp 271",
+      "stack": "UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\n    at add_to_minv (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5012:13)\n    at mpickobj (file:///workspace/teleport-contest-worker2-recovery/js/steal.js:323:19)\n    at meatbox (file:///workspace/teleport-contest-worker2-recovery/js/mon.js:1457:13)\n    at m_consume_obj (file:///workspace/teleport-contest-worker2-recovery/js/mon.js:1505:15)\n    at meatobj (file:///workspace/teleport-contest-worker2-recovery/js/mon.js:1789:19)\n    at async file:///workspace/teleport-contest-worker2-recovery/.cache/glob-cube-meatobj-main-reviewed-qualification-20261019/attempt.mjs:430:26",
+      "operation": "absorbGlob",
+      "otyp": 271,
+      "phase": "meatobj",
+      "count": 1
+    },
+    "setup": null,
+    "observer": null,
+    "save": null,
+    "restore": null,
+    "capture": null
+  },
+  "stop": null,
+  "root": {
+    "$id": 5,
+    "moves": {
+      "$id": 6,
+      "present": true,
+      "type": "number",
+      "value": 1
+    },
+    "multi": {
+      "$id": 7,
+      "present": false,
+      "type": "undefined",
+      "value": {
+        "$id": 8,
+        "absentOrUndefined": true
+      }
+    },
+    "gameover": {
+      "$id": 9,
+      "present": false,
+      "type": "undefined",
+      "value": {
+        "$id": 10,
+        "absentOrUndefined": true
+      }
+    }
+  },
+  "actor": {
+    "$id": 11,
+    "id": null,
+    "hp": 13,
+    "x": 67,
+    "y": 4
+  },
+  "owners": {
+    "$id": 12,
+    "cubeNmon": true,
+    "cubeGrid": true,
+    "residentMinv": true,
+    "sackFloor": true,
+    "sackTile": true,
+    "incomingContained": false,
+    "originalInventory": true,
+    "originalFloor": true
+  }
+}
