@@ -329210,7 +329210,7 @@
     {
       "id": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement create_object from sp_lev.c",
       "cFile": "sp_lev.c",
       "sessions": [],
@@ -329218,7 +329218,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "4009c6994a2da26c1985bb0f1e0621e9a23ab7dd",
       "delivered": null,
       "functions": [
         {
@@ -329356,6 +329356,76 @@
           ]
         },
         "reviewSha256": "9e797ce431e5e3acd2562a09edc7938be488a46ae1183d318cc96e0fa7c70523"
+      },
+      "closeStanding": {
+        "sha": "4009c6994a2da26c1985bb0f1e0621e9a23ab7dd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/4009c6994a2da26c1985bb0f1e0621e9a23ab7dd/run-hosted-j7oe6U/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "create_object",
+            "sourceFile": "sp_lev.c",
+            "implementation": "js/sp_lev_object.js",
+            "symbol": "finalizeTopLevelObject",
+            "sourceReview": "The selected finalizer now waits for existing stackobjRuntime to return its true floor-pile survivor before applying burn/burial and returning through the existing hybrid creator tail. Eager ordinary results and the other finalizer behavior remain preserved.",
+            "pure": false,
+            "tests": [
+              "scripts/sp-lev-object.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "callers": [
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "finalizeTopLevelObject",
+                "source": "Whole Ccreate_object2193–2442 reviewed. Await/then stackobjRuntime before synchronous begin_burn or existing async bury_an_obj, retaining null deallocation/context tombstone semantics and eager nonwaiting behavior."
+              },
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "createOneObject",
+                "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+              },
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "create_object",
+                "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+              },
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "lspo_object",
+                "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "stackobjRuntime",
+                "source": "Existing accepted whole Cstackobj4366–4376 owner, first successful merge break and incoming target survivor; READ ONLY dependency, no invent edit."
+              }
+            ]
+          }
+        ],
+        "entryPointReview": "Public non-content lspo_object invokes create_object and finalizeTopLevelObject on the actual floor target; stackobjRuntime is the accepted read-only runtime owner. Other stackobj and inventory callers are outside this stage.",
+        "entryPoints": [
+          {
+            "name": "lspo_object actual public floor setup and target route",
+            "functions": [
+              {
+                "sourceFile": "sp_lev.c",
+                "name": "create_object"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]

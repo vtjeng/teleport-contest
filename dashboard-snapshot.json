@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T00:40:23.255Z",
+  "capturedAt": "2026-10-19T00:56:55.179Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T00:40:23.255Z",
+    "asOf": "2026-10-19T00:56:55.179Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 362,
+      "mainSupportAssignments": 364,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -175861,6 +175861,165 @@
         "output": "implementation",
         "target": null,
         "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:40:20.958Z",
+        "id": "queue:dd85ec44-603b-4483-9c44-b2c396cb0588",
+        "type": "assign",
+        "task": "glob-special-monster-inventory-proposed-fixture-source-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-special-container-runtime-source-parity-20261019-191f016ac205b24b94a9289bc304c5d907093daa",
+        "type": "published",
+        "at": "2026-10-19T00:40:46.276Z",
+        "task": "delivery:fix-glob-special-container-runtime-source-parity-20261019",
+        "commit": "191f016ac205b24b94a9289bc304c5d907093daa"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:42:57.371Z",
+        "id": "queue:3a90f5aa-46aa-414b-a361-38212fa2a10f",
+        "type": "queue-complete",
+        "task": "glob-special-monster-inventory-proposed-fixture-source-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:42:57.371Z",
+        "id": "queue:3a90f5aa-46aa-414b-a361-38212fa2a10f:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:43:10.786Z",
+        "id": "ready-524e044cad00fd4a2ac625757a2759ea37c37cc9:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-glob-special-floor-creator-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-524e044cad00fd4a2ac625757a2759ea37c37cc9",
+        "type": "ready",
+        "at": "2026-10-19T00:43:10.786Z",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "delivery": "524e044cad00fd4a2ac625757a2759ea37c37cc9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:43:10.786Z",
+        "id": "ready-524e044cad00fd4a2ac625757a2759ea37c37cc9:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:43:10.786Z",
+        "id": "ready-524e044cad00fd4a2ac625757a2759ea37c37cc9:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "wl-review-floor524e-20261019",
+        "type": "activity",
+        "at": "2026-10-19T00:45:20.802Z",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "phase": "review",
+        "reason": "Exact finalizer source/test/fixture and literal pre-code red to same-byte green verified; retain scoped runtime-pending claims before normal hosted integration."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:46:18.674Z",
+        "id": "queue:a2d9ab61-c616-4407-9845-da6f07b2d7bf",
+        "type": "assign",
+        "task": "glob-special-monster-inventory-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-floor524e-20261019",
+        "type": "received",
+        "at": "2026-10-19T00:46:25.837Z",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "delivery": "524e044cad00fd4a2ac625757a2759ea37c37cc9"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-4009c6994a2da26c1985bb0f1e0621e9a23ab7dd-b5374f8d4dc7e8186f816d562725c05289b2688a12f177e4b702c1bb8cc4311f-delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "type": "integrating",
+        "at": "2026-10-19T00:47:59.157Z",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "integration": "4009c6994a2da26c1985bb0f1e0621e9a23ab7dd",
+        "validationGroup": [
+          "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:49:56.520Z",
+        "id": "queue:f141f149-1c22-4b22-ac8b-8d22a584f3e0",
+        "type": "assign",
+        "task": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:50:33.721Z",
+        "id": "queue:5aa3e0d6-664b-4196-b2a2-a0b70e8c86ef",
+        "type": "queue-complete",
+        "task": "glob-special-monster-inventory-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:50:33.721Z",
+        "id": "queue:5aa3e0d6-664b-4196-b2a2-a0b70e8c86ef:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019-4009c6994a2da26c1985bb0f1e0621e9a23ab7dd-validated",
+        "type": "validated",
+        "at": "2026-10-19T00:54:53.451Z",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019-4009c6994a2da26c1985bb0f1e0621e9a23ab7dd-accepted",
+        "type": "accepted",
+        "at": "2026-10-19T00:55:32.528Z",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019"
       }
     ]
   },
@@ -176070,57 +176229,40 @@
           "source:fountain.c:gush"
         ],
         "reason": "Fixed-seed attempt stopped during fixture setup: missing MM_ADJACENTOK import raised ReferenceError before makemon_runtime or dogushforth; runtime readiness UNKNOWN, no source red or refutation. No rerun or source edit under terminal first-attempt rule."
-      },
-      "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019": {
-        "id": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
-        "worker": "Worker-2",
-        "status": "working",
-        "seed": null,
-        "reservations": [
-          "source:sp_lev.c:create_object"
-        ]
       }
     },
-    "reservations": {
-      "source:sp_lev.c:create_object": {
-        "tasks": [
-          "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019"
-        ]
-      }
-    }
+    "reservations": {}
   },
   "assignmentQueue": {
     "readySessions": 0,
     "threshold": 5,
     "preferred": "exploration",
     "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
-    "ready": [
-      "glob-special-monster-inventory-proposed-fixture-source-20261019"
-    ],
+    "ready": [],
     "blocked": [],
     "claimed": [
       {
-        "task": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
-        "worker": "Worker-2"
+        "task": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
+        "worker": "Worker-1"
       }
     ],
     "counts": {
-      "ready": 1,
+      "ready": 0,
       "claimed": 1,
       "blocked": 0,
-      "completed": 631,
+      "completed": 634,
       "superseded": 101
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": null,
-        "state": "idle"
+        "assignment": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
+        "state": "active"
       },
       {
         "worker": "Worker-2",
-        "assignment": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-3",
@@ -187145,7 +187287,7 @@
         "id": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
         "type": "implementation",
         "output": "implementation",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -187154,28 +187296,58 @@
         "target": null,
         "readyAt": "2026-10-19T00:39:26.337Z",
         "claimedAt": "2026-10-19T00:39:46.970Z",
-        "completedAt": null
+        "completedAt": "2026-10-19T00:43:10.786Z"
       },
       {
         "id": "glob-special-monster-inventory-proposed-fixture-source-20261019",
         "type": "exploration",
         "output": "exploration",
-        "status": "ready",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
         "batch": null,
-        "worker": null,
+        "worker": "Worker-3",
         "target": null,
         "readyAt": "2026-10-19T00:40:04.254Z",
-        "claimedAt": null,
+        "claimedAt": "2026-10-19T00:40:20.958Z",
+        "completedAt": "2026-10-19T00:42:57.371Z"
+      },
+      {
+        "id": "glob-special-monster-inventory-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-19T00:45:58.062Z",
+        "claimedAt": "2026-10-19T00:46:18.674Z",
+        "completedAt": "2026-10-19T00:50:33.721Z"
+      },
+      {
+        "id": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "claimed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T00:49:35.792Z",
+        "claimedAt": "2026-10-19T00:49:56.520Z",
         "completedAt": null
       }
     ]
   },
   "development": {
-    "executionCommit": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
-    "measuredAt": "2026-10-19T00:36:14.890Z",
+    "executionCommit": "4009c6994a2da26c1985bb0f1e0621e9a23ab7dd",
+    "measuredAt": "2026-10-19T00:53:56.677Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
