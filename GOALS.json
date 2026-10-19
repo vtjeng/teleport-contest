@@ -330150,7 +330150,7 @@
     {
       "id": "fix-glob-monster-consumption-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement meatbox from mon.c",
       "cFile": "mon.c",
       "sessions": [],
@@ -330158,7 +330158,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a93e1720de8a882a605c4a84a07038484a7ee445",
       "delivered": null,
       "functions": [
         {
@@ -330325,12 +330325,97 @@
           ]
         },
         "reviewSha256": "ce8d7012fd307d0889cf0abbda52b41330e2f2c9e25ba4f9c7ebebf5106a110d"
+      },
+      "closeStanding": {
+        "sha": "a93e1720de8a882a605c4a84a07038484a7ee445",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/a93e1720de8a882a605c4a84a07038484a7ee445/run-hosted-G0rMtu/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "meatbox",
+            "sourceFile": "mon.c",
+            "implementation": "js/mon.js",
+            "symbol": "meatbox",
+            "sourceReview": "C mon.c:meatbox (1354–1390): after the unchanged real child extraction and ICE_BOX removal, the engulf-contents branch now awaits mpickobjRuntime(mon, child, rawEnv). The alternative floor-effects branch, placement path, loop order and all prior effects are unchanged.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "meatbox",
+                "source": "Whole C1354-1390/current1432-1479 read. Only legacy child call1457 becomes await mpickobjRuntime(mon,child,rawEnv); same extraction/icebox/flooralternative/source-loop and full environment."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_consume_obj",
+                "source": "Whole C1392-1453/current body read, already awaits meatbox before unpunish/delobj/food effects. No edit."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "mpickobjRuntime",
+                "source": "Accepted full runtime companion preserves carry/resolvebool/snuff/fullenv/planningboundary; unchanged. mon.js already imports it689; keep legacy mpickobj for pendingxkilled6136."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-consumption.test.mjs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "meatobj",
+            "sourceFile": "mon.c",
+            "implementation": "js/mon.js",
+            "symbol": "meatobj",
+            "sourceReview": "C mon.c:meatobj (1533–1653): after the unchanged real object extraction, the direct-engulf branch now awaits mpickobjRuntime(mtmp, obj, rawEnv) before minvis, next-object processing and final messages. The eat branch and awaited m_consume_obj are unchanged. The fixture exercises the meatbox child route; direct engulf remains source-selected but has no separate runtime witness.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "meatobj",
+                "source": "Whole C1533-1653/current1708-1813 read. Only direct engulf1766 becomes await mpickobjRuntime(mtmp,obj,rawEnv), before minvis/nextobject/finalmessage. Eating branch already awaits m_consume_obj."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "Existing await meatobj3587/awaitm_consume2001 with full env; no edits."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_eat",
+                "source": "Existing awaitm_consume672 with full environment; no edit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-consumption.test.mjs"
+            ],
+            "recordings": []
+          }
+        ],
+        "entryPointReview": "The frozen real exported meatobj fixture reaches meatobj → m_consume_obj → meatbox and consumes a real SACK before its contained child reaches the monster-inventory merge path. The final same-byte test observes the repaired awaited mpickobjRuntime continuation and verifies the natural merge outcome. The separate direct-engulf mpickobjRuntime call in meatobj is included because Main selected both whole source units; this fixture does not enter that direct-engulf branch, so no separate runtime witness is claimed for it. No whole-file, global caller-family, C-parity, or public-action claim is made.",
+        "entryPoints": [
+          {
+            "name": "fixed real meatobj eater route through meatbox child transfer",
+            "functions": [
+              "meatobj",
+              "meatbox"
+            ],
+            "recordings": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     },
     {
       "id": "fix-glob-water-bubble-stack-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement mv_bubble from mkmaze.c",
       "cFile": "mkmaze.c",
       "sessions": [],
@@ -330338,7 +330423,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "a93e1720de8a882a605c4a84a07038484a7ee445",
       "delivered": null,
       "functions": [
         {
@@ -330487,6 +330572,81 @@
           ]
         },
         "reviewSha256": "75a54309f4d9a5ee2bfccc6692fc079bd6ff26857196f79c8f81109a93b8017a"
+      },
+      "closeStanding": {
+        "sha": "a93e1720de8a882a605c4a84a07038484a7ee445",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "2dc339f75d1c7df617e1e9b9bcb9954c47bb0d0a",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/a93e1720de8a882a605c4a84a07038484a7ee445/run-hosted-G0rMtu/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "mv_bubble",
+            "sourceFile": "mkmaze.c",
+            "implementation": "js/mkmaze.js",
+            "symbol": "mv_bubble",
+            "sourceReview": "Reviewed the complete assigned C range mkmaze.c:mv_bubble (1952–2110) and JS implementation. Only the contents-loop call now awaits the accepted stackobjRuntime with objectGenerationEnv({ state }); import updated accordingly. Existing place/save-next/remaining-content/bounce order and eager initial/no-cons callers remain unchanged. Regression exercises the selected default movebubbles route. This is a caller source-parity runtime-pending claim only.",
+            "callers": [
+              {
+                "path": "js/mkmaze.js",
+                "symbol": "mv_bubble",
+                "source": "Whole C1952-2110/current299-418 read. finishContents alreadyasync, save next before place, awaitruntime stack before object=next/remainingcons then clearcons and bounce. Only onecall+import changes; no blanket async wrapper."
+              },
+              {
+                "path": "js/mkmaze.js",
+                "symbol": "movebubbles",
+                "source": "Whole Ccollection/movement and current485+ read; existing awaitmv_bubble576 closes caller before nextbubble/draw. No edit."
+              },
+              {
+                "path": "js/mkmaze.js",
+                "symbol": "mk_bubble",
+                "source": "Existing mv_bubble(initialtrue) with no cons remains synchronous eagerinitial path; no caller change."
+              },
+              {
+                "path": "js/mkmaze.js",
+                "symbol": "restore_waterlevel",
+                "source": "Existing initialtrue/no-cons reinitialization remains eager; no caller change."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "Existing awaitmovebubbles3127-3132 after actualWater/Air arrival; no edit. Source directsetup legitimated by debuginput/Amuletwriter."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "stackobjRuntime",
+                "source": "Accepted hybrid stack runtime preserves first successfulmerge break/target survivor and canonical mergedRuntime/planning; unchanged, default {state} same argument. All other globalstack callers pending."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkmaze-span.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "This runtime-pending source-parity stage covers the selected post-setup movebubbles path reaching mkmaze.c:mv_bubble, with stackobjRuntime as an unchanged accepted dependency. Existing callers movebubbles, mk_bubble, restore_waterlevel and goto_level are reviewed as recorded in sourceParity.review.callers; only the selected mv_bubble object continuation is changed. No whole-file or other stack caller completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "movebubbles",
+            "functions": [
+              {
+                "sourceFile": "mkmaze.c",
+                "name": "mv_bubble"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
