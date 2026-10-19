@@ -1,0 +1,133 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "This submitted runtime-pending caller stage covers only the selected animate_statue contained-object transfer path. Existing mpickobjRuntime is an accepted read-only runtime companion. Other animate_statue arms and legacy mpickobj consumers remain unchanged and are not certified.",
+  "entryPoints": [
+    {
+      "name": "animate_statue",
+      "functions": [
+        {
+          "sourceFile": "trap.c",
+          "name": "animate_statue"
+        }
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "functions": [
+    {
+      "name": "animate_statue",
+      "sourceFile": "trap.c",
+      "implementation": "js/trap.js",
+      "symbol": "animate_statue",
+      "sourceReview": "Reviewed complete trap.c animate_statue (725-900) and current JS animate_statue. Only the local dynamic steal dependency and awaited contained-object transfer call now use mpickobjRuntime. The same objectEnv, cobj head extraction/order, await before next item, equipment/worn cleanup and statue deletion remain in source order. Existing runtime companion and all other arms/callers are unchanged. This is a caller-only runtime-pending claim.",
+      "callers": [
+        {
+          "path": "js/trap.js",
+          "symbol": "animate_statue",
+          "source": "Whole C725-900 and JS3368-3580 reviewed Main+CL. Only local dynamic dependency name mpickobjRuntime and same awaited loop call3558; extraction before transfer, await before next cobj then m_dowear creation synchronous/worn cleanup/delobj. All other arms/defaults/flags/outputs/RNG unchanged."
+        },
+        {
+          "path": "js/trap.js",
+          "symbol": "activate_statue_trap",
+          "source": "Existing await animate_statue before unique retry and feel_newsym tail, whole callsite read; no change."
+        },
+        {
+          "path": "js/pray.js",
+          "symbol": "pray_revive",
+          "source": "Actual pray_revive animation branch near1793 already returns Boolean(await animate_statue) before caller tail; source read, no edit."
+        },
+        {
+          "path": "js/zap.js",
+          "symbol": "stone_to_flesh_obj",
+          "source": "Existing await animate_statue ANIMATE_SPELL before common object callback tail; whole relevant branch read, no edit."
+        },
+        {
+          "path": "js/steal.js",
+          "symbol": "mpickobjRuntime",
+          "source": "Accepted full runtime companion preserves carry-beforetransfer, resolved freed boolean and snuff-aftertransfer with actual objectEnv. No helper/provider/planning/global change; positive light snuff not exercised by globs."
+        }
+      ],
+      "pure": false,
+      "tests": [
+        "scripts/zapyourself.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "8e27636744fc43fcad350e4950f3270e2de5ea6e",
+      "command": [
+        "node",
+        "--test",
+        "scripts/zapyourself.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "figurine billing projection directory: /tmp/stone-flesh-floor-figurine-billing-9QDM0P\n\u2714 zapyourself keeps the complete C switch inventory and source order (1.685617ms)\n\u2714 probe_monster reports a long-worm segment before skipping its inventory (0.401229ms)\n\u2714 zapyourself no-op source arms complete without consuming RNG (1.164223ms)\n\u2714 zapyourself routes source physical exercise through encumber_msg (0.229328ms)\n\u2714 self-directed drain life executes the canonical level loss (153.49064ms)\n\u2714 source arm inventory stays explicit when a constant is renamed (0.415425ms)\n\u2714 self-zap source guards use blocked invisibility and pre-call trap state (0.276077ms)\n\u2714 self cancellation compares the current form before rehumanizing (0.492554ms)\n\u2714 extrinsic invisibility suppresses self-zap discovery and feedback (1.025587ms)\n\u2714 self slowing excludes speed supplied only by the monster form (0.337525ms)\n\u2714 self opening reads the canonical punishment ball (50.533774ms)\n\u2714 stone-to-flesh figurines use the admitted runtime creation shape (0.46658ms)\n\u2714 stone-to-flesh keeps the source callback and statue dependency order (1.521323ms)\n\u2714 stone-to-flesh ignores non-mineral objects without touching state (0.598568ms)\n\u2714 bhito uses the Stone to Flesh return on an inventory object (43.244859ms)\n\u2714 Stone to Flesh animates a statue through the canonical runtime owner (50.532471ms)\n\u2714 stone-to-flesh charges a successful floor figurine before deletion (65.087634ms)\n\u2714 statue animation removes a wielded statue before deleting it (43.49233ms)\n\u2714 statue animation cause 0 admits the ordinary creation flags (21.810718ms)\n\u2714 statue animation cause 1 admits the ordinary creation flags (22.968649ms)\n\u2716 animate_statue awaits runtime pickup for each contained glob before deleting the statue (764.146393ms)\n\u2139 tests 21\n\u2139 suites 0\n\u2139 pass 20\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 1776.474728\n\n\u2716 failing tests:\n\ntest at scripts/zapyourself.test.mjs:686:1\n\u2716 animate_statue awaits runtime pickup for each contained glob before deleting the statue (764.146393ms)\n  AssertionError [ERR_ASSERTION]: animate_statue must complete both runtime transfers; target observed {\"name\":\"UnsupportedObjectOperationError\",\"message\":\"absorbGlob is not available for otyp 271\",\"stack\":\"UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\\n    at add_to_minv (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5012:13)\\n    at mpickobj (file:///workspace/teleport-contest-worker2-recovery/js/steal.js:323:19)\\n    at animate_statue (file:///workspace/teleport-contest-worker2-recovery/js/trap.js:3558:15)\\n    at async file:///workspace/teleport-contest-worker2-recovery/.cache/glob-animate-statue-contained-pair-main-reviewed-qualification-20261019/attempt.mjs:137:39\",\"operation\":\"absorbGlob\",\"otyp\":271}\n  + actual - expected\n  \n  + {\n  +   message: 'absorbGlob is not available for otyp 271',\n  +   name: 'UnsupportedObjectOperationError',\n  +   operation: 'absorbGlob',\n  +   otyp: 271,\n  +   stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\\n' +\n  +     '    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\\n' +\n  +     '    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\\n' +\n  +     '    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\\n' +\n  +     '    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\\n' +\n  +     '    at add_to_minv (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5012:13)\\n' +\n  +     '    at mpickobj (file:///workspace/teleport-contest-worker2-recovery/js/steal.js:323:19)\\n' +\n  +     '    at animate_statue (file:///workspace/teleport-contest-worker2-recovery/js/trap.js:3558:15)\\n' +\n  +     '    at async file:///workspace/teleport-contest-worker2-recovery/.cache/glob-animate-statue-contained-pair-main-reviewed-qualification-20261019/attempt.mjs:137:39'\n  + }\n  - null\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/zapyourself.test.mjs:808:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: { name: 'UnsupportedObjectOperationError', message: 'absorbGlob is not available for otyp 271', stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\\n    at add_to_minv (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5012:13)\\n    at mpickobj (file:///workspace/teleport-contest-worker2-recovery/js/steal.js:323:19)\\n    at animate_statue (file:///workspace/teleport-contest-worker2-recovery/js/trap.js:3558:15)\\n    at async file:///workspace/teleport-contest-worker2-recovery/.cache/glob-animate-statue-contained-pair-main-reviewed-qualification-20261019/attempt.mjs:137:39', operation: 'absorbGlob', otyp: 271 },\n    expected: null,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+      "stderr": "",
+      "testSha256": "282f8b87ab0d397d8110f6e8016cdecc17e6b84b38cb61033b960450a6598077",
+      "fixtureSha256": "284cd84dc01ba9a786afbb88f1fd33a7815a63f62d49e2cca06b4cf77d6b240b",
+      "productionSha256": "1f1e31b61a31218fc91f96f0ac51e8fcac876fe914a1df70402547b9b7e75655",
+      "interpretation": "Meaningful target-specific original-source red: setup, observer and restoration checks passed; the real contained transfer reached mpickobj and failed on absorbGlob/otyp 271, while the regression expected successful completion."
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/zapyourself.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "figurine billing projection directory: /tmp/stone-flesh-floor-figurine-billing-dTqVl0\n\u2714 zapyourself keeps the complete C switch inventory and source order (1.602249ms)\n\u2714 probe_monster reports a long-worm segment before skipping its inventory (0.304284ms)\n\u2714 zapyourself no-op source arms complete without consuming RNG (0.996884ms)\n\u2714 zapyourself routes source physical exercise through encumber_msg (0.245519ms)\n\u2714 self-directed drain life executes the canonical level loss (151.853086ms)\n\u2714 source arm inventory stays explicit when a constant is renamed (0.429536ms)\n\u2714 self-zap source guards use blocked invisibility and pre-call trap state (0.297749ms)\n\u2714 self cancellation compares the current form before rehumanizing (0.377594ms)\n\u2714 extrinsic invisibility suppresses self-zap discovery and feedback (1.069619ms)\n\u2714 self slowing excludes speed supplied only by the monster form (0.457052ms)\n\u2714 self opening reads the canonical punishment ball (51.900399ms)\n\u2714 stone-to-flesh figurines use the admitted runtime creation shape (0.451447ms)\n\u2714 stone-to-flesh keeps the source callback and statue dependency order (1.152598ms)\n\u2714 stone-to-flesh ignores non-mineral objects without touching state (0.613171ms)\n\u2714 bhito uses the Stone to Flesh return on an inventory object (49.133492ms)\n\u2714 Stone to Flesh animates a statue through the canonical runtime owner (52.921838ms)\n\u2714 stone-to-flesh charges a successful floor figurine before deletion (65.665836ms)\n\u2714 statue animation removes a wielded statue before deleting it (40.564445ms)\n\u2714 statue animation cause 0 admits the ordinary creation flags (22.429616ms)\n\u2714 statue animation cause 1 admits the ordinary creation flags (25.496292ms)\n\u2714 animate_statue awaits runtime pickup for each contained glob before deleting the statue (800.053249ms)\n\u2139 tests 21\n\u2139 suites 0\n\u2139 pass 21\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 1829.773163\n",
+      "stderr": "",
+      "testSha256": "282f8b87ab0d397d8110f6e8016cdecc17e6b84b38cb61033b960450a6598077",
+      "productionSha256": "4fac8f6a2912db6ff6881dc3cd5a5338084d725a434d3f5eeb8dd232077dbe16"
+    }
+  },
+  "chronology": [
+    {
+      "phase": "initial-preproduction-test-attempt",
+      "testSha256": "b312cad311f3e5f096282a491a49ddd384778a83c8cfc22ca2bba16bed3a11db",
+      "result": "harness miss: expected cursed=true although fixture un-curses before snapshot; raw stdout/stderr/exit preserved separately in evidence/original-red.*"
+    },
+    {
+      "phase": "corrected-final-preproduction-freeze",
+      "testSha256": "282f8b87ab0d397d8110f6e8016cdecc17e6b84b38cb61033b960450a6598077",
+      "productionSha256": "1f1e31b61a31218fc91f96f0ac51e8fcac876fe914a1df70402547b9b7e75655"
+    },
+    {
+      "phase": "final-frozen-test-original-source-red",
+      "result": "target-specific absorbGlob/otyp271 failure; captured raw stdout/stderr and exit 1"
+    },
+    {
+      "phase": "production-edit",
+      "delta": "Only local dynamic mpickobj binding to mpickobjRuntime and awaited loop call to mpickobjRuntime."
+    },
+    {
+      "phase": "same-final-test-repaired-green",
+      "result": "21 tests passed, exit 0"
+    },
+    {
+      "phase": "lint",
+      "result": "npm run lint exit 0"
+    }
+  ],
+  "lint": {
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "output": "\n> teleport-contest@1.0.0 lint\n> eslint js/ scripts/\n\n",
+    "stderr": ""
+  },
+  "artifactEnvelope": {
+    "path": ".cache/fix-glob-animate-statue-contents-runtime-source-parity-20261019/evidence-envelope.json",
+    "sha256": "8f5ffa299ca938141d312d71fdd9139c36984ce25873bdaf743063613b42f043",
+    "bytes": 42517840,
+    "embeddedFileCount": 121,
+    "encoding": "base64 literal files with per-file size and SHA-256"
+  }
+}

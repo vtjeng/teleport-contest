@@ -1,0 +1,182 @@
+{
+  "goal": "fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+  "kind": "file-port",
+  "sourceFile": "trap.c",
+  "cFile": "trap.c",
+  "functions": [
+    "animate_statue"
+  ],
+  "lineRanges": [
+    "725-900"
+  ],
+  "cLines": 176,
+  "jsFile": "js/trap.js",
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-animate-statue-contents-runtime-source-parity-20261019",
+    "assignmentBase": "8e27636744fc43fcad350e4950f3270e2de5ea6e",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "8e27636744fc43fcad350e4950f3270e2de5ea6e",
+      "authorization": "Standing user-authorized staged glob source-parity continuation. Main explicitly selects NEW<=20min INCLUDING packaging narrow whole animate_statue caller wiring after actual2893 and full C725-900/currentJS3368-3580/default/helper/caller reviews. No old goal transfer, public C parity/certification, discovery, score gain or global migration; old parked/capped scopes preserved.",
+      "currentBehavior": "Exact unchanged19101B284c default ANIMATE_SPELL runs once. Before statue79 FLOOR640 cobj[81,80]; each contained glob20, timers81@25/80@26. Real goblin82 PM70 placed66,5, first actual child81 becomes MINVENT20; incoming80 extractedFREE/unlinked then legacy mpickobj/add_to_minv/merged preflight refuses missing absorbGlob. Statue79 remains FLOOR600 empty, both timers unchanged. calls1/Node1, rootmoves1/RNG2504\u21922551, HP13 at67,4/allrefs/inventory/pile/handler retained, no setup/observer/save/restore errors.",
+      "expectedBehavior": "Only existing local dynamic steal dependency and awaited contents call switch mpickobj\u2192mpickobjRuntime. Same objectEnv, cobj head extraction/order and await before next child/equipment/worn-removal/delobj. Existing accepted helper untouched. Actual81 survives MINVENT40/quan1/age1/carrier82,80DELETED9/unlinked/timed0, sole81 SHRINK deadline26 (remaining24 +incomingstopped default25\u2192delay25 at moves1). Normal actor return and statue79 deleted/unlinked after canonical tails; original inventory/floor/HP/refs/restoration preserved. Other legacy consumers stay pending.",
+      "units": [
+        "trap.c:animate_statue"
+      ],
+      "allowedPaths": [
+        "js/trap.js",
+        "scripts/zapyourself.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/zapyourself.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/trap.js",
+          "symbol": "animate_statue",
+          "source": "Whole C725-900 and JS3368-3580 reviewed Main+CL. Only local dynamic dependency name mpickobjRuntime and same awaited loop call3558; extraction before transfer, await before next cobj then m_dowear creation synchronous/worn cleanup/delobj. All other arms/defaults/flags/outputs/RNG unchanged."
+        },
+        {
+          "path": "js/trap.js",
+          "symbol": "activate_statue_trap",
+          "source": "Existing await animate_statue before unique retry and feel_newsym tail, whole callsite read; no change."
+        },
+        {
+          "path": "js/pray.js",
+          "symbol": "pray_revive",
+          "source": "Actual pray_revive animation branch near1793 already returns Boolean(await animate_statue) before caller tail; source read, no edit."
+        },
+        {
+          "path": "js/zap.js",
+          "symbol": "stone_to_flesh_obj",
+          "source": "Existing await animate_statue ANIMATE_SPELL before common object callback tail; whole relevant branch read, no edit."
+        },
+        {
+          "path": "js/steal.js",
+          "symbol": "mpickobjRuntime",
+          "source": "Accepted full runtime companion preserves carry-beforetransfer, resolved freed boolean and snuff-aftertransfer with actual objectEnv. No helper/provider/planning/global change; positive light snuff not exercised by globs."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "scripts/zapyourself.test.mjs",
+          "object": "194a07f7afdf33dd049c1b41a7194cccaa57cef2"
+        },
+        {
+          "path": "js/trap.js",
+          "object": "4747a0667ddc8fba45209367c5c69ff5f91dd170"
+        },
+        {
+          "path": "js/steal.js",
+          "object": "795ac42409e8367d4b24b33bfbc92d1ed4e390bf"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/monster_object.js",
+          "object": "b7dfbd85bc3cfa0682cd9bbadf92d616f8d82a98"
+        },
+        {
+          "path": "js/makemon_create.js",
+          "object": "2b271ac44ad5f5c1935cb0e2273f4ee5e00bc400"
+        },
+        {
+          "path": "js/makemon.js",
+          "object": "23d3bc2fc49b3ab51b08f7ce0d9d72ea8c91efa0"
+        },
+        {
+          "path": "js/read.js",
+          "object": "a8b4fee3a3275b93cb77c2293ca517f787430ee6"
+        },
+        {
+          "path": "js/zap.js",
+          "object": "c29975212bdb340128867b3579e75fa2fad84dc9"
+        },
+        {
+          "path": "js/pray.js",
+          "object": "0d9789e874a5d8492da4c575bea46a37f47d5a92"
+        },
+        {
+          "path": "js/worn.js",
+          "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+        },
+        {
+          "path": "js/mon.js",
+          "object": "e9b41c73fb036ad658a88511530eafb838e2a4e3"
+        },
+        {
+          "path": "js/mondata.js",
+          "object": "a2ed0919963fc18468d0a5ff0b02ee388157afa6"
+        },
+        {
+          "path": "js/monsters.js",
+          "object": "1381545113e72cabfbc4c05f1d6f167964ecfcc7"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        },
+        {
+          "path": "js/pline.js",
+          "object": "c5c26cb6018f9096441cce80559ae1c47d29e3d1"
+        },
+        {
+          "path": "js/shk.js",
+          "object": "90ff8e08d9256a8ad35d3a7e5adac0c273c69b1d"
+        }
+      ],
+      "actualResult": "2893bfcac19b4f866b71aa0d22331a9e8eafd2ac10b4b4769e1349cbb84431bb",
+      "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-animate2893-independent-actual-review.json"
+    },
+    "reviewSha256": "ab3205fc4632d9bbf2019e29e0cc50962d6671d106b861de8f5093c1a9baca29"
+  }
+}

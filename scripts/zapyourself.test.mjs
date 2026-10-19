@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 import {
     bhito,
@@ -30,7 +33,8 @@ import {
 } from '../js/objects.js';
 import {
     ANIMATE_NORMAL, ANIMATE_SHATTER, ANIMATE_SPELL, FAST, FROMFORM,
-    CORPSTAT_HISTORIC, INVIS, OBJ_DELETED, OBJ_INVENT, W_WEP,
+    CORPSTAT_HISTORIC, INVIS, OBJ_CONTAINED, OBJ_DELETED, OBJ_FREE, OBJ_INVENT, OBJ_MINVENT,
+    TIMER_OBJECT, SHRINK_GLOB, W_WEP,
     W_BALL, W_CHAIN,
 } from '../js/const.js';
 import { PM_NEWT } from '../js/monsters.js';
@@ -676,3 +680,170 @@ for (const cause of [ANIMATE_NORMAL, ANIMATE_SHATTER]) {
             alignment - (game.context.mon_moving ? 0 : 1));
     });
 }
+// Source-parity regression for trap.c:animate_statue()'s awaited contents tail.
+// The child is the exact reviewed initialized-cobj qualification fixture; its
+// own graph receipts preserve the actual objects and default transfer order.
+test('animate_statue awaits runtime pickup for each contained glob before deleting the statue', () => {
+    const testDir = dirname(fileURLToPath(import.meta.url));
+    const fixture = join(testDir,
+        '../.cache/glob-animate-statue-contained-pair-main-reviewed-qualification-20261019/attempt.mjs');
+    const fixtureBytes = readFileSync(fixture);
+    assert.equal(fixtureBytes.length, 19101);
+    assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
+        '284cd84dc01ba9a786afbb88f1fd33a7815a63f62d49e2cca06b4cf77d6b240b');
+
+    const runRoot = join(testDir,
+        '../.cache/fix-glob-animate-statue-contents-runtime-source-parity-20261019/runs');
+    mkdirSync(runRoot, { recursive: true });
+    const runDir = mkdtempSync(join(runRoot, 'attempt-'));
+    const outputDir = join(runDir, 'target-output');
+    assert.equal(existsSync(outputDir), false,
+        'the fixture owns creation of its absent final capture directory');
+    const argv = [fixture];
+    const command = {
+        executable: process.execPath,
+        argv,
+        cwd: process.cwd(),
+        environment: { ANIMATE_STATUE_OUTPUT_DIR: outputDir },
+    };
+    const startedAt = new Date().toISOString();
+    const child = spawnSync(process.execPath, argv, {
+        cwd: process.cwd(),
+        env: { ...process.env, ANIMATE_STATUE_OUTPUT_DIR: outputDir },
+        maxBuffer: 64 * 1024 * 1024,
+    });
+    const endedAt = new Date().toISOString();
+    writeFileSync(join(runDir, 'command.json'), JSON.stringify(command, null, 2) + '\n', { flag: 'wx' });
+    writeFileSync(join(runDir, 'started-at.txt'), `${startedAt}\n`, { flag: 'wx' });
+    writeFileSync(join(runDir, 'ended-at.txt'), `${endedAt}\n`, { flag: 'wx' });
+    writeFileSync(join(runDir, 'stdout.raw'), child.stdout ?? Buffer.alloc(0), { flag: 'wx' });
+    writeFileSync(join(runDir, 'stderr.raw'), child.stderr ?? Buffer.alloc(0), { flag: 'wx' });
+    const childReceipt = {
+        status: child.status,
+        signal: child.signal,
+        error: child.error ? { name: child.error.name, message: child.error.message } : null,
+        outputDirExists: existsSync(outputDir),
+    };
+    writeFileSync(join(runDir, 'child-receipt.json'), JSON.stringify(childReceipt, null, 2) + '\n', { flag: 'wx' });
+    const outputFiles = existsSync(outputDir)
+        ? readdirSync(outputDir).filter(name => name.endsWith('.json')).sort()
+        : [];
+    const outputManifest = outputFiles.map(name => {
+        const bytes = readFileSync(join(outputDir, name));
+        return { name, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') };
+    });
+    writeFileSync(join(runDir, 'output-manifest.json'),
+        JSON.stringify({ count: outputManifest.length, files: outputManifest }, null, 2) + '\n',
+        { flag: 'wx' });
+
+    const graph = JSON.parse(readFileSync(join(outputDir, 'final-restored.json'), 'utf8'));
+    const identities = new Map();
+    const decode = value => {
+        if (value === null || typeof value !== 'object') return value;
+        if (Object.hasOwn(value, 'ref')) {
+            assert.ok(identities.has(value.ref), `unresolved graph reference ${value.ref}`);
+            return identities.get(value.ref);
+        }
+        if (Object.hasOwn(value, 'id')) {
+            const decoded = Object.hasOwn(value, 'array') ? [] : {};
+            identities.set(value.id, decoded);
+            if (Array.isArray(value.array)) decoded.push(...value.array.map(decode));
+            else for (const [key, child] of Object.entries(value.fields ?? {})) decoded[key] = decode(child);
+            return decoded;
+        }
+        if (Array.isArray(value)) return value.map(decode);
+        return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, decode(child)]));
+    };
+    const final = decode(graph);
+    const before = final.before;
+    const after = final.after;
+    assert.equal(child.error, undefined, 'the exact child process was created');
+    assert.equal(final.calls, 1, 'the actual exported target was entered once');
+    assert.equal(final.handlerRestored, true);
+    assert.equal(final.setupError, null);
+    assert.equal(final.restoreError, null);
+    assert.deepEqual(final.observerErrors, []);
+    assert.deepEqual(final.saveErrors, []);
+    assert.equal(before.hero.sameStartupU, true);
+    assert.equal(before.hero.sameStartupLevel, true);
+    assert.equal(before.hero.sameStartupUz, true);
+    assert.equal(before.hero.samePosition, true);
+    assert.deepEqual(before.statue.cobj, [81, 80]);
+    assert.equal(before.first.o_id, 80);
+    assert.equal(before.second.o_id, 81);
+    assert.equal(before.first.where, OBJ_CONTAINED);
+    assert.equal(before.second.where, OBJ_CONTAINED);
+    assert.deepEqual(before.first.ownerUnion, { kind: 'container', parent: 79, next: null });
+    assert.deepEqual(before.second.ownerUnion, { kind: 'container', parent: 79, next: 80 });
+    assert.equal(before.first.owt, 20);
+    assert.equal(before.second.owt, 20);
+    assert.equal(before.first.cursed, false);
+    assert.equal(before.second.cursed, false);
+    assert.deepEqual(before.timers.map(timer => ({ id: timer.argId, kind: timer.kind,
+        func_index: timer.func_index, timeout: timer.timeout, future: timer.future })),
+    [{ id: 81, kind: TIMER_OBJECT, func_index: SHRINK_GLOB, timeout: 25, future: true },
+        { id: 80, kind: TIMER_OBJECT, func_index: SHRINK_GLOB, timeout: 26, future: true }]);
+    assert.equal(before.inventoryRetained, true);
+
+    const actualCarrier = after.monsters.find(monster => monster.m_id === 82);
+    assert.ok(actualCarrier, 'the actual goblin actor remains in the canonical monster list');
+    assert.equal(actualCarrier.pmidx, 70);
+    assert.equal(actualCarrier.gridId, 82);
+    assert.deepEqual(actualCarrier.minvent, [81],
+        'the first cobj head (81), not fixture variable first, was transferred first');
+    assert.equal(after.first.o_id, 80);
+    assert.equal(after.second.o_id, 81);
+    if (final.primaryError) {
+        assert.equal(final.primaryError.operation, 'absorbGlob');
+        assert.equal(final.primaryError.otyp, 271);
+        assert.match(final.primaryError.stack, /animate_statue/u);
+        assert.match(final.primaryError.stack, /mpickobj/u);
+        assert.equal(after.first.where, OBJ_FREE,
+            'the second child was extracted before the legacy pickup refusal');
+        assert.equal(after.first.ownerUnion.next, null);
+        assert.equal(after.second.where, OBJ_MINVENT,
+            'actual first child 81 reached the monster inventory before the refusal');
+        assert.equal(after.second.ownerUnion.carrier, 82);
+    }
+    assert.equal(final.primaryError, null,
+        `animate_statue must complete both runtime transfers; target observed ${JSON.stringify(final.primaryError)}`);
+    assert.equal(child.status, 0);
+    assert.equal(final.phase, 'target-returned');
+    assert.equal(final.outcome.kind, 'returned');
+    assert.deepEqual(final.outcome, {
+        kind: 'returned', type: 'object', isNull: false, isObject: true,
+        isUndefined: false, isBoolean: false, isNumber: false, isString: false,
+    });
+    assert.equal(after.returnedTarget.m_id, 82);
+    assert.equal(after.returnedTarget.pmidx, 70);
+    assert.equal(after.returnedTarget.inList, true);
+    assert.equal(after.returnedTarget.newMonster, true);
+    assert.equal(after.returnedTarget.gridId, 82);
+
+    assert.equal(after.first.where, OBJ_DELETED);
+    assert.equal(after.first.timed, 0);
+    assert.equal(after.first.ownerUnion.next, null);
+    assert.equal(after.second.where, OBJ_MINVENT);
+    assert.equal(after.second.quan, 1);
+    assert.equal(after.second.owt, 40);
+    assert.equal(after.second.age, 1);
+    assert.equal(after.second.timed, 1);
+    assert.equal(after.second.ownerUnion.carrier, 82);
+    assert.deepEqual(after.statue.cobj, []);
+    assert.equal(after.statue.where, OBJ_DELETED);
+    assert.equal(after.statue.ownerUnion.next, null);
+    assert.equal(after.floorIds.includes(79), false);
+    assert.equal(after.levelObjIds.includes(79), false);
+    assert.deepEqual(after.timers.map(timer => ({ id: timer.argId, kind: timer.kind,
+        func_index: timer.func_index, timeout: timer.timeout, future: timer.future })),
+    [{ id: 81, kind: TIMER_OBJECT, func_index: SHRINK_GLOB, timeout: 26, future: true }]);
+    assert.equal(after.rootMovesEffective, 1);
+    assert.equal(after.hero.sameStartupU, true);
+    assert.equal(after.hero.sameStartupLevel, true);
+    assert.equal(after.hero.sameStartupUz, true);
+    assert.equal(after.hero.samePosition, true);
+    assert.deepEqual([after.hero.x, after.hero.y, after.hero.hp], [67, 4, 13]);
+    assert.equal(after.inventoryRetained, true);
+    assert.equal(after.originalFloorStillRetained, true);
+});
+

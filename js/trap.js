@@ -3391,7 +3391,7 @@ export async function animate_statue(
     // eager.  C enters this function only after the game has initialized all
     // of those owners, so resolve them at the call boundary instead.
     const [{ cant_revive }, { montraits }, { makemon_runtime, m_dowear },
-        { mpickobj, remove_worn_item }] = await Promise.all([
+        { mpickobjRuntime, remove_worn_item }] = await Promise.all([
         import('./read.js'),
         import('./zap.js'),
         import('./makemon_create.js'),
@@ -3555,7 +3555,7 @@ export async function animate_statue(
     while (statue.cobj) {
         const item = statue.cobj;
         obj_extract_self(item, objectEnv);
-        await mpickobj(monster, item, objectEnv);
+        await mpickobjRuntime(monster, item, objectEnv);
     }
     m_dowear(monster, true, objectEnv);
     if (statue.owornmask)

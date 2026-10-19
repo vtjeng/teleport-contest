@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/zapyourself.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-animate-statue-contents-runtime-source-parity-20261019/evidence/final-green/stdout.raw"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-animate-statue-contents-runtime-source-parity-20261019/evidence/lint/stdout.raw"
+  }
+]
