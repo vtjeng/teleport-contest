@@ -1,0 +1,171 @@
+{
+  "id": "fix-glob-public-tip-container-runtime-source-parity-20261019",
+  "type": "implementation",
+  "output": "implementation",
+  "producer": "Main",
+  "recipient": "Main",
+  "goal": "fix-glob-public-tip-container-runtime-source-parity-20261019",
+  "base": "b5f69a44af4a99345ac638ebe1fe917d238eab1d",
+  "createdAt": "2026-10-19T02:44:58.046024+00:00",
+  "dependencies": [],
+  "sessions": [],
+  "urgent": true,
+  "reservations": [
+    "source:pickup.c:tipcontainer"
+  ],
+  "allowedPaths": [
+    "js/pickup.js",
+    "scripts/pickup-tip.test.mjs",
+    ".cache/"
+  ],
+  "checks": [
+    "focused",
+    "lint"
+  ],
+  "artifacts": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-public-tip-container-runtime-source-parity-20261019",
+    "assignmentBase": "b5f69a44af4a99345ac638ebe1fe917d238eab1d",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "b5f69a44af4a99345ac638ebe1fe917d238eab1d",
+      "authorization": "Standing user-authorized staged glob runtime/source-parity continuation. Main selects NEW<=15min INCLUDING packaging narrow public tipcontainer caller repair after exact e42a actual and whole source/default/caller peer review. No old caps reset, public C parity, source certification, discovery, score gain, or global caller migration.",
+      "currentBehavior": "One exact 24844B a2eb invocation on accepted b5 enters public dotip via actual source SACK65/i then destination SACK68/j. Actual prequeue pending empty/topline0/queue0. Tipcontainer extracts source glob66 into FREE, then legacy add_to_container/preflightMerged refuses absent absorbGlob. Source65 weight15/empty already from canonical extraction; destination69 CONTAINED20 in68 weight35, timers66@27 and69@26 unchanged, rootmoves1/RNG2384 unchanged, HP13/all baseline refs/handler true and no observer/save/restore errors.",
+      "expectedBehavior": "Only tipcontainer transfer tail switches to already accepted addToContainerRuntime with same {state} and existing conditional await. Await before next child, source/destination weight, encumber_msg and update_inventory. Source65 remains held empty weight15, destination68 held weight55 with only survivor69 CONTAINED mass40/quan1/age1, source66 DELETED/unlinked/timed0/no66timer, only69 SHRINK deadline26. Public dotip returns ECMD_TIME1, queue empty, stable baseline/restoration. Legacy coffer/gold add_to_container3870 remains and import retained.",
+      "units": [
+        "pickup.c:tipcontainer"
+      ],
+      "allowedPaths": [
+        "js/pickup.js",
+        "scripts/pickup-tip.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/pickup-tip.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/pickup.js",
+          "symbol": "tipcontainer",
+          "source": "Whole C pickup.c3688-3841 and whole current JS4145-4291 read Main+CL. Keep guards/location/shop/cursed/icebox/explosion/drop/message order. Selected targetbox branch4247 only uses existing runtime helper. Same environment and conditional await resolve before saved-next loop advance, both weights and inventory/status tail."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "dotip",
+          "source": "Whole public inventory and floor branches already await tipcontainer; no actual caller edit. Source getobj/real PICK_ONE destination selector and preceding pending-message ownership source-closed and actual e42a reached."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "choose_tip_container_menu",
+          "source": "Existing source floor-container menu loop awaits each tipcontainer before next item/return, read-only caller closure, no alternate UI/history or private target API."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "addToContainerRuntime",
+          "source": "Read-only accepted whole C add_to_container companion preserves canonical external objectNoLongerHeld release-before-scan and resolved survivor. Only existing tip caller wiring; no helper/provider/Unsupported guard or global migration."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "reverse_loot",
+          "source": "Existing separate goldob/coffers site3870 still needs legacy import. Do not remove legacy import or alter this typed gold path."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "scripts/pickup-tip.test.mjs",
+          "object": "6ef1d0eee301f4f0fa7a0e1ed1a23afe48f96482"
+        },
+        {
+          "path": "js/pickup.js",
+          "object": "690bc43191acb98c71868e47eedeeb0bbd177424"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        },
+        {
+          "path": "js/worn.js",
+          "object": "0e8c922d7da88d985206626d5988c9fd31aced0a"
+        },
+        {
+          "path": "js/mondata.js",
+          "object": "a2ed0919963fc18468d0a5ff0b02ee388157afa6"
+        },
+        {
+          "path": "js/pline.js",
+          "object": "c5c26cb6018f9096441cce80559ae1c47d29e3d1"
+        },
+        {
+          "path": "js/objnam.js",
+          "object": "cff691875b79c9f0328e954337567988ddb94d16"
+        },
+        {
+          "path": "js/windows.js",
+          "object": "b48b6946edd1550d810dd0a506fb671021f7d751"
+        },
+        {
+          "path": "js/tty_menu.js",
+          "object": "01de6372dbd1551ce53a9c8aec06fcd8b4690a4b"
+        },
+        {
+          "path": "js/input.js",
+          "object": "17bcebe1dfa171d45c8cfc2cc999588b7812f0b2"
+        }
+      ],
+      "actualResult": "e42a3998b31e5d060453dbe291388c8c79386ad23099c06ba4ecb300d5167398",
+      "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-tipe42a-independent-actual-review.json"
+    },
+    "reviewSha256": "b50d10a5ae4b5ca899956dc81f10e3930b5661e1c391a4a7b2f4623b52ef7241"
+  },
+  "stop": "NEW<=15min INCLUDING packaging. Meaningful selected primary original target red BEFORE FIRST game edit required; any harness/test/source miss STOP Main with raw/freeze/no autonomous correction/retry. Same final frozen test original red and repaired green, lint, literal immutable evidence, or truthful partial terminal by deadline. No cap reset/global migration.",
+  "question": "Main selects NEW<=15min INCLUDING packaging source-parity-runtime-pending public tipcontainer caller stage after Main+CL full immutable e42a review and whole C3688-3841/currentJS4145-4291/default/helper/caller closure. All review scope/pins frozen above on ACTUAL accepted b5. No implementation or helper API expansion from old source investigations/held caps. Real source e42a ONE qualification target and old5474/3270/a2eb source-only/lineage remain unchanged; this is implementation validation, no additional qualification.\nBEFORE ANY game edit append meaningful primary to EXISTING scripts/pickup-tip.test.mjs, using exact unchanged .cache/glob-public-tip-between-sacks-main-reviewed-qualification-20261019/attempt.mjs 24844B SHAa2eb8ee82602d78c42347da696c0e50ec5844166e8961a06c54cbcdd6866f9e7. TRACK literal fixture dependency from FIRST freeze for clean hosted test. Freeze exact testbytes, run FULL `node --test scripts/pickup-tip.test.mjs` on unchanged original production. Require actual dotip entered1/missing absorbGlob target red, not import/ESM/observer/setup/UI/HP/timer/filename failure. Save exact first test/source bytes and literal stdout/stderr/exit/actual child receipts from creation. ANY failure outside expected target STOP Main; no autonomous edit/rerun/capreset. Once meaningful original red, apply ONLY source change below, run same frozen test file green + npm run lint. If later Main-authorized test change, final AFTERdraft freeze/pair labeled honestly and genuine earlier precode red retained. Inspect required imports/actual receipt schema carefully before first freeze (prior stash unused tmpdir lint correction is retained historical context, not authorization to self-fix).\nGAME delta only current pickup tipcontainer4247 call legacy add_to_container -> existing addToContainerRuntime. Runtime import ALREADY present from accepted stash; keep legacy add_to_container IMPORT and coffers/goldob3870 use. Same {state}, existing conditional await before next child and source/destination weight+encumber+inventory. Do NOT touch in_container, helper/invent, menus/getobj/selectors, guards/icebox/billing/explosion/drop/quantity/random/formatting or other source units; no new Unsupported guard/API/dependency. Whole original function and caller awaits retained; no global/container family completion claim.\nPRIMARY real a2eb body creates nonexisting TIP_SACK_OUTPUT_DIR with mkdirSync(false): create unique parent with mkdtemp, set child run path NOT created first. UUID-named receipts: use actual one *.receipt.json from sole fresh child directory, never guess fixed UUID or copy old context schema. No changing fixture/input/setup. Child process full stdout/stderr/exit preserved before assertions, exact bodyhash asserted. Actual `targetEnteredCount`, `primaryError`, `observerError`, `restoreError`, `saveErrors` ARRAY, `handlerRestored`, `startupEquality`, `finalEquality`, `after` schema. `targetResult` is tagged object with .value on success. Before-target saved separate UUID *.before-target.json, not receipt.before. `after.pair.source` is original incoming66 and `after.pair.destination` is survivor69; `after.sacks` contains object/tree pairs, find actual65/68 by .object.oid; .tree.contents.rows records actual chains; .timers.rows has actualargOid/ref/kind/func/deadline. Full state/schema source from exact fixture read mandatory, no unrecorded labels.\nAssert canonicalstartup/entered1 and zero observer/save/restore errors+handler restoration first. If primary sourceerror, bind sourceOperation=absorbGlob/otyp271 and actual add_to_container->tipcontainer->dotip stack; then assert primaryError null to make original failure meaningful. Repaired actual public result.value ECMD_TIME1; source66 whereOBJ_DELETED9/timed0/unlinked/no66timer; survivor69 CONTAINEDmass40/quan1/age1/exactparent68, sourceSACK65 held empty15, destination68 held55/cobjonly69, unchanged other inventory IDs/order, queueempty, baseline/coords/HP/restoration. Sole69 TIMER_OBJECT3/SHRINK_GLOB7 deadline26 (source merged prefix stops66 first; survivorremaining25+incomingdefault25 =>25 + moves1). No raw screen equality or forced no-RNG assertion; preserve full before/after screens/log/core/display and source output. No fake live heap/error.object or spaced-JSON absence test.\nAll named final source/test/trackedfixture/freeze/predraft/finalraw stdstreams/actualexit+EVERYrunprefix/receipt+hookfailure chronology in compact selfcontained typed literal dedup envelope, hash-bound. Preserve output as actual bytes, not path prose. Before/after regression receipts same full file command, originalbase exactb5 nonzero vs repairedzero. Accurate sourceParity/context functions/impureunits/entrypoints and existingtest selected declaration. No C recorder/workerprepare smoke, public recording/history, aggregate/scorer/checkpoint, API adoption or certification. Normal focused/lint/implementation commit hooks authorized; original15min includes packaging/submit. Do not broaden optional controls or repeat successful checks without concrete remaining risk. Submit immutable delivery through normal transport, Main normal hosted acceptance/publication only."
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/pickup-tip.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/glob-public-tip-runtime-source-parity-20261019/final-repaired-green/stdout.raw"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker2-recovery/.cache/glob-public-tip-runtime-source-parity-20261019/lint-reconciled/stdout.raw"
+  }
+]

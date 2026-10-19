@@ -1,0 +1,155 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "Selected actual public dotip -> tipcontainer -> existing addToContainerRuntime call path. Other paths including reverse_loot coffers/gold are unchanged and not migrated.",
+  "entryPoints": [
+    {
+      "name": "dotip",
+      "functions": [
+        {
+          "sourceFile": "pickup.c",
+          "name": "tipcontainer"
+        }
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "functions": [
+    {
+      "name": "tipcontainer",
+      "sourceFile": "pickup.c",
+      "implementation": "js/pickup.js",
+      "symbol": "tipcontainer",
+      "sourceReview": "Main and CL reviewed whole pickup.c:3688-3841 and the current caller/default paths. This delivery changes only targetbox transfer from add_to_container to existing addToContainerRuntime with the same {state}; existing thenable await remains before loop advance and weight/status tail.",
+      "callers": [
+        {
+          "path": "js/pickup.js",
+          "symbol": "tipcontainer",
+          "source": "Whole C pickup.c3688-3841 and whole current JS4145-4291 read Main+CL. Keep guards/location/shop/cursed/icebox/explosion/drop/message order. Selected targetbox branch4247 only uses existing runtime helper. Same environment and conditional await resolve before saved-next loop advance, both weights and inventory/status tail."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "dotip",
+          "source": "Whole public inventory and floor branches already await tipcontainer; no actual caller edit. Source getobj/real PICK_ONE destination selector and preceding pending-message ownership source-closed and actual e42a reached."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "choose_tip_container_menu",
+          "source": "Existing source floor-container menu loop awaits each tipcontainer before next item/return, read-only caller closure, no alternate UI/history or private target API."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "addToContainerRuntime",
+          "source": "Read-only accepted whole C add_to_container companion preserves canonical external objectNoLongerHeld release-before-scan and resolved survivor. Only existing tip caller wiring; no helper/provider/Unsupported guard or global migration."
+        },
+        {
+          "path": "js/pickup.js",
+          "symbol": "reverse_loot",
+          "source": "Existing separate goldob/coffers site3870 still needs legacy import. Do not remove legacy import or alter this typed gold path."
+        }
+      ],
+      "pure": false,
+      "tests": [
+        "scripts/pickup-tip.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "b5f69a44af4a99345ac638ebe1fe917d238eab1d",
+      "command": [
+        "node",
+        "--test",
+        "scripts/pickup-tip.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "✔ tip_ok follows the source eligibility and suggestion rules (1.33833ms)\n✔ pickup.c tipcontainer identifies a cursed spill on an altar (404.57789ms)\n✔ pickup.c tipcontainer resolves a quantum cat before checking its contents (365.352822ms)\n✔ pickup.c use_container observes a quantum box before opening its prompt (235.634457ms)\n✔ pickup.c passes drop operations to the tipped horn floor path (282.543802ms)\n✖ public dotip transfers a contained glob through the runtime container writer (1914.674568ms)\nℹ tests 6\nℹ suites 0\nℹ pass 5\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4289.995181\n\n✖ failing tests:\n\ntest at scripts/pickup-tip.test.mjs:289:1\n✖ public dotip transfers a contained glob through the runtime container writer (1914.674568ms)\n  AssertionError [ERR_ASSERTION]: the actual public transfer must complete without the legacy missing absorbGlob refusal\n  + actual - expected\n  \n  + {\n  +   message: 'absorbGlob is not available for otyp 271',\n  +   name: 'UnsupportedObjectOperationError',\n  +   operation: 'dotip',\n  +   otyp: 271,\n  +   sourceOperation: 'absorbGlob',\n  +   stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\\n' +\n  +     '    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\\n' +\n  +     '    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\\n' +\n  +     '    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\\n' +\n  +     '    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\\n' +\n  +     '    at attach (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5072:17)\\n' +\n  +     '    at add_to_container (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5087:12)\\n' +\n  +     '    at tipcontainer (file:///workspace/teleport-contest-worker2-recovery/js/pickup.js:4247:34)\\n' +\n  +     '    at async dotip (file:///workspace/teleport-contest-worker2-recovery/js/pickup.js:4411:9)\\n' +\n  +     '    at async file:///workspace/teleport-contest-worker2-recovery/.cache/glob-public-tip-between-sacks-main-reviewed-qualification-20261019/attempt.mjs:259:22'\n  + }\n  - null\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/pickup-tip.test.mjs:368:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: { name: 'UnsupportedObjectOperationError', message: 'absorbGlob is not available for otyp 271', stack: 'UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\\n    at attach (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5072:17)\\n    at add_to_container (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:5087:12)\\n    at tipcontainer (file:///workspace/teleport-contest-worker2-recovery/js/pickup.js:4247:34)\\n    at async dotip (file:///workspace/teleport-contest-worker2-recovery/js/pickup.js:4411:9)\\n    at async file:///workspace/teleport-contest-worker2-recovery/.cache/glob-public-tip-between-sacks-main-reviewed-qualification-20261019/attempt.mjs:259:22', operation: 'dotip', sourceOperation: 'absorbGlob', otyp: 271 },\n    expected: null,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/pickup-tip.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "✔ tip_ok follows the source eligibility and suggestion rules (0.990638ms)\n✔ pickup.c tipcontainer identifies a cursed spill on an altar (129.354636ms)\n✔ pickup.c tipcontainer resolves a quantum cat before checking its contents (44.014858ms)\n✔ pickup.c use_container observes a quantum box before opening its prompt (35.047384ms)\n✔ pickup.c passes drop operations to the tipped horn floor path (41.714772ms)\n✔ public dotip transfers a contained glob through the runtime container writer (701.49203ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1667.684084\n"
+    }
+  },
+  "attemptHistory": {
+    "firstFreezeRed": {
+      "testHash": "64f3e174e1bed97ca04446ffc616ee25a21f249488b6f3f028ce40f1e4641b8c",
+      "bytes": 16080,
+      "rawOutput": ".cache/glob-public-tip-runtime-source-parity-20261019/original-red/stdout.raw",
+      "exitCode": 1,
+      "outerExitFile": null,
+      "sourceHash": "0b5972ece2f2ecf144eaf31dd4112d9d8e54a0ad386eee1510ae7807083a8965"
+    },
+    "precommitLintFailure": {
+      "command": "git add scripts/pickup-tip.test.mjs && git commit -m 'Add stored-weight checks to public tip regression'",
+      "capture": ".cache/glob-public-tip-runtime-source-parity-20261019/precommit-hook-tool-output.json"
+    },
+    "finalOriginalRed": {
+      "testHash": "b6fdc138c01ee55b1d5baa58c84141dfd6d4b812d7f3aa8eefe274aa83c2a6e0",
+      "bytes": 16161,
+      "rawStdout": ".cache/glob-public-tip-runtime-source-parity-20261019/final-original-red/stdout.raw",
+      "rawStderr": ".cache/glob-public-tip-runtime-source-parity-20261019/final-original-red/stderr.raw",
+      "exitCode": 1,
+      "target": "absorbGlob otyp271 through add_to_container -> tipcontainer -> dotip"
+    },
+    "finalRepairedGreen": {
+      "testHash": "b6fdc138c01ee55b1d5baa58c84141dfd6d4b812d7f3aa8eefe274aa83c2a6e0",
+      "bytes": 16161,
+      "rawStdout": ".cache/glob-public-tip-runtime-source-parity-20261019/final-repaired-green/stdout.raw",
+      "rawStderr": ".cache/glob-public-tip-runtime-source-parity-20261019/final-repaired-green/stderr.raw",
+      "exitCode": 0,
+      "testCount": 6,
+      "passCount": 6
+    },
+    "lintFirstCapture": {
+      "childExitCode": 0,
+      "outerToolExitCode": 1,
+      "files": ".cache/glob-public-tip-runtime-source-parity-20261019/lint/"
+    },
+    "lintReconciled": {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "childExitCode": 0,
+      "outerToolExitCode": 0,
+      "childResult": ".cache/glob-public-tip-runtime-source-parity-20261019/lint-reconciled/child-result.json",
+      "toolResult": ".cache/glob-public-tip-runtime-source-parity-20261019/lint-reconciled/tool-result.json"
+    }
+  },
+  "runtimeEvidenceLimits": {
+    "otherContainerCallers": "Not migrated; reverse_loot coffer/gold retains legacy add_to_container.",
+    "publicParity": "Selected source-parity runtime-pending path only; no C parity, aggregate scoring, or whole-file certification."
+  },
+  "preservedArtifacts": {
+    "immutableEnvelope": {
+      "path": ".cache/fix-glob-public-tip-container-runtime-source-parity-20261019/evidence-envelope.json",
+      "sha256": "1e7a2b8836d1c890b36c27fbc908f304e6e4464790e46c349f3cea1db8e1fb64",
+      "bytes": 7580737,
+      "format": "teleport-immutable-byte-envelope-v1",
+      "referenceCount": 112,
+      "uniqueBlobCount": 58,
+      "referencedBytes": 13608746,
+      "integrity": "All refs and embedded base64 blobs were computed from exact bytes and hash/length bound."
+    },
+    "fixture": {
+      "path": ".cache/glob-public-tip-between-sacks-main-reviewed-qualification-20261019/attempt.mjs",
+      "sha256": "a2eb8ee82602d78c42347da696c0e50ec5844166e8961a06c54cbcdd6866f9e7",
+      "bytes": 24844,
+      "unchanged": true
+    },
+    "frozenTest": {
+      "path": "scripts/pickup-tip.test.mjs",
+      "sha256": "b6fdc138c01ee55b1d5baa58c84141dfd6d4b812d7f3aa8eefe274aa83c2a6e0",
+      "bytes": 16161,
+      "frozenBeforeFirstProductionEdit": true
+    }
+  }
+}

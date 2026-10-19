@@ -1,0 +1,69 @@
+{
+  "format": "teleport-packaging-only-rework-v1",
+  "task": "rework:delivery:fix-glob-public-tip-container-runtime-source-parity-20261019:83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+  "targetDelivery": "83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+  "base": "83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+  "claimedAt": "2026-10-19T02:59:08.616Z",
+  "scope": "Packaging only. No source, regression test, fixture, sourceParity, raw run evidence, or check output was changed or rerun.",
+  "exactUnchangedEnvelope": {
+    "path": ".cache/fix-glob-public-tip-container-runtime-source-parity-20261019/evidence-envelope.json",
+    "bytes": 7580737,
+    "sha256": "1e7a2b8836d1c890b36c27fbc908f304e6e4464790e46c349f3cea1db8e1fb64",
+    "expectedOriginalSha256": "1e7a2b8836d1c890b36c27fbc908f304e6e4464790e46c349f3cea1db8e1fb64"
+  },
+  "metadataFiles": [
+    {
+      "path": ".cache/fix-glob-public-tip-container-runtime-source-parity-20261019/assignment.json",
+      "bytes": 12941,
+      "sha256": "5a1571dcadd280d3df7cfc2138bf191f7c5ae266c780237fdfd4a5ef6b82414e"
+    },
+    {
+      "path": ".cache/fix-glob-public-tip-container-runtime-source-parity-20261019/task-context.json",
+      "bytes": 7061,
+      "sha256": "c84b616d42198800b4b65891cca5222b083796af6dd36485ba37419f566c9b64"
+    },
+    {
+      "path": ".cache/fix-glob-public-tip-container-runtime-source-parity-20261019/task-evidence.json",
+      "bytes": 11367,
+      "sha256": "a16e5ca9c2124909964bf451052122e9bab2a3438daefba6f594c9c4fdb2f200"
+    },
+    {
+      "path": ".cache/fix-glob-public-tip-container-runtime-source-parity-20261019/checks.json",
+      "bytes": 538,
+      "sha256": "7acdf41626d98abe0aa087e12707aef3d695e1331eb97f9cb74758205e9b00ba"
+    }
+  ],
+  "inheritedCodeAndTest": {
+    "baseFirstFreeze": "b474e35f5c7900aa9433869719fd270b2f3475ce",
+    "implementationDelivery": "83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+    "sourceAndTestUnchanged": true
+  },
+  "checksReused": {
+    "focused": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/pickup-tip.test.mjs"
+      ],
+      "result": "saved six tests passed; no rerun in this rework"
+    },
+    "lint": {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "result": "saved reconciled child exit 0 and outer tool exit 0; no rerun in this rework"
+    }
+  },
+  "commitAttestation": {
+    "method": "HUSKY=0 git commit for cache-only packaging commit",
+    "reason": "Rework explicitly forbids lint/test reruns and authorizes bypass of automatic lint hook for cache-only commit.",
+    "meaning": "This is an attestation of the authorized packaging-only hook bypass, not a lint result."
+  },
+  "knownCaptureLimits": [
+    "Initial pre-source 64f3 run omitted outer end/exit files because set-e ended before the capture writes; original tool exit and child receipt remain preserved.",
+    "An earlier failed pre-commit hook returned combined output in the tool response but no separate stdout/stderr raw files; exact tool-observed text is labeled as text, not raw.",
+    "The first npm lint wrapper reported an outer tool exit 1 while its captured child exit file was 0; a separate authorized reconciliation recorded child and outer status 0."
+  ]
+}
