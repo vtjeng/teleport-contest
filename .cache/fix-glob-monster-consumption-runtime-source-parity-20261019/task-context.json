@@ -4,10 +4,14 @@
   "sourceFile": "mon.c",
   "cFile": "mon.c",
   "functions": [
-    "meatbox",
-    "meatobj"
+    "meatbox"
   ],
-  "requiredFunctions": [],
+  "requiredFunctions": [
+    {
+      "sourceFile": "mon.c",
+      "name": "meatobj"
+    }
+  ],
   "lineRanges": [
     "1354-1390",
     "1533-1653"
