@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T00:56:55.179Z",
+  "capturedAt": "2026-10-19T02:33:39.122Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T00:56:55.179Z",
+    "asOf": "2026-10-19T02:33:39.122Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 364,
+      "mainSupportAssignments": 379,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -176020,6 +176020,563 @@
         "type": "accepted",
         "at": "2026-10-19T00:55:32.528Z",
         "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019-f692954a05d46f0bc7f1557f89d8c7310973609a",
+        "type": "published",
+        "at": "2026-10-19T00:57:17.213Z",
+        "task": "delivery:fix-glob-special-floor-creator-runtime-source-parity-20261019",
+        "commit": "f692954a05d46f0bc7f1557f89d8c7310973609a"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:59:16.685Z",
+        "id": "queue:e78cee1b-fe2e-4ec3-9175-58539c6b8ecd",
+        "type": "queue-complete",
+        "task": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T00:59:16.685Z",
+        "id": "queue:e78cee1b-fe2e-4ec3-9175-58539c6b8ecd:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:01:01.074Z",
+        "id": "queue:a1103ee9-d058-48dd-b20f-e3919cba41b2",
+        "type": "assign",
+        "task": "glob-special-monster-inventory-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:04:11.233Z",
+        "id": "queue:5594f17e-db6e-4114-9274-610a6e434b7b",
+        "type": "queue-complete",
+        "task": "glob-special-monster-inventory-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:04:11.233Z",
+        "id": "queue:5594f17e-db6e-4114-9274-610a6e434b7b:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:04:30.989Z",
+        "id": "queue:fce397e7-ea3b-462d-84d9-707e7b0c30b8",
+        "type": "assign",
+        "task": "glob-monstone-statue-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:06:50.549Z",
+        "id": "queue:fffb001d-59e3-44be-a760-f6861306720c",
+        "type": "queue-complete",
+        "task": "glob-monstone-statue-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:06:50.549Z",
+        "id": "queue:fffb001d-59e3-44be-a760-f6861306720c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:12:36.512Z",
+        "id": "queue:707e6e6c-13b7-4fee-8960-483bebf21cfb",
+        "type": "assign",
+        "task": "glob-monstone-statue-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:14:21.169Z",
+        "id": "queue:117fd876-6120-4edd-b6f0-8c5e04199a72",
+        "type": "queue-complete",
+        "task": "glob-monstone-statue-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:14:21.169Z",
+        "id": "queue:117fd876-6120-4edd-b6f0-8c5e04199a72:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:16:01.614Z",
+        "id": "queue:c8d4ce50-3172-4da6-b5a2-dc90c47756bd",
+        "type": "assign",
+        "task": "glob-mloot-carried-sack-proposed-fixture-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:22:15.556Z",
+        "id": "queue:e274922a-5ea3-4360-804e-c61df08b39a2",
+        "type": "queue-complete",
+        "task": "glob-mloot-carried-sack-proposed-fixture-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:22:15.556Z",
+        "id": "queue:e274922a-5ea3-4360-804e-c61df08b39a2:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:28:37.185Z",
+        "id": "queue:d731c572-7798-4723-bcce-ba07b714e807",
+        "type": "assign",
+        "task": "glob-mloot-carried-sack-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:32:32.497Z",
+        "id": "queue:1e0a749f-9d9c-41a7-8091-8c7c3bc9ceb1",
+        "type": "queue-complete",
+        "task": "glob-mloot-carried-sack-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:32:32.497Z",
+        "id": "queue:1e0a749f-9d9c-41a7-8091-8c7c3bc9ceb1:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:34:23.956Z",
+        "id": "queue:0548b5cb-9401-4a8f-b8f7-325d99dd63ba",
+        "type": "assign",
+        "task": "glob-public-stash-container-proposed-fixture-source-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:38:06.648Z",
+        "id": "queue:debd0dd1-f2b7-4514-b04b-b1524c71e005",
+        "type": "queue-complete",
+        "task": "glob-public-stash-container-proposed-fixture-source-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:38:06.648Z",
+        "id": "queue:debd0dd1-f2b7-4514-b04b-b1524c71e005:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:38:42.136Z",
+        "id": "queue:3bdc83a4-e5ad-4aad-a3c6-33e1c59b3f1f",
+        "type": "assign",
+        "task": "glob-mloot-carried-sack-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:41:50.093Z",
+        "id": "queue:aecc2e3f-ee47-4c8a-b800-0704bfcffd46",
+        "type": "queue-complete",
+        "task": "glob-mloot-carried-sack-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:41:50.093Z",
+        "id": "queue:aecc2e3f-ee47-4c8a-b800-0704bfcffd46:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:43:48.283Z",
+        "id": "queue:8b8712bd-61c2-4b5d-9543-168a984cbbfe",
+        "type": "assign",
+        "task": "glob-public-stash-container-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:46:30.944Z",
+        "id": "queue:b4eecbb3-4462-429e-92b6-e8bb4b330c73",
+        "type": "queue-complete",
+        "task": "glob-public-stash-container-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:46:30.944Z",
+        "id": "queue:b4eecbb3-4462-429e-92b6-e8bb4b330c73:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:49:28.959Z",
+        "id": "queue:bcb17916-ec3e-45c6-abe5-2af57fcac209",
+        "type": "assign",
+        "task": "glob-force-box-floor-release-proposed-fixture-source-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:54:27.620Z",
+        "id": "queue:4335db33-5bbd-4d5c-b4e8-2ee24c92be4f",
+        "type": "assign",
+        "task": "glob-public-stash-container-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:55:36.463Z",
+        "id": "queue:4c40f622-5f3d-4799-a88a-c88742165ec0",
+        "type": "queue-complete",
+        "task": "glob-public-stash-container-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:55:36.463Z",
+        "id": "queue:4c40f622-5f3d-4799-a88a-c88742165ec0:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:56:51.682Z",
+        "id": "queue:077407f9-5192-4361-879b-804c98ebd813",
+        "type": "queue-complete",
+        "task": "glob-force-box-floor-release-proposed-fixture-source-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T01:56:51.682Z",
+        "id": "queue:077407f9-5192-4361-879b-804c98ebd813:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:01:57.360Z",
+        "id": "queue:a1aa6c99-38e6-483a-8dd4-ac04d870e24d",
+        "type": "assign",
+        "task": "glob-force-box-floor-release-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:04:33.927Z",
+        "id": "queue:4b073240-2131-4813-aa99-c5ddd2fb9316",
+        "type": "queue-complete",
+        "task": "glob-force-box-floor-release-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:04:33.927Z",
+        "id": "queue:4b073240-2131-4813-aa99-c5ddd2fb9316:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:06:17.054Z",
+        "id": "queue:a594b338-0521-4e78-b47d-d2ebc0e36e33",
+        "type": "assign",
+        "task": "glob-public-stash-source-clock-reviewed-default-qualification-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:07:31.002Z",
+        "id": "queue:e48a09f1-bf3b-4dd8-a15d-30243ce2b547",
+        "type": "queue-complete",
+        "task": "glob-public-stash-source-clock-reviewed-default-qualification-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:07:31.002Z",
+        "id": "queue:e48a09f1-bf3b-4dd8-a15d-30243ce2b547:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:11:36.378Z",
+        "id": "queue:dc7dc6a7-30f7-48c8-ba23-ada84ac0ed8d",
+        "type": "assign",
+        "task": "fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:18:49.755Z",
+        "id": "queue:02db7b61-aac9-4e1a-871c-8e62d4cb77a7",
+        "type": "assign",
+        "task": "glob-force-box-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-3",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:19:58.320Z",
+        "id": "queue:52145c2e-9daa-459e-ae1e-2daa90a109ff",
+        "type": "assign",
+        "task": "glob-public-tip-between-sacks-proposed-fixture-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:20:42.489Z",
+        "id": "ready-ad89f8afd8664e4b3bcae908cb6d45eb12162316:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "worker": "Worker-1",
+        "kind": "implementation",
+        "goal": "fix-glob-public-stash-container-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-ad89f8afd8664e4b3bcae908cb6d45eb12162316",
+        "type": "ready",
+        "at": "2026-10-19T02:20:42.489Z",
+        "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "delivery": "ad89f8afd8664e4b3bcae908cb6d45eb12162316"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:20:42.489Z",
+        "id": "ready-ad89f8afd8664e4b3bcae908cb6d45eb12162316:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:20:42.489Z",
+        "id": "ready-ad89f8afd8664e4b3bcae908cb6d45eb12162316:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:21:15.083Z",
+        "id": "queue:f11a0d0c-c0bf-4541-908b-c1d5a13c0ea3",
+        "type": "queue-complete",
+        "task": "glob-force-box-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-3"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:21:15.083Z",
+        "id": "queue:f11a0d0c-c0bf-4541-908b-c1d5a13c0ea3:idle",
+        "type": "turn",
+        "worker": "Worker-3",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-stash-ad89f8-20261019",
+        "type": "received",
+        "at": "2026-10-19T02:23:14.825Z",
+        "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "delivery": "ad89f8afd8664e4b3bcae908cb6d45eb12162316"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-d000e97266de3de43158430ea6329c0ee1e5b500-112da2dfb11a2f19cee88730f0198a1f2aa2887c94111ed3b0b168a4319e1666-delivery:fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "type": "integrating",
+        "at": "2026-10-19T02:24:21.745Z",
+        "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "integration": "d000e97266de3de43158430ea6329c0ee1e5b500",
+        "validationGroup": [
+          "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:24:52.288Z",
+        "id": "queue:67b09058-a5f3-445c-8a12-f84221d37bae",
+        "type": "queue-complete",
+        "task": "glob-public-tip-between-sacks-proposed-fixture-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:24:52.288Z",
+        "id": "queue:67b09058-a5f3-445c-8a12-f84221d37bae:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:27:37.588Z",
+        "id": "queue:e29312d5-7ac4-40b2-8988-9065128c6518",
+        "type": "assign",
+        "task": "glob-public-tip-between-sacks-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-public-stash-container-runtime-source-parity-20261019-d000e97266de3de43158430ea6329c0ee1e5b500-validated",
+        "type": "validated",
+        "at": "2026-10-19T02:31:23.836Z",
+        "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:32:12.565Z",
+        "id": "queue:7703582e-c22c-47aa-9dc9-feaa99084f71",
+        "type": "queue-complete",
+        "task": "glob-public-tip-between-sacks-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:32:12.565Z",
+        "id": "queue:7703582e-c22c-47aa-9dc9-feaa99084f71:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-public-stash-container-runtime-source-parity-20261019-d000e97266de3de43158430ea6329c0ee1e5b500-accepted",
+        "type": "accepted",
+        "at": "2026-10-19T02:32:16.687Z",
+        "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019"
       }
     ]
   },
@@ -176234,30 +176791,25 @@
     "reservations": {}
   },
   "assignmentQueue": {
-    "readySessions": 0,
+    "readySessions": null,
     "threshold": 5,
-    "preferred": "exploration",
-    "reason": "0 ready implementation sessions; threshold 5; prefer exploration",
+    "preferred": null,
+    "reason": "Queue evidence is stale or missing; refresh before ordinary claims.",
     "ready": [],
     "blocked": [],
-    "claimed": [
-      {
-        "task": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
-        "worker": "Worker-1"
-      }
-    ],
+    "claimed": [],
     "counts": {
       "ready": 0,
-      "claimed": 1,
+      "claimed": 0,
       "blocked": 0,
-      "completed": 634,
+      "completed": 651,
       "superseded": 101
     },
     "workers": [
       {
         "worker": "Worker-1",
-        "assignment": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
-        "state": "active"
+        "assignment": null,
+        "state": "idle"
       },
       {
         "worker": "Worker-2",
@@ -187332,7 +187884,7 @@
         "id": "glob-monstone-statue-production-entry-proposed-fixture-source-20261019",
         "type": "exploration",
         "output": "exploration",
-        "status": "claimed",
+        "status": "completed",
         "producer": "Main",
         "recipient": "Main",
         "sessions": [],
@@ -187341,13 +187893,253 @@
         "target": null,
         "readyAt": "2026-10-19T00:49:35.792Z",
         "claimedAt": "2026-10-19T00:49:56.520Z",
-        "completedAt": null
+        "completedAt": "2026-10-19T00:59:16.685Z"
+      },
+      {
+        "id": "glob-special-monster-inventory-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-19T00:58:02.673Z",
+        "claimedAt": "2026-10-19T01:01:01.074Z",
+        "completedAt": "2026-10-19T01:04:11.233Z"
+      },
+      {
+        "id": "glob-monstone-statue-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T01:04:08.174Z",
+        "claimedAt": "2026-10-19T01:04:30.989Z",
+        "completedAt": "2026-10-19T01:06:50.549Z"
+      },
+      {
+        "id": "glob-monstone-statue-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T01:12:12.782Z",
+        "claimedAt": "2026-10-19T01:12:36.512Z",
+        "completedAt": "2026-10-19T01:14:21.169Z"
+      },
+      {
+        "id": "glob-mloot-carried-sack-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T01:15:42.485Z",
+        "claimedAt": "2026-10-19T01:16:01.614Z",
+        "completedAt": "2026-10-19T01:22:15.556Z"
+      },
+      {
+        "id": "glob-mloot-carried-sack-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T01:25:25.683Z",
+        "claimedAt": "2026-10-19T01:28:37.185Z",
+        "completedAt": "2026-10-19T01:32:32.497Z"
+      },
+      {
+        "id": "glob-public-stash-container-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T01:33:56.981Z",
+        "claimedAt": "2026-10-19T01:34:23.956Z",
+        "completedAt": "2026-10-19T01:38:06.648Z"
+      },
+      {
+        "id": "glob-mloot-carried-sack-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T01:38:19.823Z",
+        "claimedAt": "2026-10-19T01:38:42.136Z",
+        "completedAt": "2026-10-19T01:41:50.093Z"
+      },
+      {
+        "id": "glob-public-stash-container-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T01:42:01.162Z",
+        "claimedAt": "2026-10-19T01:43:48.283Z",
+        "completedAt": "2026-10-19T01:46:30.944Z"
+      },
+      {
+        "id": "glob-force-box-floor-release-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-19T01:49:02.392Z",
+        "claimedAt": "2026-10-19T01:49:28.959Z",
+        "completedAt": "2026-10-19T01:56:51.682Z"
+      },
+      {
+        "id": "glob-public-stash-container-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T01:54:01.441Z",
+        "claimedAt": "2026-10-19T01:54:27.620Z",
+        "completedAt": "2026-10-19T01:55:36.463Z"
+      },
+      {
+        "id": "glob-force-box-floor-release-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-19T02:01:30.328Z",
+        "claimedAt": "2026-10-19T02:01:57.360Z",
+        "completedAt": "2026-10-19T02:04:33.927Z"
+      },
+      {
+        "id": "glob-public-stash-source-clock-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T02:05:55.361Z",
+        "claimedAt": "2026-10-19T02:06:17.054Z",
+        "completedAt": "2026-10-19T02:07:31.002Z"
+      },
+      {
+        "id": "fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T02:11:10.621Z",
+        "claimedAt": "2026-10-19T02:11:36.378Z",
+        "completedAt": "2026-10-19T02:20:42.489Z"
+      },
+      {
+        "id": "glob-force-box-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-3",
+        "target": null,
+        "readyAt": "2026-10-19T02:18:30.513Z",
+        "claimedAt": "2026-10-19T02:18:49.755Z",
+        "completedAt": "2026-10-19T02:21:15.083Z"
+      },
+      {
+        "id": "glob-public-tip-between-sacks-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T02:19:36.202Z",
+        "claimedAt": "2026-10-19T02:19:58.320Z",
+        "completedAt": "2026-10-19T02:24:52.288Z"
+      },
+      {
+        "id": "glob-public-tip-between-sacks-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T02:27:17.638Z",
+        "claimedAt": "2026-10-19T02:27:37.588Z",
+        "completedAt": "2026-10-19T02:32:12.565Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "4009c6994a2da26c1985bb0f1e0621e9a23ab7dd",
-    "measuredAt": "2026-10-19T00:53:56.677Z",
+    "executionCommit": "d000e97266de3de43158430ea6329c0ee1e5b500",
+    "measuredAt": "2026-10-19T02:29:54.511Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

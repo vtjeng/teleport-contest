@@ -329431,7 +329431,7 @@
     {
       "id": "fix-glob-public-stash-container-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement in_container from pickup.c",
       "cFile": "pickup.c",
       "sessions": [],
@@ -329439,7 +329439,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "d000e97266de3de43158430ea6329c0ee1e5b500",
       "delivered": null,
       "functions": [
         {
@@ -329578,6 +329578,71 @@
           "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-stash399c-independent-actual-review.json"
         },
         "reviewSha256": "2af09b9407ceae4c2f684b20a4206082d5c09505a8d6967813d48331adbe5b3f"
+      },
+      "closeStanding": {
+        "sha": "d000e97266de3de43158430ea6329c0ee1e5b500",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "4009c6994a2da26c1985bb0f1e0621e9a23ab7dd",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/d000e97266de3de43158430ea6329c0ee1e5b500/run-hosted-VmMoC4/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "in_container",
+            "sourceFile": "pickup.c",
+            "implementation": "js/pickup.js",
+            "symbol": "in_container",
+            "sourceReview": "Reviewed the complete C pickup.c:in_container (2558–2710) and its JS implementation. The selected transfer now uses the existing addToContainerRuntime with the same state and objectNoLongerHeld hook, and awaits its hybrid result before the existing container-weight and bot tails. Earlier freeinv/order, guards, messages, billing, icebox/explosion behavior, cleanup, and adjacent helper are unchanged. This is a caller-only runtime-pending claim.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "Whole C pickup.c in_container2558–2710 + fullJS3065–3273 reviewed, selectedtransfer replaceslegacyhelperonly. Preserveexistingconditionalawait before containerweight/bot, objectNoLongerHeld provider, freeinv andearlierorder. No privateexport/APInewthrow/helper edit."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "use_container",
+                "source": "Publicexistingstash_one path2436 alreadyawaitsin_container before used/updateinventory/sellobj_state/current_containercleanup; exactactuals+j queueprovesentry. READONLYcaller unless a specificallynamed source blocker; no UX rewrite."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "menu_loot",
+                "source": "Directone-item andmanualselection branches3539/3571 plus inout_func loop alreadyawaitbefore nextobject/rollback/finish; source awaitcontract read, no caller expansion."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "addToContainerRuntime",
+                "source": "READONLYaccepted whole add_to_container helper companion, actualsurvivor and release-before-scan/hybridmergedRuntime/defaultabsorption alreadyimplemented; preserveexistinghook/environment, no invent edits."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "This submitted runtime-pending source-parity stage covers only the selected live path: pickup.c:in_container, reached through the existing public use_container action. The adjacent addToContainerRuntime is an accepted read-only dependency. Existing public use_container/menu_loot callers already await the helper; other legacy container and inventory caller families are unchanged and not certified here.",
+        "entryPoints": [
+          {
+            "name": "use_container",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "in_container"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
