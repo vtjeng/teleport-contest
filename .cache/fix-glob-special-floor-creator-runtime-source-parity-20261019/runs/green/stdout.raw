@@ -1,0 +1,47 @@
+✔ explicit double-negative coordinates use the random-coordinate sentinel (11.37013ms)
+✔ named exact and class-generated novels resolve their canonical index (43.558008ms)
+✔ special-object numeric fields use their source C storage widths (38.197485ms)
+✔ named objects must preserve their linked object identity (2.068388ms)
+✔ trapKnown follows the source truthy trapped gate (6.982817ms)
+✔ generic Medusa statues are created on the Medusa level (10.228876ms)
+✔ Medusa statues reject stone-resistant donors and keep accepted inventory (10.607994ms)
+✔ a Medusa statue under a dead parent is uncreated before special handling (8.228407ms)
+✔ an artifact under a dead parent is uncreated before deallocation (3.108351ms)
+✔ not-uncursed BUC keeps the source rn2(1), rn2(2) draw pair (3.084576ms)
+✔ exact quantities create one mergeable stack or repeated objects (5.394594ms)
+✔ special-object stacking uses the default floor extraction integration (3.559859ms)
+✔ achievement prizes register identity and resist pre-pickup stacking (4.841224ms)
+✔ achievement duplicates preserve source warning and unknowns stay typed (5.724974ms)
+✔ direct monster inventory preserves pickup and stacking source order (3.813399ms)
+✔ direct monster pickup clears ownership and unseen object knowledge (5.627048ms)
+✔ containers and tombstones take precedence over an active carrier (3.071871ms)
+✔ a held carrier receives its saddle after the visibility callback (2.221172ms)
+✔ an unseen carrier forgets its saddle details after floor unlink (1.628167ms)
+✔ a tame carrier receives a saddle without a visibility provider (1.322291ms)
+✔ an already-saddled carrier rejects another before visibility (1.484946ms)
+✔ a live saddle pickup preflights its visibility provider (1.441824ms)
+✔ a nonsaddleable carrier picks a saddle up as ordinary inventory (1.644317ms)
+✔ ordinary live pickup checks visibility after unlink and before inventory (1.723528ms)
+✔ ordinary live pickup without visibility stays linked on the floor (2.428114ms)
+✔ direct carried burial and figurine timers retain their source boundaries (6.384677ms)
+✔ buried container is finalized before its contents callback (1.851655ms)
+✔ special object waits for an asynchronous contents callback (1.555401ms)
+✔ generated chest contents are destroyed before the descriptor callback (1.519511ms)
+✔ burial deallocation leaves a live tombstone for nested contents (2.042021ms)
+✔ maximum containment reports without pushing but still pops afterward (2.218868ms)
+✔ independent fills can interleave their container stacks (1.790659ms)
+✔ a throwing contents callback restores the scoped container stack (1.930827ms)
+✔ a post-push creation failure restores the scoped container stack (1.64497ms)
+✔ a null parent skips later creation branches and pops on success (1.441028ms)
+✔ exact troll corpses replace the generated timer, sex, and weight (2.784017ms)
+✔ non-species tin and egg descriptors retain generated species and RNG order (16.847515ms)
+✔ lspo_object waits for real glob absorption before returning its container survivor (651.248956ms)
+✔ lspo_object waits for real floor absorption before finalizing the creator survivor (664.915564ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2137.032254

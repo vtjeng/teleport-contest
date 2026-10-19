@@ -1,0 +1,63 @@
+{
+  "phase": "same-final-test-post-source-freeze",
+  "createdAt": "2026-10-19T00:42:01.455Z",
+  "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+  "preProductionFreeze": {
+    "phase": "pre-first-production-edit-final-test-freeze",
+    "createdAt": "2026-10-19T00:40:29.111Z",
+    "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+    "test": {
+      "path": "scripts/sp-lev-object.test.mjs",
+      "bytes": 61353,
+      "sha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a"
+    },
+    "fixture": {
+      "path": ".cache/glob-special-floor-creator-main-reviewed-qualification-20261019/attempt.mjs",
+      "bytes": 19163,
+      "sha256": "2d5a93aca893056cbb51abcc79355ba59940999e89753665aeeabf881441d466"
+    },
+    "source": {
+      "path": "js/sp_lev_object.js",
+      "sha256": "4a4baca1209237db7f3dbcc9480c84a49caae6c8bb6356afe46a31e9cff5f39d"
+    },
+    "command": [
+      "node",
+      "--test",
+      "scripts/sp-lev-object.test.mjs"
+    ],
+    "scope": "Existing test file appended with selected exported lspo_object/floor-creator regression. Fixture tracked unchanged. This freeze precedes first production edit."
+  },
+  "test": {
+    "path": "scripts/sp-lev-object.test.mjs",
+    "bytes": 61353,
+    "sha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a"
+  },
+  "fixture": {
+    "path": ".cache/glob-special-floor-creator-main-reviewed-qualification-20261019/attempt.mjs",
+    "bytes": 19163,
+    "sha256": "2d5a93aca893056cbb51abcc79355ba59940999e89753665aeeabf881441d466"
+  },
+  "production": {
+    "path": "js/sp_lev_object.js",
+    "sha256": "8cf5bdce04db71d6570e4d0f1cd84e560a998bcf62b18669d4b84f4cfd24e137",
+    "change": "finalizeTopLevelObject uses existing stackobjRuntime and waits for resolved survivor before begin_burn, bury_an_obj, or return"
+  },
+  "commands": {
+    "original": [
+      "node",
+      "--test",
+      "scripts/sp-lev-object.test.mjs"
+    ],
+    "green": [
+      "node",
+      "--test",
+      "scripts/sp-lev-object.test.mjs"
+    ],
+    "lint": [
+      "npm",
+      "run",
+      "lint"
+    ]
+  },
+  "chronology": "The exact final test bytes were frozen before first production edit. The same frozen test generated the selected original-source target red, then the repaired-source green. No test or fixture edits followed the original red."
+}

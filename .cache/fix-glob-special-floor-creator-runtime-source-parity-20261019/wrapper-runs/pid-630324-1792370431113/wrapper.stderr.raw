@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+UnsupportedObjectOperationError: absorbGlob is not available for otyp 271
+    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)
+    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)
+    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)
+    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)
+    at stackobj (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:4014:32)
+    at finalizeTopLevelObject (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:643:5)
+    at finish (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:685:23)
+    at continueCreation (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:690:39)
+    at createOneObject (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:698:12)
+    at lspo_object (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:764:23) {
+  operation: 'absorbGlob',
+  otyp: 271
+}
+
+Node.js v24.19.0

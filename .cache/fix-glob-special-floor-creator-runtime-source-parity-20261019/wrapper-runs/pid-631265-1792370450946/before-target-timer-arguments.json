@@ -1,0 +1,23 @@
+[
+  {
+    "oid": 65,
+    "otyp": 271,
+    "oclass": 7,
+    "quan": 1,
+    "where": 1,
+    "ox": 74,
+    "oy": 2,
+    "owt": 20,
+    "globby": true,
+    "age": 1,
+    "timed": 1,
+    "nomerge": false,
+    "no_charge": false,
+    "how_lost": 0,
+    "nobjOid": 47,
+    "unionOwner": "nexthere",
+    "unionTargetOid": null,
+    "blessed": false,
+    "cursed": false
+  }
+]

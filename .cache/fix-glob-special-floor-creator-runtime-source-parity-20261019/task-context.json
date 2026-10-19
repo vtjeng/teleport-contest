@@ -1,0 +1,152 @@
+{
+  "id": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+  "type": "implementation",
+  "output": "implementation",
+  "producer": "Main",
+  "recipient": "Main",
+  "goal": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+  "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+  "dependencies": [],
+  "sessions": [],
+  "urgent": true,
+  "reservations": [
+    "source:sp_lev.c:create_object"
+  ],
+  "allowedPaths": [
+    "js/sp_lev_object.js",
+    "scripts/sp-lev-object.test.mjs",
+    ".cache/"
+  ],
+  "checks": [
+    "focused",
+    "lint"
+  ],
+  "artifacts": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+    "assignmentBase": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+      "authorization": "Accepted container e9b604b after Checkpoint39181127237 and saved acceptance. Main explicit NEW <=15min bounded source-parity-runtime-pending regular floor creator stage, after actual7588 and full source/default/tail review. No global caller completion/public C parity/source certification.",
+      "currentBehavior": "Exact19163B2d5a public non-content lspo_object first65 FLOOR20/SHRINK26, second66 FLOOR20/SHRINK28 entered actual finalizeTopLevelObject -> legacy stackobj missing absorbGlob once. Counts1/1/context0/handler restored; actual timer.arg66 supports target ownership. Source-floor path remains the pending migration after accepted container continuation.",
+      "expectedBehavior": "Use existing accepted stackobjRuntime in finalizeTopLevelObject, resolving its hybrid result before begin_burn, bury_an_obj and context/tombstone return; preserve eager ordinary and all existing creator/lspo propagation. Incoming66 remains survivor FLOOR40/quan1/age1, first65 DELETED/unlinked/no65timer; only66 SHRINK deadline27, target returns66/context0/refs+handler retained. No invent edit or other caller migration.",
+      "units": [
+        "sp_lev.c:create_object"
+      ],
+      "allowedPaths": [
+        "js/sp_lev_object.js",
+        "scripts/sp-lev-object.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "finalizeTopLevelObject",
+          "source": "Whole Ccreate_object2193–2442 reviewed. Await/then stackobjRuntime before synchronous begin_burn or existing async bury_an_obj, retaining null deallocation/context tombstone semantics and eager nonwaiting behavior."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "createOneObject",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "create_object",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "lspo_object",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "stackobjRuntime",
+          "source": "Existing accepted whole Cstackobj4366–4376 owner, first successful merge break and incoming target survivor; READ ONLY dependency, no invent edit."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "object": "c6203b1be1a2a715e83d19c4f3aa10a94f5e25bc"
+        },
+        {
+          "path": "scripts/sp-lev-object.test.mjs",
+          "object": "0cd761a0a5c2ad2d029f1e0011cb7b0b72c46339"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        },
+        {
+          "path": "js/sp_lev.js",
+          "object": "4a69e421b4038a4f8d11ed1ac3db91bb8b255ce0"
+        },
+        {
+          "path": "js/room_coordinates.js",
+          "object": "85b6737e72b66586c975a9371655015a9b6d37ab"
+        },
+        {
+          "path": "js/mklev.js",
+          "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+        }
+      ]
+    },
+    "reviewSha256": "9e797ce431e5e3acd2562a09edc7938be488a46ae1183d318cc96e0fa7c70523"
+  },
+  "question": "Container e9b604b has now passed exact hosted Checkpoint39181127237 and saved acceptance; all18 literal accepted source objects rebound. Main separately selects NEW <=15min INCLUDING packaging floor creator stage. Actual75886761e782c54e13db6cc873cb6872fc60c8be5140a3240846d8602e041581 and CL glob-floor7588-independent-actual-stage-review.json close this entry; no repeat qualifier/source seam survey.\nBefore ANY production edit append meaningful pinned primary regression to EXISTING scripts/sp-lev-object.test.mjs using EXACT19163B2d5a93aca893056cbb51abcc79355ba59940999e89753665aeeabf881441d466 fixture at literal .cache/glob-special-floor-creator-main-reviewed-qualification-20261019/attempt.mjs, tracked from FIRST freeze. Exact real exported public lspo setup+secondtarget/defaults unchanged. Freeze and run full named existing test on original source; actual missing absorbGlob target red BEFORE FIRST code. Do not repeat container omission of selected primary. Any harness/test failure STOP Main with preserved bytes/raw; no autonomous retry/correction or cap reset. Same final frozen bytes green after code; any approved later test delta honest AFTERdraft chronology plus earlier precode red retained.\nONLY js/sp_lev_object.js game delta. Whole Ccreate_object2193–2442 and full JS finalizer/caller branch reviewed; selected stage changes finalizeTopLevelObject to use existing accepted stackobjRuntime. Hybrid continuation must complete BEFORE begin_burn, bury_an_obj or return. Preserve ordinary eager object return, async burial deallocated result/context tombstone/null and existing creator quantities/contents/finally cleanup. Existing runtime container helper and seven organizer sites remain untouched. No helper port/new throw guard/invent delta; minvent/Medusa/otherstack callers remain pending.\nPrimary exact source outcome66 survives FLOOR mass40/quan1/age1,65DELETED9/unlinked/no65timer; only66 TIMER_OBJECT SHRINK deadline27, return66, context0/handler/hero/u/level/uz refs and unrelated objects/inventory preserved. Source timer order stops incoming65 BEFORE absorption: remaining66=27, absorbed stopped timer defaults25, trunc((27+25+1)/2)=26 then moves1 =>27. Do not average original deadlines. Actual first reference retained allows direct deleted observer, no fakeheap/error.object. Preserve complete stdout/stderr/actualexit/copied RNG+contexts and unique durable intent/outcome/before/after receipts for every run. Supporting eager/burial controls only if required to resolve concrete remaining risk, no mandatory optional breadth.\nFinal submit compact deduplicated literal typed envelope including exact test/source/fixture/freeze/raw per-run captures and prior failures, not paths-only. No aggregate/local checkpoint/C/replay/recording or globalcaller/publicparity/sourcecert/gain claim. Old caps remain spent.",
+  "stop": "NEW<=15min incl packaging, meaningful selected primary original red BEFORE FIRST code; any harness/test correction STOP Main; no source expansion/global claim."
+}

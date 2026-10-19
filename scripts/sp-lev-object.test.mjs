@@ -1733,3 +1733,62 @@ test('lspo_object waits for real glob absorption before returning its container 
         .map(timer => ({ oid: timer.argOid, timeout: timer.timeout })),
     [{ oid: 68, timeout: 25 }]);
 });
+
+test('lspo_object waits for real floor absorption before finalizing the creator survivor', () => {
+    const fixture = resolve('.cache/glob-special-floor-creator-main-reviewed-qualification-20261019/attempt.mjs');
+    const runRoot = resolve('.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/wrapper-runs');
+    mkdirSync(runRoot, { recursive: true });
+    const outputDir = resolve(runRoot, `pid-${process.pid}-${Date.now()}`);
+    const child = spawnSync(process.execPath, [fixture], {
+        cwd: process.cwd(),
+        env: { ...process.env, QUALIFICATION_OUTPUT_DIR: outputDir },
+        encoding: 'utf8',
+        maxBuffer: 8 * 1024 * 1024,
+    });
+    if (child.error) throw child.error;
+    writeFileSync(resolve(outputDir, 'wrapper.stdout.raw'), child.stdout);
+    writeFileSync(resolve(outputDir, 'wrapper.stderr.raw'), child.stderr);
+    const final = JSON.parse(readFileSync(resolve(outputDir, 'final.json'), 'utf8'));
+    const state = final.state;
+    assert.equal(final.firstEnteredCount, 1);
+    assert.equal(final.targetEnteredCount, 1);
+    assert.equal(final.receiptFailure, null);
+    assert.deepEqual(final.saveFailure, []);
+    assert.equal(final.handlerRestored, true);
+    assert.equal(state.contextDepth, 0);
+    assert.equal(state.firstObject.oid, 65);
+
+    if (child.status !== 0) {
+        assert.equal(final.primaryError?.name, 'UnsupportedObjectOperationError');
+        assert.equal(final.primaryError?.operation, 'absorbGlob');
+        assert.equal(final.primaryError?.otyp, 271);
+        assert.equal(state.firstObject.where, OBJ_FLOOR);
+        assert.equal(state.targetTimerArgCandidates.length, 1);
+        assert.equal(state.targetTimerArgCandidates[0].exactTimerArgReferenceObserved, true);
+        assert.equal(state.targetTimerArgCandidates[0].object.oid, 66);
+        assert.equal(state.targetTimerArgCandidates[0].object.where, OBJ_FLOOR);
+        assert.equal(state.targetTimerArgCandidates[0].timeout, 28);
+        assert.fail(`original target red: ${final.primaryError.message}`);
+    }
+
+    assert.equal(child.status, 0, child.stderr);
+    assert.equal(final.primaryError, null);
+    assert.equal(state.targetObject.oid, 66);
+    assert.equal(state.targetObject.where, OBJ_FLOOR);
+    assert.equal(state.targetObject.owt, 40);
+    assert.equal(state.targetObject.quan, 1);
+    assert.equal(state.targetObject.age, 1);
+    assert.equal(state.targetScalar.returned, true);
+    assert.equal(state.targetScalar.oid, 66);
+    assert.equal(state.firstObject.where, OBJ_DELETED);
+    assert.equal(state.floor.some(object => object.oid === 66), true);
+    assert.equal(state.floor.some(object => object.oid === 65), false);
+    assert.deepEqual(state.timers.filter(timer => timer.shrinkGlobTimer)
+        .map(timer => ({ oid: timer.argOid, timeout: timer.timeout })),
+    [{ oid: 66, timeout: 27 }]);
+    assert.equal(state.stateIsInitial, true);
+    assert.equal(state.heroIsInitial, true);
+    assert.equal(state.levelIsInitial, true);
+    assert.equal(state.levelDescriptorIsInitial, true);
+    assert.equal(state.heroPositionIsInitial, true);
+});

@@ -1,0 +1,29 @@
+{
+  "primaryError": {
+    "name": "UnsupportedObjectOperationError",
+    "message": "absorbGlob is not available for otyp 271",
+    "stack": "UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\n    at stackobj (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:4014:32)\n    at finalizeTopLevelObject (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:643:5)\n    at finish (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:685:23)\n    at continueCreation (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:690:39)\n    at createOneObject (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:698:12)\n    at lspo_object (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:764:23)",
+    "operation": "absorbGlob",
+    "otyp": 271
+  },
+  "receiptError": null,
+  "firstIntentCount": 1,
+  "firstEnteredCount": 1,
+  "targetIntentCount": 1,
+  "targetEnteredCount": 1,
+  "firstScalar": {
+    "returned": true,
+    "oid": 65,
+    "otyp": 271
+  },
+  "targetScalar": {
+    "threw": true,
+    "error": {
+      "name": "UnsupportedObjectOperationError",
+      "message": "absorbGlob is not available for otyp 271",
+      "stack": "UnsupportedObjectOperationError: absorbGlob is not available for otyp 271\n    at requiredHook (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:2669:15)\n    at preflightMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3968:9)\n    at beginMerged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3794:10)\n    at merged (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:3884:18)\n    at stackobj (file:///workspace/teleport-contest-worker2-recovery/js/invent.js:4014:32)\n    at finalizeTopLevelObject (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:643:5)\n    at finish (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:685:23)\n    at continueCreation (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:690:39)\n    at createOneObject (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:698:12)\n    at lspo_object (file:///workspace/teleport-contest-worker2-recovery/js/sp_lev_object.js:764:23)",
+      "operation": "absorbGlob",
+      "otyp": 271
+    }
+  }
+}

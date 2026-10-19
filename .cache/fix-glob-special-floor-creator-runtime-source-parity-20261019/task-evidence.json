@@ -1,0 +1,354 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-special-floor-creator-runtime-source-parity-20261019",
+    "assignmentBase": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+      "authorization": "Accepted container e9b604b after Checkpoint39181127237 and saved acceptance. Main explicit NEW <=15min bounded source-parity-runtime-pending regular floor creator stage, after actual7588 and full source/default/tail review. No global caller completion/public C parity/source certification.",
+      "currentBehavior": "Exact19163B2d5a public non-content lspo_object first65 FLOOR20/SHRINK26, second66 FLOOR20/SHRINK28 entered actual finalizeTopLevelObject -> legacy stackobj missing absorbGlob once. Counts1/1/context0/handler restored; actual timer.arg66 supports target ownership. Source-floor path remains the pending migration after accepted container continuation.",
+      "expectedBehavior": "Use existing accepted stackobjRuntime in finalizeTopLevelObject, resolving its hybrid result before begin_burn, bury_an_obj and context/tombstone return; preserve eager ordinary and all existing creator/lspo propagation. Incoming66 remains survivor FLOOR40/quan1/age1, first65 DELETED/unlinked/no65timer; only66 SHRINK deadline27, target returns66/context0/refs+handler retained. No invent edit or other caller migration.",
+      "units": [
+        "sp_lev.c:create_object"
+      ],
+      "allowedPaths": [
+        "js/sp_lev_object.js",
+        "scripts/sp-lev-object.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "finalizeTopLevelObject",
+          "source": "Whole Ccreate_object2193–2442 reviewed. Await/then stackobjRuntime before synchronous begin_burn or existing async bury_an_obj, retaining null deallocation/context tombstone semantics and eager nonwaiting behavior."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "createOneObject",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "create_object",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "lspo_object",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "stackobjRuntime",
+          "source": "Existing accepted whole Cstackobj4366–4376 owner, first successful merge break and incoming target survivor; READ ONLY dependency, no invent edit."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "object": "c6203b1be1a2a715e83d19c4f3aa10a94f5e25bc"
+        },
+        {
+          "path": "scripts/sp-lev-object.test.mjs",
+          "object": "0cd761a0a5c2ad2d029f1e0011cb7b0b72c46339"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        },
+        {
+          "path": "js/sp_lev.js",
+          "object": "4a69e421b4038a4f8d11ed1ac3db91bb8b255ce0"
+        },
+        {
+          "path": "js/room_coordinates.js",
+          "object": "85b6737e72b66586c975a9371655015a9b6d37ab"
+        },
+        {
+          "path": "js/mklev.js",
+          "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+        }
+      ]
+    },
+    "reviewSha256": "9e797ce431e5e3acd2562a09edc7938be488a46ae1183d318cc96e0fa7c70523"
+  },
+  "functions": [
+    {
+      "name": "create_object",
+      "sourceFile": "sp_lev.c",
+      "implementation": "js/sp_lev_object.js",
+      "symbol": "finalizeTopLevelObject",
+      "sourceReview": "The selected finalizer now waits for existing stackobjRuntime to return its true floor-pile survivor before applying burn/burial and returning through the existing hybrid creator tail. Eager ordinary results and the other finalizer behavior remain preserved.",
+      "pure": false,
+      "tests": [
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": [],
+      "callers": [
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "finalizeTopLevelObject",
+          "source": "Whole Ccreate_object2193–2442 reviewed. Await/then stackobjRuntime before synchronous begin_burn or existing async bury_an_obj, retaining null deallocation/context tombstone semantics and eager nonwaiting behavior."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "createOneObject",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "create_object",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "lspo_object",
+          "source": "Accepted container continuation already propagates hybrid finalization through quantity/contents and finally cleanup. Preserve actual object result and context lifetime; no minvent/Medusa/global migration."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "stackobjRuntime",
+          "source": "Existing accepted whole Cstackobj4366–4376 owner, first successful merge break and incoming target survivor; READ ONLY dependency, no invent edit."
+        }
+      ]
+    }
+  ],
+  "recordings": [],
+  "sessions": [],
+  "notes": [
+    "Only the reviewed floor finalizer stackobjRuntime boundary was migrated.",
+    "Other source callers remain pending; no source certification, global parity or full caller migration claim.",
+    "Pre-code primary target red, same-byte post-code green, captured raw logs and all unique fixture receipts are retained literally."
+  ],
+  "entryPointReview": "Public non-content lspo_object invokes create_object and finalizeTopLevelObject on the actual floor target; stackobjRuntime is the accepted read-only runtime owner. Other stackobj and inventory callers are outside this stage.",
+  "entryPoints": [
+    {
+      "name": "lspo_object actual public floor setup and target route",
+      "functions": [
+        {
+          "sourceFile": "sp_lev.c",
+          "name": "create_object"
+        }
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "originalRed": {
+    "command": [
+      "node",
+      "--test",
+      "scripts/sp-lev-object.test.mjs"
+    ],
+    "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+    "exitCode": 1,
+    "error": "UnsupportedObjectOperationError: absorbGlob is not available for otyp 271",
+    "fixtureSha256": "2d5a93aca893056cbb51abcc79355ba59940999e89753665aeeabf881441d466",
+    "testSha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a",
+    "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/original/stdout.raw",
+    "rawStderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/original/stderr.raw",
+    "receipts": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/wrapper-runs/pid-630324-1792370431113",
+    "targetReachedBeforeFirstProductionEdit": true
+  },
+  "candidateGreen": {
+    "command": [
+      "node",
+      "--test",
+      "scripts/sp-lev-object.test.mjs"
+    ],
+    "exitCode": 0,
+    "fixtureSha256": "2d5a93aca893056cbb51abcc79355ba59940999e89753665aeeabf881441d466",
+    "finalTestSha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a",
+    "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/green/stdout.raw",
+    "rawStderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/green/stderr.raw",
+    "receipts": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/wrapper-runs/pid-631265-1792370450946",
+    "sameFixtureBytes": true,
+    "wrapperRegressionTest": "scripts/sp-lev-object.test.mjs",
+    "finalPairingAfterFirstProductionEdit": true,
+    "productionSourceSha256": "8cf5bdce04db71d6570e4d0f1cd84e560a998bcf62b18669d4b84f4cfd24e137"
+  },
+  "productionDelta": [
+    {
+      "path": "js/sp_lev_object.js",
+      "beforeSha256": "4a4baca1209237db7f3dbcc9480c84a49caae6c8bb6356afe46a31e9cff5f39d",
+      "afterSha256": "8cf5bdce04db71d6570e4d0f1cd84e560a998bcf62b18669d4b84f4cfd24e137",
+      "summary": "Import stackobjRuntime instead of stackobj and resolve it before source creator tail effects."
+    }
+  ],
+  "artifactEvidence": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/immutable-evidence-envelope.json",
+  "checks": [
+    {
+      "kind": "focused",
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/green/stdout.raw"
+    },
+    {
+      "kind": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/lint.stdout.raw"
+    }
+  ],
+  "checkLogs": [
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/original/stdout.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/original/stderr.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/green/stdout.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/runs/green/stderr.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/lint.stdout.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/lint.stderr.raw"
+  ],
+  "sourceParityReviewSha256": "9e797ce431e5e3acd2562a09edc7938be488a46ae1183d318cc96e0fa7c70523",
+  "regression": {
+    "before": {
+      "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "✔ explicit double-negative coordinates use the random-coordinate sentinel (19.97344ms)\n✔ named exact and class-generated novels resolve their canonical index (54.596232ms)\n✔ special-object numeric fields use their source C storage widths (30.36967ms)\n✔ named objects must preserve their linked object identity (2.154ms)\n✔ trapKnown follows the source truthy trapped gate (7.093447ms)\n✔ generic Medusa statues are created on the Medusa level (8.694609ms)\n✔ Medusa statues reject stone-resistant donors and keep accepted inventory (6.377462ms)\n✔ a Medusa statue under a dead parent is uncreated before special handling (2.052065ms)\n✔ an artifact under a dead parent is uncreated before deallocation (2.52943ms)\n✔ not-uncursed BUC keeps the source rn2(1), rn2(2) draw pair (1.671155ms)\n✔ exact quantities create one mergeable stack or repeated objects (3.832393ms)\n✔ special-object stacking uses the default floor extraction integration (2.42163ms)\n✔ achievement prizes register identity and resist pre-pickup stacking (3.947966ms)\n✔ achievement duplicates preserve source warning and unknowns stay typed (5.167993ms)\n✔ direct monster inventory preserves pickup and stacking source order (4.749039ms)\n✔ direct monster pickup clears ownership and unseen object knowledge (7.565271ms)\n✔ containers and tombstones take precedence over an active carrier (4.323471ms)\n✔ a held carrier receives its saddle after the visibility callback (2.119602ms)\n✔ an unseen carrier forgets its saddle details after floor unlink (1.59621ms)\n✔ a tame carrier receives a saddle without a visibility provider (1.467811ms)\n✔ an already-saddled carrier rejects another before visibility (1.784942ms)\n✔ a live saddle pickup preflights its visibility provider (1.553859ms)\n✔ a nonsaddleable carrier picks a saddle up as ordinary inventory (1.330824ms)\n✔ ordinary live pickup checks visibility after unlink and before inventory (2.159519ms)\n✔ ordinary live pickup without visibility stays linked on the floor (2.049269ms)\n✔ direct carried burial and figurine timers retain their source boundaries (4.417903ms)\n✔ buried container is finalized before its contents callback (1.989364ms)\n✔ special object waits for an asynchronous contents callback (2.342255ms)\n✔ generated chest contents are destroyed before the descriptor callback (3.756198ms)\n✔ burial deallocation leaves a live tombstone for nested contents (29.985705ms)\n✔ maximum containment reports without pushing but still pops afterward (4.41137ms)\n✔ independent fills can interleave their container stacks (3.5994ms)\n✔ a throwing contents callback restores the scoped container stack (32.9497ms)\n✔ a post-push creation failure restores the scoped container stack (2.484453ms)\n✔ a null parent skips later creation branches and pops on success (1.675313ms)\n✔ exact troll corpses replace the generated timer, sex, and weight (3.665475ms)\n✔ non-species tin and egg descriptors retain generated species and RNG order (24.364602ms)\n✔ lspo_object waits for real glob absorption before returning its container survivor (944.94472ms)\n✖ lspo_object waits for real floor absorption before finalizing the creator survivor (1348.096636ms)\nℹ tests 39\nℹ suites 0\nℹ pass 38\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3370.795496\n\n✖ failing tests:\n\ntest at scripts/sp-lev-object.test.mjs:1737:1\n✖ lspo_object waits for real floor absorption before finalizing the creator survivor (1348.096636ms)\n  AssertionError [ERR_ASSERTION]: original target red: absorbGlob is not available for otyp 271\n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/sp-lev-object.test.mjs:1771:16)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: undefined,\n    operator: 'fail',\n    diff: 'simple'\n  }\n",
+      "testSha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a"
+    },
+    "after": {
+      "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "✔ explicit double-negative coordinates use the random-coordinate sentinel (11.37013ms)\n✔ named exact and class-generated novels resolve their canonical index (43.558008ms)\n✔ special-object numeric fields use their source C storage widths (38.197485ms)\n✔ named objects must preserve their linked object identity (2.068388ms)\n✔ trapKnown follows the source truthy trapped gate (6.982817ms)\n✔ generic Medusa statues are created on the Medusa level (10.228876ms)\n✔ Medusa statues reject stone-resistant donors and keep accepted inventory (10.607994ms)\n✔ a Medusa statue under a dead parent is uncreated before special handling (8.228407ms)\n✔ an artifact under a dead parent is uncreated before deallocation (3.108351ms)\n✔ not-uncursed BUC keeps the source rn2(1), rn2(2) draw pair (3.084576ms)\n✔ exact quantities create one mergeable stack or repeated objects (5.394594ms)\n✔ special-object stacking uses the default floor extraction integration (3.559859ms)\n✔ achievement prizes register identity and resist pre-pickup stacking (4.841224ms)\n✔ achievement duplicates preserve source warning and unknowns stay typed (5.724974ms)\n✔ direct monster inventory preserves pickup and stacking source order (3.813399ms)\n✔ direct monster pickup clears ownership and unseen object knowledge (5.627048ms)\n✔ containers and tombstones take precedence over an active carrier (3.071871ms)\n✔ a held carrier receives its saddle after the visibility callback (2.221172ms)\n✔ an unseen carrier forgets its saddle details after floor unlink (1.628167ms)\n✔ a tame carrier receives a saddle without a visibility provider (1.322291ms)\n✔ an already-saddled carrier rejects another before visibility (1.484946ms)\n✔ a live saddle pickup preflights its visibility provider (1.441824ms)\n✔ a nonsaddleable carrier picks a saddle up as ordinary inventory (1.644317ms)\n✔ ordinary live pickup checks visibility after unlink and before inventory (1.723528ms)\n✔ ordinary live pickup without visibility stays linked on the floor (2.428114ms)\n✔ direct carried burial and figurine timers retain their source boundaries (6.384677ms)\n✔ buried container is finalized before its contents callback (1.851655ms)\n✔ special object waits for an asynchronous contents callback (1.555401ms)\n✔ generated chest contents are destroyed before the descriptor callback (1.519511ms)\n✔ burial deallocation leaves a live tombstone for nested contents (2.042021ms)\n✔ maximum containment reports without pushing but still pops afterward (2.218868ms)\n✔ independent fills can interleave their container stacks (1.790659ms)\n✔ a throwing contents callback restores the scoped container stack (1.930827ms)\n✔ a post-push creation failure restores the scoped container stack (1.64497ms)\n✔ a null parent skips later creation branches and pops on success (1.441028ms)\n✔ exact troll corpses replace the generated timer, sex, and weight (2.784017ms)\n✔ non-species tin and egg descriptors retain generated species and RNG order (16.847515ms)\n✔ lspo_object waits for real glob absorption before returning its container survivor (651.248956ms)\n✔ lspo_object waits for real floor absorption before finalizing the creator survivor (664.915564ms)\nℹ tests 39\nℹ suites 0\nℹ pass 39\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2137.032254\n",
+      "testSha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a"
+    },
+    "chronology": "Same exact frozen test bytes: original-base target red before production edit; repaired-source green after production edit."
+  },
+  "finalTestFreeze": {
+    "phase": "same-final-test-post-source-freeze",
+    "createdAt": "2026-10-19T00:42:01.455Z",
+    "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+    "preProductionFreeze": {
+      "phase": "pre-first-production-edit-final-test-freeze",
+      "createdAt": "2026-10-19T00:40:29.111Z",
+      "base": "e9b604b73c50a6bc95c7427008e72a2590d83be5",
+      "test": {
+        "path": "scripts/sp-lev-object.test.mjs",
+        "bytes": 61353,
+        "sha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a"
+      },
+      "fixture": {
+        "path": ".cache/glob-special-floor-creator-main-reviewed-qualification-20261019/attempt.mjs",
+        "bytes": 19163,
+        "sha256": "2d5a93aca893056cbb51abcc79355ba59940999e89753665aeeabf881441d466"
+      },
+      "source": {
+        "path": "js/sp_lev_object.js",
+        "sha256": "4a4baca1209237db7f3dbcc9480c84a49caae6c8bb6356afe46a31e9cff5f39d"
+      },
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "scope": "Existing test file appended with selected exported lspo_object/floor-creator regression. Fixture tracked unchanged. This freeze precedes first production edit."
+    },
+    "test": {
+      "path": "scripts/sp-lev-object.test.mjs",
+      "bytes": 61353,
+      "sha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a"
+    },
+    "fixture": {
+      "path": ".cache/glob-special-floor-creator-main-reviewed-qualification-20261019/attempt.mjs",
+      "bytes": 19163,
+      "sha256": "2d5a93aca893056cbb51abcc79355ba59940999e89753665aeeabf881441d466"
+    },
+    "production": {
+      "path": "js/sp_lev_object.js",
+      "sha256": "8cf5bdce04db71d6570e4d0f1cd84e560a998bcf62b18669d4b84f4cfd24e137",
+      "change": "finalizeTopLevelObject uses existing stackobjRuntime and waits for resolved survivor before begin_burn, bury_an_obj, or return"
+    },
+    "commands": {
+      "original": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "green": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "lint": [
+        "npm",
+        "run",
+        "lint"
+      ]
+    },
+    "chronology": "The exact final test bytes were frozen before first production edit. The same frozen test generated the selected original-source target red, then the repaired-source green. No test or fixture edits followed the original red."
+  },
+  "additionalChecks": [],
+  "testSha256": "86f30ac82d3e6dfd10cc1d24cf76805998da1e3e4fdb7e5aee9c13c11274369a"
+}

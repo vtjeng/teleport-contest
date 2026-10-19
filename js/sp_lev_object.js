@@ -27,7 +27,7 @@ import {
     delete_contents,
     obj_extract_self,
     obfree,
-    stackobj,
+    stackobjRuntime,
 } from './invent.js';
 import { makemon } from './makemon_create.js';
 import { mongone } from './mon.js';
@@ -640,17 +640,22 @@ function populateMedusaStatue(obj, specification, env) {
 }
 
 function finalizeTopLevelObject(obj, specification, context, env) {
-    stackobj(obj, env);
-    if (specification.lit) begin_burn(obj, false, env);
-    if (!specification.buried) return obj;
+    const finishPlacement = (stacked) => {
+        if (specification.lit) begin_burn(stacked, false, env);
+        if (!specification.buried) return stacked;
 
-    return bury_an_obj(obj, env).then(({ deallocated }) => {
-        if (!deallocated) return obj;
-        if (context.containers.length) {
-            context.containers[context.containers.length - 1] = null;
-        }
-        return null;
-    });
+        return bury_an_obj(stacked, env).then(({ deallocated }) => {
+            if (!deallocated) return stacked;
+            if (context.containers.length) {
+                context.containers[context.containers.length - 1] = null;
+            }
+            return null;
+        });
+    };
+    const stacked = stackobjRuntime(obj, env);
+    return stacked && typeof stacked.then === 'function'
+        ? Promise.resolve(stacked).then(finishPlacement)
+        : finishPlacement(stacked);
 }
 
 function createOneObject(specification, croom, env) {
