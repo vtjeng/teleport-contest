@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T08:23:23.128Z",
+  "capturedAt": "2026-10-19T17:11:01.371Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T08:23:23.128Z",
+    "asOf": "2026-10-19T17:11:01.371Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5794,6 +5794,69 @@
           {
             "kind": "packet",
             "digest": "42e1742e202f109d3e3d616bc752a6ab0c91dd50618a5eb9cddbb7ac700464f9"
+          }
+        ]
+      },
+      {
+        "id": "v99-saveoptions-config-writer-public-premise-source-20261019",
+        "batch": "v99",
+        "claimedAt": "2026-10-19T16:51:10.449Z",
+        "closedAt": "2026-10-19T16:54:31.896Z",
+        "terminal": "result",
+        "outcome": "deferred",
+        "packetDigest": "460e02b89a5dedb7e8838e1e88b53d62bf648acc4b3b63e0938e8318276c7582",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "460e02b89a5dedb7e8838e1e88b53d62bf648acc4b3b63e0938e8318276c7582"
+          }
+        ]
+      },
+      {
+        "id": "v99-restored-egg-timer-public-premise-source-20261019",
+        "batch": "v99",
+        "claimedAt": "2026-10-19T17:00:07.733Z",
+        "closedAt": "2026-10-19T17:03:33.321Z",
+        "terminal": "result",
+        "outcome": "deferred",
+        "packetDigest": "e0ec9b0251d01812da790a8f4b6b45be41fda48f01e3d0988e88e12cf561678e",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "e0ec9b0251d01812da790a8f4b6b45be41fda48f01e3d0988e88e12cf561678e"
+          }
+        ]
+      },
+      {
+        "id": "v99-restored-egg-public-form-prefix-source-20261019",
+        "batch": "v99",
+        "claimedAt": "2026-10-19T17:08:03.661Z",
+        "closedAt": "2026-10-19T17:09:11.922Z",
+        "terminal": "result",
+        "outcome": "match",
+        "packetDigest": "aae297f25c077f4dea7e955fed7deb7a4409bb40b0132e7fd6f54bf4dd89269f",
+        "kind": "discovery",
+        "usable": "unknown",
+        "classification": "unknown",
+        "usableBasis": "No packet-level usability audit available.",
+        "qualifyingSessionIds": [],
+        "bugFamilyIds": [],
+        "evidence": [
+          {
+            "kind": "packet",
+            "digest": "aae297f25c077f4dea7e955fed7deb7a4409bb40b0132e7fd6f54bf4dd89269f"
           }
         ]
       }
@@ -178320,6 +178383,99 @@
         "worker": "Worker-2",
         "state": "idle",
         "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T16:51:10.449Z",
+        "id": "queue:491a29c5-0b52-46d5-8f9d-01e2d85f1844",
+        "type": "assign",
+        "task": "v99-saveoptions-config-writer-public-premise-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T16:54:31.896Z",
+        "id": "queue:c292e6ef-6aea-40bc-8bbc-db118347abe6",
+        "type": "queue-complete",
+        "task": "v99-saveoptions-config-writer-public-premise-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T16:54:31.896Z",
+        "id": "queue:c292e6ef-6aea-40bc-8bbc-db118347abe6:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T17:00:07.733Z",
+        "id": "queue:96bf1752-db21-408f-8ad1-a65092c921db",
+        "type": "assign",
+        "task": "v99-restored-egg-timer-public-premise-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T17:03:33.321Z",
+        "id": "queue:76d5d165-3831-4e0d-8077-ccc0d5f4b002",
+        "type": "queue-complete",
+        "task": "v99-restored-egg-timer-public-premise-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T17:03:33.321Z",
+        "id": "queue:76d5d165-3831-4e0d-8077-ccc0d5f4b002:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T17:08:03.661Z",
+        "id": "queue:10e9096d-b8da-4f46-954a-9378ace4128c",
+        "type": "assign",
+        "task": "v99-restored-egg-public-form-prefix-source-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "batch": "v99",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T17:09:11.922Z",
+        "id": "queue:9f74d8e6-c49c-49b6-b44c-bde233e28037",
+        "type": "queue-complete",
+        "task": "v99-restored-egg-public-form-prefix-source-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T17:09:11.922Z",
+        "id": "queue:9f74d8e6-c49c-49b6-b44c-bde233e28037:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
       }
     ]
   },
@@ -178545,7 +178701,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 696,
+      "completed": 699,
       "superseded": 101
     },
     "workers": [
@@ -190552,6 +190708,51 @@
         "readyAt": "2026-10-19T07:58:18.466Z",
         "claimedAt": "2026-10-19T07:59:06.697Z",
         "completedAt": "2026-10-19T08:02:12.449Z"
+      },
+      {
+        "id": "v99-saveoptions-config-writer-public-premise-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T16:50:26.447Z",
+        "claimedAt": "2026-10-19T16:51:10.449Z",
+        "completedAt": "2026-10-19T16:54:31.896Z"
+      },
+      {
+        "id": "v99-restored-egg-timer-public-premise-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T16:59:33.351Z",
+        "claimedAt": "2026-10-19T17:00:07.733Z",
+        "completedAt": "2026-10-19T17:03:33.321Z"
+      },
+      {
+        "id": "v99-restored-egg-public-form-prefix-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Prep",
+        "recipient": "Prep",
+        "sessions": [],
+        "batch": "v99",
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T17:07:12.673Z",
+        "claimedAt": "2026-10-19T17:08:03.661Z",
+        "completedAt": "2026-10-19T17:09:11.922Z"
       }
     ]
   },
