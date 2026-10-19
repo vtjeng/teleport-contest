@@ -1,0 +1,380 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-special-container-runtime-source-parity-20261019",
+    "assignmentBase": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+      "authorization": "Standing explicit user source-parity correction authorization. Main separately selects NEW<=20min FOURTH bounded runtime CONTAINER+actual CREATOR continuation stage after accepted hero/minv/unearth stages and source-reviewed actual fe253. Whole source and current accepted d92 pins reviewed; no global caller completion or public recording/source certification.",
+      "currentBehavior": "Exact21882B6e2d existing exported lspo_object parent LARGE_BOX plus first setup child and second target entered once on b182. Second child calls sync add_to_container after real removal and release, then merged refuses missing absorbGlob. Actual first68 CONTAINED20 in parent65 weight370; incoming70 FREE20 directly observed from new SHRINK timer.arg at28; first timer24. Real context unwound0/handler restored/no save or receipt failure. This specific sync container path remains unchanged by candidate unearth-only helper addition.",
+      "expectedBehavior": "Separate hybrid addToContainerRuntime preserves whole C validation, canonical release-before-scan, sequential mergedRuntime and actual survivor return or single insertion. Wire existing container placement and creator continuation so parent weight, container push/populate/achievement/finalize and lspo quantity/contents/cleanup wait for resolved placement. Preserve eager ordinary return and legacy helper, no new Unsupported refusal. Actual primary should return second survivor68 CONTAINED mass40/quan1/age1 in same parent65;70 deleted/unlinked/no70timer; one68 SHRINK deadline25 from stopped incoming timer source order; parent weight recomputed after absorption; context0/handler and hero/map/uz retained.",
+      "units": [
+        "mkobj.c:add_to_container",
+        "sp_lev.c:create_object",
+        "sp_lev.c:lspo_object"
+      ],
+      "allowedPaths": [
+        "js/invent.js",
+        "js/sp_lev_object.js",
+        "scripts/sp-lev-object.test.mjs",
+        "scripts/inventory-substrate.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "putInCurrentContainer",
+          "source": "Ccreate_object container branch remove_object→add_to_container complete→parent weight, before subsequent fields/container initialization; retain null-parent uncreation."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "createOneObject",
+          "source": "Whole Ccreate_object2193–2442 reviewed, runtime container placement result must resolve before pushContainer/populateMedusa/achievement/topfloor finalization; other existing minv/Medusa direct-transfer/topfloor stack migrations explicitly pending."
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "lspo_object",
+          "source": "Whole Clspo_object3557–3756 quantity→contents callback→container pop/free→return; existing thenable recursion and finally cleanup preserve actual object and eager returns."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "add_to_container",
+          "source": "Whole Cmkobj2676–2699; legacy helper stays unchanged, runtime companion waits canonical objectNoLongerHeld then source scan before actual survivor or insertion. Existing runtime merged owns exactly one pudding then obj_absorb."
+        }
+      ],
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "31dc40ca6080ee5c9a7aeb2361f4f7b30d5d11dc"
+        },
+        {
+          "path": "js/sp_lev_object.js",
+          "object": "157165a44767b69c80d818df54ae2134ee43c465"
+        },
+        {
+          "path": "scripts/sp-lev-object.test.mjs",
+          "object": "9b9195f215e1400a7f185b92a8e00fcc9939ecfd"
+        },
+        {
+          "path": "scripts/inventory-substrate.test.mjs",
+          "object": "9848c72498f8244fa5cb7ca55b57e0ee04670006"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        },
+        {
+          "path": "js/sp_lev.js",
+          "object": "4a69e421b4038a4f8d11ed1ac3db91bb8b255ce0"
+        },
+        {
+          "path": "js/room_coordinates.js",
+          "object": "85b6737e72b66586c975a9371655015a9b6d37ab"
+        },
+        {
+          "path": "js/mklev.js",
+          "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+        }
+      ]
+    },
+    "reviewSha256": "4fc71a3aa7b185485ab6042ace5084332e58dfbefb514ce87bc80eb802969210"
+  },
+  "functions": [
+    {
+      "name": "add_to_container",
+      "sourceFile": "mkobj.c",
+      "implementation": "js/invent.js",
+      "symbol": "addToContainerRuntime",
+      "sourceReview": "New hybrid helper preserves legacy add_to_container, validates FREE/no-links, performs the C release-before-scan sequence, awaits each mergedRuntime result in cobj order, returns the actual survivor on absorption or links once at end.",
+      "pure": false,
+      "tests": [
+        "scripts/sp-lev-object.test.mjs",
+        "scripts/inventory-substrate.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": [],
+      "callers": [
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "putInCurrentContainer",
+          "source": "Ccreate_object container branch remove_object→add_to_container complete→parent weight, before subsequent fields/container initialization; retain null-parent uncreation."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "add_to_container",
+          "source": "Whole Cmkobj2676–2699; legacy helper stays unchanged, runtime companion waits canonical objectNoLongerHeld then source scan before actual survivor or insertion. Existing runtime merged owns exactly one pudding then obj_absorb."
+        }
+      ]
+    },
+    {
+      "name": "create_object",
+      "sourceFile": "sp_lev.c",
+      "implementation": "js/sp_lev_object.js",
+      "symbol": "createOneObject",
+      "sourceReview": "The actual container path resolves placement before parent weight recomputation and creator continuation (container push, Medusa population, achievement and finalization); eager ordinary results and pending unselected branches remain intact.",
+      "pure": false,
+      "tests": [
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": [],
+      "callers": [
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "createOneObject",
+          "source": "Whole Ccreate_object2193–2442 reviewed, runtime container placement result must resolve before pushContainer/populateMedusa/achievement/topfloor finalization; other existing minv/Medusa direct-transfer/topfloor stack migrations explicitly pending."
+        }
+      ]
+    },
+    {
+      "name": "lspo_object",
+      "sourceFile": "sp_lev.c",
+      "implementation": "js/sp_lev_object.js",
+      "symbol": "lspo_object",
+      "sourceReview": "Existing quantity recursion, contents callback, completion flag and finally cleanup wait on thenable creation and return the true survivor.",
+      "pure": false,
+      "tests": [
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": [],
+      "callers": [
+        {
+          "path": "js/sp_lev_object.js",
+          "symbol": "lspo_object",
+          "source": "Whole Clspo_object3557–3756 quantity→contents callback→container pop/free→return; existing thenable recursion and finally cleanup preserve actual object and eager returns."
+        }
+      ]
+    }
+  ],
+  "recordings": [],
+  "sessions": [],
+  "notes": [
+    "Only the selected floor-container placement and actual lspo/create_object continuation are migrated. putInCurrentMonster, Medusa direct transfer, topfloor stackobj and global callers remain pending.",
+    "No public parity, source certification, recording, scoring, global runtime completion, or gain claim."
+  ],
+  "entryPointReview": "Immutable 21,882-byte fixture invokes actual exported lspo_object, a normal contents callback, and two floor-created glob children. Path: lspo_object -> createOneObject -> placeSpecialObject -> putInCurrentContainer -> addToContainerRuntime -> mergedRuntime. Continuation waits before parent weight and creator/lspo callback completion. Other reviewed branches remain pending.",
+  "entryPoints": [
+    {
+      "name": "lspo_object actual parent and children callback route",
+      "functions": [
+        {
+          "sourceFile": "mkobj.c",
+          "name": "add_to_container"
+        },
+        {
+          "sourceFile": "sp_lev.c",
+          "name": "create_object"
+        },
+        {
+          "sourceFile": "sp_lev.c",
+          "name": "lspo_object"
+        }
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "originalRed": {
+    "command": [
+      "node",
+      ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs"
+    ],
+    "base": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+    "exitCode": 1,
+    "error": "UnsupportedObjectOperationError: absorbGlob is not available for otyp 271",
+    "fixtureSha256": "6e2d81bae4661b59b987f45531cc14e0df6b26dd6dfc6a8689c422f7520621b6",
+    "preFirstEditTestSha256": "aba254beab8b383c2e9735d6613b3486185242efa5f1e52db9e5bb237c15cf82",
+    "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/runs/original.stdout.raw",
+    "rawStderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/runs/original.stderr.raw",
+    "receipts": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/runs/original",
+    "targetReachedBeforeFirstProductionEdit": true
+  },
+  "candidateGreen": {
+    "command": [
+      "node",
+      ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs"
+    ],
+    "exitCode": 0,
+    "fixtureSha256": "6e2d81bae4661b59b987f45531cc14e0df6b26dd6dfc6a8689c422f7520621b6",
+    "finalTestSha256": "9ae79a6d1ebe59d701f65c1030d39004035e951f20f823a7c23b8b3bf3d4ddc2",
+    "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/runs/green.stdout.raw",
+    "rawStderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/runs/green.stderr.raw",
+    "receipts": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/runs/green",
+    "sameFixtureBytes": true,
+    "wrapperRegressionTest": "scripts/sp-lev-object.test.mjs",
+    "finalPairingAfterFirstProductionEdit": true
+  },
+  "productionDelta": [
+    {
+      "path": "js/invent.js",
+      "gitBlob": "d10ca83dce6455f4173d637eb557aab8a94d0fbf",
+      "sha256": "d1ee79452da0ba78350eca6b6d6821937369f1e6951a7fef7ced1576d70d3ab4"
+    },
+    {
+      "path": "js/sp_lev_object.js",
+      "gitBlob": "c6203b1be1a2a715e83d19c4f3aa10a94f5e25bc",
+      "sha256": "4a4baca1209237db7f3dbcc9480c84a49caae6c8bb6356afe46a31e9cff5f39d"
+    }
+  ],
+  "artifactEvidence": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/artifact-evidence.json",
+  "checks": [
+    {
+      "kind": "focused",
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-green.stdout.raw"
+    },
+    {
+      "kind": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/lint-final.stdout.raw"
+    }
+  ],
+  "checkLogs": [
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-green.stdout.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-green.stderr.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/lint-final.stdout.raw",
+    "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/lint-final.stderr.raw"
+  ],
+  "sourceParityReviewSha256": "4fc71a3aa7b185485ab6042ace5084332e58dfbefb514ce87bc80eb802969210",
+  "regression": {
+    "before": {
+      "base": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "✔ explicit double-negative coordinates use the random-coordinate sentinel (11.270573ms)\n✔ named exact and class-generated novels resolve their canonical index (51.093577ms)\n✔ special-object numeric fields use their source C storage widths (39.164975ms)\n✔ named objects must preserve their linked object identity (2.565671ms)\n✔ trapKnown follows the source truthy trapped gate (6.59069ms)\n✔ generic Medusa statues are created on the Medusa level (10.650567ms)\n✔ Medusa statues reject stone-resistant donors and keep accepted inventory (8.853088ms)\n✔ a Medusa statue under a dead parent is uncreated before special handling (3.904222ms)\n✔ an artifact under a dead parent is uncreated before deallocation (3.700502ms)\n✔ not-uncursed BUC keeps the source rn2(1), rn2(2) draw pair (3.107381ms)\n✔ exact quantities create one mergeable stack or repeated objects (11.493763ms)\n✔ special-object stacking uses the default floor extraction integration (3.197045ms)\n✔ achievement prizes register identity and resist pre-pickup stacking (3.635077ms)\n✔ achievement duplicates preserve source warning and unknowns stay typed (3.710488ms)\n✔ direct monster inventory preserves pickup and stacking source order (3.318107ms)\n✔ direct monster pickup clears ownership and unseen object knowledge (6.138858ms)\n✔ containers and tombstones take precedence over an active carrier (3.102307ms)\n✔ a held carrier receives its saddle after the visibility callback (3.008337ms)\n✔ an unseen carrier forgets its saddle details after floor unlink (1.383383ms)\n✔ a tame carrier receives a saddle without a visibility provider (1.398425ms)\n✔ an already-saddled carrier rejects another before visibility (1.355655ms)\n✔ a live saddle pickup preflights its visibility provider (1.477363ms)\n✔ a nonsaddleable carrier picks a saddle up as ordinary inventory (1.212869ms)\n✔ ordinary live pickup checks visibility after unlink and before inventory (1.327486ms)\n✔ ordinary live pickup without visibility stays linked on the floor (2.2483ms)\n✔ direct carried burial and figurine timers retain their source boundaries (21.906563ms)\n✔ buried container is finalized before its contents callback (5.196356ms)\n✔ special object waits for an asynchronous contents callback (42.882031ms)\n✔ generated chest contents are destroyed before the descriptor callback (8.26501ms)\n✔ burial deallocation leaves a live tombstone for nested contents (1.692408ms)\n✔ maximum containment reports without pushing but still pops afterward (2.333416ms)\n✔ independent fills can interleave their container stacks (1.486604ms)\n✔ a throwing contents callback restores the scoped container stack (1.801391ms)\n✔ a post-push creation failure restores the scoped container stack (1.963316ms)\n✔ a null parent skips later creation branches and pops on success (1.892887ms)\n✔ exact troll corpses replace the generated timer, sex, and weight (2.259371ms)\n✔ non-species tin and egg descriptors retain generated species and RNG order (31.429256ms)\n✖ lspo_object waits for real glob absorption before returning its container survivor (690.342443ms)\nℹ tests 38\nℹ suites 0\nℹ pass 37\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1619.069451\n\n✖ failing tests:\n\ntest at scripts/sp-lev-object.test.mjs:1671:1\n✖ lspo_object waits for real glob absorption before returning its container survivor (690.342443ms)\n  AssertionError [ERR_ASSERTION]: original target red: absorbGlob is not available for otyp 271\n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker2-recovery/scripts/sp-lev-object.test.mjs:1705:16)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: undefined,\n    operator: 'fail',\n    diff: 'simple'\n  }\n",
+      "testSha256": "9ae79a6d1ebe59d701f65c1030d39004035e951f20f823a7c23b8b3bf3d4ddc2",
+      "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-original.stdout.raw",
+      "rawStderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-original.stderr.raw",
+      "wrapperRunDirectory": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-runs/pid-617261-1792368749416"
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "✔ explicit double-negative coordinates use the random-coordinate sentinel (13.33919ms)\n✔ named exact and class-generated novels resolve their canonical index (53.321222ms)\n✔ special-object numeric fields use their source C storage widths (36.339045ms)\n✔ named objects must preserve their linked object identity (1.955339ms)\n✔ trapKnown follows the source truthy trapped gate (7.139511ms)\n✔ generic Medusa statues are created on the Medusa level (9.229918ms)\n✔ Medusa statues reject stone-resistant donors and keep accepted inventory (7.173474ms)\n✔ a Medusa statue under a dead parent is uncreated before special handling (2.592883ms)\n✔ an artifact under a dead parent is uncreated before deallocation (2.192592ms)\n✔ not-uncursed BUC keeps the source rn2(1), rn2(2) draw pair (4.110424ms)\n✔ exact quantities create one mergeable stack or repeated objects (7.860619ms)\n✔ special-object stacking uses the default floor extraction integration (3.887331ms)\n✔ achievement prizes register identity and resist pre-pickup stacking (9.046104ms)\n✔ achievement duplicates preserve source warning and unknowns stay typed (3.677714ms)\n✔ direct monster inventory preserves pickup and stacking source order (3.366027ms)\n✔ direct monster pickup clears ownership and unseen object knowledge (5.694166ms)\n✔ containers and tombstones take precedence over an active carrier (2.979394ms)\n✔ a held carrier receives its saddle after the visibility callback (2.281226ms)\n✔ an unseen carrier forgets its saddle details after floor unlink (1.805846ms)\n✔ a tame carrier receives a saddle without a visibility provider (1.743481ms)\n✔ an already-saddled carrier rejects another before visibility (1.378409ms)\n✔ a live saddle pickup preflights its visibility provider (1.546719ms)\n✔ a nonsaddleable carrier picks a saddle up as ordinary inventory (1.242371ms)\n✔ ordinary live pickup checks visibility after unlink and before inventory (1.387077ms)\n✔ ordinary live pickup without visibility stays linked on the floor (1.340191ms)\n✔ direct carried burial and figurine timers retain their source boundaries (4.109069ms)\n✔ buried container is finalized before its contents callback (1.749682ms)\n✔ special object waits for an asynchronous contents callback (1.582226ms)\n✔ generated chest contents are destroyed before the descriptor callback (1.813487ms)\n✔ burial deallocation leaves a live tombstone for nested contents (1.755691ms)\n✔ maximum containment reports without pushing but still pops afterward (3.617159ms)\n✔ independent fills can interleave their container stacks (1.533532ms)\n✔ a throwing contents callback restores the scoped container stack (1.397142ms)\n✔ a post-push creation failure restores the scoped container stack (1.728806ms)\n✔ a null parent skips later creation branches and pops on success (1.299831ms)\n✔ exact troll corpses replace the generated timer, sex, and weight (2.767354ms)\n✔ non-species tin and egg descriptors retain generated species and RNG order (19.640351ms)\n✔ lspo_object waits for real glob absorption before returning its container survivor (693.779773ms)\nℹ tests 38\nℹ suites 0\nℹ pass 38\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1707.027384\n",
+      "testSha256": "9ae79a6d1ebe59d701f65c1030d39004035e951f20f823a7c23b8b3bf3d4ddc2",
+      "rawStdout": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-green.stdout.raw",
+      "rawStderr": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-green.stderr.raw",
+      "wrapperRunDirectory": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-runs/pid-617372-1792368758025"
+    },
+    "chronology": "The wrapper test was added after the first production draft with explicit Main authorization. Its final bytes were frozen before this same-command original-base red and repaired-source green pair. The earlier unchanged-fixture target red occurred before the first production edit and remains separate."
+  },
+  "finalTestFreeze": {
+    "phase": "final-wrapper-test-freeze-after-first-production-draft",
+    "createdAt": "2026-10-19T00:12:23.304Z",
+    "base": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+    "productionSource": [
+      {
+        "path": "js/invent.js",
+        "gitBlob": "d10ca83dce6455f4173d637eb557aab8a94d0fbf",
+        "sha256": "d1ee79452da0ba78350eca6b6d6821937369f1e6951a7fef7ced1576d70d3ab4"
+      },
+      {
+        "path": "js/sp_lev_object.js",
+        "gitBlob": "c6203b1be1a2a715e83d19c4f3aa10a94f5e25bc",
+        "sha256": "4a4baca1209237db7f3dbcc9480c84a49caae6c8bb6356afe46a31e9cff5f39d"
+      }
+    ],
+    "fixture": {
+      "path": ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs",
+      "bytes": 21882,
+      "sha256": "6e2d81bae4661b59b987f45531cc14e0df6b26dd6dfc6a8689c422f7520621b6",
+      "sameAsOriginalFreeze": true
+    },
+    "test": {
+      "path": "scripts/sp-lev-object.test.mjs",
+      "bytes": 58311,
+      "sha256": "9ae79a6d1ebe59d701f65c1030d39004035e951f20f823a7c23b8b3bf3d4ddc2",
+      "preEditTestSha256": "aba254beab8b383c2e9735d6613b3486185242efa5f1e52db9e5bb237c15cf82"
+    },
+    "command": [
+      "node",
+      "--test",
+      "scripts/sp-lev-object.test.mjs"
+    ],
+    "fixtureOutputRoot": ".cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-runs",
+    "chronology": "Final wrapper was added after the first production draft with explicit Main authorization. This final test hash was frozen before the required same-byte source-base red and repaired-source green pair. The earlier direct fixture original red at 00:06:23Z is retained separately and remains pre-first-production-edit."
+  },
+  "additionalChecks": [
+    {
+      "kind": "focused",
+      "command": [
+        "node",
+        "--test",
+        "scripts/sp-lev-object.test.mjs",
+        "scripts/inventory-substrate.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "/workspace/teleport-contest-worker2-recovery/.cache/fix-glob-special-container-runtime-source-parity-20261019/focused.stdout.raw",
+      "summary": "162 tests passed; this predates the authorized wrapper append. The production source bytes were identical."
+    }
+  ],
+  "testSha256": "9ae79a6d1ebe59d701f65c1030d39004035e951f20f823a7c23b8b3bf3d4ddc2"
+}

@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import test from 'node:test';
 
 import {
@@ -1663,4 +1666,71 @@ test('non-species tin and egg descriptors retain generated species and RNG order
             assert.equal(explicit.obj.owt, generated.obj.owt);
         }
     }
+});
+
+test('lspo_object waits for real glob absorption before returning its container survivor', () => {
+    const fixture = resolve('.cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs');
+    const runRoot = resolve('.cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-runs');
+    mkdirSync(runRoot, { recursive: true });
+    const outputDir = resolve(runRoot, `pid-${process.pid}-${Date.now()}`);
+    const child = spawnSync(process.execPath, [fixture], {
+        cwd: process.cwd(),
+        env: { ...process.env, QUALIFICATION_OUTPUT_DIR: outputDir },
+        encoding: 'utf8',
+        maxBuffer: 8 * 1024 * 1024,
+    });
+    if (child.error) throw child.error;
+    writeFileSync(resolve(outputDir, 'wrapper.stdout.raw'), child.stdout);
+    writeFileSync(resolve(outputDir, 'wrapper.stderr.raw'), child.stderr);
+    const final = JSON.parse(readFileSync(resolve(outputDir, 'final.json'), 'utf8'));
+    const state = final.state;
+    const callback = state.callback;
+
+    if (child.status !== 0) {
+        const primary = JSON.parse(readFileSync(
+            resolve(outputDir, 'primary-error.json'), 'utf8',
+        ));
+        assert.equal(final.outerEnteredCount, 1);
+        assert.equal(final.firstEnteredCount, 1);
+        assert.equal(final.targetEnteredCount, 1);
+        assert.equal(primary.primaryError?.name, 'UnsupportedObjectOperationError');
+        assert.equal(primary.primaryError?.operation, 'absorbGlob');
+        assert.equal(primary.primaryError?.otyp, 271);
+        assert.equal(callback.parent.oid, 65);
+        assert.equal(callback.firstChild.oid, 68);
+        assert.equal(callback.parentChildren.length, 1);
+        assert.equal(callback.parentChildren[0].oid, 68);
+        assert.equal(state.contextDepth, 0);
+        assert.equal(final.handlerRestored, true);
+        assert.fail(`original target red: ${primary.primaryError.message}`);
+    }
+
+    assert.equal(child.status, 0, child.stderr);
+    assert.equal(final.primary, null);
+    assert.equal(final.receiptFailure, null);
+    assert.deepEqual(final.saveFailure, []);
+    assert.equal(final.outerEnteredCount, 1);
+    assert.equal(final.firstEnteredCount, 1);
+    assert.equal(final.targetEnteredCount, 1);
+    assert.equal(final.handlerRestored, true);
+    assert.equal(state.contextDepth, 0);
+    assert.equal(state.hero.hp, 13);
+    assert.equal(state.heroIsInitial, true);
+    assert.equal(state.levelIsInitial, true);
+    assert.equal(state.heroPositionIsInitial, true);
+    assert.equal(callback.parent.oid, 65);
+    assert.equal(callback.firstChild.oid, 68);
+    assert.equal(callback.secondSurvivor.oid, 68);
+    assert.equal(callback.secondSurvivor.where, 2);
+    assert.equal(callback.secondSurvivor.unionTargetOid, 65);
+    assert.equal(callback.secondSurvivor.owt, 40);
+    assert.equal(callback.secondSurvivor.quan, 1);
+    assert.equal(callback.secondSurvivor.age, 1);
+    assert.deepEqual(callback.parentChildren.map(object => object.oid), [68]);
+    assert.equal(callback.parentChildren[0].owt, 40);
+    assert.equal(callback.parentWeight, 390);
+    assert.deepEqual(state.timers.filter(timer => timer.shrinkGlobTimer)
+        .map(timer => ({ oid: timer.argOid, timeout: timer.timeout })),
+    [{ oid: 68, timeout: 25 }]);
+    assert.equal(JSON.stringify(state).includes('"oid": 70'), false);
 });

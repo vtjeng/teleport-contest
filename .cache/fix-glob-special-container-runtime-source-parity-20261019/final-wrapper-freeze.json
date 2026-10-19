@@ -1,0 +1,36 @@
+{
+  "phase": "final-wrapper-test-freeze-after-first-production-draft",
+  "createdAt": "2026-10-19T00:12:23.304Z",
+  "base": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+  "productionSource": [
+    {
+      "path": "js/invent.js",
+      "gitBlob": "d10ca83dce6455f4173d637eb557aab8a94d0fbf",
+      "sha256": "d1ee79452da0ba78350eca6b6d6821937369f1e6951a7fef7ced1576d70d3ab4"
+    },
+    {
+      "path": "js/sp_lev_object.js",
+      "gitBlob": "c6203b1be1a2a715e83d19c4f3aa10a94f5e25bc",
+      "sha256": "4a4baca1209237db7f3dbcc9480c84a49caae6c8bb6356afe46a31e9cff5f39d"
+    }
+  ],
+  "fixture": {
+    "path": ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs",
+    "bytes": 21882,
+    "sha256": "6e2d81bae4661b59b987f45531cc14e0df6b26dd6dfc6a8689c422f7520621b6",
+    "sameAsOriginalFreeze": true
+  },
+  "test": {
+    "path": "scripts/sp-lev-object.test.mjs",
+    "bytes": 58311,
+    "sha256": "9ae79a6d1ebe59d701f65c1030d39004035e951f20f823a7c23b8b3bf3d4ddc2",
+    "preEditTestSha256": "aba254beab8b383c2e9735d6613b3486185242efa5f1e52db9e5bb237c15cf82"
+  },
+  "command": [
+    "node",
+    "--test",
+    "scripts/sp-lev-object.test.mjs"
+  ],
+  "fixtureOutputRoot": ".cache/fix-glob-special-container-runtime-source-parity-20261019/wrapper-runs",
+  "chronology": "Final wrapper was added after the first production draft with explicit Main authorization. This final test hash was frozen before the required same-byte source-base red and repaired-source green pair. The earlier direct fixture original red at 00:06:23Z is retained separately and remains pre-first-production-edit."
+}

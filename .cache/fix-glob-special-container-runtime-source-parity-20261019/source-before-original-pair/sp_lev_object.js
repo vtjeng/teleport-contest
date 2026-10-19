@@ -1,0 +1,775 @@
+// Special-level object creation.
+// C ref: sp_lev.c create_object()/lspo_object().
+
+import {
+    CORPSTAT_FEMALE,
+    CORPSTAT_HISTORIC,
+    CORPSTAT_MALE,
+    DRY,
+    MM_NOCOUNTBIRTH,
+    MM_NOMSG,
+    NON_PM,
+    ONAME,
+    ONAME_NO_FLAGS,
+    SP_COORD_IS_RANDOM,
+    STONE_RES,
+    W_SADDLE,
+} from './const.js';
+import { artifact_exists } from './artifacts.js';
+import { bury_an_obj } from './bury.js';
+import { lookup_novel } from './do_name.js';
+import { can_saddle, put_saddle_on_mon } from './dog.js';
+import { on_level } from './dungeon.js';
+import { game } from './gstate.js';
+import {
+    addToContainerRuntime,
+    add_to_container,
+    delete_contents,
+    obj_extract_self,
+    obfree,
+    stackobj,
+} from './invent.js';
+import { makemon } from './makemon_create.js';
+import { mongone } from './mon.js';
+import { propagate, rndmonnum } from './makemon.js';
+import { Resists_Elem, poly_when_stoned } from './mondata.js';
+import { objectGenerationEnv } from './object_generation.js';
+import {
+    mkgold,
+    mkobj_at,
+    mksobj_at,
+    curse,
+    objectType,
+    remove_object,
+    set_corpsenm,
+    weight,
+} from './obj.js';
+import {
+    BAG_OF_HOLDING,
+    COIN_CLASS,
+    CORPSE,
+    EGG,
+    FIGURINE,
+    RANDOM_CLASS,
+    SADDLE,
+    SPE_NOVEL,
+    STATUE,
+    TIN,
+    STRANGE_OBJECT,
+} from './objects.js';
+import { get_location_coord } from './room_coordinates.js';
+import {
+    get_table_buc,
+    get_table_int_or_random,
+    get_table_objclass,
+    get_table_objtype,
+} from './mklev.js';
+import {
+    begin_burn,
+} from './timeout.js';
+import { mpickobj, preflight_mpickobj } from './steal.js';
+
+const MAX_CONTAINMENT = 10;
+
+export class UnsupportedSpecialObjectError extends Error {
+    constructor(operation, specification = null) {
+        super(`special-level object requires ${operation}`);
+        this.name = 'UnsupportedSpecialObjectError';
+        this.operation = operation;
+        this.specification = specification;
+    }
+}
+
+// The C loader keeps a process-global stack while one level is decoded. JS
+// scopes the same stack to one synchronous special-level or themed-room fill.
+export function new_sp_lev_object_context() {
+    return {
+        containers: [],
+        inventCarryingMonster: null,
+    };
+}
+
+function specialObjectEnvironment(rawEnv = {}) {
+    const context = rawEnv.spObjectContext
+        ?? new_sp_lev_object_context();
+    if (!context || !Array.isArray(context.containers)) {
+        throw new TypeError(
+            'special-level object context requires a containers array',
+        );
+    }
+    if (context.inventCarryingMonster != null
+        && typeof context.inventCarryingMonster !== 'object') {
+        throw new TypeError(
+            'special-level object carrier must be a monster or null',
+        );
+    }
+    return objectGenerationEnv({
+        ...rawEnv,
+        state: rawEnv.state ?? game,
+        spObjectContext: context,
+    });
+}
+
+function packedCoordinate(specification) {
+    const coordinate = specification.coordinate;
+    if (coordinate == null
+        || (coordinate.x === -1 && coordinate.y === -1)) {
+        return SP_COORD_IS_RANDOM;
+    }
+    if (!Number.isInteger(coordinate.x)
+        || !Number.isInteger(coordinate.y)) {
+        throw new TypeError(
+            'special-level object coordinate requires integer x and y',
+        );
+    }
+    return (coordinate.x & 0xff) | ((coordinate.y & 0xff) << 16);
+}
+
+function normalizedSpe(specification, nonpmobj) {
+    if (specification.id === CORPSE || specification.id === STATUE) {
+        return (specification.historic ? CORPSTAT_HISTORIC : 0)
+            | (specification.male ? CORPSTAT_MALE : 0)
+            | (specification.female ? CORPSTAT_FEMALE : 0);
+    }
+    if (specification.id === EGG)
+        return (specification.laid_by_you ?? specification.laidByYou) ? 1 : 0;
+    if (specification.id === TIN && nonpmobj)
+        return specification.montype.toLowerCase() === 'spinach' ? 1 : 0;
+    if (specification.id === TIN || specification.id === FIGURINE)
+        return 0;
+    return get_table_int_or_random(specification, 'spe', -127);
+}
+
+// The level descriptor stores spe in a signed short before create_object()
+// compares its -127 sentinel.  The object itself narrows an assigned value to
+// signed char afterward.
+function signedShort(value) {
+    const word = ((value % 0x10000) + 0x10000) % 0x10000;
+    return word >= 0x8000 ? word - 0x10000 : word;
+}
+
+function signedChar(value) {
+    const byte = ((value % 0x100) + 0x100) % 0x100;
+    return byte >= 0x80 ? byte - 0x100 : byte;
+}
+
+function unsignedThreeBits(value) {
+    return ((value % 8) + 8) % 8;
+}
+
+// C ref: sp_lev.c lspo_object()'s table reading. `id` may be an object name
+// and `class` a class character, which get_table_objtype() and
+// get_table_objclass() resolve, or the indices the port's level loaders
+// pass. The port keeps null where the C keeps STRANGE_OBJECT, -1, or a class
+// of -1 for "not given".
+function normalizeSpecification(specification, context, state) {
+    if (!specification || typeof specification !== 'object') {
+        throw new TypeError('special-level object requires a specification');
+    }
+    if (specification.contents != null
+        && typeof specification.contents !== 'function') {
+        throw new TypeError(
+            'special-level object contents must be a function',
+        );
+    }
+    let id = get_table_objtype(specification, state);
+    let objectClass = get_table_objclass(specification);
+    if (objectClass === -1 && id > STRANGE_OBJECT)
+        objectClass = objectType(id, state).oc_class;
+    else if (objectClass > -1 && id === STRANGE_OBJECT)
+        id = -1;
+    // C ref: lspo_object nonpmobj. NON_PM skips create_object's setter;
+    // it does not erase the species state produced by ordinary mksobj.
+    const montype = typeof specification.montype === 'string'
+        ? specification.montype.toLowerCase() : null;
+    const nonpmobj = (id === TIN && (montype === 'spinach' || montype === 'empty'))
+        || (id === EGG && montype === 'empty');
+    return {
+        ...specification,
+        id: id > STRANGE_OBJECT ? id : null,
+        class: objectClass > -1 ? objectClass : null,
+        spe: signedShort(normalizedSpe(nonpmobj ? { ...specification, id } : specification, nonpmobj)),
+        buc: get_table_buc(specification),
+        corpsenm: nonpmobj ? NON_PM : (specification.corpsenm ?? NON_PM),
+        quantity: get_table_int_or_random(specification, 'quantity', -1),
+        buried: Boolean(specification.buried),
+        lit: Boolean(specification.lit),
+        eroded: specification.eroded ?? 0,
+        locked: specification.locked == null
+            ? -1
+            : Number(Boolean(specification.locked)),
+        trapped: specification.trapped == null
+            ? -1
+            : Number(Boolean(specification.trapped)),
+        trapKnown: specification.trapKnown == null
+            ? -1
+            : Number(Boolean(specification.trapKnown)),
+        recharged: specification.recharged ?? 0,
+        greased: Boolean(specification.greased),
+        broken: Boolean(specification.broken),
+        achievement: Boolean(specification.achievement),
+        content: context.containers.length > 0,
+        container: typeof specification.contents === 'function',
+        packedCoordinate: packedCoordinate(specification),
+    };
+}
+
+function bagWeight(obj, env) {
+    if (obj.otyp === BAG_OF_HOLDING) obj.owt = weight(obj, env);
+}
+
+function blessSpecialObject(obj, env) {
+    if (obj.oclass === COIN_CLASS) return;
+    obj.cursed = false;
+    obj.blessed = true;
+    bagWeight(obj, env);
+}
+
+function unblessSpecialObject(obj, env) {
+    obj.blessed = false;
+    bagWeight(obj, env);
+}
+
+function curseSpecialObject(obj, env) {
+    return curse(obj, env);
+}
+
+function uncurseSpecialObject(obj, env) {
+    obj.cursed = false;
+    bagWeight(obj, env);
+}
+
+function blessorcurseSpecialObject(obj, env) {
+    if (obj.blessed || obj.cursed) return;
+    // Source quirk: blessorcurse(otmp, 1) deliberately consumes rn2(1)
+    // before its independent blessed-versus-cursed rn2(2) draw.
+    if (!env.random.rn2(1)) {
+        if (env.random.rn2(2)) blessSpecialObject(obj, env);
+        else curseSpecialObject(obj, env);
+    }
+}
+
+function applyBuc(obj, buc, env, specification) {
+    // C ref: sp_lev.c create_object()'s curse_state switch; get_table_buc()
+    // produces the numbers.
+    switch (buc) {
+    case 1: /* blessed */
+        blessSpecialObject(obj, env);
+        break;
+    case 2: /* uncursed */
+        unblessSpecialObject(obj, env);
+        uncurseSpecialObject(obj, env);
+        break;
+    case 3: /* cursed */
+        curseSpecialObject(obj, env);
+        break;
+    case 4: /* not cursed */
+        uncurseSpecialObject(obj, env);
+        break;
+    case 5: /* not uncursed */
+        blessorcurseSpecialObject(obj, env);
+        break;
+    case 6: /* not blessed */
+        unblessSpecialObject(obj, env);
+        break;
+    case 0: /* random */
+        break;
+    default:
+        throw new UnsupportedSpecialObjectError(
+            `BUC state ${String(buc)}`,
+            specification,
+        );
+    }
+}
+
+function constructObject(specification, coordinate, env) {
+    const named = specification.name != null;
+    if (specification.id != null) {
+        return mksobj_at(
+            specification.id,
+            coordinate.x,
+            coordinate.y,
+            true,
+            !named,
+            env,
+        );
+    }
+    const objectClass = specification.class ?? RANDOM_CLASS;
+    if (objectClass === COIN_CLASS) {
+        return mkgold(0, coordinate.x, coordinate.y, env);
+    }
+    return mkobj_at(
+        objectClass,
+        coordinate.x,
+        coordinate.y,
+        !named,
+        env,
+    );
+}
+
+function applyObjectFields(obj, specification, env) {
+    if (specification.spe !== -127)
+        obj.spe = signedChar(specification.spe);
+    applyBuc(obj, specification.buc, env, specification);
+
+    if (specification.corpsenm !== NON_PM) {
+        const species = specification.corpsenm === NON_PM - 1
+            ? rndmonnum(env)
+            : specification.corpsenm;
+        set_corpsenm(obj, species, env);
+    }
+
+    if (specification.name != null) {
+        const nameObject = env.hooks.nameObject;
+        if (typeof nameObject !== 'function') {
+            throw new UnsupportedSpecialObjectError(
+                'named-object creation',
+                specification,
+            );
+        }
+        const namedObject = nameObject(
+            obj,
+            String(specification.name),
+            env,
+        );
+        if (!namedObject) {
+            throw new UnsupportedSpecialObjectError(
+                'a named-object result',
+                specification,
+            );
+        }
+        // sp_lev.c oname() preserves identity and every ownership chain.
+        if (namedObject !== obj) {
+            throw new UnsupportedSpecialObjectError(
+                'named-object identity preservation',
+                specification,
+            );
+        }
+        if (obj.otyp === SPE_NOVEL) {
+            const lookedUp = lookup_novel(
+                String(specification.name),
+                obj.novelidx,
+                env,
+            );
+            obj.novelidx = lookedUp.novelidx;
+        }
+    }
+
+    if (specification.eroded) {
+        if (specification.eroded < 0) {
+            obj.oerodeproof = true;
+        } else {
+            obj.oeroded = specification.eroded % 4;
+            obj.oeroded2 = (specification.eroded >> 2) % 4;
+        }
+    } else {
+        obj.oeroded = 0;
+        obj.oeroded2 = 0;
+        obj.oerodeproof = false;
+    }
+    if (specification.recharged)
+        obj.recharged = unsignedThreeBits(specification.recharged);
+    if (specification.locked === 0 || specification.locked === 1) {
+        obj.olocked = Boolean(specification.locked);
+    } else if (specification.broken) {
+        obj.obroken = true;
+        obj.olocked = false;
+    }
+    if (specification.trapped === 0 || specification.trapped === 1)
+        obj.otrapped = Boolean(specification.trapped);
+    if (specification.trapped
+        && (specification.trapKnown === 0
+            || specification.trapKnown === 1)) {
+        obj.tknown = Boolean(specification.trapKnown);
+    }
+    obj.greased = specification.greased;
+
+    const type = objectType(obj, env.state);
+    if (specification.quantity > 0 && type.oc_merge) {
+        obj.quan = specification.quantity;
+        obj.owt = weight(obj, env);
+    }
+    return obj;
+}
+
+function impossible(message, env) {
+    if (typeof env.hooks.impossible === 'function')
+        env.hooks.impossible(message, env);
+}
+
+function achievementTracking(state) {
+    const tracking = state.context?.achieveo;
+    if (!tracking || typeof tracking !== 'object') {
+        throw new Error(
+            'special-level achievement objects require initialized achieveo',
+        );
+    }
+    return tracking;
+}
+
+// C ref: sp_lev.c create_object() achievement branch.  Prize creation only
+// registers identity and prevents floor stacking; invent.addinv() owns the
+// later achievement award, oid clearing, and nomerge reset.
+function initializeAchievementObject(obj, env) {
+    const { state } = env;
+    const tracking = achievementTracking(state);
+    let oidField;
+    let typeField;
+    let levelName;
+    if (on_level(state.u?.uz, state.mineend_level)) {
+        oidField = 'mines_prize_oid';
+        typeField = 'mines_prize_otyp';
+        levelName = 'mines end';
+    } else if (on_level(state.u?.uz, state.sokoend_level)) {
+        oidField = 'soko_prize_oid';
+        typeField = 'soko_prize_otyp';
+        levelName = 'sokoban end';
+    } else {
+        if (!state.iflags?.lua_testing) {
+            // Full describe_level()/simpleonames() formatting belongs to the
+            // unported message-name boundary; retain the object type here so
+            // malformed level data still produces a deterministic diagnostic.
+            impossible(
+                `create_object: unknown achievement object ${obj.otyp}`,
+                env,
+            );
+        }
+        return obj;
+    }
+
+    if (tracking[oidField]) {
+        impossible(`multiple prizes on ${levelName} level`, env);
+        return obj;
+    }
+    tracking[oidField] = obj.o_id;
+    tracking[typeField] = obj.otyp;
+    obj.nomerge = true;
+    return obj;
+}
+
+function putInCurrentContainer(obj, context, env) {
+    // A null entry is an active tombstone: the intended parent was destroyed
+    // after being pushed (for example, a buried rock), so subsequent children
+    // are created and then uncreated at the source's normal boundary.
+    const parent = context.containers[context.containers.length - 1];
+    remove_object(obj, env);
+    if (!parent) {
+        if (obj.oartifact) {
+            artifact_exists(
+                obj,
+                ONAME(obj),
+                false,
+                ONAME_NO_FLAGS,
+                env.state,
+            );
+        }
+        obfree(obj, null, env);
+        return null;
+    }
+    const placed = addToContainerRuntime(parent, obj, env);
+    const finishPlacement = (survivor) => {
+        parent.owt = weight(parent, env);
+        return survivor;
+    };
+    return placed && typeof placed.then === 'function'
+        ? Promise.resolve(placed).then(finishPlacement)
+        : finishPlacement(placed);
+}
+
+function heroCanSeeCarrier(monster, env, specification) {
+    const canSeeMonster = env.hooks.canSeeMonster;
+    if (typeof canSeeMonster === 'function')
+        return Boolean(canSeeMonster(monster, env));
+    // Special-level callbacks run while mklev has map visibility suppressed,
+    // so the carrier is not visible.  A later live loader must provide the
+    // complete canseemon() boundary explicitly.
+    if (env.state.in_mklev) return false;
+    throw new UnsupportedSpecialObjectError(
+        'monster visibility for custom inventory',
+        specification,
+    );
+}
+
+function saddleRejectedBeforePickup(obj, monster) {
+    if (obj.otyp !== SADDLE || !can_saddle(monster)) return false;
+    for (let carried = monster.minvent; carried; carried = carried.nobj) {
+        if (carried.owornmask & W_SADDLE) return true;
+    }
+    return false;
+}
+
+function preflightCarrierVisibility(obj, monster, env, specification) {
+    // mpickobj() skips canseemon() for tame carriers.  For every other live
+    // carrier, verify that JS owns the complete visibility boundary before
+    // remove_object() unlinks the newly generated floor object.  The provider
+    // itself still runs later at the source-ordered pickup point.
+    if (!saddleRejectedBeforePickup(obj, monster)
+        && !monster.mtame
+        && !env.state.in_mklev
+        && typeof env.hooks.canSeeMonster !== 'function') {
+        throw new UnsupportedSpecialObjectError(
+            'monster visibility for custom inventory',
+            specification,
+        );
+    }
+}
+
+function putInCurrentMonster(obj, monster, env, specification) {
+    const saddlePickup = obj.otyp === SADDLE && can_saddle(monster);
+    preflightCarrierVisibility(obj, monster, env, specification);
+    let pickupEnv;
+    let pickupPlan;
+    if (!saddlePickup) {
+        pickupEnv = {
+            ...env,
+            canSeeMonster: (candidate) => heroCanSeeCarrier(
+                candidate,
+                env,
+                specification,
+            ),
+        };
+        pickupPlan = preflight_mpickobj(monster, obj, pickupEnv);
+    }
+    remove_object(obj, env);
+    if (saddlePickup) {
+        put_saddle_on_mon(obj, monster, {
+            ...env,
+            canseemon: (candidate) => heroCanSeeCarrier(
+                candidate,
+                env,
+                specification,
+            ),
+        });
+        return obj;
+    }
+
+    // Source intentionally ignores mpickobj()'s "incoming object was freed"
+    // result.  Keep this reference even when add_to_minv() merged and deleted
+    // it; the callback and later source-ordered finalization observe that quirk.
+    mpickobj(monster, obj, pickupEnv, pickupPlan);
+    return obj;
+}
+
+function placeSpecialObject(obj, specification, context, env) {
+    if (!specification.content && !context.inventCarryingMonster)
+        return obj;
+    if (context.containers.length)
+        return putInCurrentContainer(obj, context, env);
+    if (context.inventCarryingMonster) {
+        return putInCurrentMonster(
+            obj,
+            context.inventCarryingMonster,
+            env,
+            specification,
+        );
+    }
+    // A legal monster descriptor can outlive a failed unique-monster
+    // creation.  With no container or carrier, C leaves its objects on floor.
+    return obj;
+}
+
+function pushContainer(obj, context, env) {
+    delete_contents(obj, env);
+    if (context.containers.length < MAX_CONTAINMENT) {
+        context.containers.push(obj);
+    } else {
+        // create_object() reports the depth error without pushing.  The
+        // enclosing lspo_object() still pops one descriptor slot afterward.
+        impossible('create_object: too deeply nested containers.', env);
+    }
+}
+
+// C ref: sp_lev.c create_object() (2352-2390). Random Medusa-level statues
+// are petrified monsters: create each candidate with its normal inventory,
+// reject candidates that would survive petrification, then move the accepted
+// monster's inventory into the statue before discarding the temporary body.
+function populateMedusaStatue(obj, specification, env) {
+    const { state } = env;
+    if (specification.id !== STATUE
+        || !on_level(state.u?.uz, state.medusa_level)
+        || specification.corpsenm !== NON_PM) {
+        return obj;
+    }
+
+    let speciesIndex = obj.corpsenm;
+    const finishMonster = (monster, attempts) => {
+        if (monster) {
+            const survivesPetrification = Resists_Elem(
+                monster,
+                STONE_RES,
+                state,
+            ) || poly_when_stoned(state.mons[speciesIndex], state);
+            if (!survivesPetrification) {
+                propagate(speciesIndex, true, false, env);
+                return finishAccepted(monster);
+            }
+            mongone(monster, env);
+        }
+        speciesIndex = rndmonnum(env);
+        return tryMonster(attempts + 1);
+    };
+    const tryMonster = (attempts = 0) => {
+        if (attempts >= 1000) return finishAccepted(null);
+        const maybeMonster = makemon(
+            state.mons[speciesIndex],
+            0,
+            0,
+            MM_NOCOUNTBIRTH | MM_NOMSG,
+            { ...env, _statueInventoryCreation: true },
+        );
+        const next = (resolvedMonster) => {
+            return finishMonster(resolvedMonster, attempts);
+        };
+        return maybeMonster && typeof maybeMonster.then === 'function'
+            ? maybeMonster.then(next) : next(maybeMonster);
+    };
+    const finishAccepted = (monster) => {
+        if (!monster) return obj;
+        set_corpsenm(obj, speciesIndex, env);
+        while (monster.minvent) {
+            const carried = monster.minvent;
+            carried.owornmask = 0;
+            obj_extract_self(carried, env);
+            add_to_container(obj, carried, env);
+        }
+        obj.owt = weight(obj, env);
+        mongone(monster, env);
+        return obj;
+    };
+    return tryMonster();
+}
+
+function finalizeTopLevelObject(obj, specification, context, env) {
+    stackobj(obj, env);
+    if (specification.lit) begin_burn(obj, false, env);
+    if (!specification.buried) return obj;
+
+    return bury_an_obj(obj, env).then(({ deallocated }) => {
+        if (!deallocated) return obj;
+        if (context.containers.length) {
+            context.containers[context.containers.length - 1] = null;
+        }
+        return null;
+    });
+}
+
+function createOneObject(specification, croom, env) {
+    const context = env.spObjectContext;
+    const deadParent = specification.content
+        && context.containers.at(-1) === null;
+    const coordinate = { x: -1, y: -1 };
+    get_location_coord(
+        coordinate,
+        DRY,
+        croom,
+        specification.packedCoordinate,
+        env,
+    );
+
+    let obj = constructObject(specification, coordinate, env);
+    obj = applyObjectFields(obj, specification, env);
+
+    const continueCreation = (placed) => {
+        obj = placed;
+        if (!obj) return null;
+        if (specification.container)
+            pushContainer(obj, context, env);
+
+        const finish = (populated) => {
+            obj = populated;
+            if (specification.achievement) {
+                initializeAchievementObject(obj, env);
+            }
+
+            if (!specification.content && obj)
+                obj = finalizeTopLevelObject(obj, specification, context, env);
+            return obj;
+        };
+        const maybeObj = populateMedusaStatue(obj, specification, env);
+        return maybeObj && typeof maybeObj.then === 'function'
+            ? maybeObj.then(finish) : finish(maybeObj);
+    };
+    if (specification.content || context.inventCarryingMonster) {
+        const placed = placeSpecialObject(obj, specification, context, env);
+        return placed && typeof placed.then === 'function'
+            ? Promise.resolve(placed).then(continueCreation)
+            : continueCreation(placed);
+    }
+    return continueCreation(obj);
+}
+
+// Source-shaped single-object primitive. A caller using this directly owns
+// any container-stack pop, just as lspo_object() does around create_object().
+export function create_object(specification, croom, rawEnv = {}) {
+    const env = specialObjectEnvironment(rawEnv);
+    const normalized = normalizeSpecification(
+        specification,
+        env.spObjectContext,
+        env.state,
+    );
+    return createOneObject(normalized, croom, env);
+}
+
+// C ref: sp_lev.c spo_pop_container(). Drops the innermost container slot
+// when one is open; the JS stack's length stands for C's container_idx.
+function spo_pop_container(context) {
+    if (context.containers.length > 0)
+        context.containers.pop();
+}
+
+// Lua-facing semantic operation: nonmergeable exact quantities create one
+// object per unit, the callback sees the final result, then one container slot
+// is popped when the descriptor declared contents.  That final pop also
+// preserves the source quirk when MAX_CONTAINMENT rejected the corresponding
+// push.
+export function lspo_object(specification, croom, rawEnv = {}) {
+    const env = specialObjectEnvironment(rawEnv);
+    const context = env.spObjectContext;
+    const entryDepth = context.containers.length;
+    const normalized = normalizeSpecification(specification, context, env.state);
+    const exactType = normalized.id == null
+        ? null
+        : objectType(normalized.id, env.state);
+    let remaining = normalized.id == null ? 0 : normalized.quantity;
+    let obj;
+    let completed = false;
+    const cleanup = () => {
+        if (normalized.container
+            && (completed || context.containers.length > entryDepth)) {
+            spo_pop_container(context);
+        }
+    };
+    const finish = (created) => {
+        obj = created;
+        --remaining;
+        if (remaining > 0 && exactType && !exactType.oc_merge) {
+            const next = createOneObject(normalized, croom, env);
+            return next && typeof next.then === 'function'
+                ? next.then(finish) : finish(next);
+        }
+
+        if (typeof normalized.contents === 'function') {
+            const maybeContents = normalized.contents(obj, env);
+            const finishContents = () => {
+                completed = true;
+                return obj;
+            };
+            if (maybeContents && typeof maybeContents.then === 'function')
+                return maybeContents.then(finishContents);
+        }
+        completed = true;
+        return obj;
+    };
+    try {
+        const first = createOneObject(normalized, croom, env);
+        const result = first && typeof first.then === 'function'
+            ? first.then(finish) : finish(first);
+        if (result && typeof result.then === 'function')
+            return result.finally(cleanup);
+        cleanup();
+        return result;
+    } catch (error) {
+        cleanup();
+        throw error;
+    }
+}

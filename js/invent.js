@@ -5087,6 +5087,53 @@ export function add_to_container(container, obj, env = {}) {
     return attach();
 }
 
+// Runtime counterpart of mkobj.c add_to_container(). Preserve the legacy
+// synchronous helper above; a glob absorption that waits for message input
+// resumes this same ordered scan before returning its actual surviving object.
+export function addToContainerRuntime(container, obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    if (obj.where !== OBJ_FREE) {
+        throw new Error(
+            `addToContainerRuntime: object where=${obj.where}, expected OBJ_FREE`,
+        );
+    }
+    if (obj.nobj || obj.nexthere) {
+        throw new Error(
+            'addToContainerRuntime: free object retains a chain link',
+        );
+    }
+
+    const insert = () => {
+        obj.where = OBJ_CONTAINED;
+        obj.ocontainer = container;
+        obj.nobj = container.cobj ?? null;
+        container.cobj = obj;
+        return obj;
+    };
+    const scan = (current) => {
+        while (current) {
+            const next = current.nobj ?? null;
+            const absorbed = mergedRuntime(current, obj, normalized);
+            if (isThenable(absorbed)) {
+                return Promise.resolve(absorbed).then((didAbsorb) =>
+                    didAbsorb ? current : scan(next));
+            }
+            if (absorbed) return current;
+            current = next;
+        }
+        return insert();
+    };
+    if (container.where !== OBJ_INVENT && container.where !== OBJ_MINVENT) {
+        const released = requiredHook(normalized, 'objectNoLongerHeld', obj)(
+            obj, normalized,
+        );
+        return isThenable(released)
+            ? Promise.resolve(released).then(() => scan(container.cobj ?? null))
+            : scan(container.cobj ?? null);
+    }
+    return scan(container.cobj ?? null);
+}
+
 export function useupall(obj, env = {}) {
     const normalized = inventoryEnv(env);
     if (obj.where !== OBJ_INVENT)

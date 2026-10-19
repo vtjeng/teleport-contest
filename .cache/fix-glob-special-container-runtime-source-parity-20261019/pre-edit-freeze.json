@@ -1,0 +1,40 @@
+{
+  "phase": "pre-production-freeze",
+  "createdAt": "2026-10-19T00:06:20.059Z",
+  "worktree": "/workspace/teleport-contest-worker2-recovery",
+  "base": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+  "fixture": {
+    "path": ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs",
+    "bytes": 21882,
+    "sha256": "6e2d81bae4661b59b987f45531cc14e0df6b26dd6dfc6a8689c422f7520621b6"
+  },
+  "test": {
+    "path": "scripts/sp-lev-object.test.mjs",
+    "bytes": 54815,
+    "sha256": "aba254beab8b383c2e9735d6613b3486185242efa5f1e52db9e5bb237c15cf82"
+  },
+  "source": [
+    {
+      "path": "js/invent.js",
+      "gitBlob": "31dc40ca6080ee5c9a7aeb2361f4f7b30d5d11dc",
+      "sha256": "d602bb89d2a848b7590343ba381ed44880f13f6ba6e78ec2d56fb3b6e62bac0f"
+    },
+    {
+      "path": "js/sp_lev_object.js",
+      "gitBlob": "157165a44767b69c80d818df54ae2134ee43c465",
+      "sha256": "73cbf733127bd3d4aee4ccdd85a2944c5622a31de1fd03cacc625bf5eb36cc5d"
+    }
+  ],
+  "command": [
+    "QUALIFICATION_OUTPUT_DIR=/workspace/teleport-contest-worker2-recovery/.cache/glob-special-container-runtime-source-parity-20261019/runs/original",
+    "node",
+    ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs"
+  ],
+  "fixedInput": {
+    "seed": 671903,
+    "instantUTC": "2026-10-17T00:00:00Z",
+    "datetime": "20261016200000",
+    "recorderIsDst": true,
+    "nethackrc": "OPTIONS=name:ShopFireFixture,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,menustyle:traditional\n"
+  }
+}

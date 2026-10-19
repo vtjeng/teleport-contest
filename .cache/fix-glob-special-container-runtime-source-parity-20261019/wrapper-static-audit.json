@@ -1,0 +1,48 @@
+{
+  "fixture": ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs",
+  "sha256": "6e2d81bae4661b59b987f45531cc14e0df6b26dd6dfc6a8689c422f7520621b6",
+  "bytes": 21882,
+  "resolvedRelativeImports": [
+    {
+      "specifier": "../../js/const.js",
+      "path": "js/const.js"
+    },
+    {
+      "specifier": "../../js/game_display.js",
+      "path": "js/game_display.js"
+    },
+    {
+      "specifier": "../../js/gstate.js",
+      "path": "js/gstate.js"
+    },
+    {
+      "specifier": "../../js/jsmain.js",
+      "path": "js/jsmain.js"
+    },
+    {
+      "specifier": "../../js/sp_lev_object.js",
+      "path": "js/sp_lev_object.js"
+    },
+    {
+      "specifier": "../../js/objects.js",
+      "path": "js/objects.js"
+    },
+    {
+      "specifier": "../../js/rng.js",
+      "path": "js/rng.js"
+    },
+    {
+      "specifier": "../../js/rng.js",
+      "path": "js/rng.js"
+    },
+    {
+      "specifier": "../../js/object_generation.js",
+      "path": "js/object_generation.js"
+    }
+  ],
+  "test": "scripts/sp-lev-object.test.mjs",
+  "testBytes": 58311,
+  "testSha256": "9ae79a6d1ebe59d701f65c1030d39004035e951f20f823a7c23b8b3bf3d4ddc2",
+  "staticSyntax": "node --check passed",
+  "sourceExportAudit": "Named imports reviewed against pinned exported bindings; no changed/new production imports."
+}
