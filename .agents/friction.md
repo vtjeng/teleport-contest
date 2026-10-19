@@ -1921,3 +1921,22 @@ Source/fixture stay unchanged; prior `6e2d` and `9ae79` raw remain distinct.
   that import removal within the original cap. Final 7ce01 red/green is after
   the draft; earlier c655 bytes and raw runs remain separate. No new rule,
   helper, gate or measured prevention benefit follows from this correction.
+
+### 2026-10-19 — Tip test preparation and lint receipts
+
+- First `64f3` precode test reached the missing-absorb target; shell `set -e`
+  omitted outer exit/end files. The actual tool/child exits and raw remain.
+- A read from Main's root briefly misreported absent work; the correct W2
+  branch/source/raw were reconciled, with no mutation or ownership loss.
+- Two stored `owt` assertions and an unused `dirname` import fix preceded code;
+  the failed precode lint hook is retained. Final `b6fd` original 5/1 red
+  preceded first code and the same test passed 6/6 after repair.
+- First lint child/file status 0 conflicted with tool status 1; cause unknown.
+  One authorized Node verification returned child/tool 0; both literal runs remain.
+- Submission `83ba` is recorded; no cap reset, measured benefit or new rule.
+
+- Tip 83ba referenced an ignored evidence envelope without committing literal
+  bytes. Main and peer review preserved and verified it before a packaging-only
+  linked correction; 9ad4175 commits the unchanged envelope and metadata without
+  rerunning checks. Existing immutable-evidence requirements apply; benefit is
+  unmeasured and no new helper, rule or gate is introduced.

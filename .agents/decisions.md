@@ -1085,3 +1085,36 @@ This stash stage remains source-parity-runtime-pending, without public C parity,
 source certification, discovery, score gain or global completion. Operational
 benefit is unmeasured. Hosted checkpoint, saved acceptance and publication
 remain pending at this record.
+
+### 2026-10-19 — Public tip transfer through the runtime container writer
+
+Selected delivery 9ad4175 preserves the narrow tipcontainer source stage on
+accepted b5f69: only its target-container transfer uses the existing
+addToContainerRuntime owner, with the same environment and conditional await
+before the next child, weights, encumbrance and inventory tail. The separate
+reverse_loot coffer/gold caller retains the legacy import. Whole C tipcontainer
+3688–3841 and current caller/default order were reviewed; global callers remain
+pending and this stage is source-parity-runtime-pending.
+
+The exact public dotip qualification e42a reached the old missing absorption
+through two held SACKs and actual inventory/menu keys. Final frozen b6fd test
+produced a meaningful original 5/1 target failure BEFORE the first game edit,
+then the same test passed 6/6. Two stored-weight assertions and unused dirname
+removal preceded that final freeze; the earlier 64f3 test and hook failure remain.
+Precode Git ancestor b474 contains the older 64f3 test; b6fd timing is bound by
+raw freeze/source hashes and observed order, not a false Git-ancestor claim.
+
+Green evidence directly records incoming 66 deleted and untimed, survivor 69
+contained with mass 40, source SACK weight 15, destination weight 55 and sole
+survivor shrink timer 26, with public return one, drained keys, stable hero/level
+references and restored input handler. The first lint child/tool status conflict
+has unknown cause; one authorized lint-only verification returned both zero.
+
+Delivery 83ba omitted the literal envelope from Git. Packaging-only linked
+revision 9ad4175 commits the exact independently frozen 7,580,737-byte envelope
+SHA 1e7a2b8836d1c890b36c27fbc908f304e6e4464790e46c349f3cea1db8e1fb64,
+with 112 references and 58 blobs. Source, test, fixture and raw evidence did not
+change or rerun. Cache-only hook bypass is an attestation, not a new lint pass.
+Main and independent review found no remaining concrete blocker. Public C
+parity, certification, discovery, score gain and operational benefit are not
+claimed; normal hosted acceptance and publication remain pending here.
