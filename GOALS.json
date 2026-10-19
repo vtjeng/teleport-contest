@@ -328932,6 +328932,176 @@
         ],
         "evidenceBasis": "source-parity-runtime-pending"
       }
+    },
+    {
+      "id": "fix-glob-special-container-runtime-source-parity-20261019",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Implement add_to_container from mkobj.c",
+      "cFile": "mkobj.c",
+      "sessions": [],
+      "selectionReason": "Preserved source scope from submitted worker task delivery:fix-glob-special-container-runtime-source-parity-20261019",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "add_to_container",
+          "line": 2676,
+          "endLine": 2697,
+          "declared": true
+        }
+      ],
+      "range": {
+        "from": 2676,
+        "to": 2697
+      },
+      "requiredFunctions": [
+        {
+          "name": "create_object",
+          "line": 2193,
+          "endLine": 2445,
+          "declared": true,
+          "sourceFile": "sp_lev.c"
+        },
+        {
+          "name": "lspo_object",
+          "line": 3557,
+          "endLine": 3758,
+          "declared": true,
+          "sourceFile": "sp_lev.c"
+        }
+      ],
+      "sourceParity": {
+        "version": 1,
+        "id": "fix-glob-special-container-runtime-source-parity-20261019",
+        "assignmentBase": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+        "evidenceBasis": "source-parity-runtime-pending",
+        "review": {
+          "reviewedBase": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+          "authorization": "Standing explicit user source-parity correction authorization. Main separately selects NEW<=20min FOURTH bounded runtime CONTAINER+actual CREATOR continuation stage after accepted hero/minv/unearth stages and source-reviewed actual fe253. Whole source and current accepted d92 pins reviewed; no global caller completion or public recording/source certification.",
+          "currentBehavior": "Exact21882B6e2d existing exported lspo_object parent LARGE_BOX plus first setup child and second target entered once on b182. Second child calls sync add_to_container after real removal and release, then merged refuses missing absorbGlob. Actual first68 CONTAINED20 in parent65 weight370; incoming70 FREE20 directly observed from new SHRINK timer.arg at28; first timer24. Real context unwound0/handler restored/no save or receipt failure. This specific sync container path remains unchanged by candidate unearth-only helper addition.",
+          "expectedBehavior": "Separate hybrid addToContainerRuntime preserves whole C validation, canonical release-before-scan, sequential mergedRuntime and actual survivor return or single insertion. Wire existing container placement and creator continuation so parent weight, container push/populate/achievement/finalize and lspo quantity/contents/cleanup wait for resolved placement. Preserve eager ordinary return and legacy helper, no new Unsupported refusal. Actual primary should return second survivor68 CONTAINED mass40/quan1/age1 in same parent65;70 deleted/unlinked/no70timer; one68 SHRINK deadline25 from stopped incoming timer source order; parent weight recomputed after absorption; context0/handler and hero/map/uz retained.",
+          "units": [
+            "mkobj.c:add_to_container",
+            "sp_lev.c:create_object",
+            "sp_lev.c:lspo_object"
+          ],
+          "allowedPaths": [
+            "js/invent.js",
+            "js/sp_lev_object.js",
+            "scripts/sp-lev-object.test.mjs",
+            "scripts/inventory-substrate.test.mjs",
+            ".cache/"
+          ],
+          "regressionTests": [
+            "scripts/sp-lev-object.test.mjs"
+          ],
+          "callers": [
+            {
+              "path": "js/sp_lev_object.js",
+              "symbol": "putInCurrentContainer",
+              "source": "Ccreate_object container branch remove_object→add_to_container complete→parent weight, before subsequent fields/container initialization; retain null-parent uncreation."
+            },
+            {
+              "path": "js/sp_lev_object.js",
+              "symbol": "createOneObject",
+              "source": "Whole Ccreate_object2193–2442 reviewed, runtime container placement result must resolve before pushContainer/populateMedusa/achievement/topfloor finalization; other existing minv/Medusa direct-transfer/topfloor stack migrations explicitly pending."
+            },
+            {
+              "path": "js/sp_lev_object.js",
+              "symbol": "lspo_object",
+              "source": "Whole Clspo_object3557–3756 quantity→contents callback→container pop/free→return; existing thenable recursion and finally cleanup preserve actual object and eager returns."
+            },
+            {
+              "path": "js/invent.js",
+              "symbol": "add_to_container",
+              "source": "Whole Cmkobj2676–2699; legacy helper stays unchanged, runtime companion waits canonical objectNoLongerHeld then source scan before actual survivor or insertion. Existing runtime merged owns exactly one pudding then obj_absorb."
+            }
+          ],
+          "pins": [
+            {
+              "path": "nethack-c/upstream",
+              "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+            },
+            {
+              "path": "js/invent.js",
+              "object": "31dc40ca6080ee5c9a7aeb2361f4f7b30d5d11dc"
+            },
+            {
+              "path": "js/sp_lev_object.js",
+              "object": "157165a44767b69c80d818df54ae2134ee43c465"
+            },
+            {
+              "path": "scripts/sp-lev-object.test.mjs",
+              "object": "9b9195f215e1400a7f185b92a8e00fcc9939ecfd"
+            },
+            {
+              "path": "scripts/inventory-substrate.test.mjs",
+              "object": "9848c72498f8244fa5cb7ca55b57e0ee04670006"
+            },
+            {
+              "path": "js/obj.js",
+              "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+            },
+            {
+              "path": "js/object_generation.js",
+              "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+            },
+            {
+              "path": "js/objects.js",
+              "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+            },
+            {
+              "path": "js/const.js",
+              "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+            },
+            {
+              "path": "js/timeout.js",
+              "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+            },
+            {
+              "path": "js/rng.js",
+              "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+            },
+            {
+              "path": "js/jsmain.js",
+              "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+            },
+            {
+              "path": "js/gstate.js",
+              "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+            },
+            {
+              "path": "js/game_display.js",
+              "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+            },
+            {
+              "path": "js/terminal.js",
+              "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+            },
+            {
+              "path": "js/tty_message.js",
+              "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+            },
+            {
+              "path": "js/sp_lev.js",
+              "object": "4a69e421b4038a4f8d11ed1ac3db91bb8b255ce0"
+            },
+            {
+              "path": "js/room_coordinates.js",
+              "object": "85b6737e72b66586c975a9371655015a9b6d37ab"
+            },
+            {
+              "path": "js/mklev.js",
+              "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+            }
+          ]
+        },
+        "reviewSha256": "4fc71a3aa7b185485ab6042ace5084332e58dfbefb514ce87bc80eb802969210"
+      }
     }
   ]
 }

@@ -988,3 +988,36 @@ Container/creator and other transfer caller groups remain separate pending
 work. This stage is source-parity-runtime-pending, without public recordings,
 C parity, source certification, global completion or measured benefit. Hosted
 checkpoint, saved acceptance and publication remain pending at this record.
+
+### 2026-10-19 — Stage container absorption before creator continuation
+
+The separately accepted organizer stage is preserved by disjoint source hunks.
+Delivery c3c3c9ae retains the runtime container companion and selected actual
+creator continuation from e527, with the legacy container export and its
+existing hybrid release behavior unchanged. Canonical release precedes the
+sequential runtime merge scan; the actual survivor resolves before parent
+weight, container push, population, achievement and finalization. Existing
+quantity, contents callback and finally cleanup propagation remain intact.
+Other minv, Medusa direct transfer, topfloor stacking and global callers remain
+explicitly pending; this stage completes only the selected content path.
+
+The exact 6e2d direct fixture reached the target missing absorption before
+the first production edit, then returned the expected state after repair.
+That direct command did not satisfy the selected focused-test path, and the
+validator correctly rejected it. Main authorized a pinned wrapper after the
+draft: 9ae79 original 37-pass/one-target-failure versus repaired 38 passes.
+One vacuous compact-JSON whitespace assertion was then removed through linked
+test-only correction. Final 2e597 bytes produced another exact original red
+and repaired 38-pass result with lint; no source or fixture changed in rework.
+These final wrapper hashes are after the draft, not before first code.
+
+The actual survivor 68 is contained in parent 65 with mass 40 and quantity one,
+the second child returns that same survivor, parent weight becomes 390 and
+only survivor timer 25 remains. Context depth returns to zero and hero/level
+identities and handler restoration are retained. Incoming absence from the
+observed chains/timers is supported; no fake heap or error.object is used.
+All 128 literal evidence files are hash-bound in the committed envelope; its
+prior task-evidence is an earlier metadata snapshot, while raw historical
+bytes remain unchanged. No global completion, C parity, public recordings or
+source certification is claimed. Operational benefit is unmeasured. Normal
+hosted checkpoint, saved acceptance and publication remain pending here.

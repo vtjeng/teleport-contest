@@ -1872,3 +1872,23 @@ already-selected unique 66 SHRINK timeout `[27]` check were authorized within
 the same claim/deadline. First failed-green raw and unique `slY89N` stay intact.
 The new final test pair is after the draft; the genuine precode red remains.
 No queue block/unblock, fixture change or game-scope expansion occurred.
+
+## 2026-10-19 — Container primary regression evidence
+
+Direct frozen `6e2d` reached a genuine target red before first production code,
+then the same fixture produced semantic green. The required focused primary
+test had not been added, so validation correctly rejected its missing original
+red in `scripts/sp-lev-object.test.mjs`. Existing 162 focused passes and lint
+do not supply that primary evidence retroactively.
+Main authorized a test-only wrapper after the draft, with the final same-byte
+`d92` red / repaired-green pair required. Production and fixture stay unchanged;
+the original 20-minute deadline, 00:25:13, remains in force.
+All direct-run raw/freeze chronology is retained alongside the later wrapper.
+This corrects regression ownership/evidence within the existing assignment;
+no new qualification, validator/review weakening, gate or benefit claim.
+
+`e527` review found one vacuous assertion searching compact JSON for a spaced
+`"oid": 70` fragment. Main permits removing only that assertion; actual parent
+children, sole 68 timer at 25 and survivor checks remain. The new frozen pair
+follows `e527`, under a five-minute rework cap and the original wall deadline.
+Source/fixture stay unchanged; prior `6e2d` and `9ae79` raw remain distinct.
