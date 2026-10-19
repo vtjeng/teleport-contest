@@ -6,9 +6,10 @@ Vincent directed this workflow change on 2026-10-19. It overrides the agent
 topology, dispatch, and continuous-loop instructions below until Vincent
 explicitly changes the mode:
 
-- Dot (Vincent) is the user and workflow owner. The Codex agent is the only
-  active hands-on executor; it performs source inspection, setup,
-  implementation, review, and validation sequentially in this workspace.
+- Vincent is the human project owner. dot is Vincent’s supervising assistant.
+  This Codex session is the sole hands-on Teleport executor, managed by dot.
+  It performs source inspection, setup, implementation, review, and validation
+  sequentially in this workspace.
 - Do not delegate, claim work for another agent, respawn a lead or worker, or
   run automated dispatch, polling, or dashboard-refresh loops. The historical
   role and queue procedures below remain reference material, not active
