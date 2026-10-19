@@ -1,0 +1,27 @@
+{
+  "phase": "linked-rework-final-test-freeze-after-e527",
+  "createdAt": "2026-10-19T00:19:03.993Z",
+  "base": "d92ffdf50be774392818300b9fefbde5c79d6a48",
+  "parentDelivery": "e527b89e14925aa9a1c87cdfab61fd8ba6371c35",
+  "source": {
+    "inventJs": "d1ee79452da0ba78350eca6b6d6821937369f1e6951a7fef7ced1576d70d3ab4",
+    "spLevObjectJs": "4a4baca1209237db7f3dbcc9480c84a49caae6c8bb6356afe46a31e9cff5f39d"
+  },
+  "fixture": {
+    "path": ".cache/glob-special-container-main-reviewed-qualification-20261018/attempt.mjs",
+    "bytes": 21882,
+    "sha256": "6e2d81bae4661b59b987f45531cc14e0df6b26dd6dfc6a8689c422f7520621b6"
+  },
+  "test": {
+    "path": "scripts/sp-lev-object.test.mjs",
+    "bytes": 58241,
+    "sha256": "2e597cb843f10b00659936b672925b26b403d5b7fde1e1b9537b5c3b8c8b0bb9"
+  },
+  "command": [
+    "node",
+    "--test",
+    "scripts/sp-lev-object.test.mjs"
+  ],
+  "correction": "Remove ONLY the vacuous JSON.stringify(state).includes('\"oid\": 70') assertion. No other test predicates, source or fixture changes.",
+  "chronology": "Frozen after e527 and after the prior 9ae79 wrapper freeze. Same final bytes then ran against original d92 source for target red and repaired e527 source for green. Earlier direct pre-first-production-edit fixture pair and 9ae79 pair remain retained."
+}

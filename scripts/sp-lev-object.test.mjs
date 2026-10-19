@@ -1732,5 +1732,4 @@ test('lspo_object waits for real glob absorption before returning its container 
     assert.deepEqual(state.timers.filter(timer => timer.shrinkGlobTimer)
         .map(timer => ({ oid: timer.argOid, timeout: timer.timeout })),
     [{ oid: 68, timeout: 25 }]);
-    assert.equal(JSON.stringify(state).includes('"oid": 70'), false);
 });
