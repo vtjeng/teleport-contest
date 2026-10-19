@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-19T02:33:39.122Z",
+  "capturedAt": "2026-10-19T03:13:47.733Z",
   "explorationYield": {
     "schemaVersion": 1,
-    "asOf": "2026-10-19T02:33:39.122Z",
+    "asOf": "2026-10-19T03:13:47.733Z",
     "records": [
       {
         "id": "v91-deaf-bugle-soldier-cfirst-20261016",
@@ -5795,7 +5795,7 @@
       "discoveryFromBatch": "v91",
       "physicalCAttempts": null,
       "usableSessionCount": null,
-      "mainSupportAssignments": 379,
+      "mainSupportAssignments": 382,
       "linkedAssignments": 12,
       "preclaimAssignments": 3,
       "rejectedAuditBindings": 0,
@@ -176577,6 +176577,241 @@
         "type": "accepted",
         "at": "2026-10-19T02:32:16.687Z",
         "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "publish-delivery:fix-glob-public-stash-container-runtime-source-parity-20261019-b5f69a44af4a99345ac638ebe1fe917d238eab1d",
+        "type": "published",
+        "at": "2026-10-19T02:34:03.564Z",
+        "task": "delivery:fix-glob-public-stash-container-runtime-source-parity-20261019",
+        "commit": "b5f69a44af4a99345ac638ebe1fe917d238eab1d"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:39:58.360Z",
+        "id": "queue:a319a772-7fbb-45cf-b2f4-8882930971e0",
+        "type": "assign",
+        "task": "glob-public-tip-two-sacks-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:42:17.430Z",
+        "id": "queue:48aa3208-5baa-4c3f-abc3-806071a60b54",
+        "type": "queue-complete",
+        "task": "glob-public-tip-two-sacks-main-reviewed-default-qualification-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:42:17.430Z",
+        "id": "queue:48aa3208-5baa-4c3f-abc3-806071a60b54:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:46:13.272Z",
+        "id": "queue:bf3987cc-788d-4460-9cef-1a6478c3c6ec",
+        "type": "assign",
+        "task": "fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "implementation",
+        "output": "implementation",
+        "target": null,
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:56:18.302Z",
+        "id": "queue:d0b04914-2a4e-488e-9eea-273888fba09f",
+        "type": "assign",
+        "task": "glob-shopdig-indebted-inventory-proposed-fixture-source-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:57:11.600Z",
+        "id": "ready-83ba773afcb81d5f7d1f614e133411e4a34fa8c1:transport",
+        "type": "assign",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "worker": "Worker-2",
+        "kind": "implementation",
+        "goal": "fix-glob-public-tip-container-runtime-source-parity-20261019"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+        "type": "ready",
+        "at": "2026-10-19T02:57:11.600Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "delivery": "83ba773afcb81d5f7d1f614e133411e4a34fa8c1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:57:11.600Z",
+        "id": "ready-83ba773afcb81d5f7d1f614e133411e4a34fa8c1:complete",
+        "type": "queue-complete",
+        "task": "fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:57:11.600Z",
+        "id": "ready-83ba773afcb81d5f7d1f614e133411e4a34fa8c1:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "feedback-tip83ba-literal-envelope-packaging-20261019",
+        "type": "feedback",
+        "at": "2026-10-19T02:58:52.397Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "delivery": "83ba773afcb81d5f7d1f614e133411e4a34fa8c1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T02:59:08.616Z",
+        "id": "queue:2d2a92eb-2e41-4578-ae49-fc9dbf8194f2",
+        "type": "assign",
+        "task": "rework:delivery:fix-glob-public-tip-container-runtime-source-parity-20261019:83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+        "worker": "Worker-2",
+        "kind": "queue-execution",
+        "assignmentType": "rework",
+        "output": "implementation",
+        "target": "83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+        "selectionReason": "Prioritize urgent rework or an unblocker. 0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "ready-9ad41751c39bc0679236639b04af26937a5f4290",
+        "type": "ready",
+        "at": "2026-10-19T03:00:23.201Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "delivery": "9ad41751c39bc0679236639b04af26937a5f4290"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:00:23.201Z",
+        "id": "ready-9ad41751c39bc0679236639b04af26937a5f4290:complete",
+        "type": "queue-complete",
+        "task": "rework:delivery:fix-glob-public-tip-container-runtime-source-parity-20261019:83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+        "worker": "Worker-2"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:00:23.201Z",
+        "id": "ready-9ad41751c39bc0679236639b04af26937a5f4290:idle",
+        "type": "turn",
+        "worker": "Worker-2",
+        "state": "idle",
+        "reason": "Delivery saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:01:20.437Z",
+        "id": "queue:12654126-693b-4362-88ec-718a7281567c",
+        "type": "queue-complete",
+        "task": "glob-shopdig-indebted-inventory-proposed-fixture-source-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:01:20.437Z",
+        "id": "queue:12654126-693b-4362-88ec-718a7281567c:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "review-tip9ad4-20261019",
+        "type": "activity",
+        "at": "2026-10-19T03:03:53.004Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "phase": "review",
+        "reason": "Bind unchanged committed literal evidence and final regression chronology before integration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "received-tip9ad4-20261019",
+        "type": "received",
+        "at": "2026-10-19T03:04:12.380Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "delivery": "9ad41751c39bc0679236639b04af26937a5f4290"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "implementation-group-45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd-5a8374c2a65aae25c20db6200d8b333dcce81325454eb3024ed193e97df47057-delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "type": "integrating",
+        "at": "2026-10-19T03:04:59.047Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "integration": "45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd",
+        "validationGroup": [
+          "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019"
+        ]
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:06:42.696Z",
+        "id": "queue:49486362-c060-400d-8171-d9e0d664a779",
+        "type": "assign",
+        "task": "glob-shopdig-indebted-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-1",
+        "kind": "queue-execution",
+        "assignmentType": "exploration",
+        "output": "exploration",
+        "target": null,
+        "selectionReason": "0 ready implementation sessions; threshold 5; prefer exploration"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:10:45.781Z",
+        "id": "queue:75aa326a-21a8-481e-b521-3344252ef9ce",
+        "type": "queue-complete",
+        "task": "glob-shopdig-indebted-proposed-fixture-correction-source-20261019",
+        "worker": "Worker-1"
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "at": "2026-10-19T03:10:45.781Z",
+        "id": "queue:75aa326a-21a8-481e-b521-3344252ef9ce:idle",
+        "type": "turn",
+        "worker": "Worker-1",
+        "state": "idle",
+        "reason": "Result saved; available for another task."
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-public-tip-container-runtime-source-parity-20261019-45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd-validated",
+        "type": "validated",
+        "at": "2026-10-19T03:12:05.368Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "passed": true
+      },
+      {
+        "runId": "loop-20261016-fresh-support",
+        "id": "accept-delivery:fix-glob-public-tip-container-runtime-source-parity-20261019-45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd-accepted",
+        "type": "accepted",
+        "at": "2026-10-19T03:12:55.024Z",
+        "task": "delivery:fix-glob-public-tip-container-runtime-source-parity-20261019"
       }
     ]
   },
@@ -176802,7 +177037,7 @@
       "ready": 0,
       "claimed": 0,
       "blocked": 0,
-      "completed": 651,
+      "completed": 656,
       "superseded": 101
     },
     "workers": [
@@ -188134,12 +188369,87 @@
         "readyAt": "2026-10-19T02:27:17.638Z",
         "claimedAt": "2026-10-19T02:27:37.588Z",
         "completedAt": "2026-10-19T02:32:12.565Z"
+      },
+      {
+        "id": "glob-public-tip-two-sacks-main-reviewed-default-qualification-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T02:39:25.504Z",
+        "claimedAt": "2026-10-19T02:39:58.360Z",
+        "completedAt": "2026-10-19T02:42:17.430Z"
+      },
+      {
+        "id": "fix-glob-public-tip-container-runtime-source-parity-20261019",
+        "type": "implementation",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": null,
+        "readyAt": "2026-10-19T02:45:48.452Z",
+        "claimedAt": "2026-10-19T02:46:13.272Z",
+        "completedAt": "2026-10-19T02:57:11.600Z"
+      },
+      {
+        "id": "glob-shopdig-indebted-inventory-proposed-fixture-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T02:55:57.522Z",
+        "claimedAt": "2026-10-19T02:56:18.302Z",
+        "completedAt": "2026-10-19T03:01:20.437Z"
+      },
+      {
+        "id": "rework:delivery:fix-glob-public-tip-container-runtime-source-parity-20261019:83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+        "type": "rework",
+        "output": "implementation",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-2",
+        "target": "83ba773afcb81d5f7d1f614e133411e4a34fa8c1",
+        "readyAt": "2026-10-19T02:58:52.397Z",
+        "claimedAt": "2026-10-19T02:59:08.616Z",
+        "completedAt": "2026-10-19T03:00:23.201Z"
+      },
+      {
+        "id": "glob-shopdig-indebted-proposed-fixture-correction-source-20261019",
+        "type": "exploration",
+        "output": "exploration",
+        "status": "completed",
+        "producer": "Main",
+        "recipient": "Main",
+        "sessions": [],
+        "batch": null,
+        "worker": "Worker-1",
+        "target": null,
+        "readyAt": "2026-10-19T03:06:31.957Z",
+        "claimedAt": "2026-10-19T03:06:42.696Z",
+        "completedAt": "2026-10-19T03:10:45.781Z"
       }
     ]
   },
   "development": {
-    "executionCommit": "d000e97266de3de43158430ea6329c0ee1e5b500",
-    "measuredAt": "2026-10-19T02:29:54.511Z",
+    "executionCommit": "45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd",
+    "measuredAt": "2026-10-19T03:10:28.967Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -329648,7 +329648,7 @@
     {
       "id": "fix-glob-public-tip-container-runtime-source-parity-20261019",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement tipcontainer from pickup.c",
       "cFile": "pickup.c",
       "sessions": [],
@@ -329656,7 +329656,7 @@
       "detail": "",
       "openedAt": null,
       "openStanding": null,
-      "closedAt": null,
+      "closedAt": "45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd",
       "delivered": null,
       "functions": [
         {
@@ -329812,6 +329812,76 @@
           "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-tipe42a-independent-actual-review.json"
         },
         "reviewSha256": "b50d10a5ae4b5ca899956dc81f10e3930b5661e1c391a4a7b2f4623b52ef7241"
+      },
+      "closeStanding": {
+        "sha": "45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "acceptance": {
+        "basis": "non-target-delivery",
+        "baseline": "d000e97266de3de43158430ea6329c0ee1e5b500",
+        "target": null,
+        "checkpoint": "/workspace/teleport-contest/.git/checkpoint-results/45b87ca229f8fe3dc20aa711a6b42ae4e488a3cd/run-hosted-jODW1b/summary.json"
+      },
+      "workerClaims": {
+        "functions": [
+          {
+            "name": "tipcontainer",
+            "sourceFile": "pickup.c",
+            "implementation": "js/pickup.js",
+            "symbol": "tipcontainer",
+            "sourceReview": "Main and CL reviewed whole pickup.c:3688-3841 and the current caller/default paths. This delivery changes only targetbox transfer from add_to_container to existing addToContainerRuntime with the same {state}; existing thenable await remains before loop advance and weight/status tail.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "Whole C pickup.c3688-3841 and whole current JS4145-4291 read Main+CL. Keep guards/location/shop/cursed/icebox/explosion/drop/message order. Selected targetbox branch4247 only uses existing runtime helper. Same environment and conditional await resolve before saved-next loop advance, both weights and inventory/status tail."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "dotip",
+                "source": "Whole public inventory and floor branches already await tipcontainer; no actual caller edit. Source getobj/real PICK_ONE destination selector and preceding pending-message ownership source-closed and actual e42a reached."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "choose_tip_container_menu",
+                "source": "Existing source floor-container menu loop awaits each tipcontainer before next item/return, read-only caller closure, no alternate UI/history or private target API."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "addToContainerRuntime",
+                "source": "Read-only accepted whole C add_to_container companion preserves canonical external objectNoLongerHeld release-before-scan and resolved survivor. Only existing tip caller wiring; no helper/provider/Unsupported guard or global migration."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "reverse_loot",
+                "source": "Existing separate goldob/coffers site3870 still needs legacy import. Do not remove legacy import or alter this typed gold path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "entryPointReview": "Selected actual public dotip -> tipcontainer -> existing addToContainerRuntime call path. Other paths including reverse_loot coffers/gold are unchanged and not migrated.",
+        "entryPoints": [
+          {
+            "name": "dotip",
+            "functions": [
+              {
+                "sourceFile": "pickup.c",
+                "name": "tipcontainer"
+              }
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ],
+        "evidenceBasis": "source-parity-runtime-pending"
       }
     }
   ]
