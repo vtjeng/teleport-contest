@@ -1021,3 +1021,27 @@ prior task-evidence is an earlier metadata snapshot, while raw historical
 bytes remain unchanged. No global completion, C parity, public recordings or
 source certification is claimed. Operational benefit is unmeasured. Normal
 hosted checkpoint, saved acceptance and publication remain pending here.
+
+### 2026-10-19 — Resolve floor stacking before creator finalization
+
+Delivery 524e044c changes the selected floor finalizer to the existing hybrid
+stackobjRuntime owner. Its result resolves before burning, burial and the
+existing context tombstone/return continuation. Ordinary eager results remain
+eager; the accepted container continuation and other creator branches retain
+their source order. Other transfer caller groups remain pending.
+
+The tracked exact 19163-byte 2d5a fixture exercises two real public lspo_object
+calls. Frozen test 86f30 produced an actual missing-absorption failure before
+the first production edit, then the same bytes passed all 39 focused tests
+with lint. No test changed after the red. All 46 literal evidence artifacts
+are hash-bound, including full per-run captures and source/test/fixture bytes.
+The new object 66 survives on the floor with mass 40 and quantity one; object
+65 is deleted, unlinked and untimed, and only survivor shrink timer 27 remains.
+Context cleanup, stable hero/level identities and handler restoration are
+directly retained. Additional redundant link/timer assertions were not added
+after the frozen red; the saved receipt and source invariant support those
+fields without a new test claim.
+
+This stage remains source-parity-runtime-pending. It does not certify public
+input parity, source completeness or global caller migration. Normal hosted
+checkpoint, saved acceptance and publication remain pending at this record.
