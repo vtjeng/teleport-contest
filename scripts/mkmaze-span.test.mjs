@@ -2,7 +2,18 @@
 // come from the named C functions, not from recorded sessions.
 
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import {
+    copyFileSync,
+    constants,
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    readdirSync,
+    writeFileSync,
+} from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
 import test from 'node:test';
 
 import {
@@ -202,6 +213,158 @@ test('mkmaze.c movebubbles clears worm wx values before bubble relocation', asyn
     const movedSegments = segments.slice(0, -1);
     for (const segment of movedSegments)
         assert.equal(state.level.monsters[segment.x][segment.y], worm);
+});
+
+test('mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents', () => {
+    const fixture = '.cache/glob-water-bubble-main-reviewed-qualification-20261019/attempt.mjs';
+    const fixtureBytes = readFileSync(fixture);
+    assert.equal(fixtureBytes.length, 35594);
+    assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
+        'e44552e6e9bf51945769f29504a3665e945e694aae2b2a1a555f3702d05bd510');
+
+    const evidenceDir = mkdtempSync(join(process.cwd(),
+        '.cache/glob-water-bubble-stack-runtime-source-parity-20261019/run-'));
+    const childStartedAt = new Date().toISOString();
+    const child = spawnSync(process.execPath, [fixture], {
+        cwd: process.cwd(),
+        encoding: 'utf8',
+    });
+    const childEndedAt = new Date().toISOString();
+    writeFileSync(join(evidenceDir, 'child-stdout.bin'), child.stdout ?? '');
+    writeFileSync(join(evidenceDir, 'child-stderr.bin'), child.stderr ?? '');
+    const outputLines = (child.stdout ?? '').trim().split(/\r?\n/);
+    const summary = outputLines.length ? JSON.parse(outputLines.at(-1)) : null;
+    assert.ok(summary?.outputDir, 'child reports its actual receipt directory');
+    const childReceiptDir = join(evidenceDir, 'child-receipts');
+    mkdirSync(childReceiptDir, { recursive: true });
+    const receiptManifest = [];
+    for (const name of readdirSync(summary.outputDir).sort()) {
+        const source = join(summary.outputDir, name);
+        const bytes = readFileSync(source);
+        copyFileSync(source, join(childReceiptDir, name), constants.COPYFILE_EXCL);
+        receiptManifest.push({ name, bytes: bytes.length,
+            sha256: createHash('sha256').update(bytes).digest('hex') });
+    }
+    const commandRecord = {
+        command: [process.execPath, fixture],
+        cwd: process.cwd(),
+        inheritedEnvironment: true,
+        outputDir: summary.outputDir,
+        childStartedAt,
+        childEndedAt,
+        exitCode: child.status,
+        signal: child.signal,
+        spawnError: child.error ? String(child.error) : null,
+        fixtureBytes: fixtureBytes.length,
+        fixtureSha256: createHash('sha256').update(fixtureBytes).digest('hex'),
+        receiptManifest,
+    };
+    writeFileSync(join(evidenceDir, 'command-and-capture.json'),
+        `${JSON.stringify(commandRecord, null, 2)}\n`, { flag: 'wx' });
+    console.log(`Water bubble child evidence: ${evidenceDir}`);
+
+    assert.equal(child.error, undefined, 'fixture process spawned');
+    assert.equal(child.signal, null, 'fixture process was not signaled');
+    assert.equal(child.status, summary.exitStatus);
+    assert.equal(summary.started, true);
+    assert.equal(summary.targetCalls, 1, 'selected post-setup movebubbles target ran once');
+    assert.equal(summary.handlerRestored, true);
+    assert.equal(summary.setupError, null);
+    assert.equal(summary.restoreError, null);
+    assert.deepEqual(summary.observerErrors, []);
+    assert.deepEqual(summary.saveErrors, []);
+
+    const returnReceiptName = receiptManifest.find(({ name }) =>
+        /^target-return-or-throw-scalars(?:-\d+)?\.json$/.test(name))?.name;
+    const finalCaptureName = receiptManifest.find(({ name }) =>
+        /^final-capture(?:-\d+)?\.json$/.test(name))?.name;
+    const finalStatusName = receiptManifest.find(({ name }) =>
+        /^final-status(?:-\d+)?\.json$/.test(name))?.name;
+    assert.ok(returnReceiptName, 'target return or throw scalars were saved');
+    assert.ok(finalCaptureName, 'full final state capture was saved');
+    assert.ok(finalStatusName, 'final status was saved');
+    const returnReceipt = JSON.parse(readFileSync(join(childReceiptDir, returnReceiptName), 'utf8'));
+    const targetOutcome = returnReceipt.fields.targetOutcome.fields;
+    assert.equal(returnReceipt.fields.targetCalls, 1);
+    if (targetOutcome.kind === 'threw') {
+        assert.equal(targetOutcome.operation, 'absorbGlob');
+        assert.equal(targetOutcome.otyp, 271);
+        assert.match(targetOutcome.stack, /stackobj.*finishContents/s);
+    }
+
+    // This expected success is deliberately run unchanged against the original
+    // source first. The original stack path instead throws absorbGlob/271.
+    assert.equal(summary.targetOutcome?.kind, 'returned',
+        'Water content relocation completes after the asynchronous glob merge');
+    assert.equal(summary.targetError, null);
+
+    const graph = new Map();
+    const indexGraph = value => {
+        if (!value || typeof value !== 'object') return;
+        if (Object.hasOwn(value, 'id')) graph.set(value.id, value);
+        for (const childValue of Object.values(value)) indexGraph(childValue);
+    };
+    const finalCapture = JSON.parse(readFileSync(join(childReceiptDir, finalCaptureName), 'utf8'));
+    indexGraph(finalCapture);
+    const node = value => value?.ref ? graph.get(value.ref) : value;
+    const field = (value, key) => node(node(value)?.fields?.[key]);
+    const values = value => node(value)?.array?.map(node) ?? [];
+    const scalar = value => {
+        const resolved = node(value);
+        if (resolved?.tag === 'undefined') return undefined;
+        if (resolved?.tag === 'bigint') return BigInt(resolved.value);
+        return resolved;
+    };
+    const after = field(finalCapture, 'afterFinal');
+    const hero = field(after, 'hero');
+    const refs = field(after, 'refs');
+    const bubble = field(after, 'bubble');
+    const globs = field(after, 'targetGlobs');
+    const first = field(globs, 'first');
+    const second = field(globs, 'second');
+    const timers = values(field(after, 'timers')).map(row => ({
+        argId: scalar(field(row, 'argId')),
+        kind: scalar(field(row, 'kind')),
+        func_index: scalar(field(row, 'func_index')),
+        timeout: scalar(field(row, 'timeout')),
+    }));
+    const floorGrid = values(field(after, 'floorGrid')).map(cell => ({
+        x: scalar(field(cell, 'x')),
+        y: scalar(field(cell, 'y')),
+        ids: values(field(cell, 'ids')).map(scalar),
+    }));
+    const levelObjectIds = values(field(after, 'levelObjectIds')).map(scalar);
+    const bubbleContents = values(field(bubble, 'cons'));
+    const allBubbles = values(field(after, 'waterBubbles'));
+
+    assert.equal(scalar(field(hero, 'hp')), 13);
+    assert.equal(scalar(field(hero, 'gameover')), false);
+    assert.equal(scalar(field(hero, 'upolyd')), false);
+    assert.equal(scalar(field(hero, 'movesEffective')), 1);
+    for (const key of ['sameGame', 'sameLiveU', 'sameLevel', 'sameUz', 'sameFloorGrid', 'sameBubbleArray'])
+        assert.equal(scalar(field(refs, key)), true, `preserved live reference: ${key}`);
+    assert.equal(scalar(field(second, 'o_id')), 172);
+    assert.equal(scalar(field(second, 'where')), 1);
+    assert.equal(scalar(field(second, 'quan')), 1);
+    assert.equal(scalar(field(second, 'owt')), 40);
+    assert.equal(scalar(field(second, 'age')), 1);
+    assert.equal(scalar(field(second, 'timed')), 1);
+    const survivorX = scalar(field(second, 'ox'));
+    const survivorY = scalar(field(second, 'oy'));
+    assert.deepEqual([survivorX, survivorY],
+        [scalar(field(bubble, 'x')), scalar(field(bubble, 'y'))]);
+    assert.deepEqual(floorGrid.filter(cell => cell.x === survivorX && cell.y === survivorY)
+        .map(cell => cell.ids), [[172]]);
+    assert.ok(levelObjectIds.includes(172));
+    assert.equal(levelObjectIds.includes(171), false);
+    assert.equal(floorGrid.some(cell => cell.ids.includes(171)), false);
+    assert.equal(scalar(field(first, 'o_id')), 171);
+    assert.equal(scalar(field(first, 'where')), 9);
+    assert.equal(scalar(field(first, 'timed')), 0);
+    assert.equal(scalar(field(field(first, 'ownerUnion'), 'kind')), 'nobj');
+    assert.deepEqual(bubbleContents, []);
+    assert.ok(allBubbles.every(item => values(field(item, 'cons')).length === 0));
+    assert.deepEqual(timers, [{ argId: 172, kind: 3, func_index: 7, timeout: 27 }]);
 });
 
 test('mkmaze.c fixup_special() marks Mine Town before monster setup uses it', async () => {

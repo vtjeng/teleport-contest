@@ -1,0 +1,151 @@
+{
+  "goal": "fix-glob-water-bubble-stack-runtime-source-parity-20261019",
+  "kind": "file-port",
+  "sourceFile": "mkmaze.c",
+  "cFile": "mkmaze.c",
+  "functions": [
+    "mv_bubble"
+  ],
+  "lineRanges": [
+    "1952-2110"
+  ],
+  "cLines": 159,
+  "jsFile": "js/mkmaze.js",
+  "sessions": [],
+  "sourceParity": {
+    "version": 1,
+    "id": "fix-glob-water-bubble-stack-runtime-source-parity-20261019",
+    "assignmentBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+    "evidenceBasis": "source-parity-runtime-pending",
+    "review": {
+      "reviewedBase": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+      "authorization": "Main explicitly selects NEW <=20min INCLUDING packaging narrow whole C mv_bubble1952-2110/current JS299-418 runtime stack continuation after actual1aae and full Main+CL source/default/caller review. Old closedmkmaze00f363/c01b/WaterLua10b2/publicrecordings/caps unchanged; no sourcecert/globalclone/caller/publicparity claim.",
+      "currentBehavior": "Exact35594Be445 one selected postsetup movebubbles after real debug/Amulet/Water entry.171/172FLOOR20 at5,3/timers26,27, target1 reaches finishContents->legacy stackobj missingabsorb271. Both restoredFLOOR20 at6,2, selectedbubblecons partlyretained; Node1/handlertrue/noothererrors/RNG3555->3684/all6refs true. Hero source-moved25,8->24,8 HP13, so XY movement is valid.",
+      "expectedBehavior": "Only import stackobj name->stackobjRuntime and existing async finishContents object-loop call becomes await stackobjRuntime(object,{state}) after sameplace before savednext/remainingcontents/bounce. Preserve mv_bubble hybrid initial/eager calls and all source movement/collision/outputs/RNG. Existing acceptedhelper unchanged. Actual172survivesFLOOR40/quan1/age1 atactualmovedcell,171DELETED/unlinked/timed0,only172SHRINKdeadline27/root1, allcons cleared/fullsource tails/targetreturnedundefined/restored/noerrors. Hero legitimate movement allowed.",
+      "units": [
+        "mkmaze.c:mv_bubble"
+      ],
+      "allowedPaths": [
+        "js/mkmaze.js",
+        "scripts/mkmaze-span.test.mjs",
+        ".cache/"
+      ],
+      "regressionTests": [
+        "scripts/mkmaze-span.test.mjs"
+      ],
+      "callers": [
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "mv_bubble",
+          "source": "Whole C1952-2110/current299-418 read. finishContents alreadyasync, save next before place, awaitruntime stack before object=next/remainingcons then clearcons and bounce. Only onecall+import changes; no blanket async wrapper."
+        },
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "movebubbles",
+          "source": "Whole Ccollection/movement and current485+ read; existing awaitmv_bubble576 closes caller before nextbubble/draw. No edit."
+        },
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "mk_bubble",
+          "source": "Existing mv_bubble(initialtrue) with no cons remains synchronous eagerinitial path; no caller change."
+        },
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "restore_waterlevel",
+          "source": "Existing initialtrue/no-cons reinitialization remains eager; no caller change."
+        },
+        {
+          "path": "js/do.js",
+          "symbol": "goto_level",
+          "source": "Existing awaitmovebubbles3127-3132 after actualWater/Air arrival; no edit. Source directsetup legitimated by debuginput/Amuletwriter."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "stackobjRuntime",
+          "source": "Accepted hybrid stack runtime preserves first successfulmerge break/target survivor and canonical mergedRuntime/planning; unchanged, default {state} same argument. All other globalstack callers pending."
+        }
+      ],
+      "actualResult": "1aae74e05f9701946edbcaa43c06ce7c049c36dc906f299b0a0cdabc54345fb8",
+      "independentReview": "/workspace/teleport-contest-challenge-recovery/.cache/challenge-resume-20261018-1439/glob-water1aae-independent-actual-scope-review.json",
+      "pins": [
+        {
+          "path": "nethack-c/upstream",
+          "object": "16ff59115315917b93185d026aeefea06db9b0f4"
+        },
+        {
+          "path": "js/mkmaze.js",
+          "object": "abe33fb97bfa19fd1bb94445b7b19ad2fab25afa"
+        },
+        {
+          "path": "scripts/mkmaze-span.test.mjs",
+          "object": "c9b687f0e710738e824a0e444e5f282b5f8d5b82"
+        },
+        {
+          "path": "js/do.js",
+          "object": "9c4f2c43b7db7ccb7c74e544b72331300fbb926a"
+        },
+        {
+          "path": "js/invent.js",
+          "object": "3eb4c894848822b09b64cad3ba59247201f401d9"
+        },
+        {
+          "path": "js/obj.js",
+          "object": "e4788c7cb69aa64358e38d284fd147df980e6e15"
+        },
+        {
+          "path": "js/object_generation.js",
+          "object": "2bf961ded5b7b363534952a5e84487557242da5d"
+        },
+        {
+          "path": "js/timeout.js",
+          "object": "6cebfe5d0af0b5699937d1b3e0cc06ee40dc3e9c"
+        },
+        {
+          "path": "js/rng.js",
+          "object": "76efef3acbed3922b6a7d235a5420c43080538b0"
+        },
+        {
+          "path": "js/jsmain.js",
+          "object": "9705fb797cacba0c3a999a38abdae9bc93ad1559"
+        },
+        {
+          "path": "js/gstate.js",
+          "object": "9f4e3514292e36e3759d4ce4dd40d0a84779d6a2"
+        },
+        {
+          "path": "js/game_display.js",
+          "object": "5e478cf3994629186bcdb1c97ee97ed3faf7928c"
+        },
+        {
+          "path": "js/terminal.js",
+          "object": "1bac32cd8fcbc31c3feebe6037156d45381f1f43"
+        },
+        {
+          "path": "js/tty_message.js",
+          "object": "5b0185c0e571b2fc73dffe15c504b1e919e583ec"
+        },
+        {
+          "path": "js/mklev.js",
+          "object": "c232d7748cd7569e355cbbb3a7488e0854f2adbb"
+        },
+        {
+          "path": "js/dungeon.js",
+          "object": "1cba58f036207d4113a0bd3feae2fc623b0ef9b7"
+        },
+        {
+          "path": "js/water_levels.js",
+          "object": "6634dd488659be7a7b2b77504bb2f3b2ddd8c387"
+        },
+        {
+          "path": "js/objects.js",
+          "object": "20b37cda407137c5a2bedb88a26a229f2ac62d36"
+        },
+        {
+          "path": "js/const.js",
+          "object": "548fd4c012c2a6c3f9563e491feb6bce5a46dda8"
+        }
+      ]
+    },
+    "reviewSha256": "75a54309f4d9a5ee2bfccc6692fc079bd6ff26857196f79c8f81109a93b8017a"
+  }
+}

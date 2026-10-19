@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "focused",
+    "command": [
+      "node",
+      "--test",
+      "scripts/mkmaze-span.test.mjs"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/glob-water-bubble-stack-runtime-source-parity-20261019/final-adapter-candidate-stdout.bin"
+  },
+  {
+    "kind": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "exitCode": 0,
+    "log": "/workspace/teleport-contest-worker3-recovery/.cache/glob-water-bubble-stack-runtime-source-parity-20261019/lint-stdout.bin"
+  }
+]

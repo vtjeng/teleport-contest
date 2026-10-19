@@ -69,7 +69,7 @@ import {
 import { migrate_to_level } from './dog.js';
 import { game } from './gstate.js';
 import { dist2, upstart } from './hacklib.js';
-import { add_to_minv, stackobj } from './invent.js';
+import { add_to_minv, stackobjRuntime } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
 import { elemental_clog, m_into_limbo, mnearto, mnexto } from './mon.js';
@@ -377,7 +377,7 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                     const next = object.nexthere;
                     place_object(object, contents.x, contents.y,
                                  objectGenerationEnv({ state }));
-                    stackobj(object, { state });
+                    await stackobjRuntime(object, objectGenerationEnv({ state }));
                     object = next;
                 }
                 break;

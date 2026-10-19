@@ -1,0 +1,865 @@
+{
+  "evidenceBasis": "source-parity-runtime-pending",
+  "entryPointReview": "This runtime-pending source-parity stage covers the selected post-setup movebubbles path reaching mkmaze.c:mv_bubble, with stackobjRuntime as an unchanged accepted dependency. Existing callers movebubbles, mk_bubble, restore_waterlevel and goto_level are reviewed as recorded in sourceParity.review.callers; only the selected mv_bubble object continuation is changed. No whole-file or other stack caller completion is claimed.",
+  "entryPoints": [
+    {
+      "name": "movebubbles",
+      "functions": [
+        {
+          "sourceFile": "mkmaze.c",
+          "name": "mv_bubble"
+        }
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "functions": [
+    {
+      "name": "mv_bubble",
+      "sourceFile": "mkmaze.c",
+      "implementation": "js/mkmaze.js",
+      "symbol": "mv_bubble",
+      "sourceReview": "Reviewed the complete assigned C range mkmaze.c:mv_bubble (1952–2110) and JS implementation. Only the contents-loop call now awaits the accepted stackobjRuntime with objectGenerationEnv({ state }); import updated accordingly. Existing place/save-next/remaining-content/bounce order and eager initial/no-cons callers remain unchanged. Regression exercises the selected default movebubbles route. This is a caller source-parity runtime-pending claim only.",
+      "callers": [
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "mv_bubble",
+          "source": "Whole C1952-2110/current299-418 read. finishContents alreadyasync, save next before place, awaitruntime stack before object=next/remainingcons then clearcons and bounce. Only onecall+import changes; no blanket async wrapper."
+        },
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "movebubbles",
+          "source": "Whole Ccollection/movement and current485+ read; existing awaitmv_bubble576 closes caller before nextbubble/draw. No edit."
+        },
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "mk_bubble",
+          "source": "Existing mv_bubble(initialtrue) with no cons remains synchronous eagerinitial path; no caller change."
+        },
+        {
+          "path": "js/mkmaze.js",
+          "symbol": "restore_waterlevel",
+          "source": "Existing initialtrue/no-cons reinitialization remains eager; no caller change."
+        },
+        {
+          "path": "js/do.js",
+          "symbol": "goto_level",
+          "source": "Existing awaitmovebubbles3127-3132 after actualWater/Air arrival; no edit. Source directsetup legitimated by debuginput/Amuletwriter."
+        },
+        {
+          "path": "js/invent.js",
+          "symbol": "stackobjRuntime",
+          "source": "Accepted hybrid stack runtime preserves first successfulmerge break/target survivor and canonical mergedRuntime/planning; unchanged, default {state} same argument. All other globalstack callers pending."
+        }
+      ],
+      "pure": false,
+      "tests": [
+        "scripts/mkmaze-span.test.mjs"
+      ],
+      "recordings": [],
+      "synthetic": []
+    }
+  ],
+  "regression": {
+    "before": {
+      "base": "9df550ba643d181af488894c1a9ae3d7a2af011e",
+      "command": [
+        "node",
+        "--test",
+        "scripts/mkmaze-span.test.mjs"
+      ],
+      "exitCode": 1,
+      "output": "Water bubble child evidence: /workspace/teleport-contest-worker3-recovery/.cache/glob-water-bubble-stack-runtime-source-parity-20261019/run-KYw4P9\n✔ load_special awaits fixup before premapping and leaves room filling to callers (3.599275ms)\n✔ mv_bubble waits for mnearto before its zero-result clog and next contents (0.271449ms)\n✔ mkmaze.c movebubbles clears worm wx values before bubble relocation (20.976926ms)\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (1050.623192ms)\n✔ mkmaze.c fixup_special() marks Mine Town before monster setup uses it (1.518523ms)\n✔ mkmaze.c iswall() accepts exactly the source wall-join terrain set (0.599302ms)\n✔ mkmaze.c iswall_or_stone() treats out-of-bounds as stone (0.431343ms)\n✔ mkmaze.c is_solid() accepts only stone walls and out-of-bounds (0.597845ms)\n✔ mkmaze.c okay() checks the square two cardinal steps away (0.631916ms)\n✔ mkmaze.c baalz_fixup() consumes markers and resets its protected area (1.875903ms)\n✔ mkmaze.c check_ransacked() recognizes only minetn-1 in the Mines (0.368892ms)\n✔ mkmaze.c maze_inbounds() uses the source lower and exclusive upper bounds (0.16927ms)\n✔ mkmaze.c maze_remove_deadends() opens one eligible wall toward a corridor (0.764683ms)\n✔ mkmaze.c create_maze() removes dead ends within its reduced bounds (2.558423ms)\n✔ mkmaze.c mazexy() falls back in x-major, then y-major order (0.386332ms)\nℹ tests 15\nℹ suites 0\nℹ pass 14\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2126.831445\n\n✖ failing tests:\n\ntest at scripts/mkmaze-span.test.mjs:218:1\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (1050.623192ms)\n  AssertionError [ERR_ASSERTION]: Water content relocation completes after the asynchronous glob merge\n  + actual - expected\n  \n  + 'threw'\n  - 'returned'\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/mkmaze-span.test.mjs:297:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 'threw',\n    expected: 'returned',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+      "stderr": ""
+    },
+    "after": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/mkmaze-span.test.mjs"
+      ],
+      "exitCode": 0,
+      "output": "Water bubble child evidence: /workspace/teleport-contest-worker3-recovery/.cache/glob-water-bubble-stack-runtime-source-parity-20261019/run-anAKPq\n✔ load_special awaits fixup before premapping and leaves room filling to callers (1.445023ms)\n✔ mv_bubble waits for mnearto before its zero-result clog and next contents (0.629378ms)\n✔ mkmaze.c movebubbles clears worm wx values before bubble relocation (12.648245ms)\n✔ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (865.496397ms)\n✔ mkmaze.c fixup_special() marks Mine Town before monster setup uses it (1.050752ms)\n✔ mkmaze.c iswall() accepts exactly the source wall-join terrain set (0.587732ms)\n✔ mkmaze.c iswall_or_stone() treats out-of-bounds as stone (0.36208ms)\n✔ mkmaze.c is_solid() accepts only stone walls and out-of-bounds (0.403653ms)\n✔ mkmaze.c okay() checks the square two cardinal steps away (0.410066ms)\n✔ mkmaze.c baalz_fixup() consumes markers and resets its protected area (1.811014ms)\n✔ mkmaze.c check_ransacked() recognizes only minetn-1 in the Mines (0.490553ms)\n✔ mkmaze.c maze_inbounds() uses the source lower and exclusive upper bounds (0.178604ms)\n✔ mkmaze.c maze_remove_deadends() opens one eligible wall toward a corridor (0.79397ms)\n✔ mkmaze.c create_maze() removes dead ends within its reduced bounds (3.052101ms)\n✔ mkmaze.c mazexy() falls back in x-major, then y-major order (0.932987ms)\nℹ tests 15\nℹ suites 0\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1422.898427\n",
+      "stderr": ""
+    }
+  },
+  "attemptHistory": [
+    {
+      "phase": "initial-frozen-test-harness-miss",
+      "testSha256": "f427cd7b4acdd3237de18b616ebb2fc8edc7544c4027204fd11fe85de1154fb5",
+      "exitCode": 1,
+      "summary": "Initial original-source run stopped at copyFileSync third-argument misuse before regression assertions; retained raw stdout/stderr and child files. Not counted as target red.",
+      "rawStdout": "✔ load_special awaits fixup before premapping and leaves room filling to callers (1.650613ms)\n✔ mv_bubble waits for mnearto before its zero-result clog and next contents (0.280497ms)\n✔ mkmaze.c movebubbles clears worm wx values before bubble relocation (10.458016ms)\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (908.982257ms)\n✔ mkmaze.c fixup_special() marks Mine Town before monster setup uses it (2.204786ms)\n✔ mkmaze.c iswall() accepts exactly the source wall-join terrain set (0.788959ms)\n✔ mkmaze.c iswall_or_stone() treats out-of-bounds as stone (0.661191ms)\n✔ mkmaze.c is_solid() accepts only stone walls and out-of-bounds (0.571703ms)\n✔ mkmaze.c okay() checks the square two cardinal steps away (1.378482ms)\n✔ mkmaze.c baalz_fixup() consumes markers and resets its protected area (1.915698ms)\n✔ mkmaze.c check_ransacked() recognizes only minetn-1 in the Mines (0.598118ms)\n✔ mkmaze.c maze_inbounds() uses the source lower and exclusive upper bounds (0.152819ms)\n✔ mkmaze.c maze_remove_deadends() opens one eligible wall toward a corridor (0.722781ms)\n✔ mkmaze.c create_maze() removes dead ends within its reduced bounds (3.175958ms)\n✔ mkmaze.c mazexy() falls back in x-major, then y-major order (0.571924ms)\nℹ tests 15\nℹ suites 0\nℹ pass 14\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1504.355339\n\n✖ failing tests:\n\ntest at scripts/mkmaze-span.test.mjs:217:1\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (908.982257ms)\n  TypeError: mode must be int32 or null/undefined\n      at copyFileSync (node:fs:3177:11)\n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/mkmaze-span.test.mjs:243:9)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    code: 'ERR_INVALID_ARG_TYPE'\n  }\n",
+      "rawStderr": ""
+    },
+    {
+      "phase": "final-frozen-original-target-red",
+      "testSha256": "036b28ffad0c792ef7e6c627dc53173b487661661df2b5047f1be2d2d07fda7c",
+      "exitCode": 1,
+      "summary": "Final frozen test on unchanged source reached selected target once and failed on the missing absorbGlob/otyp271 behavior through finishContents/mv_bubble; setup, restoration, observer and save errors were absent.",
+      "rawStdout": "Water bubble child evidence: /workspace/teleport-contest-worker3-recovery/.cache/glob-water-bubble-stack-runtime-source-parity-20261019/run-KYw4P9\n✔ load_special awaits fixup before premapping and leaves room filling to callers (3.599275ms)\n✔ mv_bubble waits for mnearto before its zero-result clog and next contents (0.271449ms)\n✔ mkmaze.c movebubbles clears worm wx values before bubble relocation (20.976926ms)\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (1050.623192ms)\n✔ mkmaze.c fixup_special() marks Mine Town before monster setup uses it (1.518523ms)\n✔ mkmaze.c iswall() accepts exactly the source wall-join terrain set (0.599302ms)\n✔ mkmaze.c iswall_or_stone() treats out-of-bounds as stone (0.431343ms)\n✔ mkmaze.c is_solid() accepts only stone walls and out-of-bounds (0.597845ms)\n✔ mkmaze.c okay() checks the square two cardinal steps away (0.631916ms)\n✔ mkmaze.c baalz_fixup() consumes markers and resets its protected area (1.875903ms)\n✔ mkmaze.c check_ransacked() recognizes only minetn-1 in the Mines (0.368892ms)\n✔ mkmaze.c maze_inbounds() uses the source lower and exclusive upper bounds (0.16927ms)\n✔ mkmaze.c maze_remove_deadends() opens one eligible wall toward a corridor (0.764683ms)\n✔ mkmaze.c create_maze() removes dead ends within its reduced bounds (2.558423ms)\n✔ mkmaze.c mazexy() falls back in x-major, then y-major order (0.386332ms)\nℹ tests 15\nℹ suites 0\nℹ pass 14\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2126.831445\n\n✖ failing tests:\n\ntest at scripts/mkmaze-span.test.mjs:218:1\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (1050.623192ms)\n  AssertionError [ERR_ASSERTION]: Water content relocation completes after the asynchronous glob merge\n  + actual - expected\n  \n  + 'threw'\n  - 'returned'\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/mkmaze-span.test.mjs:297:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 'threw',\n    expected: 'returned',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+      "rawStderr": ""
+    },
+    {
+      "phase": "first-candidate-adapter-dependency-failure",
+      "testSha256": "036b28ffad0c792ef7e6c627dc53173b487661661df2b5047f1be2d2d07fda7c",
+      "exitCode": 1,
+      "summary": "First candidate used stackobjRuntime(object,{state}) and failed because canonical extractExternalObject adapter was missing for otyp271. This failure is retained; Main+CL reviewed and authorized passing objectGenerationEnv({state}) to the existing runtime helper.",
+      "rawStdout": "Water bubble child evidence: /workspace/teleport-contest-worker3-recovery/.cache/glob-water-bubble-stack-runtime-source-parity-20261019/run-48eOP8\n✔ load_special awaits fixup before premapping and leaves room filling to callers (1.665516ms)\n✔ mv_bubble waits for mnearto before its zero-result clog and next contents (0.276797ms)\n✔ mkmaze.c movebubbles clears worm wx values before bubble relocation (11.579443ms)\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (835.577797ms)\n✔ mkmaze.c fixup_special() marks Mine Town before monster setup uses it (1.208248ms)\n✔ mkmaze.c iswall() accepts exactly the source wall-join terrain set (0.529121ms)\n✔ mkmaze.c iswall_or_stone() treats out-of-bounds as stone (0.31564ms)\n✔ mkmaze.c is_solid() accepts only stone walls and out-of-bounds (0.395065ms)\n✔ mkmaze.c okay() checks the square two cardinal steps away (0.523386ms)\n✔ mkmaze.c baalz_fixup() consumes markers and resets its protected area (1.84092ms)\n✔ mkmaze.c check_ransacked() recognizes only minetn-1 in the Mines (0.340098ms)\n✔ mkmaze.c maze_inbounds() uses the source lower and exclusive upper bounds (0.175173ms)\n✔ mkmaze.c maze_remove_deadends() opens one eligible wall toward a corridor (0.561458ms)\n✔ mkmaze.c create_maze() removes dead ends within its reduced bounds (2.796687ms)\n✔ mkmaze.c mazexy() falls back in x-major, then y-major order (0.480579ms)\nℹ tests 15\nℹ suites 0\nℹ pass 14\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1422.398477\n\n✖ failing tests:\n\ntest at scripts/mkmaze-span.test.mjs:218:1\n✖ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (835.577797ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'extractExternalObject'\n  - 'absorbGlob'\n  \n      at TestContext.<anonymous> (file:///workspace/teleport-contest-worker3-recovery/scripts/mkmaze-span.test.mjs:290:16)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'extractExternalObject',\n    expected: 'absorbGlob',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+      "rawStderr": ""
+    },
+    {
+      "phase": "final-adapter-candidate-green",
+      "testSha256": "036b28ffad0c792ef7e6c627dc53173b487661661df2b5047f1be2d2d07fda7c",
+      "exitCode": 0,
+      "summary": "Same frozen final test and unchanged fixture passed after the authorized adapter argument correction; no further source or test edits followed.",
+      "rawStdout": "Water bubble child evidence: /workspace/teleport-contest-worker3-recovery/.cache/glob-water-bubble-stack-runtime-source-parity-20261019/run-anAKPq\n✔ load_special awaits fixup before premapping and leaves room filling to callers (1.445023ms)\n✔ mv_bubble waits for mnearto before its zero-result clog and next contents (0.629378ms)\n✔ mkmaze.c movebubbles clears worm wx values before bubble relocation (12.648245ms)\n✔ mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents (865.496397ms)\n✔ mkmaze.c fixup_special() marks Mine Town before monster setup uses it (1.050752ms)\n✔ mkmaze.c iswall() accepts exactly the source wall-join terrain set (0.587732ms)\n✔ mkmaze.c iswall_or_stone() treats out-of-bounds as stone (0.36208ms)\n✔ mkmaze.c is_solid() accepts only stone walls and out-of-bounds (0.403653ms)\n✔ mkmaze.c okay() checks the square two cardinal steps away (0.410066ms)\n✔ mkmaze.c baalz_fixup() consumes markers and resets its protected area (1.811014ms)\n✔ mkmaze.c check_ransacked() recognizes only minetn-1 in the Mines (0.490553ms)\n✔ mkmaze.c maze_inbounds() uses the source lower and exclusive upper bounds (0.178604ms)\n✔ mkmaze.c maze_remove_deadends() opens one eligible wall toward a corridor (0.79397ms)\n✔ mkmaze.c create_maze() removes dead ends within its reduced bounds (3.052101ms)\n✔ mkmaze.c mazexy() falls back in x-major, then y-major order (0.932987ms)\nℹ tests 15\nℹ suites 0\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1422.898427\n",
+      "rawStderr": ""
+    },
+    {
+      "phase": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "rawStdout": "\n> teleport-contest@1.0.0 lint\n> eslint js/ scripts/\n\n",
+      "rawStderr": ""
+    }
+  ],
+  "runtimeEvidenceLimits": "The default-path runtime observation covers only the selected movebubbles→mv_bubble continuation and its actual fixture state. It does not establish whole-file certification, all mv_bubble callers, global stackobj caller completion, public C parity, or any score/recording result.",
+  "preservedArtifacts": [
+    {
+      "name": "assignment/glob-water-bubble-runtime-source-parity.assignment.json",
+      "bytes": 10788,
+      "sha256": "d25af4d7765c3798f07e4e7849287d194640c785f8f00343aa7cd663c2191a5f"
+    },
+    {
+      "name": "inputs/attempt.mjs",
+      "bytes": 35594,
+      "sha256": "e44552e6e9bf51945769f29504a3665e945e694aae2b2a1a555f3702d05bd510"
+    },
+    {
+      "name": "source/js-mkmaze.js",
+      "bytes": 57861,
+      "sha256": "bbd614f0206baad2de89fb4b2bd0e6debd88c56f33dc824a601a502aaf4664a5"
+    },
+    {
+      "name": "source/scripts-mkmaze-span.test.mjs",
+      "bytes": 22535,
+      "sha256": "036b28ffad0c792ef7e6c627dc53173b487661661df2b5047f1be2d2d07fda7c"
+    },
+    {
+      "name": "history/candidate-attempt-chronology.json",
+      "bytes": 9655,
+      "sha256": "e697e6c5c8f5227877df62a37bdca5042c8d92cb9ffb25169672748f8ad0be72"
+    },
+    {
+      "name": "history/final-adapter-candidate-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/final-adapter-candidate-stdout.bin",
+      "bytes": 1542,
+      "sha256": "e4c2971a954e567d2dd78a7ff52b5f279cb15f2313eeaab9add70f4581fd9cf2"
+    },
+    {
+      "name": "history/final-candidate-green-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/final-candidate-green-stdout.bin",
+      "bytes": 2538,
+      "sha256": "ca7715d6b53b9090c9fb26d37db75ddfd597804597dfb27a6c2ff4519cd7af71"
+    },
+    {
+      "name": "history/final-original-red-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/final-original-red-stdout.bin",
+      "bytes": 2537,
+      "sha256": "ab67cf3f4941cda1df917ab848d4b687f35fdf5c1536441b3e8ad5b084162715"
+    },
+    {
+      "name": "history/final-preproduction-freeze.json",
+      "bytes": 1334,
+      "sha256": "4c6b866fae72ca9910b1465c0d36a260a8db56dee6092777571735d8078fa5f0"
+    },
+    {
+      "name": "history/frozen-final-test-corrected.mjs",
+      "bytes": 22535,
+      "sha256": "036b28ffad0c792ef7e6c627dc53173b487661661df2b5047f1be2d2d07fda7c"
+    },
+    {
+      "name": "history/frozen-final-test.mjs",
+      "bytes": 21975,
+      "sha256": "f427cd7b4acdd3237de18b616ebb2fc8edc7544c4027204fd11fe85de1154fb5"
+    },
+    {
+      "name": "history/lint-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/lint-stdout.bin",
+      "bytes": 54,
+      "sha256": "f8b045212c87825355f5fd99462819427f5f9af4ecbc9ca4ca0e824521bebe6c"
+    },
+    {
+      "name": "history/original-red-chronology.json",
+      "bytes": 8969,
+      "sha256": "b4c766c063ec64fe1ecceafc6e9729fc5ef8fd0ab87183d042bba2488a4ed96a"
+    },
+    {
+      "name": "history/original-red-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/original-red-stdout.bin",
+      "bytes": 2202,
+      "sha256": "1d3bd9eaa306634bd7eb30a129511a994e5eeac1abe71a3a3206df36d7caf7b1"
+    },
+    {
+      "name": "history/pre-green-adapter-freeze.json",
+      "bytes": 2129,
+      "sha256": "7cef2f181f5b0cfd6396bc27f21c7086c05fced284d4e981f81d181c424f0f42"
+    },
+    {
+      "name": "history/pre-green-freeze.json",
+      "bytes": 1819,
+      "sha256": "71eee5a84805d01f2228aa6064a8967ef9de56291fba6064f044cc2335c3c5af"
+    },
+    {
+      "name": "history/pre-production-freeze.json",
+      "bytes": 1027,
+      "sha256": "666a5fd74666c7d4a62c94732654f9d53e1a55113397440797b6dee7b8845e25"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/after-amulet-factory-before-guard-006.json",
+      "bytes": 255572,
+      "sha256": "b91e10f72181428a0f90805da4e3e5f3d98e648fde29f236fcf8c541742419fc"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/after-amulet-inventory-writer-before-guard-008.json",
+      "bytes": 256282,
+      "sha256": "390a1fc9e98948858471d544a367f988c9beca801b927dd2651b3a112c095a83"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/after-real-water-entry-before-guard-017.json",
+      "bytes": 277373,
+      "sha256": "db90c011c082f13800bcebc835d646e27a942d46e7e88011e1018b9271388811"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/after-real-water-entry-before-pair-018.json",
+      "bytes": 277372,
+      "sha256": "860daf9c838aed01d291ac4f373734e9d5fc469f558b6414dd6baf4cc7e312af"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/after-start-before-any-admission-guard-003.json",
+      "bytes": 255503,
+      "sha256": "2ad93a7b80110ff4cdafb5dff49d5d302ac51c0c04724b6465c3f2f47639302b"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/amulet-factory-outcome-before-guard-005.json",
+      "bytes": 711,
+      "sha256": "c017e9d219d1b865a55de9af873173ffa2f1c68bf69a57b8041945f7bb663424"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/amulet-inventory-outcome-before-guard-007.json",
+      "bytes": 348,
+      "sha256": "2b911a313962ec4da2c517b33ba1076b7d634c5d7e9d24a19c7ddf383faf1227"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/amulet-writer-receipt-009.json",
+      "bytes": 881,
+      "sha256": "afe19ba1eeff489c67c117c1edfff654d4d909768ebce82ae7c20bdf2e96fabb"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/before-one-movebubbles-call-023.json",
+      "bytes": 282779,
+      "sha256": "040d413ab57b05b6a18540911cef9127a652086a2effedf78334f2ce8625fc73"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/factory-and-shrink-timer-guards-before-place-writers-020.json",
+      "bytes": 2395,
+      "sha256": "0e00089dddfa3e2950d7e7c038fe5e1ebe5a6e201374586fd498d6f3c4f97649"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/final-capture-027.json",
+      "bytes": 659313,
+      "sha256": "5b2f267a9ba695ef064544291b3369bb8bd91069a80247b0e2aca4a419ceac83"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/final-status-028.json",
+      "bytes": 3148,
+      "sha256": "9979745c24cb47f5487bf36673b1f136c153190a1ed9c624f4ef0964d09cbf82"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/finally-scalars-before-final-projection-026.json",
+      "bytes": 2997,
+      "sha256": "244d65c0d2b05476bb40e0771836a3cb9e3d06eb4e0117c9a95f96381c95f350"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/input-boundary-intent-010.json",
+      "bytes": 111,
+      "sha256": "ebf02a5b2dc3a27250e4ed496b6a6cdb1ec41c5a952ffc5bdb74913483bd0d6c"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/input-boundary-intent-012.json",
+      "bytes": 111,
+      "sha256": "185d2d2508a52ba9a398299c3088e18be9f6031dbedb746e24575d3650a7fe3d"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/input-boundary-intent-014.json",
+      "bytes": 111,
+      "sha256": "d39c5e4d260291b64e99369ede002f915ae8a7e65623332efbb427ac75ec5c69"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/intent-002.json",
+      "bytes": 754,
+      "sha256": "4b822d9f734f197bd7260d9c507f99a1164b2ec9350f5be5fa3f0cab711a9fb6"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/more-011.json",
+      "bytes": 1018,
+      "sha256": "76f3a7fe5f7c49cdcdfb00672a26742175dd2cf0b92f8fd3f8b8b4e9455b1702"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/more-013.json",
+      "bytes": 3078,
+      "sha256": "2655a8c53ba9a7a3dd9c9cbe8741f307054c0432c45226f48fa11c83ed121f9a"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/more-015.json",
+      "bytes": 3033,
+      "sha256": "ea88589df58a8f191dd1b00af3b592a85822bbb617af688c17ad0dc8c62ecfaf"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/pair-placed-without-prior-stack-021.json",
+      "bytes": 2919,
+      "sha256": "e104f681f0a30a9ee779200e072621182a0b47777baee9388a3668f496117b47"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/post-start-core-display-isaac-counters-log-004.json",
+      "bytes": 168518,
+      "sha256": "10d636c7aca360f26eead18ded14917287ac9979d24086ac1dcbd70b48535d7e"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/prestart-intent-001.json",
+      "bytes": 455,
+      "sha256": "812197b02991e32ce5d744a7cf2519d5637564b08c2b434c6341898b8c7bfd4f"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/selected-source-cell-before-object-writers-019.json",
+      "bytes": 882,
+      "sha256": "95e4a669156e6822af7595af635154fe7428feadc20e00f44662107525f45b74"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/target-entry-admission-024.json",
+      "bytes": 463,
+      "sha256": "63df7a09c7cf380b0a149271af5de6e8f97bf866acafca22dec28664b35a63e0"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/target-intent-count-zero-022.json",
+      "bytes": 472,
+      "sha256": "6b659d5acef42ab39bc8d2429977dc39a1aefe7b48881e1077bdf93d6e612b60"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/target-return-or-throw-scalars-025.json",
+      "bytes": 4200,
+      "sha256": "594f0c3417eb55afd822e4a6fcec1c44800607313a915a8d3e915d9e8c8c2a9c"
+    },
+    {
+      "name": "history/run-48eOP8/child-receipts/water-goto-outcome-before-guard-016.json",
+      "bytes": 451,
+      "sha256": "3b4874c331e32d521aa1bf9cd7b0c1fdde6b86c88ef5ea727ac52212998dceec"
+    },
+    {
+      "name": "history/run-48eOP8/child-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/run-48eOP8/child-stdout.bin",
+      "bytes": 2803,
+      "sha256": "24ccafbd4c92da14b8883f6acf72684070ef285d0b92b327ee25402b6a39806e"
+    },
+    {
+      "name": "history/run-48eOP8/command-and-capture.json",
+      "bytes": 5378,
+      "sha256": "b65da7d752e6e818b7a0e9ada11d8fb7bd4b86cae784b1efe630685764b7bafa"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/after-amulet-factory-before-guard-006.json",
+      "bytes": 255572,
+      "sha256": "b91e10f72181428a0f90805da4e3e5f3d98e648fde29f236fcf8c541742419fc"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/after-amulet-inventory-writer-before-guard-008.json",
+      "bytes": 256282,
+      "sha256": "390a1fc9e98948858471d544a367f988c9beca801b927dd2651b3a112c095a83"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/after-real-water-entry-before-guard-017.json",
+      "bytes": 277373,
+      "sha256": "db90c011c082f13800bcebc835d646e27a942d46e7e88011e1018b9271388811"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/after-real-water-entry-before-pair-018.json",
+      "bytes": 277372,
+      "sha256": "860daf9c838aed01d291ac4f373734e9d5fc469f558b6414dd6baf4cc7e312af"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/after-start-before-any-admission-guard-003.json",
+      "bytes": 255503,
+      "sha256": "2ad93a7b80110ff4cdafb5dff49d5d302ac51c0c04724b6465c3f2f47639302b"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/amulet-factory-outcome-before-guard-005.json",
+      "bytes": 711,
+      "sha256": "c017e9d219d1b865a55de9af873173ffa2f1c68bf69a57b8041945f7bb663424"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/amulet-inventory-outcome-before-guard-007.json",
+      "bytes": 348,
+      "sha256": "2b911a313962ec4da2c517b33ba1076b7d634c5d7e9d24a19c7ddf383faf1227"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/amulet-writer-receipt-009.json",
+      "bytes": 881,
+      "sha256": "afe19ba1eeff489c67c117c1edfff654d4d909768ebce82ae7c20bdf2e96fabb"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/before-one-movebubbles-call-023.json",
+      "bytes": 282779,
+      "sha256": "040d413ab57b05b6a18540911cef9127a652086a2effedf78334f2ce8625fc73"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/factory-and-shrink-timer-guards-before-place-writers-020.json",
+      "bytes": 2395,
+      "sha256": "0e00089dddfa3e2950d7e7c038fe5e1ebe5a6e201374586fd498d6f3c4f97649"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/final-capture-027.json",
+      "bytes": 654106,
+      "sha256": "58a325a9b5f64e4910ac6dd2ca8bf013e8bcc128305b0d3e65bdbf98efa4af50"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/final-status-028.json",
+      "bytes": 576,
+      "sha256": "d8aa92485172d06fc0889b37fb8d9700704867755241fd8384b2557c66aab8ee"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/finally-scalars-before-final-projection-026.json",
+      "bytes": 425,
+      "sha256": "d050419388ad5bc353dedd18cd1a1d1f1372a7ea1f47c78fc49399bb2349a1d8"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/input-boundary-intent-010.json",
+      "bytes": 111,
+      "sha256": "ebf02a5b2dc3a27250e4ed496b6a6cdb1ec41c5a952ffc5bdb74913483bd0d6c"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/input-boundary-intent-012.json",
+      "bytes": 111,
+      "sha256": "185d2d2508a52ba9a398299c3088e18be9f6031dbedb746e24575d3650a7fe3d"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/input-boundary-intent-014.json",
+      "bytes": 111,
+      "sha256": "d39c5e4d260291b64e99369ede002f915ae8a7e65623332efbb427ac75ec5c69"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/intent-002.json",
+      "bytes": 754,
+      "sha256": "4b822d9f734f197bd7260d9c507f99a1164b2ec9350f5be5fa3f0cab711a9fb6"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/more-011.json",
+      "bytes": 1018,
+      "sha256": "76f3a7fe5f7c49cdcdfb00672a26742175dd2cf0b92f8fd3f8b8b4e9455b1702"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/more-013.json",
+      "bytes": 3078,
+      "sha256": "2655a8c53ba9a7a3dd9c9cbe8741f307054c0432c45226f48fa11c83ed121f9a"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/more-015.json",
+      "bytes": 3033,
+      "sha256": "ea88589df58a8f191dd1b00af3b592a85822bbb617af688c17ad0dc8c62ecfaf"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/pair-placed-without-prior-stack-021.json",
+      "bytes": 2919,
+      "sha256": "e104f681f0a30a9ee779200e072621182a0b47777baee9388a3668f496117b47"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/post-start-core-display-isaac-counters-log-004.json",
+      "bytes": 168518,
+      "sha256": "10d636c7aca360f26eead18ded14917287ac9979d24086ac1dcbd70b48535d7e"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/prestart-intent-001.json",
+      "bytes": 455,
+      "sha256": "812197b02991e32ce5d744a7cf2519d5637564b08c2b434c6341898b8c7bfd4f"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/selected-source-cell-before-object-writers-019.json",
+      "bytes": 882,
+      "sha256": "95e4a669156e6822af7595af635154fe7428feadc20e00f44662107525f45b74"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/target-entry-admission-024.json",
+      "bytes": 463,
+      "sha256": "63df7a09c7cf380b0a149271af5de6e8f97bf866acafca22dec28664b35a63e0"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/target-intent-count-zero-022.json",
+      "bytes": 472,
+      "sha256": "6b659d5acef42ab39bc8d2429977dc39a1aefe7b48881e1077bdf93d6e612b60"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/target-return-or-throw-scalars-025.json",
+      "bytes": 526,
+      "sha256": "637709fe350acc8e58156d88fbe56edb78856eae9a263bf28d19fde4ffc3b26f"
+    },
+    {
+      "name": "history/run-anAKPq/child-receipts/water-goto-outcome-before-guard-016.json",
+      "bytes": 451,
+      "sha256": "3b4874c331e32d521aa1bf9cd7b0c1fdde6b86c88ef5ea727ac52212998dceec"
+    },
+    {
+      "name": "history/run-anAKPq/child-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/run-anAKPq/child-stdout.bin",
+      "bytes": 340,
+      "sha256": "8a665bbb442556ebcee16d7185d4dbdff10ed02b48533b4a4b885d606f0c53ae"
+    },
+    {
+      "name": "history/run-anAKPq/command-and-capture.json",
+      "bytes": 5375,
+      "sha256": "0a06d0979a1e8518a4c530b33fc1569bdabcc9fe9d5d5eb03edf5ac002250756"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/after-amulet-factory-before-guard-006.json",
+      "bytes": 255572,
+      "sha256": "b91e10f72181428a0f90805da4e3e5f3d98e648fde29f236fcf8c541742419fc"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/after-amulet-inventory-writer-before-guard-008.json",
+      "bytes": 256282,
+      "sha256": "390a1fc9e98948858471d544a367f988c9beca801b927dd2651b3a112c095a83"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/after-real-water-entry-before-guard-017.json",
+      "bytes": 277373,
+      "sha256": "db90c011c082f13800bcebc835d646e27a942d46e7e88011e1018b9271388811"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/after-real-water-entry-before-pair-018.json",
+      "bytes": 277372,
+      "sha256": "860daf9c838aed01d291ac4f373734e9d5fc469f558b6414dd6baf4cc7e312af"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/after-start-before-any-admission-guard-003.json",
+      "bytes": 255503,
+      "sha256": "2ad93a7b80110ff4cdafb5dff49d5d302ac51c0c04724b6465c3f2f47639302b"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/amulet-factory-outcome-before-guard-005.json",
+      "bytes": 711,
+      "sha256": "c017e9d219d1b865a55de9af873173ffa2f1c68bf69a57b8041945f7bb663424"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/amulet-inventory-outcome-before-guard-007.json",
+      "bytes": 348,
+      "sha256": "2b911a313962ec4da2c517b33ba1076b7d634c5d7e9d24a19c7ddf383faf1227"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/amulet-writer-receipt-009.json",
+      "bytes": 881,
+      "sha256": "afe19ba1eeff489c67c117c1edfff654d4d909768ebce82ae7c20bdf2e96fabb"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/before-one-movebubbles-call-023.json",
+      "bytes": 282779,
+      "sha256": "040d413ab57b05b6a18540911cef9127a652086a2effedf78334f2ce8625fc73"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/factory-and-shrink-timer-guards-before-place-writers-020.json",
+      "bytes": 2395,
+      "sha256": "0e00089dddfa3e2950d7e7c038fe5e1ebe5a6e201374586fd498d6f3c4f97649"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/final-capture-027.json",
+      "bytes": 659001,
+      "sha256": "35b8bb53bb8688f70b2a02cfaed8242e28cd3ed254807254fae3840aae471436"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/final-status-028.json",
+      "bytes": 2836,
+      "sha256": "93371c430da57e1b2beb0a2b6e2bb88f5ddad6c62311b6cf31b39568bb36a069"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/finally-scalars-before-final-projection-026.json",
+      "bytes": 2685,
+      "sha256": "34809ae82ba9eb4541951fc7883df9f790ff9dab2327c8c2ef0d9903fc41b77c"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/input-boundary-intent-010.json",
+      "bytes": 111,
+      "sha256": "ebf02a5b2dc3a27250e4ed496b6a6cdb1ec41c5a952ffc5bdb74913483bd0d6c"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/input-boundary-intent-012.json",
+      "bytes": 111,
+      "sha256": "185d2d2508a52ba9a398299c3088e18be9f6031dbedb746e24575d3650a7fe3d"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/input-boundary-intent-014.json",
+      "bytes": 111,
+      "sha256": "d39c5e4d260291b64e99369ede002f915ae8a7e65623332efbb427ac75ec5c69"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/intent-002.json",
+      "bytes": 754,
+      "sha256": "4b822d9f734f197bd7260d9c507f99a1164b2ec9350f5be5fa3f0cab711a9fb6"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/more-011.json",
+      "bytes": 1018,
+      "sha256": "76f3a7fe5f7c49cdcdfb00672a26742175dd2cf0b92f8fd3f8b8b4e9455b1702"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/more-013.json",
+      "bytes": 3078,
+      "sha256": "2655a8c53ba9a7a3dd9c9cbe8741f307054c0432c45226f48fa11c83ed121f9a"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/more-015.json",
+      "bytes": 3033,
+      "sha256": "ea88589df58a8f191dd1b00af3b592a85822bbb617af688c17ad0dc8c62ecfaf"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/pair-placed-without-prior-stack-021.json",
+      "bytes": 2919,
+      "sha256": "e104f681f0a30a9ee779200e072621182a0b47777baee9388a3668f496117b47"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/post-start-core-display-isaac-counters-log-004.json",
+      "bytes": 168518,
+      "sha256": "10d636c7aca360f26eead18ded14917287ac9979d24086ac1dcbd70b48535d7e"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/prestart-intent-001.json",
+      "bytes": 455,
+      "sha256": "812197b02991e32ce5d744a7cf2519d5637564b08c2b434c6341898b8c7bfd4f"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/selected-source-cell-before-object-writers-019.json",
+      "bytes": 882,
+      "sha256": "95e4a669156e6822af7595af635154fe7428feadc20e00f44662107525f45b74"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/target-entry-admission-024.json",
+      "bytes": 463,
+      "sha256": "63df7a09c7cf380b0a149271af5de6e8f97bf866acafca22dec28664b35a63e0"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/target-intent-count-zero-022.json",
+      "bytes": 472,
+      "sha256": "6b659d5acef42ab39bc8d2429977dc39a1aefe7b48881e1077bdf93d6e612b60"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/target-return-or-throw-scalars-025.json",
+      "bytes": 3754,
+      "sha256": "c6a411fb0f7d3f876f7085ac0f181ec41b8699cb8854e54f027d22f9717ad12b"
+    },
+    {
+      "name": "history/run-KYw4P9/child-receipts/water-goto-outcome-before-guard-016.json",
+      "bytes": 451,
+      "sha256": "3b4874c331e32d521aa1bf9cd7b0c1fdde6b86c88ef5ea727ac52212998dceec"
+    },
+    {
+      "name": "history/run-KYw4P9/child-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/run-KYw4P9/child-stdout.bin",
+      "bytes": 2491,
+      "sha256": "5d4eede3c8a16de2c390ee8e9c2c8ea0566bd31f98442dfac686d3ce0b5a53fd"
+    },
+    {
+      "name": "history/run-KYw4P9/command-and-capture.json",
+      "bytes": 5378,
+      "sha256": "f7690f0885e86a8f84f0237bff79ce9fa23e5ea7f95349cb1937bfd9150a5516"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/after-amulet-factory-before-guard-006.json",
+      "bytes": 255572,
+      "sha256": "b91e10f72181428a0f90805da4e3e5f3d98e648fde29f236fcf8c541742419fc"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/after-amulet-inventory-writer-before-guard-008.json",
+      "bytes": 256282,
+      "sha256": "390a1fc9e98948858471d544a367f988c9beca801b927dd2651b3a112c095a83"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/after-real-water-entry-before-guard-017.json",
+      "bytes": 277373,
+      "sha256": "db90c011c082f13800bcebc835d646e27a942d46e7e88011e1018b9271388811"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/after-real-water-entry-before-pair-018.json",
+      "bytes": 277372,
+      "sha256": "860daf9c838aed01d291ac4f373734e9d5fc469f558b6414dd6baf4cc7e312af"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/after-start-before-any-admission-guard-003.json",
+      "bytes": 255503,
+      "sha256": "2ad93a7b80110ff4cdafb5dff49d5d302ac51c0c04724b6465c3f2f47639302b"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/amulet-factory-outcome-before-guard-005.json",
+      "bytes": 711,
+      "sha256": "c017e9d219d1b865a55de9af873173ffa2f1c68bf69a57b8041945f7bb663424"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/amulet-inventory-outcome-before-guard-007.json",
+      "bytes": 348,
+      "sha256": "2b911a313962ec4da2c517b33ba1076b7d634c5d7e9d24a19c7ddf383faf1227"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/amulet-writer-receipt-009.json",
+      "bytes": 881,
+      "sha256": "afe19ba1eeff489c67c117c1edfff654d4d909768ebce82ae7c20bdf2e96fabb"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/before-one-movebubbles-call-023.json",
+      "bytes": 282779,
+      "sha256": "040d413ab57b05b6a18540911cef9127a652086a2effedf78334f2ce8625fc73"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/factory-and-shrink-timer-guards-before-place-writers-020.json",
+      "bytes": 2395,
+      "sha256": "0e00089dddfa3e2950d7e7c038fe5e1ebe5a6e201374586fd498d6f3c4f97649"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/final-capture-027.json",
+      "bytes": 659001,
+      "sha256": "35b8bb53bb8688f70b2a02cfaed8242e28cd3ed254807254fae3840aae471436"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/final-status-028.json",
+      "bytes": 2836,
+      "sha256": "93371c430da57e1b2beb0a2b6e2bb88f5ddad6c62311b6cf31b39568bb36a069"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/finally-scalars-before-final-projection-026.json",
+      "bytes": 2685,
+      "sha256": "34809ae82ba9eb4541951fc7883df9f790ff9dab2327c8c2ef0d9903fc41b77c"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/input-boundary-intent-010.json",
+      "bytes": 111,
+      "sha256": "ebf02a5b2dc3a27250e4ed496b6a6cdb1ec41c5a952ffc5bdb74913483bd0d6c"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/input-boundary-intent-012.json",
+      "bytes": 111,
+      "sha256": "185d2d2508a52ba9a398299c3088e18be9f6031dbedb746e24575d3650a7fe3d"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/input-boundary-intent-014.json",
+      "bytes": 111,
+      "sha256": "d39c5e4d260291b64e99369ede002f915ae8a7e65623332efbb427ac75ec5c69"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/intent-002.json",
+      "bytes": 754,
+      "sha256": "4b822d9f734f197bd7260d9c507f99a1164b2ec9350f5be5fa3f0cab711a9fb6"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/more-011.json",
+      "bytes": 1018,
+      "sha256": "76f3a7fe5f7c49cdcdfb00672a26742175dd2cf0b92f8fd3f8b8b4e9455b1702"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/more-013.json",
+      "bytes": 3078,
+      "sha256": "2655a8c53ba9a7a3dd9c9cbe8741f307054c0432c45226f48fa11c83ed121f9a"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/more-015.json",
+      "bytes": 3033,
+      "sha256": "ea88589df58a8f191dd1b00af3b592a85822bbb617af688c17ad0dc8c62ecfaf"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/pair-placed-without-prior-stack-021.json",
+      "bytes": 2919,
+      "sha256": "e104f681f0a30a9ee779200e072621182a0b47777baee9388a3668f496117b47"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/post-start-core-display-isaac-counters-log-004.json",
+      "bytes": 168518,
+      "sha256": "10d636c7aca360f26eead18ded14917287ac9979d24086ac1dcbd70b48535d7e"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/prestart-intent-001.json",
+      "bytes": 455,
+      "sha256": "812197b02991e32ce5d744a7cf2519d5637564b08c2b434c6341898b8c7bfd4f"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/selected-source-cell-before-object-writers-019.json",
+      "bytes": 882,
+      "sha256": "95e4a669156e6822af7595af635154fe7428feadc20e00f44662107525f45b74"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/target-entry-admission-024.json",
+      "bytes": 463,
+      "sha256": "63df7a09c7cf380b0a149271af5de6e8f97bf866acafca22dec28664b35a63e0"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/target-intent-count-zero-022.json",
+      "bytes": 472,
+      "sha256": "6b659d5acef42ab39bc8d2429977dc39a1aefe7b48881e1077bdf93d6e612b60"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/target-return-or-throw-scalars-025.json",
+      "bytes": 3754,
+      "sha256": "c6a411fb0f7d3f876f7085ac0f181ec41b8699cb8854e54f027d22f9717ad12b"
+    },
+    {
+      "name": "history/run-Yb54w8/child-receipts/water-goto-outcome-before-guard-016.json",
+      "bytes": 451,
+      "sha256": "3b4874c331e32d521aa1bf9cd7b0c1fdde6b86c88ef5ea727ac52212998dceec"
+    },
+    {
+      "name": "history/run-Yb54w8/child-stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "history/run-Yb54w8/child-stdout.bin",
+      "bytes": 2491,
+      "sha256": "5d01aa2e00f1775ad6a112dad393c7db7ca6bd7e7dd66c35835a2745a699a03a"
+    },
+    {
+      "name": "history/test-correction.diff",
+      "bytes": 9048,
+      "sha256": "a81f46e03e07f2a45310b7b85ce36192573f9646358bf884a693e4389145ac24"
+    }
+  ]
+}
