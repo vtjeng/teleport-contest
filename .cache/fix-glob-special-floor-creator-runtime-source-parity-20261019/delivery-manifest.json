@@ -20,8 +20,8 @@
     },
     {
       "path": ".cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/immutable-evidence-envelope.json",
-      "bytes": 2600198,
-      "sha256": "19debba2073b09882fdf1a2ee1d726dea11d22d8acc2d9439e813eb087c8b0a8"
+      "bytes": 2600510,
+      "sha256": "3be721d10b3f30af93532d4400abc196b8ab24363c4b7fe06f7d69bc873cca5b"
     },
     {
       "path": ".cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/lint.exit",
@@ -80,8 +80,8 @@
     },
     {
       "path": ".cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/task-context.json",
-      "bytes": 9278,
-      "sha256": "8c84144b2bfc622f828e1f67181fb65f21963c840579dcb81a8c7b7b23adb802"
+      "bytes": 9512,
+      "sha256": "c4d45c5a4592007b424f922ccb4f80297f2db1cc3c8ecfb17ab6a726fb6e8b69"
     },
     {
       "path": ".cache/fix-glob-special-floor-creator-runtime-source-parity-20261019/task-evidence.json",
