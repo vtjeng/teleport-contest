@@ -13,6 +13,7 @@ import {
     ROWNO,
     TELEP_TRAP,
     Trap_Moved_Mon,
+    VAULT,
 } from '../js/const.js';
 import { migrate_to_level } from '../js/dog.js';
 import { newsym } from '../js/display.js';
@@ -240,6 +241,75 @@ test('teleport restriction precedes future pet and vault branches',
 
         assert.deepEqual([monster.mx, monster.my], [old.x, old.y]);
     });
+
+test('one-shot monster teleport uses an open vault square', async () => {
+    const monster = await initializedMonster(
+        TELEPORT_RESTRICTION_SEED, 'VaultMonsterTeleport',
+    );
+    const old = { x: monster.mx, y: monster.my };
+    const destination = emptySquare(monster);
+    game.level.rooms = [{
+        lx: destination.x, hx: destination.x,
+        ly: destination.y, hy: destination.y,
+        rtype: VAULT, nsubrooms: 0,
+    }];
+    const trap = {
+        once: true, ttyp: TELEP_TRAP, tseen: false,
+        tx: old.x, ty: old.y,
+    };
+    const draws = [];
+    const messages = [];
+
+    await mtele_trap(monster, trap, true, {
+        ...teleportEnv(messages),
+        random: {
+            rn1(bound, offset) {
+                draws.push(['rn1', bound, offset]);
+                return offset;
+            },
+            rn2: () => assert.fail('the vault square needs no random fallback'),
+            rnd: () => assert.fail('the vault square needs no random fallback'),
+        },
+    });
+
+    assert.deepEqual(draws, [
+        ['rn1', 1, destination.x], ['rn1', 1, destination.y],
+    ]);
+    assert.deepEqual([monster.mx, monster.my],
+        [destination.x, destination.y]);
+    assert.equal(trap.tseen, true);
+    assert.equal(messages.at(-1), 'The kitten suddenly disappears!');
+});
+
+test('one-shot monster teleport falls back when there is no vault', async () => {
+    const monster = await initializedMonster(
+        TELEPORT_RESTRICTION_SEED, 'VaultMonsterFallback',
+    );
+    game.level.rooms = [];
+    const destination = emptySquare(monster);
+    const draws = [];
+
+    await mtele_trap(monster, {
+        once: true, ttyp: TELEP_TRAP, tseen: false,
+        tx: monster.mx, ty: monster.my,
+    }, false, {
+        ...teleportEnv(),
+        random: {
+            rnd(bound) {
+                draws.push(['rnd', bound]);
+                return destination.x;
+            },
+            rn2(bound) {
+                draws.push(['rn2', bound]);
+                return destination.y;
+            },
+        },
+    });
+
+    assert.deepEqual(draws, [['rnd', COLNO - 1], ['rn2', ROWNO]]);
+    assert.deepEqual([monster.mx, monster.my],
+        [destination.x, destination.y]);
+});
 
 test('teleport_pet preserves the C leash continuation result and releases both attachments',
     async () => {
