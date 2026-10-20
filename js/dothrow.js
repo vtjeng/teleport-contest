@@ -2411,6 +2411,26 @@ function clearThrownObject(state) {
 // per-throw flag, while gt.thrownobj is cleared only for the branches that
 // consumed or caught the object.  Keep both values in their source locations
 // so a later caller cannot observe a stale returning missile.
+// C ref: dothrow.c sho_obj_return_to_u() (1440-1460). Flash a nontethered
+// returning weapon backward along its flight, stopping before the hero's
+// square. The delay owner records each transient frame in patched C replays.
+async function sho_obj_return_to_u(obj, state) {
+    const { u } = state;
+    const hit = state.gb.bhitpos;
+    if (!(u.dx || u.dy) || (hit.x === u.ux && hit.y === u.uy)) return;
+
+    let x = hit.x - u.dx;
+    let y = hit.y - u.dy;
+    await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
+    while (isok(x, y) && (x !== u.ux || y !== u.uy)) {
+        await tmp_at(x, y, state);
+        await nh_delay_output(state);
+        x -= u.dx;
+        y -= u.dy;
+    }
+    await tmp_at(DISP_END, 0, state);
+}
+
 function throwit_return(clearObject, state) {
     state.iflags ??= {};
     state.iflags.returning_missile = null;
@@ -2796,7 +2816,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         if (rn2(100)) {
             if (tetheredWeapon)
                 await tmp_at(DISP_END, BACKTRACK, state);
-            else note_unported('dothrow.c sho_obj_return_to_u');
+            else await sho_obj_return_to_u(obj, state);
             if (!impaired && rn2(100)) {
                 await ttyPline(
                     `${Tobjnam(obj, 'return', state)} to your hand!`, state,
@@ -3088,7 +3108,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                     state,
                 );
                 if (!next2u)
-                    note_unported('dothrow.c sho_obj_return_to_u');
+                    await sho_obj_return_to_u(obj, state);
                 obj = await addinv(obj, operationEnv);
                 await encumber_msg(state, { message });
             }

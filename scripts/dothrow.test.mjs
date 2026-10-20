@@ -1439,6 +1439,33 @@ test('throwit() handles weapons that return to the hand', async () => {
     assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
 });
 
+test('a returning Mjollnir paints the source return-flight frames', async () => {
+    // dothrow.c throwit() calls sho_obj_return_to_u() for a nontethered
+    // returning weapon. The helper flashes every intervening square before
+    // the weapon enters inventory; an ordinary throw has only the outbound
+    // frames. Compare those two flights with the same artifact and seed.
+    const flight = async (wornMask) => {
+        const state = arena({ str: STR19(25) });
+        markArtifactExisting(state, ART_MJOLLNIR);
+        const hammer = item(state, WAR_HAMMER,
+            { oartifact: ART_MJOLLNIR });
+        let frames = 0;
+        state._animationFrameHook = () => { frames++; };
+        await throwit(hammer, wornMask, false, null, state);
+        return { state, hammer, frames };
+    };
+    const ordinary = await flight(0);
+    const returning = await flight(W_WEP);
+    const interveningSquares = returning.state.gb.bhitpos.x
+        - returning.state.u.ux - 1;
+
+    assert.ok(interveningSquares > 0);
+    assert.equal(returning.state.uwep, returning.hammer);
+    assert.equal(returning.frames - ordinary.frames, interveningSquares);
+    assert.equal(returning.state.unported?.has(
+        'dothrow.c sho_obj_return_to_u') ?? false, false);
+});
+
 test('throwit() treats unresisted hallucination as impaired', async () => {
     const hallucinating = arena();
     hallucinating.u.uprops[HALLUC].intrinsic = 1;
