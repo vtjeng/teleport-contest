@@ -10,6 +10,7 @@ import {
     MFAST,
     NC_SHOW_MSG,
     NC_VIA_WAND_OR_SPELL,
+    OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_MINVENT,
     POLY_TRAP,
@@ -66,9 +67,10 @@ import {
 } from '../js/muse.js';
 import { can_blow } from '../js/mondata.js';
 import { canseemon, sensemon } from '../js/display.js';
-import { add_to_container } from '../js/invent.js';
-import { mksobj, place_object, remove_object } from '../js/obj.js';
+import { add_to_container, addinv } from '../js/invent.js';
+import { mksobj, place_object, remove_object, set_corpsenm } from '../js/obj.js';
 import { teleds } from '../js/teleport.js';
+import { setuwep } from '../js/wield.js';
 import { init_objects } from '../js/o_init.js';
 import {
     planningState,
@@ -695,6 +697,50 @@ test('defensive teleport wand reaches a floor object through bhito', async () =>
     assert.notDeepEqual([floorItem.ox, floorItem.oy],
         [lane.floor.x, lane.floor.y],
         'the beam relocates the floor object before it reaches the hero');
+});
+
+test('defensive undead-turning wand revives a wielded corpse', async () => {
+    // C muse.c:use_defensive -> mbhit -> mbhitm -> zap.c:unturn_you ->
+    // unturn_dead -> revive -> invent.c:useupall -> worn.c:setnotworn.
+    const state = await offensiveHero();
+    state.nhDisplay.onEmptyQueue = () => 32;
+    const corpse = mksobj(CORPSE, false, false, { state });
+    set_corpsenm(corpse, PM_COCKATRICE, { state });
+    await setuwep(addinv(corpse, { state }), { state });
+    assert.equal(state.uwep, corpse);
+
+    let lane = null;
+    for (let x = 3; x < COLNO - 3 && !lane; ++x) {
+        for (let y = 3; y < ROWNO - 3 && !lane; ++y) {
+            if (state.level.at(x, y).typ !== ROOM
+                || state.level.at(x + 1, y).typ !== ROOM
+                || state.level.monsters[x][y]
+                || state.level.monsters[x + 1][y]) continue;
+            lane = { x, y };
+        }
+    }
+    assert.ok(lane);
+    await teleds(lane.x, lane.y, TELEDS_TELEPORT, state);
+
+    const wand = carried(state, WAN_UNDEAD_TURNING, {
+        where: OBJ_MINVENT, spe: 2,
+    });
+    const monster = offensiveMonster(state, PM_GOBLIN, wand, {
+        mx: lane.x + 1, my: lane.y,
+        mhp: 10, mhpmax: 10, mpeaceful: false,
+    });
+    wand.ocarry = monster;
+    wand.v = monster;
+    monster.nmon = state.level.monlist;
+    state.level.monlist = monster;
+    place_monster(monster, monster.mx, monster.my, state);
+
+    const choice = find_defensive(monster, false, { state });
+    assert.equal(choice?.kind, 'undead turning wand');
+    assert.equal(await use_defensive(monster, choice, state), 2);
+    assert.equal(state.uwep, null);
+    assert.equal(corpse.where, OBJ_DELETED);
+    assert.equal(corpse.owornmask, 0);
 });
 
 test('find_misc selection covers initial miscellaneous item families',

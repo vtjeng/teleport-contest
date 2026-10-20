@@ -74,7 +74,7 @@ import { getlin } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { game } from './gstate.js';
 import { ENGRAVE, FACE, FOOT, HEAD, HOLE, TRAPDOOR } from './const.js';
-import { hard_helmet } from './do_wear.js';
+import { hard_helmet, setwornEnv } from './do_wear.js';
 import { makeplural } from './fruit.js';
 import { ok_to_quest } from './quest.js';
 import { mksobj_at } from './obj.js';
@@ -159,6 +159,7 @@ import {
     weight,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { setnotworn } from './worn.js';
 import { COIN_CLASS,
     CORPSE, ROCK_CLASS, MEATBALL, MEAT_STICK, ENORMOUS_MEATBALL, MEAT_RING, ARMOR_CLASS, GEM_CLASS, AMULET_OF_LIFE_SAVING, AMULET_OF_UNCHANGING, BOULDER, DWARVISH_CLOAK, HEAVY_IRON_BALL, IMMEDIATE, NODIR, POTION_CLASS, POT_POLYMORPH, POT_WATER, RING_CLASS, ROCK, SCROLL_CLASS, SPBOOK_CLASS, SPE_DIG, SPE_FORCE_BOLT, SPE_FIREBALL, SPE_CONE_OF_COLD, SPE_EXTRA_HEALING, SPE_FINGER_OF_DEATH, SPE_CURE_SICKNESS, SPE_HEALING, SPE_KNOCK, SPE_MAGIC_MISSILE, SPE_LIGHT, SPE_DRAIN_LIFE, SPE_CANCELLATION, SPE_SLOW_MONSTER, SPE_WIZARD_LOCK, SPE_DETECT_UNSEEN, SPE_TURN_UNDEAD, SPE_BLANK_PAPER, SPE_NOVEL, SPE_POLYMORPH, SPE_SLEEP, SPE_STONE_TO_FLESH, TOOL_CLASS, WAND_CLASS, STATUE, FIGURINE, WEAPON_CLASS, HELM_OF_BRILLIANCE, GAUNTLETS_OF_DEXTERITY, RIN_GAIN_STRENGTH, RIN_GAIN_CONSTITUTION, RIN_ADORNMENT, RIN_INCREASE_ACCURACY, RIN_INCREASE_DAMAGE, RIN_PROTECTION, CRYSTAL_BALL, CANDELABRUM_OF_INVOCATION, POT_ACID, POT_SICKNESS, POT_SEE_INVISIBLE, POT_FRUIT_JUICE, SCR_BLANK_PAPER, SPE_BOOK_OF_THE_DEAD, WAN_DEATH, WAN_DIGGING, WAN_LIGHTNING, WAN_LIGHT, WAN_STASIS, WAN_ENLIGHTENMENT, WAN_MAKE_INVISIBLE, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_UNDEAD_TURNING, WAN_OPENING, WAN_POLYMORPH, WAN_WISHING, WAN_STRIKING, WAN_MAGIC_MISSILE, WAN_CANCELLATION, WAN_NOTHING, WAN_PROBING, WAN_COLD, WAN_FIRE, WAN_LOCKING, EXPENSIVE_CAMERA, FROST_HORN, FIRE_HORN, MUMMY_WRAPPING, LARGE_BOX, CHEST, BAG_OF_HOLDING, TIN, WAN_SECRET_DOOR_DETECTION, WAN_CREATE_MONSTER, WAN_SLEEP, WAN_TELEPORTATION, POT_OIL, POT_GAIN_ABILITY, SCR_MAIL, SCR_FIRE, SPE_TELEPORT_AWAY, MAGIC_LAMP, MAGIC_MARKER, OIL_LAMP, LOW_BOOTS, EGG, LEASH, UNICORN_HORN, FLESH, PAPER, CLOTH, LEATHER, WOOD, BONE, IRON, METAL, COPPER, SILVER, GOLD, PLATINUM, MITHRIL, GEMSTONE, MINERAL, GLASS, STRANGE_OBJECT, } from './objects.js';
 import {
@@ -783,6 +784,13 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         ...env,
         redraw: (rx, ry) => newsym(rx, ry, state),
     });
+    if (corpse.where === OBJ_INVENT) {
+        const wornHooks = setwornEnv(state).hooks;
+        objectEnv.hooks.setNotWorn ??= (obj, hookEnv) => setnotworn(obj, {
+            ...hookEnv,
+            hooks: { ...wornHooks, ...hookEnv.hooks },
+        });
+    }
     switch (corpse.where) {
     case OBJ_INVENT:
         await useup(corpse, objectEnv);
