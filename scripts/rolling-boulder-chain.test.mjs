@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ROOM, ROLL } from '../js/const.js';
+import {
+    DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, ROOM, ROLL, ROWNO,
+} from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { sobj_at } from '../js/invent.js';
@@ -43,3 +45,46 @@ test('rolling boulder moves the next boulder after a collision', async () => {
     assert.ok(!second.otrapped);
     assert.ok(messages.some((line) => line.includes('a loud crash')));
 });
+
+for (const originalMask of [D_CLOSED, D_LOCKED]) {
+    test(`rolling boulder breaks a ${originalMask === D_LOCKED
+        ? 'locked' : 'closed'} door and continues`, async () => {
+        const state = resetGame();
+        state.level = new GameMap();
+        state.u = { ux: 20, uy: 10 };
+        state.context = {};
+        for (let x = 10; x <= 12; x++) state.level.at(x, 10).typ = ROOM;
+        const door = state.level.at(11, 10);
+        door.typ = DOOR;
+        door.doormask = originalMask;
+        door.flags = originalMask;
+        if (originalMask === D_CLOSED) {
+            state.viz_array = Array.from({ length: ROWNO }, () => []);
+            state.viz_array[10][11] = IN_SIGHT;
+        }
+        const boulder = newObject({ otyp: BOULDER, quan: 1 });
+        const messages = [];
+        const recalcMasks = [];
+        const hooks = {
+            blockPoint: () => {},
+            recalcBlockPoint: () => { recalcMasks.push(door.doormask); },
+        };
+        place_object(boulder, 10, 10, { state, hooks });
+
+        const result = await launch_obj(BOULDER, 10, 10, 12, 10,
+            ROLL, state, {
+                hooks,
+                planning: true,
+                message: (line) => messages.push(line),
+                redraw: () => {},
+            });
+
+        assert.equal(result, 1);
+        assert.equal(door.doormask, D_BROKEN);
+        assert.equal(door.flags, D_BROKEN);
+        assert.deepEqual(recalcMasks, [originalMask, D_BROKEN]);
+        assert.equal(sobj_at(BOULDER, 12, 10, state), boulder);
+        assert.deepEqual(messages, originalMask === D_CLOSED
+            ? ['The boulder crashes through a door.'] : []);
+    });
+}

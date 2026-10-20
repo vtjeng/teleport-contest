@@ -2945,15 +2945,19 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 await wake_nearto(x, y, 100, env);
             }
         }
-        // closed_door: boulder crashes through a door. Not reached.
         if (otyp === BOULDER) {
             const loc = state.level?.at(x, y);
             if (loc && loc.typ === DOOR
-                && (loc.doormask & (D_LOCKED | D_CLOSED))) {
-                // C: closed_door() check + boulder crashes through door.
-                // Not reached in the session.
-                throw new Error(
-                    'launch_obj boulder-through-door not yet ported');
+                && ((loc.flags || loc.doormask || 0)
+                    & (D_LOCKED | D_CLOSED))) {
+                if (cansee(x, y, state))
+                    await message(messageAt(
+                        'The boulder crashes through a door.', x, y, state,
+                    ), state, env);
+                loc.doormask = D_BROKEN;
+                loc.flags = D_BROKEN;
+                if (dist)
+                    objectHooks.recalcBlockPoint(x, y, objectEnv);
             }
         }
 
