@@ -325,6 +325,7 @@ import {
     IRON,
     ROCK,
     SADDLE,
+    STATUE,
     WAND_CLASS,
     SPE_REMOVE_CURSE,
     SPBOOK_CLASS,
@@ -2693,8 +2694,21 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
         obj_extract_self(singleobj, objectEnv);
     }
     redraw(x1, y1);
-    // C: if the boulder is being dug out, clear the dig context. The port does
-    // not yet track context.digging, so this is a no-op.
+    const digging = state.context?.digging;
+    if ((otyp === BOULDER || otyp === STATUE)
+        && digging?.pos?.x === singleobj.ox
+        && digging.pos.y === singleobj.oy) {
+        state.context.digging = {
+            effort: 0,
+            level: { dnum: 0, dlevel: 0 },
+            pos: { x: 0, y: 0 },
+            lastdigtime: 0,
+            down: false,
+            chew: false,
+            warned: false,
+            quiet: false,
+        };
+    }
 
     let dist = distmin(x1, y1, x2, y2);
     let x, y;

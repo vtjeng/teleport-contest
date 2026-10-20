@@ -10,7 +10,9 @@ import { resetGame } from '../js/gstate.js';
 import { sobj_at } from '../js/invent.js';
 import { newMonster } from '../js/monst.js';
 import { newObject, place_object } from '../js/obj.js';
-import { BOULDER, ROCK_CLASS, objects_globals_init } from '../js/objects.js';
+import {
+    BOULDER, ROCK_CLASS, STATUE, objects_globals_init,
+} from '../js/objects.js';
 import { launch_obj } from '../js/trap_effects.js';
 
 test('rolling boulder moves the next boulder after a collision', async () => {
@@ -170,3 +172,50 @@ test('rolling boulder thump against a wall wakes only nearby sleepers',
         assert.equal(sleeper.msleeping, false);
         assert.equal(farSleeper.msleeping, true);
     });
+
+for (const [objType, diggingX] of [[BOULDER, 10], [BOULDER, 9], [STATUE, 10]]) {
+    test(`launching a ${objType === STATUE ? 'statue' : 'boulder'} ${diggingX === 10 ? 'clears matching'
+        : 'preserves unrelated'} digging context`, async () => {
+        const state = resetGame();
+        state.level = new GameMap();
+        state.u = { ux: 20, uy: 10 };
+        for (let x = 9; x <= 11; x++) state.level.at(x, 10).typ = ROOM;
+        const digging = {
+            effort: 80,
+            level: { dnum: 0, dlevel: 3 },
+            pos: { x: diggingX, y: 10 },
+            lastdigtime: 24,
+            down: false,
+            chew: false,
+            warned: true,
+            quiet: true,
+        };
+        state.context = { digging };
+        const object = newObject({ otyp: objType, quan: 1 });
+        const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+        place_object(object, 10, 10, { state, hooks });
+
+        assert.equal(await launch_obj(objType, 10, 10, 11, 10,
+            ROLL, state, {
+                hooks,
+                planning: true,
+                message: () => {},
+                redraw: () => {},
+            }), 1);
+
+        if (diggingX === 10) {
+            assert.deepEqual(state.context.digging, {
+                effort: 0,
+                level: { dnum: 0, dlevel: 0 },
+                pos: { x: 0, y: 0 },
+                lastdigtime: 0,
+                down: false,
+                chew: false,
+                warned: false,
+                quiet: false,
+            });
+        } else {
+            assert.equal(state.context.digging, digging);
+        }
+    });
+}
