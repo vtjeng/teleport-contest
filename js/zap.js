@@ -376,7 +376,15 @@ export async function boomhit(
                 await thitu(
                     10 + (obj.spe ?? 0), maybeHalfPhysical(damage, state),
                     obj, 'boomerang', state,
-                    { message: ttyPline, losehp, exercise, random: { rnd } },
+                    {
+                        message: ttyPline,
+                        losehp,
+                        random: { rnd },
+                        exercise: (index, increase, subject) => exercise(
+                            index, increase, subject, { rn2 },
+                            { encumberMessage: encumber_msg },
+                        ),
+                    },
                 );
                 // C's accepted death enters done() and does not return.
                 if (state.program_state?.gameover) return null;

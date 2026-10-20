@@ -1442,6 +1442,7 @@ test('boomhit() applies the source self-hit and ends its volley', async () => {
     state.u.ux = 40;
     state.u.uy = 10;
     state.u.uac = 100;
+    state.moves = 2; // exercise() requires the C encumbrance callback in play.
     state.u.uprops[FUMBLING].intrinsic = 1;
     state.m_shot = { i: 1, n: 3, s: true };
     const boomerang = item(state, BOOMERANG);
