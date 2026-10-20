@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ICE, LAVAWALL, POOL } from '../js/const.js';
+import { D_BROKEN, D_CLOSED, D_NODOOR, DOOR, ICE, LAVAWALL, POOL } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { zap_over_floor } from '../js/zap.js';
@@ -30,6 +30,41 @@ test('unseen brief lava freeze respects acoustics', async () => {
         );
         assert.equal(rangemod, -1000);
         assert.deepEqual(messages, acoustics ? ['You hear a soft crackling.'] : []);
+    }
+});
+
+// zap.c:5422-5480 sends an unseen door's cold, death-breath, and lightning
+// destruction sounds through You_hear1. The door still absorbs the ray.
+test('unseen door destruction sounds respect acoustics', async () => {
+    for (const [type, sound, doorMask] of [
+        [2, 'a deep cracking sound.', D_NODOOR],
+        [24, 'crashing wood.', D_NODOOR],
+        [5, 'crackling.', D_BROKEN],
+    ]) for (const acoustics of [true, false]) {
+        await runSegment({
+            seed: 93171025,
+            datetime: '20781112121000',
+            nethackrc: 'OPTIONS=name:DoorSound,role:Wizard,race:human,gender:female,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n',
+            moves: '',
+        });
+        game.flags.acoustics = acoustics;
+        const x = game.u.ux < 70 ? game.u.ux + 2 : game.u.ux - 2;
+        const y = game.u.uy;
+        const door = game.level.at(x, y);
+        door.typ = DOOR;
+        door.flags = D_CLOSED;
+        door.doormask = D_CLOSED;
+        game.viz_array[y][x] = 0;
+        const messages = [];
+        const rangemod = await zap_over_floor(
+            x, y, type, { value: false }, true, 0,
+            game, { rn2: () => 0, rnd: () => 1 },
+            { message: async (line) => messages.push(line) },
+        );
+        assert.equal(rangemod, -1000);
+        assert.equal(door.doormask, doorMask);
+        assert.deepEqual(messages, acoustics ? [`You hear ${sound}`] : []);
     }
 });
 

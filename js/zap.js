@@ -5508,19 +5508,19 @@ export async function zap_over_floor(
         case ZT_COLD:
             newDoormask = D_NODOOR;
             seeText = 'The door freezes and shatters!';
-            hearText = 'You hear a deep cracking sound.';
+            hearText = 'a deep cracking sound.';
             break;
         case ZT_DEATH:
             if (Math.abs(type) === 20 + ZT_DEATH) {
                 newDoormask = D_NODOOR;
                 seeText = 'The door disintegrates!';
-                hearText = 'You hear crashing wood.';
+                hearText = 'crashing wood.';
             }
             break;
         case ZT_LIGHTNING:
             newDoormask = D_BROKEN;
             seeText = 'The door splinters!';
-            hearText = 'You hear crackling.';
+            hearText = 'crackling.';
             break;
         default:
             if (exploding_wand_typ > 0
@@ -5555,7 +5555,8 @@ export async function zap_over_floor(
             } else if (senseText) {
                 await message(senseText, state, env);
             } else if (hearText) {
-                await message(hearText, state, env);
+                const heard = youHear(hearText, state);
+                if (heard) await message(heard, state, env);
             }
             if (picking_at(x, y, state)) {
                 await stop_occupation(state, { message: ttyPline });
