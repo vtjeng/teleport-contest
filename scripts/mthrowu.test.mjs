@@ -83,7 +83,7 @@ import {
     WORTHLESS_WHITE_GLASS,
 } from '../js/objects.js';
 import {
-    blocking_terrain, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
+    blocking_terrain, breamm, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
     m_has_launcher_and_ammo,
     drop_throw, hit_bars, hits_bars, m_useup, monmulti, monshoot, m_throw, ohitmon, spitmm, thitu, thrwmu,
 } from '../js/mthrowu.js';
@@ -1522,6 +1522,38 @@ test('a detected invisible spitter has a named dry rattle', async () => {
         state,
         message: (line) => { messages.push(line); },
     });
+    assert.deepEqual(messages, []);
+});
+
+test('a cancelled unseen breath respects the acoustics option', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nbreamm(struct monst *mtmp,');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/*', cStart + 1);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /if \(mtmp->mcan\)[\s\S]*?You_hear\("a cough\."\)/u);
+
+    const state = await hero();
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 2, y,
+        state.u.ux, y);
+    clearRow(state, state.u.ux, subject.mx, y);
+    subject.mcan = 1;
+    subject.minvis = 1;
+    assert.equal(canseemon(subject, state), false);
+    const messages = [];
+    const env = {
+        state,
+        random: { rn2: () => 0 },
+        message: (line) => { messages.push(line); },
+    };
+
+    state.flags.acoustics = true;
+    await breamm(subject, { adtyp: AD_FIRE }, state.youmonst, env);
+    assert.deepEqual(messages, ['You hear a cough.']);
+
+    state.flags.acoustics = false;
+    messages.length = 0;
+    await breamm(subject, { adtyp: AD_FIRE }, state.youmonst, env);
     assert.deepEqual(messages, []);
 });
 

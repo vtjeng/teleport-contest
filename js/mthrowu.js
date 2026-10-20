@@ -1587,8 +1587,9 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                         await env.message(`${Monnam(mtmp, state)} coughs.`, state);
                 } else {
                     note_unported('sound.c Soundeffect');
-                    if (typeof env.message === 'function')
-                        await env.message('You hear a cough.', state);
+                    const heard = youHear('a cough.', state);
+                    if (heard && typeof env.message === 'function')
+                        await env.message(heard, state);
                 }
             }
             return M_ATTK_MISS;
