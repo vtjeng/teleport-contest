@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, ROOM, ROLL, ROWNO,
+    DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, ROOM, ROLL, ROWNO,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { sobj_at } from '../js/invent.js';
 import { newObject, place_object } from '../js/obj.js';
-import { BOULDER } from '../js/objects.js';
+import { BOULDER, ROCK_CLASS, objects_globals_init } from '../js/objects.js';
 import { launch_obj } from '../js/trap_effects.js';
 
 test('rolling boulder moves the next boulder after a collision', async () => {
@@ -88,3 +88,40 @@ for (const originalMask of [D_CLOSED, D_LOCKED]) {
             ? ['The boulder crashes through a door.'] : []);
     });
 }
+
+test('rolling boulder strikes iron bars and stops before them', async () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = { ux: 20, uy: 10 };
+    state.context = {};
+    objects_globals_init(state);
+    for (let x = 10; x <= 13; x++) state.level.at(x, 10).typ = ROOM;
+    state.level.at(12, 10).typ = IRONBARS;
+    const boulder = newObject({ otyp: BOULDER, oclass: ROCK_CLASS, quan: 1 });
+    const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+    place_object(boulder, 10, 10, { state, hooks });
+    const draws = [];
+    const messages = [];
+
+    const result = await launch_obj(BOULDER, 10, 10, 13, 10,
+        ROLL, state, {
+            hooks,
+            planning: true,
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    return bound - 1;
+                },
+            },
+            message: (line) => messages.push(line),
+            redraw: () => {},
+            disturbBuriedZombies: () => {},
+        });
+
+    assert.equal(result, 1);
+    assert.deepEqual(draws, [20, 100]);
+    assert.deepEqual(messages, ['Whang!']);
+    assert.equal(sobj_at(BOULDER, 11, 10, state), boulder);
+    assert.equal(sobj_at(BOULDER, 12, 10, state), null);
+    assert.equal(state.level.at(12, 10).typ, IRONBARS);
+});

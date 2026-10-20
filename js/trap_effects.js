@@ -292,7 +292,7 @@ import {
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { mpickobj } from './steal.js';
-import { ohitmon, thitu } from './mthrowu.js';
+import { hits_bars, ohitmon, thitu } from './mthrowu.js';
 import { sleep_monst } from './mhitm.js';
 import {
     snuff_lit,
@@ -2968,9 +2968,17 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
             const typ = loc?.typ ?? 0;
 
             if (typ === IRONBARS) {
-                // hits_bars: not ported
-                throw new Error(
-                    'launch_obj boulder-hits-iron-bars not yet ported');
+                x2 = x; y2 = y;
+                const moving = { obj: singleobj };
+                if (await hits_bars(moving, x2, y2, fx, fy,
+                    !env.random.rn2(20), 0, state, env.random, env)) {
+                    singleobj = moving.obj;
+                    if (!singleobj) {
+                        used_up = true;
+                        launch_drop_spot(null, 0, 0, state);
+                    }
+                    break;
+                }
             } else if (IS_STWALL(typ) || IS_TREE(typ, state)) {
                 x2 = x; y2 = y; // object stops here
                 if (!heroIsDeaf(state))
