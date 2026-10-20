@@ -1210,6 +1210,42 @@ function shopState({ has_shop = true } = {}) {
     return state;
 }
 
+// shk.c:pay_for_damage() emits its first doorway line with You_hear(), then
+// speaks even when acoustics suppress that prefix. Stop at speech so this
+// fixture does not need to select a relocation square after the source arm.
+test('occupied shop doorway angry voice respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        const state = shopState();
+        state.flags.acoustics = acoustics;
+        state.u.ux = 6;
+        const shopAt = state.level.at;
+        state.level.at = (x, y) => x === 6
+            ? { roomno: 0, edge: false } : shopAt(x, y);
+        state.u.ushops = [0];
+        state.moves = 1;
+        state.level.damagelist = {
+            place: { x: 5, y: 5 }, when: 1, cost: 10, next: null,
+        };
+        state.level.monsters = Array.from({ length: 80 },
+            () => Array(21).fill(null));
+        state.level.monsters[5][5] = { mhp: 1 };
+        const lines = [];
+        const stopAtSpeech = new Error('speech reached');
+        await assert.rejects(
+            () => pay_for_damage('break', true, state, {
+                message: async (line) => {
+                    lines.push(line);
+                    if (line === '"Out of my way, scum!"') throw stopAtSpeech;
+                },
+            }),
+            (error) => error === stopAtSpeech,
+        );
+        assert.deepEqual(lines, acoustics
+            ? ['You hear an angry voice:', '"Out of my way, scum!"']
+            : ['"Out of my way, scum!"']);
+    }
+});
+
 function damageCleanupState({ currentLevel = { dnum: 0, dlevel: 1 } } = {}) {
     const state = {
         u: { uz: currentLevel, ushops: [] },

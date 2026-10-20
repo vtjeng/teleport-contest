@@ -4977,7 +4977,8 @@ export async function pay_for_damage(
         if (m_at(x, y, state)) {
             if (!animal) {
                 if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
-                    await message('You hear an angry voice:', state, env);
+                    const heard = youHear('an angry voice:', state);
+                    if (heard) await message(heard, state, env);
                     set_voice(shopkeeper, 0, 80, 0, state);
                     await verbalize('Out of my way, scum!', state, env);
                 }
