@@ -369,6 +369,7 @@ import {
 import { discover_object, observe_object } from './o_init.js';
 import {
     an,
+    ansimpleoname,
     boots_simple_name,
     cloak_simple_name,
     corpse_xname,
@@ -3693,11 +3694,8 @@ async function accessory_or_armor_on(obj, state = game) {
             }
         } else if (eyewear) {
             if (!has_head(state.youmonst.data)) {
-                // ansimpleoname() is unported; this arm fires only for a
-                // headless polymorph form, which no ported path produces.
-                throw new UnsupportedWearError(
-                    'ansimpleoname() for headless polymorph',
-                );
+                await ttyPline(`You have no head to wear ${ansimpleoname(obj, state)} on.`, state);
+                return ECMD_OK;
             }
             if (state.ublindf) {
                 if (state.ublindf.otyp === TOWEL) {
