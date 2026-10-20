@@ -73,6 +73,7 @@ import {
     GLYPH_EXPLODE_WET_OFF,
 } from './glyph_offsets.js';
 import { game } from './gstate.js';
+import { youHear } from './pline.js';
 import {
     AD_ACID,
     AD_COLD,
@@ -573,7 +574,8 @@ export async function explode(
         }
         if (!deaf(state) && olet !== SCROLL_CLASS) {
             note_unported('sound.c Soundeffect');
-            await messageLine('You hear a blast.', state, env);
+            const heard = youHear('a blast.', state);
+            if (heard) await messageLine(heard, state, env);
             didmsg = true;
         }
     }

@@ -85,6 +85,31 @@ import { getRngLog } from '../js/rng.js';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { ttyPline } from '../js/tty_message.js';
 
+// explode.c:446 uses You_hear for the unseen blast. Even with zero damage,
+// the sound is omitted when the hero disables acoustics; didmsg still
+// suppresses the separate Boom line in that branch.
+test('unseen explosion blast respects acoustics', async () => {
+    await runSegment({
+        seed: 93171021,
+        datetime: '20781112121000',
+        nethackrc: 'OPTIONS=name:BlastSound,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n',
+        moves: '',
+    });
+    const x = game.u.ux < 70 ? game.u.ux + 5 : game.u.ux - 5;
+    const y = game.u.uy;
+    for (let xx = x - 1; xx <= x + 1; xx++)
+        for (let yy = y - 1; yy <= y + 1; yy++)
+            game.viz_array[yy][xx] = 0;
+    for (const acoustics of [true, false]) {
+        game.flags.acoustics = acoustics;
+        const lines = [];
+        await explode(x, y, PHYS_EXPL_TYPE, 0, MON_EXPLODE,
+            EXPL_FIERY, game, { message: async (line) => lines.push(line) });
+        assert.deepEqual(lines, acoustics ? ['You hear a blast.'] : []);
+    }
+});
+
 test('magical shield frames map C cmap indices through cmap_to_glyph', async () => {
     await runSegment({
         seed: 30303030,
