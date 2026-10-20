@@ -12,7 +12,7 @@ import { sobj_at } from '../js/invent.js';
 import { newMonster } from '../js/monst.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
-    BOULDER, ROCK_CLASS, STATUE, objects_globals_init,
+    BOULDER, ROCK, ROCK_CLASS, STATUE, objects_globals_init,
 } from '../js/objects.js';
 import { launch_obj } from '../js/trap_effects.js';
 
@@ -253,4 +253,57 @@ test('a rolling boulder continues when a land mine does not fire', async () => {
     assert.deepEqual(draws, [10]);
     assert.equal(sobj_at(BOULDER, 12, 10, state), boulder);
     assert.equal(state.level.traps.includes(mine), true);
+});
+
+test('a firing land mine fractures and scatters the rolling boulder', async () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = { ux: 20, uy: 10 };
+    state.context = { ident: 1, mon_moving: true };
+    objects_globals_init(state);
+    for (let x = 8; x <= 14; x++)
+        for (let y = 8; y <= 12; y++) state.level.at(x, y).typ = ROOM;
+    const mine = { ttyp: LANDMINE, tx: 11, ty: 10 };
+    state.level.traps.push(mine);
+    const boulder = newObject({
+        otyp: BOULDER, oclass: ROCK_CLASS, quan: 1,
+    });
+    const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+    place_object(boulder, 10, 10, { state, hooks });
+    const draws = [];
+    const messages = [];
+
+    const result = await launch_obj(BOULDER, 10, 10, 12, 10,
+        ROLL, state, {
+            hooks,
+            planning: true,
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    return bound - 1;
+                },
+                rn1: (_range, base) => base,
+                rnd: () => 1,
+                d: () => 1,
+                rne: () => 1,
+            },
+            message: (line) => messages.push(line),
+            redraw: () => {},
+            newsym: () => {},
+            canSeeMonster: () => false,
+            disturbBuriedZombies: () => {},
+        });
+
+    assert.equal(result, 2);
+    assert.equal(draws[0], 10);
+    assert.ok(messages.includes('KAABLAMM!!!'));
+    assert.equal(state.level.traps.includes(mine), false);
+    assert.equal(boulder.otyp, ROCK);
+    assert.equal(sobj_at(BOULDER, 11, 10, state), null);
+    let rockPiles = 0;
+    for (let obj = state.level.objlist; obj; obj = obj.nobj)
+        if (obj.otyp === ROCK) rockPiles++;
+    assert.ok(rockPiles >= 1);
+    assert.notDeepEqual([boulder.ox, boulder.oy], [11, 10],
+        'the fractured rocks leave the mine square');
 });

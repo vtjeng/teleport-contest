@@ -372,7 +372,7 @@ import {
     mtele_trap,
     tele_trap,
 } from './teleport.js';
-import { Fire_resistance, poly_obj, resist } from './zap.js';
+import { Fire_resistance, fracture_rock, poly_obj, resist } from './zap.js';
 import { Punished } from './steed.js';
 import { ttyPline } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
@@ -2621,7 +2621,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     const env = {
         ...rawEnv,
         state,
-        random: rawEnv.random ?? { rn2, rnd },
+        random: { d, rn1, rn2, rnd, rne, ...rawEnv.random },
     };
     const planning = Boolean(env.planning);
     const message = env.message ?? ((line, target) =>
@@ -2904,10 +2904,36 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 // ignored and the boulder keeps rolling.
                 switch (t.ttyp) {
                 case LANDMINE:
-                    // C leaves a mine intact and keeps rolling on 0..2.
-                    // Its firing arm still needs fracture_rock and scatter.
                     if (env.random.rn2(10) <= 2) break;
-                    // FALLTHROUGH: the firing arm still has an incomplete stop.
+                    await message(messageAt(
+                        `KAABLAMM!!!${cansee(x, y, state)
+                            ? '  The rolling boulder triggers a land mine.'
+                            : ''}`,
+                        x, y, state,
+                    ), state, env);
+                    deltrap(t, state);
+                    del_engr_at(x, y, state);
+                    {
+                        const placement = place_object(singleobj, x, y, objectEnv);
+                        if (placement && typeof placement.then === 'function')
+                            await placement;
+                    }
+                    singleobj.otrapped = 0;
+                    await fracture_rock(singleobj, state, env.random, {
+                        ...env, hooks: objectHooks,
+                    });
+                    await scatter(x, y, 4,
+                        SCATTER_MAY_DESTROY | SCATTER_MAY_HIT
+                            | SCATTER_MAY_FRACTURE | SCATTER_VIS_EFFECTS,
+                        null, state, {
+                            ...env,
+                            hooks: objectHooks,
+                            newsym: env.newsym ?? redraw,
+                        });
+                    if (cansee(x, y, state)) redraw(x, y);
+                    used_up = true;
+                    launch_drop_spot(null, 0, 0, state);
+                    break;
                 case LEVEL_TELEP:
                 case TELEP_TRAP:
                 case PIT:
