@@ -107,7 +107,7 @@ import {
     breaks,
     hero_breaks,
 } from './dothrow.js';
-import { m_carrying, mondied, seemimic, setmangry, xkilled } from './mon.js';
+import { m_carrying, mondied, seemimic, setmangry, wake_nearto, xkilled } from './mon.js';
 import { m_at } from './monst.js';
 import { minstapetrify } from './trap.js';
 import { down_gate, ship_object } from './dokick.js';
@@ -2111,7 +2111,7 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
         }
 
         if (noise)
-            note_unported('mon.c wake_nearto');
+            await wake_nearto(barsx, barsy, noise, { ...rawEnv, state });
     }
 }
 

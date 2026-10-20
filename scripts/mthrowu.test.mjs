@@ -242,6 +242,49 @@ test('a force-fought war hammer can break iron bars on its saving throw', async 
     assert.equal(draws.length, 2);
 });
 
+test('a loud boulder impact on bars wakes a nearby sleeper', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nhit_bars(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* TRUE iff thrown/kicked/rolled', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /if \(noise\)\s*wake_nearto\(barsx, barsy, noise\)/u);
+
+    const state = await hero();
+    const y = state.u.uy;
+    const objx = state.u.ux + 1;
+    const barsx = state.u.ux + 2;
+    const sleeperX = state.u.ux + 3;
+    const farSleeperX = barsx + 4;
+    clearRow(state, state.u.ux, farSleeperX, y);
+    state.level.at(barsx, y).typ = IRONBARS;
+    const sleeper = newMonster({
+        data: state.mons[PM_GIANT_RAT], mx: sleeperX, my: y,
+        mhp: 8, mhpmax: 8, msleeping: true, mundetected: true,
+    });
+    sleeper.nmon = state.level.monlist;
+    state.level.monlist = sleeper;
+    state.level.monsters[sleeperX][y] = sleeper;
+    const farSleeper = newMonster({
+        data: state.mons[PM_GIANT_RAT], mx: farSleeperX, my: y,
+        mhp: 8, mhpmax: 8, msleeping: true, mundetected: true,
+    });
+    farSleeper.nmon = state.level.monlist;
+    state.level.monlist = farSleeper;
+    state.level.monsters[farSleeperX][y] = farSleeper;
+    const boulder = mksobj(BOULDER, false, false, { state });
+
+    await hit_bars({ obj: boulder }, objx, y, barsx, y, 0, state,
+        { rn2: () => 0 }, {
+            canSeeMonster: () => false,
+            disturbBuriedZombies: () => {},
+            message: () => {},
+        });
+
+    assert.equal(state.level.at(barsx, y).typ, IRONBARS);
+    assert.equal(sleeper.msleeping, false);
+    assert.equal(farSleeper.msleeping, true);
+});
+
 test('hits_bars awaits the non-hero break result before returning', async () => {
     const state = await hero();
     const y = state.u.uy;
