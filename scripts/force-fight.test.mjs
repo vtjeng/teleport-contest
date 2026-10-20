@@ -672,8 +672,8 @@ test('force-fight routes digging tools to use_pick_axe2 and installs its occupat
     await forceFightWest(bars);
     assert.equal(bars.uwep, primary, 'nonfragile primary survives breaktest');
     assert.equal(target(bars).typ, IRONBARS);
-    // Existing hit_bars owns the missing Clonk/wake branches; no stand-in.
-    assert.ok(bars.unported.has('pline.c pline'));
+    // hit_bars prints the impact sound for a surviving, nonflimsy weapon.
+    assert.equal(toplines(bars), 'Clonk!');
 
     // hack.c domove_fight_web() (2018-2113), which runs second. Only a seen
     // web selects it.
