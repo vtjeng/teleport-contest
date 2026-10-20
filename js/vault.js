@@ -7,6 +7,7 @@
 import {
     ACCESSIBLE,
     A_LAWFUL,
+    ARTICLE_A,
     BLCORNER,
     BLINDED,
     BRCORNER,
@@ -63,17 +64,19 @@ import { PM_GUARD } from './monsters.js';
 import {
     m_at, mon_track_clear, place_monster, remove_monster,
 } from './monst.js';
-import { m_into_limbo, mongone, mpickgold } from './mon.js';
+import { m_carrying, m_into_limbo, mongone, mpickgold } from './mon.js';
 import {
     capitalizedAlwaysVisibleMonsterName,
     alwaysVisibleMonsterName,
     capitalizedMonsterName,
+    Monnam,
     pmname,
+    x_monnam,
 } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
 import { carried, g_at, hasContents } from './obj.js';
-import { BOULDER, ROCK } from './objects.js';
+import { BOULDER, ROCK, TIN_WHISTLE } from './objects.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
 import { relobj } from './steal.js';
@@ -89,7 +92,7 @@ import {
     block_point, cansee, couldsee, m_canseeu, recalc_block_point, unblock_point,
 } from './vision.js';
 import { getlin } from './windows.js';
-import { canspotmon } from './display.js';
+import { canspotmon, mon_visible } from './display.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -111,6 +114,24 @@ export function vault_occupied(array, state = game) {
             return room;
     }
     return 0;
+}
+
+// C ref: vault.c uleftvault() (256-278). teleds() calls this after updating
+// the hero's temporary vault occupancy and before destination room effects.
+export async function uleftvault(grd, state = game, env = {}) {
+    if (!grd || !grd.isgd || grd.mhp < 1) return;
+    if ((money_cnt(state.invent) || hidden_gold(true, state))
+        && um_dist(grd.mx, grd.my, 1, state)) {
+        if (grd.mpeaceful) {
+            if (canspotmon(grd, state))
+                await (env.message ?? ttyPline)(
+                    `${Monnam(grd, state, env)} becomes irate.`, state, env,
+                );
+            grd.mpeaceful = 0;
+        }
+        if (!in_fcorridor(grd, state.u.ux, state.u.uy))
+            await gd_move(grd, { ...env, state });
+    }
 }
 
 // C ref: vault.c findgd() (204-234). Search the level monster chain first,
@@ -499,10 +520,19 @@ async function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
 
 // C ref: vault.c gd_letknow() (868-882). Announce a guard's approach or
 // confrontation when the guard turns hostile and teleports out.
-function gd_letknow(grd, state, env) {
-    throw new UnsupportedVaultGuardError(
-        'gd_letknow() hostile guard announcement',
-    );
+async function gd_letknow(grd, state, env) {
+    if (!cansee(grd.mx, grd.my, state) || !mon_visible(grd, state)) {
+        const sound = m_carrying(grd, TIN_WHISTLE, state)
+            ? "the shrill sound of a guard's whistle" : 'angry shouting';
+        const heard = youHear(`${sound}.`, state);
+        if (heard) await env.message(heard, state, env);
+    } else {
+        const name = x_monnam(grd, ARTICLE_A, 'angry', 0, false, state, env);
+        const text = um_dist(grd.mx, grd.my, 2, state)
+            ? `You see ${name} approaching.`
+            : `You are confronted by ${name}.`;
+        await env.message(text, state, env);
+    }
 }
 
 // C ref: vault.c gd_move() (887-1201). The vault guard escort state machine.
@@ -537,10 +567,21 @@ export async function gd_move(grd, env = {}) {
         await wallify_vault(grd, state, gdEnv);
 
     if (!grd.mpeaceful) {
-        // Hostile guard path: not exercised by the witness
-        throw new UnsupportedVaultGuardError(
-            'gd_move() hostile guard movement',
-        );
+        // C vault.c:914-932. Once the hero leaves with gold, the guard can
+        // teleport out of its vault or temporary corridor and close it.
+        if (!u_in_vault
+            && (grd_in_vault || (in_fcorridor(grd, grd.mx, grd.my)
+                && !in_fcorridor(grd, state.u.ux, state.u.uy)))) {
+            rloc(grd, RLOC_MSG, { ...env, state });
+            await wallify_vault(grd, state, gdEnv);
+            if (!in_fcorridor(grd, grd.mx, grd.my))
+                await clear_fcorr(grd, true, state, gdEnv);
+            await gd_letknow(grd, state, gdEnv);
+            return -1;
+        }
+        if (!in_fcorridor(grd, grd.mx, grd.my))
+            await clear_fcorr(grd, true, state, gdEnv);
+        return -1;
     }
 
     if (Math.abs(egrd.ogx - grd.mx) > 1 || Math.abs(egrd.ogy - grd.my) > 1)

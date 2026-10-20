@@ -26,7 +26,7 @@ import { mondead, mongone } from '../js/mon.js';
 import { PM_GUARD } from '../js/monsters.js';
 import {
     findgd, gd_move, gd_sound, grddead, in_fcorridor, invault, newegd,
-    vault_gd_watching, vault_summon_gd, UnsupportedVaultGuardError,
+    vault_gd_watching, vault_summon_gd,
 } from '../js/vault.js';
 import {
     place_monster, remove_monster,
@@ -529,11 +529,11 @@ test('gd_move waits for the cleanup disappearance message', async () => {
     );
 });
 
-// ── hostile guard branch throws ──
+// ── hostile guard movement ──
 
-// vault.c:919: a hostile guard should throw UnsupportedVaultGuardError
-// because the hostile path is not exercised by the witness session.
-test('gd_move throws for hostile guard', async () => {
+// vault.c:914-932: an already hostile guard outside the vault returns control
+// to ordinary monster movement after restoring the abandoned vault boundary.
+test('gd_move lets an already hostile guard use ordinary monster movement', async () => {
     await startedGame();
     const grd = makeGuard(10, 10);
     grd.mpeaceful = 0; // hostile
@@ -553,16 +553,12 @@ test('gd_move throws for hostile guard', async () => {
     room.lx = 30; room.hx = 30;
     room.ly = 10; room.hy = 10;
 
-    await assert.rejects(
-        () => gd_move(grd, {
-            state: game,
-            random: fixedRng([]),
-            message: messageCollector(),
-        }),
-        (err) => err instanceof UnsupportedVaultGuardError
-            && err.branch === 'gd_move() hostile guard movement',
-        'hostile guard should throw UnsupportedVaultGuardError',
-    );
+    const moved = await gd_move(grd, {
+        state: game,
+        random: fixedRng([]),
+        message: messageCollector(),
+    });
+    assert.equal(moved, -1);
 
     room.rtype = savedRtype;
 });

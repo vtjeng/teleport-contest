@@ -63,7 +63,7 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
-import { POTION_CLASS, POT_WATER, objects_globals_init } from '../js/objects.js';
+import { COIN_CLASS, GOLD_PIECE, POTION_CLASS, POT_WATER, objects_globals_init } from '../js/objects.js';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { InMemoryStorage } from '../js/storage.js';
 import {
@@ -1218,7 +1218,7 @@ test('teleds awaits spoteffects on an occupied destination', () => {
     assert.match(jsTeleds,
         /vault_occupied\(u\.urooms, state\)[\s\S]*?\? findgd\(state\)/u);
     assert.match(jsTeleds,
-        /u\.urooms = in_rooms\(u\.ux, u\.uy, VAULT, state\);[\s\S]*?note_unported\('vault\.c uleftvault'\);[\s\S]*?u\.urooms = savedUrooms;/u);
+        /u\.urooms = in_rooms\(u\.ux, u\.uy, VAULT, state\);[\s\S]*?await uleftvault\(vault_guard, state, env\);[\s\S]*?u\.urooms = savedUrooms;/u);
     assert.doesNotMatch(jsTeleds, /m_at\(nux, nuy, state\)/u);
     assert.match(cTeleds,
         /if \(!hideunder\(&gy\.youmonst\) && gy\.youmonst\.data->mlet == S_MIMIC\)\s*\{\s*\/\* mimics stop being unnoticed \*\/\s*gy\.youmonst\.m_ap_type = M_AP_NOTHING;/u);
@@ -1310,6 +1310,69 @@ test('teleds looks up a vault guard and restores the room list before effects',
             'a destination still inside the vault does not reach uleftvault');
         assert.equal(game.level.monlist, guard,
             'findgd leaves the already local guard linked to the level');
+    });
+
+test('teleds leaving a guarded vault with gold alarms and releases the guard',
+    async () => {
+        await runSegment({
+            seed: 840035,
+            datetime: '20310314151028',
+            nethackrc: 'OPTIONS=name:TeledsVaultEscape,role:Wizard,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        const u = game.u;
+        const start = { x: u.ux, y: u.uy };
+        const guardSpot = { x: start.x + 1, y: start.y };
+        const destination = { x: start.x + 4, y: start.y };
+        const vaultIndex = game.level.rooms.length;
+        const vaultRoom = vaultIndex + ROOMOFFSET;
+        game.level.rooms.push({
+            lx: start.x - 1, hx: guardSpot.x,
+            ly: start.y - 1, hy: start.y + 1, rtype: VAULT,
+        });
+        for (const { x, y } of [start, guardSpot]) {
+            const loc = game.level.at(x, y);
+            loc.roomno = vaultRoom;
+            loc.typ = ROOM;
+        }
+        const landing = game.level.at(destination.x, destination.y);
+        landing.roomno = 0;
+        landing.typ = ROOM;
+        game.level.objects[destination.x][destination.y] = null;
+        game.level.monsters[destination.x][destination.y] = null;
+        u.urooms = [vaultRoom, 0, 0, 0, 0];
+        game.flags.pickup = false;
+        game.invent = newObject({
+            otyp: GOLD_PIECE, oclass: COIN_CLASS, quan: 37,
+            where: OBJ_INVENT,
+        });
+
+        const guard = newMonster({
+            data: game.mons[PM_GUARD], m_id: 990035,
+            mhp: 12, mhpmax: 12, mpeaceful: 1,
+        });
+        guard.isgd = true;
+        guard.nmon = game.level.monlist;
+        game.level.monlist = guard;
+        newegd(guard);
+        guard.mextra.egd.gdlevel = { ...u.uz };
+        guard.mextra.egd.vroom = vaultIndex;
+        place_monster(guard, guardSpot.x, guardSpot.y, game);
+        await teleds(destination.x, destination.y, TELEDS_TELEPORT, game, {
+            message: async () => {},
+        });
+
+        assert.equal(guard.mpeaceful, 0,
+            'vault.c uleftvault makes the guard hostile after gold escapes');
+        assert.equal(game.unported.has('vault.c uleftvault'), false);
+        assert.deepEqual([u.ux, u.uy], [destination.x, destination.y]);
+        assert.notDeepEqual([guard.mx, guard.my],
+            [guardSpot.x, guardSpot.y],
+            'the hostile guard immediately relocates to pursue the hero');
+        assert.equal(u.urooms[0], 0,
+            'destination room effects observe that the hero left the vault');
     });
 
 test('goodpos reads hero pool and lava properties directly from source state', () => {

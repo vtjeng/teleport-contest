@@ -251,7 +251,7 @@ import { somexyspace } from './mklev.js';
 import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
 import { ttyPline } from './tty_message.js';
-import { findgd, vault_occupied } from './vault.js';
+import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 
@@ -1977,7 +1977,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
         const savedUrooms = u.urooms;
         u.urooms = in_rooms(u.ux, u.uy, VAULT, state);
         if (!vault_occupied(u.urooms, state))
-            note_unported('vault.c uleftvault');
+            await uleftvault(vault_guard, state, env);
         u.urooms = savedUrooms;
     }
     /* possible shop entry message comes after guard's shrill whistle */
