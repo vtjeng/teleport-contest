@@ -823,9 +823,15 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             state.gz.zap_oseen = oseen;
             await mzapwand(mtmp, otmp, false, state);
             state.m_using = true;
-            // bhito (zap.c) is unported; pass null so fhito_loc skips objects.
-            note_unported('zap.c bhito');
-            await mbhit(mtmp, rn1(8, 6), mbhitm, null, otmp, state);
+            const random = { d, rn1, rn2, rnd, rne, rnl, rnz,
+                ...(env.random ?? {}) };
+            await mbhit(
+                mtmp, rn1(8, 6), mbhitm,
+                (obj, wand, callbackState, callbackEnv) => bhito(
+                    obj, wand, callbackState, random, callbackEnv,
+                ),
+                otmp, state, env,
+            );
             /* monster learns that teleportation isn't useful here */
             if (noteleport_level(mtmp, state))
                 mon_learns_traps(mtmp, TELEP_TRAP);

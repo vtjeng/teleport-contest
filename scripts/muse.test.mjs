@@ -14,6 +14,7 @@ import {
     OBJ_MINVENT,
     POLY_TRAP,
     TELEP_TRAP,
+    TELEDS_TELEPORT,
     TELEPAT,
     REFLECTING,
     NON_PM,
@@ -67,6 +68,7 @@ import { can_blow } from '../js/mondata.js';
 import { canseemon, sensemon } from '../js/display.js';
 import { add_to_container } from '../js/invent.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
+import { teleds } from '../js/teleport.js';
 import { init_objects } from '../js/o_init.js';
 import {
     planningState,
@@ -102,6 +104,7 @@ import { messageAt } from '../js/startup_a11y.js';
 import {
     AMULET_OF_GUARDING,
     AMULET_OF_LIFE_SAVING,
+    AMULET_OF_YENDOR,
     BAG_OF_HOLDING,
     BUGLE,
     CORPSE,
@@ -631,6 +634,67 @@ test('find_defensive zaps undead turning at a cockatrice-corpse wielder', () => 
     // An empty wand is passed over (muse.c:534).
     wand.spe = 0;
     assert.equal(find_defensive(monster, false, env), null);
+});
+
+test('defensive teleport wand reaches a floor object through bhito', async () => {
+    // C muse.c:find_defensive -> use_defensive -> mbhit -> fhito_loc ->
+    // zap.c:bhito. Keep a real monster, wand, and object on the beam line.
+    const state = await offensiveHero();
+    state.nhDisplay.onEmptyQueue = () => 32;
+
+    const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const lanes = [];
+    for (let x = 3; x < COLNO - 3; ++x) {
+        for (let y = 3; y < ROWNO - 3; ++y) {
+            if (state.level.at(x, y).typ !== ROOM
+                || state.level.monsters[x][y]) continue;
+            for (const [dx, dy] of directions) {
+                const floor = { x: x + dx, y: y + dy };
+                const monster = { x: x + dx * 2, y: y + dy * 2 };
+                if (state.level.at(floor.x, floor.y).typ === ROOM
+                    && state.level.at(monster.x, monster.y).typ === ROOM
+                    && !state.level.monsters[floor.x][floor.y]
+                    && !state.level.monsters[monster.x][monster.y])
+                    lanes.push({ hero: { x, y }, floor, monster });
+            }
+        }
+    }
+    const lane = lanes[0];
+    assert.ok(lane, 'the initialized level has a clear two-square room lane');
+    await teleds(lane.hero.x, lane.hero.y, TELEDS_TELEPORT, state);
+    assert.deepEqual([state.u.ux, state.u.uy], [lane.hero.x, lane.hero.y]);
+
+    const amulet = makeObject(state, AMULET_OF_YENDOR, {
+        where: OBJ_MINVENT,
+    });
+    const wand = carried(state, WAN_TELEPORTATION, {
+        where: OBJ_MINVENT, spe: 2,
+    });
+    wand.nobj = amulet;
+    const monster = offensiveMonster(state, PM_GOBLIN, wand, {
+        mx: lane.monster.x, my: lane.monster.y,
+        mhp: 2, mhpmax: 10, mpeaceful: false,
+    });
+    wand.ocarry = monster;
+    wand.v = monster;
+    amulet.ocarry = monster;
+    amulet.v = monster;
+    monster.nmon = state.level.monlist;
+    state.level.monlist = monster;
+    place_monster(monster, monster.mx, monster.my, state);
+    const floorItem = mksobj(DAGGER, false, false, { state });
+    place_object(floorItem, lane.floor.x, lane.floor.y, { state });
+    assert.equal(floorItem.where, OBJ_FLOOR);
+    assert.equal(state.unported.has('zap.c bhito'), false);
+
+    const choice = find_defensive(monster, false, { state });
+    assert.equal(choice?.kind, 'teleportation wand');
+    assert.equal(await use_defensive(monster, choice, state), 2);
+    assert.equal(state.unported.has('zap.c bhito'), false);
+    assert.equal(floorItem.where, OBJ_FLOOR);
+    assert.notDeepEqual([floorItem.ox, floorItem.oy],
+        [lane.floor.x, lane.floor.y],
+        'the beam relocates the floor object before it reaches the hero');
 });
 
 test('find_misc selection covers initial miscellaneous item families',
