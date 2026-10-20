@@ -1360,11 +1360,11 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                             state,
                         );
                 } else if (!Deaf(state)) {
-                    if (typeof env.message === 'function')
-                        await env.message(
-                            `You hear something hit ${mon_nam(magr, state)} with a thud!`,
-                            state,
-                        );
+                    const heard = youHear(
+                        `something hit ${mon_nam(magr, state)} with a thud!`,
+                        state);
+                    if (heard && typeof env.message === 'function')
+                        await env.message(heard, state);
                 }
                 hits_thrower_flag = true;
             }

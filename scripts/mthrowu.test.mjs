@@ -1480,20 +1480,22 @@ test('a failed tethered return closes its display before the snap', async () => 
     }
 });
 
-test('an unseen fumbled return landing respects acoustics', async () => {
+test('unseen fumbled returns respect acoustics', async () => {
     const cStart = MTHROWU_SOURCE.indexOf('\nreturn_from_mtoss(\n');
     const cEnd = MTHROWU_SOURCE.indexOf('\n/* Monster throws', cStart);
     const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
     assert.ok(cStart >= 0 && cEnd > cStart);
     assert.match(cBody, /You_hear\("%s land near %s\.", Something, mon_nam\(magr\)\)/u);
+    assert.match(cBody, /You_hear\("%s hit %s with a thud!", something,\s*mon_nam\(magr\)\)/u);
 
-    for (const acoustics of [true, false]) {
+    for (const hitsArm of [false, true]) for (const acoustics of [true, false]) {
         const state = await hero();
         state.flags.acoustics = acoustics;
         const y = state.u.uy;
         const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
         subject.mconf = 1;
         subject.minvis = 1;
+        subject.mhp = subject.mhpmax = 100;
         const weapon = mksobj(AKLYS, false, false, { state });
         add_to_minv(subject, weapon, { state });
         subject.mw = weapon;
@@ -1504,7 +1506,10 @@ test('an unseen fumbled return landing respects acoustics', async () => {
 
         await m_throw(subject, subject.mx, y, 1, 0, 1, weapon, {
             state,
-            random: { rn2: (bound) => bound === 100 ? 1 : bound === 2 ? 0 : bound - 1 },
+            random: {
+                rn2: (bound) => bound === 100 ? 1 : bound === 2 ? Number(hitsArm) : bound - 1,
+                rnd: () => 1,
+            },
             canSeeMonster: () => true,
             canSeeSquare: () => true,
             monsterAt: () => null,
@@ -1528,7 +1533,9 @@ test('an unseen fumbled return landing respects acoustics', async () => {
         });
 
         assert.deepEqual(messages, acoustics
-            ? ['You hear Something land near it.']
+            ? [hitsArm
+                ? 'You hear something hit it with a thud!'
+                : 'You hear Something land near it.']
             : []);
         assert.equal(weapon.where, OBJ_FLOOR);
     }
