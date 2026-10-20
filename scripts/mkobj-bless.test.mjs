@@ -15,6 +15,7 @@ import {
 import {
     FIG_TRANSFORM,
     LUCKADD,
+    LS_OBJECT,
     OBJ_FREE,
     OBJ_INVENT,
     TIMER_OBJECT,
@@ -22,6 +23,8 @@ import {
 } from '../js/const.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject, weight, bless } from '../js/obj.js';
+import { arti_light_radius, light_globals_init, new_light_source }
+    from '../js/light.js';
 import { timeout_globals_init, start_timer, peek_timer } from '../js/timeout.js';
 import { GameDisplay } from '../js/game_display.js';
 
@@ -127,10 +130,14 @@ test('bless adjusts carried artifact light after the BUC mutation', async () => 
         dknown: true,
     });
     state.invent = armor;
+    light_globals_init(state);
+    const source = new_light_source(state.u.ux, state.u.uy,
+        arti_light_radius(armor, state), LS_OBJECT, armor, state);
     const pending = bless(armor, { state });
 
     assert.equal(typeof pending?.then, 'function');
     await pending;
     assert.equal(armor.cursed, false);
+    assert.equal(source.range, 4);
     assert.match(state.nhDisplay.topMessage, /shines much brighter\.$/);
 });
