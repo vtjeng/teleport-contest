@@ -5,20 +5,30 @@ import test from 'node:test';
 import {
     HOLE,
     HAND,
+    COLNO,
     LL_DUMP,
     LL_MINORAC,
     MAX_NUM_WORMS,
     OBJ_FLOOR,
+    SHOPBASE,
+    TELEDS_TELEPORT,
     PIT,
     ROLLING_BOULDER_TRAP,
     ROOM,
+    ROWNO,
     Trap_Effect_Finished,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { mksobj_at } from '../js/obj.js';
-import { LARGE_BOX, ROCK } from '../js/objects.js';
-import { initRng } from '../js/rng.js';
+import { LARGE_BOX, ROCK, SPE_STONE_TO_FLESH } from '../js/objects.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz, initRng } from '../js/rng.js';
+import { do_mkroom } from '../js/mkroom.js';
+import { fill_special_room } from '../js/mklev.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { costly_spot, get_cost, inside_shop } from '../js/shk.js';
+import { teleds } from '../js/teleport.js';
+import { m_at } from '../js/monst.js';
 import { MZ_HUGE, monst_globals_init, PM_LONG_WORM } from '../js/monsters.js';
 import { preflight_dotrap, trapeffect_selector } from '../js/trap_effects.js';
 import { chest_trap, deltrap } from '../js/trap.js';
@@ -73,6 +83,97 @@ test('exploding chest destroys its floor pile', async () => {
     assert.equal(destroyed, true);
     assert.equal(game.level.objects[x][y], null);
     assert.ok(chest.where !== OBJ_FLOOR && rock.where !== OBJ_FLOOR);
+});
+
+async function initializedExplodingShopChest(heroInside) {
+    await runSegment({
+        seed: 2026101801,
+        datetime: '20261018120000',
+        nethackrc: 'OPTIONS=name:ShopChest,role:Archeologist,race:human,'
+            + 'gender:male,align:lawful,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics,!autopickup',
+        moves: '',
+    });
+    const state = game;
+    state.nhDisplay.onEmptyQueue = () => 32;
+    const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
+    do_mkroom(SHOPBASE, state, random);
+    const shop = state.level.rooms.slice(0, state.level.nroom)
+        .find(room => room && room.rtype >= SHOPBASE && room.needfill != null);
+    assert.ok(shop);
+    const env = objectGenerationEnv({ state, random });
+    await fill_special_room(shop, env);
+    const keeper = shop.resident;
+    assert.ok(keeper?.isshk && keeper.mpeaceful && keeper.mextra?.eshk);
+    const eshk = keeper.mextra.eshk;
+
+    const squares = [];
+    for (let x = shop.lx; x <= shop.hx; ++x) {
+        for (let y = shop.ly; y <= shop.hy; ++y) {
+            if (inside_shop(x, y, state) === eshk.shoproom
+                && costly_spot(x, y, state)
+                && !m_at(x, y, state)
+                && !state.level.objects[x][y]) squares.push({ x, y });
+        }
+    }
+    assert.ok(squares.length >= 2, 'shop has two empty costly squares');
+    const target = squares[0];
+    let hero = squares[1];
+    if (!heroInside) {
+        hero = null;
+        for (let x = 2; x < COLNO - 2 && !hero; ++x) {
+            for (let y = 2; y < ROWNO - 2 && !hero; ++y) {
+                if (state.level.at(x, y).typ === ROOM
+                    && !inside_shop(x, y, state)
+                    && !m_at(x, y, state)) hero = { x, y };
+            }
+        }
+        assert.ok(hero, 'the initialized level has an outside room square');
+    }
+    await teleds(hero.x, hero.y, TELEDS_TELEPORT, state, { random });
+    assert.deepEqual([state.u.ux, state.u.uy], [hero.x, hero.y]);
+    assert.equal(inside_shop(hero.x, hero.y, state) === eshk.shoproom,
+        heroInside);
+    assert.equal(state.u.ushops?.[0] === eshk.shoproom, heroInside);
+
+    const chest = mksobj_at(LARGE_BOX, target.x, target.y,
+        false, false, env);
+    const stock = mksobj_at(SPE_STONE_TO_FLESH, target.x, target.y,
+        false, false, env);
+    assert.equal(chest.no_charge, false);
+    assert.equal(stock.no_charge, false);
+    const expected = 2 * get_cost(chest, keeper, state)
+        + get_cost(stock, keeper, state);
+    assert.ok(expected > 0);
+    state.u.uluck = state.u.moreluck = 0;
+    state.u.uhp = state.u.uhpmax = 100;
+    initRng(31); // rn2(13)=5, rn2(20)=0, rn2(26)=25: explosion.
+    return { state, chest, stock, keeper, eshk, target, expected };
+}
+
+test('exploding shop chest bills chest and floor stock before destruction',
+    async () => {
+        // C trap.c:chest_trap charges the chest, then each floor object,
+        // before deleting the pile and reporting the shop loss.
+        const { state, chest, keeper, eshk, target, expected } =
+            await initializedExplodingShopChest(true);
+        assert.equal(await chest_trap(chest, HAND, false, state), true);
+        assert.equal(eshk.debit, expected);
+        assert.equal(eshk.robbed, 0);
+        assert.equal(keeper.mpeaceful, true);
+        assert.equal(state.unported.has('shk.c stolen_value'), false);
+        assert.equal(state.level.objects[target.x][target.y], null);
+    });
+
+test('exploding shop chest angers keeper when hero is outside', async () => {
+    const { state, chest, keeper, eshk, target, expected } =
+        await initializedExplodingShopChest(false);
+    assert.equal(await chest_trap(chest, HAND, false, state), true);
+    assert.equal(eshk.debit, 0);
+    assert.equal(eshk.robbed, expected);
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(state.unported.has('shk.c make_angry_shk'), false);
+    assert.equal(state.level.objects[target.x][target.y], null);
 });
 
 test('poisoned chest needle completes Constitution exercise', async () => {

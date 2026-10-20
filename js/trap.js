@@ -258,6 +258,7 @@ import {
     useup,
     useupall,
     consume_obj_charge,
+    currency,
     delete_contents,
     add_to_container,
     nxtobj,
@@ -352,8 +353,8 @@ import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { linedup } from './mthrowu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { add_damage, costly_spot, sellobj, shop_keeper, shk_your, shopdig,
-    stolen_value } from './shk.js';
+import { add_damage, costly_spot, inside_shop, make_angry_shk, sellobj,
+    shop_keeper, shk_your, shopdig, stolen_value } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
@@ -3702,21 +3703,21 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
         case 25: case 24: case 23: case 22: case 21: {
             // Explosion.
             const ox = obj.ox, oy = obj.oy;
-
-            const costly = costly_spot(ox, oy, state)
-                && shop_keeper(
-                    (in_rooms(ox, oy, SHOPBASE, state) || [''])[0], state,
-                ) != null;
-            // C: insider = (*u.ushops && inside_shop(u.ux, u.uy) && ...).
-            // Shop billing (stolen_value/make_angry_shk) is not ported.
+            const room = in_rooms(ox, oy, SHOPBASE, state)[0] ?? 0;
+            const keeper = costly_spot(ox, oy, state)
+                ? shop_keeper(room, state) : null;
+            const costly = Boolean(keeper);
+            const insider = Boolean(u.ushops?.[0])
+                && Boolean(inside_shop(u.ux, u.uy, state))
+                && room === u.ushops[0];
+            let loss = 0;
 
             await ttyPline(`${Tobjnam(obj, 'explode', state)}!`, state);
             const buf = `exploding ${xnameFresh(obj, state)}`;
 
-            if (costly) {
-                // C: loss += stolen_value(...).
-                note_unported('shk.c stolen_value');
-            }
+            if (costly)
+                loss += await stolen_value(obj, ox, oy,
+                    Boolean(keeper.mpeaceful), true, state);
             delete_contents(obj, { state });
 
             // Unpunish if ball or chain will be destroyed.
@@ -3743,9 +3744,9 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             let otmp = state.level.objects[ox]?.[oy] ?? null;
             while (otmp) {
                 const next = otmp.nexthere;
-                if (costly) {
-                    note_unported('shk.c stolen_value');
-                }
+                if (costly)
+                    loss += await stolen_value(otmp, otmp.ox, otmp.oy,
+                        Boolean(keeper.mpeaceful), true, state);
                 if (otmp === obj)
                     chestgone = true;
                 delobj(otmp, objectEnv);
@@ -3754,10 +3755,15 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             await wake_nearby({ state });
             await losehp(Maybe_Half_Phys(d(6, 6), state), buf, KILLED_BY_AN, state);
             await exercise(A_STR, false, state, { rn2 }, exerciseEnv);
-            if (costly) {
-                // C: shop accounting messages and make_angry_shk().
-                note_unported('shk.c stolen_value');
-                note_unported('shk.c make_angry_shk');
+            if (costly && loss) {
+                if (insider) {
+                    await ttyPline(`You owe ${loss} ${currency(loss, state)} `
+                        + 'for objects destroyed.', state);
+                } else {
+                    await ttyPline(`You caused ${loss} ${currency(loss, state)} `
+                        + 'worth of damage!', state);
+                    await make_angry_shk(keeper, ox, oy, state);
+                }
             }
             if (chestgone)
                 return true;
