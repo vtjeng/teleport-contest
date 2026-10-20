@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, ROOM, ROLL, ROWNO,
+    DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, LANDMINE,
+    ROOM, ROLL, ROWNO,
     VWALL,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -219,3 +220,37 @@ for (const [objType, diggingX] of [[BOULDER, 10], [BOULDER, 9], [STATUE, 10]]) {
         }
     });
 }
+
+test('a rolling boulder continues when a land mine does not fire', async () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = { ux: 20, uy: 10 };
+    state.context = {};
+    for (let x = 10; x <= 12; x++) state.level.at(x, 10).typ = ROOM;
+    const mine = { ttyp: LANDMINE, tx: 11, ty: 10 };
+    state.level.traps.push(mine);
+    const boulder = newObject({ otyp: BOULDER, quan: 1 });
+    const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+    place_object(boulder, 10, 10, { state, hooks });
+    const draws = [];
+
+    const result = await launch_obj(BOULDER, 10, 10, 12, 10,
+        ROLL, state, {
+            hooks,
+            planning: true,
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    assert.equal(bound, 10);
+                    return 0;
+                },
+            },
+            message: () => {},
+            redraw: () => {},
+        });
+
+    assert.equal(result, 1);
+    assert.deepEqual(draws, [10]);
+    assert.equal(sobj_at(BOULDER, 12, 10, state), boulder);
+    assert.equal(state.level.traps.includes(mine), true);
+});

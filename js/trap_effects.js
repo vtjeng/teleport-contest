@@ -2904,6 +2904,10 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 // ignored and the boulder keeps rolling.
                 switch (t.ttyp) {
                 case LANDMINE:
+                    // C leaves a mine intact and keeps rolling on 0..2.
+                    // Its firing arm still needs fracture_rock and scatter.
+                    if (env.random.rn2(10) <= 2) break;
+                    // FALLTHROUGH: the firing arm still has an incomplete stop.
                 case LEVEL_TELEP:
                 case TELEP_TRAP:
                 case PIT:
