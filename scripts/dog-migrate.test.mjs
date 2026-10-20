@@ -197,6 +197,7 @@ test('ordinary migration clears charges and transfers the live monster', async (
 
 test('migration uses canonical mon_leaving_level boulder landing effects', async () => {
     const state = migrationState();
+    state.flags = { acoustics: true };
     const { monster } = onMapMonster(state);
     const { mx, my } = monster;
     const calls = [];
