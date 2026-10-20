@@ -49,6 +49,7 @@ import {
     PM_NEWT,
     PM_STONE_GIANT,
     PM_URUK_HAI,
+    PM_WHITE_UNICORN,
     SPECIAL_PM,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
@@ -74,6 +75,7 @@ import {
     STRANGE_OBJECT,
     WAN_STRIKING,
     WAR_HAMMER,
+    WORTHLESS_WHITE_GLASS,
 } from '../js/objects.js';
 import {
     blocking_terrain, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
@@ -1301,6 +1303,61 @@ test('m_throw hands a hurled potion to potionhit and settles nothing else',
         // kn was set, so the tail identified the type rather than prompting.
         assert.equal(state.objects[POT_SLEEPING].oc_name_known, 1);
     });
+
+test('a unicorn catches and rejects worthless glass thrown by a monster', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nucatchgem(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* hero may catch thrown obj', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /You\("catch the %s\."[\s\S]*?You\("are not interested in %s junk\."/u);
+
+    const state = await hero();
+    state.u.umonnum = PM_WHITE_UNICORN;
+    state.youmonst.data = state.mons[PM_WHITE_UNICORN];
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
+    const glass = mksobj(WORTHLESS_WHITE_GLASS, false, false, { state });
+    add_to_minv(subject, glass, { state });
+    clearRow(state, state.u.ux, subject.mx, y);
+    const messages = [];
+
+    await m_throw(subject, subject.mx, y, -1, 0, 2, glass, {
+        state,
+        random: { rn2: () => 1 },
+        canSeeMonster: () => true,
+        canSeeSquare: () => true,
+        monsterAt: () => null,
+        objectToGlyph: () => 777,
+        temporaryDisplay: () => {},
+        delayOutput: () => {},
+        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+        observeObject: (obj) => observe_object(obj, state),
+        extractObject: (obj) => obj_extract_self(obj, { state }),
+        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
+        damageValue: () => assert.fail('a caught gem does not roll damage'),
+        hitHero: () => assert.fail('a caught gem does not reach thitu'),
+        stopOccupation: () => assert.fail('a caught gem does not stop occupation'),
+        shouldMulch: () => assert.fail('a caught gem does not settle by flight'),
+        floorEffects: () => false,
+        placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
+        hooks: {
+            newsym: () => {},
+            encumberMessage: () => {},
+            extractExternalObject: (obj) => remove_object(obj, { state }),
+        },
+        passiveObject: () => assert.fail('a caught gem has no passive hit'),
+        stackObject: () => {},
+        endMulti: () => {},
+        message: (line) => { messages.push(line); },
+    });
+
+    assert.deepEqual(messages, [
+        'You catch the white gem.',
+        "You are not interested in the giant rat's junk.",
+    ]);
+    assert.equal(glass.where, OBJ_FLOOR);
+    assert.equal(state.objects[WORTHLESS_WHITE_GLASS].oc_name_known, 1);
+});
 
 test('m_throw stops flight display after a fatal hurled potion', async () => {
     // C m_throw() hands a potion to potionhit(); fatal crash damage reaches

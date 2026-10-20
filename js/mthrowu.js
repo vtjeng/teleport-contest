@@ -842,8 +842,10 @@ async function ucatchgem(gem, mon, rawEnv = {}) {
         const mon_s_name = s_suffix(monsterCommonName(mon, state));
 
         if (gem.otyp >= FIRST_GLASS_GEM) {
-            note_unported('pline.c pline'); /* You("catch the %s.", gem_xname) */
-            note_unported('pline.c pline'); /* You("are not interested in %s junk.", mon_s_name) */
+            const message = env.message ?? ttyPline;
+            await message(`You catch the ${gem_xname}.`, state, env);
+            await message(`You are not interested in ${mon_s_name} junk.`,
+                state, env);
             /* makeknown(gem->otyp) = discover_object(otyp, TRUE, TRUE, TRUE) */
             discover_object(gem.otyp, true, true, true, state);
             await dropy(gem, env);
