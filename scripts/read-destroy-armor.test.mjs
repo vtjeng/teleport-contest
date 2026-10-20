@@ -62,6 +62,29 @@ test('destroy armor erodes the one worn suit twice and consumes its scroll',
     assert.notEqual(effect, -1);
 });
 
+test('reading destroy armor without worn armor completes its exercises', async () => {
+    // The Healer starts with gloves as its only armor. Remove them, wish for
+    // the scroll, then read it through doread() after play has begun.
+    const replay = await runSegment({
+        seed: 202610203,
+        datetime: '20310415120000',
+        nethackrc: 'OPTIONS=name:NoArmor,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,playmode:debug,pettype:none',
+        moves: '.T\x17scroll of destroy armor\nrm  \n',
+    });
+
+    assert.ok(replay._screens.some((screen) =>
+        screen.includes('You have a strange feeling for a moment')));
+    const rng = replay.getRngLog();
+    assert.ok(rng.some((draw, index) =>
+        draw === 'rn2(2)=0' && rng[index + 1] === 'rn2(2)=0'));
+    assert.equal(inventorySnapshot().some((obj) =>
+        obj.otyp === SCR_DESTROY_ARMOR), false);
+    assert.ok(['uarm', 'uarmc', 'uarmu', 'uarmh', 'uarmg', 'uarmf', 'uarms']
+        .every((slot) => !game[slot]));
+});
+
 test('obj_erode_type preserves the C predicate order', async () => {
     await runSegment({
         ...loadReadDestroyArmorRecipe().segments[0],

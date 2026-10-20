@@ -1711,6 +1711,7 @@ export async function seffect_destroy_armor(
 
     state.gk ??= {};
     const random = rawEnv.random ?? { rn1, rn2, rnd, rnl };
+    const exerciseEnv = { encumberMessage: encumber_msg };
     const otmp = some_armor(state.youmonst, state, random);
     const scursed = Boolean(scroll.cursed);
     const confused = propertyActive(CONFUSION, state);
@@ -1718,8 +1719,8 @@ export async function seffect_destroy_armor(
     if (confused) {
         if (!otmp) {
             await strange_feeling(scroll, 'Your bones itch.', state);
-            await exercise(A_STR, false, state, random);
-            await exercise(A_CON, false, state, random);
+            await exercise(A_STR, false, state, random, exerciseEnv);
+            await exercise(A_CON, false, state, random, exerciseEnv);
             return true;
         }
         const oldErodeproof = Boolean(otmp.oerodeproof);
@@ -1779,8 +1780,8 @@ export async function seffect_destroy_armor(
 
         if (!await destroy_arm(state, random)) {
             await strange_feeling(scroll, 'Your skin itches.', state);
-            await exercise(A_STR, false, state, random);
-            await exercise(A_CON, false, state, random);
+            await exercise(A_STR, false, state, random, exerciseEnv);
+            await exercise(A_CON, false, state, random, exerciseEnv);
             return true;
         }
         state.gk.known = true;
