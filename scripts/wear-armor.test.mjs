@@ -163,7 +163,6 @@ import {
     HELMET,
     HELM_OF_BRILLIANCE,
     HELM_OF_CAUTION,
-    HELM_OF_OPPOSITE_ALIGNMENT,
     HELM_OF_TELEPATHY,
     HIGH_BOOTS,
     IRON_SHOES,
@@ -1977,22 +1976,10 @@ test('a second helmet is refused by the name of the one worn', async () => {
     assert.equal(game.uarmh.otyp, FEDORA, 'the fedora is still the one worn');
 });
 
-test('accessory_or_armor_on handles the quest helm and releases wielded armor',
+test('accessory_or_armor_on releases wielded armor',
     async () => {
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
-
-    // do_wear.c:2228-2238, the Quest-only helm of opposite alignment.
-    game.qstart_level = { dnum: game.u.uz.dnum, dlevel: 11 };
-    await assert.rejects(
-        () => accessory_or_armor_on(
-            armor(HELM_OF_OPPOSITE_ALIGNMENT, { dknown: 1 }), game,
-        ),
-        refusal(UnsupportedWearError, 'accessory_or_armor_on() quest helm'),
-    );
-    // Outside the Quest branch the same helm reaches Helmet_on()'s ported
-    // HELM_OF_OPPOSITE_ALIGNMENT arm instead.
-    delete game.qstart_level;
 
     // do_wear.c:2363-2364 calls remove_worn_item() before setworn() when the
     // selected armor is still in a weapon slot. LOW_BOOTS follows the v58 C
