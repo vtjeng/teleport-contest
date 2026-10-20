@@ -6413,9 +6413,12 @@ export async function zap_updown(obj, state = game,
                     random,
                 });
             } else {
-                // C discards destroy_drawbridge's return value; its source
-                // behavior remains unported.
-                note_unported('dbridge.c destroy_drawbridge');
+                await destroy_drawbridge(bridge.x, bridge.y, state, {
+                    ...rawEnv,
+                    random,
+                });
+                // A final death in C does not return to zap_updown().
+                if (state.program_state?.gameover) return true;
             }
             disclose = true;
         } else if (striking && state.u.dz < 0
