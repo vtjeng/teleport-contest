@@ -374,6 +374,35 @@ test('gd_move triggers cleanup for a dead guard (semi_dead)', async () => {
     try { remove_monster(0, 0, game); } catch { /* already gone */ }
 });
 
+// vault.c:725: wallify_vault uses You_hear for an out-of-sight guard's
+// incantation. The line is absent when acoustics are disabled, even though
+// the wall restoration itself is still announced.
+test('distant vault restoration chant respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        await startedGame();
+        game.flags.acoustics = acoustics;
+        const grd = makeGuard(10, 10);
+        place_monster(grd, 10, 10, game);
+        grd.mhp = 0;
+        const room = game.level.rooms[0];
+        room.rtype = VAULT;
+        room.lx = room.hx = 30;
+        room.ly = room.hy = 10;
+        grd.mextra.egd.vroom = 0;
+        // Force one boundary tile to require restoration. Cleanup parks the
+        // guard at (0,0), outside both sight and the fake corridor.
+        game.level.at(29, 9).typ = ROOM;
+        const message = messageCollector();
+        assert.equal(await gd_move(grd, {
+            state: game, random: fixedRng([]), message,
+        }), -2);
+        assert.equal(message.messages.includes('You hear a distant chant.'),
+            acoustics);
+        assert.ok(message.messages.includes(
+            "The damaged vault's walls are magically restored!"));
+    }
+});
+
 // vault.c:901-903: guard with mx===0 (already parked) triggers cleanup.
 test('gd_move triggers cleanup when guard is parked at (0,0)', async () => {
     await startedGame();

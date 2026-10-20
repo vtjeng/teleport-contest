@@ -50,6 +50,7 @@ import {
     map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
+import { youHear } from './pline.js';
 import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
@@ -432,8 +433,10 @@ async function wallify_vault(grd, state, env) {
                 `${capitalizedAlwaysVisibleMonsterName(grd, state)} whispers an incantation.`,
                 state, env,
             );
-        else
-            env.message('You hear a distant chant.', state, env);
+        else {
+            const heard = youHear('a distant chant.', state);
+            if (heard) env.message(heard, state, env);
+        }
         if (movedgold)
             env.message(
                 'A mysterious force moves the gold into the vault.',
