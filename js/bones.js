@@ -6,6 +6,7 @@ import {
     COLNO,
     DEFUNCT_MONSTER,
     EBONES,
+    HOLE,
     LEAVESTATUE,
     LOST_NONE,
     MAGIC_PORTAL,
@@ -528,8 +529,8 @@ export async function savebones(how, when, corpse, state) {
     // Process traps
     for (const ttmp of state.level?.traps ?? []) {
         ttmp.madeby_u = 0;
-        // C: ttmp->tseen = unhideable_trap(ttmp->ttyp)
-        // unhideable_trap is not ported; leave tseen as-is for now.
+        // C's unhideable_trap(ttyp) macro is true only for a hole.
+        ttmp.tseen = ttmp.ttyp === HOLE;
     }
 
     // Process floor objects and buried objects

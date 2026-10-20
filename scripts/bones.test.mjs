@@ -4,8 +4,9 @@ import test from 'node:test';
 
 import { can_make_bones, resetGhostlyMonsterAttitudes, savebones } from '../js/bones.js';
 import {
-    DIED, KILLED_BY_AN, MM_ADJACENTOK, MM_NOMSG, NO_MINVENT,
+    DIED, HOLE, KILLED_BY_AN, MM_ADJACENTOK, MM_NOMSG, NO_MINVENT,
     NON_PM, OBJ_FLOOR,
+    PIT,
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -121,6 +122,52 @@ function jsonWithBigInts(value) {
     return JSON.stringify(value, (_key, entry) => typeof entry === 'bigint'
         ? { $bigint: entry.toString() } : entry);
 }
+
+test('savebones reveals holes and hides other traps for the next hero',
+    async () => {
+        await runSegment({
+            seed: 12310634,
+            datetime: '20910317101200',
+            nethackrc: 'OPTIONS=name:BonesTraps,role:Wizard,race:human,'
+                + 'gender:female,align:neutral,playmode:debug\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+                + '!autopickup,!acoustics,!debug_mongen\n',
+            moves: '',
+        });
+        setStorageForTesting(new InMemoryStorage());
+        try {
+            game.killer = { name: 'died', format: KILLED_BY_AN };
+            game.flags.bones = true;
+            game.discover = false;
+            game.u.uswallow = 0;
+            game.u.usteed = null;
+            game.uball = null;
+            game.u.ugrave_arise = NON_PM;
+            game.invent = null;
+            for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg',
+                'uarmf', 'uarmu', 'uleft', 'uright', 'uwep', 'uswapwep',
+                'uquiver', 'uamul', 'ublindf', 'uball', 'uchain'])
+                game[slot] = null;
+            game.u.twoweap = false;
+            game.level.traps = [
+                { ttyp: HOLE, tx: 10, ty: 10, tseen: true, madeby_u: true },
+                { ttyp: PIT, tx: 11, ty: 10, tseen: true, madeby_u: true },
+            ];
+            assert.ok(can_make_bones(game));
+
+            await savebones(DIED, getnow(game), null, game);
+
+            const path = `bones_D${game.u.uz.dnum}.${game.u.uz.dlevel}`;
+            const saved = JSON.parse(vfsReadFile(path));
+            assert.deepEqual(saved.traps.map(({ ttyp, tseen, madeby_u }) =>
+                ({ ttyp, tseen, madeby_u })), [
+                { ttyp: HOLE, tseen: true, madeby_u: 0 },
+                { ttyp: PIT, tseen: false, madeby_u: 0 },
+            ]);
+        } finally {
+            setStorageForTesting(null);
+        }
+    });
 
 test('savebones converts a real floor Amulet to its fake cursed bones form', async () => {
     const runner = await runSegment({
