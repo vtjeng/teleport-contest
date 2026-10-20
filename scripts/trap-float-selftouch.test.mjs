@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { LEVITATION, STATUE_TRAP } from '../js/const.js';
+import { LEVITATION, PIT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE } from '../js/monsters.js';
@@ -23,10 +23,11 @@ async function setupSokobanLevitationFall() {
         moves: '',
     });
     // The branch depends on dungeon identity and a trap at the landing
-    // square. A statue trap leaves the later activation path inert.
+    // square. Sokoban level definitions place pits; both probes die before
+    // later trap activation.
     game.sokoban_dnum = game.u.uz.dnum;
     game.level.traps = [{
-        tx: game.u.ux, ty: game.u.uy, ttyp: STATUE_TRAP,
+        tx: game.u.ux, ty: game.u.uy, ttyp: PIT,
         tseen: true, madeby_u: false,
     }];
     game.u.uprops[LEVITATION].intrinsic = 1;
