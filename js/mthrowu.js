@@ -2103,8 +2103,9 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
             const chance = (melee_attk ? 40 : 60) - acurrstr(state) - spe;
 
             if (!random.rn2(Math.max(2, chance))) {
-                note_unported('pline.c pline'); /* "You break the bars apart!" */
-                note_unported('monmove.c dissolve_bars');
+                await (rawEnv.message ?? ttyPline)(
+                    'You break the bars apart!', state, rawEnv);
+                await dissolve_bars(barsx, barsy, state);
                 noise = noise * 2;
             }
         }

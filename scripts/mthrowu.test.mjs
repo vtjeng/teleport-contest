@@ -21,7 +21,10 @@ import {
     NO_WEAPON_WANTED,
     OBJ_DELETED,
     OBJ_FLOOR,
+    OBJ_INVENT,
     BRK_BY_HERO,
+    BRK_FROM_INV,
+    BRK_MELEE,
     OBJ_FREE,
     ROOM,
     STONE,
@@ -69,6 +72,7 @@ import {
     SPEED_BOOTS,
     STRANGE_OBJECT,
     WAN_STRIKING,
+    WAR_HAMMER,
 } from '../js/objects.js';
 import {
     blocking_terrain, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
@@ -203,6 +207,39 @@ test('acid does not dissolve nondiggable iron bars', async () => {
     assert.equal(bars.typ, IRONBARS);
     assert.equal(bars.wall_info, W_NONDIGGABLE);
     assert.equal(messages.includes('The iron bars are dissolved!'), false);
+});
+
+test('a force-fought war hammer can break iron bars on its saving throw', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nhit_bars(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* TRUE iff thrown/kicked/rolled', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody,
+        /otmp->otyp == WAR_HAMMER[\s\S]*?!rn2\(max\(2, chance\)\)[\s\S]*?dissolve_bars\(barsx, barsy\)/u);
+
+    const state = await hero();
+    const y = state.u.uy;
+    const barsx = state.u.ux + 1;
+    clearRow(state, state.u.ux, barsx, y);
+    const bars = state.level.at(barsx, y);
+    bars.typ = IRONBARS;
+    const hammer = mksobj(WAR_HAMMER, false, false, { state });
+    hammer.where = OBJ_INVENT;
+    hammer.nobj = state.invent;
+    hammer.owornmask = W_WEP;
+    state.invent = hammer;
+    state.uwep = hammer;
+    const messages = [];
+    const draws = [];
+
+    await hit_bars({ obj: hammer }, state.u.ux, y, barsx, y,
+        BRK_BY_HERO | BRK_FROM_INV | BRK_MELEE, state,
+        { rn2: (bound) => { draws.push(bound); return 0; } },
+        { message: (line) => { messages.push(line); } });
+
+    assert.equal(bars.typ, ROOM);
+    assert.ok(messages.includes('You break the bars apart!'));
+    assert.equal(draws.length, 2);
 });
 
 test('hits_bars awaits the non-hero break result before returning', async () => {
