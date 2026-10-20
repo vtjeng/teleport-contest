@@ -104,6 +104,9 @@ import {
 const MON_C = readFileSync(
     new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
 );
+const WERE_C = readFileSync(
+    new URL('../nethack-c/upstream/src/were.c', import.meta.url), 'utf8',
+);
 const MAKEMON_C = readFileSync(
     new URL('../nethack-c/upstream/src/makemon.c', import.meta.url), 'utf8',
 );
@@ -1381,6 +1384,51 @@ test('were_change draws before preflighting an unsuccessful human conversion',
         assert.equal(subject.data, state.mons[PM_HUMAN_WEREWOLF]);
         assert.equal(state.gw.were_changes, 0);
     });
+
+test('an unseen werewolf howl respects acoustics', async () => {
+    const cStart = WERE_C.indexOf('\nwere_change(struct monst *mon)');
+    const cEnd = WERE_C.indexOf('\n/* convert monsters', cStart);
+    const cBody = WERE_C.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /You_hear\("a %s howling at the moon\.", howler\)/u);
+
+    for (const acoustics of [true, false]) {
+        const state = {
+            fixedDatetime: '20260720120000',
+            flags: { moonphase: 0, acoustics },
+            gw: { were_changes: 0 },
+            level: new GameMap(),
+            u: { ux: 2, uy: 2, uprops: [] },
+        };
+        monst_globals_init(state);
+        const subject = newMonster({
+            data: state.mons[PM_HUMAN_WEREWOLF],
+            mhp: 20, mhpmax: 20, mx: 5, my: 5,
+        });
+        state.level.monlist = subject;
+        state.level.monsters[5][5] = subject;
+        const messages = [];
+        const random = {
+            rn2: () => 0,
+            d: () => 1,
+            rnd: () => 1,
+            rn1: () => 1,
+            rne: () => 1,
+        };
+
+        assert.equal(await were_change(subject, {
+            state,
+            random,
+            canSeeMonster: () => false,
+            redrawSquare: () => {},
+            disturbBuriedZombies: () => {},
+            message: (line) => { messages.push(line); },
+        }), true);
+        assert.equal(subject.data, state.mons[PM_WEREWOLF]);
+        assert.deepEqual(messages,
+            acoustics ? ['You hear a wolf howling at the moon.'] : []);
+    }
+});
 
 test('new_were permits carried unworn inventory and preserves source order',
     async () => {

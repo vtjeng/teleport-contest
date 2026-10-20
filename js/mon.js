@@ -4307,11 +4307,9 @@ export async function were_change(monster, rawEnv = {}) {
                     normalized,
                 );
             }
-            await normalized.message(
-                `You hear a ${howler} howling at the moon.`,
-                state,
-                normalized,
-            );
+            const heard = youHear(`a ${howler} howling at the moon.`, state);
+            if (heard !== null)
+                await normalized.message(heard, state, normalized);
             await wakeNearForWereHowl(
                 monster.mx,
                 monster.my,
