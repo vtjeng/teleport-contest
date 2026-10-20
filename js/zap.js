@@ -5308,8 +5308,9 @@ export async function zap_over_floor(
                         `The ${liquid(lavawall ? 'lava' : 'water')} freezes for a moment.`,
                         state, env,
                     );
-                } else if (!heroIsDeaf(state)) {
-                    await message('You hear a soft crackling.', state, env);
+                } else {
+                    const heard = youHear('a soft crackling.', state);
+                    if (heard) await message(heard, state, env);
                 }
                 rangemod -= 1000;
             } else {
