@@ -6,6 +6,8 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_ORCUS, S_DEMON } from '../js/monsters.js';
 import { bribe, demon_talk } from '../js/minion.js';
+import { FAINTED, FAINTING } from '../js/const.js';
+import { unfaint } from '../js/eat.js';
 
 const JS_SOURCE = readFileSync(
     new URL('../js/minion.js', import.meta.url),
@@ -46,6 +48,40 @@ test('demon_talk preserves relocation context and C charisma argument order', ()
     );
     assert.match(jsBody, /random\.rnd\(5 \* acurr\(state, A_CHA\)\)/u);
 });
+
+test('demon_talk revives a fainted hero before deciding whether bribe is possible',
+    async () => {
+        const cStart = C_SOURCE.indexOf('int\ndemon_talk(struct monst *mtmp)');
+        const cEnd = C_SOURCE.indexOf('\nlong\nbribe(', cStart);
+        const cBody = C_SOURCE.slice(cStart, cEnd);
+        assert.match(cBody,
+            /if \(is_fainted\(\)\)\s*\{\s*reset_faint\(\);[\s\S]*?if \(!demand \|\| gm\.multi < 0\)/u);
+        await runSegment(RECIPE.segments[0]);
+        const prior = { multi: game.multi, afternmv: game.afternmv,
+            uhs: game.u.uhs, usleep: game.u.usleep };
+        const lines = [];
+        game.multi = -9;
+        game.afternmv = unfaint;
+        game.u.uhs = FAINTED;
+        game.u.usleep = 1;
+        try {
+            await demon_talk({ data: game.mons[PM_ORCUS],
+                mx: game.u.ux + 1, my: game.u.uy,
+                mpeaceful: 1, mtame: 0, minvis: 0,
+            }, game, { message: async (line) => lines.push(line) });
+            assert.equal(game.multi, 0);
+            assert.equal(game.afternmv, null);
+            assert.equal(game.u.uhs, FAINTING);
+            assert.equal(game.u.usleep, 0);
+            assert.ok(lines.includes('You revive.'));
+            assert.ok(!game.unported.has('eat.c reset_faint'));
+        } finally {
+            game.multi = prior.multi;
+            game.afternmv = prior.afternmv;
+            game.u.uhs = prior.uhs;
+            game.u.usleep = prior.usleep;
+        }
+    });
 
 test('minion bribe parses signed C longs and keeps refusal branches ordered',
     async () => {

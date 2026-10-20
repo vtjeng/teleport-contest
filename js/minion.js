@@ -24,7 +24,7 @@ import { ART_DEMONBANE, ART_EXCALIBUR, is_art } from './artifacts.js';
 import { Amonnam, Monnam, mon_nam, x_monnam } from './do_name.js';
 import { flush_screen, map_invisible, newsym } from './display.js';
 import { In_hell } from './dungeon.js';
-import { Hear_again, is_fainted } from './eat.js';
+import { Hear_again, is_fainted, reset_faint } from './eat.js';
 import { game } from './gstate.js';
 import { sgn, s_suffix } from './hacklib.js';
 import { nomul, unmul } from './hack.js';
@@ -266,10 +266,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
     }
 
     if (is_fainted(state)) {
-        // eat.c reset_faint()'s return is void, but its unmul() side effect
-        // wakes the hero when afternmv is unfaint. Preserve the missing source
-        // owner explicitly instead of fabricating that state transition.
-        note_unported('eat.c reset_faint');
+        await reset_faint(state, { ...env, message });
     } else {
         await stop_occupation(state, { message });
         if ((state.multi ?? 0) > 0) {
