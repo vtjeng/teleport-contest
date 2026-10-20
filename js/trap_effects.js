@@ -150,6 +150,7 @@ import {
 import { flooreffects, set_wounded_legs } from './do.js';
 import { del_engr_at } from './engrave.js';
 import {
+    destroy_drawbridge,
     find_drawbridge,
     is_drawbridge_wall,
     is_pool,
@@ -3558,13 +3559,12 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
     if (IS_DOOR(location.typ))
         location.doormask = D_BROKEN;
 
-    // destroy_drawbridge() still has no implementation. C discards its
-    // result, so record the call only after the source lookup succeeds.
     if (location.typ === DRAWBRIDGE_DOWN
         || is_drawbridge_wall(x, y, state) >= 0) {
         const bridge = { x, y };
         if (find_drawbridge(bridge, state))
-            note_unported('dbridge.c destroy_drawbridge');
+            await destroy_drawbridge(bridge.x, bridge.y, state, env);
+        if (state.program_state?.gameover) return;
     }
 
     const remaining = t_at(x, y, state);
