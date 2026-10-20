@@ -630,6 +630,43 @@ test('thrwmu announces one visible ordinary throw before missile flight',
         ]);
     });
 
+test('a visible monster throw includes its location in accessible messages',
+    async () => {
+        const cStart = MTHROWU_SOURCE.indexOf(
+            'monshoot(struct monst *mtmp, struct obj *otmp, struct obj *mwep)',
+        );
+        const cEnd = MTHROWU_SOURCE.indexOf(
+            '\n/* an object launched by someone/thing other than player', cStart,
+        );
+        const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        assert.match(cBody,
+            /set_msg_xy\(mtmp->mx, mtmp->my\);\s*pline\("%s %s %s%s%s!"/u);
+
+        const state = await hero();
+        state.a11y.accessiblemsg = true;
+        const y = state.u.uy;
+        const subject = attacker(state, state.u.ux + 5, y,
+            state.u.ux, y);
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        state.objects[ORCISH_DAGGER].oc_name_known = 0;
+        add_to_minv(subject, dagger, { state });
+        state.gt = { tbx: -1, tby: 0 };
+        const messages = [];
+        const flight = new Error('expected flight boundary');
+
+        await assert.rejects(monshoot(subject, dagger, null, {
+            state,
+            canSeeMonster: () => true,
+            monsterName: () => 'The giant rat',
+            message: (line) => { messages.push(line); },
+            throwMissile: () => { throw flight; },
+        }), flight);
+
+        assert.deepEqual(messages,
+            ['(5east): The giant rat throws a crude dagger!']);
+    });
+
 test('monshoot unseen arm sets m_shot.o to STRANGE_OBJECT and falls through',
     async () => {
         // C ref: mthrowu.c:295-296. When canseemon() is false, the else arm

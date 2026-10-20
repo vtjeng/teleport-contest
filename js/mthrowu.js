@@ -262,6 +262,7 @@ import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
 import { ttyPline } from './tty_message.js';
 import { youHear } from './pline.js';
+import { messageAt } from './startup_a11y.js';
 
 import { obj_sheds_light } from './light.js';
 import {
@@ -1685,11 +1686,12 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
                 displayRandom: env.displayRandom,
             })
             : '';
-        note_unported('pline.c set_msg_xy'); /* set_msg_xy(mtmp->mx, mtmp->my) */
         const monsterName = requireRangedOperation(env, 'monsterName');
         const message = requireRangedOperation(env, 'message');
         await message(
-            `${monsterName(monster, state)} ${state.m_shot.s ? 'shoots' : 'throws'} ${onm}${mtarg ? ' at ' : ''}${trgbuf}!`,
+            messageAt(
+                `${monsterName(monster, state)} ${state.m_shot.s ? 'shoots' : 'throws'} ${onm}${mtarg ? ' at ' : ''}${trgbuf}!`,
+                monster.mx, monster.my, state),
             state,
         );
         state.m_shot.o = missile.otyp;
