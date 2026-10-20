@@ -173,6 +173,53 @@ test('polymorphing interior stock from the doorway settles the bill', async () =
     assert.equal(keeper.mpeaceful, false);
 });
 
+test('polymorph shock bills a shop floor item before deleting it', async () => {
+    const { state, eshk, env } = await shop();
+    const stock = mksobj_at(DART, state.u.ux, state.u.uy,
+        false, false, env);
+    const wand = { otyp: WAN_POLYMORPH, oclass: WAND_CLASS, spe: 1 };
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await bhito(stock, wand, state, {
+        rn2: bound => bound === 8 ? 0 : bound - 1,
+        rn1, rnd, rne,
+    });
+
+    assert.equal(state.go.obj_zapped, true,
+        'the floor object reached do_osshock');
+    assert.equal(eshk.billct, 1,
+        'C addtobill records the lost stock before delobj');
+    assert.equal(stock.where, OBJ_ONBILL,
+        'the used object remains on the bill until settlement');
+});
+
+test('polymorph shock from outside the shop charges stolen stock', async () => {
+    const { state, keeper, eshk, env } = await shop();
+    const { ux: x, uy: y } = state.u;
+    Object.assign(state.level.at(x + 1, y), { typ: ROOM,
+        roomno: ROOMOFFSET, edge: false });
+    const stock = mksobj_at(DART, x + 1, y, false, false, env);
+    state.u.ux = x + 2;
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.urooms = [0, 0, 0, 0, 0];
+    const wand = { otyp: WAN_POLYMORPH, oclass: WAND_CLASS, spe: 1 };
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await bhito(stock, wand, state, {
+        rn2: bound => bound === 8 ? 0 : bound - 1,
+        rn1, rnd, rne,
+    });
+
+    assert.equal(state.go.obj_zapped, true);
+    assert.ok(eshk.robbed > 0, 'C stolen_value charges for destroyed stock');
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(eshk.following, true);
+});
+
 test('saleable follows general, class, explicit-item, and vegetarian rows', async () => {
     const { state, keeper, eshk } = await shop();
     const accepts = (name, type) => {

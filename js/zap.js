@@ -188,7 +188,7 @@ import {
 import { mcureblindness, mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
 import {
-    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, hot_pursuit, make_angry_shk, } from './shk.js';
+    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, addtobill, hot_pursuit, make_angry_shk, } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
 import { MIM_OMIT_WAIT, MIM_REVEAL } from './const.js';
@@ -2154,7 +2154,7 @@ export function obj_shudders(obj, state = game, random = { rn2 }) {
 // C ref: zap.c do_osshock() (1637-1674).  delobj() consumes the final
 // object-resistance draw after the system-shock roll, so keep deletion in the
 // source order instead of using a direct grid splice.
-export function do_osshock(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
+export async function do_osshock(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('do_osshock requires an object');
     // MAIL_STRUCTURES is enabled by the recorder build.  C never shocks a
@@ -2181,16 +2181,14 @@ export function do_osshock(obj, state = game, random = { rn2, rnd }, rawEnv = {}
         obj = splitobj(obj, splitQuantity,
             zapObjectEnv(state, random, rawEnv));
     }
-    // do_osshock() is floor-only, but its source still accounts for the
-    // square's shop before deleting the shocked object.  Both billing helpers
-    // are void calls at this site, so retain their exact source boundaries.
+    // do_osshock() is floor-only. Bill the affected stock before delobj()
+    // transfers its unpaid object to the shop's used-item bill chain.
     if (costly_spot(obj.ox, obj.oy, state)) {
-        const roomno = in_rooms(obj.ox, obj.oy, SHOPBASE, state)[0] ?? 0;
-        const shopkeeper = shop_keeper(roomno, state);
-        if (shopkeeper && state.u?.ushops?.[0])
-            note_unported('shk.c addtobill');
+        if (state.u?.ushops?.[0])
+            await addtobill(obj, false, false, false, state,
+                zapObjectEnv(state, random, rawEnv));
         else
-            note_unported('shk.c stolen_value');
+            await stolen_value(obj, obj.ox, obj.oy, false, false, state);
     }
     delobj_core(obj, false, zapObjectEnv(state, random, rawEnv));
 }
