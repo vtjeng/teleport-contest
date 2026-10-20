@@ -118,7 +118,6 @@ import {
 } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
 import { livelog_printf, verbalize } from './pline.js';
-import { note_unported } from './unported.js';
 import { Fire_resistance } from './zap.js';
 import { Glib } from './wield.js';
 import { fingers_or_gloves } from './do_wear.js';
@@ -369,7 +368,10 @@ async function gush(x, y, argument, state = game, env = {}) {
     // C ref: fountain.c:157-160. Drown monster or update display.
     const mtmp = m_at(x, y, state);
     if (mtmp) {
-        const { minliquid: minliq } = await import('./mon.js');
+        const {
+            deal_with_overcrowding,
+            minliquid: minliq,
+        } = await import('./mon.js');
         // fountain.c:gush() discards minliquid()'s result, but minliquid's
         // lava and water survivor arms consume rloc()'s result. Keep that
         // return-valued teleport path complete for monsters created on this
@@ -414,11 +416,12 @@ async function gush(x, y, argument, state = game, env = {}) {
                     },
                 )
             ),
-            // fountain.c:gush() discards the minliquid() result and continues
-            // to the next clear-area square.  Keep that discarded source call
-            // explicit when no complete overcrowding owner is supplied.
+            // A lifesaved drowning monster with no relocation square enters
+            // limbo before gush considers the next clear-area square.
             dealWithOvercrowding: env.dealWithOvercrowding
-                ?? (() => note_unported('mon.c deal_with_overcrowding')),
+                ?? ((subject, overcrowdingEnv) => deal_with_overcrowding(
+                    subject, state, overcrowdingEnv,
+                )),
         };
         await minliq(mtmp, liquidEnv);
     } else {

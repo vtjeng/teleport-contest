@@ -34,9 +34,12 @@ import {
     INVIS,
     LEVITATION,
     MM_NOMSG,
+    MON_LIMBO,
+    MON_MIGRATING,
     POOL,
     POLYMORPH_CONTROL,
     RLOC_MSG,
+    RLOC_NOMSG,
     ROOM,
     SICK,
     SICK_VOMITABLE,
@@ -243,6 +246,53 @@ test('gush forwards its monster liquid relocation operation', async () => {
     });
     assert.equal(game.level.at(42, 10).typ, POOL);
     assert.deepEqual(calls, [[monster, RLOC_MSG]]);
+});
+
+test('gush sends a lifesaved drowning monster to limbo when relocation fails',
+    async () => {
+    // fountain.c gush() calls mon.c minliquid() on the newly flooded square.
+    // After xkilled() lifesaves the monster, mon.c tries rloc() and calls
+    // deal_with_overcrowding() when every destination is unavailable.
+    await prepareGushingSquares();
+    const monster = newMonster({
+        mx: 42,
+        my: 10,
+        m_id: 9013,
+        mhp: 5,
+        mhpmax: 5,
+        mcanmove: true,
+        data: game.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+    });
+    game.level.monsters[42][10] = monster;
+    game.level.monlist = monster;
+    game.context.mon_moving = false;
+    let lifesaves = 0;
+    const relocations = [];
+
+    await dogushforth(false, game, {
+        message: () => {},
+        random: { rn2: () => 0 },
+        xkilled(subject) {
+            assert.equal(subject, monster);
+            subject.mhp = 1;
+            lifesaves++;
+        },
+        relocateMonster(subject, flags) {
+            assert.equal(subject, monster);
+            relocations.push(flags);
+            return false;
+        },
+    });
+
+    assert.equal(lifesaves, 1);
+    assert.deepEqual(relocations, [RLOC_NOMSG]);
+    assert.equal(game.level.monsters[42][10], null);
+    assert.equal(game.gm.migrating_mons, monster);
+    assert.equal((monster.mstate & (MON_LIMBO | MON_MIGRATING)),
+        MON_LIMBO | MON_MIGRATING);
+    assert.equal(game.unported?.has('mon.c deal_with_overcrowding') ?? false,
+        false);
 });
 
 test('drinkfountain dispatches fate 30 to gushing before dryup', async () => {
