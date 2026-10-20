@@ -592,8 +592,9 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
             || dist2(state.u.ux, state.u.uy, x2, y2)
                 < dist2(state.u.ux, state.u.uy, x, y);
         await (env.message ?? ttyPline)(`You see a drawbridge ${coming ? 'coming' : 'going'} up!`, state);
-    } else if (!heroDeaf(state)) {
-        await (env.message ?? ttyPline)('You hear chains rattling and gears turning.', state);
+    } else {
+        const heard = youHear('chains rattling and gears turning.', state);
+        if (heard) await (env.message ?? ttyPline)(heard, state);
     }
     bridge.typ = DRAWBRIDGE_UP;
     const wall = state.level.at(x2, y2);
@@ -638,8 +639,9 @@ export async function open_drawbridge(x, y, state = game, env = {}) {
         const coming = dist2(state.u.ux, state.u.uy, x2, y2)
             >= dist2(state.u.ux, state.u.uy, x, y);
         await (env.message ?? ttyPline)(`You see a drawbridge ${coming ? 'coming' : 'going'} down!`, state);
-    } else if (!heroDeaf(state)) {
-        await (env.message ?? ttyPline)('You hear gears turning and chains rattling.', state);
+    } else {
+        const heard = youHear('gears turning and chains rattling.', state);
+        if (heard) await (env.message ?? ttyPline)(heard, state);
     }
     bridge.typ = DRAWBRIDGE_DOWN;
     const wall = state.level.at(x2, y2);

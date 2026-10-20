@@ -17,6 +17,8 @@ import {
     PASSES_WALLS,
 } from '../js/const.js';
 import {
+    close_drawbridge,
+    create_drawbridge,
     E_phrase,
     automiss,
     e_at,
@@ -28,11 +30,42 @@ import {
     is_moat,
     is_pool_or_lava,
     is_waterwall,
+    open_drawbridge,
 } from '../js/dbridge.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 
 const DBRIDGE_C = readFileSync(
     new URL('../nethack-c/upstream/src/dbridge.c', import.meta.url), 'utf8',
 );
+
+// dbridge.c:795,857: an unseen bridge's moving gears are announced through
+// You_hear, so the sound is absent when acoustics are disabled.
+test('unseen drawbridge movement respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        await runSegment({
+            seed: 671903,
+            datetime: '20261018120000',
+            nethackrc: 'OPTIONS=name:BridgeSound,role:Wizard,race:human,gender:male,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n',
+            moves: '',
+        });
+        game.flags.acoustics = acoustics;
+        const x = 66, y = 13;
+        assert.equal(create_drawbridge(x, y, DB_NORTH, true, game), true);
+        game.viz_array[y][x] = 0;
+        game.viz_array[y - 1][x] = 0;
+        const messages = [];
+        const env = { message: async (line) => messages.push(line) };
+        await close_drawbridge(x, y, game, env);
+        assert.equal(game.level.at(x, y).typ, DRAWBRIDGE_UP);
+        await open_drawbridge(x, y, game, env);
+        assert.deepEqual(messages, acoustics ? [
+            'You hear chains rattling and gears turning.',
+            'You hear gears turning and chains rattling.',
+        ] : []);
+    }
+});
 
 function levelState(cells, overrides = {}) {
     return {
