@@ -961,7 +961,8 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                     state,
                 );
             } else if (!heroIsDeaf(state)) {
-                await message(`You hear a${lava ? ' sizzling' : ''} splash.`, state);
+                const heard = youHear(`a${lava ? ' sizzling' : ''} splash.`, state);
+                if (heard) await message(heard, state);
             }
             await (rawEnv.wakeNear ?? wake_nearto)(rx, ry, 40, {
                 ...rawEnv,

@@ -290,6 +290,27 @@ test('boulder_hits_pool fills a visible pool using its single rn2(10)', async ()
     assert.notEqual(boulder.where, OBJ_FREE);
 });
 
+// do.c:flooreffects() reaches boulder_hits_pool() for a detached boulder.
+// Its unseen water and lava splash lines use You_hear(), including acoustics.
+test('an unseen boulder splash respects acoustics', async () => {
+    for (const [typ, sound] of [
+        [POOL, 'You hear a splash.'],
+        [LAVAPOOL, 'You hear a sizzling splash.'],
+    ]) for (const acoustics of [true, false]) {
+        const state = fixture({ typ, seen: false });
+        state.flags.acoustics = acoustics;
+        const messages = [];
+        const boulder = object({ otyp: BOULDER });
+        assert.equal(await land(state, boulder, DROP_X, DROP_Y, {
+            random: { rn2: () => 1 },
+            message: async (line) => { messages.push(line); },
+            newsym: () => {},
+            wakeNear: async () => {},
+        }), true);
+        assert.deepEqual(messages, acoustics ? [sound] : []);
+    }
+});
+
 test('boulder_hits_pool sinks in lava on rn2(10) zero and consumes the boulder', async () => {
     const state = fixture({ typ: LAVAPOOL });
     const boulder = object({ otyp: BOULDER });
