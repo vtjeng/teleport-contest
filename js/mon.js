@@ -1838,7 +1838,11 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
                     rawEnv,
                 );
         } else {
-            await monsterMessage('You hear a masticating sound.', null, state, rawEnv);
+            if (state.flags?.verbose) {
+                const heard = youHear('a masticating sound.', state);
+                if (heard !== null)
+                    await monsterMessage(heard, null, state, rawEnv);
+            }
         }
         await m_consume_obj(mtmp, obj, { ...rawEnv, state });
         if (mtmp.data !== original) return mtmp.data ? 1 : 2;

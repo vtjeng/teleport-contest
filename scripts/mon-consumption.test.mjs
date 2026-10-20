@@ -242,6 +242,42 @@ test('meatcorpse consumes one ordinary corpse and leaves the monster alive', asy
     assert.equal(worm.mhp, 20);
 });
 
+test('meatcorpse gates offscreen chewing by verbosity and hearing', async () => {
+    const cStart = C_MON_SOURCE.indexOf('\nmeatcorpse(\n');
+    const cEnd = C_MON_SOURCE.indexOf('\n/* give monster property', cStart);
+    const cBody = C_MON_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody,
+        /else \{\s*Soundeffect\(se_masticating_sound, 50\);\s*if \(flags\.verbose\)\s*You_hear\("a masticating sound\."\)/u);
+
+    for (const { verbose, acoustics, deaf, expected } of [
+        { verbose: true, acoustics: true, deaf: false,
+            expected: ['You hear a masticating sound.'] },
+        { verbose: false, acoustics: true, deaf: false, expected: [] },
+        { verbose: true, acoustics: false, deaf: false, expected: [] },
+        { verbose: true, acoustics: true, deaf: true, expected: [] },
+    ]) {
+        const state = makeState();
+        state.u.ux = 2;
+        state.u.uy = 2;
+        state.flags.verbose = verbose;
+        state.flags.acoustics = acoustics;
+        state.u.uroleplay = { deaf };
+        const worm = monster(state, PM_PURPLE_WORM);
+        state.level.monlist = worm;
+        state.level.monsters[5][5] = worm;
+        floorObject(state, CORPSE, { corpsenm: PM_HUMAN });
+        const messages = [];
+
+        assert.equal(await meatcorpse(worm, {
+            state,
+            random: random(),
+            message: (line) => { messages.push(line); },
+        }), 1);
+        assert.deepEqual(messages, expected);
+    }
+});
+
 test('mon_give_prop records resistance and mpickgold transfers coins', async () => {
     const state = makeState();
     const mole = monster(state, PM_ROCK_MOLE);
