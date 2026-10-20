@@ -1014,6 +1014,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     POTHIT_MONST_THROW,
                     env,
                 );
+                // Fatal crash damage ends in C's really_done(); the JS
+                // potion handler returns after recording the final screen.
+                if (state.program_state?.gameover)
+                    return 0;
                 break;
             }
             const oldumort = state.u.umortality;

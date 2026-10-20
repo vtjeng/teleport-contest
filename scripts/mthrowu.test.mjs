@@ -1083,6 +1083,56 @@ test('m_throw hands a hurled potion to potionhit and settles nothing else',
         assert.equal(state.objects[POT_SLEEPING].oc_name_known, 1);
     });
 
+test('m_throw stops flight display after a fatal hurled potion', async () => {
+    // C m_throw() hands a potion to potionhit(); fatal crash damage reaches
+    // losehp() -> done() -> really_done(), so m_throw() never resumes.
+    const cStart = MTHROWU_SOURCE.indexOf('\nvoid\nm_throw(');
+    const cEnd = MTHROWU_SOURCE.indexOf('\nstaticfn void\nreturn_from_mtoss(', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /potionhit\(&gy\.youmonst, singleobj, POTHIT_MONST_THROW\)/u);
+
+    const state = await hero();
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 3, y, state.u.ux, y);
+    const potion = mksobj(POT_SLEEPING, false, false, { state });
+    add_to_minv(subject, potion, { state });
+    clearRow(state, state.u.ux, subject.mx, y);
+    const display = [];
+    let displaysAtDeath;
+    const result = await m_throw(subject, subject.mx, y, -1, 0, 3, potion, {
+        state,
+        random: { rn2: () => 1 },
+        canSeeMonster: () => true,
+        canSeeSquare: () => true,
+        monsterAt: () => null,
+        message: () => {},
+        objectToGlyph: () => 777,
+        temporaryDisplay: (...args) => { display.push(args); },
+        delayOutput: () => {},
+        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+        observeObject: (obj) => observe_object(obj, state),
+        extractObject: (obj) => obj_extract_self(obj, { state }),
+        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
+        damageValue: () => assert.fail('potion cannot roll weapon damage'),
+        hitHero: () => assert.fail('potion cannot reach thitu'),
+        stopOccupation: () => assert.fail('potion cannot stop occupation here'),
+        shouldMulch: () => assert.fail('fatal potion cannot land'),
+        floorEffects: () => assert.fail('fatal potion cannot land'),
+        placeObject: () => assert.fail('fatal potion cannot land'),
+        passiveObject: () => assert.fail('fatal potion cannot land'),
+        stackObject: () => assert.fail('fatal potion cannot land'),
+        endMulti: () => {},
+        potionHit: () => {
+            state.program_state.gameover = true;
+            displaysAtDeath = display.length;
+        },
+    });
+    assert.equal(result, 0);
+    assert.ok(displaysAtDeath > 0);
+    assert.equal(display.length, displaysAtDeath);
+});
+
 test('ordinary dagger naming and settlement helpers take their no-effect arms',
     async () => {
         const state = await hero();
