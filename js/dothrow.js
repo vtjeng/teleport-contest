@@ -470,6 +470,7 @@ import {
     donate_gold,
     inside_shop,
     is_unpaid,
+    hot_pursuit,
     shop_keeper,
     sellobj,
     stolen_value,
@@ -2513,10 +2514,7 @@ export async function throwit_mon_hit(mon, obj, state = game) {
             || !in_rooms(after.mx, after.my, SHOPBASE, state).includes(
                 state.u.ushops?.[0],
             ))) {
-        // C discards hot_pursuit()'s return. Its shopkeeper movement arm is
-        // still unported, so preserve the source boundary without changing
-        // the missile's landing state or adding a replacement RNG draw.
-        note_unported('shk.c hot_pursuit');
+        hot_pursuit(after, state);
     }
     if (objGone) clearThrownObject(state);
     return false;

@@ -58,6 +58,8 @@ import {
     P_SKILLED,
     P_SLING,
     ROOM,
+    ROOMOFFSET,
+    SHOPBASE,
     STUNNED,
     STR19,
     TT_WEB,
@@ -1229,6 +1231,8 @@ test('throwit() names a pick caught by a shopkeeper with the supplied state',
             mcanmove: false,
             mpeaceful: true,
             isshk: true,
+            mextra: { eshk: { billct: 0, bill_p: [], surcharge: false,
+                customer: '', following: false } },
         });
         place_monster(shopkeeper, 7, 4, shopState);
         const pick = item(shopState, PICK_AXE);
@@ -1236,6 +1240,57 @@ test('throwit() names a pick caught by a shopkeeper with the supplied state',
         assert.equal(pick.where, OBJ_MINVENT);
         assert.equal(pick.ocarry, shopkeeper);
     });
+
+test('throwing at a shopkeeper from outside starts hot pursuit', async () => {
+    const state = arena({ last: 9 });
+    state.plname = 'Thrower';
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.ualign = { type: 0, record: 0, abuse: 0 };
+    state.level.rooms[0] = { rtype: SHOPBASE, resident: null };
+    state.level.flags.has_shop = true;
+    state.level.at(7, 4).roomno = ROOMOFFSET;
+    const eshk = { billct: 0, bill_p: [], surcharge: false,
+        customer: '', following: false, shoproom: ROOMOFFSET,
+        shoplevel: { ...state.u.uz }, shk: { x: 7, y: 4 } };
+    const shopkeeper = newMonster({
+        data: state.mons[PM_SHOPKEEPER], m_id: 1,
+        mhp: 1000, mhpmax: 1000, mcanmove: false,
+        mpeaceful: true, isshk: true, mextra: { eshk },
+    });
+    state.level.rooms[0].resident = shopkeeper;
+    place_monster(shopkeeper, 7, 4, state);
+
+    await throwit(item(state, DART), 0, false, null, state);
+
+    assert.equal(eshk.following, true,
+        'dothrow.c starts pursuit after thitmonst leaves a keeper alive');
+    assert.equal(shopkeeper.mpeaceful, false);
+});
+
+test('throwing at a keeper inside the same shop does not start pursuit', async () => {
+    const state = arena({ last: 9 });
+    state.plname = 'Thrower';
+    state.u.ushops = [ROOMOFFSET, 0, 0, 0, 0];
+    state.u.ualign = { type: 0, record: 0, abuse: 0 };
+    state.level.rooms[0] = { rtype: SHOPBASE, resident: null };
+    state.level.flags.has_shop = true;
+    for (let x = 1; x <= 7; ++x)
+        state.level.at(x, 4).roomno = ROOMOFFSET;
+    const eshk = { billct: 0, bill_p: [], surcharge: false,
+        customer: '', following: false, shoproom: ROOMOFFSET,
+        shoplevel: { ...state.u.uz }, shk: { x: 7, y: 4 } };
+    const shopkeeper = newMonster({
+        data: state.mons[PM_SHOPKEEPER], m_id: 1,
+        mhp: 1000, mhpmax: 1000, mcanmove: false,
+        mpeaceful: true, isshk: true, mextra: { eshk },
+    });
+    state.level.rooms[0].resident = shopkeeper;
+    place_monster(shopkeeper, 7, 4, state);
+
+    await throwit(item(state, DART), 0, false, null, state);
+
+    assert.equal(eshk.following, false);
+});
 
 test('throwit() draws rn2(7) only for a cursed or greased missile',
     async () => {
