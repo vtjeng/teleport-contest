@@ -234,6 +234,7 @@ import {
     costly_spot,
     find_objowner,
     inhishop,
+    make_angry_shk,
     onshopbill,
     stolen_value,
     subfrombill,
@@ -1302,7 +1303,10 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
 
     const finishTail = () => {
         if (residentShk && !inhishop(monster, state))
-            note_unported('shk.c make_angry_shk');
+            return thenResult(
+                make_angry_shk(monster, oldx, oldy, state, env),
+                runShopItems,
+            );
 
         return runShopItems();
     };

@@ -77,6 +77,7 @@ import {
     collect_coords,
     enexto_core,
     goodpos,
+    mtele_trap,
     noteleport_level,
     random_teleport_level,
     rloco,
@@ -106,6 +107,7 @@ import { newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { newegd } from '../js/vault.js';
+import { inhishop } from '../js/shk.js';
 
 const C_TELEPORT_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/teleport.c', import.meta.url), 'utf8',
@@ -1999,6 +2001,98 @@ test('rloc_to places a monster that holds no square and ignores flag overrides',
         message: async (line) => messages.push(line),
     });
     assert.deepEqual(messages, []);
+});
+
+test('a crowded shop lets a wand-teleported keeper leave and settle the bill', async () => {
+    await runSegment({
+        seed: 7621001,
+        datetime: '20310417113000',
+        nethackrc: [
+            'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics,playmode:debug',
+            '',
+        ].join('\n'),
+        moves: '.\x165\n.',
+    });
+    const state = game;
+    const room = state.level.rooms.find((candidate) => candidate?.rtype >= SHOPBASE);
+    assert.ok(room?.resident);
+    const keeper = room.resident;
+    assert.equal(inhishop(keeper, state), true);
+    const door = keeper.mextra.eshk.shd;
+    const roomno = room.roomnoidx + ROOMOFFSET;
+    const outside = [
+        [door.x - 1, door.y], [door.x + 1, door.y],
+        [door.x, door.y - 1], [door.x, door.y + 1],
+    ].find(([x, y]) => state.level.at(x, y)
+        && state.level.at(x, y).roomno !== roomno
+        && (x !== state.u.ux || y !== state.u.uy)
+        && goodpos(x, y, keeper, 0, { state }));
+    assert.ok(outside, 'the shop has an unoccupied adjacent outside square');
+
+    const eshk = keeper.mextra.eshk;
+    keeper.mpeaceful = true;
+    eshk.following = false;
+    eshk.billct = 0;
+    eshk.debit = 3;
+    eshk.loan = 0;
+    eshk.credit = 0;
+    eshk.robbed = 0;
+    const messages = [];
+    const sameShop = [];
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            if (state.level.at(x, y)?.roomno === roomno
+                && (x !== keeper.mx || y !== keeper.my)
+                && (x !== state.u.ux || y !== state.u.uy)
+                && goodpos(x, y, keeper, 0, { state })) {
+                sameShop.push(x, y);
+                break;
+            }
+        }
+        if (sameShop.length) break;
+    }
+    assert.equal(sameShop.length, 2);
+    await mtele_trap(keeper, { once: false,
+        teledest: { x: sameShop[0], y: sameShop[1] } }, false, {
+        state,
+        newsym: () => {},
+        message: (line) => messages.push(line),
+    });
+    assert.equal(inhishop(keeper, state), true);
+    assert.equal(eshk.debit, 3);
+    assert.equal(eshk.robbed, 0);
+    assert.equal(eshk.following, false);
+
+    // teleport.c:rloc() normally keeps the resident in the shop. When every
+    // other shop square is occupied, its goodpos() fallback may send the
+    // keeper outside after a wand/spell calls u_teleport_mon().
+    let blockerId = 90000;
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            if (state.level.at(x, y)?.roomno !== roomno
+                || (x === keeper.mx && y === keeper.my)
+                || (x === state.u.ux && y === state.u.uy)) continue;
+            const blocker = newMonster({ data: state.mons[PM_SEWER_RAT],
+                mnum: PM_SEWER_RAT, m_id: ++blockerId, mhp: 4, mhpmax: 4 });
+            if (goodpos(x, y, blocker, 0, { state }))
+                place_monster(blocker, x, y, state);
+        }
+    }
+    assert.equal(await u_teleport_mon(keeper, true, {
+        state,
+        random: { rnd: () => 1, rn2: () => 0 },
+        newsym: () => {},
+        message: (line) => messages.push(line),
+    }), true);
+    assert.equal(inhishop(keeper, state), false);
+    assert.equal(eshk.robbed, 3);
+    assert.equal(eshk.debit, 0);
+    assert.equal(eshk.following, true);
+    assert.equal(keeper.mpeaceful, false);
+    assert.ok(messages.some((line) => /gets angry!/u.test(line)));
+    assert.equal(state.unported.has('shk.c make_angry_shk'), false);
 });
 
 test('rloc_to_flag keeps RLOC_MSG separate from unflagged arrival placement',
