@@ -983,6 +983,58 @@ test('m_throw stops after a lethal hit has settled the transit object',
         assert.equal(state.gt.thrownobj, null);
     });
 
+test('m_throw stops after a fatal poison coating on a missile', async () => {
+    // C m_throw() calls poisoned() before stop_occupation() and drop_throw();
+    // poisoned() can reach losehp() -> done() -> really_done().
+    const cStart = MTHROWU_SOURCE.indexOf('\nvoid\nm_throw(');
+    const cEnd = MTHROWU_SOURCE.indexOf('\nstaticfn void\nreturn_from_mtoss(', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /poisoned\(onmbuf,[\s\S]*?stop_occupation\(\)/u);
+
+    const state = await hero();
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
+    const arrow = mksobj(ARROW, false, false, { state });
+    const bow = mksobj(BOW, false, false, { state });
+    arrow.opoisoned = true;
+    add_to_minv(subject, arrow, { state });
+    add_to_minv(subject, bow, { state });
+    bow.owornmask = W_WEP;
+    subject.mw = bow;
+    clearRow(state, state.u.ux, subject.mx, y);
+    let poisonCalls = 0;
+    let stopCalls = 0;
+    await m_throw(subject, subject.mx, y, -1, 0, 2, arrow, {
+        state,
+        random: { rn2: () => 1 },
+        canSeeMonster: () => true,
+        canSeeSquare: () => false,
+        monsterAt: () => null,
+        objectToGlyph: () => 777,
+        temporaryDisplay: () => {},
+        delayOutput: () => {},
+        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+        observeObject: () => {},
+        extractObject: (obj) => obj_extract_self(obj, { state }),
+        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
+        damageValue: () => 1,
+        hitHero: () => true,
+        poisoned: () => {
+            poisonCalls++;
+            state.program_state.gameover = true;
+        },
+        stopOccupation: () => { stopCalls++; },
+        shouldMulch: () => assert.fail('fatal poison cannot settle missile'),
+        floorEffects: () => assert.fail('fatal poison cannot settle missile'),
+        placeObject: () => assert.fail('fatal poison cannot settle missile'),
+        passiveObject: () => assert.fail('fatal poison cannot settle missile'),
+        stackObject: () => assert.fail('fatal poison cannot settle missile'),
+    });
+    assert.equal(poisonCalls, 1);
+    assert.equal(stopCalls, 0);
+});
+
 // C ref: mthrowu.c m_throw()'s POTION_CLASS arm (698-701), which hands the
 // missile to potion.c potionhit() and never reaches drop_throw(). The whole
 // chain is one witness: bottlename()'s rn2(7), potionhit()'s rnd(2), and the

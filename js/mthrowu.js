@@ -1097,6 +1097,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     note_unported('attrib.c poisoned');
                 }
             }
+            // Fatal poison damage reaches C's really_done() from poisoned();
+            // JS returns with gameover set and must not settle the missile.
+            if (state.program_state?.gameover)
+                return 0;
             if (hit && can_blnd(
                 null,
                 state.youmonst,
