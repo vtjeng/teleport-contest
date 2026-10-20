@@ -4228,13 +4228,12 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
 
         if (state.u?.usteed === mdef
             && obj === which_armor(mdef, W_SADDLE, state)) {
-            // steed.c dismount_steed() is a void callee and its
-            // DISMOUNT_POLY arm remains outside this span. Preserve the call
-            // boundary without replacing it with a throw that stops theft.
+            // C dismounts before extraction. Otherwise worn.c sees a saddle
+            // removed from the still-mounted steed and takes the fall path.
             if (typeof env.dismountSteed === 'function') {
                 await env.dismountSteed(DISMOUNT_POLY, state, env);
             } else {
-                note_unported('steed.c dismount_steed');
+                await dismount_steed(DISMOUNT_POLY, state, env);
             }
         }
 
