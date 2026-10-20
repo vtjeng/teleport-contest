@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     A_DEX,
+    CONFLICT,
     CONFUSION,
     DIR_E,
     DIR_ERR,
@@ -27,6 +28,7 @@ import {
     LAVAPOOL,
     MAXULEV,
     MAX_CARR_CAP,
+    MMOVE_MOVED,
     MON_STILL_ARRIVING,
     N_DIRS,
     OBJ_FREE,
@@ -105,6 +107,7 @@ import { strongmonst, throws_rocks } from '../js/mondata.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { BOULDER } from '../js/objects.js';
 import { set_ustuck } from '../js/mon.js';
+import { dog_move } from '../js/dogmove.js';
 import { update_player_regions } from '../js/region.js';
 import { vault_occupied } from '../js/vault.js';
 import { is_pole } from '../js/worn.js';
@@ -441,6 +444,33 @@ test('DISMOUNT_THROWN uses the C thrown-fall message and shared landing path',
     assert.match(toplines(), /You are thrown off of/u);
     // Flying skips the source riding-accident damage and wounded-leg calls.
     assert.equal(state.u.uprops[WOUNDED_LEGS].intrinsic, 0);
+});
+
+test('a conflicted steed throws its rider through dog_move', async () => {
+    const state = await mounted();
+    const steed = state.u.usteed;
+    const oldx = state.u.ux;
+    const oldy = state.u.uy;
+    state.u.uprops[CONFLICT].intrinsic = FROMOUTSIDE;
+    state.u.uprops[FLYING].intrinsic = FROMOUTSIDE;
+    isolate(state, [DIR_E, DIR_W]);
+    quiet(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.unported?.delete('steed.c dismount_steed');
+
+    const movement = await dog_move(steed, false, {
+        state,
+        resistConflict: () => false,
+    });
+
+    assert.equal(movement, MMOVE_MOVED);
+    assert.equal(state.u.usteed, null,
+        'dogmove.c dismounts before returning from the conflict branch');
+    assert.equal(state.unported?.has('steed.c dismount_steed'), false);
+    assert.equal(state.u.uy, oldy);
+    assert.equal(Math.abs(state.u.ux - oldx), 1);
+    assert.equal(m_at(oldx, oldy, state), steed);
 });
 
 test('DISMOUNT_POLY reports the transformation and releases the steed',

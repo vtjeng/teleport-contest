@@ -206,7 +206,6 @@ import { which_armor } from './worn.js';
 import { unpaid_cost } from './shk.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
 import { goodpos } from './teleport.js';
-import { note_unported } from './unported.js';
 import { pline_mon } from './pline.js';
 import { beg, domonnoise } from './sounds.js';
 import { stop_occupation } from './allmain.js';
@@ -1362,7 +1361,12 @@ export async function dog_move(monster, after, rawEnv = {}) {
             ?? ((subject) => resist_conflict(subject, state, random));
         if (conflictActive(state) && !resistConflict(monster, env)) {
             if (env.dismountSteed) await env.dismountSteed(DISMOUNT_THROWN, env);
-            else if (!env.planning) note_unported('steed.c dismount_steed');
+            else if (!env.planning) {
+                // steed.js imports finish_meating from this module, so load
+                // its canonical dismount only when this source arm is reached.
+                const { dismount_steed } = await import('./steed.js');
+                await dismount_steed(DISMOUNT_THROWN, state, env);
+            }
             return MMOVE_MOVED;
         }
         heroDistance = 1;
