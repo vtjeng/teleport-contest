@@ -39,6 +39,7 @@ import {
     block_point, cansee, does_block, unblock_point, vision_recalc,
 } from './vision.js';
 import { mksobj_at } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
 
@@ -610,12 +611,15 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
     await do_entity(first, state, { ...env, random: randomEnv });
     set_entity(x2, y2, second, state);
     await do_entity(second, state, { ...env, random: randomEnv });
-    if (OBJ_AT(x, y, state) && !heroDeaf(state))
-        await (env.message ?? ttyPline)('You hear smashing and crushing.', state);
+    if (OBJ_AT(x, y, state) && !heroDeaf(state)) {
+        const heard = youHear('smashing and crushing.', state);
+        if (heard) await (env.message ?? ttyPline)(heard, state);
+    }
     await revive_nasty(x, y, null, state);
     await revive_nasty(x2, y2, null, state);
-    delallobj(x, y, { state });
-    delallobj(x2, y2, { state });
+    const objectEnv = objectGenerationEnv({ ...env, state });
+    delallobj(x, y, objectEnv);
+    delallobj(x2, y2, objectEnv);
     const firstTrap = t_at(x, y, state), secondTrap = t_at(x2, y2, state);
     if (firstTrap) deltrap(firstTrap, state);
     if (secondTrap) deltrap(secondTrap, state);
@@ -654,7 +658,7 @@ export async function open_drawbridge(x, y, state = game, env = {}) {
     set_entity(x2, y2, second, state);
     await do_entity(second, state, { ...env, random: randomEnv });
     await revive_nasty(x, y, null, state);
-    delallobj(x, y, { state });
+    delallobj(x, y, objectGenerationEnv({ ...env, state }));
     for (const [tx, ty] of [[x, y], [x2, y2]]) {
         const trap = t_at(tx, ty, state);
         if (trap) deltrap(trap, state);

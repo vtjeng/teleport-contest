@@ -34,6 +34,8 @@ import {
 } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { mksobj_at } from '../js/obj.js';
+import { ROCK } from '../js/objects.js';
 
 const DBRIDGE_C = readFileSync(
     new URL('../nethack-c/upstream/src/dbridge.c', import.meta.url), 'utf8',
@@ -59,10 +61,43 @@ test('unseen drawbridge movement respects acoustics', async () => {
         const env = { message: async (line) => messages.push(line) };
         await close_drawbridge(x, y, game, env);
         assert.equal(game.level.at(x, y).typ, DRAWBRIDGE_UP);
+        mksobj_at(ROCK, x, y, false, false, { state: game });
         await open_drawbridge(x, y, game, env);
+        assert.equal(game.level.objects[x][y], null,
+            'opening clears the floor object through the object lifecycle');
         assert.deepEqual(messages, acoustics ? [
             'You hear chains rattling and gears turning.',
             'You hear gears turning and chains rattling.',
+        ] : []);
+    }
+});
+
+// dbridge.c:816-819 announces a floor object crushed by a closing bridge
+// through You_hear, after the bridge's own movement announcement.
+test('drawbridge crushing sound respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        await runSegment({
+            seed: 671903,
+            datetime: '20261018120000',
+            nethackrc: 'OPTIONS=name:BridgeCrush,role:Wizard,race:human,gender:male,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n',
+            moves: '',
+        });
+        game.flags.acoustics = acoustics;
+        const x = 66, y = 13;
+        assert.equal(create_drawbridge(x, y, DB_NORTH, true, game), true);
+        game.viz_array[y][x] = 0;
+        game.viz_array[y - 1][x] = 0;
+        mksobj_at(ROCK, x, y, false, false, { state: game });
+        const messages = [];
+        await close_drawbridge(x, y, game, {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(game.level.objects[x][y], null,
+            'closing clears the crushed object through the object lifecycle');
+        assert.deepEqual(messages, acoustics ? [
+            'You hear chains rattling and gears turning.',
+            'You hear smashing and crushing.',
         ] : []);
     }
 });
