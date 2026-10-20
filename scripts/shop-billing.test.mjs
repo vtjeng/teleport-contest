@@ -13,6 +13,7 @@ import { d, rn1, rnd, rne, rnz } from '../js/rng.js';
 import { bhitm, bhito, create_polymon } from '../js/zap.js';
 import { missum } from '../js/uhitm.js';
 import { hero_breaks } from '../js/dothrow.js';
+import { burn_floor_objects } from '../js/zap_destroy_items.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     PM_GIANT_RAT,
@@ -34,7 +35,7 @@ import { donameFresh } from '../js/objnam.js';
 import {
     BEARTRAP, CRYSKNIFE, DART, DIAMOND, FOOD_RATION, GOLD_PIECE, IRON,
     LONG_SWORD,
-    POT_HEALING, POT_WATER, SACK, TALLOW_CANDLE, WORM_TOOTH,
+    POT_HEALING, POT_WATER, SACK, SCR_IDENTIFY, TALLOW_CANDLE, WORM_TOOTH,
     WAN_POLYMORPH, WAN_SPEED_MONSTER, WAND_CLASS,
 } from '../js/objects.js';
 import { pick_obj } from '../js/pickup.js';
@@ -143,6 +144,34 @@ test('missing an adjacent keeper from inside the shop does not start pursuit', a
         damn: 0, damd: 0 }, false, state, env);
     assert.equal(Boolean(keeper.mpeaceful), false);
     assert.equal(Boolean(eshk.following), false);
+});
+
+test('hero-caused floor fire outside a shop charges for destroyed stock', async () => {
+    const { state, eshk } = await shop();
+    const x = state.u.ux, y = state.u.uy;
+    state.u.ux = x + 1;
+    Object.assign(state.level.at(state.u.ux, y), { typ: ROOM,
+        roomno: 0, edge: false });
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.urooms = [0, 0, 0, 0, 0];
+    const scroll = mksobj_at(SCR_IDENTIFY, x, y, true, false,
+        objectGenerationEnv({ state }));
+    assert.equal(scroll.no_charge, false);
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 16; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+    const burned = await burn_floor_objects(x, y, false, true, {
+        state,
+        random: { rn2: (bound) => bound === 100 ? 99 : 0,
+            rnd: () => 1 },
+        igniteItems: () => {},
+        message: () => {},
+    });
+    assert.equal(burned, 1);
+    assert.equal(state.level.objects[x][y], null);
+    assert.ok(eshk.robbed > 0);
+    assert.equal(eshk.following, true);
+    assert.equal(state.unported.has('shk.c stolen_value'), false);
 });
 
 test('a helpful zap inside the shop does not start hot pursuit', async () => {

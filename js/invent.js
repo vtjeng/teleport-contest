@@ -361,6 +361,7 @@ import {
     same_price,
     shop_keeper,
     shop_debt,
+    stolen_value,
     check_unpaid,
     unpaid_cost,
     costly_spot,
@@ -3444,8 +3445,7 @@ export function delobj_core(obj, force, env = {}) {
 // floor, charging for it as necessary".
 //
 // The shop and concealment helpers called here belong to other source files.
-// Their return values are discarded by C, so this owner records those gaps and
-// continues through the deletion boundary instead of refusing the whole use.
+// Shop accounting must finish before the floor object is deleted.
 export async function useupf(obj, numused, env = {}) {
     const normalized = inventoryEnv(env);
     const state = normalized.state;
@@ -3461,7 +3461,7 @@ export async function useupf(obj, numused, env = {}) {
         if ((state.u?.urooms ?? []).includes(room))
             await addtobill(otmp, false, false, false, state, normalized);
         else
-            note_unported('shk.c stolen_value');
+            await stolen_value(otmp, otmp.ox, otmp.oy, false, false, state);
     }
     delobj(otmp, normalized);
     if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))

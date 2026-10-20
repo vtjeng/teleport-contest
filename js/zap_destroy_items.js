@@ -516,8 +516,8 @@ export async function destroy_items(mon, dmgtyp, dmg_in, env) {
     return dmg_out;
 }
 
-// Monster-caused floor fire is the current consumer. Hero-caused shop
-// charging remains outside the stable-level non-trap boundary.
+// Monster-caused floor fire removes objects directly; hero-caused fire uses
+// useupf() so shop stock is charged before deletion.
 export async function burn_floor_objects(
     x,
     y,
