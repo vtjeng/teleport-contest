@@ -17,7 +17,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { setmangry, wakeup } from '../js/mon.js';
 import { newMonster } from '../js/monst.js';
-import { PM_LICHEN } from '../js/monsters.js';
+import { PM_LICHEN, PM_SHOPKEEPER } from '../js/monsters.js';
 
 const DATETIME = '20260214031500';
 const RC = [
@@ -170,7 +170,7 @@ test('wakeup strips a mimic disguise through seemimic', async () => {
     assert.equal(mimic.mappearance, 0);
 });
 
-test('wakeup grows sleeping monsters and preserves the prior peaceful flag', async () => {
+test('wakeup uses prior peacefulness for priest and shop reactions', async () => {
     await hero();
     const asleep = target({ msleeping: 1 });
     await wakeup(asleep, true, reactionEnv());
@@ -178,14 +178,18 @@ test('wakeup grows sleeping monsters and preserves the prior peaceful flag', asy
     assert.equal(asleep.mstrategy, 0);
 
     // mon.c:4356-4361 remembers peacefulness before setmangry(); the temple
-    // response is gated by actual temple occupancy and the shop response is
-    // still recorded as an unported discarded-result gap.
+    // response is gated by actual temple occupancy. Outside a shop, an
+    // attacked peaceful keeper starts pursuit even if setmangry() returned
+    // early for a tame monster.
     const priest = target({ mpeaceful: 1, mtame: 1, ispriest: 1 });
     await wakeup(priest, true, reactionEnv());
     assert.equal(priest.mpeaceful, 1);
-    const shopkeeper = target({ mpeaceful: 1, mtame: 1, isshk: 1 });
+    const shopkeeper = target({ data: game.mons[PM_SHOPKEEPER],
+        mnum: PM_SHOPKEEPER, mpeaceful: 1, mtame: 1, isshk: 1,
+        mextra: { eshk: { billct: 0, surcharge: false } } });
     await wakeup(shopkeeper, true, reactionEnv());
-    assert.equal(shopkeeper.mpeaceful, 1);
+    assert.equal(shopkeeper.mpeaceful, false);
+    assert.equal(shopkeeper.mextra.eshk.following, true);
     await wakeup(target({ mpeaceful: 1, mtame: 1 }), true, reactionEnv());
 });
 

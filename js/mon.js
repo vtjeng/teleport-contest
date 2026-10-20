@@ -690,7 +690,7 @@ import {
     relobj,
     thiefdead,
 } from './steal.js';
-import { replshk, shkgone } from './shk.js';
+import { hot_pursuit, replshk, shkgone } from './shk.js';
 import {
     control_mon_tele,
     enexto,
@@ -4058,7 +4058,7 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
                 && in_rooms(monster.mx, monster.my, TEMPLE, state).length)
                 await ghod_hitsu(monster, { ...rawEnv, state });
             if (monster.isshk && !state.u.ushops?.[0])
-                note_unported('shk.c hot_pursuit');
+                hot_pursuit(monster, state);
         }
     }
 }

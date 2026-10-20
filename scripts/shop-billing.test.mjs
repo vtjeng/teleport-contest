@@ -11,6 +11,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { d, rn1, rnd, rne, rnz } from '../js/rng.js';
 import { bhitm, bhito, create_polymon } from '../js/zap.js';
+import { missum } from '../js/uhitm.js';
 import { hero_breaks } from '../js/dothrow.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -21,6 +22,7 @@ import {
     PM_KOP_SERGEANT,
     PM_SHOPKEEPER,
     PM_TOURIST,
+    AD_PHYS, AT_CLAW,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.js';
@@ -118,6 +120,29 @@ test('zapping an outside-shop keeper starts hot pursuit', async () => {
     assert.equal(eshk.following, true,
         'zap.c bhitm calls hot_pursuit after waking a shopkeeper outside');
     assert.equal(keeper.mpeaceful, false);
+});
+
+test('missing an adjacent keeper from outside the shop starts pursuit', async () => {
+    const { state, keeper, eshk, env, messages } = await shop();
+    // The hero is one step from the peaceful resident, but stands outside
+    // the shop when uhitm.c:missum() wakes the target after a missed swing.
+    state.level.at(state.u.ux, state.u.uy).roomno = 0;
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.urooms = [0, 0, 0, 0, 0];
+    await missum(keeper, { aatyp: AT_CLAW, adtyp: AD_PHYS,
+        damn: 0, damd: 0 }, false, state, env);
+    assert.equal(Boolean(keeper.mpeaceful), false);
+    assert.equal(eshk.following, true);
+    assert.ok(messages.some((line) => line.startsWith('You miss')));
+    assert.equal(state.unported.has('shk.c hot_pursuit'), false);
+});
+
+test('missing an adjacent keeper from inside the shop does not start pursuit', async () => {
+    const { state, keeper, eshk, env } = await shop();
+    await missum(keeper, { aatyp: AT_CLAW, adtyp: AD_PHYS,
+        damn: 0, damd: 0 }, false, state, env);
+    assert.equal(Boolean(keeper.mpeaceful), false);
+    assert.equal(Boolean(eshk.following), false);
 });
 
 test('a helpful zap inside the shop does not start hot pursuit', async () => {
