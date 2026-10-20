@@ -4,17 +4,24 @@ import test from 'node:test';
 
 import {
     HOLE,
+    HAND,
     LL_DUMP,
     LL_MINORAC,
     MAX_NUM_WORMS,
+    OBJ_FLOOR,
     PIT,
     ROLLING_BOULDER_TRAP,
+    ROOM,
     Trap_Effect_Finished,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { mksobj_at } from '../js/obj.js';
+import { LARGE_BOX, ROCK } from '../js/objects.js';
+import { initRng } from '../js/rng.js';
 import { MZ_HUGE, monst_globals_init, PM_LONG_WORM } from '../js/monsters.js';
 import { preflight_dotrap, trapeffect_selector } from '../js/trap_effects.js';
-import { deltrap } from '../js/trap.js';
+import { chest_trap, deltrap } from '../js/trap.js';
 import { count_wsegs } from '../js/worm.js';
 
 const C_TRAP = readFileSync(
@@ -39,6 +46,57 @@ const JS_HACK = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
 const JS_PICKUP = readFileSync(
     new URL('../js/pickup.js', import.meta.url), 'utf8',
 );
+
+test('exploding chest destroys its floor pile', async () => {
+    await runSegment({
+        seed: 202610201,
+        datetime: '20310415120000',
+        nethackrc: 'OPTIONS=name:ChestPile,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: '',
+    });
+    const { ux: x, uy: y } = game.u;
+    game.level.at(x, y).typ = ROOM;
+    game.u.uluck = 0;
+    game.u.moreluck = 0;
+    game.u.uhp = game.u.uhpmax = 100;
+    const chest = mksobj_at(LARGE_BOX, x, y, false, false, { state: game });
+    const rock = mksobj_at(ROCK, x, y, false, false, { state: game });
+    game.nhDisplay.terminal._inputQueue.push(32, 32, 32);
+    // First three draws: rn2(13)=5 fails luck, rn2(20)=0 selects the
+    // large-outcome table, and rn2(26)=25 selects its explosion arm.
+    initRng(31);
+
+    const destroyed = await chest_trap(chest, HAND, false, game);
+
+    assert.equal(destroyed, true);
+    assert.equal(game.level.objects[x][y], null);
+    assert.ok(chest.where !== OBJ_FLOOR && rock.where !== OBJ_FLOOR);
+});
+
+test('poisoned chest needle completes Constitution exercise', async () => {
+    await runSegment({
+        seed: 202610202,
+        datetime: '20310415120000',
+        nethackrc: 'OPTIONS=name:ChestNeedle,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: '',
+    });
+    const { ux: x, uy: y } = game.u;
+    game.level.at(x, y).typ = ROOM;
+    game.u.uluck = 0;
+    game.u.moreluck = 0;
+    game.u.uhp = game.u.uhpmax = 100;
+    const chest = mksobj_at(LARGE_BOX, x, y, false, false, { state: game });
+    game.nhDisplay.terminal._inputQueue.push(32, 32, 32);
+    // rn2(13)=7, rn2(20)=0, rn2(26)=13 reaches the needle arm.
+    initRng(190);
+
+    assert.equal(await chest_trap(chest, HAND, false, game), false);
+    assert.equal(game.level.objects[x][y], chest);
+});
 
 test('deltrap ends Sokoban rules after removing the last natural pit', () => {
     // C trap.c:6546-6547 calls the helper for a PIT in Sokoban.
