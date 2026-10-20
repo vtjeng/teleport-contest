@@ -34,8 +34,11 @@ import {
 } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { PM_NEWT } from '../js/monsters.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { ROCK } from '../js/objects.js';
+import { d, rn1, rn2, rne, rnl, rnz } from '../js/rng.js';
 
 const DBRIDGE_C = readFileSync(
     new URL('../nethack-c/upstream/src/dbridge.c', import.meta.url), 'utf8',
@@ -99,6 +102,39 @@ test('drawbridge crushing sound respects acoustics', async () => {
             'You hear chains rattling and gears turning.',
             'You hear smashing and crushing.',
         ] : []);
+    }
+});
+
+// dbridge.c:613-626: an unseen occupant that cannot jump away from the
+// falling portcullis dies after You_hear reports the crushing sound.
+test('unseen portcullis victim makes a crushing sound', async () => {
+    for (const acoustics of [true, false]) {
+        await runSegment({
+            seed: 671903,
+            datetime: '20261018120000',
+            nethackrc: 'OPTIONS=name:BridgeVictim,role:Wizard,race:human,gender:male,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n',
+            moves: '',
+        });
+        game.flags.acoustics = acoustics;
+        const x = 66, y = 13;
+        assert.equal(create_drawbridge(x, y, DB_NORTH, true, game), true);
+        const newt = newMonster({ data: game.mons[PM_NEWT],
+            mx: x, my: y - 1, mhp: 10, mhpmax: 10, m_id: 9301 });
+        newt.nmon = game.level.monlist;
+        game.level.monlist = newt;
+        place_monster(newt, x, y - 1, game);
+        game.viz_array[y][x] = 0;
+        game.viz_array[y - 1][x] = 0;
+        const messages = [];
+        await close_drawbridge(x, y, game, {
+            message: async (line) => messages.push(line),
+            random: { d, rn1, rn2, rnd: (bound) => bound, rne, rnl, rnz },
+        });
+        assert.equal(m_at(x, y - 1, game), null,
+            'the monster died under the portcullis');
+        assert.equal(messages.includes('You hear a crushing sound.'), acoustics,
+            JSON.stringify(messages));
     }
 });
 

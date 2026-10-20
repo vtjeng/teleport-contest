@@ -713,6 +713,10 @@ async function do_entity(entity, state, env = {}) {
         if (atPortcullis && !e_jumps(entity, state, random)) {
             if (inview)
                 await message(`${E_phrase(entity, 'are', state)} crushed by the falling portcullis!`, state);
+            else if (!heroDeaf(state)) {
+                const heard = youHear('a crushing sound.', state);
+                if (heard) await message(heard, state);
+            }
             await e_died(entity, XKILL_NOCORPSE | (inview ? XKILL_GIVEMSG : XKILL_NOMSG), CRUSHING, state, env);
             return;
         }
