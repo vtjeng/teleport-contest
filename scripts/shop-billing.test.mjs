@@ -9,7 +9,8 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { bhitm } from '../js/zap.js';
+import { rn1, rnd, rne } from '../js/rng.js';
+import { bhitm, bhito } from '../js/zap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     PM_GIANT_RAT,
@@ -30,7 +31,7 @@ import { donameFresh } from '../js/objnam.js';
 import {
     BEARTRAP, CRYSKNIFE, DART, DIAMOND, FOOD_RATION, GOLD_PIECE,
     POT_HEALING, SACK, TALLOW_CANDLE, WORM_TOOTH,
-    WAN_SPEED_MONSTER, WAND_CLASS,
+    WAN_POLYMORPH, WAN_SPEED_MONSTER, WAND_CLASS,
 } from '../js/objects.js';
 import { pick_obj } from '../js/pickup.js';
 import { addtobill, alter_cost, billable, contained_cost, costly_gold,
@@ -128,6 +129,48 @@ test('a helpful zap inside the shop does not start hot pursuit', async () => {
 
     assert.equal(eshk.following, undefined);
     assert.equal(keeper.mpeaceful, true);
+});
+
+test('polymorphing shop stock on the floor angers its keeper', async () => {
+    const { state, keeper, eshk, env } = await shop();
+    const stock = mksobj_at(DART, state.u.ux, state.u.uy,
+        false, false, env);
+    const wand = { otyp: WAN_POLYMORPH, oclass: WAND_CLASS, spe: 1 };
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await bhito(stock, wand, state,
+        { rn2: bound => bound - 1, rn1, rnd, rne });
+
+    assert.equal(state.u.uconduct.polypiles, 1,
+        'the stock reaches bhito polymorph rather than resisting the ray');
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(eshk.following, true);
+});
+
+test('polymorphing interior stock from the doorway settles the bill', async () => {
+    const { state, keeper, eshk, env } = await shop();
+    const { ux: x, uy: y } = state.u;
+    state.level.at(x, y).edge = true;
+    Object.assign(state.level.at(x + 1, y), { typ: ROOM,
+        roomno: ROOMOFFSET, edge: false });
+    const stock = mksobj_at(DART, x + 1, y, false, false, env);
+    eshk.debit = 10;
+    eshk.credit = 3;
+    const wand = { otyp: WAN_POLYMORPH, oclass: WAND_CLASS, spe: 1 };
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await bhito(stock, wand, state,
+        { rn2: bound => bound - 1, rn1, rnd, rne });
+
+    assert.equal(state.u.uconduct.polypiles, 1);
+    assert.equal(eshk.robbed, 7,
+        'make_angry_shk settles debit and credit before pursuit');
+    assert.equal(eshk.following, true);
+    assert.equal(keeper.mpeaceful, false);
 });
 
 test('saleable follows general, class, explicit-item, and vegetarian rows', async () => {

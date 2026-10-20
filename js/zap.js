@@ -188,7 +188,7 @@ import {
 import { mcureblindness, mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
 import {
-    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, hot_pursuit, } from './shk.js';
+    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, hot_pursuit, make_angry_shk, } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
 import { MIM_OMIT_WAIT, MIM_REVEAL } from './const.js';
@@ -2564,8 +2564,8 @@ export async function poly_obj(obj, id, state = game,
 
     // The billing expression is intentionally after replacement and before
     // delobj(), just as C uses the replacement's carried status and the old
-    // object's no_charge/unpaid fields. The two angry-shopkeeper helpers
-    // remain discarded gaps; their source messages are ported here.
+    // object's no_charge/unpaid fields. The source anger branch handles its
+    // message and billing separately from the immediate pursuit branch.
     if (((replacement && !carried(replacement)) || obj.unpaid)
         && costly_spot(ox, oy, state)) {
         const roomno = in_rooms(ox, oy, SHOPBASE, state)[0] ?? 0;
@@ -2592,14 +2592,14 @@ export async function poly_obj(obj, id, state = game,
                 if (state.u?.ushops?.[0]
                     && heroRoom === keeperRoom
                     && !costly_spot(state.u.ux, state.u.uy, state)) {
-                    note_unported('shk.c make_angry_shk');
+                    await make_angry_shk(shopkeeper, ox, oy, state, env);
                 } else {
                     await (env.message ?? ttyPline)(
                         `${Shknam(shopkeeper, state, namingEnv)} gets angry!`,
                         state,
                         env,
                     );
-                    note_unported('shk.c hot_pursuit');
+                    hot_pursuit(shopkeeper, state);
                 }
             } else {
                 await (env.norepMessage ?? ttyNorep)(
