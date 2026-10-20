@@ -1198,10 +1198,9 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                         `${is_plural(obj, state) ? 'They shatter' : 'It shatters'} from the heat!`,
                         state,
                     );
-                } else if (!heroIsDeaf(state)) {
-                    await (rawEnv.message ?? ttyPline)(
-                        'You hear a shattering noise.', state,
-                    );
+                } else {
+                    const heard = youHear('a shattering noise.', state);
+                    if (heard) await (rawEnv.message ?? ttyPline)(heard, state);
                 }
                 const { breakobj } = await import('./dothrow.js');
                 await breakobj(obj, x, y, false, false, {

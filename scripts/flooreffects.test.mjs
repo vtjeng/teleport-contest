@@ -493,6 +493,25 @@ test('hot ground breaks an unresisting potion after the source survival draw', a
     assert.notEqual(potion.where, OBJ_FREE);
 });
 
+// C do.c:flooreffects() calls You_hear() when a hot floor breaks a potion
+// outside sight. The regular dropz() landing path reaches this branch.
+test('an unseen potion shattering on hot ground respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        const state = fixture({ temperature: 1, seen: false });
+        state.flags.acoustics = acoustics;
+        const potion = object({ otyp: POT_WATER, oclass: POTION_CLASS });
+        const messages = [];
+        const calls = [];
+        assert.equal(await land(state, potion, DROP_X, DROP_Y, {
+            random: { rn2: (bound) => { calls.push(bound); return 99; } },
+            message: async (line) => { messages.push(line); },
+        }), true);
+        assert.deepEqual(calls, [100, 100]);
+        assert.deepEqual(messages,
+            acoustics ? ['You hear a shattering noise.'] : []);
+    }
+});
+
 test('the hero pit arm remains conditional on a seen trap beneath the hero', async () => {
     const underHero = fixture();
     underHero.u.ux = DROP_X;
