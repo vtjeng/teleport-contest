@@ -45,6 +45,7 @@ import {
     D_ISOPEN,
     D_NODOOR,
     D_TRAPPED,
+    D_WARNED,
     DEAF,
     ECMD_CANCEL,
     ECMD_FAIL,
@@ -126,16 +127,16 @@ import {
 } from './hack.js';
 import {
     attacktype, bigmonst, can_teleport, haseyes, is_floater, is_flyer, is_giant,
-    nohands, nolimbs, slithy, thick_skinned, verysmall,
+    nohands, nolimbs, slithy, thick_skinned, verysmall, is_watch,
     likes_gold, is_mercenary, mhis, poly_when_stoned, touch_petrifies,
 } from './mondata.js';
 import { abuse_dog } from './dog.js';
 import {
-    closed_door, monflee, set_apparxy, youHear,
+    closed_door, monflee, mon_yells, set_apparxy, youHear,
 } from './monmove.js';
 import {
     killed, m_in_air, maybe_mnexto, maybe_unhide_at, seemimic, setmangry,
-    angry_guards, wake_nearby, wake_nearto, wakeup,
+    angry_guards, get_iter_mons_async, wake_nearby, wake_nearto, wakeup,
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
@@ -199,7 +200,7 @@ import {
 
 import { kick_steed } from './steed.js';
 import { note_unported } from './unported.js';
-import { cansee, recalc_block_point, unblock_point } from './vision.js';
+import { cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { martial_bonus, special_dmgval, use_skill } from './weapon.js';
 import {
     attack_checks, check_caitiff, damageum, find_roll_to_hit,
@@ -982,8 +983,26 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
         await exercise(A_STR, true, state, { rn2 },
             { encumberMessage: encumber_msg });
         await ttyPline(`${Deaf(state) || !rn2(3) ? 'Thwack' : 'Whammm'}!!`, state);
-        if (in_town(x, y, state))
-            note_unported('mon.c get_iter_mons_xy watchman_door_damage');
+        if (in_town(x, y, state)) {
+            await get_iter_mons_async(async (mon) => {
+                if (!is_watch(mon.data) || !mon.mpeaceful
+                    || !couldsee(mon.mx, mon.my, state)) return false;
+                if ((maploc.looted ?? maploc.doormask ?? maploc.flags)
+                    & D_WARNED) {
+                    await mon_yells(mon,
+                        "Halt, vandal!  You're under arrest!", { state });
+                    await angry_guards(false, { state });
+                } else {
+                    await mon_yells(mon, 'Hey, stop damaging that door!',
+                        { state });
+                    // C's looted and doormask alias the same map byte.
+                    const warnedMask = mask | D_WARNED;
+                    maploc.looted = warnedMask;
+                    maploc.flags = maploc.doormask = warnedMask;
+                }
+                return true;
+            }, state);
+        }
     }
 }
 

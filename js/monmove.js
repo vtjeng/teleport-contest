@@ -1021,7 +1021,7 @@ export function monhaskey(monster, forUnlocking, state = game) {
 // C ref: monmove.c mon_yells() (106-132). A watch guard shouts at the hero.
 // Deaf heroes see an arm-waving gesture; hearing heroes get a verbalize1()
 // line (a pline in double quotes). SetVoice() is a tty-sound no-op.
-async function mon_yells(mon, shout, env = {}) {
+export async function mon_yells(mon, shout, env = {}) {
     const state = env.state ?? game;
     const message = env.message ?? ttyPline;
     if (heroDeaf(state)) {

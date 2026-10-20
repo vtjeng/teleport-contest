@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7003,
+      "datetime": "20310417113000",
+      "nethackrc": "OPTIONS=name:WatchDoor7003,role:Wizard,race:dwarf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " \u0016?\n w\u0014  lllllllllllllllllllkkkkk.\u0004k\u0004k  ",
+      "comment": "Independent generated Minetown input route: wizard level teleport, position teleport, then kick the locked in-town door north of (27,7) twice while a peaceful watch captain is visible. C warns on the first kick and arrests on the second."
+    }
+  ]
+}
