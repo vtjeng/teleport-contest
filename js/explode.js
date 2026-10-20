@@ -977,7 +977,13 @@ export async function scatter(
                     })),
             },
         ));
-    const stopOccupation = env.stopOccupation;
+    const stopOccupation = env.stopOccupation
+        ?? (async (subject, operationEnv) => {
+            // allmain.js imports explosion handling; resolve its canonical
+            // interruption only when a scattered object strikes the hero.
+            const { stop_occupation } = await import('./allmain.js');
+            await stop_occupation(subject, { ...operationEnv, message });
+        });
     const unpunish = env.unpunish;
     const fractureRock = env.fractureRock
         ?? ((object, operationEnv) => fracture_rock(
@@ -1158,17 +1164,11 @@ export async function scatter(
                             if ('object' in hit) chain.obj = hit.object;
                             if (hit.hitu != null && hit.hitu) {
                                 chain.range -= 3;
-                                if (typeof stopOccupation === 'function')
-                                    await stopOccupation(state, env);
-                                else
-                                    note_unported('allmain.c stop_occupation()');
+                                await stopOccupation(state, env);
                             }
                         } else if (hit) {
                             chain.range -= 3;
-                            if (typeof stopOccupation === 'function')
-                                await stopOccupation(state, env);
-                            else
-                                note_unported('allmain.c stop_occupation()');
+                            await stopOccupation(state, env);
                         }
                         if (!chain.obj) chain.stopped = true;
                     }

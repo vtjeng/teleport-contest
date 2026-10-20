@@ -910,6 +910,56 @@ test('scatter uses the production object lifecycle on an ordinary floor', async 
     assert.equal(game.level.objects[x + 1]?.[y - 1], object);
 });
 
+test('scatter interrupts an occupation when a flying object hits the hero',
+    async () => {
+        await runSegment({
+            seed: 6100422,
+            datetime: '20300415091724',
+            nethackrc: [
+                'OPTIONS=name:ScatterInterrupt,role:Valkyrie,race:human,'
+                    + 'gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+                    + '!acoustics,!autopickup',
+                '',
+            ].join('\n'),
+            moves: '',
+        });
+        const x = game.u.ux;
+        const y = game.u.uy;
+        const sourceX = x - 1;
+        const sourceY = y + 1;
+        const rock = mksobj(ROCK, true, false, { state: game });
+        rock.quan = 1;
+        rock.owt = 1;
+        place_object(rock, sourceX, sourceY,
+            objectGenerationEnv({ state: game }));
+        game.go.occupation = () => 1;
+        game.go.occtxt = 'waiting';
+        game.unported?.delete('allmain.c stop_occupation()');
+        const messages = [];
+
+        await scatter(sourceX, sourceY, 2, SCATTER_MAY_HITYOU,
+            rock, game, {
+                random: { rn2: () => 3, rnd: () => 1 },
+                message: async (line) => messages.push(line),
+                damageValue: () => 1,
+                hitHero: async () => true,
+                shopOrigin: false,
+                terrainAt: () => 100,
+                closedDoor: () => false,
+                isSink: () => false,
+                monsterAt: () => null,
+                canSee: () => false,
+                maybeUnhideAt: () => {},
+            });
+
+        assert.deepEqual(game.gb.bhitpos, { x, y },
+            'the flying rock crossed the hero before the interruption');
+        assert.equal(game.go.occupation, null);
+        assert.ok(messages.includes('You stop waiting.'));
+        assert.equal(game.unported?.has('allmain.c stop_occupation()'), false);
+    });
+
 // explode.c:668-673 uses the two specific antecedent markers, not merely a
 // nonzero last_msg. Abort at the fatal line to isolate wording from done().
 test('fatal explosion wording follows the source last-message markers', async () => {
