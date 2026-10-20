@@ -3140,7 +3140,14 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
                 dmg += rnd(10);
             const buf = `handling ${what}`;
             await losehp(dmg, buf, KILLED_BY, state);
-            await exercise(A_CON, false, state);
+            await exercise(A_CON, false, state, { rn2 }, {
+                encumberMessage: rawEnv.encumberMessage ?? (async (subject) => {
+                    const { encumber_msg } = await import('./pickup.js');
+                    await encumber_msg(subject, {
+                        message: rawEnv.message ?? ttyPline,
+                    });
+                }),
+            });
         }
     }
 
