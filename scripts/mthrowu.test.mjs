@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
     A_DEX,
     COULD_SEE,
+    CORR,
     D_CLOSED,
     DOOR,
     HALLUC,
@@ -26,6 +27,7 @@ import {
     STONE,
     NEED_WEAPON,
     W_ARMF,
+    W_NONDIGGABLE,
     W_WEP,
 } from '../js/const.js';
 import { acurr, exercise } from '../js/attrib.js';
@@ -61,6 +63,7 @@ import {
     ORCISH_DAGGER,
     ORCISH_ARROW,
     ORCISH_BOW,
+    POT_ACID,
     POT_HEALING,
     POT_SLEEPING,
     SPEED_BOOTS,
@@ -147,6 +150,60 @@ test('hit_bars consumes hero_breaks before deciding the projectile survives',
         assert.equal(egg.where, OBJ_DELETED);
         assert.deepEqual(draws, [100, 100]);
     });
+
+test('a shattered acid potion dissolves ordinary iron bars', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nhit_bars(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* TRUE iff thrown/kicked/rolled', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /if \(obj_type == POT_ACID\)[\s\S]*?dissolve_bars\(barsx, barsy\)/u);
+
+    const state = await hero();
+    const y = state.u.uy;
+    const objx = state.u.ux + 3;
+    const barsx = state.u.ux + 4;
+    clearRow(state, state.u.ux, barsx, y);
+    const bars = state.level.at(barsx, y);
+    bars.typ = IRONBARS;
+    bars.wall_info = 0;
+    state.viz_array[y][barsx] |= IN_SIGHT;
+    const potion = mksobj_at(POT_ACID, objx, y, false, false, { state });
+    const objRef = { obj: potion };
+    const messages = [];
+
+    await hit_bars(objRef, objx, y, barsx, y, BRK_BY_HERO, state,
+        { rn2: () => 99 },
+        { message: (line) => { messages.push(line); } });
+
+    assert.ok(objRef.obj === null);
+    assert.equal(potion.where, OBJ_DELETED);
+    assert.equal(bars.typ, CORR);
+    assert.ok(messages.includes('The iron bars are dissolved!'));
+});
+
+test('acid does not dissolve nondiggable iron bars', async () => {
+    const state = await hero();
+    const y = state.u.uy;
+    const objx = state.u.ux + 3;
+    const barsx = state.u.ux + 4;
+    clearRow(state, state.u.ux, barsx, y);
+    const bars = state.level.at(barsx, y);
+    bars.typ = IRONBARS;
+    bars.wall_info = W_NONDIGGABLE;
+    state.viz_array[y][barsx] |= IN_SIGHT;
+    const potion = mksobj_at(POT_ACID, objx, y, false, false, { state });
+    const objRef = { obj: potion };
+    const messages = [];
+
+    await hit_bars(objRef, objx, y, barsx, y, BRK_BY_HERO, state,
+        { rn2: () => 99 },
+        { message: (line) => { messages.push(line); } });
+
+    assert.ok(objRef.obj === null);
+    assert.equal(bars.typ, IRONBARS);
+    assert.equal(bars.wall_info, W_NONDIGGABLE);
+    assert.equal(messages.includes('The iron bars are dissolved!'), false);
+});
 
 test('hits_bars awaits the non-hero break result before returning', async () => {
     const state = await hero();

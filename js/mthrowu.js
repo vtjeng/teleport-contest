@@ -159,7 +159,7 @@ import {
 // back for m_move()'s item search. Both sides of that cycle are hoisted
 // function declarations, which an ES module cycle initializes before either
 // module body runs; nothing here reads the import at module scope.
-import { closed_door } from './monmove.js';
+import { closed_door, dissolve_bars } from './monmove.js';
 import {
     ammo_and_launcher,
     is_flammable,
@@ -261,6 +261,7 @@ import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
 import { ttyPline } from './tty_message.js';
+import { youHear } from './pline.js';
 
 import { obj_sheds_light } from './light.js';
 import {
@@ -2054,13 +2055,17 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
         objRef.obj = null; /* object is now gone */
         /* breakage makes its own noises */
         if (obj_type === POT_ACID) {
+            const message = rawEnv.message ?? ttyPline;
             if (cansee(barsx, barsy, state) && !nodissolve) {
-                note_unported('pline.c pline'); /* "The iron bars are dissolved!" */
+                await message('The iron bars are dissolved!', state, rawEnv);
             } else {
-                note_unported('pline.c pline'); /* You_hear hissing */
+                note_unported('sounds.c Soundeffect');
+                const heard = youHear(Hallucination(state)
+                    ? 'angry snakes!' : 'a hissing noise.', state);
+                if (heard) await message(heard, state, rawEnv);
             }
             if (!nodissolve)
-                note_unported('monmove.c dissolve_bars');
+                await dissolve_bars(barsx, barsy, state);
         }
     } else {
         if (!Deaf(state)) {
