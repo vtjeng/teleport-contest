@@ -2983,7 +2983,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 x2 = x; y2 = y; // object stops here
                 if (!heroIsDeaf(state))
                     await message('Thump!');
-                wake_nearto(x2, y2, 16, state);
+                await wake_nearto(x2, y2, 16, env);
                 break;
             }
         }

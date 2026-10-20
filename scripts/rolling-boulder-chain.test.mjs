@@ -3,10 +3,12 @@ import test from 'node:test';
 
 import {
     DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, ROOM, ROLL, ROWNO,
+    VWALL,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { sobj_at } from '../js/invent.js';
+import { newMonster } from '../js/monst.js';
 import { newObject, place_object } from '../js/obj.js';
 import { BOULDER, ROCK_CLASS, objects_globals_init } from '../js/objects.js';
 import { launch_obj } from '../js/trap_effects.js';
@@ -125,3 +127,46 @@ test('rolling boulder strikes iron bars and stops before them', async () => {
     assert.equal(sobj_at(BOULDER, 12, 10, state), null);
     assert.equal(state.level.at(12, 10).typ, IRONBARS);
 });
+
+test('rolling boulder thump against a wall wakes only nearby sleepers',
+    async () => {
+        // Planning uses an isolated state, distinct from the global game.
+        const state = { ...resetGame() };
+        state.level = new GameMap();
+        state.u = { ux: 20, uy: 10 };
+        state.context = {};
+        for (let x = 10; x <= 17; x++) state.level.at(x, 10).typ = ROOM;
+        state.level.at(13, 10).typ = VWALL;
+        const sleeper = newMonster({
+            data: { geno: 0 }, mx: 12, my: 11,
+            mhp: 5, msleeping: true,
+        });
+        const farSleeper = newMonster({
+            data: { geno: 0 }, mx: 17, my: 10,
+            mhp: 5, msleeping: true,
+        });
+        sleeper.nmon = farSleeper;
+        state.level.monlist = sleeper;
+        state.level.monsters[12][11] = sleeper;
+        state.level.monsters[17][10] = farSleeper;
+        const boulder = newObject({ otyp: BOULDER, quan: 1 });
+        const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+        place_object(boulder, 10, 10, { state, hooks });
+        const messages = [];
+
+        const result = await launch_obj(BOULDER, 10, 10, 14, 10,
+            ROLL, state, {
+                hooks,
+                planning: true,
+                message: (line) => messages.push(line),
+                redraw: () => {},
+                canSeeMonster: () => false,
+                disturbBuriedZombies: () => {},
+            });
+
+        assert.equal(result, 1);
+        assert.deepEqual(messages, ['Thump!']);
+        assert.equal(sobj_at(BOULDER, 12, 10, state), boulder);
+        assert.equal(sleeper.msleeping, false);
+        assert.equal(farSleeper.msleeping, true);
+    });
