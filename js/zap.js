@@ -5348,8 +5348,9 @@ export async function zap_over_floor(
                                 : `The ${liquid('water')} freezes.`, state, env,
                     );
                     redrawAt(x, y, state);
-                } else if (!lava && !heroIsDeaf(state)) {
-                    await message('You hear a crackling sound.', state, env);
+                } else if (!lava) {
+                    const heard = youHear('a crackling sound.', state);
+                    if (heard) await message(heard, state, env);
                 }
                 if (u_at(x, y, state)) {
                     if (state.u.uinwater) {
