@@ -242,7 +242,8 @@ import {
 import { note_unported } from './unported.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { morehungry } from './eat.js';
-import { deltrap, fill_pit, Flying, reset_utrap, t_at, unconscious }
+import { clamp_hole_destination, deltrap, fill_pit, Flying, reset_utrap,
+    t_at, unconscious }
     from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { somexyspace } from './mklev.js';
@@ -852,9 +853,7 @@ export async function mlevel_tele_trap(
             }
             return 'finished';
         }
-        const bottom = dungeon?.num_dunlevs;
-        if (Number.isInteger(bottom))
-            destination.dlevel = Math.min(destination.dlevel, bottom);
+        clamp_hole_destination(destination, state);
     }
     if (!Number.isInteger(destination.dnum)
         || !Number.isInteger(destination.dlevel)) {

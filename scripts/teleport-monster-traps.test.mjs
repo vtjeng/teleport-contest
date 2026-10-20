@@ -388,6 +388,37 @@ test('mlevel_tele_trap hands an ordinary hole to dog.c migration',
         assert.match(messages.at(-1), / falls into a hole\.$/u);
     });
 
+for (const invoked of [false, true]) {
+    test(`monster hole honors the Gehennom cutoff ${invoked
+        ? 'after' : 'before'} invocation`, async () => {
+        const monster = await initializedMonster(
+            HOLE_MIGRATION_SEED, `HellHole${invoked ? 'After' : 'Before'}`,
+        );
+        game.dungeons[game.u.uz.dnum].flags.hellish = true;
+        game.dungeons[game.u.uz.dnum].num_dunlevs = 10;
+        game.u.uz.dlevel = 8;
+        game.u.uevent.invoked = invoked;
+        const destination = { dnum: game.u.uz.dnum, dlevel: 10 };
+        const trap = {
+            dst: destination, ttyp: HOLE, tseen: true,
+            tx: monster.mx, ty: monster.my,
+        };
+
+        const result = await mlevel_tele_trap(
+            monster, trap, false, false, {
+                ...teleportEnv(),
+                migrateToLevel: migrate_to_level,
+            },
+        );
+
+        assert.equal(result, 'moved');
+        assert.deepEqual([monster.mux, monster.muy],
+            [destination.dnum, invoked ? 10 : 9]);
+        assert.deepEqual(trap.dst, destination,
+            'clamping the by-value destination leaves the trap intact');
+    });
+}
+
 test('mlevel_tele_trap chooses and migrates from a level teleporter',
     async () => {
         const monster = await initializedMonster(
