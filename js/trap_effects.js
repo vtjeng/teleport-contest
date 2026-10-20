@@ -62,6 +62,7 @@ import {
     IS_STWALL,
     IS_TREE,
     IRONBARS,
+    MIGR_NOWHERE,
     MIGR_RANDOM,
     In_quest,
     KILLED_BY,
@@ -150,6 +151,7 @@ import {
     map_trap, newsym, obj_to_glyph, shieldeff, tmp_at,
 } from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
+import { down_gate, ship_object } from './dokick.js';
 import { del_engr_at } from './engrave.js';
 import {
     destroy_drawbridge,
@@ -2897,10 +2899,14 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 });
         }
         if (style === ROLL) {
-            // down_gate / ship_object: not reached
-            if (typeof state.level?.dnstair?.sx === 'number') {
-                // The down_gate check tests for stairs/ladders/portals.
-                // Not ported; throw only if the boulder is actually on one.
+            if (down_gate(x, y, state) !== MIGR_NOWHERE
+                && await ship_object(singleobj, x, y, false, {
+                    ...env,
+                    hooks: objectHooks,
+                })) {
+                used_up = true;
+                launch_drop_spot(null, 0, 0, state);
+                break;
             }
             const t = t_at(x, y, state);
             if (t && otyp === BOULDER) {

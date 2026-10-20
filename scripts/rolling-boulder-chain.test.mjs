@@ -3,7 +3,8 @@ import test from 'node:test';
 
 import {
     COLNO, DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, LANDMINE,
-    MIGR_RANDOM, OBJ_MIGRATING, ROOM, ROLL, ROWNO, TELEP_TRAP, LEVEL_TELEP,
+    MIGR_RANDOM, MIGR_STAIRS_UP, OBJ_MIGRATING, ROOM, ROLL, ROWNO,
+    TELEP_TRAP, LEVEL_TELEP,
     VWALL,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -15,6 +16,55 @@ import {
     BOULDER, ROCK, ROCK_CLASS, STATUE, objects_globals_init,
 } from '../js/objects.js';
 import { launch_obj } from '../js/trap_effects.js';
+
+for (const falls of [false, true]) {
+    test(`rolling boulder ${falls ? 'falls down' : 'passes over'} downstairs`,
+        async () => {
+            const state = resetGame();
+            state.level = new GameMap();
+            state.u = { ux: 20, uy: 10, uz: { dnum: 0, dlevel: 1 } };
+            state.dungeons = [{ num_dunlevs: 10 }];
+            state.context = {};
+            objects_globals_init(state);
+            for (let x = 10; x <= 12; x++)
+                state.level.at(x, 10).typ = ROOM;
+            state.stairs = {
+                sx: 11, sy: 10, up: false, isladder: false,
+                tolev: { dnum: 0, dlevel: 2 }, next: null,
+            };
+            const boulder = newObject({
+                otyp: BOULDER, oclass: ROCK_CLASS, quan: 1,
+            });
+            const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+            place_object(boulder, 10, 10, { state, hooks });
+            const draws = [];
+
+            const result = await launch_obj(BOULDER, 10, 10, 12, 10,
+                ROLL, state, {
+                    hooks,
+                    planning: true,
+                    random: { rn2(bound) {
+                        draws.push(bound);
+                        return bound === 3 && !falls ? 1 : 0;
+                    } },
+                    message: () => {},
+                    redraw: () => {},
+                });
+
+            assert.equal(result, falls ? 2 : 1);
+            assert.deepEqual(draws, falls ? [3, 100] : [3]);
+            assert.equal(sobj_at(BOULDER, 11, 10, state), null);
+            if (falls) {
+                assert.equal(boulder.where, OBJ_MIGRATING);
+                assert.equal(state.gm.migrating_objs, boulder);
+                assert.deepEqual([boulder.ox, boulder.oy, boulder.owornmask],
+                    [0, 2, MIGR_STAIRS_UP]);
+                assert.equal(sobj_at(BOULDER, 12, 10, state), null);
+            } else {
+                assert.equal(sobj_at(BOULDER, 12, 10, state), boulder);
+            }
+        });
+}
 
 test('rolling boulder moves the next boulder after a collision', async () => {
     const state = resetGame();
