@@ -2090,7 +2090,9 @@ export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, sta
                     bsindx = barsounds.length - 1;
                 }
             }
-            note_unported('pline.c pline'); /* pline("%s!", barsounds[bsindx]) */
+            note_unported('sounds.c Soundeffect');
+            await (rawEnv.message ?? ttyPline)(
+                `${barsounds[bsindx]}!`, state, rawEnv);
         }
         if (!(harmless_missile(otmp, state) || is_flimsy(otmp, state)))
             noise = 4 * 4;

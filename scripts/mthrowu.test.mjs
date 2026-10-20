@@ -6,6 +6,7 @@ import {
     A_DEX,
     COULD_SEE,
     CORR,
+    DEAF,
     D_CLOSED,
     DOOR,
     HALLUC,
@@ -283,6 +284,35 @@ test('a loud boulder impact on bars wakes a nearby sleeper', async () => {
     assert.equal(state.level.at(barsx, y).typ, IRONBARS);
     assert.equal(sleeper.msleeping, false);
     assert.equal(farSleeper.msleeping, true);
+});
+
+test('a boulder makes a Whang against bars only when the hero can hear', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nhit_bars(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* TRUE iff thrown/kicked/rolled', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /if \(!Deaf\)[\s\S]*?pline\("%s!", barsounds\[bsindx\]\)/u);
+
+    for (const deaf of [false, true]) {
+        const state = await hero();
+        const y = state.u.uy;
+        const objx = state.u.ux + 1;
+        const barsx = state.u.ux + 2;
+        clearRow(state, state.u.ux, barsx, y);
+        state.level.at(barsx, y).typ = IRONBARS;
+        if (deaf) state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+        const boulder = mksobj(BOULDER, false, false, { state });
+        const messages = [];
+
+        await hit_bars({ obj: boulder }, objx, y, barsx, y, 0, state,
+            { rn2: () => 0 }, {
+                canSeeMonster: () => false,
+                disturbBuriedZombies: () => {},
+                message: (line) => { messages.push(line); },
+            });
+
+        assert.deepEqual(messages, deaf ? [] : ['Whang!']);
+    }
 });
 
 test('hits_bars awaits the non-hero break result before returning', async () => {
