@@ -188,7 +188,7 @@ import {
 import { mcureblindness, mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
 import {
-    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, } from './shk.js';
+    check_unpaid, billable, contained_cost, costly_spot, inhishop, inside_shop, add_damage, pay_for_damage, shkcatch, shop_keeper, shk_your, stolen_value, hot_pursuit, } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
 import { messageAt } from './startup_a11y.js';
 import { MIM_OMIT_WAIT, MIM_REVEAL } from './const.js';
@@ -3818,8 +3818,9 @@ export async function bhitm(monster, wand, state = game,
             ...rawEnv, state, random,
         });
         await m_respond(monster, { ...rawEnv, state, random });
-        if (monster.isshk && !state.u?.ushops?.length)
-            note_unported('shk.c hot_pursuit');
+        // C tests *u.ushops, the first room entry, not the array length.
+        if (monster.isshk && !state.u?.ushops?.[0])
+            hot_pursuit(monster, state);
     }
     if (reveal_invis && monster.mhp >= 1
         && cansee(hitpos.x, hitpos.y, state)

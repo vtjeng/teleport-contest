@@ -9,6 +9,8 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { bhitm } from '../js/zap.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     PM_GIANT_RAT,
     PM_KEYSTONE_KOP,
@@ -28,6 +30,7 @@ import { donameFresh } from '../js/objnam.js';
 import {
     BEARTRAP, CRYSKNIFE, DART, DIAMOND, FOOD_RATION, GOLD_PIECE,
     POT_HEALING, SACK, TALLOW_CANDLE, WORM_TOOTH,
+    WAN_SPEED_MONSTER, WAND_CLASS,
 } from '../js/objects.js';
 import { pick_obj } from '../js/pickup.js';
 import { addtobill, alter_cost, billable, contained_cost, costly_gold,
@@ -95,6 +98,37 @@ function kopsOnLevel(state) {
         if (KOPS.has(monster.data.pmidx)) ++count;
     return count;
 }
+
+test('zapping an outside-shop keeper starts hot pursuit', async () => {
+    const { state, keeper, eshk } = await shop();
+    // The keeper remains in the shop while the hero stands on its doorway.
+    state.level.at(state.u.ux, state.u.uy).roomno = 0;
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.urooms = [0, 0, 0, 0, 0];
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await bhitm(keeper, { otyp: WAN_SPEED_MONSTER, oclass: WAND_CLASS,
+        spe: 1 }, state);
+
+    assert.equal(eshk.following, true,
+        'zap.c bhitm calls hot_pursuit after waking a shopkeeper outside');
+    assert.equal(keeper.mpeaceful, false);
+});
+
+test('a helpful zap inside the shop does not start hot pursuit', async () => {
+    const { state, keeper, eshk } = await shop();
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await bhitm(keeper, { otyp: WAN_SPEED_MONSTER, oclass: WAND_CLASS,
+        spe: 1 }, state);
+
+    assert.equal(eshk.following, undefined);
+    assert.equal(keeper.mpeaceful, true);
+});
 
 test('saleable follows general, class, explicit-item, and vegetarian rows', async () => {
     const { state, keeper, eshk } = await shop();
