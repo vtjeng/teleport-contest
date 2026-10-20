@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { ACH_TUNE, A_WIS, COLNO, D_CLOSED, D_NODOOR, DB_EAST, DB_NORTH,
-    DB_SOUTH, DB_WEST, DBWALL, DEAF, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, HALF_PHDAM,
+    DB_SOUTH, DB_WEST, DBWALL, DEAF, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP,
+    FUMBLING, HALF_PHDAM,
     OBJ_INVENT, PIT, ROOM, ROWNO, SLEEP_RES, STONE, STRAT_WAITMASK,
-    TIMEOUT, UNCHANGING }
+    TELEDS_TELEPORT, TIMEOUT, TT_PIT, UNCHANGING }
 from '../js/const.js';
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
@@ -15,9 +16,15 @@ import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
     do_earthquake, do_pit, generic_lvl_desc, improvised_notes,
     musicMaybeHalfPhys,
     put_monsters_to_sleep } from '../js/music.js';
-import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
+import { PM_COCKATRICE, PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
     PM_NEWT, PM_WOOD_NYMPH } from '../js/monsters.js';
-import { DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS, WOODEN_FLUTE } from '../js/objects.js';
+import { BOULDER, CORPSE, DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS,
+    WOODEN_FLUTE } from '../js/objects.js';
+import { mksobj, set_corpsenm } from '../js/obj.js';
+import { addinv, sobj_at } from '../js/invent.js';
+import { setuwep } from '../js/wield.js';
+import { maketrap, set_utrap } from '../js/trap.js';
+import { teleds } from '../js/teleport.js';
 
 test('music.c do_improvisation matches the admitted self-directed frost-horn recording', async () => {
     const recording = JSON.parse(readFileSync(new URL(
@@ -253,6 +260,94 @@ test('do_pit completes monster death cleanup after fatal chasm damage', async ()
     assert.equal(state.iflags.purge_monsters, 1);
     assert.equal(state.level.monlist, victim); // C defers unlinking to dmonsfree().
     assert.equal(state.level.monsters[square.x][square.y], null);
+});
+
+async function chasmCorpseHero() {
+    const state = await startedGame();
+    state.nhDisplay.onEmptyQueue = () => 32;
+    let square = null;
+    for (let x = 2; x < COLNO - 2 && !square; ++x) {
+        for (let y = 2; y < ROWNO - 2 && !square; ++y) {
+            if (state.level.at(x, y).typ === ROOM
+                && !state.level.monsters[x][y]
+                && !state.level.traps.some(trap => trap.tx === x && trap.ty === y)
+                && !sobj_at(BOULDER, x, y, state)) square = { x, y };
+        }
+    }
+    assert.ok(square);
+    await teleds(square.x, square.y, TELEDS_TELEPORT, state);
+    const { ux, uy } = state.u;
+    assert.deepEqual([ux, uy], [square.x, square.y]);
+    assert.equal(state.level.at(ux, uy).typ, ROOM);
+    assert.equal(state.level.traps.some(trap => trap.tx === ux && trap.ty === uy),
+        false);
+    state.u.uhp = state.u.uhpmax = 100;
+    const corpse = mksobj(CORPSE, false, false, { state });
+    set_corpsenm(corpse, PM_COCKATRICE, { state });
+    await setuwep(addinv(corpse, { state }), { state });
+    assert.equal(state.uwep, corpse);
+    assert.equal(corpse.where, OBJ_INVENT);
+    return state;
+}
+
+test('earthquake chasm fall touches a wielded cockatrice corpse', async () => {
+    // C music.c:do_pit -> trap.c:selftouch, after survivable fall damage.
+    const state = await chasmCorpseHero();
+    assert.equal(state.unported.has('trap.c selftouch'), false);
+    await do_pit(state.u.ux, state.u.uy, false, state, {
+        message: async () => {},
+    });
+    assert.ok(state.u.uhp < 100, 'the chasm fall dealt damage first');
+    assert.equal(state.unported.has('trap.c selftouch'), false);
+    assert.equal(state.program_state.gameover, true);
+    assert.equal(state.killer.name, 'a cockatrice corpse');
+});
+
+test('earthquake chasm jostle touches a wielded cockatrice corpse',
+    async () => {
+        // Existing pit plus fumbling forces C's lost-footing selftouch arm.
+        const state = await chasmCorpseHero();
+        assert.ok(maketrap(state.u.ux, state.u.uy, PIT, { state }));
+        set_utrap(5, TT_PIT, state);
+        state.u.uprops[FUMBLING].intrinsic = 1;
+        const random = {
+            rn2: () => 1,
+            rn1: () => 2,
+            rnd: () => 1,
+        };
+        assert.equal(state.unported.has('trap.c selftouch'), false);
+        await do_pit(state.u.ux, state.u.uy, true, state, {
+            random,
+            message: async () => {},
+        });
+        assert.ok(state.u.uhp < 100, 'the jostle dealt damage first');
+        assert.equal(state.unported.has('trap.c selftouch'), false);
+        assert.equal(state.program_state.gameover, true);
+        assert.equal(state.killer.name, 'a cockatrice corpse');
+    });
+
+test('earthquake reaches hero chasm contact through do_pit', async () => {
+    // Select exactly the hero's room square from do_earthquake's x-major scan.
+    const state = await chasmCorpseHero();
+    const { ux, uy } = state.u;
+    const startX = Math.max(ux - 2, 1);
+    const startY = Math.max(uy - 2, 0);
+    const endY = Math.min(uy + 2, ROWNO - 1);
+    const heroDraw = (ux - startX) * (endY - startY + 1) + uy - startY;
+    let draw = 0;
+    const random = {
+        rn2: bound => {
+            assert.equal(bound, 13);
+            return draw++ === heroDraw ? 0 : 1;
+        },
+        rn1: () => 2,
+        rnd: () => 1,
+    };
+    await do_earthquake(1, state, { random, message: async () => {} });
+    assert.ok(draw > heroDraw, 'the earthquake reached the hero square');
+    assert.equal(state.unported.has('trap.c selftouch'), false);
+    assert.equal(state.program_state.gameover, true);
+    assert.equal(state.killer.name, 'a cockatrice corpse');
 });
 
 test('Maybe_Half_Phys uses source intrinsic/extrinsic state and rounds odd damage up', () => {

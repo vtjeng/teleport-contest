@@ -10,7 +10,7 @@ import {
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
     SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT, XKILL_NOMSG,
-    UNCHANGING, has_mgivenname, is_pit, plur, u_at,
+    UNCHANGING, Upolyd, has_mgivenname, is_pit, plur, u_at,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { acurr, exercise } from './attrib.js';
@@ -28,7 +28,7 @@ import { align_str, record_achievement } from './insight.js';
 import { consume_obj_charge, obj_extract_self, sobj_at } from './invent.js';
 import {
     can_blow, ceiling_hider, humanoid, is_clinger, is_flyer,
-    is_mercenary, mindless, unique_corpstat,
+    is_mercenary, mindless, nolimbs, slithy, unique_corpstat,
 } from './mondata.js';
 import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
 import { Amonnam, a_monnam, Monnam, mon_nam, x_monnam } from './do_name.js';
@@ -52,7 +52,7 @@ import { add_damage } from './shk.js';
 import { set_levltyp } from './terrain.js';
 import {
     Flying, Levitation, maketrap, reset_utrap, set_utrap,
-    t_at,
+    selftouch, t_at,
 } from './trap.js';
 import { mselftouch } from './trap_effects.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
@@ -337,7 +337,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
             set_utrap(random.rn1(6, 2), TT_PIT, state);
             await losehp(musicMaybeHalfPhys(random.rnd(6), state),
                 'fell into a chasm', NO_KILLER_PREFIX, state, env);
-            note_unported('trap.c selftouch');
+            await selftouch('Falling, you', state, env);
         } else if (u.utrap && u.utraptype === TT_PIT) {
             const fumbling = property(state, FUMBLING);
             const keepFooting = (!fumbling || !random.rn2(5))
@@ -351,10 +351,11 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
             if (keepFooting) {
                 await exercise(A_DEX, true, state, random);
             } else {
-                // C chooses the selftouch prefix from Upolyd/slithy/nolimbs
-                // here; those predicates have no effects and its callee is
-                // still a discarded source gap.
-                note_unported('trap.c selftouch');
+                const prefix = Upolyd(state.u)
+                    && (slithy(state.youmonst.data)
+                        || nolimbs(state.youmonst.data))
+                    ? 'Shaken, you' : 'Falling down, you';
+                await selftouch(prefix, state, env);
             }
         }
     } else {
