@@ -4992,8 +4992,13 @@ async function holdDropY(obj, normalized) {
     const dropy = normalized.hooks.dropy;
     if (typeof dropy === 'function')
         await dropy(obj, normalized);
-    else
-        note_unported('do.c dropy');
+    else {
+        // do.js already imports the inventory helpers used by dropz(); load
+        // the canonical floor drop after artifact touch rejects or reverts
+        // the hero.
+        const { dropCommandEnv, dropy: dropToFloor } = await import('./do.js');
+        await dropToFloor(obj, dropCommandEnv(normalized.state, normalized));
+    }
 }
 
 // C ref: mkobj.c add_to_minv(). Returns true when `obj` merged into an

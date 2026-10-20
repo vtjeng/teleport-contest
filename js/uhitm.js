@@ -540,6 +540,7 @@ import {
     is_blade,
     is_wet_towel,
     place_object,
+    remove_object,
     splitobj,
     objectType,
     stone_missile,
@@ -3994,6 +3995,11 @@ async function steal_it(mdef, mattk, state = game, rawEnv = {}) {
         hooks: {
             ...env.hooks,
             message: env.hooks?.message ?? message,
+            // A refused stolen artifact is put on the hero's floor square
+            // before touch_artifact() rejects it.  The extraction then uses
+            // the same floor owner as other artifact pickup callers.
+            extractExternalObject: env.hooks?.extractExternalObject
+                ?? remove_object,
             encumberMessage: env.hooks?.encumberMessage
                 ?? env.encumberMessage
                 ?? ((currentState) => encumber_msg(currentState, { message })),

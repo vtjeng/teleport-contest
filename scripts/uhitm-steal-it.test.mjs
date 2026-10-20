@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { OBJ_FLOOR, ONAME_WISH, ROOM } from '../js/const.js';
+import { oname } from '../js/do_name.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { add_to_minv } from '../js/invent.js';
+import { mksobj } from '../js/obj.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { AD_SSEX, PM_GOBLIN, PM_WOOD_NYMPH } from '../js/monsters.js';
+import { AMULET_OF_ESP } from '../js/objects.js';
+import { ART_EYE_OF_THE_AETHIOPICA } from '../js/artifacts.js';
+import { mhitm_ad_ssex } from '../js/uhitm.js';
 
 const cSource = readFileSync('nethack-c/upstream/src/uhitm.c', 'utf8');
 const jsSource = readFileSync('js/uhitm.js', 'utf8');
@@ -65,3 +76,49 @@ test('mhitm_ad_sedu wires the hero attack arm to steal_it', () => {
     assert.match(jsSedu, /if \(magr === state\.youmonst\)[\s\S]*?await steal_it\(mdef, mattk, state,[\s\S]*?mhm\.damage = 0;/);
     assert.doesNotMatch(jsSedu, /note_unported\(['"]uhitm\.c steal_it/);
 });
+
+test('a stolen untouchable artifact returns to the floor after pickup refusal',
+    async () => {
+        await runSegment({
+            seed: 6100423,
+            datetime: '20300415091725',
+            nethackrc: 'OPTIONS=name:ArtifactThief,role:Knight,race:human,'
+                + 'gender:female,align:lawful,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        const state = game;
+        const x = state.u.ux;
+        const y = state.u.uy;
+        state.u.uhp = state.u.uhpmax = 100;
+        state.u.mh = state.u.mhmax = 100;
+        state.u.umonnum = PM_WOOD_NYMPH;
+        state.youmonst.data = state.mons[PM_WOOD_NYMPH];
+        const monster = newMonster({
+            data: state.mons[PM_GOBLIN], m_id: 990036,
+            mhp: 20, mhpmax: 20,
+        });
+        monster.nmon = state.level.monlist;
+        state.level.monlist = monster;
+        state.level.at(x + 1, y).typ = ROOM;
+        place_monster(monster, x + 1, y, state);
+        const eye = mksobj(AMULET_OF_ESP, true, false, { state });
+        oname(eye, 'The Eye of the Aethiopica', ONAME_WISH, { state });
+        assert.equal(eye.oartifact, ART_EYE_OF_THE_AETHIOPICA);
+        add_to_minv(monster, eye, { state });
+        state.unported?.delete('do.c dropy');
+        for (let i = 0; i < 24; i++) state.nhDisplay.pushKey(32);
+
+        await mhitm_ad_ssex(
+            state.youmonst, { adtyp: AD_SSEX }, monster,
+            { damage: 1, done: false, hitflags: 0 }, state,
+            { message: async () => {} },
+        );
+
+        assert.equal(monster.minvent, null,
+            'the polymorphed hero steals the monster inventory');
+        assert.equal(eye.where, OBJ_FLOOR,
+            'C dropy returns an artifact rejected by touch_artifact');
+        assert.equal(state.level.objects[x][y], eye);
+        assert.equal(state.unported?.has('do.c dropy'), false);
+    });
