@@ -558,6 +558,29 @@ async function on_locate(state) {
 
 // C ref: quest.c on_goal().  Called when the hero arrives on the nemesis
 // level.
+// C ref: questpgr.c find_qarti() and find_quest_artifact() for the chains
+// selected by quest.c:on_goal(). Hero inventory is deliberately excluded.
+function findGoalArtifact(chain, artifact) {
+    for (let obj = chain; obj; obj = obj.nobj) {
+        if (obj.oartifact === artifact) return obj;
+        const contained = findGoalArtifact(obj.cobj, artifact);
+        if (contained) return contained;
+    }
+    return null;
+}
+
+function questArtifactOnGoalLevel(state) {
+    const artifact = state.urole.questarti;
+    let found = findGoalArtifact(state.level.objlist, artifact);
+    if (found) return found;
+    for (let mon = state.level.monlist; mon; mon = mon.nmon) {
+        if (mon.mhp < 1) continue; // C: DEADMONSTER()
+        found = findGoalArtifact(mon.minvent, artifact);
+        if (found) return found;
+    }
+    return findGoalArtifact(state.level.buriedobjlist, artifact);
+}
+
 async function on_goal(state) {
     const qs = state.svq.quest_status;
 
@@ -567,12 +590,9 @@ async function on_goal(state) {
         await qt_pager('goal_first', state);
         qs.made_goal = 1;
     } else {
-        // Some goal_next messages reference the quest artifact; if it is
-        // not present on the level, use goal_alt (with fallback to
-        // goal_next via QUEST_TEXT_FALLBACKS).
-        // TODO: implement find_quest_artifact() to check object chains.
-        // For now, always use goal_next.
-        await qt_pager('goal_next', state);
+        // qt_pager falls back to goal_next for roles without goal_alt.
+        await qt_pager(questArtifactOnGoalLevel(state)
+            ? 'goal_next' : 'goal_alt', state);
         if (qs.made_goal < 7) qs.made_goal++;
     }
 }
