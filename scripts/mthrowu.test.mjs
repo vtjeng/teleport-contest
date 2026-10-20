@@ -59,6 +59,7 @@ import { observe_object } from '../js/o_init.js';
 import { killer_xname, mshot_xname } from '../js/objnam.js';
 import {
     ARROW,
+    AKLYS,
     BLINDING_VENOM,
     BOULDER,
     BOW,
@@ -1411,6 +1412,56 @@ test('a unicorn accepts a real gem thrown by a monster', async () => {
         "You accept the giant rat's gift in the spirit in which it was intended.");
     assert.match(messages[1], /^You catch: /u);
     assert.equal(gem.where, OBJ_INVENT);
+});
+
+test('a failed tethered return makes an audible snap', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nreturn_from_mtoss(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* Monster throws', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /if \(tethered_weapon\)\s*tmp_at\(DISP_END, 0\);\s*You_hear\("a loud snap!"\)/u);
+
+    for (const deaf of [false, true]) {
+        const state = await hero();
+        state.flags.acoustics = true;
+        const y = state.u.uy;
+        const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
+        const weapon = mksobj(AKLYS, false, false, { state });
+        add_to_minv(subject, weapon, { state });
+        subject.mw = weapon;
+        weapon.owornmask = W_WEP;
+        clearRow(state, subject.mx, subject.mx + 1, y);
+        if (deaf) state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+        const messages = [];
+
+        await m_throw(subject, subject.mx, y, 1, 0, 1, weapon, {
+            state,
+            random: { rn2: (bound) => bound === 100 ? 0 : bound - 1 },
+            canSeeMonster: () => true,
+            canSeeSquare: () => true,
+            monsterAt: () => null,
+            objectToGlyph: () => 777,
+            temporaryDisplay: () => {},
+            delayOutput: () => {},
+            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+            observeObject: (obj) => observe_object(obj, state),
+            extractObject: (obj) => obj_extract_self(obj, { state }),
+            setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
+            damageValue: () => assert.fail('the aklys does not strike a target'),
+            hitHero: () => assert.fail('the aklys does not reach the hero'),
+            stopOccupation: () => {},
+            shouldMulch: () => false,
+            floorEffects: () => false,
+            placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
+            passiveObject: () => {},
+            stackObject: () => {},
+            endMulti: () => {},
+            message: (line) => { messages.push(line); },
+        });
+
+        assert.deepEqual(messages, deaf ? [] : ['You hear a loud snap!']);
+        assert.equal(weapon.where, OBJ_FLOOR);
+    }
 });
 
 test('m_throw stops flight display after a fatal hurled potion', async () => {
