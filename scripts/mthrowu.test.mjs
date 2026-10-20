@@ -7,6 +7,7 @@ import {
     COULD_SEE,
     CORR,
     DEAF,
+    DISP_END,
     D_CLOSED,
     DOOR,
     HALLUC,
@@ -1414,7 +1415,7 @@ test('a unicorn accepts a real gem thrown by a monster', async () => {
     assert.equal(gem.where, OBJ_INVENT);
 });
 
-test('a failed tethered return makes an audible snap', async () => {
+test('a failed tethered return closes its display before the snap', async () => {
     const cStart = MTHROWU_SOURCE.indexOf('\nreturn_from_mtoss(\n');
     const cEnd = MTHROWU_SOURCE.indexOf('\n/* Monster throws', cStart);
     const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
@@ -1433,6 +1434,7 @@ test('a failed tethered return makes an audible snap', async () => {
         clearRow(state, subject.mx, subject.mx + 1, y);
         if (deaf) state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
         const messages = [];
+        const events = [];
 
         await m_throw(subject, subject.mx, y, 1, 0, 1, weapon, {
             state,
@@ -1441,7 +1443,9 @@ test('a failed tethered return makes an audible snap', async () => {
             canSeeSquare: () => true,
             monsterAt: () => null,
             objectToGlyph: () => 777,
-            temporaryDisplay: () => {},
+            temporaryDisplay: (displayMode, argument) => {
+                events.push(['display', displayMode, argument]);
+            },
             delayOutput: () => {},
             clearObjectKnowledge: (obj) => clear_dknown(obj, state),
             observeObject: (obj) => observe_object(obj, state),
@@ -1456,9 +1460,18 @@ test('a failed tethered return makes an audible snap', async () => {
             passiveObject: () => {},
             stackObject: () => {},
             endMulti: () => {},
-            message: (line) => { messages.push(line); },
+            message: (line) => {
+                messages.push(line);
+                events.push(['message', line]);
+            },
         });
 
+        const endIndex = events.findIndex(
+            (event) => event[0] === 'display' && event[1] === DISP_END,
+        );
+        assert.ok(endIndex >= 0, 'the failed return closes the tether display');
+        if (!deaf)
+            assert.equal(events[endIndex + 1]?.[0], 'message');
         assert.deepEqual(messages, deaf ? [] : ['You hear a loud snap!']);
         assert.equal(weapon.where, OBJ_FLOOR);
     }

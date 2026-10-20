@@ -1373,8 +1373,8 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
         }
     } else {
         /* it didn't make it back to thrower's location */
-        if (tethered_weapon)
-            note_unported('display.c tmp_at'); /* tmp_at(DISP_END, 0) */
+        if (tethered_weapon && typeof env.temporaryDisplay === 'function')
+            await env.temporaryDisplay(DISP_END, 0, state);
         const heard = youHear('a loud snap!', state);
         if (heard)
             await (env.message ?? ttyPline)(heard, state, env);
