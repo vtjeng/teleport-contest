@@ -385,6 +385,50 @@ test('a boulder landing in the hero pit applies the source damage branch', async
     assert.notEqual(boulder.where, OBJ_FREE);
 });
 
+// C do.c:flooreffects() uses You_hear("a CRASH! beneath you.") when a
+// boulder falls into a pit at a blind hero who is not trapped in that pit.
+test('a blind hero hears the source pit-boulder crash', async () => {
+    for (const acoustics of [true, false]) {
+        const state = fixture();
+        state.u.ux = DROP_X;
+        state.u.uy = DROP_Y;
+        state.u.uprops = {
+            [BLINDED]: { intrinsic: 1 },
+            [FLYING]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            [LEVITATION]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            [STEALTH]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+        };
+        state.flags.acoustics = acoustics;
+        state.level.traps = [{ ttyp: PIT, tx: DROP_X, ty: DROP_Y, tseen: true }];
+        const messages = [];
+        const boulder = object({ otyp: BOULDER });
+        assert.equal(await land(state, boulder, DROP_X, DROP_Y, {
+            random: { rn2: () => 1 },
+            message: async (line) => { messages.push(line); },
+            newsym: () => {},
+        }), true);
+        assert.deepEqual(messages,
+            acoustics ? ['You hear a CRASH! beneath you.'] : []);
+        assert.equal(state.level.traps.length, 0);
+    }
+});
+
+test('an offscreen pit boulder sound respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        const state = fixture({ seen: false });
+        state.flags.acoustics = acoustics;
+        state.level.traps = [{ ttyp: PIT, tx: DROP_X, ty: DROP_Y, tseen: true }];
+        const messages = [];
+        assert.equal(await land(state, object({ otyp: BOULDER }), DROP_X, DROP_Y, {
+            random: { rn2: () => 1 },
+            message: async (line) => { messages.push(line); },
+            newsym: () => {},
+        }), true);
+        assert.deepEqual(messages,
+            acoustics ? ['You hear a boulder fall.'] : []);
+    }
+});
+
 test('boulder_hits_pool supplies the C damage die for a partial random owner',
     async () => {
         // do.c:65-73 calls d(3,6) when an adjacent boulder does not fill lava.

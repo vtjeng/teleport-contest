@@ -1081,12 +1081,8 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                 const message = rawEnv.message ?? ttyPline;
                 const blind = heroIsBlind(state);
                 if (blind && u_at(x, y, state)) {
-                    if (!heroIsDeaf(state))
-                        await message(
-                            `You hear ${the(xnameFresh(obj, state), state)} `
-                                + 'tumble downwards.',
-                            state,
-                        );
+                    const heard = youHear('a CRASH! beneath you.', state);
+                    if (heard) await message(heard, state);
                 } else if (!blind && cansee(x, y, state)) {
                     const trigger = trap.ttyp === TRAPDOOR && !trap.tseen
                         ? 'The boulder triggers and ' : 'The boulder ';
@@ -1094,8 +1090,9 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                         ? 'plugs a trap door'
                         : trap.ttyp === HOLE ? 'plugs a hole' : 'fills a pit';
                     await message(`${trigger}${action}.`, state);
-                } else if (!heroIsDeaf(state)) {
-                    await message(`You hear a boulder ${verb}.`, state);
+                } else {
+                    const heard = youHear(`a boulder ${verb}.`, state);
+                    if (heard) await message(heard, state);
                 }
             }
             const currentTrap = t_at(x, y, state);
