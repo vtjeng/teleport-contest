@@ -36,6 +36,7 @@ import {
     WATER,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { bless } from '../js/obj.js';
 import * as light from '../js/light.js';
 import { resetGame } from '../js/gstate.js';
 import { PM_HUMAN, monst_globals_init } from '../js/monsters.js';
@@ -56,6 +57,7 @@ import {
     MAGIC_LAMP,
     OIL_LAMP,
     TALLOW_CANDLE,
+    WEAPON_CLASS,
 } from '../js/objects.js';
 import {
     add_rect_to_reg,
@@ -123,6 +125,37 @@ function floorCandle(state, x, y) {
     assert.equal(state.gl.light_base.type, LS_OBJECT);
     return candle;
 }
+
+test('blessing a lit Sunsword updates its linked light radius', async () => {
+    // mkobj.c bless() calls maybe_adjust_light(), then light.c changes the
+    // existing source before the next vision recalculation. A radius of two
+    // must become three without creating another source node.
+    const state = darkRoomState();
+    const sword = {
+        otyp: LONG_SWORD,
+        oclass: WEAPON_CLASS,
+        oartifact: ART_SUNSWORD,
+        where: OBJ_FLOOR,
+        ox: 7,
+        oy: 7,
+        quan: 1,
+        lamplit: true,
+        blessed: false,
+        cursed: false,
+    };
+    const source = new_light_source(7, 7, 2, LS_OBJECT, sword, state);
+    state.vision_full_recalc = 0;
+    state.u.uprops = { [BLINDED]: { intrinsic: 1, extrinsic: 0 } };
+
+    await bless(sword, { state });
+
+    assert.equal(sword.blessed, true);
+    assert.equal(state.gl.light_base, source);
+    assert.equal(source.range, 3);
+    assert.equal(state.vision_full_recalc, 1);
+    assert.equal(state.unported?.has('light.c obj_adjust_light_radius') ?? false,
+        false);
+});
 
 test('the candelabrum uses its source candle-count light bands', () => {
     const cases = [

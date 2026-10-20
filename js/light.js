@@ -385,6 +385,21 @@ export function obj_merge_light_sources(src, dest, env = {}) {
     }
 }
 
+// C ref: light.c obj_adjust_light_radius() (826-839). BUC changes to a lit
+// artifact update the existing light source, preserving its object identity.
+export function obj_adjust_light_radius(obj, new_radius, state = game) {
+    for (let source = lightGlobals(state).light_base; source;
+        source = source.next) {
+        if (source.type !== LS_OBJECT || source.id !== obj) continue;
+        if (new_radius !== source.range) state.vision_full_recalc = 1;
+        source.range = new_radius;
+        return;
+    }
+    // C reports an impossible() and continues when a lit object has no
+    // corresponding source. Keep that diagnostic without fabricating one.
+    note_unported('light.c obj_adjust_light_radius missing source');
+}
+
 // C ref: light.c candle_light_range() (843–877). Preserve all source arms,
 // including the lamp-range fallback and candelabrum bands without validation.
 export function candle_light_range(obj) {

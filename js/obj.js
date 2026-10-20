@@ -127,6 +127,7 @@ import { book_cursed } from './spell.js';
 import { set_moreluck } from './attrib.js';
 import {
     arti_light_radius,
+    obj_adjust_light_radius,
     get_obj_location,
     obj_sheds_light,
     obj_split_light_source,
@@ -2399,7 +2400,7 @@ export async function maybe_adjust_light(obj, old_range, env = {}) {
 
     if (delta) {
         // C: obj_adjust_light_radius(obj, new_range) -- void, result discarded
-        note_unported('light.c obj_adjust_light_radius');
+        obj_adjust_light_radius(obj, new_range, state);
         const heroIsBlind = Boolean(
             (state.u?.uprops?.[BLINDED]?.intrinsic
              || state.u?.uprops?.[BLINDED]?.extrinsic)
