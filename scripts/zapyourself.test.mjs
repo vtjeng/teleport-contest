@@ -847,3 +847,86 @@ test('animate_statue awaits runtime pickup for each contained glob before deleti
     assert.equal(after.originalFloorStillRetained, true);
 });
 
+// C: zap.c bhito -> stone_to_flesh_obj -> trap.c animate_statue ->
+// shk.c stolen_value. The latter must run after the animation message and
+// before the original statue is deleted.
+test('stone-to-flesh bills a shop statue after its animation message', async () => {
+    const display = new GameDisplay(null);
+    const oldOnEmptyQueue = display.onEmptyQueue;
+    let moreCount = 0;
+    display.onEmptyQueue = () => {
+        if (display.toplin === TOPLINE_NEED_MORE
+            && display.serialize().includes('--More--') && ++moreCount <= 16)
+            return ' '.charCodeAt(0);
+        throw new Error(`unexpected input boundary: ${display.toplines}`);
+    };
+    try {
+        const session = new NethackGame({
+            seed: 2026101801,
+            datetime: '20261018120000',
+            nethackrc: 'OPTIONS=name:ShopStatue,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n',
+            moves: '',
+        });
+        session._pendingDisplay = display;
+        assert.ok(await session.start());
+        const state = game;
+        const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
+        do_mkroom(SHOPBASE, state, random);
+        const shop = state.level.rooms.slice(0, state.level.nroom)
+            .find(room => room && room.rtype >= SHOPBASE && room.needfill != null);
+        assert.ok(shop);
+        const env = objectGenerationEnv({ state, random });
+        await fill_special_room(shop, env);
+        const keeper = shop.resident;
+        assert.ok(keeper?.isshk && keeper.mpeaceful && keeper.mextra?.eshk);
+        const eshk = keeper.mextra.eshk;
+        assert.equal(eshk.credit, 0);
+        assert.equal(eshk.debit, 0);
+        assert.equal(eshk.robbed, 0);
+
+        const squares = [];
+        for (let x = shop.lx; x <= shop.hx; ++x) {
+            for (let y = shop.ly; y <= shop.hy; ++y) {
+                if (inside_shop(x, y, state) === eshk.shoproom
+                    && costly_spot(x, y, state)
+                    && (x !== keeper.mx || y !== keeper.my)
+                    && !m_at(x, y, state)) squares.push({ x, y });
+            }
+        }
+        assert.ok(squares.length >= 2);
+        const target = squares[0];
+        const hero = squares.find(square => square.x !== target.x
+            || square.y !== target.y);
+        await teleds(hero.x, hero.y, TELEDS_TELEPORT, state, { random });
+        assert.deepEqual([state.u.ux, state.u.uy], [hero.x, hero.y]);
+        assert.ok(!state.context.mon_moving);
+
+        const statue = mksobj_at(STATUE, target.x, target.y, true, false, env);
+        set_corpsenm(statue, PM_NEWT, env);
+        assert.equal(statue.where, OBJ_FLOOR);
+        assert.equal(state.objects[STATUE].oc_material, MINERAL);
+        assert.equal(statue.no_charge, false);
+        assert.equal(statue.unpaid, false);
+        assert.equal(statue.oartifact, 0);
+        assert.equal(state.unported.has('shk.c stolen_value'), false);
+        const expected = get_cost(statue, keeper, state);
+        assert.ok(expected > 0);
+        const spell = mksobj(SPE_STONE_TO_FLESH, true, false, env);
+
+        const animationMessages = [];
+        assert.equal(await bhito(statue, spell, state, random, {
+            message: async line => animationMessages.push({ line, debit: eshk.debit }),
+        }), 1);
+        assert.equal(statue.where, OBJ_DELETED);
+        assert.equal(eshk.debit, expected);
+        assert.equal(eshk.robbed, 0);
+        assert.equal(state.unported.has('shk.c stolen_value'), false);
+        assert.match(animationMessages[0]?.line ?? '',
+            /statue .*comes to life|statue .*moves/u);
+        assert.equal(animationMessages[0].debit, 0,
+            'animation message precedes the charge');
+        assert.match(display.toplines, /owe .* for it/u);
+    } finally {
+        display.onEmptyQueue = oldOnEmptyQueue;
+    }
+});

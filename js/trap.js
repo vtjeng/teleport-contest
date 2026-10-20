@@ -352,7 +352,8 @@ import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { linedup } from './mthrowu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { add_damage, costly_spot, sellobj, shop_keeper, shk_your, shopdig } from './shk.js';
+import { add_damage, costly_spot, sellobj, shop_keeper, shk_your, shopdig,
+    stolen_value } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 import { canspotmon } from './display.js';
@@ -3544,7 +3545,9 @@ export async function animate_statue(
         const keeper = shop_keeper(in_rooms(x, y, SHOPBASE, state)[0] ?? 0, state);
         if (keeper && (carried(statue) ? statue.unpaid : !statue.no_charge)
             && monster !== keeper)
-            note_unported('shk.c stolen_value');
+            await stolen_value(
+                statue, x, y, Boolean(keeper.mpeaceful), false, state,
+            );
     }
     if (state.urole?.mnum === PM_ARCHEOLOGIST
         && (statue.spe & CORPSTAT_HISTORIC)
