@@ -1480,6 +1480,60 @@ test('a failed tethered return closes its display before the snap', async () => 
     }
 });
 
+test('an unseen fumbled return landing respects acoustics', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nreturn_from_mtoss(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* Monster throws', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /You_hear\("%s land near %s\.", Something, mon_nam\(magr\)\)/u);
+
+    for (const acoustics of [true, false]) {
+        const state = await hero();
+        state.flags.acoustics = acoustics;
+        const y = state.u.uy;
+        const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
+        subject.mconf = 1;
+        subject.minvis = 1;
+        const weapon = mksobj(AKLYS, false, false, { state });
+        add_to_minv(subject, weapon, { state });
+        subject.mw = weapon;
+        weapon.owornmask = W_WEP;
+        clearRow(state, subject.mx, subject.mx + 1, y);
+        assert.equal(canseemon(subject, state), false);
+        const messages = [];
+
+        await m_throw(subject, subject.mx, y, 1, 0, 1, weapon, {
+            state,
+            random: { rn2: (bound) => bound === 100 ? 1 : bound === 2 ? 0 : bound - 1 },
+            canSeeMonster: () => true,
+            canSeeSquare: () => true,
+            monsterAt: () => null,
+            objectToGlyph: () => 777,
+            temporaryDisplay: () => {},
+            delayOutput: () => {},
+            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+            observeObject: (obj) => observe_object(obj, state),
+            extractObject: (obj) => obj_extract_self(obj, { state }),
+            setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
+            damageValue: () => assert.fail('the aklys does not strike a target'),
+            hitHero: () => assert.fail('the aklys does not reach the hero'),
+            stopOccupation: () => {},
+            shouldMulch: () => false,
+            floorEffects: () => false,
+            placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
+            passiveObject: () => {},
+            stackObject: () => {},
+            endMulti: () => {},
+            message: (line) => { messages.push(line); },
+        });
+
+        assert.deepEqual(messages, acoustics
+            ? ['You hear Something land near it.']
+            : []);
+        assert.equal(weapon.where, OBJ_FLOOR);
+    }
+});
+
 test('a detected invisible spitter has a named dry rattle', async () => {
     const cStart = MTHROWU_SOURCE.indexOf('\nspitmm(struct monst *mtmp,');
     const cEnd = MTHROWU_SOURCE.indexOf('\n/*', cStart + 1);

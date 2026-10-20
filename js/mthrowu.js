@@ -1343,11 +1343,10 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                         );
                     }
                 } else if (!Deaf(state)) {
-                    if (typeof env.message === 'function')
-                        await env.message(
-                            `You hear something land near ${mon_nam(magr, state)}.`,
-                            state,
-                        );
+                    const heard = youHear(
+                        `Something land near ${mon_nam(magr, state)}.`, state);
+                    if (heard && typeof env.message === 'function')
+                        await env.message(heard, state);
                 }
             } else {
                 /* Hits thrower's arm. */
