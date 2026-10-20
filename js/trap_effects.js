@@ -62,6 +62,7 @@ import {
     IS_STWALL,
     IS_TREE,
     IRONBARS,
+    MIGR_RANDOM,
     In_quest,
     KILLED_BY,
     KILLED_BY_AN,
@@ -161,6 +162,8 @@ import {
     at_dgn_entrance,
     Can_fall_thru,
     ceiling,
+    depth,
+    get_level,
     on_level,
     surface,
 } from './dungeon.js';
@@ -299,9 +302,10 @@ import {
     splash_monster_light,
 } from './apply_splash_lit.js';
 import {
-    dealloc_obj,
+    add_to_migration,
     carried,
     costly_alteration,
+    dealloc_obj,
     mksobj,
     newObject,
     objectType,
@@ -370,6 +374,7 @@ import {
     level_tele_trap,
     mlevel_tele_trap,
     mtele_trap,
+    random_teleport_level,
     rloco,
     tele_trap,
 } from './teleport.js';
@@ -2899,6 +2904,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
             }
             const t = t_at(x, y, state);
             if (t && otyp === BOULDER) {
+                let newlev = 0;
                 // C has a switch on t.ttyp for LANDMINE, LEVEL_TELEP,
                 // TELEP_TRAP, PIT, SPIKED_PIT, HOLE, TRAPDOOR. The default
                 // arm does nothing (break), so traps outside that list are
@@ -2935,6 +2941,12 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     used_up = true;
                     launch_drop_spot(null, 0, 0, state);
                     break;
+                case LEVEL_TELEP:
+                    newlev = random_teleport_level(state, {
+                        random: env.random,
+                    });
+                    if (newlev === depth(state.u.uz, state)) break;
+                    // FALLTHROUGH
                 case TELEP_TRAP:
                     if (cansee(x, y, state)) {
                         await message(messageAt(
@@ -2947,15 +2959,22 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         if (heard) await message(heard, state, env);
                     }
                     singleobj.otrapped = 0;
-                    await rloco(singleobj, {
-                        ...env, hooks: objectHooks, redraw,
-                    });
+                    if (t.ttyp === TELEP_TRAP) {
+                        await rloco(singleobj, {
+                            ...env, hooks: objectHooks, redraw,
+                        });
+                    } else {
+                        add_to_migration(singleobj, state);
+                        const destination = {};
+                        get_level(destination, newlev, state);
+                        singleobj.ox = destination.dnum;
+                        singleobj.oy = destination.dlevel;
+                        singleobj.owornmask = MIGR_RANDOM;
+                    }
                     seetrap(t, { ...env, redraw });
                     used_up = true;
                     launch_drop_spot(null, 0, 0, state);
                     break;
-                case LEVEL_TELEP:
-                    // Level teleport still needs its migration arm.
                 case PIT:
                 case SPIKED_PIT:
                 case HOLE:

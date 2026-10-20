@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import {
     COLNO, DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, LANDMINE,
-    ROOM, ROLL, ROWNO, TELEP_TRAP,
+    MIGR_RANDOM, OBJ_MIGRATING, ROOM, ROLL, ROWNO, TELEP_TRAP, LEVEL_TELEP,
     VWALL,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -352,3 +352,61 @@ test('a rolling boulder teleports away and reveals its trap', async () => {
     assert.equal(sobj_at(BOULDER, 14, 10, state), boulder);
     assert.ok(!boulder.otrapped);
 });
+
+for (const changesLevel of [false, true]) {
+    test(`rolling boulder level teleport ${changesLevel
+        ? 'migrates to a new depth' : 'keeps rolling on the same depth'}`,
+    async () => {
+        const state = resetGame();
+        state.level = new GameMap();
+        state.u = { ux: 20, uy: 10, uz: { dnum: 0, dlevel: 2 } };
+        state.dungeons = [{
+            depth_start: 1, num_dunlevs: 10,
+            flags: { hellish: false },
+        }];
+        state.context = {};
+        state.flags = { acoustics: true };
+        for (let x = 10; x <= 12; x++) state.level.at(x, 10).typ = ROOM;
+        const trap = { ttyp: LEVEL_TELEP, tx: 11, ty: 10, tseen: false };
+        state.level.traps.push(trap);
+        const boulder = newObject({
+            otyp: BOULDER, oclass: ROCK_CLASS, quan: 1,
+        });
+        const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+        place_object(boulder, 10, 10, { state, hooks });
+        const draws = [];
+        const messages = [];
+
+        const result = await launch_obj(BOULDER, 10, 10, 12, 10,
+            ROLL, state, {
+                hooks,
+                planning: true,
+                random: {
+                    rn2(bound) {
+                        draws.push(bound);
+                        return changesLevel && bound === 5 ? 1 : 0;
+                    },
+                },
+                message: (line) => messages.push(line),
+                redraw: () => {},
+            });
+
+        if (changesLevel) {
+            assert.equal(result, 2);
+            assert.deepEqual(draws, [5, 4]);
+            assert.deepEqual(messages,
+                ['You hear a rumbling stop abruptly.']);
+            assert.equal(trap.tseen, true);
+            assert.equal(boulder.where, OBJ_MIGRATING);
+            assert.equal(state.gm.migrating_objs, boulder);
+            assert.deepEqual([boulder.ox, boulder.oy, boulder.owornmask],
+                [0, 1, MIGR_RANDOM]);
+        } else {
+            assert.equal(result, 1);
+            assert.deepEqual(draws, [5]);
+            assert.deepEqual(messages, []);
+            assert.equal(trap.tseen, false);
+            assert.equal(sobj_at(BOULDER, 12, 10, state), boulder);
+        }
+    });
+}
