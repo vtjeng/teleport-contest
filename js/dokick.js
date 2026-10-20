@@ -173,7 +173,7 @@ import {
     add_damage,
     addtobill, costly_adjacent, costly_gold, contained_gold, donate_gold, find_objowner, subfrombill,
     costly_spot, inside_shop, is_unpaid, pay_for_damage, picked_container, shop_keeper,
-    stolen_value,
+    stolen_value, make_angry_shk,
 } from './shk.js';
 import { make_happy_shk } from './shk.js';
 import { shkname, Shknam } from './shknam.js';
@@ -1565,8 +1565,7 @@ export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
                 `You caused ${loss} ${currency(loss, state)} worth of damage!`,
                 state, rawEnv,
             );
-            // shk.c:make_angry_shk() is void and remains unported.
-            note_unported('shk.c make_angry_shk');
+            await make_angry_shk(keeper, x, y, state, rawEnv);
         } else {
             await message(
                 `You owe ${shkname(keeper, state)} ${loss} `

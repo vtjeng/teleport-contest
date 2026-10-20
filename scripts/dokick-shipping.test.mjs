@@ -449,6 +449,49 @@ test('container_impact_dmg breaks non-gem glass in C order', async () => {
     assert.equal(state.unported?.has('sounds.c Soundeffect'), true);
 });
 
+test('kicked shop container breakage settles theft and angers keeper', async () => {
+    const state = await setup();
+    const { ux: x, uy: y } = state.u;
+    const { ROOMOFFSET, SHOPBASE } = await import('../js/const.js');
+    state.level.flags.has_shop = true;
+    const keeper = { mx: x + 1, my: y, mpeaceful: true, isshk: true,
+        data: state.mons[PM_SHOPKEEPER], mnum: PM_SHOPKEEPER,
+        mextra: { eshk: { shoplevel: { ...state.u.uz }, shoproom: ROOMOFFSET,
+            shk: { x: x + 1, y }, shknam: 'Asidonhopo', debit: 0, robbed: 0,
+            credit: 0, loan: 0, billct: 0, bill_p: [], customer: '' } } };
+    state.level.rooms[0] = { rtype: SHOPBASE, resident: keeper };
+    for (const px of [x, x + 1]) {
+        state.level.at(px, y).roomno = ROOMOFFSET;
+        state.level.at(px, y).edge = false;
+    }
+    const box = mksobj(LARGE_BOX, false, false, { state });
+    const potion = mksobj(POT_WATER, false, false, { state });
+    add_to_container(box, potion, { state,
+        hooks: { objectNoLongerHeld() {} } });
+    place_object(box, x, y, { state });
+    state.gk = { kickedobj: box };
+    state.u.ux = x + 2;
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.urooms = [];
+    const messages = [];
+
+    await container_impact_dmg(box, x, y, { state,
+        random: { rn2: () => 99 },
+        message: text => messages.push(text) });
+
+    assert.equal(potion.where, OBJ_DELETED);
+    assert.equal(keeper.mextra.eshk.robbed, 3,
+        'make_angry_shk converts the damaged stock debit into robbery');
+    assert.equal(keeper.mextra.eshk.debit, 0);
+    assert.equal(keeper.mextra.eshk.following, true);
+    assert.equal(keeper.mpeaceful, false);
+    assert.deepEqual(messages, [
+        'You hear a muffled shatter.',
+        'You caused 3 zorkmids worth of damage!',
+        'Asidonhopo gets angry!',
+    ]);
+});
+
 test('container_impact_dmg skips bags of holding and tricks', async () => {
     const state = await setup();
     const draws = [];
