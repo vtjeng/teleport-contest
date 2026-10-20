@@ -9,8 +9,8 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { rn1, rnd, rne } from '../js/rng.js';
-import { bhitm, bhito } from '../js/zap.js';
+import { d, rn1, rnd, rne, rnz } from '../js/rng.js';
+import { bhitm, bhito, create_polymon } from '../js/zap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     PM_GIANT_RAT,
@@ -29,7 +29,8 @@ import {
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { donameFresh } from '../js/objnam.js';
 import {
-    BEARTRAP, CRYSKNIFE, DART, DIAMOND, FOOD_RATION, GOLD_PIECE,
+    BEARTRAP, CRYSKNIFE, DART, DIAMOND, FOOD_RATION, GOLD_PIECE, IRON,
+    LONG_SWORD,
     POT_HEALING, SACK, TALLOW_CANDLE, WORM_TOOTH,
     WAN_POLYMORPH, WAN_SPEED_MONSTER, WAND_CLASS,
 } from '../js/objects.js';
@@ -216,6 +217,52 @@ test('polymorph shock from outside the shop charges stolen stock', async () => {
 
     assert.equal(state.go.obj_zapped, true);
     assert.ok(eshk.robbed > 0, 'C stolen_value charges for destroyed stock');
+    assert.equal(keeper.mpeaceful, false);
+    assert.equal(eshk.following, true);
+});
+
+test('polymorph golem consumes and bills shop stock', async () => {
+    const { state, eshk, env } = await shop();
+    const { ux: x, uy: y } = state.u;
+    Object.assign(state.level.at(x + 1, y), { typ: ROOM,
+        roomno: ROOMOFFSET, edge: false });
+    const dart = mksobj_at(DART, x + 1, y, false, false, env);
+    const sword = mksobj_at(LONG_SWORD, x + 1, y, false, false, env);
+    const pile = state.level.objects[x + 1][y];
+    assert.ok(pile?.nexthere, 'two metal stock objects form a pile');
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await create_polymon(pile, IRON, state, {
+        rn2: bound => bound - 1, rn1, rnd, rne, d, rnz,
+    });
+
+    assert.ok(dart.where === OBJ_ONBILL || sword.where === OBJ_ONBILL,
+        'polyuse bills at least one consumed stock item');
+    assert.ok(eshk.billct > 0);
+});
+
+test('polymorph golem charges consumed stock as stolen from outside', async () => {
+    const { state, keeper, eshk, env } = await shop();
+    const { ux: x, uy: y } = state.u;
+    Object.assign(state.level.at(x + 1, y), { typ: ROOM,
+        roomno: ROOMOFFSET, edge: false });
+    mksobj_at(DART, x + 1, y, false, false, env);
+    mksobj_at(LONG_SWORD, x + 1, y, false, false, env);
+    const pile = state.level.objects[x + 1][y];
+    state.u.ux = x + 2;
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.urooms = [0, 0, 0, 0, 0];
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await create_polymon(pile, IRON, state, {
+        rn2: bound => bound - 1, rn1, rnd, rne, d, rnz,
+    });
+
+    assert.ok(eshk.robbed > 0);
     assert.equal(keeper.mpeaceful, false);
     assert.equal(eshk.following, true);
 });

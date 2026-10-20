@@ -2195,7 +2195,7 @@ export async function do_osshock(obj, state = game, random = { rn2, rnd }, rawEn
 
 // C ref: zap.c polyuse() (1505-1544).  The object successor is captured
 // before each deletion because delobj() changes both pile chains.
-export function polyuse(objhdr, material, minwt, state = game,
+export async function polyuse(objhdr, material, minwt, state = game,
     random = { rn2 }, rawEnv = {}) {
     let current = objhdr;
     while (minwt > 0 && current) {
@@ -2208,17 +2208,12 @@ export function polyuse(objhdr, material, minwt, state = game,
                 === material;
             if (sameMaterial === (random.rn2(minwt + 1) !== 0)) {
                 if (costly_spot(current.ox, current.oy, state)) {
-                    const roomno = in_rooms(
-                        current.ox,
-                        current.oy,
-                        SHOPBASE,
-                        state,
-                    )[0] ?? 0;
-                    const shopkeeper = shop_keeper(roomno, state);
-                    if (shopkeeper && state.u?.ushops?.[0])
-                        note_unported('shk.c addtobill');
+                    if (state.u?.ushops?.[0])
+                        await addtobill(current, false, false, false, state,
+                            zapObjectEnv(state, random, rawEnv));
                     else
-                        note_unported('shk.c stolen_value');
+                        await stolen_value(current, current.ox, current.oy,
+                            false, false, state);
                 }
                 minwt = current.quan < 0x7fffffff
                     ? Math.max(0, minwt - Math.trunc(current.quan)) : 0;
@@ -2313,7 +2308,7 @@ export async function create_polymon(obj, material, state = game,
     );
     const made = monster && typeof monster.then === 'function'
         ? await monster : monster;
-    polyuse(pileHead, material,
+    await polyuse(pileHead, material,
         state.mons?.[pmidx]?.cwt ?? 0, state, random, rawEnv);
     if (made && cansee(made.mx, made.my, state)) {
         const name = a_monnam(made, { ...rawEnv, state, random });
