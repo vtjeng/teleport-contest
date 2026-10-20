@@ -1761,6 +1761,22 @@ test('mattacku reports a displaced wrong-location attack once', async () => {
     assert.deepEqual(result.bounds, []);
 });
 
+// mhitu.c:mattacku() uses You_hear() when an unseen vortex tries to engulf
+// the remembered square beside the hero instead of the hero's actual square.
+test('unseen wrong-location engulf sound respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        const state = await meleeHero();
+        state.flags.acoustics = acoustics;
+        const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0);
+        vortex.mux = state.u.ux + 2;
+        vortex.muy = state.u.uy;
+        const attempt = meleeEnv(state, [], { canSeeMonster: () => false });
+        assert.equal(await mattacku(vortex, attempt.env), false);
+        assert.equal(attempt.lines.includes('You hear a rushing noise nearby.'),
+            acoustics);
+    }
+});
+
 test('wildmiss chooses unseen and underwater feedback in source order',
     async () => {
     // mhitu.c:184-258. Blindness takes precedence over displacement and uses

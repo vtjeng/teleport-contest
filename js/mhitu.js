@@ -312,7 +312,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
-import { heroDeaf, heroUnaware, pline_mon, verbalize } from './pline.js';
+import { heroDeaf, heroUnaware, pline_mon, verbalize, youHear } from './pline.js';
 import { growl_sound, set_voice } from './sounds.js';
 import { were_summon } from './were.js';
 import { canseemon, canspotmon, mon_visible } from './display.js';
@@ -1975,11 +1975,11 @@ export async function mattacku(monster, rawEnv = {}) {
                 } else {
                     if (is_whirly(mdat))
                         note_unported('sound.c rushing-wind sound effect');
-                    await message(
-                        `You hear a ${is_whirly(mdat) ? 'rushing noise' : 'splat'} nearby.`,
+                    const heard = youHear(
+                        `a ${is_whirly(mdat) ? 'rushing noise' : 'splat'} nearby.`,
                         state,
-                        env,
                     );
+                    if (heard) await message(heard, state, env);
                 }
             }
             break;
