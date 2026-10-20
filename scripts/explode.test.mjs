@@ -702,10 +702,11 @@ test('scatter identifies source boulder and statue fracture branches', async () 
     for (const [otyp, expectedHelper] of [
         [BOULDER, 'fractureRock'],
         [STATUE, 'breakStatue'],
-    ]) {
+    ]) for (const acoustics of [true, false]) {
         const sx = 5;
         const sy = 5;
         const state = {
+            flags: { acoustics },
             u: { ux: 1, uy: 1, uundetected: false, urooms: '' },
             youmonst: { data: {} },
             level: {
@@ -718,6 +719,7 @@ test('scatter identifies source boulder and statue fracture branches', async () 
         };
         const object = { otyp, quan: 1, owt: 1, ox: sx, oy: sy };
         const called = [];
+        const messages = [];
         const total = await scatter(
             sx,
             sy,
@@ -734,7 +736,7 @@ test('scatter identifies source boulder and statue fracture branches', async () 
                 fractureRock: async () => called.push('fractureRock'),
                 breakStatue: async () => called.push('breakStatue'),
                 soundEffect: async () => {},
-                message: async () => {},
+                message: async (line) => messages.push(line),
                 canSee: () => false,
                 monsterAt: () => null,
                 newsym: () => {},
@@ -744,6 +746,11 @@ test('scatter identifies source boulder and statue fracture branches', async () 
 
         assert.equal(total, 0);
         assert.deepEqual(called, [expectedHelper]);
+        // explode.c:781,799 routes offscreen fracture sounds through
+        // You_hear, including the acoustics option.
+        assert.deepEqual(messages, acoustics
+            ? [`You hear stone ${otyp === BOULDER ? 'breaking' : 'crumbling'}.`]
+            : []);
     }
 });
 

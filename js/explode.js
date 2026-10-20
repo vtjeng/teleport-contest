@@ -1051,7 +1051,8 @@ export async function scatter(
                         100,
                         state,
                     );
-                    await message('You hear stone breaking.', state, env);
+                    const heard = youHear('stone breaking.', state);
+                    if (heard) await message(heard, state, env);
                 }
                 await fractureRock(scattered, env);
                 await placeObject(scattered, sx, sy);
@@ -1073,7 +1074,8 @@ export async function scatter(
                         100,
                         state,
                     );
-                    await message('You hear stone crumbling.', state, env);
+                    const heard = youHear('stone crumbling.', state);
+                    if (heard) await message(heard, state, env);
                 }
                 await breakStatue(scattered, env);
                 await placeObject(scattered, sx, sy);
