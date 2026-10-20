@@ -16,14 +16,16 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    COULD_SEE, CORR, GD_EATGOLD, MON_DETACH, ROOM, ROOMOFFSET, VAULT,
+    COULD_SEE, CORR, FAINTED, FAINTING, GD_EATGOLD, MON_DETACH,
+    ROOM, ROOMOFFSET, VAULT,
 } from '../js/const.js';
+import { unfaint } from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { mondead, mongone } from '../js/mon.js';
 import { PM_GUARD } from '../js/monsters.js';
 import {
-    findgd, gd_move, gd_sound, grddead, in_fcorridor, newegd,
+    findgd, gd_move, gd_sound, grddead, in_fcorridor, invault, newegd,
     vault_gd_watching, vault_summon_gd, UnsupportedVaultGuardError,
 } from '../js/vault.js';
 import {
@@ -176,6 +178,45 @@ test('vault_summon_gd and gd_sound follow vault occupancy and guard state', asyn
     game.u.urooms = [0, 0, 0, 0, 0];
     assert.equal(gd_sound(game), true,
         'an empty level outside a vault permits the guard sound');
+});
+
+test('invault wakes a fainted hero when a guard is created', async () => {
+    await startedGame();
+    const room = game.level.rooms[0];
+    game.u.ux = room.lx + 1;
+    game.u.uy = room.ly + 1;
+    markHeroInsideVault();
+    game.level.monlist = null;
+    game.gm.migrating_mons = null;
+    game.u.uinvault = 29;
+    game.multi = -9;
+    game.afternmv = unfaint;
+    game.u.uhs = FAINTED;
+    game.u.usleep = 1;
+    game.u.uswallow = 1;
+    game.u.ustuck = { data: game.mons[0] };
+    const messages = [];
+    let guardCreated = false;
+    await assert.rejects(invault(game, {
+        random: { rn2: () => 0 },
+        message: async (line) => messages.push(line),
+        makemon_runtime: async (_species, x, y) => {
+            const guard = { data: game.mons[PM_GUARD], mx: x, my: y,
+                mhp: 12, mhpmax: 12, mpeaceful: 1, mtame: 0,
+                mstate: 0, nmon: null, mextra: {} };
+            newegd(guard);
+            game.level.monlist = guard;
+            place_monster(guard, x, y, game);
+            guardCreated = true;
+            return guard;
+        },
+    }), /invault\(\) removing guard while hero is swallowed/u);
+    assert.equal(guardCreated, true);
+    assert.equal(game.multi, 0);
+    assert.equal(game.afternmv, null);
+    assert.equal(game.u.uhs, FAINTING);
+    assert.equal(game.u.usleep, 0);
+    assert.ok(messages.includes('You revive.'));
 });
 
 test('vault_gd_watching records only visible on-map gold activity', async () => {

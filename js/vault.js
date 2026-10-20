@@ -50,6 +50,7 @@ import {
     map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
+import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
@@ -975,13 +976,9 @@ export async function invault(state, env = {}) {
 
     ++u.uinvault;
 
-    // C ref: vault.c:423. reset_faint() wakes a fainted hero.
-    // C: ga.afternmv is NULL when no occupation is pending; unfaint is a
-    // function pointer.  In JS both default to undefined, so the guard
-    // prevents a false match when neither is set.
-    if (state.afternmv != null && state.afternmv === state._unfaint) {
-        await env.unmul?.('You revive.');
-    }
+    // C ref: vault.c:423.  reset_faint() checks the pending callback and
+    // wakes the hero only when that callback is eat.c:unfaint().
+    await reset_faint(state, { ...env, message });
 
     // Boulder destruction at guard's position
     if (sobj_at(BOULDER, guard.mx, guard.my, state)) {
