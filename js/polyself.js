@@ -481,8 +481,7 @@ async function check_strangling(on, state, rawEnv = {}) {
                 state,
                 rawEnv,
             );
-            // makeknown(AMULET_OF_STRANGULATION) -- discover_object
-            // is not ported; the wizard-mode gnome has no strangulation amulet
+            discover_object(AMULET_OF_STRANGULATION, true, true, true, state);
         }
     } else {
         // maybe block strangling
