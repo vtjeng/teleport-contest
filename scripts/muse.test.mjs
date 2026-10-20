@@ -26,19 +26,24 @@ import {
 import {
     COLNO,
     COULD_SEE,
+    DB_NORTH,
     D_CLOSED,
     D_BROKEN,
+    D_NODOOR,
     DOOR,
+    DRAWBRIDGE_DOWN,
     IN_SIGHT,
     M_SEEN_ACID,
     M_SEEN_MAGR,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
+    MOAT,
     ROOM,
     ROOMOFFSET,
     ROWNO,
     SHOPBASE,
     STONE,
+    VWALL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -67,6 +72,7 @@ import {
 } from '../js/muse.js';
 import { can_blow } from '../js/mondata.js';
 import { canseemon, sensemon } from '../js/display.js';
+import { create_drawbridge } from '../js/dbridge.js';
 import { add_to_container, addinv } from '../js/invent.js';
 import { mksobj, place_object, remove_object, set_corpsenm } from '../js/obj.js';
 import { teleds } from '../js/teleport.js';
@@ -2160,6 +2166,58 @@ test('mbhit records a monster-broken shop door without losing its global state',
     // context rather than advancing the live caller's RNG.
     assert.equal(randomCalls.filter((bound) => bound === 19).length, 1);
 });
+
+test('monster striking wand destroys a lowered bridge on its beam',
+    async () => {
+        // C muse.c:use_offensive -> mbhit -> dbridge.c:destroy_drawbridge.
+        const state = await offensiveHero();
+        state.nhDisplay.onEmptyQueue = () => 32;
+        state.context.mon_moving = true;
+        const x = state.u.ux, y = state.u.uy;
+        const bridgeX = x + 2;
+        for (let tx = x + 1; tx <= x + 4; ++tx) {
+            const tile = state.level.at(tx, y);
+            tile.typ = ROOM;
+            tile.flags = 0;
+            tile.doormask = 0;
+            tile.wall_info = 0;
+        }
+        const wall = state.level.at(bridgeX, y - 1);
+        wall.typ = VWALL;
+        wall.flags = 0;
+        wall.doormask = 0;
+        assert.equal(create_drawbridge(bridgeX, y, DB_NORTH, true, state),
+            true);
+        assert.equal(state.level.at(bridgeX, y).typ, DRAWBRIDGE_DOWN);
+
+        const wand = carried(state, WAN_STRIKING, { spe: 2 });
+        const attacker = offensiveMonster(state, PM_GNOME, wand, {
+            mx: x + 4, my: y, mwandexp: true,
+        });
+        state.viz_array[y][attacker.mx] |= IN_SIGHT;
+        const env = {
+            ...offensiveEnv(state),
+            random: {
+                rn1: (_bound, base) => base,
+                rn2: () => 0,
+                rnd: () => 1,
+                d: count => count,
+            },
+            message: async () => {},
+        };
+        assert.equal(find_offensive(attacker, env), true);
+        assert.equal(state.m_offense?.has_offense, MUSE_WAN_STRIKING);
+        assert.equal(state.m_offense?.offensive, wand);
+        assert.equal(state.unported.has('dbridge.c destroy_drawbridge'),
+            false);
+
+        assert.equal(await use_offensive(attacker, env), 2);
+        assert.equal(state.unported.has('dbridge.c destroy_drawbridge'),
+            false);
+        assert.equal(state.level.at(bridgeX, y).typ, MOAT);
+        assert.equal(state.level.at(bridgeX, y - 1).typ, DOOR);
+        assert.equal(state.level.at(bridgeX, y - 1).doormask, D_NODOOR);
+    });
 
 test('mbhitm forwards discarded cancellation result through its C caller',
     async () => {

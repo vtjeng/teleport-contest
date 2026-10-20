@@ -202,6 +202,7 @@ import { stairway_at } from './stairs.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { pline_mon, verbalize } from './pline.js';
 import {
+    destroy_drawbridge,
     find_drawbridge,
     is_drawbridge_wall,
     is_pool,
@@ -2468,7 +2469,9 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
                over the moat in front of a closed drawbridge and doesn't
                hit any part of the bridge's mechanism */
             && ltyp !== DRAWBRIDGE_UP && find_drawbridge(drawbridge, state)) {
-            note_unported('dbridge.c destroy_drawbridge');
+            await destroy_drawbridge(
+                drawbridge.x, drawbridge.y, state, rawEnv,
+            );
         } else if (IS_DOOR(ltyp) || ltyp === SDOOR) {
             switch (otyp) {
             /* note: monsters don't use opening or locking magic
