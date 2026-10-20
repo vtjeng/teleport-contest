@@ -1683,7 +1683,9 @@ test('mhitm_ad_plys keeps hit-before-gate, Free_action, Blind and hero timeout o
         assert.equal(game.multi, -4);
         assert.equal(game.nomovemsg, You_can_move_again);
         assert.equal(game.u.aexe[A_DEX], -1);
-        assert.ok(game.unported.has('uhitm.c dynamic_multi_reason'));
+        assert.equal(game.multi_reason, 'paralyzed by a ghoul');
+        assert.equal(game.multireasonbuf, '94104:paralyzed by a ghoul');
+        assert.equal(game.unported.has('uhitm.c dynamic_multi_reason'), false);
 
         // The source Free_action macro reads only the worn extrinsic field.
         // This property value suppresses paralysis after the same two gates.
@@ -1714,6 +1716,7 @@ test('mhitm_ad_plys keeps hit-before-gate, Free_action, Blind and hero timeout o
         ]);
         assert.equal(game.multi, 0);
         assert.equal(game.nomovemsg ?? null, null);
+        assert.equal(game.multi_reason ?? null, null);
         assert.equal(game.unported.has('uhitm.c dynamic_multi_reason'), false);
 
         // Blind suppresses the attacker name in C's second message but leaves
@@ -1747,6 +1750,8 @@ test('mhitm_ad_plys keeps hit-before-gate, Free_action, Blind and hero timeout o
         assert.equal(blindEvents[5], 'rn2(2)');
         assert.equal(game.multi, -3);
         assert.equal(game.nomovemsg, You_can_move_again);
+        assert.equal(game.multi_reason, 'paralyzed by a ghoul');
+        assert.equal(game.multireasonbuf, '94106:paralyzed by a ghoul');
     });
 
 test('mhitm_ad_curs follows all three uhitm.c direction arms', async () => {

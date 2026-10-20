@@ -553,24 +553,18 @@ export async function done_in_by(mtmp, how, state = game) {
     state.killer.name = buf;
 
     // Might need to fix up multi_reason if mtmp caused the reason.
-    // C ref: end.c:287-314. gm.multi_reason points into gm.multireasonbuf
-    // past an "id:reason" prefix. When the killer matches the id, the
-    // reason is truncated at its first space to avoid "Killed by a ghoul,
-    // while paralyzed by a ghoul."
-    if (state.gm?.multi_reason
-        && state.gm.multireasonbuf
-        && state.gm.multi_reason !== state.gm.multireasonbuf) {
-        const colonIndex = state.gm.multireasonbuf.indexOf(':');
-        if (colonIndex > 0) {
-            const idStr = state.gm.multireasonbuf.substring(0, colonIndex);
-            const reasonmid = parseInt(idStr, 10);
-            if (!isNaN(reasonmid) && mtmp.m_id === reasonmid) {
-                const spaceIndex = state.gm.multi_reason.indexOf(' ');
-                if (spaceIndex >= 0) {
-                    state.gm.multi_reason =
-                        state.gm.multi_reason.substring(0, spaceIndex);
-                }
-            }
+    // C ref: end.c:287-314. JS stores the visible reason separately from
+    // the "id:reason" buffer; only a matching killer loses the redundant
+    // "by a monster" suffix in the final death description.
+    const colonIndex = state.multireasonbuf?.indexOf(':') ?? -1;
+    if (state.multi_reason && colonIndex > 0
+        && state.multireasonbuf.slice(colonIndex + 1) === state.multi_reason
+        && Number(state.multireasonbuf.slice(0, colonIndex)) === mtmp.m_id) {
+        const spaceIndex = state.multi_reason.indexOf(' ');
+        if (spaceIndex >= 0) {
+            state.multi_reason = state.multi_reason.slice(0, spaceIndex);
+            state.multireasonbuf = state.multireasonbuf.slice(0, colonIndex + 1)
+                + state.multi_reason;
         }
     }
 

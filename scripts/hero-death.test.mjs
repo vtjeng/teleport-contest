@@ -1263,6 +1263,31 @@ test('done_in_by sets ugrave_arise for a ghoul', async () => {
     assert.equal(game.u.ugrave_arise, PM_GHOUL);
 });
 
+test('done_in_by shortens helplessness caused by the killing ghoul', async () => {
+    await dyingGame();
+    const ghoul = killerMonster(PM_GHOUL);
+    game.multi = -3;
+    game.multi_reason = 'paralyzed by a ghoul';
+    game.multireasonbuf = `${ghoul.m_id}:paralyzed by a ghoul`;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    prepareFinalization();
+    await done_in_by(ghoul, DIED, game);
+    assert.equal(game.multi_reason, 'paralyzed');
+    assert.equal(game.multireasonbuf, `${ghoul.m_id}:paralyzed`);
+});
+
+test('done_in_by preserves helplessness caused by another monster', async () => {
+    await dyingGame();
+    const ghoul = killerMonster(PM_GHOUL);
+    game.multi = -3;
+    game.multi_reason = 'paralyzed by a ghoul';
+    game.multireasonbuf = `${ghoul.m_id + 1}:paralyzed by a ghoul`;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    prepareFinalization();
+    await done_in_by(ghoul, DIED, game);
+    assert.equal(game.multi_reason, 'paralyzed by a ghoul');
+});
+
 test('done_in_by uses STONING message and killer for a stoning death',
      async () => {
     // end.c:197 prints "You turn to stone..." instead of "You die..." and

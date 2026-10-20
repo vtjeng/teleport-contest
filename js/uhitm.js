@@ -137,8 +137,10 @@ import {
     STRAT_WAITFORU,
     STRAT_WAITMASK,
     SUPPRESS_INVISIBLE,
+    SUPPRESS_HALLUCINATION,
     SUPPRESS_IT,
     SUPPRESS_NAME,
+    SUPPRESS_SADDLE,
     STONED,
     STONING,
     STUNNED,
@@ -5706,9 +5708,20 @@ export async function mhitm_ad_curs(
     }
 }
 
+// C ref: uhitm.c:104-125. Record both the visible helplessness reason and
+// the monster id prefix used by done_in_by() when that monster also kills.
+function dynamic_multi_reason(mon, verb, byGaze, state) {
+    const who = x_monnam(mon, ARTICLE_A, null,
+        SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION
+            | SUPPRESS_SADDLE | SUPPRESS_NAME,
+        false, state);
+    const reason = `${verb} by ${byGaze ? `${s_suffix(who)} gaze` : who}`;
+    state.multireasonbuf = `${mon.m_id}:${reason}`;
+    state.multi_reason = reason;
+}
+
 // C ref: uhitm.c mhitm_ad_plys() (3431-3476). Preserve the three attack
-// orientations and their separate paralysis gates. The hero-defender arm
-// consumes dynamic_multi_reason's discarded void result as a named gap.
+// orientations and their separate paralysis gates.
 export async function mhitm_ad_plys(
     magr,
     mattk,
@@ -5758,7 +5771,7 @@ export async function mhitm_ad_plys(
                 }
                 state.nomovemsg = You_can_move_again;
                 nomul(-random.rnd(10), state);
-                note_unported('uhitm.c dynamic_multi_reason');
+                dynamic_multi_reason(magr, 'paralyzed', false, state);
                 await exercise(A_DEX, false, state, random);
             }
         }
@@ -8237,7 +8250,7 @@ export async function passive(
                                 ? -tmp : -127,
                             state,
                         );
-                        note_unported('uhitm.c dynamic_multi_reason');
+                        dynamic_multi_reason(mon, 'frozen', true, state);
                         state.nomovemsg = null;
                     }
                 } else {
@@ -8259,7 +8272,7 @@ export async function passive(
                 );
                 state.nomovemsg = You_can_move_again;
                 await nomul(-tmp, state);
-                note_unported('uhitm.c dynamic_multi_reason');
+                dynamic_multi_reason(mon, 'frozen', false, state);
                 await exercise(A_DEX, false, state, random);
             }
             break;

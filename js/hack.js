@@ -1156,12 +1156,10 @@ export function spot_checks(x, y, oldTyp, state = game, env = {}) {
 // why wield.c doswapweapon() zeroes gm.multi by assignment rather than
 // through this function.
 //
-// gm.multi_reason and gm.multireasonbuf have no ported reader. They are
-// written anyway because they are the reason string for the interrupted
-// action, and losing the clear would leave the previous action's reason
-// standing for the next one that sets it -- the same stale-string defect
-// dropping done_eating()'s nomovemsg reset produces. C zeroes them together
-// and only for nval 0, so both stay under that one guard.
+// The death report reads multi_reason, while multireasonbuf tracks the
+// monster that caused it. Clear both when the interruption ends so a later
+// action cannot inherit an old helplessness reason. C does this only for
+// nval 0, so both stay under that one guard.
 export function nomul(nval, state = game) {
     const multi = state.multi ?? 0;
     if (multi < nval) return; /* This is a bug fix by ab@unido */
