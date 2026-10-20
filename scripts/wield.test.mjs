@@ -126,6 +126,23 @@ test('wield.c chwepon applies a positive weapon enchantment', async () => {
     assert.equal(pending(state), 'Your dagger glows blue for a moment.');
 });
 
+test('wield.c chwepon evaporates an over-enchanted wielded stack', async () => {
+    assert.match(WIELD_C,
+        /uwep->spe > 5[\s\S]*?rn2\(3\)[\s\S]*?useupall\(uwep\)/u);
+    const state = makeState();
+    const dagger = item(state, DAGGER, { spe: 6, owornmask: W_WEP, quan: 3 });
+    const scroll = item(state, SCR_ENCHANT_WEAPON, { oclass: SCROLL_CLASS });
+    state.invent = dagger;
+    state.uwep = dagger;
+    initRng(2); // The first rn2(3) is nonzero.
+
+    assert.equal(await chwepon(scroll, 1, state), 1);
+    assert.equal(state.uwep, null);
+    assert.equal(state.invent, null);
+    assert.equal(dagger.owornmask, 0);
+    assert.ok(!state.unported?.has('invent.c useupall'));
+});
+
 test('wield_tool uses the You_cant wording for a worn item', async () => {
     const state = makeState();
     const dagger = item(state, DAGGER, { owornmask: W_ARMOR });

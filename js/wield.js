@@ -61,6 +61,7 @@ import {
     hands_obj,
     prinv,
     update_inventory,
+    useupall,
 } from './invent.js';
 import { encumber_msg } from './pickup.js';
 import {
@@ -139,7 +140,6 @@ import { body_part } from './polyself.js';
 import { strange_feeling } from './potion.js';
 import { rn2, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { instapetrify } from './trap.js';
 import {
     bimanual,
@@ -147,6 +147,7 @@ import {
     setuqwep,
     setuswapwep,
     is_pole,
+    setnotworn,
     setworn,
 } from './worn.js';
 
@@ -521,10 +522,14 @@ export async function chwepon(otmp, amount, state = game) {
         } else {
             await ttyPline(`${Yobjnam2(uwep, 'evaporate', state)}.`, state);
         }
-        // useupall() is a void C call. Its inventory/worn-slot lifecycle is
-        // not complete in this port, so keep the precise gap rather than
-        // inventing a partial weapon-removal transition.
-        note_unported('invent.c useupall');
+        const wearEnv = setwornEnv(state);
+        await useupall(uwep, {
+            ...wearEnv,
+            hooks: {
+                ...wearEnv.hooks,
+                setNotWorn: setnotworn,
+            },
+        });
         return 1;
     }
 
