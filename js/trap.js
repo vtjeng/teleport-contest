@@ -2138,8 +2138,12 @@ export async function float_down(hmask, emask, state = game) {
                 else
                     await ttyPline('You fall over.', state);
                 await losehp(rnd(2), 'dangerous winds', KILLED_BY, state);
+                // end.c:really_done() cannot return after a final death.
+                if (state.program_state?.gameover) return 1;
                 if (u.usteed) await dismount_steed(DISMOUNT_FELL, state);
-                note_unported('polyself.c selftouch');
+                await selftouch('As you fall, you', state);
+                // The same C boundary applies when selftouch is fatal.
+                if (state.program_state?.gameover) return 1;
             } else if (u.usteed
                 && (is_floater(u.usteed.data) || is_flyer(u.usteed.data))) {
                 await ttyPline('You settle more firmly in the saddle.', state);
