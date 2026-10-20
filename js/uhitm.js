@@ -5601,7 +5601,8 @@ export async function mhitm_ad_curs(
             if (!Deaf(state)) {
                 // sound.h compiles Soundeffect() away in the reference tty build.
                 if (heroIsBlind(state)) {
-                    await message('You hear laughter.', state, env);
+                    const heard = youHear('laughter.', state);
+                    if (heard) await message(heard, state, env);
                 } else {
                     await message(
                         messageAt(
@@ -5680,7 +5681,8 @@ export async function mhitm_ad_curs(
             }
             if (!Deaf(state)) {
                 if (!state.gv?.vis) {
-                    await message('You hear laughter.', state, env);
+                    const heard = youHear('laughter.', state);
+                    if (heard) await message(heard, state, env);
                 } else if (canseemon(magr, state)) {
                     await message(
                         messageAt(

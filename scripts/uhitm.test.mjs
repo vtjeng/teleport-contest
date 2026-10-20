@@ -1795,6 +1795,7 @@ test('mhitm_ad_curs follows all three uhitm.c direction arms', async () => {
     await runSegment({
         seed: 8806402, datetime: DATETIME, nethackrc: RC, moves: '',
     });
+    game.flags.acoustics = true;
     game.u.uprops[BLINDED] = { intrinsic: TIMEOUT, extrinsic: 0 };
     game.u.uprops[FIRE_RES] = { intrinsic: INTRINSIC, extrinsic: 0 };
     const gremlin = {
@@ -1840,6 +1841,7 @@ test('mhitm_ad_curs follows all three uhitm.c direction arms', async () => {
     await runSegment({
         seed: 8806403, datetime: DATETIME, nethackrc: RC, moves: '',
     });
+    game.flags.acoustics = true;
     game.gv.vis = false;
     const attacker = {
         data: game.mons[PM_GREMLIN],
@@ -1879,6 +1881,63 @@ test('mhitm_ad_curs follows all three uhitm.c direction arms', async () => {
     assert.equal(otherDefender.mstrategy & STRAT_WAITFORU, 0);
     assert.ok(otherMessages.includes('You hear laughter.'));
 });
+
+test('gremlin curse laughter follows You_hear acoustics in both monster arms',
+    async () => {
+        await runSegment({
+            seed: 8806404, datetime: DATETIME, nethackrc: RC, moves: '',
+        });
+        game.u.uprops[BLINDED] = { intrinsic: TIMEOUT, extrinsic: 0 };
+        game.u.uprops[FIRE_RES] = { intrinsic: INTRINSIC, extrinsic: 0 };
+        const attacker = {
+            data: game.mons[PM_GREMLIN], m_id: 93005, mcan: false,
+            mx: game.u.ux + 1, my: game.u.uy,
+        };
+        const attack = attacker.data.mattk.find(({ adtyp }) => adtyp === AD_CURS);
+        const heroMessages = [];
+        const heroDraws = [];
+        await mhitm_adtyping(attacker, attack, game.youmonst,
+            { damage: 3, hitflags: 0, done: false }, game, {
+                random: {
+                    rn2: (bound) => { heroDraws.push(`rn2(${bound})`); return 0; },
+                    rnd: (bound) => { heroDraws.push(`rnd(${bound})`); return 1; },
+                },
+                message: async (line) => { heroMessages.push(line); },
+                unsupported: (reason) => assert.fail(reason),
+            });
+        assert.deepEqual(heroDraws, ['rn2(10)', 'rnd(11)']);
+        assert.equal(game.u.uprops[FIRE_RES].intrinsic, 0);
+        assert.ok(!heroMessages.includes('You hear laughter.'));
+
+        await runSegment({
+            seed: 8806405, datetime: DATETIME, nethackrc: RC, moves: '',
+        });
+        game.gv.vis = false;
+        const otherAttacker = {
+            data: game.mons[PM_GREMLIN], m_id: 93006, mcan: false,
+            mx: game.u.ux + 1, my: game.u.uy,
+        };
+        const otherDefender = {
+            data: game.mons[PM_RAVEN], m_id: 93007, mcan: false,
+            mstrategy: STRAT_WAITMASK,
+            mx: game.u.ux - 1, my: game.u.uy,
+        };
+        const otherMessages = [];
+        const otherDraws = [];
+        await mhitm_adtyping(otherAttacker,
+            otherAttacker.data.mattk.find(({ adtyp }) => adtyp === AD_CURS),
+            otherDefender, { damage: 5, hitflags: 0, done: false }, game, {
+                random: { rn2: (bound) => {
+                    otherDraws.push(bound);
+                    return 0;
+                } },
+                message: async (line) => { otherMessages.push(line); },
+                unsupported: (reason) => assert.fail(reason),
+            });
+        assert.deepEqual(otherDraws, [10]);
+        assert.equal(otherDefender.mcan, 1);
+        assert.ok(!otherMessages.includes('You hear laughter.'));
+    });
 
 test('mhitm_ad_drst preserves the poison guard and resistance arm',
     async () => {
