@@ -7,6 +7,7 @@ import {
     COULD_SEE,
     CORR,
     DEAF,
+    DETECT_MONSTERS,
     DISP_END,
     D_CLOSED,
     DOOR,
@@ -46,6 +47,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     LOW_PM,
     AD_FIRE,
+    AD_ACID,
     PM_GIANT_RAT,
     PM_NEWT,
     PM_STONE_GIANT,
@@ -83,8 +85,9 @@ import {
 import {
     blocking_terrain, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
     m_has_launcher_and_ammo,
-    drop_throw, hit_bars, hits_bars, m_useup, monmulti, monshoot, m_throw, ohitmon, thitu, thrwmu,
+    drop_throw, hit_bars, hits_bars, m_useup, monmulti, monshoot, m_throw, ohitmon, spitmm, thitu, thrwmu,
 } from '../js/mthrowu.js';
+import { canseemon, canspotmon } from '../js/display.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
@@ -1475,6 +1478,42 @@ test('a failed tethered return closes its display before the snap', async () => 
         assert.deepEqual(messages, deaf ? [] : ['You hear a loud snap!']);
         assert.equal(weapon.where, OBJ_FLOOR);
     }
+});
+
+test('a detected invisible spitter has a named dry rattle', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nspitmm(struct monst *mtmp,');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/*', cStart + 1);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /if \(canspotmon\(mtmp\)\)\s*\{\s*pline\("A dry rattle comes from %s throat\."/u);
+
+    const state = await hero();
+    state.flags.acoustics = true;
+    const subject = attacker(state, state.u.ux + 2, state.u.uy,
+        state.u.ux, state.u.uy);
+    subject.mcan = 1;
+    subject.minvis = 1;
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(canseemon(subject, state), false);
+    assert.equal(canspotmon(subject, state), true);
+    const messages = [];
+
+    await spitmm(subject, { adtyp: AD_ACID }, state.youmonst, {
+        state,
+        message: (line) => { messages.push(line); },
+    });
+
+    assert.deepEqual(messages,
+        ["A dry rattle comes from the invisible giant rat's throat."]);
+
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 0, extrinsic: 0 };
+    assert.equal(canspotmon(subject, state), false);
+    messages.length = 0;
+    await spitmm(subject, { adtyp: AD_ACID }, state.youmonst, {
+        state,
+        message: (line) => { messages.push(line); },
+    });
+    assert.deepEqual(messages, ['You hear a dry rattle nearby.']);
 });
 
 test('m_throw stops flight display after a fatal hurled potion', async () => {

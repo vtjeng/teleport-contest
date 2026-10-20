@@ -1488,7 +1488,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
 
     if (mtmp.mcan) {
         if (!Deaf(state) && mdistu(mtmp, state) < BOLT_LIM * BOLT_LIM) {
-            if (canseemon(mtmp, state)) {
+            if (canspotmon(mtmp, state)) {
                 if (typeof env.message === 'function')
                     await env.message(
                         `A dry rattle comes from ${s_suffix(mon_nam(mtmp, state))} throat.`,
