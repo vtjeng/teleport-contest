@@ -130,6 +130,7 @@ import {
     W_SWAPWEP,
     W_WEP,
     IS_DOOR,
+    IS_OBSTRUCTED,
     WT_ELF,
     has_mgivenname,
     helpless,
@@ -2920,10 +2921,28 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 launch_drop_spot(null, 0, 0, state);
                 break;
             }
-            if (otyp === BOULDER && sobj_at(BOULDER, x, y, state)) {
-                // Boulder-chain collision: not reached in the session.
-                throw new Error(
-                    'launch_obj boulder-chain collision not yet ported');
+            const nextBoulder = otyp === BOULDER
+                ? sobj_at(BOULDER, x, y, state) : null;
+            if (nextBoulder) {
+                const fx = x + dx, fy = y + dy;
+                const hitsAnother = !isok(fx, fy) || !dist
+                    || IS_OBSTRUCTED(state.level.at(fx, fy).typ);
+                const suffix = cansee(x, y, state)
+                    ? hitsAnother
+                        ? ' as one boulder hits another'
+                        : ' as one boulder sets another in motion'
+                    : '';
+                note_unported('sounds.c Soundeffect');
+                const heard = youHear(`a loud crash${suffix}!`, state);
+                if (heard) await message(heard, state, env);
+                obj_extract_self(nextBoulder, objectEnv);
+                nextBoulder.otrapped = singleobj.otrapped;
+                singleobj.otrapped = 0;
+                const placement = place_object(singleobj, x, y, objectEnv);
+                if (placement && typeof placement.then === 'function')
+                    await placement;
+                singleobj = nextBoulder;
+                await wake_nearto(x, y, 100, env);
             }
         }
         // closed_door: boulder crashes through a door. Not reached.
