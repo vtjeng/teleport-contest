@@ -26,9 +26,11 @@ import {
     LFILE_EXISTS,
     MIN_QUEST_ALIGN,
     PIT,
+    ROOM,
     STRAT_WAITFORU,
     TIMEOUT,
     TT_BURIEDBALL,
+    TT_INFLOOR,
     TT_PIT,
     UTOTYPE_DEFERRED,
     UTOTYPE_FALLING,
@@ -565,6 +567,18 @@ test('a levitating hero sees what lies below', async () => {
         assert.equal(await dodown(state), ECMD_OK);
         assert.match(toplines(state), /^You are floating high above the /u);
     }
+});
+
+test('a levitating hero trapped in the floor cannot descend', async () => {
+    const state = await descendTo('h');
+    quiet(state);
+    state.level.at(state.u.ux, state.u.uy).typ = ROOM;
+    state.u.utrap = 2;
+    state.u.utraptype = TT_INFLOOR;
+    state.u.uprops[LEVITATION].intrinsic = 1;
+
+    assert.equal(await dodown(state), ECMD_OK);
+    assert.equal(toplines(state), 'You are trapped in the floor.');
 });
 
 test('controlled levitation clears its intrinsic source before descending',

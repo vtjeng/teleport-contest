@@ -44,6 +44,8 @@ import {
     S_LRING,
     SEE_INVIS,
     something,
+    TT_INFLOOR,
+    TT_LAVA,
     UNCHANGING,
     LL_ARTIFACT,
     ONAME_VIA_DIP,
@@ -62,7 +64,8 @@ import {
 import {
     Amonnam, hcolor, hliquid, a_monnam, oname, rndmonnam,
 } from './do_name.js';
-import { level_difficulty, dunlevs_in_dungeon, dunlev } from './dungeon.js';
+import { level_difficulty, dunlevs_in_dungeon, dunlev, surface }
+    from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
@@ -167,13 +170,15 @@ function Invisible(state) {
 // hero tries to interact with a feature while levitating.
 export async function floating_above(what, state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    // C ref: fountain.c:25-29. Trapped in floor overrides the usual message.
-    // The TT_INFLOOR and TT_LAVA paths need surface(), which is not ported.
+    // C ref: fountain.c:25-29. Trapped in floor or lava overrides the
+    // caller's feature name with the surface beneath the hero.
     if (state.u.utrap
-        && (state.u.utraptype === 4 /* TT_INFLOOR */
-            || state.u.utraptype === 5 /* TT_LAVA */)) {
-        throw new UnsupportedFountainError(
-            'surface() for floating_above while trapped');
+        && (state.u.utraptype === TT_INFLOOR
+            || state.u.utraptype === TT_LAVA)) {
+        await message(`You are trapped in the ${surface(
+            state.u.ux, state.u.uy, state,
+        )}.`, state);
+        return;
     }
     await message(`You are floating high above the ${what}.`, state);
 }
