@@ -370,6 +370,7 @@ import {
     level_tele_trap,
     mlevel_tele_trap,
     mtele_trap,
+    rloco,
     tele_trap,
 } from './teleport.js';
 import { Fire_resistance, fracture_rock, poly_obj, resist } from './zap.js';
@@ -2934,8 +2935,27 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     used_up = true;
                     launch_drop_spot(null, 0, 0, state);
                     break;
-                case LEVEL_TELEP:
                 case TELEP_TRAP:
+                    if (cansee(x, y, state)) {
+                        await message(messageAt(
+                            'Suddenly the rolling boulder disappears!',
+                            x, y, state,
+                        ), state, env);
+                    } else if (!heroIsDeaf(state)) {
+                        const heard = youHear(
+                            'a rumbling stop abruptly.', state);
+                        if (heard) await message(heard, state, env);
+                    }
+                    singleobj.otrapped = 0;
+                    await rloco(singleobj, {
+                        ...env, hooks: objectHooks, redraw,
+                    });
+                    seetrap(t, { ...env, redraw });
+                    used_up = true;
+                    launch_drop_spot(null, 0, 0, state);
+                    break;
+                case LEVEL_TELEP:
+                    // Level teleport still needs its migration arm.
                 case PIT:
                 case SPIKED_PIT:
                 case HOLE:

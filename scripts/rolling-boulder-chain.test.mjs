@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, LANDMINE,
-    ROOM, ROLL, ROWNO,
+    COLNO, DOOR, D_BROKEN, D_CLOSED, D_LOCKED, IN_SIGHT, IRONBARS, LANDMINE,
+    ROOM, ROLL, ROWNO, TELEP_TRAP,
     VWALL,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -306,4 +306,49 @@ test('a firing land mine fractures and scatters the rolling boulder', async () =
     assert.ok(rockPiles >= 1);
     assert.notDeepEqual([boulder.ox, boulder.oy], [11, 10],
         'the fractured rocks leave the mine square');
+});
+
+test('a rolling boulder teleports away and reveals its trap', async () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = { ux: 20, uy: 10, uz: { dnum: 0, dlevel: 1 } };
+    state.dungeons = [{ flags: { hellish: false } }];
+    state.context = {};
+    state.flags = { acoustics: true };
+    for (let x = 10; x <= 14; x++) state.level.at(x, 10).typ = ROOM;
+    const trap = { ttyp: TELEP_TRAP, tx: 11, ty: 10, tseen: false };
+    state.level.traps.push(trap);
+    const boulder = newObject({
+        otyp: BOULDER, oclass: ROCK_CLASS, quan: 1,
+    });
+    const hooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+    place_object(boulder, 10, 10, { state, hooks });
+    const messages = [];
+    const draws = [];
+
+    const result = await launch_obj(BOULDER, 10, 10, 12, 10,
+        ROLL, state, {
+            hooks,
+            planning: true,
+            random: {
+                rn1(bound, offset) {
+                    draws.push(['rn1', bound, offset]);
+                    return 14;
+                },
+                rn2(bound) {
+                    draws.push(['rn2', bound]);
+                    return 10;
+                },
+            },
+            message: (line) => messages.push(line),
+            redraw: () => {},
+        });
+
+    assert.equal(result, 2);
+    assert.deepEqual(draws, [['rn1', COLNO - 3, 2], ['rn2', ROWNO]]);
+    assert.deepEqual(messages, ['You hear a rumbling stop abruptly.']);
+    assert.equal(trap.tseen, true);
+    assert.equal(sobj_at(BOULDER, 11, 10, state), null);
+    assert.equal(sobj_at(BOULDER, 14, 10, state), boulder);
+    assert.ok(!boulder.otrapped);
 });
