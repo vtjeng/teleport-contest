@@ -177,7 +177,6 @@ import { mpickobj, remove_worn_item } from './steal.js';
 import { objdescr_is } from './o_init.js';
 import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
-import { note_unported } from './unported.js';
 import { canspotmon } from './display.js';
 
 // youprop.h property spellings this file needs. Each names the exact macro it
@@ -564,8 +563,9 @@ export async function mount_steed(mtmp, force, state = game) {
     const ptr = mtmp.data;
     if (touch_petrifies(ptr) && !propertyActive(state, STONE_RES)) {
         await ttyPline(`You touch ${mon_nam(mtmp, state)}.`, state);
-        // trap.c:instapetrify is a void callee; its death/poly effect is unported.
-        note_unported('trap.c instapetrify');
+        const killer = `attempting to ride ${an(pmname(ptr, gender(mtmp)))}`;
+        await instapetrify(killer, state);
+        if (state.program_state?.gameover) return false;
     }
     if (!mtmp.mtame || mtmp.isminion) {
         await ttyPline(
