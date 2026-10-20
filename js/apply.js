@@ -778,9 +778,8 @@ export function snickersnee_used_dist_attk(obj, state = game) {
         && state.context?.snickersnee_turn === state.moves);
 }
 
-// C ref: apply.c use_whip() (2954-3271). The source's instapetrify() call
-// remains an explicit gap; kick_steed() and fire_damage() are wired for their
-// effects.
+// C ref: apply.c use_whip() (2954-3271). Its petrifying-corpse snatch,
+// kick_steed(), and fire_damage() calls use their source owners.
 export async function use_whip(obj, state = game, env = {}) {
     let monster;
     let rx;
@@ -980,19 +979,32 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                         const saved = canTransform
                             ? await polymon(PM_STONE_GOLEM, state) : false;
                         if (!saved) {
-                            await ttyPline(`Snatching ${an(objectName, state)} is a fatal mistake.`, state);
+                            const killer = object.quan === 1
+                                ? an(objectName, state) : objectName;
+                            await ttyPline(`Snatching ${killer} is a fatal mistake.`, state);
                             const placement = place_object(
                                 object, state.u.ux, state.u.uy, { state },
                             );
                             if (placement && typeof placement.then === 'function')
                                 await placement;
-                            note_unported('trap.c instapetrify');
-                            obj_extract_self(object, { state });
+                            await instapetrify(killer, state, env);
+                            // end.c:really_done() cannot return to this C
+                            // caller after a final death. JS marks gameover.
+                            if (state.program_state?.gameover) return ECMD_TIME;
+                            // A life-saving amulet returns here. C removes
+                            // the corpse from the floor before holding it.
+                            obj_extract_self(object, { state, hooks: {
+                                extractExternalObject: remove_object,
+                            } });
                         }
                     }
                     await hold_another_object(
                         object, 'You drop %s!', donameFresh(object, state),
-                        null, { state },
+                        null, { ...env, state, hooks: {
+                            ...(env.hooks ?? {}),
+                            encumberMessage: env.hooks?.encumberMessage
+                                ?? ((targetState) => encumber_msg(targetState)),
+                        } },
                     );
                     break;
                 }

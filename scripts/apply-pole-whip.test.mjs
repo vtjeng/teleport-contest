@@ -6,13 +6,29 @@ import {
     find_poleable_mon,
     get_valid_polearm_position,
     snickersnee_used_dist_attk,
+    use_whip,
 } from '../js/apply.js';
 import { ART_SNICKERSNEE } from '../js/artifacts.js';
-import { COLNO, IN_SIGHT, ROWNO } from '../js/const.js';
+import {
+    A_DEX, COLNO, COULD_SEE, CQ_CANNED, IN_SIGHT, LIFESAVED,
+    OBJ_INVENT, ROOM, ROWNO, W_AMUL, W_WEP,
+} from '../js/const.js';
+import { cmdq_add_dir } from '../js/cmd.js';
+import { _doWearInternals } from '../js/do_wear.js';
 import { GLYPH_MON_MALE_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
+import { addinv } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { ARROW, BOW, BULLWHIP, LANCE } from '../js/objects.js';
+import { PM_COCKATRICE, PM_SOLDIER } from '../js/monsters.js';
+import { mksobj } from '../js/obj.js';
+import {
+    AMULET_OF_LIFE_SAVING, ARROW, BOW, BULLWHIP, CORPSE, LANCE,
+} from '../js/objects.js';
+import { place_monster } from '../js/monst.js';
+import { initRng } from '../js/rng.js';
+import { mpickobj } from '../js/steal.js';
+
+const { Amulet_on } = _doWearInternals;
 
 function recordedRecipe(path) {
     return JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
@@ -134,6 +150,63 @@ test('dofire and doapply both dispatch a wielded bullwhip', async () => {
     assert.equal(game.uwep?.otyp, BULLWHIP);
     assert.equal(game._pending_message, 'Snap!');
 });
+
+async function setupWieldedCockatriceCorpse() {
+    await runSegment(applyWhip);
+    game.u.acurr.a[A_DEX] = 16; // Archeologist + two Dexterity points: proficient 3.
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    game.level.at(x, y).typ = ROOM;
+    game.viz_array[y][x] |= IN_SIGHT | COULD_SEE;
+    const monster = { data: game.mons[PM_SOLDIER], mx: x, my: y,
+        mhp: 10, mhpmax: 10, mpeaceful: 0, mtame: 0, mstate: 0,
+        nmon: game.level.monlist, minvent: null, mw: null };
+    game.level.monlist = monster;
+    place_monster(monster, x, y, game);
+    const corpse = mksobj(CORPSE, false, false, { state: game });
+    corpse.corpsenm = PM_COCKATRICE;
+    corpse.quan = 1;
+    mpickobj(monster, corpse, { state: game });
+    monster.mw = corpse;
+    corpse.owornmask |= W_WEP;
+    initRng(3); // First rn2(4) is 3: source's inventory-snatch arm.
+    cmdq_add_dir(CQ_CANNED, 1, 0, 0, game);
+    game.nhDisplay.onEmptyQueue = () => 32;
+    return corpse;
+}
+
+test('snatching a wielded cockatrice corpse petrifies an unprotected hero',
+    async () => {
+        const cSource = readFileSync(new URL(
+            '../nethack-c/upstream/src/apply.c', import.meta.url,
+        ), 'utf8');
+        assert.match(cSource,
+            /You\("snatch %s!"[\s\S]*?touch_petrifies\(&mons\[otmp->corpsenm\]\)[\s\S]*?place_object\(otmp, u\.ux, u\.uy\)[\s\S]*?instapetrify\(kbuf\)/u);
+        await setupWieldedCockatriceCorpse();
+
+        await use_whip(game.uwep, game);
+        assert.equal(game.program_state.gameover, true);
+        assert.equal(game.killer.name, 'a cockatrice corpse');
+        assert.ok(!game.unported.has('trap.c instapetrify'));
+    });
+
+test('life saving returns the snatched corpse from floor to inventory',
+    async () => {
+        const corpse = await setupWieldedCockatriceCorpse();
+        const amulet = mksobj(
+            AMULET_OF_LIFE_SAVING, false, false, { state: game },
+        );
+        addinv(amulet, { state: game });
+        await Amulet_on(amulet, game);
+        assert.ok(game.u.uprops[LIFESAVED].extrinsic & W_AMUL);
+        initRng(3);
+
+        await use_whip(game.uwep, game);
+        assert.ok(!game.program_state.gameover);
+        assert.equal(game.uamul, null);
+        assert.equal(corpse.where, OBJ_INVENT);
+        assert.equal(game.killer.name, '');
+    });
 
 // These source-pinned sites cover apply.c:use_whip's lava-wall target and
 // standing-in-lava branches, where fire_damage's boolean is discarded but its
