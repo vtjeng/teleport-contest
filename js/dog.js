@@ -17,6 +17,7 @@ import {
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
     DISMOUNT_GENERIC,
+    DISMOUNT_THROWN,
     EDOG,
     EYE,
     G_EXTINCT,
@@ -1595,7 +1596,8 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
         redraw(mtmp.mx, mtmp.my);
         if (mtmp.mleashed)
             await m_unleash(mtmp, true, { ...env, state });
-        if (mtmp === state.u.usteed) note_unported('steed.c dismount_steed');
+        if (mtmp === state.u.usteed)
+            await dismount_steed(DISMOUNT_THROWN, state, env);
     } else if (edog) {
         edog.revivals++;
         edog.killed_by_u = 0;

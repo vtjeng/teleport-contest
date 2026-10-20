@@ -4,10 +4,14 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import * as dog from '../js/dog.js';
 import { bhitm } from '../js/zap.js';
+import { runSegment } from '../js/jsmain.js';
+import { RIDE_COMMAND, loadRideDismountRecipe } from './run-ride-dismount.mjs';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { can_saddle } from '../js/steed.js';
 import { game } from '../js/gstate.js';
 import { SPE_STONE_TO_FLESH, SPBOOK_CLASS } from '../js/objects.js';
 import { M_AP_MONSTER, M_AP_NOTHING } from '../js/const.js';
-import { M1_NOEYES, S_FELINE, S_HUMAN } from '../js/monsters.js';
+import { M1_NOEYES, PM_PLAINS_CENTAUR, S_FELINE, S_HUMAN } from '../js/monsters.js';
 
 function fixture(overrides = {}) {
     // Nonzero pet-history sentinels distinguish death resets from retained
@@ -142,22 +146,43 @@ test('stone-to-flesh beam leaves ordinary creatures asleep after statue revival'
     assert.equal(monster.msleeping, true);
 });
 
-test('wary_dog releases a leash before retaining only the thrown-steed gap', async () => {
+test('wary_dog releases the leash of a newly feral pet', async () => {
     const f=fixture({monster:{mleashed:true},edog:{killed_by_u:1},draws:[[1,0]]});
-    f.state.u.usteed=f.monster;
-    const previous=game.unported;
-    game.unported=new Set();
-    try {
-        await dog.wary_dog(f.monster,true,f.env);
-        assert.deepEqual([...game.unported],['steed.c dismount_steed']);
-        assert.equal(f.monster.mleashed,0,'m_unleash clears the monster attachment');
-        assert.equal(f.state.u.usteed,f.monster,'no invented thrown dismount');
-        assert.deepEqual(f.events,[
-            ['rn2',1],
-            ['redraw',4,5],
-            ['message','Your leash falls slack.'],
-        ]);
-    } finally { game.unported=previous; }
+    await dog.wary_dog(f.monster,true,f.env);
+    assert.equal(f.monster.mleashed,0,'m_unleash clears the monster attachment');
+    assert.deepEqual(f.events,[
+        ['rn2',1],
+        ['redraw',4,5],
+        ['message','Your leash falls slack.'],
+    ]);
+});
+
+test('a life-saved steed turning feral throws its rider', async () => {
+    const segment = loadRideDismountRecipe().segments[0];
+    await runSegment({ ...segment, moves: `.${RIDE_COMMAND}j` });
+    const steed = game.u.usteed;
+    assert.ok(steed, 'public ride input mounts the pony');
+    // A centaur can wear both a saddle and a life-saving amulet; a pony
+    // cannot wear the latter. The public input supplies a mounted game state.
+    steed.data = game.mons[PM_PLAINS_CENTAUR];
+    steed.mnum = PM_PLAINS_CENTAUR;
+    assert.ok(can_saddle(steed));
+    game.u.uhp = game.u.uhpmax = 100;
+    steed.mextra.edog.killed_by_u = 1;
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    for (let i = 0; i < 12; ++i)
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await dog.wary_dog(steed, false, { state: game,
+        random: { rn2: () => 0 },
+        canSee: () => false,
+        canSpot: () => false,
+    });
+
+    assert.equal(steed.mtame, 0);
+    assert.equal(game.u.usteed, null, 'C dismounts a feral steed as thrown');
+    assert.ok(game.u.uhp < 100, 'thrown dismount inflicts riding accident damage');
 });
 
 test('wary_dog planning suppresses live redraw and message defaults', async () => {
