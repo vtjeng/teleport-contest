@@ -1710,6 +1710,7 @@ test('thrwmu applies a wielded polearm without a line-up refusal', async () => {
     clearRow(state, state.u.ux, subject.mx, y);
     setCouldSee(state, subject.mx, y, true);
     let hit;
+    let stopped = false;
     const messages = [];
 
     assert.equal(await thrwmu(subject, {
@@ -1718,12 +1719,46 @@ test('thrwmu applies a wielded polearm without a line-up refusal', async () => {
         message: (text) => { messages.push(text); },
         swingVerb: () => 'thrusts',
         hitHero: (hitv, damage, obj) => { hit = [hitv, damage, obj]; },
-        stopOccupation: () => {},
+        stopOccupation: () => { stopped = true; },
     }), 0);
     assert.equal(hit[2], polearm);
     assert.equal(hit[0] > 0, true);
     assert.equal(hit[1] > 0, true);
+    assert.equal(stopped, true);
     assert.deepEqual(messages, ['The stone giant thrusts an angled poleaxe.']);
+});
+
+test('a fatal polearm hit does not stop an occupation after game over', async () => {
+    // C thrwmu() calls thitu() before stop_occupation(); thitu() reaches
+    // losehp() -> done() -> really_done() for a death that is not survived.
+    const cStart = MTHROWU_SOURCE.indexOf('\nthrwmu(struct monst *mtmp)');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* monster spits substance at you', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /thitu\(hitv,[\s\S]*?stop_occupation\(\)/u);
+
+    const state = await hero();
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 2, y,
+        state.u.ux, y, state.mons[PM_STONE_GIANT]);
+    const polearm = mksobj(HALBERD, false, false, { state });
+    add_to_minv(subject, polearm, { state });
+    polearm.owornmask = W_WEP;
+    subject.mw = polearm;
+    subject.weapon_check = NO_WEAPON_WANTED;
+    clearRow(state, state.u.ux, subject.mx, y);
+    setCouldSee(state, subject.mx, y, true);
+
+    let stopped = false;
+    await thrwmu(subject, {
+        state,
+        random: { rn2: () => assert.fail('unexpected rn2'), rnd: () => 1 },
+        message: () => {},
+        swingVerb: () => 'thrusts',
+        hitHero: () => { state.program_state.gameover = true; },
+        stopOccupation: () => { stopped = true; },
+    });
+    assert.equal(stopped, false);
 });
 
 test('breathwep_name follows fixed and hallucinated source tables', async () => {

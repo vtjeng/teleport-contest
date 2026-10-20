@@ -1805,6 +1805,10 @@ export async function thrwmu(monster, rawEnv = {}) {
         } else {
             note_unported('mthrowu.c thitu');
         }
+        // C's fatal losehp() enters really_done() and never reaches
+        // stop_occupation(); JS death handling returns with gameover set.
+        if (state.program_state?.gameover)
+            return 0;
         if (typeof env.stopOccupation === 'function')
             await env.stopOccupation(state, env);
         else
