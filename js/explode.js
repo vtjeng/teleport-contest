@@ -968,7 +968,13 @@ export async function scatter(
                 random,
                 message,
                 losehp: env.losehp ?? losehp,
-                exercise: env.exercise ?? exercise,
+                exercise: env.exercise ?? ((index, increase, subject) =>
+                    exercise(index, increase, subject, random, {
+                        encumberMessage: env.encumberMessage
+                            ?? ((hero) => encumber_msg(hero, {
+                                message: env.planning ? async () => {} : message,
+                            })),
+                    })),
             },
         ));
     const stopOccupation = env.stopOccupation;

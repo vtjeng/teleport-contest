@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_STR,
     LANDMINE,
     PIT,
     ROOM,
@@ -13,6 +14,8 @@ import { runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { PM_GIANT_ANT, PM_TITANOTHERE } from '../js/monsters.js';
+import { mksobj_at } from '../js/obj.js';
+import { ROCK } from '../js/objects.js';
 import {
     blow_up_landmine,
     trapeffect_selector,
@@ -171,3 +174,43 @@ test('blow_up_landmine converts an ordinary-room trap to a visible pit',
         assert.equal(trap.tseen, true);
         assert.deepEqual(env.redraws, [`${x},${y}`, `${x},${y}`]);
     });
+
+test('landmine scatter completes exercise after a rock hits the hero', async () => {
+    await runSegment({
+        seed: 202610204,
+        datetime: '20310415120000',
+        nethackrc: 'OPTIONS=name:MineScatter,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: '.',
+    });
+    const { ux, uy } = game.u;
+    const x = ux, y = uy + 1;
+    game.level.at(x, y).typ = ROOM;
+    game.level.at(ux, uy).typ = ROOM;
+    game.u.uhp = game.u.uhpmax = 100;
+    assert.equal(m_at(x, y, game), null);
+    assert.equal(game.level.objects[x][y], null);
+    const trap = {
+        tx: x, ty: y, ttyp: LANDMINE, tseen: false,
+        madeby_u: false, once: false,
+    };
+    game.level.traps = [trap];
+    const rock = mksobj_at(ROCK, x, y, false, false, { state: game });
+    rock.quan = 1;
+    rock.owt = 10;
+    const random = {
+        rn2: (bound) => bound === 8 ? 2 : 1, // north toward the hero
+        rnd: () => 1,
+        rn1: (_bound, from) => from,
+        d: (count) => count,
+        rne: () => 1,
+        rnl: () => 1,
+    };
+
+    await blow_up_landmine(trap, { state: game, random });
+
+    assert.equal(game.u.uhp, 99);
+    assert.equal(game.u.aexe[A_STR], -1);
+    assert.equal(trap.ttyp, PIT);
+});
