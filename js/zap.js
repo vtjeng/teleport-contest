@@ -3262,10 +3262,9 @@ export async function bhito(obj, wand, state = game,
                             && !nonliving(state.mons?.[corpsenm])) {
                             const name = type_is_pname(state.mons?.[corpsenm])
                                 ? corpseName : an(corpseName, state);
-                            if (!Hallucination(state))
-                                await message(`You hear ${name} reviving.`, state, rawEnv);
-                            else
-                                await message('You hear a defibrillator.', state, rawEnv);
+                            const heard = youHear(!Hallucination(state)
+                                ? `${name} reviving.` : 'a defibrillator.', state);
+                            if (heard) await message(heard, state, rawEnv);
                             learn_it = byHero ? true : Boolean(state.gz?.zap_oseen);
                         }
                         if (canspotmon(monster, state))
