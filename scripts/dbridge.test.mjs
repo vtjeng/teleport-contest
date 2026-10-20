@@ -33,8 +33,9 @@ import {
     open_drawbridge,
 } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
+import { canseemon } from '../js/display.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_NEWT } from '../js/monsters.js';
+import { PM_GIANT_RAT, PM_NEWT } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { ROCK } from '../js/objects.js';
@@ -134,6 +135,42 @@ test('unseen portcullis victim makes a crushing sound', async () => {
         assert.equal(m_at(x, y - 1, game), null,
             'the monster died under the portcullis');
         assert.equal(messages.includes('You hear a crushing sound.'), acoustics,
+            JSON.stringify(messages));
+    }
+});
+
+// dbridge.c:723-728: an unseen creature on the raised bridge splashes into
+// its moat. Its jump succeeds, leaving it on the bridge square.
+test('unseen drawbridge splash respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        await runSegment({
+            seed: 671903,
+            datetime: '20261018120000',
+            nethackrc: 'OPTIONS=name:BridgeSplash,role:Wizard,race:human,gender:male,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n',
+            moves: '',
+        });
+        game.flags.acoustics = acoustics;
+        const x = 66, y = 13;
+        assert.equal(create_drawbridge(x, y, DB_NORTH, true, game), true);
+        const rat = newMonster({ data: game.mons[PM_GIANT_RAT],
+            mx: x, my: y, mhp: 10, mhpmax: 10, m_id: 9302,
+            mcanmove: true });
+        rat.nmon = game.level.monlist;
+        game.level.monlist = rat;
+        place_monster(rat, x, y, game);
+        game.viz_array[y][x] = 0;
+        game.viz_array[y - 1][x] = 0;
+        assert.equal(canseemon(rat, game), false);
+        const messages = [];
+        await close_drawbridge(x, y, game, {
+            message: async (line) => messages.push(line),
+            random: { d, rn1, rn2,
+                rnd: (bound) => bound === 8 ? 8 : 1, rne, rnl, rnz },
+        });
+        assert.equal(Boolean(m_at(x, y, game)), false,
+            'the rat cannot survive the moat under the raised bridge');
+        assert.equal(messages.includes('You hear a splash.'), acoustics,
             JSON.stringify(messages));
     }
 });
