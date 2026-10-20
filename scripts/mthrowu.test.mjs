@@ -64,6 +64,7 @@ import {
     BOW,
     CREAM_PIE,
     EGG,
+    EMERALD,
     HALBERD,
     ORCISH_DAGGER,
     ORCISH_ARROW,
@@ -1357,6 +1358,59 @@ test('a unicorn catches and rejects worthless glass thrown by a monster', async 
     ]);
     assert.equal(glass.where, OBJ_FLOOR);
     assert.equal(state.objects[WORTHLESS_WHITE_GLASS].oc_name_known, 1);
+});
+
+test('a unicorn accepts a real gem thrown by a monster', async () => {
+    const cStart = MTHROWU_SOURCE.indexOf('\nucatchgem(\n');
+    const cEnd = MTHROWU_SOURCE.indexOf('\n/* hero may catch thrown obj', cStart);
+    const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cBody, /You\("accept %s gift in the spirit in which it was intended\."/u);
+
+    const state = await hero();
+    state.u.umonnum = PM_WHITE_UNICORN;
+    state.youmonst.data = state.mons[PM_WHITE_UNICORN];
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
+    const gem = mksobj(EMERALD, false, false, { state });
+    add_to_minv(subject, gem, { state });
+    clearRow(state, state.u.ux, subject.mx, y);
+    const messages = [];
+
+    await m_throw(subject, subject.mx, y, -1, 0, 2, gem, {
+        state,
+        random: { rn2: () => 1 },
+        canSeeMonster: () => true,
+        canSeeSquare: () => true,
+        monsterAt: () => null,
+        objectToGlyph: () => 777,
+        temporaryDisplay: () => {},
+        delayOutput: () => {},
+        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+        observeObject: (obj) => observe_object(obj, state),
+        extractObject: (obj) => obj_extract_self(obj, { state }),
+        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
+        damageValue: () => assert.fail('a caught gem does not roll damage'),
+        hitHero: () => assert.fail('a caught gem does not reach thitu'),
+        stopOccupation: () => assert.fail('a caught gem does not stop occupation'),
+        shouldMulch: () => assert.fail('a caught gem does not settle by flight'),
+        floorEffects: () => false,
+        placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
+        passiveObject: () => assert.fail('a caught gem has no passive hit'),
+        stackObject: () => {},
+        hooks: {
+            message: (line) => { messages.push(line); },
+            updateInventory: () => {},
+            encumberMessage: () => {},
+        },
+        endMulti: () => {},
+        message: (line) => { messages.push(line); },
+    });
+
+    assert.equal(messages[0],
+        "You accept the giant rat's gift in the spirit in which it was intended.");
+    assert.match(messages[1], /^You catch: /u);
+    assert.equal(gem.where, OBJ_INVENT);
 });
 
 test('m_throw stops flight display after a fatal hurled potion', async () => {

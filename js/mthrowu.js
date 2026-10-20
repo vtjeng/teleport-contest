@@ -850,7 +850,9 @@ async function ucatchgem(gem, mon, rawEnv = {}) {
             discover_object(gem.otyp, true, true, true, state);
             await dropy(gem, env);
         } else {
-            note_unported('pline.c pline'); /* You("accept %s gift in the spirit ...") */
+            await (env.message ?? ttyPline)(
+                `You accept ${mon_s_name} gift in the spirit in which it was intended.`,
+                state, env);
             await hold_another_object(gem, 'You catch, but drop, %s.',
                                       gem_xname, 'You catch:', env);
         }
