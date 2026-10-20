@@ -4,7 +4,8 @@ import test from 'node:test';
 import { ACH_TUNE, A_WIS, COLNO, D_CLOSED, D_NODOOR, DB_EAST, DB_NORTH,
     DB_SOUTH, DB_WEST, DBWALL, DEAF, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP,
     FUMBLING, HALF_PHDAM,
-    OBJ_INVENT, PIT, ROOM, ROWNO, SLEEP_RES, STONE, STRAT_WAITMASK,
+    OBJ_DELETED, OBJ_INVENT, PIT, ROOM, ROWNO, SLEEP_RES, STONE,
+    STRAT_WAITMASK,
     TELEDS_TELEPORT, TIMEOUT, TT_PIT, UNCHANGING }
 from '../js/const.js';
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
@@ -20,8 +21,9 @@ import { PM_COCKATRICE, PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
     PM_NEWT, PM_WOOD_NYMPH } from '../js/monsters.js';
 import { BOULDER, CORPSE, DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS,
     WOODEN_FLUTE } from '../js/objects.js';
-import { mksobj, set_corpsenm } from '../js/obj.js';
+import { mksobj, mksobj_at, set_corpsenm } from '../js/obj.js';
 import { addinv, sobj_at } from '../js/invent.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import { setuwep } from '../js/wield.js';
 import { maketrap, set_utrap } from '../js/trap.js';
 import { teleds } from '../js/teleport.js';
@@ -224,6 +226,39 @@ test('do_pit marks its created trap seen and leaves an ordinary empty square', a
     assert.equal(trap?.tseen, 1);
     assert.deepEqual(lines, []);
 });
+
+test('earthquake chasm sends a floor boulder through flooreffects',
+    async () => {
+        // C music.c:do_pit -> obj_extract_self -> do.c:flooreffects.
+        const state = await startedGame();
+        let square = null;
+        for (let x = 2; x < COLNO - 2 && !square; ++x) {
+            for (let y = 2; y < ROWNO - 2 && !square; ++y) {
+                if (state.level.at(x, y).typ === ROOM
+                    && !state.level.monsters[x][y]
+                    && !state.level.objects[x][y]
+                    && !state.level.traps.some(trap => trap.tx === x
+                        && trap.ty === y)
+                    && (x !== state.u.ux || y !== state.u.uy))
+                    square = { x, y };
+            }
+        }
+        assert.ok(square, 'initialized level has a clear non-hero room square');
+        const boulder = mksobj_at(BOULDER, square.x, square.y,
+            false, false, objectGenerationEnv({ state }));
+        assert.equal(sobj_at(BOULDER, square.x, square.y, state), boulder);
+        assert.equal(state.unported.has('do.c flooreffects'), false);
+
+        await do_pit(square.x, square.y, false, state, {
+            message: async () => {},
+        });
+        assert.equal(state.unported.has('do.c flooreffects'), false);
+        assert.equal(boulder.where, OBJ_DELETED);
+        assert.equal(sobj_at(BOULDER, square.x, square.y, state), null);
+        assert.equal(state.level.traps.some(trap => trap.tx === square.x
+            && trap.ty === square.y), false,
+        'the boulder fills the earthquake-made pit');
+    });
 
 test('do_pit completes monster death cleanup after fatal chasm damage', async () => {
     const state = await startedGame();

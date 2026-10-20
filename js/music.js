@@ -21,6 +21,7 @@ import {
 import { cvt_sdoor_to_door } from './detect.js';
 import { newsym } from './display.js';
 import { fillholetyp, liquid_flow } from './dig.js';
+import { flooreffects } from './do.js';
 import { game } from './gstate.js';
 import { losehp } from './hack.js';
 import { dist2, highc, mungspaces } from './hacklib.js';
@@ -36,6 +37,7 @@ import { tamedog } from './dog.js';
 import { m_at } from './monst.js';
 import { seemimic, wakeup, xkilled } from './mon.js';
 import { discover_object } from './o_init.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
 import {
     BOULDER, BUGLE, DRUM_OF_EARTHQUAKE, FIRE_HORN, FROST_HORN, LEATHER_DRUM,
@@ -273,10 +275,17 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
                 ? ' below you' : ''}!`, state);
         }
         if (mtmp) mtmp.mtrapped = false;
-        obj_extract_self(boulder, { ...env, state });
-        // C discards flooreffects()'s return. The partial helper cannot stand
-        // in for its missing branch effects or RNG.
-        note_unported('do.c flooreffects');
+        const objectEnv = objectGenerationEnv({
+            ...env,
+            random,
+            hooks: {
+                recalcBlockPoint: (bx, by, operationEnv) =>
+                    recalc_block_point(bx, by, operationEnv.state),
+                ...env.hooks,
+            },
+        });
+        obj_extract_self(boulder, objectEnv);
+        await flooreffects(boulder, x, y, '', objectEnv);
         return;
     }
 
