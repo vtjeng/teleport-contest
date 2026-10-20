@@ -1486,6 +1486,7 @@ test('a detected invisible spitter has a named dry rattle', async () => {
     const cBody = MTHROWU_SOURCE.slice(cStart, cEnd);
     assert.ok(cStart >= 0 && cEnd > cStart);
     assert.match(cBody, /if \(canspotmon\(mtmp\)\)\s*\{\s*pline\("A dry rattle comes from %s throat\."/u);
+    assert.match(cBody, /You_hear\("a dry rattle nearby\."\)/u);
 
     const state = await hero();
     state.flags.acoustics = true;
@@ -1514,6 +1515,14 @@ test('a detected invisible spitter has a named dry rattle', async () => {
         message: (line) => { messages.push(line); },
     });
     assert.deepEqual(messages, ['You hear a dry rattle nearby.']);
+
+    state.flags.acoustics = false;
+    messages.length = 0;
+    await spitmm(subject, { adtyp: AD_ACID }, state.youmonst, {
+        state,
+        message: (line) => { messages.push(line); },
+    });
+    assert.deepEqual(messages, []);
 });
 
 test('m_throw stops flight display after a fatal hurled potion', async () => {

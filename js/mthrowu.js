@@ -1496,8 +1496,9 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
                     );
             } else {
                 note_unported('sound.c Soundeffect');
-                if (typeof env.message === 'function')
-                    await env.message('You hear a dry rattle nearby.', state);
+                const heard = youHear('a dry rattle nearby.', state);
+                if (heard && typeof env.message === 'function')
+                    await env.message(heard, state);
             }
         }
         return M_ATTK_MISS;
