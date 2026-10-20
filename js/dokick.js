@@ -976,8 +976,16 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
             add_damage(x, y, SHOP_DOOR_COST, state);
             await pay_for_damage('break', false, state);
         }
-        if (in_town(x, y, state))
-            note_unported('mon.c get_iter_mons watchman_thief_arrest');
+        if (in_town(x, y, state)) {
+            await get_iter_mons_async(async (mon) => {
+                if (!is_watch(mon.data) || !mon.mpeaceful
+                    || !couldsee(mon.mx, mon.my, state)) return false;
+                await mon_yells(mon, "Halt, thief!  You're under arrest!",
+                    { state });
+                await angry_guards(false, { state });
+                return true;
+            }, state);
+        }
     } else {
         if (Blind(state)) feel_location(x, y, state);
         await exercise(A_STR, true, state, { rn2 },

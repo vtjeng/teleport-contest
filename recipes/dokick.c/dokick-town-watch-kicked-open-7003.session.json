@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7003,
+      "datetime": "20310417113000",
+      "nethackrc": "OPTIONS=name:WatchDoor7003,role:Wizard,race:dwarf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " \u0016?\n w\u0014  lllllllllllllllllllkkkkk.\u0017blessed kicking boots\nWp\u0004k ",
+      "comment": "Generated Minetown success-arm variation: wish and wear kicking boots after positioning at the in-town locked door. C breaks the door, the peaceful watch captain arrests the hero, and the guard becomes angry."
+    }
+  ]
+}
