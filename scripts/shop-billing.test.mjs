@@ -11,6 +11,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { d, rn1, rnd, rne, rnz } from '../js/rng.js';
 import { bhitm, bhito, create_polymon } from '../js/zap.js';
+import { hero_breaks } from '../js/dothrow.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     PM_GIANT_RAT,
@@ -31,7 +32,7 @@ import { donameFresh } from '../js/objnam.js';
 import {
     BEARTRAP, CRYSKNIFE, DART, DIAMOND, FOOD_RATION, GOLD_PIECE, IRON,
     LONG_SWORD,
-    POT_HEALING, SACK, TALLOW_CANDLE, WORM_TOOTH,
+    POT_HEALING, POT_WATER, SACK, TALLOW_CANDLE, WORM_TOOTH,
     WAN_POLYMORPH, WAN_SPEED_MONSTER, WAND_CLASS,
 } from '../js/objects.js';
 import { pick_obj } from '../js/pickup.js';
@@ -265,6 +266,31 @@ test('polymorph golem charges consumed stock as stolen from outside', async () =
     assert.ok(eshk.robbed > 0);
     assert.equal(keeper.mpeaceful, false);
     assert.equal(eshk.following, true);
+});
+
+test('breaking shop stock from outside settles theft and starts pursuit', async () => {
+    const { state, keeper, eshk, env } = await shop();
+    const { ux: x, uy: y } = state.u;
+    Object.assign(state.level.at(x + 1, y), { typ: ROOM,
+        roomno: ROOMOFFSET, edge: false });
+    const potion = mksobj_at(POT_WATER, x + 1, y, false, false, env);
+    state.u.ux = x + 4;
+    state.u.ushops = [0, 0, 0, 0, 0];
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.hero_seq = 1;
+    eshk.break_seq = 0;
+    clearTtyMessageWindow(state);
+    for (let i = 0; i < 12; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await hero_breaks(potion, x + 1, y, 0, { state });
+
+    assert.equal(eshk.robbed, 5,
+        'make_angry_shk converts the loss into robbery on first breakage');
+    assert.equal(eshk.debit, 0);
+    assert.equal(eshk.break_seq, 1);
+    assert.equal(eshk.following, true);
+    assert.equal(keeper.mpeaceful, false);
 });
 
 test('saleable follows general, class, explicit-item, and vegetarian rows', async () => {

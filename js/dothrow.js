@@ -471,6 +471,7 @@ import {
     inside_shop,
     is_unpaid,
     hot_pursuit,
+    make_angry_shk,
     shop_keeper,
     sellobj,
     stolen_value,
@@ -1800,7 +1801,7 @@ export async function breakobj(
                     && (room !== state.u?.ushops?.[0]
                         || !inside_shop(state.u?.ux, state.u?.uy, state))
                     && heroSeq !== eshk.break_seq) {
-                    note_unported('shk.c make_angry_shk');
+                    await make_angry_shk(keeper, x, y, state, objectEnv);
                 }
                 // C calls make_angry_shk() only on the first breakage of a
                 // hero move, then records this sequence even when no theft
