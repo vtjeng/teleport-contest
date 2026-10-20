@@ -497,6 +497,7 @@ import {
     float_up,
     fill_pit,
     reset_utrap,
+    selftouch,
     t_at,
     uteetering_at_seen_pit,
     trapname,
@@ -2188,7 +2189,7 @@ export async function dosinkfall(state = game) {
             'fell onto a sink', NO_KILLER_PREFIX, state,
         );
         await exercise(A_DEX, false, state);
-        note_unported('polyself.c selftouch');
+        await selftouch('Falling, you', state);
         for (let obj = state.level?.objects?.[u.ux]?.[u.uy] ?? null;
             obj;
             obj = obj.nexthere) {

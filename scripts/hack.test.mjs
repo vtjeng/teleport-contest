@@ -118,7 +118,7 @@ import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_GRID_BUG, PM_HUMAN,
+    M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_COCKATRICE, PM_GRID_BUG, PM_HUMAN,
     PM_LURKER_ABOVE,
     PM_IRON_PIERCER, PM_SOLDIER, PM_XORN,
     S_PIERCER, monst_globals_init,
@@ -129,8 +129,9 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { init_dummyobj, newObject, place_object } from '../js/obj.js';
-import { sobj_at } from '../js/invent.js';
+import { init_dummyobj, mksobj, newObject, place_object, set_corpsenm } from '../js/obj.js';
+import { addinv, sobj_at } from '../js/invent.js';
+import { setuwep } from '../js/wield.js';
 import {
     peek_timer,
     start_timer,
@@ -728,6 +729,39 @@ test('a sink only disturbs active, unblocked levitation', async () => {
     levitationOnly.u.uprops[LEVITATION].intrinsic = 1;
     levitationOnly.level.objects = [];
     await spoteffects(false, levitationOnly);
+});
+
+test('sink levitation fall touches a wielded cockatrice corpse', async () => {
+    // C hack.c:spoteffects -> dosinkfall -> trap.c:selftouch. The fall damage
+    // must be survivable so corpse contact owns the terminal consequence.
+    await runSegment({
+        seed: 2026102021,
+        datetime: '20340819101112',
+        nethackrc: 'OPTIONS=name:SinkTouch,role:Wizard,race:human,gender:male,'
+            + 'align:neutral,!legacy,!tutorial,!splash_screen,pettype:none',
+        moves: '',
+    });
+    const state = game;
+    const { ux, uy } = state.u;
+    state.level.at(ux, uy).typ = SINK;
+    state.u.uprops[LEVITATION].extrinsic = 1;
+    state.u.uhp = state.u.uhpmax = 100;
+    const corpse = mksobj(CORPSE, false, false, { state });
+    set_corpsenm(corpse, PM_COCKATRICE, { state });
+    const wielded = addinv(corpse, { state });
+    await setuwep(wielded, { state });
+    assert.equal(state.uwep, wielded);
+    assert.equal(wielded.where, OBJ_INVENT);
+    state.nhDisplay.onEmptyQueue = () => 32;
+    assert.equal(state.unported.has('polyself.c selftouch'), false);
+
+    await spoteffects(false, state);
+
+    assert.ok(state.u.uhp < 100, 'the sink fall reached its damage branch');
+    assert.equal(state.unported.has('polyself.c selftouch'), false,
+        'the sink fall uses its real selftouch callee');
+    assert.equal(state.program_state.gameover, true);
+    assert.equal(state.killer.name, 'a cockatrice corpse');
 });
 
 test('dosinkfall removes levitation gear and reports it in C order', () => {
