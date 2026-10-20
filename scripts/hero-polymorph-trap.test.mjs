@@ -5,9 +5,10 @@ import test from 'node:test';
 import { ANTIMAGIC, POLY_TRAP, W_ARMC } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { initRng } from '../js/rng.js';
 import { PM_RABID_RAT, PM_WIZARD } from '../js/monsters.js';
 import { CLOAK_OF_MAGIC_RESISTANCE } from '../js/objects.js';
-import { floor_trigger, preflight_dotrap } from '../js/trap_effects.js';
+import { dotrap, floor_trigger, preflight_dotrap } from '../js/trap_effects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/trap.c', 'utf8');
 const JS_SOURCE = readFileSync('js/trap_effects.js', 'utf8');
@@ -83,6 +84,32 @@ test('an independent hero trap activation enters polyself in production', async 
     assert.equal(game.u.uconduct.polyselfs, 1);
     assert.match(game.nhDisplay.topMessage,
         /^You feel a change coming over you\.\s+You turn into a rabid rat!/u);
+});
+
+test('hero polymorph-trap system shock completes Constitution exercise', async () => {
+    await runSegment({
+        seed: 202610205,
+        datetime: '20310415120000',
+        nethackrc: 'OPTIONS=name:PolyShock,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: '.',
+    });
+    game.u.uhp = game.u.uhpmax = 100;
+    const trap = {
+        tx: game.u.ux, ty: game.u.uy, ttyp: POLY_TRAP,
+        tseen: false, madeby_u: false, once: false,
+    };
+    game.level.traps = [trap];
+    game.nhDisplay.terminal._inputQueue.push(...Array(12).fill(32));
+    // rn2(20)=18 exceeds this hero's Constitution; rnd(30)=8 is nonlethal.
+    initRng(4);
+
+    await dotrap(trap, 0, game);
+
+    assert.equal(game.u.uhp, 92);
+    assert.equal(game.level.traps.includes(trap), false);
+    assert.equal(game.u.uconduct.polyselfs, 0);
 });
 
 test('the Wizard starting cloak supplies Antimagic to polymorph traps', async () => {
