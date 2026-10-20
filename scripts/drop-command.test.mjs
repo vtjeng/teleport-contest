@@ -58,7 +58,7 @@ import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     DAGGER, ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
-    BOULDER, CORPSE, RIN_SEARCHING, SPEAR,
+    BOULDER, CORPSE, RIN_ADORNMENT, RIN_CONFLICT, RIN_SEARCHING, SPEAR,
     TWO_HANDED_SWORD, WEAPON_CLASS,
     RUBY, SCROLL_CLASS, SCR_ENCHANT_WEAPON, SCR_BLANK_PAPER,
 } from '../js/objects.js';
@@ -845,6 +845,49 @@ test('drop runs sink-ring effects and permits ordinary sink-floor drops', async 
     assert.equal(await _dropInternals.drop(plain, state), ECMD_TIME);
     assert.equal(plain.where, OBJ_FLOOR);
     assert.ok(pileAt(state, ux, uy).includes(plain));
+});
+
+// C do.c:dosinkring() sends the conflict ring's noise through You_hear().
+// The visible ring effect still identifies the ring when acoustics are off.
+test('dropping a conflict ring in a sink respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        const state = await startedGame();
+        state.level.at(state.u.ux, state.u.uy).typ = SINK;
+        state.flags.acoustics = acoustics;
+        state.objects[RIN_CONFLICT].oc_name_known = true;
+        const ring = mksobj(RIN_CONFLICT, true, false, { state });
+        addinv(ring, { state });
+        for (let index = 0; index < 8; ++index)
+            state.nhDisplay.pushKey(32);
+        assert.equal(await _dropInternals.drop(ring, state), ECMD_TIME);
+        assert.equal(
+            state._ttyToplines,
+            acoustics ? 'You hear loud noises coming from the drain.'
+                : 'You drop a ring of conflict down the drain.',
+        );
+    }
+});
+
+// C do.c:dosinkring() also uses You_hear() for a ring without a perceived
+// effect, including when blindness prevents the visual adornment effect.
+test('an unseen ring bouncing down the drain respects acoustics', async () => {
+    for (const acoustics of [true, false]) {
+        const state = await startedGame();
+        state.level.at(state.u.ux, state.u.uy).typ = SINK;
+        state.u.uprops[BLINDED].intrinsic = 1;
+        state.flags.acoustics = acoustics;
+        state.objects[RIN_ADORNMENT].oc_name_known = true;
+        const ring = mksobj(RIN_ADORNMENT, true, false, { state });
+        addinv(ring, { state });
+        for (let index = 0; index < 8; ++index)
+            state.nhDisplay.pushKey(32);
+        assert.equal(await _dropInternals.drop(ring, state), ECMD_TIME);
+        assert.equal(
+            state._ttyToplines,
+            acoustics ? 'You hear the ring bouncing down the drainpipe.'
+                : 'You drop a ring down the drain.',
+        );
+    }
 });
 
 // C ref: invent.c stackobj() (4366-4375) through merged() (814-948). The

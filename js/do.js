@@ -1377,10 +1377,11 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
     case RIN_SHOCK_RESISTANCE:
         await ttyPline('Static electricity surrounds the sink.', state);
         break;
-    case RIN_CONFLICT:
-        if (!heroIsDeaf(state))
-            await ttyPline('You hear loud noises coming from the drain.', state);
+    case RIN_CONFLICT: {
+        const heard = youHear('loud noises coming from the drain.', state);
+        if (heard) await ttyPline(heard, state);
         break;
+    }
     case RIN_SUSTAIN_ABILITY:
         await ttyPline(`The ${hliquid('water', { state })} flow seems fixed.`, state);
         break;
@@ -1523,8 +1524,9 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
 
     if (ideed) {
         await trycall(obj, state);
-    } else if (!nosink && !heroIsDeaf(state)) {
-        await ttyPline('You hear the ring bouncing down the drainpipe.', state);
+    } else if (!nosink) {
+        const heard = youHear('the ring bouncing down the drainpipe.', state);
+        if (heard) await ttyPline(heard, state);
     }
 
     // C evaluates rn2(20) before checking nosink, so even a successful sink
