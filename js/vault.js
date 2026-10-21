@@ -1241,17 +1241,26 @@ export async function invault(state, env = {}) {
         }
     } else {
         if (Deaf(state)) {
-            throw new UnsupportedVaultGuardError(
-                'invault() deaf guard response when hero carries gold',
+            if (!umoney) {
+                throw new UnsupportedVaultGuardError(
+                    'invault() deaf guard response to hidden gold',
+                );
+            }
+            if (!Blind(state)) {
+                const possessive = noit_mhis(guard, { state });
+                await message(
+                    `${noit_Monnam(guard, state)} holds out ${possessive} palm and beckons with ${possessive} other hand.`,
+                );
+            }
+        } else {
+            if (!umoney) {
+                await message('"You have hidden gold."');
+            }
+            await message(
+                '"Most likely all your gold was stolen from this vault."',
             );
+            await message('"Please drop that gold and follow me."');
         }
-        if (!umoney) {
-            await message('"You have hidden gold."');
-        }
-        await message(
-            '"Most likely all your gold was stolen from this vault."',
-        );
-        await message('"Please drop that gold and follow me."');
         EGD(guard).dropgoldcnt++;
     }
     EGD(guard).gdx = gdx;
