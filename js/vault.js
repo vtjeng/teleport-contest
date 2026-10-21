@@ -590,10 +590,18 @@ export async function gd_move(grd, env = {}) {
         return -1; // teleported guard — treat as normal monster
 
     if (egrd.witness) {
-        // Guard witnessed hero consuming or destroying gold
-        throw new UnsupportedVaultGuardError(
-            'gd_move() guard witnessed gold consumption/destruction',
-        );
+        // C ref: vault.c:933-944. The guard reacts before the ordinary
+        // pursuit path; clear the observation so it is announced once.
+        if (!Deaf(state)) {
+            set_voice(grd, 0, 80, 0, state);
+            await verbalize(
+                `How dare you ${egrd.witness & GD_EATGOLD ? 'consume' : 'destroy'} that gold, scoundrel!`,
+                state, { message },
+            );
+        }
+        egrd.witness = 0;
+        grd.mpeaceful = 0;
+        return -1;
     }
 
     const umoney = money_cnt(state.invent);
