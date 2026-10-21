@@ -155,6 +155,7 @@ import {
     TRAPNUM,
     TT_BEARTRAP,
     TT_BURIEDBALL,
+    TT_LAVA,
     TT_PIT,
     TT_WEB,
     Upolyd,
@@ -4073,7 +4074,8 @@ async function domove_fight_empty(x, y, state) {
 }
 
 // C ref: hack.c trapmove() (1549-1691), the TT_PIT arm (1580-1586), the
-// TT_BEARTRAP arm (1565-1579) and the wriggle_free label (1671-1680). TRUE
+// TT_LAVA arm (1612-1632), the TT_BEARTRAP arm (1565-1579) and the
+// wriggle_free label (1671-1680). TRUE
 // means the hero may go on to test_move(); FALSE means the step is spent
 // trying to escape and the turn still passes.
 //
@@ -4083,8 +4085,8 @@ async function domove_fight_empty(x, y, state) {
 // no random number at all.
 //
 // TT_PIT now delegates to trap.c:climb_pit(), except for the adjacent visible
-// pit that C permits the hero to enter. The remaining unported arms are
-// TT_LAVA and TT_INFLOOR. The buried-ball arm below preserves the
+// pit that C permits the hero to enter. The remaining unported arm is
+// TT_INFLOOR. The buried-ball arm below preserves the
 // shared wriggle_free label's anchored message and punishment restoration.
 async function trapmove(x, y, desttrap, state = game) {
     const u = state.u;
@@ -4116,6 +4118,25 @@ async function trapmove(x, y, desttrap, state = game) {
                 ? `${upstart(y_monnam(u.usteed, state))} breaks out of the web.`
                 : 'You disentangle yourself.', state);
         }
+        return false;
+    }
+    if (u.utraptype === TT_LAVA) {
+        const steedname = u.usteed ? y_monnam(u.usteed, state) : null;
+        if (state.flags.verbose)
+            await ttyNorep(steedname
+                ? `${upstart(steedname)} is stuck in the lava.`
+                : 'You are stuck in the lava.', state);
+        if (!is_lava(x, y, state)) {
+            --u.utrap;
+            if ((u.utrap & 0xff) === 0) {
+                u.utrap = 0;
+                const liquid = hliquid('lava', { state });
+                await ttyPline(steedname
+                    ? `You lead ${steedname} to the edge of the ${liquid}.`
+                    : `You pull yourself to the edge of the ${liquid}.`, state);
+            }
+        }
+        u.umoved = true;
         return false;
     }
     // C ref: hack.c:1632-1680, only the anchored TT_BURIEDBALL arm.
