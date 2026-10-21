@@ -1,0 +1,1 @@
+{"version":5,"segments":[{"seed":7000042,"datetime":"20310203040506","nethackrc":"OPTIONS=name:RoomRun,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=mention_walls\n","moves":" L"}],"comment":"C-first probe of lookaround blocked-path message during an eastward room run."}

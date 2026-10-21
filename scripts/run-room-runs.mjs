@@ -141,9 +141,8 @@ const MORE_CASES = [
         moves: ' H',
     },
     {
-        // flags.mention_walls on. lookaround()'s door and monster messages
-        // are refused rather than printed, so this pins that an ordinary
-        // room run never reaches either.
+        // flags.mention_walls on. This ordinary room run never reaches
+        // lookaround()'s door or monster messages.
         seed: 6000003,
         role: 'Healer', race: 'gnome', gender: 'male', align: 'neutral',
         options: 'mention_walls',

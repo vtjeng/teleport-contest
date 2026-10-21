@@ -2191,12 +2191,11 @@ test('lookaround widens a corridor only at run 2, and says so', async () => {
     assert.equal(running._ttyToplines, undefined);
 });
 
-test('lookaround refuses the blocked-path message rather than inventing it',
+test('lookaround prints the blocked-path message with mention_walls',
     async () => {
     // hack.c:3933-3939 prints "%s blocks your path." through a_monnam(),
-    // which has no ported owner, so the port converts the arm into a
-    // fail-closed boundary. The arm needs svc.context.run != 1, which is why
-    // no run matrix reaches it even with the option on.
+    // which now has a ported owner. The arm needs svc.context.run != 1 or a
+    // monster directly in front of the hero.
     const state = runState({ context: { run: 3, travel: 0, travel1: 0, mv: 1,
         move: 1 } });
     state.flags.mention_walls = true;
@@ -2207,10 +2206,9 @@ test('lookaround refuses the blocked-path message rather than inventing it',
         mpeaceful: 0, mtame: 0, data: {},
     };
 
-    await assert.rejects(
-        () => lookaround(state),
-        /a blocked-path message/u,
-    );
+    await lookaround(state);
+    assert.match(state._ttyToplines, /blocks your path\./u);
+    assert.equal(state.context.run, 0);
 });
 
 test('lookaround marks noturn when two corridor squares are not adjacent',

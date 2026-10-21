@@ -4852,11 +4852,10 @@ export async function lookaround(state = game) {
                 if ((state.context.run !== 1 && !is_safemon(mtmp, state))
                     || (infront && !state.context.travel)) {
                     if (state.flags?.mention_walls) {
-                        // "%s blocks your path." needs a_monnam(), which has
-                        // no ported owner.
-                        throw new UnsupportedHeroMoveBoundaryError(
-                            'a blocked-path message',
-                        );
+                        await ttyPline(messageAt(
+                            `${upstart(a_monnam(mtmp, { state }))} blocks your path.`,
+                            x, y, state,
+                        ), state);
                     }
                     return LOOKAROUND_STOP;
                 }
