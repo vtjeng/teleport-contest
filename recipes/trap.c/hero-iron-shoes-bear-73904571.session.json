@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first hero bear-trap witness. A stock debug-mode game wishes iron shoes, wears them, wishes a trapped bear trap on an open room square, steps away, then walks back into it. The first C-only setup attempt used inventory letter p, but this Wizard receives the shoes at n; this recipe corrects that input without changing the chosen seed or source question.",
+  "segments": [
+    {
+      "seed": 73904571,
+      "datetime": "20461021123456",
+      "nethackrc": "OPTIONS=name:IronBear739,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017iron shoes\nWnlj\u0017trapped bear trap\nkj "
+    }
+  ]
+}

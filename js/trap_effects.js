@@ -1194,10 +1194,8 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
 // monster arm (1525-1558), both ported.
 //
 // The mounted hero branch names the steed with s_suffix(mon_nam()) and
-// mbodypart(), then applies the entry roll through thitm(). It is handled
-// here; only the iron-shoes line at 1517-1518 remains refused by
-// preflight_dotrap() because it needs Yname2(). `dmg` is rolled before either
-// branch at C's position, whether or not that branch spends it.
+// mbodypart(), then applies the entry roll through thitm(). `dmg` is rolled
+// before either branch at C's position, whether or not that branch spends it.
 //
 // The monster arm's own d(2, 4) sits where C spends it, after the catch
 // message rather than before: the hero arm's roll leads its messages and this
@@ -1331,15 +1329,20 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
     );
     if (state.u.umonnum === PM_OWLBEAR || state.u.umonnum === PM_BUGBEAR)
         await message('You howl in anger!', state, env);
-    // C ref: trap.c:1520. rn2(2) picks the leg and rn1(10, 10) the recovery
-    // time; hack.c weight_cap() reads the side bits and timeout.c nh_timeout()
-    // counts the time down.
-    await set_wounded_legs(
-        random.rn2(2) ? RIGHT_SIDE : LEFT_SIDE,
-        random.rn1(10, 10),
-        state,
-    );
-    await losehp(Maybe_Half_Phys(dmg, state), 'bear trap', KILLED_BY_AN, state);
+    if (wearing_iron_shoes(mtmp, state)) {
+        await message(`${Yname2(state.uarmf, state)} protects your leg.`,
+            state, env);
+    } else {
+        // C ref: trap.c:1520. rn2(2) picks the leg and rn1(10, 10) the
+        // recovery time; hack.c weight_cap() reads the side bits.
+        await set_wounded_legs(
+            random.rn2(2) ? RIGHT_SIDE : LEFT_SIDE,
+            random.rn1(10, 10),
+            state,
+        );
+        await losehp(Maybe_Half_Phys(dmg, state), 'bear trap', KILLED_BY_AN,
+            state);
+    }
     await exercise(A_DEX, false, state, random);
     return Trap_Effect_Finished;
 }
@@ -4071,7 +4074,6 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     directly in their source effects and admit a mounted hero too;
 //     ROCKTRAP still targets the hero, ANTI_MAGIC acts directly on them, and
 //     VIBRATING_SQUARE calls feeltrap() for the hero;
-//   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
     if (trap.ttyp !== ARROW_TRAP && trap.ttyp !== BEAR_TRAP
@@ -4138,16 +4140,9 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== LEVEL_TELEP
         && trap.ttyp !== MAGIC_PORTAL
         && !pitTrap) {
-        // trap.c:1517-1518 still needs Yname2(); the bear-trap mounted arm is
-        // ported above and no longer reaches this refusal.
+        // These mounted effects still need their source-specific steed arm.
         throw new UnsupportedHeroMoveBoundaryError(
             'a steed in a trap',
-        );
-    }
-    if (!state.u.usteed && trap.ttyp === BEAR_TRAP
-        && wearing_iron_shoes(state.youmonst, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'iron shoes in a bear trap',
         );
     }
 }

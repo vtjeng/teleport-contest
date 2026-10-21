@@ -36,7 +36,6 @@ import { INTERNALCMD, extcmdlist } from '../js/extcmdlist_data.js';
 import {
     ALTAR,
     Align2amask,
-    BEAR_TRAP,
     COLNO,
     CORR,
     CQ_CANNED,
@@ -52,6 +51,7 @@ import {
     D_TRAPPED,
     DOOR,
     FAST,
+    FIRE_TRAP,
     FOUNTAIN,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -95,7 +95,6 @@ import {
     BLCORNER,
     BRCORNER,
     VWALL,
-    W_ARMF,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
@@ -106,13 +105,11 @@ import {
 import {
     BOULDER,
     CORPSE,
-    ARMOR_CLASS,
     AMULET_CLASS,
     FAKE_AMULET_OF_YENDOR,
     DAGGER,
     DART,
     FOOD_CLASS,
-    IRON_SHOES,
     objects_globals_init,
     PICK_AXE,
     BAG_OF_TRICKS,
@@ -1234,20 +1231,15 @@ test('simple hero movement rejects spot effects before mutation', async () => {
         // pickup(1) has already described what is on it; refusing there would
         // land after both.
         {
-            // trap.c:1517-1518 answers iron shoes with Yname2(uarmf).
-            name: 'bear trap under iron shoes',
-            reason: 'iron shoes in a bear trap',
+            // trap.c's seen fire-trap escape branch needs trapname().
+            name: 'seen fire trap',
+            reason: 'a trap the hero has already seen',
             setup: ({ x, y }) => {
                 installFloorPile(x, y);
+                game.flags.paranoia_bits &= ~PARANOID_TRAP;
                 game.level.traps.push({
-                    tx: x, ty: y, ttyp: BEAR_TRAP, tseen: false,
+                    tx: x, ty: y, ttyp: FIRE_TRAP, tseen: true,
                 });
-                // IRON_SHOES is the one boot type objects.c gives oc_material
-                // IRON, which is the whole of wearing_iron_shoes()'s test.
-                game.uarmf = {
-                    o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
-                    quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
-                };
             },
         },
     ];
@@ -1976,7 +1968,7 @@ test('unsupported movement retains its byte ahead of the next command',
         resetCommandVars(game);
         const start = [game.u.ux, game.u.uy];
         const east = game.level.at(start[0] + 1, start[1]);
-        // Iron shoes require an unsupported naming branch on a bear trap;
+        // The seen-trap escape branch is still refused before mutation;
         // this keeps the queued-byte assertion independent of terrain.
         east.typ = ROOM;
         east.flags = east.doormask = 0;
@@ -1986,13 +1978,10 @@ test('unsupported movement retains its byte ahead of the next command',
         game.level.traps = [{
             tx: start[0] + 1,
             ty: start[1],
-            ttyp: BEAR_TRAP,
-            tseen: false,
+            ttyp: FIRE_TRAP,
+            tseen: true,
         }];
-        game.uarmf = {
-            o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
-            quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
-        };
+        game.flags.paranoia_bits &= ~PARANOID_TRAP;
         game.level.regions = [];
         game.head_engr = null;
         game.nhDisplay.pushKey(commandKeyCode('l'));
@@ -2003,7 +1992,7 @@ test('unsupported movement retains its byte ahead of the next command',
                 moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'iron shoes in a bear trap'
+                    && error.reason === 'a trap the hero has already seen'
                 ),
             );
             assert.equal(
@@ -2050,7 +2039,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     const x = start[0] + 1;
     const y = start[1];
     const east = game.level.at(x, y);
-    // An iron-shoes bear trap is refused after the reqmenu prefix is parsed;
+    // A seen fire trap is refused after the reqmenu prefix is parsed;
     // this pins retry ownership without treating ICE as blocked terrain.
     east.typ = ROOM;
     east.flags = east.doormask = 0;
@@ -2060,13 +2049,10 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     game.level.traps = [{
         tx: x,
         ty: y,
-        ttyp: BEAR_TRAP,
-        tseen: false,
+        ttyp: FIRE_TRAP,
+        tseen: true,
     }];
-    game.uarmf = {
-        o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
-        quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
-    };
+    game.flags.paranoia_bits &= ~PARANOID_TRAP;
     game.level.regions = [];
     game.head_engr = null;
     game.nhDisplay.pushKey(commandKeyCode('m'));
@@ -2079,7 +2065,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'iron shoes in a bear trap'
+                && error.reason === 'a trap the hero has already seen'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
@@ -4921,19 +4907,16 @@ test('the run loop leaves a class outside the refusal list as it found it',
         // breaks the segment on it directly -- so the seam's own refusal has
         // to arrive with its own type, reason and message.
         const { first, second } = await prepareRunPastTheFirstStep();
-        // An iron-shoes bear trap reaches the named trap boundary after the run's
+        // A seen fire trap reaches the named trap boundary after the run's
         // first step, exercising the same unconverted error class without
         // relying on the now-supported ICE arrival path.
         game.level.traps = [{
             tx: second[0],
             ty: second[1],
-            ttyp: BEAR_TRAP,
-            tseen: false,
+            ttyp: FIRE_TRAP,
+            tseen: true,
         }];
-        game.uarmf = {
-            o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
-            quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
-        };
+        game.flags.paranoia_bits &= ~PARANOID_TRAP;
         await takeFirstRunStep(first);
 
         await assert.rejects(
@@ -4943,7 +4926,7 @@ test('the run loop leaves a class outside the refusal list as it found it',
                     error instanceof UnsupportedHeroMoveBoundaryError,
                     `${error.constructor.name} is not a hero move boundary`,
                 );
-                assert.equal(error.reason, 'iron shoes in a bear trap');
+                assert.equal(error.reason, 'a trap the hero has already seen');
                 return true;
             },
         );
