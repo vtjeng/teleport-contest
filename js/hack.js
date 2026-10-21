@@ -155,6 +155,7 @@ import {
     TRAPNUM,
     TT_BEARTRAP,
     TT_BURIEDBALL,
+    TT_INFLOOR,
     TT_LAVA,
     TT_PIT,
     TT_WEB,
@@ -4086,8 +4087,8 @@ async function domove_fight_empty(x, y, state) {
 //
 // TT_PIT now delegates to trap.c:climb_pit(), except for the adjacent visible
 // pit that C permits the hero to enter. The remaining unported arm is
-// TT_INFLOOR. The buried-ball arm below preserves the
-// shared wriggle_free label's anchored message and punishment restoration.
+// The buried-ball and solidified-floor arms below share C's wriggle_free
+// label, with punishment restoration only for the anchored ball.
 async function trapmove(x, y, desttrap, state = game) {
     const u = state.u;
 
@@ -4139,25 +4140,39 @@ async function trapmove(x, y, desttrap, state = game) {
         u.umoved = true;
         return false;
     }
-    // C ref: hack.c:1632-1680, only the anchored TT_BURIEDBALL arm.
-    if (u.utraptype === TT_BURIEDBALL) {
-        const cc = { x: u.ux, y: u.uy };
-        if (buried_ball(cc, state) && dist2(x, y, cc.x, cc.y) <= 2) {
-            if (state.flags.verbose)
-                await ttyNorep("You move within the chain's reach.", state);
-            return true;
-        }
+    // C ref: hack.c:1632-1680. Solidified floor and the buried ball share
+    // the countdown, but only the ball permits a step inside its tether.
+    if (u.utraptype === TT_INFLOOR || u.utraptype === TT_BURIEDBALL) {
+        const anchored = u.utraptype === TT_BURIEDBALL;
         const steedname = u.usteed ? y_monnam(u.usteed, state) : null;
+        if (anchored) {
+            const cc = { x: u.ux, y: u.uy };
+            if (buried_ball(cc, state) && dist2(x, y, cc.x, cc.y) <= 2) {
+                if (state.flags.verbose)
+                    await ttyNorep("You move within the chain's reach.", state);
+                return true;
+            }
+        }
         if (--u.utrap) {
-            if (state.flags.verbose)
-                await ttyNorep(steedname
-                    ? `You and ${steedname} are chained to the buried ball.`
-                    : 'You are chained to the buried ball.', state);
+            if (state.flags.verbose) {
+                const culprit = anchored ? 'buried ball' : surface(u.ux, u.uy, state);
+                await ttyNorep(anchored
+                    ? steedname
+                        ? `You and ${steedname} are chained to the ${culprit}.`
+                        : `You are chained to the ${culprit}.`
+                    : steedname
+                        ? `${upstart(steedname)} is stuck in the ${culprit}.`
+                        : `You are stuck in the ${culprit}.`, state);
+            }
         } else {
-            await ttyPline(steedname
-                ? `${upstart(steedname)} finally wrenches the ball free.`
-                : 'You finally wrench the ball free.', state);
-            await buried_ball_to_punishment(state);
+            await ttyPline(anchored
+                ? steedname
+                    ? `${upstart(steedname)} finally wrenches the ball free.`
+                    : 'You finally wrench the ball free.'
+                : steedname
+                    ? `${upstart(steedname)} finally lurches free.`
+                    : 'You finally wriggle free.', state);
+            if (anchored) await buried_ball_to_punishment(state);
         }
         return false;
     }
