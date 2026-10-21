@@ -34,6 +34,7 @@ import {
     MM_NOMSG,
     RLOC_ERR,
     RLOC_MSG,
+    RLOC_NOMSG,
     ROOM,
     ROOMOFFSET,
     ROWNO,
@@ -64,7 +65,7 @@ import { PM_CROESUS, PM_GUARD } from './monsters.js';
 import {
     m_at, mon_track_clear, place_monster, remove_monster,
 } from './monst.js';
-import { m_carrying, m_into_limbo, mongone, mpickgold } from './mon.js';
+import { m_carrying, m_into_limbo, mnexto, mongone, mpickgold } from './mon.js';
 import {
     capitalizedAlwaysVisibleMonsterName,
     alwaysVisibleMonsterName,
@@ -632,13 +633,19 @@ export async function gd_move(grd, env = {}) {
                 const m = grd.mx;
                 const n = grd.my;
                 if (!Deaf(state)) {
-                    await message('"You\'ve been warned, knave!"', state, gdEnv);
+                    set_voice(grd, 0, 80, 0, state);
+                    await verbalize('You\'ve been warned, knave!',
+                        state, { message });
                 }
                 grd.mpeaceful = 0;
-                // mnexto is not exercised here; throw on the hostile path
-                throw new UnsupportedVaultGuardError(
-                    'gd_move() guard turns hostile at warncnt 7',
-                );
+                await mnexto(grd, RLOC_NOMSG, { ...env, state });
+                const entry = state.level.at(m, n);
+                entry.typ = egrd.fakecorr[0].ftyp;
+                entry.flags = egrd.fakecorr[0].flags;
+                recalc_block_point(m, n, state);
+                del_engr_at(m, n, state);
+                newsym(m, n);
+                return -1;
             }
             // Don't count warnings when hero is fainted or paralyzed
             if (state.multi >= 0
