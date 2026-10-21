@@ -674,13 +674,16 @@ test('force-fight routes digging tools to use_pick_axe2 and installs its occupat
     assert.equal(target(bars).typ, IRONBARS);
 
     // hack.c domove_fight_web() (2018-2113), which runs second. Only a seen
-    // web selects it.
+    // web selects it. This hero's spear cannot cut the web, so the
+    // force-fight spends a turn and leaves the trap in place.
     const web = await heroInARoom();
     targetTerrain(web, ROOM);
     web.level.traps.push({
         tx: web.u.ux + WEST[0], ty: web.u.uy + WEST[1], ttyp: WEB, tseen: 1,
     });
-    await refusedWest(web, /spider web/u);
+    await forceFightWest(web);
+    assert.equal(toplines(web), "You can't cut a web with a spear!");
+    assert.equal(web.level.traps.length, 1);
 
     // hack.c:2245 and 2327-2333. A polymorphed hero with an AT_EXPL attack
     // explodes at the square instead of swinging at it.
