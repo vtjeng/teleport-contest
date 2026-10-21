@@ -1227,18 +1227,24 @@ export async function invault(state, env = {}) {
     }
 
     if (Deaf(state)) {
-        throw new UnsupportedVaultGuardError(
-            'invault() deaf hero name response',
-        );
+        await message(`${noit_Monnam(guard, state)} doesn't ${Blind(state) ? '' : 'appear to '}recognize you.`);
+    } else {
+        await message('"I don\'t know you."');
     }
-    // "I don't know you."
-    await message('"I don\'t know you."');
 
     const umoney = money_cnt(state.invent);
     if (!umoney && !hidden_gold(true, state)) {
-        // No gold — "Please follow me."
-        await message('"Please follow me."');
+        if (Deaf(state)) {
+            await message(`${noit_Monnam(guard, state)} stomps${Blind(state) ? '' : ' and beckons'}.`);
+        } else {
+            await message('"Please follow me."');
+        }
     } else {
+        if (Deaf(state)) {
+            throw new UnsupportedVaultGuardError(
+                'invault() deaf guard response when hero carries gold',
+            );
+        }
         if (!umoney) {
             await message('"You have hidden gold."');
         }

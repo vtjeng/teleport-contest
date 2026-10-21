@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent vault.c:invault witness: a permanently deaf hero gives their name to the naturally summoned guard and sees the guard fail to recognize them, then beckon.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021191000",
+      "nethackrc": "OPTIONS=name:VaultDeafName,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n\nOPTIONS=permadeaf\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........zn.  ..................... VaultDeafName\n "
+    }
+  ]
+}
