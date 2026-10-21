@@ -2122,7 +2122,10 @@ export async function expels(mtmp, rawEnv = {}) {
             await message('You get regurgitated!', state, rawEnv);
         } else if (enfolds(mdat)) {
             await message(
-                `${Monnam(mtmp, state, rawEnv)} unfolds and you are released!`,
+                messageAt(
+                    `${Monnam(mtmp, state, rawEnv)} unfolds and you are released!`,
+                    mtmp.mx, mtmp.my, state,
+                ),
                 state,
                 rawEnv,
             );
