@@ -589,7 +589,8 @@ export async function castmu(
             } else {
                 target = ' at you';
             }
-            await message(`${casterName} casts a spell${target}!`, state);
+            await message(messageAt(`${casterName} casts a spell${target}!`,
+                mtmp.mx, mtmp.my, state), state);
         }
     }
 
