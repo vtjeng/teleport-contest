@@ -3201,12 +3201,11 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 const originalDamage = draw('d', 2, 6);
                 let damage = originalDamage;
                 const level = monster.m_lev;
-                await message(
+                await message(messageAt(
                     `${Monnam(monster, state, env)} attacks you`
                     + ' with a fiery gaze!',
-                    state,
-                    env,
-                );
+                    monster.mx, monster.my, state,
+                ), state, env);
                 await mattackuStopOccupation(env);
                 if (Fire_resistance(state)) {
                     await shieldeff(state.u.ux, state.u.uy, state);
