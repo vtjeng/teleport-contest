@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mon.c:vamp_stone witness. A debug Wizard wishes for and wears leather gloves, wields a cockatrice corpse, creates a shifted vampire lord which appears as a bat, then strikes it southeast. C retains the bat glyph during the lapidifying message-window acknowledgement before newcham changes it back to a lord.",
+  "segments": [
+    {
+      "seed": 7770012,
+      "datetime": "20271016101500",
+      "nethackrc": "OPTIONS=name:VampStone,role:Wizard,race:human,gender=male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017pair of leather gloves\nWo\u0017cockatrice corpse\nwp\u0007vampire lord\nn n n "
+    }
+  ]
+}

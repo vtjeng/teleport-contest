@@ -197,6 +197,7 @@ import {
     unmap_object,
 } from './display.js';
 import {
+    Amonnam,
     a_monnam,
     capitalizedMonsterName,
     free_mgivenname,
@@ -707,7 +708,7 @@ import {
     Flying,
     Levitation,
 } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import {
@@ -6437,16 +6438,17 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                     state,
                     env,
                 );
-                // C flushes the message window here. It has no game-state
-                // return value and its window owner is not ported.
-                note_unported('windows.c display_nhwindow');
+                if (state === game)
+                    await displayPendingTtyMessageWindow(state);
+                else
+                    note_unported('windows.c display_nhwindow');
             }
             await newcham(mtmp, state.mons[mndx], { ...env, state });
             mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
             if (canspotmon(mtmp, state)) {
                 await message(
                     messageAt(
-                        `${Monnam(mtmp, state)} rises from the `
+                        `${Amonnam(mtmp, { ...env, state })} rises from the `
                             + `${surface(mtmp.mx, mtmp.my, state)} with renewed agility!`,
                         mtmp.mx,
                         mtmp.my,
