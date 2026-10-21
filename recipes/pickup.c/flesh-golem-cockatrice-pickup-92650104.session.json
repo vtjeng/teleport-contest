@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92650104,
+      "datetime": "20761111124000",
+      "nethackrc": "OPTIONS=name:WishSafety,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " #polyself\nflesh golem\n\u0017cockatrice corpse\n,b\n "
+    }
+  ],
+  "comment": "C-first production pickup probe: debug Wizard becomes a flesh golem, wishes a cockatrice corpse onto the floor, then picks it up bare-handed to reach pickup.c fatal_corpse_mistake stone-golem recovery and its message wait."
+}

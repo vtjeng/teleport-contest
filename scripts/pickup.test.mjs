@@ -1865,7 +1865,7 @@ test('pickup handles fatal and reviving Rider corpses',
         assert.equal(await pickup(0, recovering), 1);
         assert.equal(recovering.youmonst.data.pmidx, PM_STONE_GOLEM);
         assert.equal(secondCockatrice.where, OBJ_INVENT);
-        assert.ok(recovering.unported.has('windows.c display_nhwindow'));
+        assert.equal(recovering.unported.has('windows.c display_nhwindow'), false);
 
         // The same corpse under gloves is the st_gloves term of the live
         // path, and the pickup goes through.

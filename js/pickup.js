@@ -277,7 +277,8 @@ import {
     uteetering_at_seen_pit,
 } from './trap.js';
 import {
-    clearTtyMessageWindow, ttyNorep, ttyPline, ttyUrgentPline,
+    clearTtyMessageWindow, displayPendingTtyMessageWindow,
+    ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
 import {
     add_menu, add_menu_heading, getlin, select_menu,
@@ -561,14 +562,14 @@ export function u_safe_from_fatal_corpse(obj, tests, state = game) {
     );
 }
 
-// C ref: pickup.c fatal_corpse_mistake() (284-299). The terminal wait after
-// a stone-golem recovery remains a named gap; ordinary fatal touch uses the
-// existing trap.c instapetrify() implementation before returning TRUE.
+// C ref: pickup.c fatal_corpse_mistake() (284-299). A stone-golem recovery
+// displays its message window before pickup continues; ordinary fatal touch
+// uses trap.c instapetrify() before returning TRUE.
 async function fatal_corpse_mistake(obj, remotely, state) {
     if (u_safe_from_fatal_corpse(obj, st_all, state) || remotely) return false;
     if (poly_when_stoned(state.youmonst?.data, state)
         && await polymon(PM_STONE_GOLEM, state)) {
-        note_unported('windows.c display_nhwindow');
+        await displayPendingTtyMessageWindow(state);
         return false;
     }
     await ttyPline(
@@ -1361,8 +1362,8 @@ export function preflight_projected_random_arrival_pickup(state) {
 // pickup_prinv() run at their source sites.
 //
 // The uchain, engulfed worn-item, artifact, corpse, scare-scroll, and ghostly
-// object arms all run here in C's order. Only discarded impossible(),
-// display_nhwindow(), and instapetrify() operations remain named gaps.
+// object arms all run here in C's order. Discarded impossible() diagnostics
+// remain named gaps; fatal stoning runs through trap.c instapetrify().
 export async function pickup_object(
     obj, count, telekinesis, rawEnv = {}, plan = null,
 ) {
