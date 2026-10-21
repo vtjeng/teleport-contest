@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mounted statue-trap probe. A stock debug Knight force-mounts the adjacent pony, wishes a statue trap on room floor, steps south, then returns north while mounted.",
+  "segments": [
+    {
+      "seed": 73905113,
+      "datetime": "20461021151412",
+      "nethackrc": "OPTIONS=name:StatueRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#ride\nuy\u0017statue trap\njk"
+    }
+  ]
+}
