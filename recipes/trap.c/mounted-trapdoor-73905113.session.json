@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mounted trapdoor probe. A stock debug Knight force-mounts the adjacent pony, wishes a trap door on ordinary room floor, steps south, then returns north and descends while mounted. The hidden trap door opens immediately and the rider falls to level 2.",
+  "segments": [
+    {
+      "seed": 73905113,
+      "datetime": "20461021151412",
+      "nethackrc": "OPTIONS=name:DoorRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#ride\nuy\u0017trap door\njk "
+    }
+  ]
+}

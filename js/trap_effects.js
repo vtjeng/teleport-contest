@@ -4070,8 +4070,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     dotrap() before its own source-backed effect;
 //   a mounted hero where the effect has no corresponding source arm --
 //     steedintrap() handles the arrow, dart, gas, magic, polymorph,
-//     landmine and pit arms; TELEP_TRAP, LEVEL_TELEP and MAGIC_PORTAL target
-//     the hero directly in their source effects and admit a mounted hero too;
+//     landmine and pit arms; TELEP_TRAP, LEVEL_TELEP, MAGIC_PORTAL, HOLE and
+//     TRAPDOOR target the hero directly in their source effects too;
 //     ROCKTRAP, FIRE_TRAP, RUST_TRAP, ROLLING_BOULDER_TRAP and STATUE_TRAP
 //     still target the hero, ANTI_MAGIC acts directly on them, and
 //     VIBRATING_SQUARE calls feeltrap() for the hero;
@@ -4145,7 +4145,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LEVEL_TELEP
         && trap.ttyp !== MAGIC_PORTAL
-        && !pitTrap) {
+        && !pitTrap && !is_hole(trap.ttyp)) {
         // These mounted effects still need their source-specific steed arm.
         throw new UnsupportedHeroMoveBoundaryError(
             'a steed in a trap',

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mounted hole probe. A stock debug Knight force-mounts the adjacent pony, wishes a hole on ordinary room floor, steps south, then returns north while mounted. The visible hole asks for confirmation before the rider falls to level 2.",
+  "segments": [
+    {
+      "seed": 73905113,
+      "datetime": "20461021151412",
+      "nethackrc": "OPTIONS=name:HoleRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#ride\nuy\u0017hole\njky "
+    }
+  ]
+}
