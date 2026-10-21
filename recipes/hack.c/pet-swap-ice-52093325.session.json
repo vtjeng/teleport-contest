@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52093325,
+      "datetime": "20481013122536",
+      "nethackrc": "OPTIONS=name:PetSwapIceProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017ice\nh...l"
+    }
+  ],
+  "comment": "C-first Knight wishes ice onto its room-floor square, steps back, waits for the starting pony to move onto that ice, then displaces the pony. The wish sets ICE at the later destination and C completes the swap."
+}
