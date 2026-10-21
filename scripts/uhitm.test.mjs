@@ -49,7 +49,6 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
-    UnsupportedHeroMoveBoundaryError,
     You_can_move_again,
 } from '../js/hack.js';
 import { poisoned as applyPoison } from '../js/attrib.js';
@@ -550,9 +549,10 @@ test('pet swap picks up an unused scare scroll after the successful swap', async
 // on a diagonal, a boulder on the hero's square, bad_rock() through an
 // opening, a trapped peaceful, and goodpos(u.ux0, u.uy0, mtmp, 0) -- every one
 // of them about the pet or the square the pet moves into. So each of rm.h:138
-// IS_FURNITURE()'s seven types swaps exactly as ROOM does. ICE, rm.h:88's next
-// type after ALTAR, is the case just outside that range and stays refused.
-test('live movement swaps with a pet standing on every furniture square',
+// IS_FURNITURE()'s seven types swaps exactly as ROOM does. The independent C
+// recording at recipes/hack.c/pet-swap-ice-52093325.session.json also reaches
+// this path with a pony standing on ICE, just beyond that furniture range.
+test('live movement swaps with a pet standing on furniture or ice',
     async () => {
         for (const [label, terrain] of [
             ['stairs', STAIRS],
@@ -562,6 +562,7 @@ test('live movement swaps with a pet standing on every furniture square',
             ['sink', SINK],
             ['grave', GRAVE],
             ['altar', ALTAR],
+            ['ice', ICE],
         ]) {
             const pet = await startingPet({ pettype: 'cat' });
             const { destination, oldHero } = standPetEastOf(pet, terrain);
@@ -581,21 +582,6 @@ test('live movement swaps with a pet standing on every furniture square',
                 label,
             );
         }
-
-        const pet = await startingPet({ pettype: 'cat' });
-        const { destination, oldHero } = standPetEastOf(pet, ICE);
-        initRng(1);
-        game.nhDisplay.pushKey('l'.charCodeAt(0));
-
-        await assert.rejects(
-            moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'domove_swap_with_pet() door or special terrain movement'
-            ),
-        );
-        assert.deepEqual([game.u.ux, game.u.uy], oldHero);
-        assert.deepEqual([pet.mx, pet.my], destination);
     });
 
 // C reaches describe_decor() (pickup.c:376-425) after the swap, through
