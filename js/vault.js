@@ -51,7 +51,7 @@ import {
     map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
-import { youHear } from './pline.js';
+import { verbalize, youHear } from './pline.js';
 import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
@@ -60,7 +60,7 @@ import { nomul } from './hack.js';
 import { money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { set_malign } from './makemon.js';
 import { gender, is_silent, sticks } from './mondata.js';
-import { PM_GUARD } from './monsters.js';
+import { PM_CROESUS, PM_GUARD } from './monsters.js';
 import {
     m_at, mon_track_clear, place_monster, remove_monster,
 } from './monst.js';
@@ -70,6 +70,7 @@ import {
     alwaysVisibleMonsterName,
     capitalizedMonsterName,
     Monnam,
+    noit_Monnam,
     pmname,
     x_monnam,
 } from './do_name.js';
@@ -93,6 +94,7 @@ import {
 } from './vision.js';
 import { getlin } from './windows.js';
 import { canspotmon, mon_visible } from './display.js';
+import { set_voice } from './sounds.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -1097,8 +1099,22 @@ export async function invault(state, env = {}) {
     if (buf.toLowerCase() === 'croesus'
         || buf.toLowerCase() === 'kroisos'
         || buf.toLowerCase() === 'creosote') {
+        if (!state.mvitals[PM_CROESUS].died) {
+            if (Deaf(state)) {
+                if (!Blind(state))
+                    await message(`${noit_Monnam(guard, state)} waves goodbye.`, state);
+            } else {
+                set_voice(guard, 0, 80, 0, state);
+                await verbalize(
+                    'Oh, yes, of course.  Sorry to have disturbed you.',
+                    state, { message },
+                );
+            }
+            await mongone(guard, { state });
+            return;
+        }
         throw new UnsupportedVaultGuardError(
-            'invault() hero claims to be Croesus',
+            'invault() Croesus is dead and guard turns hostile',
         );
     }
 
