@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73903279,
+      "datetime": "20451022154731",
+      "nethackrc": "OPTIONS=name:PortalSouth,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u001612\n    j  "
+    }
+  ],
+  "comment": "Independent C-first southward entry into a stock D:12 quest portal, exercising the same hero portal transition with a distinct seed, clock, and direction."
+}

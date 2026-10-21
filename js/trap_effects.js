@@ -373,6 +373,7 @@ import {
     selftouch,
 } from './trap.js';
 import {
+    domagicportal,
     level_tele_trap,
     mlevel_tele_trap,
     mtele_trap,
@@ -2130,21 +2131,16 @@ async function trapeffect_level_telep(mtmp, trap, trflags, env) {
     return result === 'moved' ? Trap_Moved_Mon : Trap_Effect_Finished;
 }
 
-// C ref: trap.c trapeffect_magic_portal() (2710-2724). The hero arm remains
-// behind preflight_dotrap(), which excludes MAGIC_PORTAL before dotrap() can
-// call feeltrap() or the unported domagicportal(). A monster takes the same
-// level-migration path as LEVEL_TELEP, with mlevel_tele_trap() selecting the
-// portal-specific endgame gate and MIGR_PORTAL mode.
+// C ref: trap.c trapeffect_magic_portal() (2710-2724). The hero feels the
+// portal before domagicportal() schedules the transition. A monster takes the
+// same level-migration path as LEVEL_TELEP, with mlevel_tele_trap() selecting
+// the portal-specific endgame gate and MIGR_PORTAL mode.
 async function trapeffect_magic_portal(mtmp, trap, trflags, env) {
     const { state } = env;
     if (mtmp === state.youmonst) {
-        // Keep the direct selector call explicit as well as the production
-        // preflight boundary. C calls feeltrap() before domagicportal(); the
-        // latter remains unported, so this branch cannot continue.
-        seetrap(trap, env);
-        const unsupported = requireTrapOperation(env, 'unsupported');
-        unsupported('domagicportal()');
-        return Trap_Effect_Finished; // unreachable
+        feeltrap(trap, env);
+        await domagicportal(trap, state);
+        return Trap_Effect_Finished;
     }
     return trapeffect_level_telep(mtmp, trap, trflags, env);
 }
@@ -4057,7 +4053,7 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //
 // The stops, and what each of them needs:
 //   every type but ARROW_TRAP, BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, POLY_TRAP,
-//     ANTI_MAGIC,
+//     ANTI_MAGIC, MAGIC_PORTAL,
 //     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
 //     TELEP_TRAP, LEVEL_TELEP, WEB, STATUE_TRAP, ROLLING_BOULDER_TRAP and
 //     VIBRATING_SQUARE -- its own trapeffect_*() arm;
@@ -4071,8 +4067,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     dotrap() before its own source-backed effect;
 //   a mounted hero where the effect has no corresponding source arm --
 //     steedintrap() handles the arrow, dart, gas, magic, polymorph,
-//     landmine and pit arms; LEVEL_TELEP targets the hero directly in its
-//     source effect and is admitted here for a mounted hero too;
+//     landmine and pit arms; LEVEL_TELEP and MAGIC_PORTAL target the hero
+//     directly in their source effects and admit a mounted hero too;
 //     ROCKTRAP still targets the hero, ANTI_MAGIC acts directly on them, and
 //     VIBRATING_SQUARE calls feeltrap() for the hero;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
@@ -4086,6 +4082,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== RUST_TRAP && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LEVEL_TELEP
+        && trap.ttyp !== MAGIC_PORTAL
         && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
         && trap.ttyp !== POLY_TRAP
@@ -4139,6 +4136,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== SQKY_BOARD
         && trap.ttyp !== VIBRATING_SQUARE
         && trap.ttyp !== LEVEL_TELEP
+        && trap.ttyp !== MAGIC_PORTAL
         && !pitTrap) {
         // trap.c:1517-1518 still needs Yname2(); the bear-trap mounted arm is
         // ported above and no longer reaches this refusal.

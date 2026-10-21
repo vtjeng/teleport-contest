@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73903221,
+      "datetime": "20451022143219",
+      "nethackrc": "OPTIONS=name:PortalHero,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u001612\n    h  "
+    }
+  ],
+  "comment": "C-first quest-portal entry. This independent seed places the stock D:12 branch portal one square west of the hero after wizard level change; h activates teleport.c domagicportal, then two spaces dismiss the activation and arrival pages. JavaScript matched the full setup before refusing the portal move."
+}

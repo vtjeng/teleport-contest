@@ -75,7 +75,9 @@ import {
     TIMEOUT,
     TRAPDOOR,
     TT_BURIEDBALL,
+    UTOTYPE_ATSTAIRS,
     UTOTYPE_NONE,
+    UTOTYPE_PORTAL,
     VAULT,
     VIBRATING_SQUARE,
     VIASITTING,
@@ -222,7 +224,7 @@ import { rn1, rn2, rnd, rnl } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
-import { make_blinded, make_confused } from './potion.js';
+import { make_blinded, make_confused, make_stunned } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
 import { verbalize } from './pline.js';
 import { y_n } from './cmd.js';
@@ -2002,6 +2004,43 @@ function Antimagic_prop(state) {
 // try/finally below restores it on a refusal too, so a bounded stop cannot
 // leave the flag set for the next segment.
 let in_tele_trap = false;
+
+// C ref: teleport.c domagicportal() (1444-1489). The hero's portal trap
+// schedules its level transition after the current command finishes.
+export async function domagicportal(trap, state = game) {
+    const u = state.u;
+    if (u.utrap && u.utraptype === TT_BURIEDBALL)
+        await buried_ball_to_punishment(state);
+
+    if (!(await next_to_u(state))) {
+        await ttyPline('You shudder for a moment.', state);
+        return;
+    }
+    if (!on_level(u.uz, u.uz0)) return; // landed from another portal
+
+    await ttyPline('You activated a magic portal!', state);
+    if (inEndgame(state) && !u.uhave?.amulet) {
+        await ttyPline('You feel dizzy for a moment, but nothing happens...', state);
+        return;
+    }
+
+    const leavingTutorial = Number.isInteger(state.tutorial_dnum)
+        && u.uz.dnum === state.tutorial_dnum
+        && trap.dst.dnum !== state.tutorial_dnum;
+    let totype;
+    let stunmsg;
+    if (leavingTutorial) {
+        totype = UTOTYPE_ATSTAIRS;
+        stunmsg = 'Resuming regular play.';
+    } else {
+        totype = UTOTYPE_PORTAL;
+        stunmsg = Stunned_prop(state)
+            ? 'You feel dizzier.' : 'You feel slightly dizzy.';
+        const stun = u.uprops[STUNNED]?.intrinsic ?? 0;
+        await make_stunned((stun & TIMEOUT) + 3, false, state);
+    }
+    schedule_goto(trap.dst, totype, stunmsg, null, state);
+}
 
 // C ref: teleport.c tele_trap() (1491-1535). trap.c trapeffect_telep_trap()
 // is its only caller in the running game.

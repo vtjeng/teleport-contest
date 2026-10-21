@@ -13,6 +13,7 @@ import {
     ROWNO,
     TELEP_TRAP,
     Trap_Moved_Mon,
+    UTOTYPE_PORTAL,
     VAULT,
 } from '../js/const.js';
 import { migrate_to_level } from '../js/dog.js';
@@ -617,13 +618,12 @@ test('a home elemental is refused silently at an endgame portal',
         assert.equal(trap.tseen, false);
     });
 
-test('hero magic portals remain behind the existing preflight boundary',
+test('hero magic portals pass preflight and schedule a portal transition',
     async () => {
         await initializedMonster(PORTAL_HERO_SEED, 'PortalHero');
 
-        assert.throws(
+        assert.doesNotThrow(
             () => preflight_dotrap({ ttyp: MAGIC_PORTAL }, game),
-            (error) => error.reason === 'trap activation',
         );
 
         const trap = {
@@ -633,10 +633,8 @@ test('hero magic portals remain behind the existing preflight boundary',
             tx: game.u.ux,
             ty: game.u.uy,
         };
-        await assert.rejects(
-            trapeffect_selector(game.youmonst, trap, 0, portalEnv([])),
-            /domagicportal\(\)/u,
-        );
+        await trapeffect_selector(game.youmonst, trap, 0, portalEnv([]));
         assert.equal(trap.tseen, true,
-                     'the direct selector preserves C feeltrap() before its boundary');
+                     'C feeltrap() reveals the portal before scheduling travel');
+        assert.ok(game.u.utotype & UTOTYPE_PORTAL);
     });
