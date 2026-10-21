@@ -1714,14 +1714,16 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // seam names only the arrival behavior that domove_core() still needs
     // after the helper succeeds.
     const destination = state.level?.at(x, y);
-    // Wished ICE is traversable floor in test_move(); a tame pony can stand
-    // there and C completes the displacement and ordinary arrival effects.
+    // Wished ICE and an intact open doorway are traversable in test_move();
+    // tame pets can stand there and C completes the ordinary arrival effects.
     const ordinaryDestination = destination
         && (destination.typ === ROOM
             || destination.typ === CORR
             || destination.typ === ICE
             || IS_FURNITURE(destination.typ)
-            || (destination.typ === DOOR && doorMask(destination) === 0));
+            || (destination.typ === DOOR
+                && (doorMask(destination) === 0
+                    || doorMask(destination) === D_ISOPEN)));
     // hack.c:test_move() also admits physical obstacles when Passes_walls and
     // may_passwall() both allow the step. Preserve that path for a safe-monster
     // swap; the committed movement still runs the ordinary arrival effects.
