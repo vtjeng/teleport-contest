@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68119365,
+      "datetime": "20460421113422",
+      "nethackrc": "OPTIONS=name:PoolSwapProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,paranoid_confirm:-swim\n",
+      "moves": " #wizintrinsic\n>h\n \u0017pool\nl\u0007tame water elemental\nh"
+    }
+  ],
+  "comment": "C-first ordinary-level pool swap: timed water walking, a wished pool, a tame water elemental created through wizgenesis, and paranoid_confirm:-swim. The elemental occupies the adjacent pool before the final westward step. C swaps them; JavaScript initially refuses before do_attack rn2(7)."
+}

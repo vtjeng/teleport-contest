@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68119365,
+      "datetime": "20460421113422",
+      "nethackrc": "OPTIONS=name:PoolSwapProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizintrinsic\n>h\n \u0017pool\nl\u0007tame water elemental\nh"
+    }
+  ],
+  "comment": "C-first variation of the adjacent-pool safe-monster gate with default ParanoidSwim. The source must consume do_attack rn2(7) before swim_move_danger refuses the step; no swap occurs."
+}

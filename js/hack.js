@@ -1715,14 +1715,18 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // seam names only the arrival behavior that domove_core() still needs
     // after the helper succeeds.
     const destination = state.level?.at(x, y);
-    // C records a pony on wished ICE and CLOUD and a little dog in both an
-    // intact open doorway and a kicked-broken doorway. test_move() admits
-    // those destinations and domove_core() completes their arrival effects.
+    // C records a pony on wished ICE and CLOUD, a little dog in both an
+    // intact open doorway and a kicked-broken doorway, and a tame water
+    // elemental in a pool. test_move() admits those destinations and
+    // domove_core() completes their arrival effects. The pool witness has
+    // water walking and paranoid_confirm:-swim, so swim_move_danger() does
+    // not stop the swap before arrival.
     const ordinaryDestination = destination
         && (destination.typ === ROOM
             || destination.typ === CORR
             || destination.typ === ICE
             || destination.typ === CLOUD
+            || destination.typ === POOL
             || IS_FURNITURE(destination.typ)
             || (destination.typ === DOOR
                 && (doorMask(destination) === 0
