@@ -550,7 +550,8 @@ export async function castmu(
                 ? (env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state))
                 : 'Something';
-            await message(`${casterName} casts a spell at thin air!`, state);
+            await message(messageAt(`${casterName} casts a spell at thin air!`,
+                mtmp.mx, mtmp.my, state), state);
         }
         return M_ATTK_MISS;
     }
