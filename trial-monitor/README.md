@@ -6,6 +6,12 @@ ID per parity repair. The static dashboard reads both files at build time and,
 when opened, makes read-only requests to the public GitHub API. No credential,
 background observer, or separate status publisher is involved.
 
+**Open tabs are snapshots.** Refresh the page or press **Refresh public status**
+to check again. The public CI read enriches only the manifest's current
+candidate with exact final job completion times. Persist all three final gate
+records in `repairs.json` before moving `currentCandidate` to the next repair;
+otherwise the old candidate's live completion data is no longer fetched.
+
 At the **explicit** trial start, record its UTC `start`, set `status` to
 `running`, and record known investigator statuses. Set `coverage` to `complete`
 only when the register covers every repair in the window; otherwise leave it

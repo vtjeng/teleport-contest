@@ -134,6 +134,31 @@ test('window cutoff, carry-in, zero elapsed, and missing coverage remain explici
   assert.equal(unknown.trial.rate, null);
 });
 
+test('window boundaries compare instants across equivalent ISO formats', () => {
+  const atStart = repair('start-boundary', sha('a'),
+    ['Checkpoint', 'Lint', 'Dashboard'].map(name =>
+      run(name, sha('a'), '2026-10-21T11:50:00Z')),
+    { window: 'baseline', startedAt: '2026-10-21T11:49:00Z' });
+  const atEnd = repair('end-boundary', sha('b'),
+    ['Checkpoint', 'Lint', 'Dashboard'].map(name =>
+      run(name, sha('b'), '2026-10-21T15:50:00Z')),
+    { window: 'baseline', startedAt: '2026-10-21T15:49:00Z' });
+  const manifest = copy(savedManifest);
+  const register = { version: 1, asOf: manifest.asOf, repairs: [atStart, atEnd] };
+  const view = createTrialMonitor(snapshot(manifest, register))
+    .summarize('2026-10-21T17:30:00Z');
+  assert.equal(view.results[0].accepted.closureAt, '2026-10-21T11:50:00.000Z');
+  assert.equal(view.results[1].accepted.closureAt, '2026-10-21T15:50:00.000Z');
+  assert.equal(view.baseline.acceptedCount, 1);
+  assert.equal(view.baseline.carryInCount, 1);
+  const startOnly = createTrialMonitor(snapshot(manifest,
+    { ...register, repairs: [atStart] })).summarize('2026-10-21T17:30:00Z');
+  const endOnly = createTrialMonitor(snapshot(manifest,
+    { ...register, repairs: [atEnd] })).summarize('2026-10-21T17:30:00Z');
+  assert.equal(startOnly.baseline.acceptedCount, 1);
+  assert.equal(endOnly.baseline.acceptedCount, 0);
+});
+
 test('public refresh keeps last-known snapshot on fetch failure', async () => {
   const calls = [];
   const monitor = createTrialMonitor(snapshot(), {

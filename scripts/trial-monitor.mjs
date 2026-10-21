@@ -95,13 +95,14 @@ export function createTrialMonitor(initial, options = {}) {
     const results = current.register.repairs.map(repair =>
       repairResult(repair, current.apiRuns ?? []));
     function windowResult(window, start, end, elapsedHours, coverage) {
+      const startMs = timestamp(start), endMs = timestamp(end);
       const accepted = results.filter(result => result.accepted
-        && result.accepted.closureAt >= start
-        && result.accepted.closureAt < end
+        && timestamp(result.accepted.closureAt) >= startMs
+        && timestamp(result.accepted.closureAt) < endMs
         && result.repair.window === window);
       const carryIn = accepted.filter(result => {
         const started = timestamp(result.accepted.candidate.startedAt);
-        return result.repair.carryIn === true || (started !== null && started < timestamp(start));
+        return result.repair.carryIn === true || (started !== null && started < startMs);
       });
       const complete = coverage === 'audited' || coverage === 'complete';
       return {
