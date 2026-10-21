@@ -1987,3 +1987,17 @@ Source/fixture stay unchanged; prior `6e2d` and `9ae79` raw remain distinct.
   reversible recovery retained paths. Claim occupancy includes this blocked ownership.
 - Accepted usefulness and the fixed-window comparison remain pending; no causal or
   public replay/score gain is established by source output, busy lanes, or target reach.
+
+## 2026-10-21 — Dashboard retry artifact collision
+
+Dashboard push run `39647392585` at `29584d6eb034af3844aa6a66ef852b04252cb3fe`
+failed deployment on attempts 1 and 2 after successful builds/uploads. The user
+reported that attempt 2 found two artifacts named `github-pages`. Read-only
+metadata identified artifacts `12368281834` (17:53:14 UTC) and `12367174910`
+(17:56:50 UTC), one from each attempt. This explains the retry failure only;
+the original deployment failure remains unknown because logs were unavailable.
+Both failed attempts and artifacts remain intact. Name uploaded and selected
+Pages artifacts by run ID and attempt so later retries select only their own
+build. Recovery uses a newly validated Main push; manual dispatch does not
+replace the required push-triggered Dashboard gate. No permission change,
+artifact deletion, parity repair, or trial-clock start is part of this fix.
