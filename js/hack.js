@@ -30,6 +30,7 @@ import {
     DO_MOVE,
     DOMOVE_RUSH,
     DOMOVE_WALK,
+    DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     D_BROKEN,
     D_ISOPEN,
@@ -1580,6 +1581,10 @@ export function requireSimpleHeroDestination(
             // gate and reaches spoteffects(), which owns its melt timer and
             // underfoot effects.
             || location.typ === ICE
+            // The naturally open drawbridge on the Valkyrie quest goal is
+            // neither IS_OBSTRUCTED nor a DOOR. C test_move() admits the
+            // ordinary step onto its lowered span.
+            || location.typ === DRAWBRIDGE_DOWN
             || IS_AIR(location.typ)
             || IS_FURNITURE(location.typ)
             || doorway);

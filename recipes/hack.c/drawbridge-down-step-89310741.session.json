@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 89310741,
+      "datetime": "20481119101723",
+      "nethackrc": "OPTIONS=name:ValBridgeWalk,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0016?\n>A  \u0014  llllllllllllljj.k"
+    }
+  ],
+  "comment": "C-first stock Valkyrie quest-goal drawbridge entry. Wizard level teleport loads Val-goal, then controlled teleport selects floor directly south of its naturally open southern drawbridge. The final ordinary north step enters DRAWBRIDGE_DOWN. JavaScript initially matches every prior C screen/RNG call but refuses before this step."
+}
