@@ -738,12 +738,12 @@ async function m_cure_self(mtmp, dmg, env = {}) {
 
     if (mtmp.mhp < mtmp.mhpmax) {
         if (canseemon(mtmp, state) && message) {
-            await message(
+            await message(messageAt(
                 `${env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state)
                 } looks better.`,
-                state,
-            );
+                mtmp.mx, mtmp.my, state,
+            ), state);
         }
         /* note: player healing does 6d4; this used to do 1d8 */
         healmon(mtmp, random.d(3, 6), 0);
