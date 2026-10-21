@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52093322,
+      "datetime": "20481013122536",
+      "nethackrc": "OPTIONS=name:MountedTrapProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#ride\nky\u0017bear trap trap\njkjbbbbb"
+    }
+  ],
+  "comment": "C-first Knight mounts its starting pony, wishes an armed bear trap underfoot, rides away and back to catch the pony, then tries orthogonal and diagonal steps through both trapped and escape messages."
+}

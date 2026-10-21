@@ -4178,21 +4178,17 @@ async function trapmove(x, y, desttrap, state = game) {
     if (u.utraptype !== TT_BEARTRAP) {
         throw new UnsupportedHeroMoveBoundaryError('held hero movement');
     }
-    // C ref: hack.c:1556 and 1569-1570. A mounted hero is named by
-    // y_monnam(u.usteed) and reported instead of the hero, where the lines
-    // below name the hero. This is now the only refusal on the path: the
-    // steed gate above answers false for a healthy steed and falls through to
-    // here, and what keeps u.utrap and u.usteed from being set together today
-    // is js/trap.js's own mounted refusal in dotrap(). Delete this and a
-    // mounted hero in a bear trap prints the unmounted lines instead of
-    // stopping.
-    if (u.usteed) {
-        throw new UnsupportedHeroMoveBoundaryError('a steed in a bear trap');
-    }
+    // hack.c:1556-1579 names the trapped steed on both the continuing and
+    // successful escape arms. The diagonal short circuit still draws no RNG.
+    const steedname = u.usteed ? y_monnam(u.usteed, state) : null;
     if (state.flags?.verbose)
-        await ttyNorep('You are caught in a bear trap.', state);
+        await ttyNorep(steedname
+            ? `${upstart(steedname)} is caught in a bear trap.`
+            : 'You are caught in a bear trap.', state);
     if ((u.dx && u.dy) || !rn2(5)) --u.utrap;
-    if (!u.utrap) await ttyPline('You finally wriggle free.', state);
+    if (!u.utrap) await ttyPline(steedname
+        ? `${upstart(steedname)} finally lurches free.`
+        : 'You finally wriggle free.', state);
     return false;
 }
 
