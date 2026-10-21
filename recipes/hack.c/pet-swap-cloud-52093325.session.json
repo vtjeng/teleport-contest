@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52093325,
+      "datetime": "20481013122536",
+      "nethackrc": "OPTIONS=name:PetSwapCloudProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " l\u0017cloud\nh.....l"
+    }
+  ],
+  "comment": "C-first Knight wishes CLOUD onto room floor, steps back, waits until the starting pony occupies the cloud, and displaces it. This proves the CLOUD arm of IS_AIR is reachable through stock commands."
+}

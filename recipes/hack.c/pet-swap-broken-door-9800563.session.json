@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9800563,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:DoorProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:dog,!acoustics,mention_walls,time\n",
+      "moves": "chch\u0004h\u0004h\u0004hhh...l"
+    }
+  ],
+  "comment": "C-first ordinary Valkyrie closes and kicks a natural door until C reports it crashes open (dokick.c sets D_BROKEN), walks into the corridor, waits until the starting little dog stands in the broken doorway, and displaces it. The seed reuses the doorway matrix layout for a distinct branch; no state is injected."
+}

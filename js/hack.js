@@ -14,6 +14,7 @@ import {
     ARTICLE_YOUR,
     BLINDED,
     COLD_RES,
+    CLOUD,
     CONFUSION,
     CONFLICT,
     COLNO,
@@ -1714,16 +1715,19 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // seam names only the arrival behavior that domove_core() still needs
     // after the helper succeeds.
     const destination = state.level?.at(x, y);
-    // Wished ICE and an intact open doorway are traversable in test_move();
-    // tame pets can stand there and C completes the ordinary arrival effects.
+    // C records a pony on wished ICE and CLOUD and a little dog in both an
+    // intact open doorway and a kicked-broken doorway. test_move() admits
+    // those destinations and domove_core() completes their arrival effects.
     const ordinaryDestination = destination
         && (destination.typ === ROOM
             || destination.typ === CORR
             || destination.typ === ICE
+            || destination.typ === CLOUD
             || IS_FURNITURE(destination.typ)
             || (destination.typ === DOOR
                 && (doorMask(destination) === 0
-                    || doorMask(destination) === D_ISOPEN)));
+                    || doorMask(destination) === D_ISOPEN
+                    || doorMask(destination) === D_BROKEN)));
     // hack.c:test_move() also admits physical obstacles when Passes_walls and
     // may_passwall() both allow the step. Preserve that path for a safe-monster
     // swap; the committed movement still runs the ordinary arrival effects.
