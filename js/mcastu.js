@@ -1360,14 +1360,14 @@ export async function buzzmu(mtmp, mattk, rawEnv = {}) {
     if (lined_up(mtmp, env) && random.rn2(3)) {
         nomul(0, state);
         if (canseemon(mtmp, state) && message) {
-            await message(
+            await message(messageAt(
                 `${env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state)
                 } zaps you with a ${
                     flash_str(BZ_OFS_AD(mattk.adtyp), false, state)
                 }!`,
-                state,
-            );
+                mtmp.mx, mtmp.my, state,
+            ), state);
         }
         state.gb ??= {};
         state.gb.buzzer = mtmp;
