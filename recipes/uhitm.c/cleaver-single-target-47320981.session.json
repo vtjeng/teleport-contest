@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47320981,
+      "datetime": "20450311140722",
+      "nethackrc": "OPTIONS=name:CleaverProbe,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017Cleaver\nwe\u0007hostile goblin\nu"
+    }
+  ],
+  "comment": "C-first Cleaver melee on an ordinary hostile goblin. A stock debug wish supplies the artifact and wizgenesis supplies the target; the final northeast command reaches uhitm.c:hitum_cleave. JavaScript initially stops before the first attack-specific draw."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47320989,
+      "datetime": "20450311141829",
+      "nethackrc": "OPTIONS=name:CleaverMulti,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " \u0017Cleaver\nwf3\u0007hostile goblin\nn"
+    }
+  ],
+  "comment": "C-first three-target Cleaver sweep. Stock debug wish supplies Cleaver, wizgenesis places three hostile goblins north, south and southeast. The final southeast attack strikes the southern side target before the primary target, producing two hitum_cleave attack rolls and two kills. JavaScript matches the entire setup before refusing."
+}

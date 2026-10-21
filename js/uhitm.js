@@ -189,6 +189,8 @@ import {
     XKILL_NOCORPSE,
     something,
     Upolyd,
+    xdir,
+    ydir,
 } from './const.js';
 import {
     Adjmonnam,
@@ -237,6 +239,7 @@ import {
     shieldeff,
     tmp_at,
     tp_sensemon,
+    unmap_invisible,
 } from './display.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
@@ -247,6 +250,7 @@ import {
     inv_cnt,
     nh_delay_output,
     near_capacity,
+    NODIAG,
     nomul,
     overexertion,
     test_move,
@@ -254,7 +258,7 @@ import {
 } from './hack.js';
 import { in_rooms } from './rooms.js';
 import { dopay, tended_shop } from './shk.js';
-import { paranoid_query } from './cmd.js';
+import { paranoid_query, xytodir } from './cmd.js';
 import { dismount_steed, Punished } from './steed.js';
 import { dist2, highc, ing_suffix, s_suffix, sgn, strstri } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
@@ -2490,15 +2494,70 @@ export function double_punch(state = game, random = { rn2 }) {
     return false;
 }
 
+// C ref: uhitm.c hitum_cleave() (651-731). Cleaver strikes the square on one
+// side of the primary target, then the primary target, then the other side.
+// The static C direction bit alternates between consecutive cleaves; keep it
+// on the game state so a fresh session starts with the same first sweep.
+export async function hitum_cleave(target, uattk, state = game, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
+    const clockwise = Boolean(state.cleaverClockwise);
+    const { u } = state;
+    let direction = xytodir(u.dx, u.dy);
+    if (direction < 0 || direction >= 8) return true;
+    direction = (direction + (clockwise ? 6 : 2)) % 8;
+
+    const oldMortality = u.umortality;
+    const oldHitPosition = state.gb.bhitpos;
+    const oldNotOnHead = state.gn.notonhead;
+
+    for (let count = 3; count > 0; count--) {
+        direction = (direction + (clockwise ? 1 : 7)) % 8;
+        const tx = u.ux + xdir[direction];
+        const ty = u.uy + ydir[direction];
+        if (!isok(tx, ty)) continue;
+
+        const mon = m_at(tx, ty, state);
+        if (!mon) {
+            if (glyph_is_invisible(state.level.at(tx, ty)?.remembered_glyph?.glyph))
+                unmap_invisible(tx, ty, state);
+            continue;
+        }
+
+        const counters = { attknum: 0, role_roll_penalty: 0 };
+        const needed = await find_roll_to_hit(
+            mon, uattk.aatyp, state.uwep, counters, state, env,
+        );
+        mon_maybe_unparalyze(mon, random);
+        const dieroll = random.rnd(20);
+        const mhit = { value: needed > dieroll };
+        state.gb.bhitpos = { x: tx, y: ty };
+        state.gn.notonhead = mon.mx !== tx || mon.my !== ty;
+        await known_hitum(
+            mon, state.uwep, mhit, needed, counters.role_roll_penalty,
+            uattk, dieroll, state, env,
+        );
+        await passive(
+            mon, state.uwep, mhit.value, mon.mhp > 0, AT_WEAP,
+            !state.uwep, state, env,
+        );
+        if (!state.uwep || state.multi < 0 || u.umortality > oldMortality)
+            break;
+    }
+
+    state.cleaverClockwise = !clockwise;
+    state.gb.bhitpos = oldHitPosition;
+    state.gn.notonhead = oldNotOnHead;
+    return !(target && target.mhp < 1);
+}
+
 // C ref: uhitm.c hitum() (756-815). Rolls one swing, hands it to known_hitum()
 // and then lets the target's passive counter-attack answer; a hero fighting
 // with two weapons, or punching well enough for double_punch(), swings a second
 // time at 797-812. Returns TRUE if the target still lives.
 //
-// The Cleaver arm at 769-771 needs hitum_cleave(). C also requires !u.twoweap,
-// no engulfer, no holder and a diagonal-capable form before cleaving; this
-// stops on the wielded artifact alone, because the arms those four terms would
-// send it to are the ones below, which stop too.
+// Cleaver uses hitum_cleave() when all four source conditions hold. The
+// ordinary arm below remains valid when a wielder is swallowed, held, or in a
+// form that cannot attack diagonally.
 //
 // Three of the six terms guarding the second attack are constantly false here
 // and are left out rather than restated:
@@ -2541,13 +2600,16 @@ export function double_punch(state = game, random = { rn2 }) {
 // that kills -- can separate the two.
 export async function hitum(mon, uattk, state = game, env = {}) {
     const random = env.random ?? { d, rn2, rnd };
-    const unsupported = requireAttackOperation(env, 'unsupported');
     const wepbefore = state.uwep;
     const secondwep = state.u.twoweap ? state.uswapwep : null;
     const x = state.u.ux + state.u.dx;
     const y = state.u.uy + state.u.dy;
 
-    if (state.uwep?.oartifact === ART_CLEAVER) unsupported('Cleaver melee');
+    if (state.uwep?.oartifact === ART_CLEAVER && !state.u.twoweap
+        && !state.u.uswallow && !state.u.ustuck
+        && !NODIAG(state.u.umonnum)) {
+        return hitum_cleave(mon, uattk, state, env);
+    }
 
     /* 0: single hit, 1: first of two hits; affects strength bonus and
        silver rings; known_hitum() -> hmon() -> hmon_hitmon() will copy
