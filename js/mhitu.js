@@ -467,7 +467,10 @@ export async function summonmu(monster, youseeit, rawEnv = {}) {
     const visible = { value: 0 };
     const genericWere = { value: 'creature' };
     if (youseeit) {
-        await message(`${Monnam(monster, state, rawEnv)} summons help!`, state);
+        await message(messageAt(
+            `${Monnam(monster, state, rawEnv)} summons help!`,
+            monster.mx, monster.my, state,
+        ), state);
     }
     const numhelp = await were_summon(
         currentData,
