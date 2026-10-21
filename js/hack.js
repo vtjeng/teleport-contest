@@ -1771,12 +1771,8 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
             throw new UnsupportedHeroMoveBoundaryError(error.reason);
         }
     }
-    if (engr_at(x, y, state)
-        || engr_at(state.u.ux, state.u.uy, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'pet swap engraving interaction',
-        );
-    }
+    // Engravings at either square are handled after committed movement by
+    // domove()'s maybe_smudge_engr(), including its source-ordered RNG draws.
 }
 
 // C ref: hack.c domove_core():2830-2841, which hands the step to trapmove()

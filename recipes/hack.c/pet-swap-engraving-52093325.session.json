@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52093325,
+      "datetime": "20481013122536",
+      "nethackrc": "OPTIONS=name:PetSwapEngraveProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " lE- x\nh"
+    }
+  ],
+  "comment": "C-first stock Knight moves off the upstairs tile, writes one dust character in the room, then displaces the adjacent starting pony. This reaches do_attack, domove_swap_with_pet, and maybe_smudge_engr on the old square."
+}
