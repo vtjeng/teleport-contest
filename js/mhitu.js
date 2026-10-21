@@ -3109,12 +3109,11 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 // include/youprop.h:84 defines Confusion as HConfusion only;
                 // an extrinsic property does not suppress this source message.
                 if (!property?.intrinsic) {
-                    await message(
+                    await message(messageAt(
                         `${monsterPossessive(monster, state, true, env)} gaze `
                         + 'confuses you!',
-                        state,
-                        env,
-                    );
+                        monster.mx, monster.my, state,
+                    ), state, env);
                 } else {
                     await message(
                         'You are getting more and more confused.', state, env,
