@@ -13,7 +13,7 @@ import { bill_dummy_object, carried } from './obj.js';
 import { Yname2, otense, yname } from './objnam.js';
 import { in_rooms } from './rooms.js';
 import { check_unpaid, costly_spot, shop_keeper } from './shk.js';
-import { verbalize } from './pline.js';
+import { consume_msg_xy, set_msg_xy, verbalize } from './pline.js';
 import {
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
@@ -26,7 +26,6 @@ import {
 import { begin_burn } from './timeout.js';
 import { get_obj_location } from './light.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { cansee } from './vision.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { rn2 } from './rng.js';
@@ -107,13 +106,14 @@ export async function catch_lit(obj, rawEnv = {}) {
         || squareVisible(location.x, location.y, state)) {
         if (obj.where === OBJ_FLOOR
             && squareVisible(location.x, location.y, state)) {
-            // pline.c set_msg_xy() is a discarded void display-coordinate
-            // update with no JavaScript owner yet.
-            note_unported('pline.c set_msg_xy');
+            set_msg_xy(location.x, location.y, state);
         }
         await message(
-            `${Yname2(obj, state)} ${otense(obj, blind ? 'feel' : 'catch', state)} `
-                + `${blind ? 'warm.' : 'light!'}`,
+            consume_msg_xy(
+                `${Yname2(obj, state)} ${otense(obj, blind ? 'feel' : 'catch', state)} `
+                    + `${blind ? 'warm.' : 'light!'}`,
+                state,
+            ),
             state,
         );
     }

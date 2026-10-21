@@ -30,6 +30,31 @@ import {
 } from '../js/objects.js';
 import { game } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
+import { runSegment } from '../js/jsmain.js';
+import { compareSessionOutputs } from './diff-fresh.mjs';
+
+test('floor candle ignition locates its accessible message like C', async () => {
+    const recording = JSON.parse(await readFile(new URL(
+        '../recordings/apply.c/floor-candle-accessible-ignition.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    assert.match(recording.segments[0].steps[75].screen,
+        /^\(east\): The candle catches light!/u);
+    const result = await runSegment(recording.segments[0]);
+    const comparison = compareSessionOutputs(recording, {
+        rng: result.getRngLog(),
+        screens: result.getScreens(),
+        cursors: result.getCursors(),
+        animFrames: result.getAnimationFramesByStep(),
+        segments: [{
+            rng: result.getRngLog(),
+            screens: result.getScreens(),
+            cursors: result.getCursors(),
+            animFrames: result.getAnimationFramesByStep(),
+        }],
+    });
+    assert.equal(comparison.passed, true, JSON.stringify(comparison, null, 2));
+});
 
 // This fueled age keeps relative-age light sources past catch_lit's zero-fuel
 // guard; positive spe keeps the magic lamp and candelabrum occupied.
@@ -249,7 +274,7 @@ test('blind inventory feedback uses the source feel-warm grammar', async () => {
     assert.match(messages[0], /^[A-Z].* feels warm\.$/u);
 });
 
-test('visible floor feedback records the set_msg_xy gap before naming', async () => {
+test('visible floor feedback consumes the message location before naming', async () => {
     game.unported = new Set();
     const oil = lightSource(POT_OIL, OBJ_FLOOR);
     const state = ignitionEnv().state;
@@ -276,7 +301,7 @@ test('visible floor feedback records the set_msg_xy gap before naming', async ()
     ]);
     assert.equal(events[2][0], 'message');
     assert.match(events[2][1], /^[A-Z].* catches light!$/u);
-    assert.ok(game.unported.has('pline.c set_msg_xy'));
+    assert.deepEqual(state.a11y.msg_loc, { x: 0, y: 0 });
 });
 
 test('unpaid carried oil calls billing before the source dummy charge',
