@@ -24,7 +24,7 @@
 
 import { you_unwere } from './were.js';
 import { buried_ball_to_freedom } from './dig.js';
-import { align_str } from './insight.js';
+import { align_str, record_achievement } from './insight.js';
 import {
     A_CHAOTIC,
     A_CURRENT,
@@ -47,6 +47,7 @@ import {
     Align2amask,
     Amask2align,
     AGGRAVATE_MONSTER,
+    ACH_TUNE,
     BLND_RES,
     BLINDED,
     BOLT_LIM,
@@ -2609,7 +2610,7 @@ export async function pleased(g_align, state = game) {
                     if (music !== null) await ttyPline(music, state);
                     await ttyPline(`It sounds like:  "${state.svt?.tune ?? ''}".`, state);
                     u.uevent.uheard_tune++;
-                    note_unported('pray.c record_achievement');
+                    record_achievement(ACH_TUNE, state);
                     break;
                 }
             }

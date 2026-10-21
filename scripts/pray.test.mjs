@@ -560,7 +560,8 @@ test('aligned unicorn insult suppresses the intermediate wisdom message', () => 
         jsEval,
         /await adjattrib\(A_WIS, -1, 1, state, \{ message: ttyPline \}\);\s*return -1;/u,
     );
-    assert.match(PRAY_JS, /import \{ align_str \} from '\.\/insight\.js';/u);
+    assert.match(PRAY_JS,
+        /import \{ align_str, record_achievement \} from '\.\/insight\.js';/u);
 });
 
 test('unicorn offering renders the alignment through insight.js', async () => {
