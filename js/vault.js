@@ -708,51 +708,58 @@ export async function gd_move(grd, env = {}) {
         }
     }
     if (goldincorridor && !egrd.gddone) {
-        // C ref: vault.c gd_pick_corridor_gold(). The hero can wish and drop
-        // gold while standing on the guard's fake corridor. When the guard
-        // is already nearby, he takes it from beneath the hero without
-        // changing his own square.
-        if (goldX !== state.u.ux || goldY !== state.u.uy)
-            throw new UnsupportedVaultGuardError(
-                'gd_move() gold on an unoccupied corridor square',
-            );
+        // C ref: vault.c gd_pick_corridor_gold(). The guard may collect gold
+        // beneath the hero or briefly move to a different corridor square.
+        const underHero = goldX === state.u.ux && goldY === state.u.uy;
         const see_it = cansee(goldX, goldY, state);
         const guardX = grd.mx;
         const guardY = grd.my;
-        const guardDistance = dist2(guardX, guardY, state.u.ux, state.u.uy);
-        if (see_it && guardDistance > 2) {
-            let bestDistance = guardDistance;
-            let bestX = guardX;
-            let bestY = guardY;
-            // C initializes tryct to 9 and uses a do/while (--tryct >= 0),
-            // which calls enexto ten times, even after finding a near spot.
-            for (let tryct = 9; tryct >= 0; --tryct) {
-                const next = enexto(goldX, goldY, grd.data, { ...env, state });
-                if (!next) continue;
-                const distance = dist2(next.x, next.y, state.u.ux, state.u.uy);
-                if (distance < bestDistance || (distance === bestDistance
-                    && dist2(next.x, next.y, guardX, guardY)
-                        < dist2(bestX, bestY, guardX, guardY))) {
-                    bestDistance = distance;
-                    bestX = next.x;
-                    bestY = next.y;
+        if (underHero) {
+            const guardDistance = dist2(guardX, guardY, state.u.ux, state.u.uy);
+            if (see_it && guardDistance > 2) {
+                let bestDistance = guardDistance;
+                let bestX = guardX;
+                let bestY = guardY;
+                // C initializes tryct to 9 and uses a do/while (--tryct >= 0),
+                // which calls enexto ten times, even after finding a near spot.
+                for (let tryct = 9; tryct >= 0; --tryct) {
+                    const next = enexto(goldX, goldY, grd.data, { ...env, state });
+                    if (!next) continue;
+                    const distance = dist2(next.x, next.y, state.u.ux, state.u.uy);
+                    if (distance < bestDistance || (distance === bestDistance
+                        && dist2(next.x, next.y, guardX, guardY)
+                            < dist2(bestX, bestY, guardX, guardY))) {
+                        bestDistance = distance;
+                        bestX = next.x;
+                        bestY = next.y;
+                    }
+                }
+                if (bestDistance < guardDistance) {
+                    remove_monster(guardX, guardY, state);
+                    newsym(guardX, guardY, state);
+                    place_monster(grd, bestX, bestY, state);
+                    newsym(grd.mx, grd.my, state);
                 }
             }
-            if (bestDistance < guardDistance) {
-                remove_monster(guardX, guardY, state);
-                newsym(guardX, guardY, state);
-                place_monster(grd, bestX, bestY, state);
+            const gold = g_at(goldX, goldY, state);
+            const objectEnv = objectGenerationEnv({ ...env, state });
+            obj_extract_self(gold, objectEnv);
+            add_to_minv(grd, gold, objectEnv);
+            newsym(goldX, goldY, state);
+        } else if (goldX === guardX && goldY === guardY) {
+            mpickgold(grd, { ...env, state });
+        } else {
+            await gd_mv_monaway(grd, goldX, goldY, state, gdEnv);
+            if (see_it) {
+                remove_monster(grd.mx, grd.my, state);
                 newsym(grd.mx, grd.my, state);
+                place_monster(grd, goldX, goldY, state);
             }
+            mpickgold(grd, { ...env, state });
         }
-        const gold = g_at(goldX, goldY, state);
-        const objectEnv = objectGenerationEnv({ ...env, state });
-        obj_extract_self(gold, objectEnv);
-        add_to_minv(grd, gold, objectEnv);
-        newsym(goldX, goldY, state);
         if (see_it) {
             await message(
-                `${Some_Monnam(grd, state)}${grd.mpeaceful && egrd.warncnt > 5 ? ' calms down and' : ''} picks up the gold from beneath you.`,
+                `${Some_Monnam(grd, state)}${grd.mpeaceful && egrd.warncnt > 5 ? ' calms down and' : ''} picks up the gold${underHero ? ' from beneath you' : ''}.`,
                 state, gdEnv,
             );
         }
