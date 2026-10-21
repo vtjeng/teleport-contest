@@ -58,7 +58,7 @@ import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
+import { add_to_minv, money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { set_malign } from './makemon.js';
 import { gender, is_silent, sticks } from './mondata.js';
 import { PM_CROESUS, PM_GUARD } from './monsters.js';
@@ -73,11 +73,13 @@ import {
     Monnam,
     noit_Monnam,
     pmname,
+    Some_Monnam,
     x_monnam,
 } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
 import { carried, g_at, hasContents } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { BOULDER, ROCK, TIN_WHISTLE } from './objects.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
@@ -705,10 +707,35 @@ export async function gd_move(grd, env = {}) {
         }
     }
     if (goldincorridor && !egrd.gddone) {
-        // Gold in corridor: not exercised by the witness
-        throw new UnsupportedVaultGuardError(
-            'gd_move() gold in corridor pickup',
-        );
+        // C ref: vault.c gd_pick_corridor_gold(). The hero can wish and drop
+        // gold while standing on the guard's fake corridor. When the guard
+        // is already nearby, he takes it from beneath the hero without
+        // changing his own square.
+        if (goldX !== state.u.ux || goldY !== state.u.uy)
+            throw new UnsupportedVaultGuardError(
+                'gd_move() gold on an unoccupied corridor square',
+            );
+        const see_it = cansee(goldX, goldY, state);
+        const dx = grd.mx - state.u.ux;
+        const dy = grd.my - state.u.uy;
+        if (see_it && dx * dx + dy * dy > 2)
+            throw new UnsupportedVaultGuardError(
+                'gd_move() distant corridor gold under the hero',
+            );
+        const gold = g_at(goldX, goldY, state);
+        const objectEnv = objectGenerationEnv({ ...env, state });
+        obj_extract_self(gold, objectEnv);
+        add_to_minv(grd, gold, objectEnv);
+        newsym(goldX, goldY, state);
+        if (see_it) {
+            await message(
+                `${Some_Monnam(grd, state)}${grd.mpeaceful && egrd.warncnt > 5 ? ' calms down and' : ''} picks up the gold from beneath you.`,
+                state, gdEnv,
+            );
+        }
+        if (!grd.mpeaceful) return -1;
+        egrd.warncnt = 5;
+        return 0;
     }
 
     if (um_dist(grd.mx, grd.my, 1, state) || egrd.gddone) {
