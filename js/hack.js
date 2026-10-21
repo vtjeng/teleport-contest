@@ -6,6 +6,7 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    AIR,
     NO_PART,
     ARTICLE_NONE,
     ARTICLE_A,
@@ -3978,46 +3979,41 @@ async function domove_fight_empty(x, y, state) {
     // hack.c:2232 reads the drawn glyph before selecting the floor object.
     // It is deliberately separate from the glyph read after newsym().
     const glyph = glyph_at(x, y, state);
-    // 2253 and 2306-2312. Underwater skips the boulder and digging tests and
-    // then takes a message arm of its own, which names an air bubble or
-    // nothing at all rather than the terrain.
-    if (state.u.uinwater) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'force-fight while underwater',
-        );
-    }
     // 2254-2260. C starts with a boulder, then replaces that selection with a
     // statue only when the drawn glyph shows a statue (or hallucination makes
     // a monster glyph look like one). A statue hidden under a remembered
     // invisible-monster marker therefore remains out of the message, even
     // though it is still on the floor; reading sobj_at(STATUE) unconditionally
     // would answer a different question and refuse a C thin-air swing.
-    let boulder = sobj_at(BOULDER, x, y, state);
-    if (glyph_is_statue(glyph)
-        || (heroHallucinating(state) && glyph_is_monster(glyph))) {
-        boulder = sobj_at(STATUE, x, y, state);
-    }
-    // 2267-2276. A hero who force-fights while wielding a digging tool starts
-    // digging instead through dig.c use_pick_axe2() when the source's full
-    // target and glyph tests pass. C discards its result; dig.c dig() remains
-    // an occupation callback gap after the immediate direction handling.
-    // An axe reaches that fall-through at every wall, rock, pool and furniture
-    // square, and a pick at ROOM, CORR and a tree.
-    //
-    // C's block is `if (svc.context.forcefight && uwep && dig_typ(...) &&
-    // !glyph_is_invisible(glyph) && !glyph_is_monster(glyph))`. The forcefight
-    // conjunct is written below because the entry test now admits a second
-    // way in: a hero walking into a remembered 'I' arrives here with
-    // context.forcefight clear, and that is a path on which C skips the dig
-    // block outright and swings.
-    //
-    // The glyph tests are kept in C order: a remembered invisible marker or a
-    // monster glyph is swung at instead of handed to the digging routine.
-    if (state.context.forcefight && state.uwep
-        && dig_typ(state.uwep, x, y, state) !== DIGTYP_UNDIGGABLE
-        && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)) {
-        await use_pick_axe2(state.uwep, state);
-        return true;
+    let boulder = null;
+    if (!state.u.uinwater) {
+        boulder = sobj_at(BOULDER, x, y, state);
+        if (glyph_is_statue(glyph)
+            || (heroHallucinating(state) && glyph_is_monster(glyph))) {
+            boulder = sobj_at(STATUE, x, y, state);
+        }
+        // 2267-2276. A hero who force-fights while wielding a digging tool starts
+        // digging instead through dig.c use_pick_axe2() when the source's full
+        // target and glyph tests pass. C discards its result; dig.c dig() remains
+        // an occupation callback gap after the immediate direction handling.
+        // An axe reaches that fall-through at every wall, rock, pool and furniture
+        // square, and a pick at ROOM, CORR and a tree.
+        //
+        // C's block is `if (svc.context.forcefight && uwep && dig_typ(...) &&
+        // !glyph_is_invisible(glyph) && !glyph_is_monster(glyph))`. The forcefight
+        // conjunct is written below because the entry test now admits a second
+        // way in: a hero walking into a remembered 'I' arrives here with
+        // context.forcefight clear, and that is a path on which C skips the dig
+        // block outright and swings.
+        //
+        // The glyph tests are kept in C order: a remembered invisible marker or a
+        // monster glyph is swung at instead of handed to the digging routine.
+        if (state.context.forcefight && state.uwep
+            && dig_typ(state.uwep, x, y, state) !== DIGTYP_UNDIGGABLE
+            && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)) {
+            await use_pick_axe2(state.uwep, state);
+            return true;
+        }
     }
 
     // 2246-2247. `solid` is misleadingly named, as C's own comment at 2316
@@ -4034,7 +4030,7 @@ async function domove_fight_empty(x, y, state) {
     // screen the port has already diverged from. It is hoisted instead, which
     // is the one place the port deliberately departs from C's order, and only
     // on the arm it refuses.
-    if (!boulder && solid
+    if (!boulder && !(state.u.uinwater && !is_pool(x, y, state)) && solid
         && !(location.seenv || IS_STWALL(location.typ)
              || location.typ === SDOOR || location.typ === SCORR)) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -4051,6 +4047,9 @@ async function domove_fight_empty(x, y, state) {
     let buf;
     if (boulder) {
         buf = ansimpleoname(boulder, state);
+    } else if (state.u.uinwater && !is_pool(x, y, state)) {
+        buf = Is_waterlevel(state.u.uz) && location.typ === AIR
+            ? 'an air bubble' : 'nothing';
     } else if (solid) {
         buf = the(CMAP_EXPLANATIONS[
             glyph_to_cmap(back_to_glyph(x, y, state))

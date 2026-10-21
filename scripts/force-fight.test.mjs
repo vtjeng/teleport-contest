@@ -717,7 +717,8 @@ test('force-fight routes digging tools to use_pick_axe2 and installs its occupat
     const underwater = await heroInARoom();
     targetTerrain(underwater, VWALL);
     underwater.u.uinwater = 1;
-    await refusedWest(underwater, /underwater/u);
+    await forceFightWest(underwater);
+    assert.equal(toplines(underwater), 'You harmlessly attack nothing.');
 });
 
 // hack.c:2271 asks dig_typ(), so a wielded pick or axe stops the swing only
