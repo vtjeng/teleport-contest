@@ -11,6 +11,7 @@ import { workerWork } from './worker-backlog.mjs';
 import { createChartTimeRange } from './dashboard-time-range.mjs';
 import { aggregateExplorationYield } from './exploration-yield.mjs';
 import { renderExplorationYield } from './dashboard-exploration.mjs';
+import { createTrialMonitor } from './trial-monitor.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // The history and per-case challenge data can exceed execSync's 1 MiB default.
@@ -27,7 +28,7 @@ export function escapeJsonForScript(json) {
     .replaceAll('\u2029', '\\u2029');
 }
 
-export function injectDashboardData(template, data, queueData, commit) {
+export function injectDashboardData(template, data, queueData, commit, trialData = 'null') {
   const reservations = JSON.parse(data)?.workerReservations, queue = JSON.parse(queueData);
   if (reservations && queue) {
     queue.workerWork = workerWork(reservations, queue);
@@ -38,6 +39,8 @@ export function injectDashboardData(template, data, queueData, commit) {
   const html = template
     .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
+    .replace('/*TRIAL_PLACEHOLDER*/null', () => escapeJsonForScript(trialData))
+    .replace('/*TRIAL_MODEL_PLACEHOLDER*/null', () => createTrialMonitor.toString())
     .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString())
     .replace('/*TIME_RANGE_PLACEHOLDER*/null', () => createChartTimeRange.toString())
     .replace('/*EXPLORATION_AGGREGATE_PLACEHOLDER*/null', () => aggregateExplorationYield.toString())
@@ -69,7 +72,15 @@ function main() {
   const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');
 
   const commit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
-  const html = injectDashboardData(template, data, queueData.trim(), commit);
+  // Commit time is deterministic for a given build. The panel labels it as
+  // page-source freshness rather than claiming it is a live observation.
+  const builtAt = execSync('git show -s --format=%cI HEAD', { encoding: 'utf8' }).trim();
+  const trialData = JSON.stringify({
+    builtAt, buildSha: commit,
+    manifest: JSON.parse(readFileSync(join(__dirname, '../trial-monitor/manifest.json'), 'utf8')),
+    register: JSON.parse(readFileSync(join(__dirname, '../trial-monitor/repairs.json'), 'utf8')),
+  });
+  const html = injectDashboardData(template, data, queueData.trim(), commit, trialData);
 
   const outPath = process.argv[2] || 'dashboard.html';
   writeFileSync(outPath, html);

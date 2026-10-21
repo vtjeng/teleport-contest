@@ -962,6 +962,32 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 .yield-plot-note { color:var(--ink-secondary); font-size:12px; line-height:1.6; margin:0 0 8px; }
 #yieldReadout { min-height:3em; margin-top:8px; font-size:12px; line-height:1.6; }
 .yield-markers { font-size:12px; color:var(--ink-secondary); padding-left:20px; line-height:1.6; }
+.trial-monitor { background:var(--surface-card); border:1px solid var(--border); border-radius:8px; padding:16px; }
+.trial-monitor .section-toolbar { margin-bottom:8px; flex-wrap:wrap; }
+.trial-refresh { border:1px solid var(--border); border-radius:5px; background:var(--surface-chart); color:var(--ink-primary); padding:7px 10px; cursor:pointer; }
+.trial-refresh:focus-visible { outline:2px solid var(--integration-blue); outline-offset:2px; }
+.trial-headline { color:var(--ink-secondary); margin-bottom:12px; }
+.trial-tiles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.trial-tile { border:1px solid var(--border); border-radius:6px; padding:12px; min-width:0; }
+.trial-tile-label,.trial-tile small { display:block; color:var(--ink-muted); font-size:12px; }
+.trial-tile strong { display:block; font-size:23px; font-weight:600; line-height:1.35; font-variant-numeric:tabular-nums; }
+.trial-details { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 18px; margin:12px 0; }
+.trial-details > div { min-width:0; overflow-wrap:anywhere; }
+.trial-details b { display:block; font-size:12px; }
+.trial-gates { display:flex; gap:6px 12px; flex-wrap:wrap; font-size:12px; }
+.trial-gates a { color:var(--integration-blue); }
+.trial-freshness { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; border-top:1px solid var(--border); padding-top:10px; color:var(--ink-secondary); font-size:12px; }
+.trial-freshness > span { overflow-wrap:anywhere; }
+.trial-note,.trial-history { margin-top:9px; color:var(--ink-secondary); font-size:12px; }
+.trial-history summary { cursor:pointer; }
+.trial-history-list { padding-left:18px; margin-top:6px; }
+.trial-history-list a { color:var(--integration-blue); }
+.trial-legacy-note { color:var(--ink-muted); font-size:12px; margin:0 0 16px; }
+@media (max-width:600px) {
+  .trial-monitor { padding:12px; }
+  .trial-tiles,.trial-details,.trial-freshness { grid-template-columns:minmax(0,1fr); }
+  .trial-tile strong { font-size:21px; }
+}
 </style>
 
 <div class="header">
@@ -972,6 +998,29 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 <a class="process-changes" href="https://github.com/vtjeng/teleport-contest/blob/main/.agents/decisions.md">Process changes</a>
 
 <div class="stats" id="stats"></div>
+
+<section class="section trial-monitor" aria-labelledby="trialMonitorTitle">
+  <div class="section-toolbar">
+    <h2 class="section-title" id="trialMonitorTitle">Repair trial monitor</h2>
+    <button type="button" class="trial-refresh" id="trialRefresh">Refresh public status</button>
+  </div>
+  <p class="trial-headline" id="trialHeadline" aria-live="polite">Loading saved trial snapshot…</p>
+  <div class="trial-tiles">
+    <div class="trial-tile"><span class="trial-tile-label">Historical baseline · Oct 21, 11:50–15:50 UTC</span><strong id="trialBaselineCount">—</strong><small id="trialBaselineRate">Audited four-hour window</small></div>
+    <div class="trial-tile"><span class="trial-tile-label">Four-hour investigator trial</span><strong id="trialCurrentCount">Not started</strong><small id="trialCurrentRate">Clock begins only at the recorded start</small></div>
+  </div>
+  <div class="trial-details">
+    <div><b>Current candidate</b><span id="trialCandidate">Unknown</span><div class="trial-gates" id="trialGates"></div></div>
+    <div><b>Investigators and handoff</b><span id="trialInvestigators">Unknown</span><br><span id="trialHandoff">Waiting handoff: unknown</span></div>
+  </div>
+  <div class="trial-freshness">
+    <span id="trialBuildFresh">Page source: unknown</span>
+    <span id="trialManifestFresh">Manifest: unknown</span>
+    <span id="trialApiFresh">Public API: not checked</span>
+  </div>
+  <p class="trial-note" id="trialNote">Accepted repairs require exact-SHA Checkpoint, push Lint, and push Dashboard success. Rates use elapsed wall time; they do not measure compute time or replay-score gain.</p>
+  <details class="trial-history"><summary>Evidence and run history</summary><ul class="trial-history-list" id="trialHistory"></ul></details>
+</section>
 
 <section class="section" aria-labelledby="yieldTitle">
   <div class="section-toolbar">
@@ -1000,6 +1049,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
   </div>
 </section>
 
+<p class="trial-legacy-note">The activity and queue sections below retain historical Work-lead ledger data. They are separate from the trial monitor above.</p>
 <section class="section" id="assignmentQueueSection" hidden aria-labelledby="assignmentQueueTitle">
   <h3 class="section-title" id="assignmentQueueTitle">Shared work queue</h3>
   <p class="snapshot-status" id="assignmentQueueSnapshotTime" role="note"></p>
@@ -1138,6 +1188,134 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 
 <script>
 const DATA = /*DATA_PLACEHOLDER*/null;
+const TRIAL_DATA = /*TRIAL_PLACEHOLDER*/null;
+const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
+// Page-open public reads are read-only. There is no timer, credential, or
+// background observer; the button is the only subsequent refresh.
+(function() {
+  const node = id => document.getElementById(id);
+  if (!TRIAL_DATA || !createTrialMonitor) {
+    node('trialHeadline').textContent = 'Trial snapshot unavailable';
+    return;
+  }
+  let monitor;
+  try { monitor = createTrialMonitor(TRIAL_DATA); }
+  catch (error) {
+    node('trialHeadline').textContent = 'Trial snapshot invalid: ' + error.message;
+    return;
+  }
+  const stamp = value => value ? new Date(value).toLocaleString('en-US',
+    { timeZone:'UTC', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit',
+      hour12:false }) + ' UTC' : 'unknown';
+  const age = value => {
+    const ms = Date.now() - Date.parse(value);
+    if (!Number.isFinite(ms)) return 'unknown age';
+    return ms < 60000 ? 'under 1 minute old'
+      : Math.floor(ms / 60000) + ' minutes old';
+  };
+  const rate = value => value == null ? 'unknown'
+    : value.toFixed(2) + ' accepted repairs/hour';
+  const text = (id, value) => { node(id).textContent = value; };
+  const link = (run, label) => {
+    const a = document.createElement('a');
+    a.href = 'https://github.com/vtjeng/teleport-contest/actions/runs/' + run.id;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = label;
+    return a;
+  };
+  function render(view) {
+    const baseline = view.baseline;
+    text('trialBaselineCount', baseline.acceptedCount == null
+      ? 'Unknown' : baseline.acceptedCount + ' accepted');
+    text('trialBaselineRate', rate(baseline.rate) + ' wall time · '
+      + (baseline.carryInCount ?? 'unknown') + ' carry-in; '
+      + rate(baseline.withoutCarryInRate) + ' excluding carry-in. Observational.');
+    const trial = view.trial;
+    if (trial.status === 'not-started') {
+      text('trialHeadline', 'Four-hour trial not started. Historical baseline is frozen.');
+      text('trialCurrentCount', 'Not started');
+      text('trialCurrentRate', 'No trial start or elapsed rate recorded.');
+    } else {
+      const duration = trial.elapsedHours == null ? 'unknown elapsed time'
+        : trial.elapsedHours.toFixed(2) + ' elapsed wall hours';
+      text('trialHeadline', 'Trial ' + trial.status + ' · started ' + stamp(trial.start)
+        + ' · ' + duration);
+      text('trialCurrentCount', trial.acceptedCount == null
+        ? 'Unknown' : trial.acceptedCount + ' accepted');
+      text('trialCurrentRate', rate(trial.rate) + ' wall time · '
+        + (trial.carryInCount ?? 'unknown') + ' carry-in'
+        + (trial.coverage === 'unknown' ? ' · register coverage unknown' : ''));
+    }
+    const candidate = view.currentCandidate;
+    const gates = node('trialGates');
+    gates.replaceChildren();
+    if (!candidate) {
+      text('trialCandidate', trial.status === 'not-started'
+        ? 'No trial candidate yet' : 'Unknown — no candidate recorded in manifest');
+      gates.textContent = 'Checkpoint · Lint · Dashboard: unknown';
+    } else {
+      text('trialCandidate', candidate.sha.slice(0, 12) + ' · '
+        + (candidate.repairId ?? 'unregistered repair') + ' · '
+        + (candidate.investigator ?? candidate.origin ?? 'origin unknown')
+        + (candidate.registered ? '' : ' · evidence not registered'));
+      for (const name of ['Checkpoint', 'Lint', 'Dashboard']) {
+        const gate = candidate.gates[name];
+        const span = document.createElement('span');
+        span.append(name + ': ');
+        if (gate.run) span.append(link(gate.run, gate.status));
+        else span.append(gate.status);
+        gates.append(span);
+      }
+    }
+    text('trialInvestigators', view.investigators == null ? 'Status unknown'
+      : view.investigators.length === 0 ? 'No investigators recorded'
+        : view.investigators.map(item =>
+          (item.id ?? 'unnamed') + ': ' + (item.status ?? 'unknown')).join(' · '));
+    text('trialHandoff', view.waitingHandoffs == null
+      ? 'Waiting handoff: unknown (cap one)'
+      : 'Waiting handoff: ' + view.waitingHandoffs.length + ' of 1'
+        + (view.waitingHandoffs[0]?.repairId
+          ? ' · ' + view.waitingHandoffs[0].repairId : ''));
+    text('trialBuildFresh', 'Page source ' + view.buildSha.slice(0, 8)
+      + ' · commit ' + stamp(view.buildAt) + ' (' + age(view.buildAt) + ')');
+    text('trialManifestFresh', 'Manifest ' + stamp(view.manifestAsOf)
+      + ' (' + age(view.manifestAsOf) + ')'
+      + (trial.status === 'running'
+        && Date.now() - Date.parse(view.manifestAsOf) > 15 * 60000
+        ? ' · stale status' : ''));
+    text('trialApiFresh', view.api.status === 'fresh'
+      ? 'Public API checked ' + stamp(view.api.checkedAt)
+        + ' · page deployment ' + view.pageDeployment
+      : view.api.status === 'failed'
+        ? 'Public API unavailable: ' + view.api.error
+          + '. Last-known snapshot; this build cannot observe its own Dashboard completion.'
+        : 'Build snapshot only; this build cannot observe its own Dashboard completion.');
+    const history = node('trialHistory');
+    history.replaceChildren();
+    for (const result of [...view.results].reverse()) {
+      const item = document.createElement('li');
+      item.append(result.repair.id + ' · '
+        + (result.accepted ? 'accepted ' + stamp(result.accepted.closureAt) : 'not accepted'));
+      for (const candidateRow of result.candidates) {
+        for (const run of candidateRow.candidate.runs) {
+          item.append(' · ', link(run, run.name + ' #' + run.attempt
+            + ' ' + (run.conclusion ?? run.status)));
+        }
+      }
+      history.append(item);
+    }
+  }
+  render(monitor.summarize());
+  const button = node('trialRefresh');
+  async function refresh() {
+    button.disabled = true;
+    try { render(await monitor.refresh()); }
+    finally { button.disabled = false; }
+  }
+  button.addEventListener('click', refresh);
+  refresh();
+})();
 const activityUtilization = /*UTILIZATION_PLACEHOLDER*/null;
 const integrationDurations = /*INTEGRATION_DURATION_PLACEHOLDER*/null;
 const createChartTimeRange = /*TIME_RANGE_PLACEHOLDER*/null;

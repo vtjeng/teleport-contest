@@ -1,0 +1,969 @@
+{
+  "version": 1,
+  "asOf": "2026-10-21T17:18:47.566Z",
+  "repairs": [
+    {
+      "id": "trapper-expulsion",
+      "kind": "parity-repair",
+      "title": "Locate trapper expulsion message",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": true,
+      "evidence": {
+        "source": [
+          "js/mhitu.js"
+        ],
+        "witness": [
+          "recipes/mhitu.c/trapper-opening-expels-accessible.session.json"
+        ],
+        "test": [
+          "scripts/trapper-opening-expels-accessible.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "7f97c7d54d2712566b2febc10208a1b1c53d93ee",
+          "committedAt": "2026-10-21T11:44:44Z",
+          "startedAt": "2026-10-21T11:45:16Z",
+          "runs": [
+            {
+              "id": 39595113209,
+              "name": "Dashboard",
+              "sha": "7f97c7d54d2712566b2febc10208a1b1c53d93ee",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T11:51:49Z",
+              "completedAt": "2026-10-21T11:54:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39595113209"
+            },
+            {
+              "id": 39595113228,
+              "name": "Lint",
+              "sha": "7f97c7d54d2712566b2febc10208a1b1c53d93ee",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T11:51:49Z",
+              "completedAt": "2026-10-21T11:52:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39595113228"
+            },
+            {
+              "id": 39594291637,
+              "name": "Checkpoint",
+              "sha": "7f97c7d54d2712566b2febc10208a1b1c53d93ee",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/trapper-expels-location",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T11:45:16Z",
+              "completedAt": "2026-10-21T11:50:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39594291637"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mind-flayer-psychic-blast",
+      "kind": "parity-repair",
+      "title": "Locate mind flayer psychic blast",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/monmove.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/mind-flayer-blast-accessible.session.json"
+        ],
+        "test": [
+          "scripts/mind-flayer-blast-accessible.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "279baa5d181ef46138aee9f05f71de3322b13a12",
+          "committedAt": "2026-10-21T12:01:41Z",
+          "startedAt": "2026-10-21T12:02:31Z",
+          "runs": [
+            {
+              "id": 39597373888,
+              "name": "Dashboard",
+              "sha": "279baa5d181ef46138aee9f05f71de3322b13a12",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T12:09:31Z",
+              "completedAt": "2026-10-21T12:12:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39597373888"
+            },
+            {
+              "id": 39597370073,
+              "name": "Lint",
+              "sha": "279baa5d181ef46138aee9f05f71de3322b13a12",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T12:09:29Z",
+              "completedAt": "2026-10-21T12:10:24Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39597370073"
+            },
+            {
+              "id": 39596470470,
+              "name": "Checkpoint",
+              "sha": "279baa5d181ef46138aee9f05f71de3322b13a12",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mind-flayer-blast-location",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T12:02:31Z",
+              "completedAt": "2026-10-21T12:08:16Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39596470470"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "held-monster-escape",
+      "kind": "parity-repair",
+      "title": "Locate held monster escape message",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/monmove.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/held-minotaur-escape-accessible.session.json"
+        ],
+        "test": [
+          "scripts/held-minotaur-escape-accessible.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "7df999b10344ff9df7cec2aa9e6f35e05834105e",
+          "committedAt": "2026-10-21T12:16:56Z",
+          "startedAt": "2026-10-21T12:17:28Z",
+          "runs": [
+            {
+              "id": 39599264629,
+              "name": "Lint",
+              "sha": "7df999b10344ff9df7cec2aa9e6f35e05834105e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T12:23:53Z",
+              "completedAt": "2026-10-21T12:24:47Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39599264629"
+            },
+            {
+              "id": 39599264663,
+              "name": "Dashboard",
+              "sha": "7df999b10344ff9df7cec2aa9e6f35e05834105e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T12:23:53Z",
+              "completedAt": "2026-10-21T12:25:59Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39599264663"
+            },
+            {
+              "id": 39598423773,
+              "name": "Checkpoint",
+              "sha": "7df999b10344ff9df7cec2aa9e6f35e05834105e",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/held-monster-escape-location",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T12:17:28Z",
+              "completedAt": "2026-10-21T12:22:54Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39598423773"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-croesus-name",
+      "kind": "parity-repair",
+      "title": "Handle vault guard accepting Croesus name",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/croesus-name-guard.session.json"
+        ],
+        "test": [
+          "scripts/vault-croesus-name.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "70ebe10a84319c2916a2ee275c379103dab42ec8",
+          "committedAt": "2026-10-21T12:58:13Z",
+          "startedAt": "2026-10-21T12:58:47Z",
+          "runs": [
+            {
+              "id": 39605335391,
+              "name": "Dashboard",
+              "sha": "70ebe10a84319c2916a2ee275c379103dab42ec8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:08:10Z",
+              "completedAt": "2026-10-21T13:10:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39605335391"
+            },
+            {
+              "id": 39605335379,
+              "name": "Lint",
+              "sha": "70ebe10a84319c2916a2ee275c379103dab42ec8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:08:10Z",
+              "completedAt": "2026-10-21T13:09:00Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39605335379"
+            },
+            {
+              "id": 39603985191,
+              "name": "Checkpoint",
+              "sha": "70ebe10a84319c2916a2ee275c379103dab42ec8",
+              "attempt": 2,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-croesus-name",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T12:58:47Z",
+              "completedAt": "2026-10-21T13:06:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39603985191"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-gold-witness",
+      "kind": "parity-repair",
+      "title": "React when vault guard witnesses gold consumption",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-witness-eaten-gold.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-witness-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "51a42b3e8d15867b0a823d3c0c169128a67b9a59",
+          "committedAt": "2026-10-21T13:12:15Z",
+          "startedAt": "2026-10-21T13:12:47Z",
+          "runs": [
+            {
+              "id": 39606925846,
+              "name": "Lint",
+              "sha": "51a42b3e8d15867b0a823d3c0c169128a67b9a59",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:19:03Z",
+              "completedAt": "2026-10-21T13:19:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39606925846"
+            },
+            {
+              "id": 39606926089,
+              "name": "Dashboard",
+              "sha": "51a42b3e8d15867b0a823d3c0c169128a67b9a59",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:19:03Z",
+              "completedAt": "2026-10-21T13:20:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39606926089"
+            },
+            {
+              "id": 39606006072,
+              "name": "Checkpoint",
+              "sha": "51a42b3e8d15867b0a823d3c0c169128a67b9a59",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-guard-witness",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:12:47Z",
+              "completedAt": "2026-10-21T13:18:15Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39606006072"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-final-warning",
+      "kind": "parity-repair",
+      "title": "Handle vault guard's final gold warning",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-warning-hostile.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-warning.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "07b09dc4494649fc218a1d3bc5f91227e8f46dfa",
+          "committedAt": "2026-10-21T13:22:01Z",
+          "startedAt": "2026-10-21T13:23:22Z",
+          "runs": [
+            {
+              "id": 39608536745,
+              "name": "Lint",
+              "sha": "07b09dc4494649fc218a1d3bc5f91227e8f46dfa",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:30:05Z",
+              "completedAt": "2026-10-21T13:30:59Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39608536745"
+            },
+            {
+              "id": 39608536495,
+              "name": "Dashboard",
+              "sha": "07b09dc4494649fc218a1d3bc5f91227e8f46dfa",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:30:05Z",
+              "completedAt": "2026-10-21T13:33:05Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39608536495"
+            },
+            {
+              "id": 39607559838,
+              "name": "Checkpoint",
+              "sha": "07b09dc4494649fc218a1d3bc5f91227e8f46dfa",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-final-warning",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:23:22Z",
+              "completedAt": "2026-10-21T13:29:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39607559838"
+            },
+            {
+              "id": 39607560581,
+              "name": "Checkpoint",
+              "sha": "07b09dc4494649fc218a1d3bc5f91227e8f46dfa",
+              "attempt": 1,
+              "event": "workflow_dispatch",
+              "branch": "integration-checkpoint/vault-final-warning",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "createdAt": "2026-10-21T13:23:22Z",
+              "completedAt": "2026-10-21T13:25:38Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39607560581"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-corridor-gold",
+      "kind": "parity-repair",
+      "title": "Collect gold beneath hero in vault corridor",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-corridor-gold.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-corridor-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "090b15cf656c6d86286f619582734284d29e765a",
+          "committedAt": "2026-10-21T13:37:42Z",
+          "startedAt": "2026-10-21T13:40:37Z",
+          "runs": [
+            {
+              "id": 39611600710,
+              "name": "Dashboard",
+              "sha": "090b15cf656c6d86286f619582734284d29e765a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:50:58Z",
+              "completedAt": "2026-10-21T13:53:55Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39611600710"
+            },
+            {
+              "id": 39611600454,
+              "name": "Lint",
+              "sha": "090b15cf656c6d86286f619582734284d29e765a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:50:58Z",
+              "completedAt": "2026-10-21T13:51:48Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39611600454"
+            },
+            {
+              "id": 39611369555,
+              "name": "Lint",
+              "sha": "090b15cf656c6d86286f619582734284d29e765a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:49:26Z",
+              "completedAt": "2026-10-21T13:50:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39611369555"
+            },
+            {
+              "id": 39611369302,
+              "name": "Dashboard",
+              "sha": "090b15cf656c6d86286f619582734284d29e765a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "createdAt": "2026-10-21T13:49:26Z",
+              "completedAt": "2026-10-21T13:51:17Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39611369302"
+            },
+            {
+              "id": 39610499339,
+              "name": "Checkpoint",
+              "sha": "090b15cf656c6d86286f619582734284d29e765a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-corridor-gold",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "createdAt": "2026-10-21T13:43:35Z",
+              "completedAt": "2026-10-21T13:47:11Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39610499339"
+            },
+            {
+              "id": 39610070043,
+              "name": "Checkpoint",
+              "sha": "090b15cf656c6d86286f619582734284d29e765a",
+              "attempt": 1,
+              "event": "workflow_dispatch",
+              "branch": "integration-checkpoint/vault-corridor-gold",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T13:40:37Z",
+              "completedAt": "2026-10-21T13:46:21Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39610070043"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-distant-gold",
+      "kind": "parity-repair",
+      "title": "Collect distant vault corridor gold beneath hero",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-distant-corridor-gold.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-distant-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "fb9046f60a1ae63f53cabb6b1419bb97bc25e7f8",
+          "committedAt": "2026-10-21T13:56:59Z",
+          "startedAt": "2026-10-21T14:01:20Z",
+          "runs": [
+            {
+              "id": 39614241818,
+              "name": "Dashboard",
+              "sha": "fb9046f60a1ae63f53cabb6b1419bb97bc25e7f8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:08:38Z",
+              "completedAt": "2026-10-21T14:11:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39614241818"
+            },
+            {
+              "id": 39614241952,
+              "name": "Lint",
+              "sha": "fb9046f60a1ae63f53cabb6b1419bb97bc25e7f8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:08:38Z",
+              "completedAt": "2026-10-21T14:09:31Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39614241952"
+            },
+            {
+              "id": 39613156198,
+              "name": "Checkpoint",
+              "sha": "fb9046f60a1ae63f53cabb6b1419bb97bc25e7f8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-distant-gold",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "createdAt": "2026-10-21T14:01:34Z",
+              "completedAt": "2026-10-21T14:04:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39613156198"
+            },
+            {
+              "id": 39613122384,
+              "name": "Checkpoint",
+              "sha": "fb9046f60a1ae63f53cabb6b1419bb97bc25e7f8",
+              "attempt": 1,
+              "event": "workflow_dispatch",
+              "branch": "integration-checkpoint/vault-distant-gold",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:01:20Z",
+              "completedAt": "2026-10-21T14:07:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39613122384"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-thrown-gold",
+      "kind": "parity-repair",
+      "title": "Collect thrown gold from vault guard corridor",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-thrown-corridor-gold.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-thrown-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "ed2e03b6f71f4e16a96565d18484f9ea987c2c26",
+          "committedAt": "2026-10-21T14:13:18Z",
+          "startedAt": "2026-10-21T14:13:49Z",
+          "runs": [
+            {
+              "id": 39617152211,
+              "name": "Lint",
+              "sha": "ed2e03b6f71f4e16a96565d18484f9ea987c2c26",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:28:53Z",
+              "completedAt": "2026-10-21T14:29:45Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39617152211"
+            },
+            {
+              "id": 39617152076,
+              "name": "Dashboard",
+              "sha": "ed2e03b6f71f4e16a96565d18484f9ea987c2c26",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:28:53Z",
+              "completedAt": "2026-10-21T14:35:37Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39617152076"
+            },
+            {
+              "id": 39615020027,
+              "name": "Checkpoint",
+              "sha": "ed2e03b6f71f4e16a96565d18484f9ea987c2c26",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-thrown-gold",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:13:49Z",
+              "completedAt": "2026-10-21T14:19:44Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39615020027"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-carried-gold-warning",
+      "kind": "parity-repair",
+      "title": "Warn and anger vault guard when hero carries corridor gold",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/mondata.js",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-carried-corridor-gold.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-carried-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "9ad487e2e5a0045a56b4e8fbf6a3262111f612fe",
+          "committedAt": "2026-10-21T14:38:13Z",
+          "startedAt": "2026-10-21T14:42:22Z",
+          "runs": [
+            {
+              "id": 39620901674,
+              "name": "Lint",
+              "sha": "9ad487e2e5a0045a56b4e8fbf6a3262111f612fe",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:53:55Z",
+              "completedAt": "2026-10-21T14:54:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39620901674"
+            },
+            {
+              "id": 39620901692,
+              "name": "Dashboard",
+              "sha": "9ad487e2e5a0045a56b4e8fbf6a3262111f612fe",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:53:55Z",
+              "completedAt": "2026-10-21T14:56:23Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39620901692"
+            },
+            {
+              "id": 39619186204,
+              "name": "Checkpoint",
+              "sha": "9ad487e2e5a0045a56b4e8fbf6a3262111f612fe",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-carried-gold-20261021",
+              "status": "completed",
+              "conclusion": "cancelled",
+              "createdAt": "2026-10-21T14:42:23Z",
+              "completedAt": "2026-10-21T14:45:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39619186204"
+            },
+            {
+              "id": 39619184089,
+              "name": "Checkpoint",
+              "sha": "9ad487e2e5a0045a56b4e8fbf6a3262111f612fe",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-carried-gold-20261021",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T14:42:22Z",
+              "completedAt": "2026-10-21T14:48:42Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39619184089"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-deaf-name",
+      "kind": "parity-repair",
+      "title": "Show deaf vault guard name response",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-deaf-name-response.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-deaf-name.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "880cece82c65b56dc70d47a1f435523355dcd370",
+          "committedAt": "2026-10-21T14:57:53Z",
+          "startedAt": "2026-10-21T15:05:34Z",
+          "runs": [
+            {
+              "id": 39625086361,
+              "name": "Dashboard",
+              "sha": "880cece82c65b56dc70d47a1f435523355dcd370",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:22:39Z",
+              "completedAt": "2026-10-21T15:25:36Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39625086361"
+            },
+            {
+              "id": 39625086432,
+              "name": "Lint",
+              "sha": "880cece82c65b56dc70d47a1f435523355dcd370",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:22:39Z",
+              "completedAt": "2026-10-21T15:23:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39625086432"
+            },
+            {
+              "id": 39622588401,
+              "name": "Checkpoint",
+              "sha": "880cece82c65b56dc70d47a1f435523355dcd370",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-deaf-name-20261021",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:05:34Z",
+              "completedAt": "2026-10-21T15:11:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39622588401"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-deaf-carried-gold",
+      "kind": "parity-repair",
+      "title": "Show deaf guard demand for carried vault gold",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-deaf-carried-gold.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-deaf-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "d093be05c524e547c813495295d720083d3e135a",
+          "committedAt": "2026-10-21T15:26:41Z",
+          "startedAt": "2026-10-21T15:27:14Z",
+          "runs": [
+            {
+              "id": 39626793304,
+              "name": "Dashboard",
+              "sha": "d093be05c524e547c813495295d720083d3e135a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:33:40Z",
+              "completedAt": "2026-10-21T15:36:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39626793304"
+            },
+            {
+              "id": 39626793386,
+              "name": "Lint",
+              "sha": "d093be05c524e547c813495295d720083d3e135a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:33:40Z",
+              "completedAt": "2026-10-21T15:34:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39626793386"
+            },
+            {
+              "id": 39625817904,
+              "name": "Checkpoint",
+              "sha": "d093be05c524e547c813495295d720083d3e135a",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-deaf-gold-20261021",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:27:14Z",
+              "completedAt": "2026-10-21T15:32:50Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39625817904"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vault-deaf-hidden-gold",
+      "kind": "parity-repair",
+      "title": "Show deaf guard response to hidden vault gold",
+      "window": "baseline",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "evidence": {
+        "source": [
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-deaf-hidden-gold.session.json"
+        ],
+        "test": [
+          "scripts/vault-guard-deaf-hidden-gold.test.mjs"
+        ]
+      },
+      "candidates": [
+        {
+          "sha": "a978d9b841836e5dc2392867af95fdbd74a5e54f",
+          "committedAt": "2026-10-21T15:37:18Z",
+          "startedAt": "2026-10-21T15:37:49Z",
+          "runs": [
+            {
+              "id": 39628393133,
+              "name": "Dashboard",
+              "sha": "a978d9b841836e5dc2392867af95fdbd74a5e54f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:44:16Z",
+              "completedAt": "2026-10-21T15:47:13Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39628393133"
+            },
+            {
+              "id": 39628393109,
+              "name": "Lint",
+              "sha": "a978d9b841836e5dc2392867af95fdbd74a5e54f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:44:16Z",
+              "completedAt": "2026-10-21T15:45:08Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39628393109"
+            },
+            {
+              "id": 39627401846,
+              "name": "Checkpoint",
+              "sha": "a978d9b841836e5dc2392867af95fdbd74a5e54f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-deaf-hidden-20261021",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-21T15:37:49Z",
+              "completedAt": "2026-10-21T15:43:27Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39627401846"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
