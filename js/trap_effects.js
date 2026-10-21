@@ -4070,8 +4070,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     dotrap() before its own source-backed effect;
 //   a mounted hero where the effect has no corresponding source arm --
 //     steedintrap() handles the arrow, dart, gas, magic, polymorph,
-//     landmine and pit arms; LEVEL_TELEP and MAGIC_PORTAL target the hero
-//     directly in their source effects and admit a mounted hero too;
+//     landmine and pit arms; TELEP_TRAP, LEVEL_TELEP and MAGIC_PORTAL target
+//     the hero directly in their source effects and admit a mounted hero too;
 //     ROCKTRAP, FIRE_TRAP and RUST_TRAP still target the hero, ANTI_MAGIC acts
 //     directly on them, and VIBRATING_SQUARE calls feeltrap() for the hero;
 export function preflight_dotrap(trap, state = game, trflags = 0) {
@@ -4139,6 +4139,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== POLY_TRAP
         && trap.ttyp !== SQKY_BOARD
         && trap.ttyp !== VIBRATING_SQUARE
+        && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LEVEL_TELEP
         && trap.ttyp !== MAGIC_PORTAL
         && !pitTrap) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mounted teleport-trap probe. A stock debug Knight force-mounts the adjacent pony, wishes a teleport trap on room floor, steps south, then returns north while mounted. Test whether C reaches tele_trap and whether JavaScript refuses before the effect.",
+  "segments": [
+    {
+      "seed": 73905113,
+      "datetime": "20461021151412",
+      "nethackrc": "OPTIONS=name:TeleRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#ride\nuy\u0017teleportation trap\njk \u001b\u001b"
+    }
+  ]
+}
