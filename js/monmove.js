@@ -734,7 +734,10 @@ async function mind_blast(mtmp, env = {}) {
 
     if (canseemon(mtmp, state)) {
         await message(
-            `${capitalizedMonsterName(mtmp, state)} concentrates.`,
+            messageAt(
+                `${capitalizedMonsterName(mtmp, state)} concentrates.`,
+                mtmp.mx, mtmp.my, state,
+            ),
             state,
             env,
         );
