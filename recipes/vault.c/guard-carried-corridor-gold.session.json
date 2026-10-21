@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent vault.c:gd_move witness: follow a naturally summoned guard into its fake corridor, wish for gold while still escorted, wait for the demand, then refuse it for a turn.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021180500",
+      "nethackrc": "OPTIONS=name:VaultCarry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........zn.  ..................... VaultCarry\n...h#wizwish\n100 gold pieces\n.."
+    }
+  ]
+}

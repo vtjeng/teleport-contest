@@ -61,7 +61,7 @@ import { dist2 } from './hacklib.js';
 import { nomul } from './hack.js';
 import { add_to_minv, money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { set_malign } from './makemon.js';
-import { gender, is_silent, sticks } from './mondata.js';
+import { gender, is_silent, noit_mhis, sticks } from './mondata.js';
 import { PM_CROESUS, PM_GUARD } from './monsters.js';
 import {
     m_at, mon_track_clear, place_monster, remove_monster,
@@ -688,10 +688,40 @@ export async function gd_move(grd, env = {}) {
         }
         if (u_carry_gold && (in_fcorridor(grd, state.u.ux, state.u.uy)
             || (egrd.fcend > 1 && u_in_vault))) {
-            // Hero carrying gold inside corridor or vault
-            throw new UnsupportedVaultGuardError(
-                'gd_move() hero carrying gold in corridor (fcend > 1)',
-            );
+            // C ref: vault.c gd_move(): the escort makes one demand, then
+            // turns hostile if the hero still carries gold on the next turn.
+            if (!grd.mx) {
+                await restfakecorr(grd, state, gdEnv);
+                return -2;
+            }
+            if (egrd.warncnt < 6) {
+                egrd.warncnt = 6;
+                if (Deaf(state)) {
+                    if (!Blind(state)) {
+                        await message(
+                            `${noit_Monnam(grd, state)} holds out ${noit_mhis(grd, { state })} palm demandingly!`,
+                            state, gdEnv,
+                        );
+                    }
+                } else {
+                    set_voice(grd, 0, 80, 0, state);
+                    await verbalize('Drop all your gold, scoundrel!', state, { message });
+                }
+                return 0;
+            }
+            if (Deaf(state)) {
+                if (!Blind(state)) {
+                    await message(
+                        `${noit_Monnam(grd, state)} rubs ${noit_mhis(grd, { state })} hands with enraged delight!`,
+                        state, gdEnv,
+                    );
+                }
+            } else {
+                set_voice(grd, 0, 80, 0, state);
+                await verbalize('So be it, rogue!', state, { message });
+            }
+            grd.mpeaceful = 0;
+            return -1;
         }
     }
 

@@ -1893,6 +1893,12 @@ export function mhis(mtmp, env = {}) {
     return genders[pronoun_gender(mtmp, PRONOUN_HALLU, env)].his;
 }
 
+// C ref: you.h noit_mhis(). Keep the monster's pronoun when lack of
+// visibility alone would otherwise turn it into "its".
+export function noit_mhis(mtmp, env = {}) {
+    return genders[pronoun_gender(mtmp, PRONOUN_NO_IT | PRONOUN_HALLU, env)].his;
+}
+
 // C ref: you.h:322 mhe(), a monster's subject pronoun. Same pattern as
 // mhis() above but uses `.he` instead of `.his`.
 export function mhe(mtmp, env = {}) {
