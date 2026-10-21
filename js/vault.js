@@ -1242,9 +1242,11 @@ export async function invault(state, env = {}) {
     } else {
         if (Deaf(state)) {
             if (!umoney) {
-                throw new UnsupportedVaultGuardError(
-                    'invault() deaf guard response to hidden gold',
-                );
+                if (!Blind(state)) {
+                    await message(
+                        `${noit_Monnam(guard, state)} glares at you${state.invent ? 'r stuff' : ''}.`,
+                    );
+                }
             }
             if (!Blind(state)) {
                 const possessive = noit_mhis(guard, { state });

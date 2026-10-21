@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent vault.c:invault witness: a permanently deaf hero picks up vault gold, stashes it in a wished carried sack, and gives their name to a naturally summoned guard. The guard glares at the sack then silently demands the hidden gold.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021201000",
+      "nethackrc": "OPTIONS=name:VaultHidden,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n\nOPTIONS=permadeaf\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........zn.  j. ,#wizwish\nuncursed sack\naoib\n$\n.................. VaultHidden\n  "
+    }
+  ]
+}
