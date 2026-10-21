@@ -144,6 +144,7 @@ import {
     o_on,
     update_inventory,
     sobj_at,
+    xprname,
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
@@ -1820,6 +1821,51 @@ const PAY_BUY = 1, PAY_CANT = 0, PAY_SKIP = -1, PAY_BROKE = -2;
 export function bp_to_obj(bp, state = game) {
     return bp.useup ? o_on(bp.bo_id, state.gb?.billobjs)
         : find_oid(bp.bo_id, state);
+}
+
+// C ref: shk.c doinvbill() (4197-4275). Mode zero tells invent.c whether the
+// used-up category exists; mode one shows its itemized bill in a text window.
+export async function doinvbill(mode, state = game) {
+    const shkp = shop_keeper(firstRoom(state.u?.ushops), state);
+    if (!shkp || !inhishop(shkp, state)) {
+        if (mode) note_unported('shk.c doinvbill: no shopkeeper');
+        return 0;
+    }
+    const eshk = shkp.mextra.eshk;
+    const bill = (eshk.bill_p ?? []).slice(0, eshk.billct);
+    if (!mode) {
+        return Number(Boolean(eshk.debit)) + bill.reduce((count, bp) => {
+            const obj = bp.useup ? null : bp_to_obj(bp, state);
+            return count + Number(Boolean(bp.useup || (obj && obj.quan < bp.bquan)));
+        }, 0);
+    }
+    const lines = ['Unpaid articles already used up:', ''];
+    let total = 0;
+    for (const bp of bill) {
+        const obj = bp_to_obj(bp, state);
+        if (!obj) {
+            note_unported('shk.c doinvbill: bad shopkeeper administration');
+            break;
+        }
+        if (!bp.useup && bp.bquan <= obj.quan) continue;
+        const used = bp.useup ? bp.bquan : bp.bquan - obj.quan;
+        const cost = bp.price * used;
+        total += cost;
+        state.iflags ??= {};
+        const previous = state.iflags.suppress_price ?? 0;
+        state.iflags.suppress_price = previous + 1;
+        try { lines.push(xprname(obj, null, 'x', false, cost, used, state)); }
+        finally { state.iflags.suppress_price = previous; }
+    }
+    if (eshk.debit) {
+        if (total) lines.push('');
+        total += eshk.debit;
+        lines.push(xprname(null, 'usage charges and/or other fees', '$',
+            false, eshk.debit, 0, state));
+    }
+    lines.push('', xprname(null, 'Total:', '*', false, total, 0, state));
+    await displayTtyMenuTextWindow(state, lines);
+    return 0;
 }
 
 export function find_oid(id, state = game) {

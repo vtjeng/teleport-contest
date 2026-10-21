@@ -360,6 +360,7 @@ import {
     inside_shop,
     same_price,
     shop_keeper,
+    doinvbill,
     shop_debt,
     stolen_value,
     check_unpaid,
@@ -5399,7 +5400,7 @@ export async function dotypeinv(state = game, hooks = {}) {
     state.gt.this_type = 0;
     state.gt.this_title = null;
     const inventory = inventoryHead(state);
-    const billx = false; // shop bill display is not yet a live inventory owner.
+    const billx = Boolean(state.u?.ushops?.[0] && await doinvbill(0, state));
     if (!inventory && !billx) {
         await ttyPline("You aren't carrying anything.", state);
         state.gt.this_type = 0;
@@ -5471,7 +5472,7 @@ export async function dotypeinv(state = game, hooks = {}) {
 
     if (selectedType === 'x' || (selectedType === 'X' && billx && !xcnt)) {
         if (billx) {
-            note_unported('invent.c doinvbill');
+            await doinvbill(1, state);
         } else {
             await ttyPline(
                 `No used-up objects${anyUnpaid ? ' on your shopping bill' : ''}.`,

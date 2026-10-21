@@ -111,6 +111,30 @@ test('dotypeinv matches the recorded inventory category menu', async () => {
     assert.equal(comparison.passed, true, JSON.stringify(comparison, null, 2));
 });
 
+test('dotypeinv shows the used-up bill after drinking unpaid shop stock', async () => {
+    // In a naturally generated D:5 shop, the hero buys and drinks a floor
+    // potion, then chooses x from #inventtype. C itemizes the 7-zorkmid debt.
+    const recording = JSON.parse(readFileSync(
+        'recordings/invent.c/shop-used-potion-bill.session.json', 'utf8',
+    ));
+    assert.match(recording.segments[0].steps.at(-2).screen,
+        /Unpaid articles already used up:[\s\S]*x - a potion of water[\s\S]*7 zorkmids/u);
+    const result = await runSegment(recording.segments[0]);
+    const comparison = compareSessionOutputs(recording, {
+        rng: result.getRngLog(),
+        screens: result.getScreens(),
+        cursors: result.getCursors(),
+        animFrames: result.getAnimationFramesByStep(),
+        segments: [{
+            rng: result.getRngLog(),
+            screens: result.getScreens(),
+            cursors: result.getCursors(),
+            animFrames: result.getAnimationFramesByStep(),
+        }],
+    });
+    assert.equal(comparison.passed, true, JSON.stringify(comparison, null, 2));
+});
+
 test('fully_identify_obj learns a known egg species after object flags', () => {
     const cStart = INVENT_C.indexOf('fully_identify_obj(struct obj *otmp)');
     const cEnd = INVENT_C.indexOf('\n}', cStart) + 2;
