@@ -457,12 +457,12 @@ async function cursetxt(mtmp, undirected, env = {}) {
             point_msg = 'at you, then curses';
         }
         if (message) {
-            await message(
+            await message(messageAt(
                 `${env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state)
                 } points ${point_msg}.`,
-                state,
-            );
+                mtmp.mx, mtmp.my, state,
+            ), state);
         }
     } else if (!(state.moves % 4) || !random.rn2(4)) {
         if (!Deaf(state)) {
