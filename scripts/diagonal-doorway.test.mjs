@@ -19,7 +19,6 @@ import {
     doorless_door,
     preflightDomoveDestination,
     test_move,
-    UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -467,27 +466,21 @@ test('the seam consults its destination checks only where the rules allow',
         here.typ = ROOM;
         destination.typ = DOOR;
         destination.flags = destination.doormask = D_ISOPEN;
-        // A magic portal remains outside preflight_dotrap()'s admitted hero
-        // types because trap.c:level_tele_trap is unported. It makes the
-        // orthogonal-arrival half prove that the trap is consulted only after
-        // the diagonal doorway rule has admitted the step.
+        // The portal is admitted for hero arrival, but the diagonal doorway
+        // rule refuses this step before arrival consequences are reached.
         game.level.traps = [{
             tx: ux + 1, ty: uy + 1, ttyp: MAGIC_PORTAL, tseen: true,
         }];
         preflightDomoveDestination(ux + 1, uy + 1, game);
 
         // Same square, orthogonal step: the entry rule reads dx and dy, so an
-        // orthogonal arrival is admitted and the trap is consulted after all.
+        // orthogonal arrival and its portal are admitted.
         game.level.at(ux + 1, uy).typ = DOOR;
         game.level.at(ux + 1, uy).flags = D_ISOPEN;
         game.level.traps = [{
             tx: ux + 1, ty: uy, ttyp: MAGIC_PORTAL, tseen: true,
         }];
-        assert.throws(
-            () => preflightDomoveDestination(ux + 1, uy, game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'trap activation',
-        );
+        assert.doesNotThrow(() => preflightDomoveDestination(ux + 1, uy, game));
         game.level.at(ux + 1, uy).typ = STONE;
         game.level.traps = [];
 

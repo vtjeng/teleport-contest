@@ -64,7 +64,6 @@ import {
     LADDER,
     LAVAPOOL,
     LEVITATION,
-    MAGIC_PORTAL,
     MARK,
     M_AP_FURNITURE,
     MON_FLOOR,
@@ -1229,22 +1228,8 @@ test('pile_limit zero leaves a single object on the naming path', async () => {
 
 test('simple hero movement rejects spot effects before mutation', async () => {
     const cases = [
-        {
-            // trap.c's MAGIC_PORTAL arm still reaches level_tele_trap(),
-            // which is unported. STATUE_TRAP is admitted now that its hero
-            // activation path is implemented.
-            name: 'hidden magic portal',
-            reason: 'trap activation',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                // tseen=false models a legally enterable hidden trap.
-                game.level.traps.push({
-                    tx: x, ty: y, ttyp: MAGIC_PORTAL, tseen: false,
-                });
-            },
-        },
-        // trap.c preflight_dotrap()'s remaining stops beyond the trap type.
-        // is asked here, ahead of the move, because spoteffects() calls
+        // trap.c preflight_dotrap()'s remaining stop beyond the trap type
+        // is checked ahead of the move, because spoteffects() calls
         // dotrap() after the hero has already stepped onto the square and
         // pickup(1) has already described what is on it; refusing there would
         // land after both.
@@ -1425,20 +1410,6 @@ test('live !safe_pet collision can decline the attack without a PRNG draw',
 
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
-        {
-            // The statue-trap hero arm is implemented; retain this retry
-            // assertion on the unported MAGIC_PORTAL level-teleport path.
-            name: 'hidden magic portal',
-            reason: 'trap activation',
-            install: ({ x, y }) => {
-                game.level.traps = [{
-                    tx: x, ty: y, ttyp: MAGIC_PORTAL, tseen: false,
-                }];
-            },
-            remove: () => {
-                game.level.traps = [];
-            },
-        },
         // A doorless, broken, or open doorway is an admitted destination
         // (hack.c test_move() reaches only its testdiag arm for those), and so
         // are the two masks closed_door() answers TRUE for: autoopen pulls at
@@ -2005,8 +1976,8 @@ test('unsupported movement retains its byte ahead of the next command',
         resetCommandVars(game);
         const start = [game.u.ux, game.u.uy];
         const east = game.level.at(start[0] + 1, start[1]);
-        // A hidden magic portal is refused by the still-unported trap arm;
-        // this keeps the queued-byte assertion independent of ICE movement.
+        // Iron shoes require an unsupported naming branch on a bear trap;
+        // this keeps the queued-byte assertion independent of terrain.
         east.typ = ROOM;
         east.flags = east.doormask = 0;
         for (const column of game.level.monsters) column.fill(null);
@@ -2015,9 +1986,13 @@ test('unsupported movement retains its byte ahead of the next command',
         game.level.traps = [{
             tx: start[0] + 1,
             ty: start[1],
-            ttyp: MAGIC_PORTAL,
+            ttyp: BEAR_TRAP,
             tseen: false,
         }];
+        game.uarmf = {
+            o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
+            quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
+        };
         game.level.regions = [];
         game.head_engr = null;
         game.nhDisplay.pushKey(commandKeyCode('l'));
@@ -2028,7 +2003,7 @@ test('unsupported movement retains its byte ahead of the next command',
                 moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'trap activation'
+                    && error.reason === 'iron shoes in a bear trap'
                 ),
             );
             assert.equal(
@@ -2075,7 +2050,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     const x = start[0] + 1;
     const y = start[1];
     const east = game.level.at(x, y);
-    // A hidden magic portal is refused after the reqmenu prefix is parsed;
+    // An iron-shoes bear trap is refused after the reqmenu prefix is parsed;
     // this pins retry ownership without treating ICE as blocked terrain.
     east.typ = ROOM;
     east.flags = east.doormask = 0;
@@ -2085,9 +2060,13 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     game.level.traps = [{
         tx: x,
         ty: y,
-        ttyp: MAGIC_PORTAL,
+        ttyp: BEAR_TRAP,
         tseen: false,
     }];
+    game.uarmf = {
+        o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
+        quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
+    };
     game.level.regions = [];
     game.head_engr = null;
     game.nhDisplay.pushKey(commandKeyCode('m'));
@@ -2100,7 +2079,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'trap activation'
+                && error.reason === 'iron shoes in a bear trap'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
@@ -4942,15 +4921,19 @@ test('the run loop leaves a class outside the refusal list as it found it',
         // breaks the segment on it directly -- so the seam's own refusal has
         // to arrive with its own type, reason and message.
         const { first, second } = await prepareRunPastTheFirstStep();
-        // This hidden portal reaches the named trap boundary after the run's
+        // An iron-shoes bear trap reaches the named trap boundary after the run's
         // first step, exercising the same unconverted error class without
         // relying on the now-supported ICE arrival path.
         game.level.traps = [{
             tx: second[0],
             ty: second[1],
-            ttyp: MAGIC_PORTAL,
+            ttyp: BEAR_TRAP,
             tseen: false,
         }];
+        game.uarmf = {
+            o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
+            quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
+        };
         await takeFirstRunStep(first);
 
         await assert.rejects(
@@ -4960,7 +4943,7 @@ test('the run loop leaves a class outside the refusal list as it found it',
                     error instanceof UnsupportedHeroMoveBoundaryError,
                     `${error.constructor.name} is not a hero move boundary`,
                 );
-                assert.equal(error.reason, 'trap activation');
+                assert.equal(error.reason, 'iron shoes in a bear trap');
                 return true;
             },
         );
