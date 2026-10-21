@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Castle tune hint: ordinary wizard wishes place a neutral altar, red dragon and off-alignment unicorn corpses are offered, a blessed luckstone is carried, and successful #pray commands reach pleased() second hint with acoustics enabled. C emits You_hear before the tune; inputs were fixed from C-only recordings before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 89374133,
+      "datetime": "20431217092600",
+      "nethackrc": "OPTIONS=name:TuneHint,role:Barbarian,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017neutral altar\n\u0017red dragon corpse\n #offer\ny \u0017red dragon corpse\n #offer\ny \u0017red dragon corpse\n #offer\ny \u0017white unicorn corpse\n #offer\ny  \u0017white unicorn corpse\n #offer\ny  \u0017white unicorn corpse\n #offer\ny  \u0017blessed luckstone\n #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y            #pray\ny y          "
+    }
+  ]
+}

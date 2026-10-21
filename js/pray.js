@@ -2605,7 +2605,8 @@ export async function pleased(g_align, state = game) {
                     break;
                 } else if (u.uevent.uheard_tune < 2) {
                     note_unported('pray.c Soundeffect');
-                    note_unported('pray.c You_hear');
+                    const music = youHear('a divine music...', state);
+                    if (music !== null) await ttyPline(music, state);
                     await ttyPline(`It sounds like:  "${state.svt?.tune ?? ''}".`, state);
                     u.uevent.uheard_tune++;
                     note_unported('pray.c record_achievement');
