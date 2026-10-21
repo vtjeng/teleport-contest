@@ -57,6 +57,7 @@ import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
 import { nomul } from './hack.js';
 import { add_to_minv, money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { set_malign } from './makemon.js';
@@ -85,7 +86,7 @@ import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
 import { relobj } from './steal.js';
 import { um_dist } from './apply.js';
-import { rloc } from './teleport.js';
+import { enexto, rloc } from './teleport.js';
 import { spot_stop_timers } from './timeout.js';
 import { t_at, deltrap } from './trap.js';
 import {
@@ -716,12 +717,34 @@ export async function gd_move(grd, env = {}) {
                 'gd_move() gold on an unoccupied corridor square',
             );
         const see_it = cansee(goldX, goldY, state);
-        const dx = grd.mx - state.u.ux;
-        const dy = grd.my - state.u.uy;
-        if (see_it && dx * dx + dy * dy > 2)
-            throw new UnsupportedVaultGuardError(
-                'gd_move() distant corridor gold under the hero',
-            );
+        const guardX = grd.mx;
+        const guardY = grd.my;
+        const guardDistance = dist2(guardX, guardY, state.u.ux, state.u.uy);
+        if (see_it && guardDistance > 2) {
+            let bestDistance = guardDistance;
+            let bestX = guardX;
+            let bestY = guardY;
+            // C initializes tryct to 9 and uses a do/while (--tryct >= 0),
+            // which calls enexto ten times, even after finding a near spot.
+            for (let tryct = 9; tryct >= 0; --tryct) {
+                const next = enexto(goldX, goldY, grd.data, { ...env, state });
+                if (!next) continue;
+                const distance = dist2(next.x, next.y, state.u.ux, state.u.uy);
+                if (distance < bestDistance || (distance === bestDistance
+                    && dist2(next.x, next.y, guardX, guardY)
+                        < dist2(bestX, bestY, guardX, guardY))) {
+                    bestDistance = distance;
+                    bestX = next.x;
+                    bestY = next.y;
+                }
+            }
+            if (bestDistance < guardDistance) {
+                remove_monster(guardX, guardY, state);
+                newsym(guardX, guardY, state);
+                place_monster(grd, bestX, bestY, state);
+                newsym(grd.mx, grd.my, state);
+            }
+        }
         const gold = g_at(goldX, goldY, state);
         const objectEnv = objectGenerationEnv({ ...env, state });
         obj_extract_self(gold, objectEnv);
@@ -732,6 +755,12 @@ export async function gd_move(grd, env = {}) {
                 `${Some_Monnam(grd, state)}${grd.mpeaceful && egrd.warncnt > 5 ? ' calms down and' : ''} picks up the gold from beneath you.`,
                 state, gdEnv,
             );
+        }
+        if (grd.mx !== guardX || grd.my !== guardY) {
+            remove_monster(grd.mx, grd.my, state);
+            newsym(grd.mx, grd.my, state);
+            place_monster(grd, guardX, guardY, state);
+            newsym(guardX, guardY, state);
         }
         if (!grd.mpeaceful) return -1;
         egrd.warncnt = 5;
