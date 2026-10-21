@@ -156,6 +156,7 @@ import {
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_PIT,
+    TT_WEB,
     Upolyd,
     VIBRATING_SQUARE,
     WARNING,
@@ -191,6 +192,7 @@ import {
     UNCHANGING,
     Ugender,
 } from './const.js';
+import { ART_STING } from './artifacts.js';
 import { isok } from './cmd_isok.js';
 import { body_part, float_vs_flight, rehumanize } from './polyself.js';
 import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
@@ -4048,7 +4050,7 @@ async function domove_fight_empty(x, y, state) {
 //
 // TT_PIT now delegates to trap.c:climb_pit(), except for the adjacent visible
 // pit that C permits the hero to enter. The remaining unported arms are
-// TT_WEB, TT_LAVA and TT_INFLOOR. The buried-ball arm below preserves the
+// TT_LAVA and TT_INFLOOR. The buried-ball arm below preserves the
 // shared wriggle_free label's anchored message and punishment restoration.
 async function trapmove(x, y, desttrap, state = game) {
     const u = state.u;
@@ -4062,6 +4064,24 @@ async function trapmove(x, y, desttrap, state = game) {
         if (desttrap && desttrap.tseen && is_pit(desttrap.ttyp))
             return true; /* move into adjacent pit */
         await climb_pit(state);
+        return false;
+    }
+    // C ref: hack.c:1592-1613. Sting cuts the hero free without destroying
+    // the trap; otherwise each attempted step shortens the hold by one turn.
+    if (u.utraptype === TT_WEB) {
+        if (state.uwep?.oartifact === ART_STING) {
+            u.utrap = 0;
+            await ttyPline('Sting cuts through the web!', state);
+        } else if (--u.utrap) {
+            if (state.flags.verbose)
+                await ttyNorep(u.usteed
+                    ? `${upstart(y_monnam(u.usteed, state))} is stuck to the web.`
+                    : 'You are stuck to the web.', state);
+        } else {
+            await ttyPline(u.usteed
+                ? `${upstart(y_monnam(u.usteed, state))} breaks out of the web.`
+                : 'You disentangle yourself.', state);
+        }
         return false;
     }
     // C ref: hack.c:1632-1680, only the anchored TT_BURIEDBALL arm.
