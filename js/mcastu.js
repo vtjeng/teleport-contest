@@ -559,13 +559,13 @@ export async function castmu(
     if (random.rn2(ml * 10) < (mtmp.mconf ? 100 : 20)) {
         /* fumbled attack */
         if (canseemon(mtmp, state) && !Deaf(state) && message) {
-            await message(
+            await message(messageAt(
                 `The air crackles around ${
                     env.monnam?.(mtmp)
                     ?? mon_nam(mtmp, state, env)
                 }.`,
-                state,
-            );
+                mtmp.mx, mtmp.my, state,
+            ), state);
         }
         return M_ATTK_MISS;
     }

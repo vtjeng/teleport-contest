@@ -3947,7 +3947,9 @@ test('mhitm_ad_phys applies the monster HUGS arm to a solid hero',
     await mhitm_ad_phys(
         python, hugs, state.youmonst, grabbed, state, grappled.env,
     );
-    assert.deepEqual(grappled.lines, ['The python hits!']);
+    assert.deepEqual(grappled.lines, [
+        `<${python.mx},${python.my}>: The python hits!`,
+    ]);
     assert.equal(grabbed.hitflags, M_ATTK_HIT);
     state.youmonst.data = ordinary;
 

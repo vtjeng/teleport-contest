@@ -1339,7 +1339,8 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
                    && prevIndex >= 0
                    && mtmp.data.mattk[prevIndex + 1] === mattk
                    && mattk.aatyp === gh.hitmsg_prev.aatyp) ? ' again' : '';
-    await message(`${Monst_name} ${verb}${again}${punct}`, state);
+    await message(messageAt(`${Monst_name} ${verb}${again}${punct}`,
+        mtmp.mx, mtmp.my, state), state);
 
     gh.hitmsg_mid = mtmp.m_id;
     gh.hitmsg_prev = mattk;
@@ -1421,7 +1422,7 @@ async function mswings(mtmp, otemp, bash, rawEnv = {}) {
 
     if (state.flags?.verbose && !activeHeroProperty(state, BLINDED)
         && visible(mtmp, state)) {
-        await message(
+        await message(messageAt(
             `${capitalizedMonsterName(mtmp, state)} `
             + `${mswings_verb(otemp, bash, rawEnv)} `
             + `${(otemp.quan > 1) ? 'one of ' : ''}`
@@ -1429,8 +1430,8 @@ async function mswings(mtmp, otemp, bash, rawEnv = {}) {
                 ...rawEnv,
                 canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
             })} ${xnameFresh(otemp, state)}.`,
-            state,
-        );
+            mtmp.mx, mtmp.my, state,
+        ), state);
     }
 }
 
