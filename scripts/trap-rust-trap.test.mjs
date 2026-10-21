@@ -74,13 +74,10 @@ test('preflight_dotrap still refuses a seen RUST_TRAP', async () => {
     );
 });
 
-test('preflight_dotrap still refuses a RUST_TRAP with a steed', async () => {
+test('preflight_dotrap admits an unseen RUST_TRAP with a steed', async () => {
     const state = await stateReady();
     state.u.usteed = { mx: state.u.ux, my: state.u.uy };
-    assert.throws(
-        () => preflight_dotrap(trap(state), state),
-        (error) => error.reason === 'a steed in a trap',
-    );
+    assert.doesNotThrow(() => preflight_dotrap(trap(state), state));
     state.u.usteed = null;
 });
 

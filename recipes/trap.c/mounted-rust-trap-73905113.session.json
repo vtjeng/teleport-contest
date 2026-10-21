@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mounted rust-trap witness. A stock debug Knight force-mounts the adjacent pony, wishes a rust trap on room floor, steps south, then returns north while mounted; verify C reaches the hero effect before changing JavaScript. Uses the fire-trap witness terrain seed because a first different seed placed the hero where maketrap refused trap creation and the pony could not be mounted.",
+  "segments": [
+    {
+      "seed": 73905113,
+      "datetime": "20461021151412",
+      "nethackrc": "OPTIONS=name:RustRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#ride\nuy\u0017rust trap\njk"
+    }
+  ]
+}
