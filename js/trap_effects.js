@@ -4072,8 +4072,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     steedintrap() handles the arrow, dart, gas, magic, polymorph,
 //     landmine and pit arms; LEVEL_TELEP and MAGIC_PORTAL target the hero
 //     directly in their source effects and admit a mounted hero too;
-//     ROCKTRAP still targets the hero, ANTI_MAGIC acts directly on them, and
-//     VIBRATING_SQUARE calls feeltrap() for the hero;
+//     ROCKTRAP and FIRE_TRAP still target the hero, ANTI_MAGIC acts directly
+//     on them, and VIBRATING_SQUARE calls feeltrap() for the hero;
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
     if (trap.ttyp !== ARROW_TRAP && trap.ttyp !== BEAR_TRAP
@@ -4132,6 +4132,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== WEB
         && trap.ttyp !== BEAR_TRAP
         && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
+        && trap.ttyp !== FIRE_TRAP
         && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== POLY_TRAP

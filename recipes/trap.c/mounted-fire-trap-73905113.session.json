@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first mounted fire-trap witness. A stock debug Knight force-mounts the adjacent starting pony, wishes a fire trap on ordinary room floor, steps south, then returns north while mounted. trap.c:trapeffect_fire_trap sends the mounted hero through dofiretrap without dismounting. Initial C-only probes corrected a north-direction guess to northeast and supplied the wizard-mode force-mount answer.",
+  "segments": [
+    {
+      "seed": 73905113,
+      "datetime": "20461021151412",
+      "nethackrc": "OPTIONS=name:FireRider,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#ride\nuy\u0017fire trap\njk"
+    }
+  ]
+}
