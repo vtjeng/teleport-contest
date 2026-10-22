@@ -199,7 +199,7 @@ import {
     UNCHANGING,
     Ugender,
 } from './const.js';
-import { ART_STING, attacks } from './artifacts.js';
+import { ART_STING, ART_STORMBRINGER, attacks } from './artifacts.js';
 import { isok } from './cmd_isok.js';
 import { body_part, float_vs_flight, rehumanize } from './polyself.js';
 import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
@@ -1679,7 +1679,7 @@ function requireOrdinaryHostileMelee(monster, state) {
 
 // The destination-monster seam. C splits by `is_safemon(mtmp) &&
 // !svc.context.forcefight` inside do_attack() (uhitm.c:462); this splits the
-// same way, because the two arms have nothing in common below that test. The
+// same way, including Stormbringer's inner exception to displacement. The
 // forcefight conjunct is what sends `F` at a pet down the attack arm instead
 // of down the displacement arm, so the prefix swings at the pet rather than
 // swapping places with it. A miss runs the whole swing, including wakeup(),
@@ -1697,7 +1697,8 @@ function requireSupportedDestinationMonster(monster, x, y, state) {
         && !(hides_under(monster.data) || monster.data?.mlet === S_EEL)) {
         return;
     }
-    if (!is_safemon(monster, state) || state.context?.forcefight) {
+    if (!is_safemon(monster, state) || state.context?.forcefight
+        || state.uwep?.oartifact === ART_STORMBRINGER) {
         requireOrdinaryHostileMelee(monster, state);
         return;
     }

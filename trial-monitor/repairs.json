@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T22:07:24.474Z",
+  "asOf": "2026-10-22T22:28:30.285183Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3982,8 +3982,86 @@
           "scripts/timeout.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "1a1d48fdde963f656a2a7fa6d541080ca095f32f",
+          "runs": [
+            {
+              "id": 39863160492,
+              "name": "Checkpoint",
+              "sha": "1a1d48fdde963f656a2a7fa6d541080ca095f32f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/overexertion-fainting-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T22:12:02Z",
+              "completedAt": "2026-10-22T22:18:19Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39863160492"
+            },
+            {
+              "id": 39864102490,
+              "name": "Lint",
+              "sha": "1a1d48fdde963f656a2a7fa6d541080ca095f32f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T22:19:31Z",
+              "completedAt": "2026-10-22T22:20:18Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39864102490"
+            },
+            {
+              "id": 39864102393,
+              "name": "Dashboard",
+              "sha": "1a1d48fdde963f656a2a7fa6d541080ca095f32f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T22:19:31Z",
+              "completedAt": "2026-10-22T22:21:57Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39864102393"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Three live C replays, 256 focused/affected tests, 12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "second-strike-interruption",
+      "kind": "parity-repair",
+      "title": "Interrupt second strikes after paralysis, life-saving and Stormbringer override",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/uhitm.c",
+          "js/uhitm.js",
+          "js/hack.js"
+        ],
+        "witness": [
+          "recipes/uhitm.c/second-strike-paralysis.session.json",
+          "recipes/uhitm.c/second-strike-life-saving.session.json",
+          "recipes/uhitm.c/second-strike-stormbringer.session.json",
+          "recipes/uhitm.c/second-strike-stormbringer-terse.session.json",
+          "recipes/uhitm.c/second-strike-free-action-control.session.json",
+          "recipes/uhitm.c/second-strike-single-weapon-control.session.json"
+        ],
+        "test": [
+          "scripts/second-strike-interruption.test.mjs",
+          "scripts/uhitm.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/twoweapon-melee.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C one-HP full-health grid bug faints under heavy movement and before forced combat, then wakes; both stopped at the old refusal, healthy-form control passed. Await message, Constitution exercise and fall_asleep; combat returns the resulting negative-multi status. Planning uses cloned RNG and silent owners. All three complete replays and 256 focused/affected tests pass. Hosted gates pending; investigation start time not captured."
+      "note": "Live C witnesses expose extra offhand attacks after paralysis and life-saving, and erroneous peaceful displacement with Stormbringer. Restore source guards and verbose override announcement. Six complete replays including free-action and single-weapon controls, plus 172 affected tests pass. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C uhitm.c do_attack/known_hitum/hitum witness for source-defined second-strike interruption: single-weapon-control. Setup inventory letters, monster positions and message acknowledgements were verified in live C.",
+  "segments": [
+    {
+      "seed": 8411034,
+      "datetime": "20261022130000",
+      "nethackrc": "OPTIONS=name:SecondStrike,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen\n",
+      "moves": " wb  x     \u0007floating eye\nFj   Fj   Fj   Fj   "
+    }
+  ]
+}

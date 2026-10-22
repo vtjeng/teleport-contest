@@ -2199,7 +2199,8 @@ export async function do_attack(monster, state = game, env = {}) {
         ? (gameState) => env.endRunning(gameState)
         : (gameState) => end_running(true, gameState);
 
-    if (is_safemon(monster, state) && !state.context?.forcefight) {
+    if (is_safemon(monster, state) && !state.context?.forcefight
+        && !is_art(state.uwep, ART_STORMBRINGER)) {
         const makeFlee = env.monFlee ?? monflee;
         let foo = Punished(state)
             || !random.rn2(7)
@@ -2388,7 +2389,8 @@ export async function force_attack(monster, pets_too, state = game, env = {}) {
 //
 // `slice_or_chop` is captured before hmon() can consume the weapon; the hit
 // coordinate and gn.notonhead are set immediately before that call.
-// go.override_confirmation at 601 is constantly FALSE; see do_attack().
+// attack_checks() can let Stormbringer override peaceful confirmation; C
+// announces that override before either the hit or miss message.
 //
 // The morale check at 623-633 spends a second random choice only after the
 // unconditional !rn2(25) draw succeeds. Its void monflee() call is the
@@ -2409,6 +2411,9 @@ export async function known_hitum(
     const sliceOrChop = Boolean(weapon
         && (is_blade(weapon, state) || is_axe(weapon, state)));
     let malive = true;
+
+    if (state.go?.override_confirmation && state.flags?.verbose)
+        await (env.message ?? ttyPline)('Your bloodthirsty blade attacks!', state);
 
     if (!mhit.value) {
         await missum(
@@ -2559,47 +2564,11 @@ export async function hitum_cleave(target, uattk, state = game, env = {}) {
 // ordinary arm below remains valid when a wielder is swallowed, held, or in a
 // form that cannot attack diagonally.
 //
-// Three of the six terms guarding the second attack are constantly false here
-// and are left out rather than restated:
-//
-//   go.override_confirmation  written only by attack_checks()'s Stormbringer
-//                             arm, which stops; do_attack() records the same.
-//   gm.multi < 0              a passive counter-attack that paralysed the hero.
-//                             C reads it after the passive() call above, so it
-//                             answers TRUE only for a paralysis inflicted
-//                             during this call. Two facts keep it false. The
-//                             hero cannot already be counting a negative multi:
-//                             allmain.c moveloop_core() reads no key then, so
-//                             no attack command can begin -- js/pray.js
-//                             dopray()'s `nomul(-3)` is the port's one writer
-//                             of a negative value, and the three turns it buys
-//                             pass without reaching rhack(). And nothing this
-//                             function calls can turn it negative: uhitm.c's
-//                             paralysing arm is AD_PLYS in passive()'s second
-//                             switch, and passive() below stops for every
-//                             damage type but AD_PHYS before reaching it.
-//                             Port that arm and this term becomes live.
-//   u.umortality > oldumort   the hero killed by that counter-attack and then
-//                             life-saved. js/end.js done() is the counter's
-//                             one writer, at end.c:1070, and it raises
-//                             UnsupportedEndOfGameError before hitum() can
-//                             resume and test the count. The changed state is
-//                             still observable to code that catches that
-//                             refusal. js/u_init.js:217 initializes it to 0
-//                             and js/insight.js:1190 is its only other reader.
-//
-// The two that remain are written out, and only one of them can currently
-// decide anything. `m_at(x, y) != mon` is live: the second swing is aimed at
-// the square the step was, so a target that is no longer standing there is not
-// struck again. `!malive` is C's own first answer to the same question, but in
-// this port it can only be true where the m_at test is: killing a monster ends
-// at mon.c m_detach() -> mon_leaving_level(), which takes it off the map, and
-// hmon_hitmon() has no other way to return FALSE with the target still
-// standing. Deleting the term leaves all 3,113 tests passing. It stays because
-// it is C's, and because a later arm -- lifesaved_monster(), or a knockback
-// that kills -- can separate the two.
+// The second strike reads the state after the first passive counterattack:
+// paralysis and life-saving can interrupt it even while the target survives.
 export async function hitum(mon, uattk, state = game, env = {}) {
     const random = env.random ?? { d, rn2, rnd };
+    const oldMortality = state.u.umortality;
     const wepbefore = state.uwep;
     const secondwep = state.u.twoweap ? state.uswapwep : null;
     const x = state.u.ux + state.u.dx;
@@ -2666,7 +2635,9 @@ export async function hitum(mon, uattk, state = game, env = {}) {
        passive counter-attack, or if hero was killed by passive
        counter-attack and got life-saved, or if monster was killed or
        knocked to different location */
-    if (state.twohits && malive && m_at(x, y, state) === mon) {
+    if (state.twohits && !(state.go?.override_confirmation
+        || state.multi < 0 || state.u.umortality > oldMortality
+        || !malive || m_at(x, y, state) !== mon)) {
         state.twohits = 2; /* second of 2 hits */
         // C reads the live uswapwep for the to-hit number but hands
         // known_hitum() the `secondwep` it captured on entry. The two differ
