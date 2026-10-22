@@ -979,13 +979,14 @@ function admitTerrainChange(x, y, env) {
 // own can_tunnel here, which mon_allowflags() computed identically, so this
 // admits exactly the squares postmov() will dig.
 //
-// Only the wall and tree terrain mdig_tunnel() rewrites in place is admitted.
-// SDOOR and SCORR are obstructed and diggable too, but they enter
-// mdig_tunnel()'s door and secret-corridor arms, whose shop damage and
-// mb_trapped() owners no development case reaches; they stay refused.
+// Admit ordinary doors as well as walls and trees: postmov() skips opening
+// a door when can_tunnel is true, then mdig_tunnel() breaks it. The same
+// planning isolation is needed for that terrain and vision change.
+// Secret doors and corridors remain outside this movement adapter's scope.
 function digsDestination(location, x, y, env) {
     if (!env.canTunnel || !location) return false;
-    if (!IS_STWALL(location.typ) && !IS_TREE(location.typ, env.state))
+    if (location.typ !== DOOR
+        && !IS_STWALL(location.typ) && !IS_TREE(location.typ, env.state))
         return false;
     return may_dig(x, y, env.state);
 }

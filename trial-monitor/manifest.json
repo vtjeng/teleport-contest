@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T09:39:21.464Z",
+  "asOf": "2026-10-22T10:03:08.208Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "sokoban-final-trap-replacement",
-      "sha": "1023ff11170eace596bd81dd352b9225760bdf35",
+      "repairId": "cold-underwater-redraw",
+      "sha": "c425bce7a88a7ab156ecce5b3f71b1f82e0983e8",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T09:39:21.464Z"
+    "asOf": "2026-10-22T10:03:08.208Z"
   }
 }

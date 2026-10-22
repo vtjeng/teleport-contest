@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T09:39:21.464Z",
+  "asOf": "2026-10-22T10:03:08.208Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2628,8 +2628,82 @@
           "scripts/zap-command.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c425bce7a88a7ab156ecce5b3f71b1f82e0983e8",
+          "committedAt": "2026-10-22T09:40:06Z",
+          "runs": [
+            {
+              "id": 39757216530,
+              "name": "Checkpoint",
+              "sha": "c425bce7a88a7ab156ecce5b3f71b1f82e0983e8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/cold-underwater-redraw-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:40:18Z",
+              "completedAt": "2026-10-22T09:45:59Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39757216530"
+            },
+            {
+              "id": 39758131967,
+              "name": "Lint",
+              "sha": "c425bce7a88a7ab156ecce5b3f71b1f82e0983e8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:47:29Z",
+              "completedAt": "2026-10-22T09:48:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39758131967"
+            },
+            {
+              "id": 39758132022,
+              "name": "Dashboard",
+              "sha": "c425bce7a88a7ab156ecce5b3f71b1f82e0983e8",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:47:29Z",
+              "completedAt": "2026-10-22T09:50:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39758132022"
+            }
+          ]
+        }
+      ],
+      "note": "Live C witness matches3661 RNG,125 screens/cursors,1 frame; non-submerged control matches.127 focused,2837 affected local shard,64 register/startup tests and lint passed. Exact Checkpoint and push Lint/Pages passed attempt1; fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence recorded and carried in this ordinary commit."
+    },
+    {
+      "id": "monster-door-tunneling",
+      "kind": "parity-repair",
+      "title": "Allow tunneling monsters through closed doors",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c",
+          "nethack-c/upstream/src/dig.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/monster-door-tunneling.session.json"
+        ],
+        "test": [
+          "scripts/monster-door-tunneling.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs",
+          "scripts/dig.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C submerged cold-ray witness fails before omitted docrt call and matches after awaited existing redraw:3661 RNG,125 screens/cursors,1 frame. Non-submerged control matches. Investigation timestamps unknown. Full acceptance gates pending; not accepted."
+      "note": "Live C Minetown dwarf exposes movement preflight refusing ordinary door tunneling before existing mdig_tunnel owner. Short witness9752 RNG145 screens/cursors. Investigation timestamps unknown; validation and acceptance pending."
     }
   ]
 }
