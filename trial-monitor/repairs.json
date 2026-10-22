@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T10:50:18.466Z",
+  "asOf": "2026-10-22T11:05:21.857Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2926,8 +2926,82 @@
           "scripts/teleport.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "653e95ada6d98ce4526c047ccfaa0d5eed84a0ef",
+          "committedAt": "2026-10-22T10:52:19Z",
+          "runs": [
+            {
+              "id": 39767190623,
+              "name": "Dashboard",
+              "sha": "653e95ada6d98ce4526c047ccfaa0d5eed84a0ef",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:59:23Z",
+              "completedAt": "2026-10-22T11:01:34Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39767190623"
+            },
+            {
+              "id": 39767190554,
+              "name": "Lint",
+              "sha": "653e95ada6d98ce4526c047ccfaa0d5eed84a0ef",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:59:23Z",
+              "completedAt": "2026-10-22T11:00:07Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39767190554"
+            },
+            {
+              "id": 39766353738,
+              "name": "Checkpoint",
+              "sha": "653e95ada6d98ce4526c047ccfaa0d5eed84a0ef",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/level-teleport-escape-message-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:52:30Z",
+              "completedAt": "2026-10-22T10:58:22Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39766353738"
+            }
+          ]
+        }
+      ],
+      "note": "Independent falling and levitation C witnesses match 3037 RNG/23 screens and 3052 RNG/52 screens after restoring the source You prefix; Nowhere control matches. 95 focused tests, 98 register/startup tests and lint passed. Exact Checkpoint and push Lint/Pages passed attempt 1; fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "wished-door-flags",
+      "kind": "parity-repair",
+      "title": "Synchronize wished doorway flags before redraw",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/objnam.c",
+          "nethack-c/upstream/include/rm.h",
+          "js/objnam_readobjnam.js"
+        ],
+        "witness": [
+          "recipes/objnam.c/wished-door-flags-locked.session.json",
+          "recipes/objnam.c/wished-door-flags-closed.session.json"
+        ],
+        "test": [
+          "scripts/wished-door-flags.test.mjs",
+          "scripts/objnam-readobjnam.test.mjs",
+          "scripts/wiz-terrain.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent falling and levitation C witnesses expose omitted You prefix in shared escape message, with matching RNG and differing text/cursors before correction. Nowhere message-flush probe matched C and is not a fix. Investigation timestamps unknown; validation and acceptance pending."
+      "note": "Independent locked/closed door C witnesses expose stale open-door flags after a terrain wish; open and secret-door controls matched before correction. Discovered during giant-door setup, not evidence that giant door movement is fixed. Investigation timestamps unknown; validation and acceptance pending."
     }
   ]
 }

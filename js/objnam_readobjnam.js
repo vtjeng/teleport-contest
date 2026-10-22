@@ -734,13 +734,16 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
                 : (d.doorless || secret) ? D_NODOOR
                     : d.open ? D_ISOPEN
                         : d.broken ? D_BROKEN : D_CLOSED;
-            if (secret) lev.wall_info |= oldWallInfo & WM_MASK;
+            if (secret) lev.doormask |= oldWallInfo & WM_MASK;
             if (d.trapped === 2
                 || ((lev.doormask & (D_LOCKED | D_CLOSED)) === 0
                     && !secret)) {
                 d.trapped = 0;
             }
             if (d.trapped) lev.doormask |= D_TRAPPED;
+            // C rm.h aliases doormask and wall_info to flags. Keep the
+            // shared value current before redraw and vision read flags.
+            lev.flags = lev.wall_info = lev.doormask;
 
             let doorDescription = '';
             if (lev.doormask & D_TRAPPED) doorDescription += 'trapped ';
