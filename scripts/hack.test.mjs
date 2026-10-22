@@ -2468,7 +2468,8 @@ test('domove applies success effects only to explicit movement attempts',
             nethackrc: 'OPTIONS=name:DomoveSuccess,role:Healer,race:human,'
                 + 'gender:female,align:neutral,!legacy,!tutorial,'
                 + '!splash_screen,pettype:none,!acoustics',
-            moves: '',
+            // Finish the welcome prompt and movement preamble before domove.
+            moves: ' ',
         });
         const startX = game.u.ux;
         const startY = game.u.uy;

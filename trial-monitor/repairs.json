@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T05:00:36.008Z",
+  "asOf": "2026-10-22T05:15:32.571Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1704,8 +1704,88 @@
           "scripts/vault-initial-gold-escape.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "bd80d9fb947e3984514e12ef4411b894012fc2b4",
+          "committedAt": "2026-10-22T05:00:58Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39725609896,
+              "name": "Checkpoint",
+              "sha": "bd80d9fb947e3984514e12ef4411b894012fc2b4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-wall-escape-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:01:06Z",
+              "completedAt": "2026-10-22T05:06:42Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39725609896"
+            },
+            {
+              "id": 39726234927,
+              "name": "Lint",
+              "sha": "bd80d9fb947e3984514e12ef4411b894012fc2b4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:07:37Z",
+              "completedAt": "2026-10-22T05:08:26Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39726234927"
+            },
+            {
+              "id": 39726235026,
+              "name": "Dashboard",
+              "sha": "bd80d9fb947e3984514e12ef4411b894012fc2b4",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:07:37Z",
+              "completedAt": "2026-10-22T05:09:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39726235026"
+            }
+          ]
+        }
+      ],
+      "note": "Hearing/deaf C witnesses qualify fcend=1, peaceful guard and gold carried before arrival; north wall escape fails before, matches after. Full exact-SHA Checkpoint comparison and push Lint/Pages passed. Fixed44 and synthetic98/2055 unchanged. Westward setup hit the guard and was rejected as escape evidence; its separate spot-effects defect is tracked independently."
+    },
+    {
+      "id": "refused-swap-arrival-effects",
+      "kind": "parity-repair",
+      "title": "Skip arrival effects when a monster refuses to swap places",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T05:10:27.989Z",
+          "end": "2026-10-22T05:15:32.567Z",
+          "note": "Recorded source tracing, live C variation, implementation and focused validation. Earlier read-only lead inspection timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "js/hack.js"
+        ],
+        "witness": [
+          "recipes/hack.c/refused-swap-spot-effects-xorn.session.json",
+          "recipes/hack.c/refused-swap-spot-effects-human.session.json"
+        ],
+        "test": [
+          "scripts/refused-swap-spot-effects.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/cmd.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Hearing/deaf C witnesses qualify fcend=1, peaceful guard and gold carried before arrival; north wall escape fails before, matches after. Westward setup hit the guard and was rejected as escape evidence. Candidate identity and final gates not yet recorded; not accepted."
+      "note": "Normal and xorn forms match C after actual-movement guards. Refused swaps no longer set success or repeat floor-object arrival effects; 202 focused tests pass after completing startup in direct-movement fixtures. Candidate SHA and final gates not yet recorded; not accepted."
     }
   ]
 }

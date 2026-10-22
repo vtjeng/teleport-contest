@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first hack.c domove_core: refused safe-monster swap must not repeat floor-pile spot effects or mark movement successful.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541022045600",
+      "nethackrc": "OPTIONS=name:VaultCfirst,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #wizwish\n100 gold pieces\n........................................ VaultCfirst\n   hh     ....    "
+    }
+  ]
+}

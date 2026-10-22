@@ -4586,15 +4586,8 @@ async function domove_core(state = game) {
         nomul(0, state);
     }
 
-    // C ref: hack.c domove_core():2964-2967. Only a movement attempt
-    // marked WALK or RUSH earns the wrapper's success-only effects;
-    // automatic continuation steps have no bit in domoveAttempting.
-    state.domoveSucceeded |=
-        state.domoveAttempting & (DOMOVE_RUSH | DOMOVE_WALK);
-    u.umoved = true;
-
     if (hero_tread_disturbs_buried_zombies(state))
-        disturb_buried_zombies(newx, newy, state);
+        disturb_buried_zombies(u.ux, u.uy, state);
 
     // C ref: hack.c domove_core():2950-2952. Recheck concealment after the
     // final hero position is known, including failed movement attempts that
@@ -4609,9 +4602,16 @@ async function domove_core(state = game) {
     // vision refresh, and the destination's spot effects.
     await check_leash(u.ux0, u.uy0, { state });
 
-    newsym(oldx, oldy);
-    vision_recalc(1);
-    newsym(newx, newy);
+    // C hack.c:2964-2974. A refused swap restores the hero's position;
+    // it must not earn movement success or repeat the arrival redraw.
+    if (u.ux0 !== u.ux || u.uy0 !== u.uy) {
+        state.domoveSucceeded |=
+            state.domoveAttempting & (DOMOVE_RUSH | DOMOVE_WALK);
+        u.umoved = true;
+        newsym(oldx, oldy);
+        vision_recalc(1);
+        newsym(newx, newy);
+    }
     // C ref: hack.c domove_core():2976-2987. The attached objects return
     // before pickup effects, and dragging interrupts the next two moves only
     // after spoteffects() has had its chance to pick up the ball or chain.
@@ -4625,8 +4625,9 @@ async function domove_core(state = game) {
             chainy.value,
             state,
         );
-    // C ref: domove_core():2980 spoteffects(TRUE).
-    await spoteffects(true, state);
+    // C ref: domove_core():2979-2980. Staying put does not re-enter a
+    // floor pile, trap, or any other arrival effect.
+    if (u.umoved) await spoteffects(true, state);
     if (causeDelay.value) {
         nomul(-2, state);
         state.multi_reason = 'dragging an iron ball';

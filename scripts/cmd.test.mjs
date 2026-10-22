@@ -795,7 +795,8 @@ async function prepareHeroMoveAdmission(extraRc = '') {
         nethackrc: 'OPTIONS=name:MoveAdmission,role:Healer,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
             + `pettype:none\n${extraRc}`,
-        moves: '',
+        // Complete startup before invoking the movement entry point directly.
+        moves: ' ',
     });
     const x = game.u.ux + 1;
     const y = game.u.uy;
@@ -836,6 +837,9 @@ test('reqmenu movement crosses ordinary piles without pickup or description',
             game.flags.pile_limit = pileLimit;
             const head = installFloorPile(x, y, 2);
             const before = structuredClone(head);
+            // C u_on_newpos -> see_nearby_objects observes the visible top
+            // object even when nopick skips pickup and look_here.
+            before.dknown = true;
             clearTtyMessageWindow(game);
             game._ttyToplines = '';
             game.context.move = 0;
@@ -871,6 +875,8 @@ test('reqmenu movement skips look-here terrain guards with an object present',
             destination.typ = terrain;
             const head = installFloorPile(x, y, 1);
             const before = structuredClone(head);
+            // Only the sighted altar case observes the nearby top object.
+            if (terrain === ALTAR) before.dknown = true;
             clearTtyMessageWindow(game);
             game._ttyToplines = '';
             game.context.move = 0;
@@ -1115,7 +1121,9 @@ test('a walk reports every ordinary pile-limit count partition without names',
                 `There are ${expected} objects here.`,
             );
             for (let object = head; object; object = object.nexthere)
-                assert.equal(object.dknown, false, `count ${count}`);
+                // C see_nearby_objects observes only the top object before
+                // look_here's count-only arm; it does not name buried items.
+                assert.equal(object.dknown, object === head, `count ${count}`);
         }
     });
 
