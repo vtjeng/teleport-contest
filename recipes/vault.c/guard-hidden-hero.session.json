@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first invault hidden-hero branch: enter vault, become a pit viper and hide beneath a floor object with #monster before guard arrival; guard must leave without interrogating the hidden hero.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021191000",
+      "nethackrc": "OPTIONS=name:VaultDeafName,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #polyself\npit viper\n      #monster\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

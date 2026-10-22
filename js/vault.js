@@ -49,7 +49,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
-    map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
+    map_invisible, map_invisible_planning, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
 import { verbalize, youHear } from './pline.js';
@@ -61,7 +61,7 @@ import { dist2 } from './hacklib.js';
 import { nomul } from './hack.js';
 import { add_to_minv, money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { set_malign } from './makemon.js';
-import { gender, is_silent, noit_mhis, sticks } from './mondata.js';
+import { gender, is_silent, mhe, noit_mhis, sticks } from './mondata.js';
 import { PM_CROESUS, PM_GUARD } from './monsters.js';
 import {
     m_at, mon_track_clear, place_monster, remove_monster,
@@ -81,7 +81,8 @@ import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
 import { carried, g_at, hasContents } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { BOULDER, ROCK, TIN_WHISTLE } from './objects.js';
+import { BOULDER, GOLD_PIECE, ROCK, TIN_WHISTLE } from './objects.js';
+import { mimic_obj_name } from './objnam.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
 import { relobj } from './steal.js';
@@ -1149,7 +1150,8 @@ export async function invault(state, env = {}) {
         newsym(guard.mx, guard.my);
     } else {
         await message('Someone else has entered the Vault.');
-        map_invisible(guard.mx, guard.my, state);
+        if (state === game) map_invisible(guard.mx, guard.my, state);
+        else map_invisible_planning(guard.mx, guard.my, state);
     }
 
     if (u.uswallow) {
@@ -1165,9 +1167,17 @@ export async function invault(state, env = {}) {
     }
     const uApType = state.youmonst?.m_ap_type ?? 0;
     if (uApType === M_AP_OBJECT || u.uundetected) {
-        throw new UnsupportedVaultGuardError(
-            'invault() guard encounters disguised or hidden hero',
-        );
+        if (uApType === M_AP_OBJECT
+            && state.youmonst.mappearance !== GOLD_PIECE && !Deaf(state)) {
+            set_voice(guard, 0, 80, 0, state);
+            await verbalize(
+                `Hey!  Who left that ${mimic_obj_name(state.youmonst, state)} in here?`,
+                state, { message },
+            );
+        }
+        await message(`Puzzled, ${mhe(guard, { state, random, canSpotMonster: canspotmon })} turns around and leaves.`);
+        await mongone(guard, { state, random });
+        return;
     }
     if (Strangled(state) || is_silent(state.youmonst?.data ?? u.umonster)
         || state.multi < 0) {

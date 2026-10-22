@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first invault disguised-hero branch: enter the vault, become a small mimic, use #monster to imitate an object before guard arrival. Guard should comment on the object then leave without asking a name.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021191000",
+      "nethackrc": "OPTIONS=name:VaultDeafName,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #polyself\nsmall mimic\n      #monster\n. . . . . . . ."
+    }
+  ]
+}
