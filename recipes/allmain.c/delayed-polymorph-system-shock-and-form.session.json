@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C allmain.c:322-339 delayed polymorph witness: system-shock-and-form. A worn ring supplies periodic polymorph, a heavy iron ball supplies encumbrance, and blessed genocide removes the initial canine so polymorph is isolated. Forced waiting advances real turns. The control wears an amulet of unchanging.",
+  "segments": [
+    {
+      "seed": 8411112,
+      "datetime": "20261022150000",
+      "nethackrc": "OPTIONS=name:BurdenPoly,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nring of polymorph\nPmr  #wizwish\nheavy iron ball\n    #wizwish\nblessed scroll of genocide\nro  d\n    m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. "
+    }
+  ]
+}

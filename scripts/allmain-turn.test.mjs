@@ -4324,3 +4324,29 @@ test('periodic teleport planning stops before live input and preserves the live 
     assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
         'planning must not read a destination, spend live RNG, or change the live map');
 });
+
+test('delayed polymorph planning preserves live state before the form change', async () => {
+    const replay = await runSegment(firstTurnInput({
+        seed: 2026102209, datetime: '20261022120000', name: 'PolymorphPlan',
+        role: 'Healer', race: 'human', gender: 'female', align: 'neutral', command: '',
+    }));
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.level.regions = [];
+    clearTtyMessageWindow(game);
+    game.u.uprops[POLYMORPH] = { intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0 };
+    game.u.umovement = 0;
+    game.context.seer_turn = 100000;
+    game.context.next_attrib_check = 100000;
+    const snapshot = completeSecondTurnSnapshot(game, replay);
+    const plan = await preflightSimpleMonsterActions(game, {
+        consumeHeroRation: false,
+        advanceRound: (planned, random) => finishElapsedTurn(planned, {
+            ...random,
+            rn2: bound => bound === 100 ? 0 : random.rn2(bound),
+        }, { planning: true }),
+    });
+    assert.equal(plan.beforePolymorph, true);
+    assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot,
+        'planning must not spend live RNG, announce a change, or change the live form');
+});

@@ -1913,6 +1913,7 @@ export async function preflightSimpleMonsterActions(
     let beforeHunger = false;
     let beforeTeleport = false;
     let beforeSearch = false;
+    let beforePolymorph = false;
     try {
         try {
             const scan = await planSimpleMonsterTurn(
@@ -1925,6 +1926,7 @@ export async function preflightSimpleMonsterActions(
                     beforeHunger = Boolean(result?.beforeHunger);
                     beforeTeleport = Boolean(result?.beforeTeleport);
                     beforeSearch = Boolean(result?.beforeSearch);
+                    beforePolymorph = Boolean(result?.beforePolymorph);
                     return result;
                 } : null,
                 afterMonsterScan,
@@ -1985,6 +1987,7 @@ export async function preflightSimpleMonsterActions(
         beforeHunger,
         beforeTeleport,
         beforeSearch,
+        beforePolymorph,
         inputBoundary,
     };
 }

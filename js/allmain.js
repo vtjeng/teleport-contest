@@ -1050,27 +1050,40 @@ async function finishElapsedTurnAfterTeleport(state, random, { planning = false 
         }
         if (state.mvl_change && !propertyActive(state, UNCHANGING)
             && (state.multi ?? 0) >= 0) {
+            const polymorphing = state.mvl_change === 1;
+            if (planning && polymorphing) return { beforePolymorph: true };
             await stop_occupation(state, { message: turnMessage });
-            if (state.mvl_change === 1) {
-                // The C call discards polyself()'s return. Its existing body
-                // owns the transition; this caller does not inspect that value.
-                // polyself() currently draws from the live core context, so do
-                // not invoke it while simulating a planning clone.
-                if (planning)
-                    elapsedTurnBoundary('delayed polymorph needs clone-owned RNG');
+            if (polymorphing) {
                 await polyself(POLY_NOFLAGS, state);
             } else {
-                // Confirmation reads input, so defer the transition to the live
-                // turn just as the polymorph dispatch above does.
+                // Lycanthropy still needs its own live handoff; do not read
+                // its confirmation input on the planning clone.
                 if (planning)
                     elapsedTurnBoundary('delayed lycanthropy needs live input');
                 await you_were(state, { random, message: turnMessage });
             }
+            if (state.program_state?.gameover) return { afterPolymorph: polymorphing };
             state.mvl_change = 0;
+            if (polymorphing) {
+                const tailPlan = await preflightElapsedTurnTail(state,
+                    (planned, planningRandom) => finishElapsedTurnAfterChange(
+                        planned, planningRandom, { planning: true },
+                    ));
+                const result = await finishElapsedTurnAfterChange(state, random);
+                if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+                    throw new Error('elapsed-turn polymorph tail disagreed with live delayed action');
+                return { ...result, afterPolymorph: true };
+            }
         }
 
     }
 
+    return finishElapsedTurnAfterChange(state, random, { planning });
+}
+
+// C allmain.c moveloop_core(), after delayed changes. A new monster form
+// owns the remaining search, warning, hunger and movement-allocation checks.
+async function finishElapsedTurnAfterChange(state, random, { planning = false } = {}) {
     // C allmain.c:342-346. Search can reveal terrain, display a found trap,
     // or animate a statue. Run those effects live and plan remaining upkeep
     // from the resulting map rather than letting the clone consume input.
@@ -1526,6 +1539,7 @@ async function advanceElapsedTurn(state) {
             let afterHunger;
             let afterTeleport;
             let afterSearch;
+            let afterPolymorph;
             try {
                 const result = await finishElapsedTurn(state, random);
                 afterUnmul = result?.afterUnmul;
@@ -1533,6 +1547,7 @@ async function advanceElapsedTurn(state) {
                 afterHunger = result?.afterHunger;
                 afterTeleport = result?.afterTeleport;
                 afterSearch = result?.afterSearch;
+                afterPolymorph = result?.afterPolymorph;
             } catch (error) {
                 // A live-only timeout and its fresh tail can reach existing
                 // command or upkeep refusals after the prefix has completed.
@@ -1569,12 +1584,16 @@ async function advanceElapsedTurn(state) {
                 && upkeepCount === preflight.upkeepCount && !afterSearch) {
                 throw new Error('elapsed-turn preflight disagreed with live search');
             }
+            if (preflight.beforePolymorph
+                && upkeepCount === preflight.upkeepCount && !afterPolymorph) {
+                throw new Error('elapsed-turn preflight disagreed with live polymorph');
+            }
             if (preflight.beforeHunger
                 && upkeepCount === preflight.upkeepCount && !afterHunger) {
                 throw new Error('elapsed-turn preflight disagreed with live hunger');
             }
             if (!pendingDeathReplan
-                && (afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch)
+                && (afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch || afterPolymorph)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,

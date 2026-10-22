@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T23:09:40.913906Z",
+  "asOf": "2026-10-22T23:28:19.701640Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4232,8 +4232,83 @@
           "scripts/explicit-search.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "52f6a6266018ca7534d08b91571ba729d8c77712",
+          "runs": [
+            {
+              "id": 39870044670,
+              "name": "Checkpoint",
+              "sha": "52f6a6266018ca7534d08b91571ba729d8c77712",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/burdened-automatic-search-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:10:37Z",
+              "completedAt": "2026-10-22T23:16:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39870044670"
+            },
+            {
+              "id": 39870902890,
+              "name": "Lint",
+              "sha": "52f6a6266018ca7534d08b91571ba729d8c77712",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:18:26Z",
+              "completedAt": "2026-10-22T23:19:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39870902890"
+            },
+            {
+              "id": 39870902965,
+              "name": "Dashboard",
+              "sha": "52f6a6266018ca7534d08b91571ba729d8c77712",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:18:26Z",
+              "completedAt": "2026-10-22T23:20:45Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39870902965"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with full Checkpoint and exact-SHA Main push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Three C replays, 269 focused/affected tests, 12 timeline tests and lint passed. Watcher hit transient HTTP 503 after all component jobs passed; normal run-status read confirmed completion and archive import succeeded without rerun. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "delayed-polymorph",
+      "kind": "parity-repair",
+      "title": "Resume burdened delayed polymorph from the live form change",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c",
+          "nethack-c/upstream/src/polyself.c",
+          "js/allmain.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/allmain.c/delayed-polymorph-system-shock-and-form.session.json",
+          "recipes/allmain.c/delayed-polymorph-unchanging-control.session.json"
+        ],
+        "test": [
+          "scripts/delayed-polymorph.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/polyself.test.mjs",
+          "scripts/polyself-transform.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C burdened Ranger finds an adjacent pit; stressed Archeologist continues waiting. Both stopped at the prior planning refusal while unburdened control passed. Run discovery live, then plan remaining upkeep from the changed map; preserve nonmutating planning and silent regeneration checks. Hosted gates pending; investigation start time not captured."
+      "note": "Live C burdened ring-polymorph witness reaches system shock, wizard death recovery, gnome mummy transformation and cloak removal. Baseline stops at the planning refusal; complete candidate replay matches. Unchanging control passes before and after. Planning preserves live state; live form owns remaining upkeep. Hosted gates pending; investigation start time not captured."
     }
   ]
 }
