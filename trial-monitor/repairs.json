@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T20:31:48.608Z",
+  "asOf": "2026-10-22T20:44:29.978Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3448,8 +3448,83 @@
           "scripts/unported-monster-actions.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "5d1f15c21cbecff3ba4ed2fe720ef0daef717f63",
+          "runs": [
+            {
+              "id": 39849770807,
+              "name": "Checkpoint",
+              "sha": "5d1f15c21cbecff3ba4ed2fe720ef0daef717f63",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-secret-door-tunneling-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T20:32:41Z",
+              "completedAt": "2026-10-22T20:38:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39849770807"
+            },
+            {
+              "id": 39850725017,
+              "name": "Lint",
+              "sha": "5d1f15c21cbecff3ba4ed2fe720ef0daef717f63",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T20:39:20Z",
+              "completedAt": "2026-10-22T20:40:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39850725017"
+            },
+            {
+              "id": 39850724992,
+              "name": "Dashboard",
+              "sha": "5d1f15c21cbecff3ba4ed2fe720ef0daef717f63",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T20:39:20Z",
+              "completedAt": "2026-10-22T20:41:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39850724992"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted after all exact-SHA gates passed on attempt 1. Fixed 44 and synthetic 98/2055 comparison unchanged. Locked and unlocked secret-door C witnesses and ordinary-door control match. 196 focused/affected, 18 doorway and 12 timeline tests plus lint passed. Complete cohort recorded for the next ordinary commit."
+    },
+    {
+      "id": "monster-secret-corridor-tunneling",
+      "kind": "parity-repair",
+      "title": "Admit monster tunneling through secret corridors",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/monmove.c",
+          "nethack-c/upstream/src/dig.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/monster-secret-corridor-normal.session.json",
+          "recipes/monmove.c/monster-secret-corridor-quiet.session.json",
+          "recipes/monmove.c/monster-secret-corridor-ordinary-control.session.json"
+        ],
+        "test": [
+          "scripts/monster-secret-corridor.test.mjs",
+          "scripts/dig.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Locked and unlocked secret-door live C witnesses stop at the movement adapter on original source; ordinary-door control matches. Admit the source-selected SDOOR through existing terrain/vision isolation and mdig_tunnel conversion. 196 focused/affected and 18 doorway tests pass; full hosted validation and publication pending. Investigation start time not captured."
+      "note": "Source-selected SCORR destination stopped at movement admission. Live C witnesses establish conversion and unconditional draft in normal and quiet mode; ordinary corridor control passes on original source. Existing terrain/vision isolation covers conversion. Hosted validation and publication pending; investigation start time not captured."
     }
   ]
 }
