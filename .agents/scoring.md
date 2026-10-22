@@ -167,3 +167,38 @@ exposed fixed corpus and preserve pre-opening history; they are now also part
 of the operational fixed-development workload. Do not describe improvements on
 either exposed corpus as evidence of generalization. Neither local measure
 estimates the remote holdout score.
+
+### Single-engineer publication of accepted synthetic evidence
+
+After importing and comparing a successful exact-SHA Checkpoint and completing
+its push Lint/Pages gates, run the existing one-shot checker with recording:
+
+```
+node scripts/check-published-ci.mjs --commit <accepted-main-sha> --task <stable-id> --synthetic-baseline <previous-accepted-sha>
+```
+
+This reuses archived CI evaluations, verifies the current accepted Main, complete
+admitted dataset, immutable hashes, fixed/synthetic comparisons and actual run
+completion. It records all batches through the existing SCORE importer, then
+atomically replaces `challenges/published.json`. An interrupted import leaves the
+old pointer selected; repeating the command verifies existing files/rows and
+finishes without duplicate measurements. Missing, failed or incomparable evidence
+blocks replacement. No aggregate replay, Git write, credential change or service
+is introduced. Preserve any blocked comparison for review; never manufacture a
+publication receipt to get around it.
+
+Carry SCORE, immutable evaluation files and the pointer in the next ordinary
+work commit under the normal exact-SHA publication gates. Do not make a separate
+refresh commit each cycle. Thus hosted scoring runs asynchronously, but score
+publication still needs the single engineer's recorded acceptance and next work
+commit; it is not autonomous background publication. The initial user-approved
+score-display change may carry the latest already accepted cohort.
+
+The page retains the last complete aggregate with its actual measurement date,
+execution revision and CI link. Changed game inputs mark it earlier; changed
+batch membership explicitly marks it the previous dataset. Page builds and
+refresh clicks never reset the measurement date. Public status refresh annotates
+only verified current-candidate CI; it cannot import scores. A newly deployed
+page (manual reload or the existing 30-minute reload) selects the newer receipt.
+Historical activity snapshot dates remain historical. A paused engineer can
+therefore leave an honestly dated score visible indefinitely.

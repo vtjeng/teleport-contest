@@ -5,6 +5,7 @@ export function challengeDashboardPayload(view) {
   return {
     status: view.status,
     totals: view.totals,
+    ...(view.publication ? { publication: view.publication } : {}),
     error: view.error,
     commitUtc: view.commitUtc,
     commitAgeLabel: view.commitAgeLabel,

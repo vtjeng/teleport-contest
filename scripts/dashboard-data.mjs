@@ -8,6 +8,7 @@ import { join } from 'node:path';
 
 import { readRows, standing } from './score-log.mjs';
 import { challengeDashboard } from './challenge-results.mjs';
+import { readPublishedScore } from './published-synthetic.mjs';
 import { challengeDashboardPayload } from './dashboard-payload.mjs';
 import { activityTimeline, syntheticGainByCommit, goalHistory } from './dashboard-activity.mjs';
 
@@ -233,7 +234,7 @@ const scores = {
   fixedDevelopment: fixedDevelopmentScore,
 };
 
-const challenges = challengeDashboard(process.cwd(), scoreRows, headFullSha);
+const challenges = readPublishedScore(process.cwd(), challengeDashboard(process.cwd(), scoreRows, headFullSha));
 challenges.commitUtc = commitBySha.get(challenges.sha)?.committedAt || null;
 challenges.role = 'synthetic-local-holdout';
 for (const batch of challenges.batches || []) {

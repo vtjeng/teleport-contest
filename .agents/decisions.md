@@ -1232,3 +1232,19 @@ the selected candidate's CI only. This keeps the change bounded without a new
 publisher, service, or status-only commit loop, at the cost of potentially late
 activity records. Follow-up usefulness is unmeasured. Implementation is the
 commit containing this entry; recording details are in trial-monitor/README.md.
+
+## 2026-10-22 — Publish the complete accepted synthetic cohort
+
+- Why: the user observed a three-day-old Synthetic local holdout card. Hosted
+  Checkpoints covered the same 98 batches, but the single-engineer flow archived
+  and compared them without updating the tracked SCORE/evaluation publication.
+- Implementation: `record-published-synthetic.mjs`, `published-synthetic.mjs`,
+  the existing post-publication checker and score card in this commit. Reuse
+  accepted evidence; record canonical ledger rows and atomically select one
+  complete cohort. Preserve original execution SHA, hashes and measurement time.
+- Tradeoff: no extra evaluation or service; the next ordinary work commit carries
+  the recorded update. CI remains mandatory before acceptance. No promise of a
+  fresh score during long pauses; the last completed score remains visibly dated.
+- Follow-up: unmeasured. Check subsequent ordinary publications for correct
+  selected execution revision and measurement time; do not infer compute or
+  active time from publication latency.

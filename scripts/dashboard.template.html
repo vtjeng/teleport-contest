@@ -1148,6 +1148,8 @@ const TRIAL_DATA = /*TRIAL_PLACEHOLDER*/null;
 const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
 const singleWorkerActivity = /*SINGLE_WORKER_PLACEHOLDER*/null;
 let singleWorkerSnapshot = null;
+let syntheticMonitorView = null;
+const syntheticPublicationStatus = /*SYNTHETIC_STATUS_PLACEHOLDER*/null;
 // Page-open public reads are read-only. There is no timer, credential, or
 // background observer here; the whole page also reloads every 30 minutes.
 (function() {
@@ -1191,6 +1193,7 @@ let singleWorkerSnapshot = null;
     text('trialBaselineRate', rate(baseline.rate) + ' wall time · '
       + (baseline.carryInCount ?? 'unknown') + ' carry-in; '
       + rate(baseline.withoutCarryInRate) + ' excluding carry-in. Observational.');
+    syntheticMonitorView = view;
     singleWorkerSnapshot = singleWorkerActivity(view);
     text('trialHeadline', 'Single Standard engineer · ' + singleWorkerSnapshot.acceptedCount
       + ' accepted repairs in the recorded continuation. Coverage is partial; earlier repairs are not all registered. Investigation intervals without events are unknown.');
@@ -1377,7 +1380,9 @@ document.getElementById('stats').innerHTML = [
   const screens = score.screens
     ? fmtN(score.screens.matched) + '/' + fmtN(score.screens.total) + ' screens matched'
     : ['stale', 'incomplete'].includes(score.status) ? 'Current screen total unavailable' : 'No screen measurement';
-  const age = score.commitUtc
+  const age = score.publication
+    ? 'Measured ' + new Date(score.publication.measuredThrough).toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC'
+    : score.commitUtc
     ? (score.commitAgeLabel || 'Commit') + ' ' + relativeTime(score.commitUtc) : 'Commit age unavailable';
   const metrics = [['Sessions', 'sessions'], ['RNG', 'rng'], ['Cursors', 'cursors']]
     .map(([label, key]) => '<div class="score-breakdown-row"><span class="score-breakdown-label">' + label + '</span>'
@@ -1390,11 +1395,22 @@ document.getElementById('stats').innerHTML = [
         : fmtN(score.screens.total - score.screens.matched) + (score.screens.total - score.screens.matched === 1 ? ' screen unmatched' : ' screens unmatched') : 'Unmeasured') + '</div>'
     + '<div class="score-breakdown">' + metrics + '</div>'
     + '<div class="score-source">' + escScoreText(age) + '</div>'
-    + (score.status === 'stale' ? '<div class="score-source">Earlier measurement; reassessment required.</div>' : '')
+    + (score.publication ? '<div class="score-source" id="syntheticScoreStatus">'
+      + escScoreText(syntheticPublicationStatus(score.publication, syntheticMonitorView)) + '</div>'
+      + '<div class="score-source"><a href="https://github.com/vtjeng/teleport-contest/commit/'
+      + escScoreText(score.publication.sha) + '">Revision ' + escScoreText(score.publication.sha.slice(0, 8))
+      + '</a> · <a href="https://github.com/vtjeng/teleport-contest/actions/runs/'
+      + Number(score.publication.checkpoint.id) + '">CI evidence</a></div>' : '')
+    + (!score.publication && score.status === 'stale' ? '<div class="score-source">Earlier measurement; reassessment required.</div>' : '')
     + (score.error && (title !== 'Synthetic local holdout' || !challengeErrorShownInBatches)
       ? '<div class="score-source">' + escScoreText(score.error) + '</div>' : '')
     + '</div>';
 }).join('');
+
+window.addEventListener('single-worker-status', () => {
+  const node = document.getElementById('syntheticScoreStatus');
+  if (node && DATA.challenges.publication) node.textContent = syntheticPublicationStatus(DATA.challenges.publication, syntheticMonitorView);
+});
 
 // --- Unified development and synthetic sessions ---
 (function() {

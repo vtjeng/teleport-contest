@@ -10,6 +10,7 @@ import { activityUtilization, integrationDurations } from './dashboard-activity.
 import { workerWork } from './worker-backlog.mjs';
 import { createChartTimeRange } from './dashboard-time-range.mjs';
 import { singleWorkerActivity } from './single-worker-activity.mjs';
+import { syntheticPublicationStatus } from './published-synthetic.mjs';
 import { createTrialMonitor } from './trial-monitor.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -39,6 +40,7 @@ export function injectDashboardData(template, data, queueData, commit, trialData
     .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
     .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData))
     .replace('/*TRIAL_PLACEHOLDER*/null', () => escapeJsonForScript(trialData))
+    .replace('/*SYNTHETIC_STATUS_PLACEHOLDER*/null', () => syntheticPublicationStatus.toString())
     .replace('/*TRIAL_MODEL_PLACEHOLDER*/null', () => createTrialMonitor.toString())
     .replace('/*SINGLE_WORKER_PLACEHOLDER*/null', () => singleWorkerActivity.toString())
     .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString())

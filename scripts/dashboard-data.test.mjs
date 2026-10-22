@@ -15,6 +15,8 @@ import { runInNewContext } from 'node:vm';
 import { COLUMNS } from './score-log.mjs';
 import { escapeJsonForScript, injectDashboardData } from './build-dashboard.mjs';
 import { activityTimeline } from './dashboard-activity.mjs';
+import { singleWorkerActivity } from './single-worker-activity.mjs';
+import { createTrialMonitor } from './trial-monitor.mjs';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_SCRIPT = join(PROJECT_ROOT, 'scripts', 'dashboard-data.mjs');
@@ -1546,6 +1548,12 @@ test('single engineer renders and refreshes in the existing timeline without ena
     assert.match(timeline.innerHTML, /CI validation for Dismiss/);
     assert.doesNotMatch(timeline.innerHTML, /activity-label">Work lead/);
     assert.match(rendered.get('timelineReadout').innerHTML, /Investigation timestamps unknown/);
+    // The visible range advances as real repairs are recorded. Select this
+    // exact historical run instead of assuming it remains the initial selection.
+    const stages = singleWorkerActivity(createTrialMonitor(snapshot).summarize()).stages;
+    const index = stages.findIndex(stage => stage.links?.some(link => link.url.includes('/39705972360/')));
+    assert.ok(index >= 0);
+    timeline.listeners.click[0]({target: {classList: {contains: name => name === 'activity-bar'}, dataset: {segment: String(index)}}});
     assert.match(rendered.get('timelineReadout').innerHTML, /actions\/runs\/39705972360\/attempts\/1/);
     assert.equal(rendered.get('activityMetrics').hidden, true);
     snapshot.register.repairs.at(-1).investigations = [{start: '2026-10-22T02:10:00Z', end: '2026-10-22T02:15:00Z', note: 'C witness'}];
@@ -1673,4 +1681,21 @@ test('unknown activity dates stay unknown and missing register disables misleadi
     const missing = renderDashboard(sourceDashboardData());
     assert.equal(missing.get('trialRefresh').disabled, true);
     assert.match(missing.get('trialRefreshStatus').textContent, /unavailable.*Reload/u);
+});
+
+test('full startup keeps the published synthetic aggregate visible with measurement provenance', () => {
+    const data = sourceDashboardData();
+    data.challenges = { ...data.challenges, status: 'stale', totals: {
+        screens: { matched: 301862, total: 301874 }, sessions: { matched: 2051, total: 2055 },
+        rng: { matched: 7200426, total: 7200426 }, cursors: { matched: 301865, total: 301874 },
+    }, publication: { sha: 'b'.repeat(40), measuredThrough: '2026-10-22T07:00:00Z',
+        checkpoint: { id: 123 }, fresh: false, datasetMatches: true, batches: 98 } };
+    const rendered = renderDashboard(data), html = rendered.get('stats').innerHTML;
+    assert.match(html, /301,862\/301,874 screens matched/);
+    assert.match(html, /Measured 22\/10\/2026, 07:00:00 UTC/);
+    assert.match(html, /Revision bbbbbbbb/);
+    assert.match(html, /actions\/runs\/123/);
+    assert.match(html, /Earlier measurement — newer evaluation status unknown/);
+    assert.doesNotMatch(html, /Needs evaluation|Oldest measured commit/);
+    assert.ok(rendered.get('goalTable').innerHTML, 'initialization reaches final history');
 });
