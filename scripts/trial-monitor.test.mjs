@@ -171,6 +171,7 @@ test('public refresh keeps last-known snapshot on fetch failure', async () => {
   assert.equal(view.baseline.acceptedCount, 13);
   assert.equal(view.trial.status, 'not-started');
   assert.equal(view.api.status, 'failed');
+  assert.equal(view.api.checkedAt, null);
   assert.match(view.api.error, /offline/u);
   assert.equal(calls.length, 3);
   assert.ok(calls.every(call => call.init.cache === 'no-store'));
@@ -200,7 +201,7 @@ test('public refresh reads Main files and exact job times without credentials', 
       else if (url.includes('/actions/runs?')) payload = { workflow_runs: runs };
       else {
         const id = Number(url.match(/runs\/(\d+)\/jobs/u)?.[1]);
-        payload = { jobs: [{ completed_at: `2026-10-22T00:${id - 390}:00Z` }] };
+        payload = { total_count: 1, jobs: [{ completed_at: `2026-10-22T00:${id - 390}:00Z` }] };
       }
       return { ok: true, json: async () => payload };
     },
@@ -233,9 +234,59 @@ test('dashboard template preserves compact single-column mobile layout', () => {
   const html = readFileSync(new URL('./dashboard.template.html', import.meta.url), 'utf8');
   assert.match(html, /<meta name="viewport" content="width=device-width, initial-scale=1">/u);
   const mobileCss = html.slice(html.lastIndexOf('@media (max-width:600px)'), html.indexOf('</style>'));
-  assert.match(mobileCss, /\.trial-tiles,\.trial-details,\.trial-freshness\s*\{\s*grid-template-columns:minmax\(0,1fr\);/u);
+  assert.match(mobileCss, /\.trial-tiles,\.trial-details\s*\{\s*grid-template-columns:minmax\(0,1fr\);/u);
   for (const id of ['trialHeadline', 'trialBaselineCount', 'workerEvidence',
-    'trialGates', 'trialCandidate', 'trialBuildFresh', 'trialManifestFresh', 'trialApiFresh']) {
+    'trialGates', 'trialCandidate', 'trialFreshness', 'trialRefreshStatus']) {
     assert.match(html, new RegExp(`id="${id}"`, 'u'));
   }
+});
+
+test('failed required fetch retains the last successful check time and atomic snapshot', async () => {
+  const data = snapshot();
+  data.manifest.operations.currentCandidate = null;
+  let fail = false, now = '2026-10-22T01:00:00Z';
+  const monitor = createTrialMonitor(data, {now: () => new Date(now), fetchPublic: async url => {
+    if (fail && url.includes('/repairs.json?')) throw new Error('offline');
+    const value = url.includes('/manifest.json?') ? data.manifest
+      : url.includes('/repairs.json?') ? data.register : null;
+    return {ok: true, json: async () => value ? {encoding: 'base64',
+      content: Buffer.from(JSON.stringify(value)).toString('base64')} : {workflow_runs: []}};
+  }});
+  const first = monitor.refresh();
+  assert.equal(monitor.refresh(), first, 'concurrent calls share one transaction');
+  const success = await first;
+  assert.equal(success.api.checkedAt, new Date(now).toISOString());
+  fail = true;
+  now = '2026-10-22T02:00:00Z';
+  data.manifest.asOf = now;
+  const failed = await monitor.refresh();
+  assert.equal(failed.api.status, 'failed');
+  assert.equal(failed.api.checkedAt, success.api.checkedAt);
+  assert.equal(failed.manifestAsOf, success.manifestAsOf);
+});
+
+test('incomplete job evidence cannot mark a refresh fresh or complete a gate', async () => {
+  const candidateSha = sha('a');
+  const data = running([repair('incomplete', candidateSha, [])], {
+    currentCandidate: {repairId: 'incomplete', sha: candidateSha},
+  });
+  const monitor = createTrialMonitor(data, {fetchPublic: async url => {
+    let payload;
+    if (url.includes('/manifest.json?') || url.includes('/repairs.json?')) {
+      const value = url.includes('/manifest.json?') ? data.manifest : data.register;
+      payload = {encoding: 'base64', content: Buffer.from(JSON.stringify(value)).toString('base64')};
+    } else if (url.includes('/jobs?')) {
+      payload = {total_count: 2, jobs: [{completed_at: '2026-10-22T00:15:00Z'}]};
+    } else {
+      payload = {workflow_runs: [{id: 901, name: 'Checkpoint', head_sha: candidateSha,
+        run_attempt: 1, event: 'push', head_branch: 'integration-checkpoint/test',
+        status: 'completed', conclusion: 'success', created_at: '2026-10-22T00:10:00Z'}]};
+    }
+    return {ok: true, json: async () => payload};
+  }});
+  const view = await monitor.refresh();
+  assert.equal(view.api.status, 'failed');
+  assert.equal(view.api.checkedAt, null);
+  assert.match(view.api.error, /incomplete/u);
+  assert.equal(view.currentCandidate.gates.Checkpoint.status, 'missing');
 });

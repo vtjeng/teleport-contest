@@ -76,7 +76,7 @@ test('embedded timeline parses and keeps narrow layout, freshness and historical
   for (const script of html.matchAll(/<script>([\s\S]*?)<\/script>/gu)) new Script(script[1]);
   assert(!html.includes('Repair trial monitor'));
   assert.match(html, /Show retired worker history/);
-  assert.match(html, /stale recorded activity/);
+  assert.match(html, /Recorded activity:/);
   assert.match(html, /\.activity-label\s*\{[^}]*white-space: normal;[^}]*overflow-wrap: anywhere;/u);
-  assert.match(html, /\.trial-tiles,\.trial-details,\.trial-freshness\s*\{\s*grid-template-columns:minmax\(0,1fr\)/u);
+  assert.match(html, /\.trial-tiles,\.trial-details\s*\{\s*grid-template-columns:minmax\(0,1fr\)/u);
 });

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T04:29:05.487Z",
+  "asOf": "2026-10-22T04:43:41.084Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1626,9 +1626,55 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39721847966"
             }
           ]
+        },
+        {
+          "sha": "8d6db33bb8aca6e597a472cd5f3d3c651bfb00ed",
+          "committedAt": "2026-10-22T04:31:50Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39722899008,
+              "name": "Checkpoint",
+              "sha": "8d6db33bb8aca6e597a472cd5f3d3c651bfb00ed",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-paygd-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:31:58Z",
+              "completedAt": "2026-10-22T04:37:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39722899008"
+            },
+            {
+              "id": 39723495206,
+              "name": "Lint",
+              "sha": "8d6db33bb8aca6e597a472cd5f3d3c651bfb00ed",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:38:26Z",
+              "completedAt": "2026-10-22T04:39:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39723495206"
+            },
+            {
+              "id": 39723495311,
+              "name": "Dashboard",
+              "sha": "8d6db33bb8aca6e597a472cd5f3d3c651bfb00ed",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:38:26Z",
+              "completedAt": "2026-10-22T04:40:16Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39723495311"
+            }
+          ]
         }
       ],
-      "note": "Four C witnesses match after paygd and vision-shutdown fixes. First Checkpoint failed in shard 2. Local reproduction found a stale paygd refusal expectation and an uninitialized vision fixture; both corrected. Hosted failure log download was denied, so individual hosted assertions are unverified. Corrected candidate identity and final gates not yet recorded; not accepted."
+      "note": "Four C witnesses match after paygd and vision-shutdown fixes. Failed first Checkpoint retained; local shard reproduction corrected stale death/vision fixtures. Corrected full Checkpoint and push Lint/Pages passed; imported evidence compared against accepted 2b07637893a4599e1ed2ab309badc625506a41ba with fixed 44 sessions and 98 synthetic batches/2055 cases unchanged. Hosted failed-run log download denied; individual original hosted assertions unverified."
     }
   ]
 }

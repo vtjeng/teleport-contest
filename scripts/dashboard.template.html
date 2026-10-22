@@ -980,8 +980,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 .trial-details b { display:block; font-size:12px; }
 .trial-gates { display:flex; gap:6px 12px; flex-wrap:wrap; font-size:12px; }
 .trial-gates a { color:var(--integration-blue); }
-.trial-freshness { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; border-top:1px solid var(--border); padding-top:10px; color:var(--ink-secondary); font-size:12px; }
-.trial-freshness > span { overflow-wrap:anywhere; }
+.trial-freshness { overflow-wrap:anywhere; border-top:1px solid var(--border); padding-top:10px; color:var(--ink-secondary); font-size:12px; }
 .trial-note,.trial-history { margin-top:9px; color:var(--ink-secondary); font-size:12px; }
 .trial-history summary { cursor:pointer; }
 .trial-history-list { padding-left:18px; margin-top:6px; }
@@ -989,7 +988,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 .trial-legacy-note { color:var(--ink-muted); font-size:12px; margin:0 0 16px; }
 @media (max-width:600px) {
   .trial-monitor { padding:12px; }
-  .trial-tiles,.trial-details,.trial-freshness { grid-template-columns:minmax(0,1fr); }
+  .trial-tiles,.trial-details { grid-template-columns:minmax(0,1fr); }
   .trial-tile strong { font-size:21px; }
 }
 </style>
@@ -1003,42 +1002,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
 
 <div class="stats" id="stats"></div>
 
-<section class="section" aria-labelledby="yieldTitle">
-  <div class="section-toolbar">
-    <h2 class="section-title" id="yieldTitle">Exploration yield</h2>
-    <div class="section-toolbar-controls">
-      <details class="time-range-picker" id="yieldRangePicker"><summary id="yieldRangeSummary">24 hours · Now</summary>
-        <form class="time-range-selector" id="yieldRangeForm" aria-label="Exploration time selection">
-          <label class="time-range-part"><span>Duration</span><select id="yieldWindow" aria-label="Exploration duration"><option value="6">6 hours</option><option value="24" selected>24 hours</option><option value="168">7 days</option><option value="all">All</option><option value="custom">Custom</option></select><input id="yieldDurationCustom" type="number" min="0" step="any" hidden aria-label="Exploration custom duration"><select id="yieldDurationUnit" hidden aria-label="Exploration duration unit"><option value="60000">minutes</option><option value="3600000">hours</option><option value="86400000">days</option></select></label>
-          <label class="time-range-part"><span>Ending at</span><select id="yieldEnding" aria-label="Exploration ending at"><option value="now">Now</option><option value="fixed">Fixed datetime</option></select><input id="yieldEndingAt" type="datetime-local" step="1" hidden aria-label="Exploration fixed ending datetime"><small id="yieldRangeTimezone"></small></label>
-          <span class="time-range-error" id="yieldRangeError" role="alert"></span><p class="time-range-help">Valid custom values update on Enter or when you leave the field.</p>
-        </form>
-      </details>
-    </div>
-  </div>
-  <div class="section-context"><span class="chart-range" id="yieldBucketLabel">Discovery timeline</span><span class="time-range-note" id="yieldRangeAsOf"></span></div>
-  <p class="subtitle" id="yieldFreshness"></p>
-  <div class="chart-wrap">
-    <div class="yield-summary" id="yieldSummary"></div>
-    <p class="yield-plot-note">Dots are qualified sessions attributed to original task closure; classification is retrospective.</p>
-    <div class="yield-legend"><span><i class="yield-key"></i>Closed tasks</span><span><i class="yield-key claimed"></i>Tasks claimed</span></div>
-    <canvas id="yieldChart" tabindex="0" aria-label="Qualified sessions at original task closure, with task volume below. Dots are retrospectively classified sessions, not qualification timestamps. Select a dot or interval; arrow keys inspect every interval, Home and End jump, Escape clears."></canvas>
-    <div id="yieldReadout" aria-live="polite"></div>
-    <details class="activity-help"><summary>Operational milestones</summary><ol class="yield-markers" id="yieldMarkers"></ol><p class="table-note" id="yieldMarkerNote"></p></details>
-    <details class="activity-help"><summary>Closed-task outcomes in this window</summary><ul class="yield-markers" id="yieldDispositions"></ul><p>Comparison parity does not by itself establish that the intended target was reached. Unknowns remain unclassified until their saved evidence is reviewed.</p></details>
-    <details class="activity-help"><summary>Definitions and historical coverage</summary><p class="table-note" id="yieldContext"></p><p id="yieldCoverage"></p><p>Claimed and closed discovery tasks are counted once each. One task can include several C scouts; physical probe attempts are not recorded consistently. Usable means a task has audited valid C, unchanged replay and comparison evidence. Qualified mismatches exclude duplicates, setup failures and unattributed runner differences. Later admission is attributed back to the original discovery time; recent samples may still be awaiting qualification. Source surveys and linked validation or correction tasks are excluded from the discovery-task denominator. Unknown evidence classifications remain visible. The local exploration coalescer waits 15 minutes after changed discovery evidence before a checked snapshot publication. Integration or pending CI can delay it. This is not a live feed; the capture timestamp shows actual freshness.</p></details>
-  </div>
-</section>
-
-<p class="trial-legacy-note">The queue, backlog and exploration yield retain historical records from retired worker roles.</p>
-<section class="section" id="assignmentQueueSection" hidden aria-labelledby="assignmentQueueTitle">
-  <h3 class="section-title" id="assignmentQueueTitle">Shared work queue</h3>
-  <p class="snapshot-status" id="assignmentQueueSnapshotTime" role="note"></p>
-  <div class="activity-backlog" id="assignmentQueue"></div>
-</section>
-
-
-
+<p class="trial-legacy-note">The backlog retains historical records from retired worker roles.</p>
 <section class="section" aria-labelledby="pendingMainWorkTitle">
   <h3 class="section-title" id="pendingMainWorkTitle">Work lead backlog</h3>
   <div class="activity-backlog" id="pendingMainWork"></div>
@@ -1067,8 +1031,9 @@ button:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visib
     <p class="trial-headline" id="trialHeadline" aria-live="polite">Loading recorded activity…</p>
     <p><b>Latest recorded candidate:</b> <span id="trialCandidate">Unknown</span></p>
     <div class="trial-gates" id="trialGates"></div>
-    <div class="trial-freshness"><span id="trialBuildFresh"></span><span id="trialManifestFresh"></span><span id="trialApiFresh"></span></div>
-    <p class="trial-note">Page open and Refresh public status read the latest register and CI for the selected candidate. Investigation events and candidate IDs require recorded updates in ordinary work commits. No continuous polling. Missing records mean unknown activity, never idle or measured compute.</p>
+    <p class="trial-freshness" id="trialFreshness"></p>
+    <p class="trial-note" id="trialRefreshStatus" role="status" aria-live="polite"></p>
+    <p class="trial-note">Page open and Refresh public status read the latest register and CI for the selected candidate. Investigation events and candidate IDs require recorded updates in ordinary work commits. The page also reloads every 30 minutes; there is no continuous status polling. Missing records mean unknown activity, never idle or measured compute.</p>
     <details class="trial-history"><summary>Repair evidence and missing intervals</summary><ul class="trial-history-list" id="workerEvidence"></ul></details>
     <details class="trial-history"><summary>Audited historical baseline</summary><p><strong id="trialBaselineCount"></strong> · Oct 21, 11:50–15:50 UTC. <span id="trialBaselineRate"></span> The unused parallel trial remains shelved.</p></details>
   </div>
@@ -1184,28 +1149,30 @@ const createTrialMonitor = /*TRIAL_MODEL_PLACEHOLDER*/null;
 const singleWorkerActivity = /*SINGLE_WORKER_PLACEHOLDER*/null;
 let singleWorkerSnapshot = null;
 // Page-open public reads are read-only. There is no timer, credential, or
-// background observer; the button is the only subsequent refresh.
+// background observer here; the whole page also reloads every 30 minutes.
 (function() {
   const node = id => document.getElementById(id);
+  const button = node('trialRefresh');
+  function unavailable() {
+    button.disabled = true;
+    node('trialFreshness').textContent = 'Recorded activity: unknown';
+    node('trialRefreshStatus').textContent = 'Status unavailable. Reload the page to try again.';
+  }
   if (!TRIAL_DATA || !createTrialMonitor) {
+    unavailable();
     node('trialHeadline').textContent = 'Activity register unavailable';
     return;
   }
   let monitor;
   try { monitor = createTrialMonitor(TRIAL_DATA); }
   catch (error) {
+    unavailable();
     node('trialHeadline').textContent = 'Activity register invalid: ' + error.message;
     return;
   }
-  const stamp = value => value ? new Date(value).toLocaleString('en-US',
+  const stamp = value => Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString('en-US',
     { timeZone:'UTC', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit',
       hour12:false }) + ' UTC' : 'unknown';
-  const age = value => {
-    const ms = Date.now() - Date.parse(value);
-    if (!Number.isFinite(ms)) return 'unknown age';
-    return ms < 60000 ? 'under 1 minute old'
-      : Math.floor(ms / 60000) + ' minutes old';
-  };
   const rate = value => value == null ? 'unknown'
     : value.toFixed(2) + ' accepted repairs/hour';
   const text = (id, value) => { node(id).textContent = value; };
@@ -1260,27 +1227,42 @@ let singleWorkerSnapshot = null;
         gates.append(span);
       }
     }
-    text('trialBuildFresh', 'Page source ' + view.buildSha.slice(0, 8)
-      + ' · commit ' + stamp(view.buildAt) + ' (' + age(view.buildAt) + ')');
-    text('trialManifestFresh', 'Register ' + stamp(view.registerAsOf)
-      + ' (' + age(view.registerAsOf) + ')'
-      + (Date.now() - Date.parse(view.registerAsOf) > 60 * 60000 ? ' · stale recorded activity' : '')
-      + ' · manifest ' + stamp(view.manifestAsOf));
-    text('trialApiFresh', view.api.status === 'fresh'
-      ? 'Public API checked ' + stamp(view.api.checkedAt)
-        + ' · page deployment ' + view.pageDeployment
-      : view.api.status === 'failed'
-        ? 'Public API unavailable: ' + view.api.error
-          + '. Last-known snapshot; this build cannot observe its own Dashboard completion.'
-        : 'Build snapshot only; this build cannot observe its own Dashboard completion.');
-
+    const recorded = Date.parse(view.registerAsOf);
+    const age = Date.now() - recorded;
+    text('trialFreshness', 'Recorded activity: ' + stamp(view.registerAsOf)
+      + (!Number.isFinite(recorded) ? '' : age < 0 ? ' · age unknown (clock ahead)'
+        : age > 60 * 60000 ? ' · stale' : '')
+      + (view.api.status === 'fresh' ? '' : ' · last-known snapshot'));
   }
-  render(monitor.summarize());
-  const button = node('trialRefresh');
+  // Compare evidence, not the successful check's timestamp or elapsed clock.
+  const signature = view => JSON.stringify({
+    results: view.results, candidate: view.currentCandidate,
+    registerAsOf: view.registerAsOf, manifestAsOf: view.manifestAsOf,
+  });
+  let view = monitor.summarize();
+  render(view);
+  let refreshing = false;
   async function refresh() {
+    if (refreshing) return;
+    refreshing = true;
     button.disabled = true;
-    try { render(await monitor.refresh()); }
-    finally { button.disabled = false; }
+    button.textContent = 'Refreshing…';
+    text('trialRefreshStatus', 'Checking for updates…');
+    const before = signature(view);
+    try {
+      const next = await monitor.refresh();
+      render(next);
+      text('trialRefreshStatus', next.api.status === 'fresh'
+        ? (signature(next) === before ? 'Already up to date.' : 'Status updated.')
+        : 'Could not refresh public status. Showing last-known data. Try again or reload the page.');
+      view = next;
+    } catch {
+      text('trialRefreshStatus', 'Could not refresh public status. Showing last-known data. Try again or reload the page.');
+    } finally {
+      refreshing = false;
+      button.disabled = false;
+      button.textContent = 'Refresh public status';
+    }
   }
   button.addEventListener('click', refresh);
   refresh();
@@ -1288,8 +1270,6 @@ let singleWorkerSnapshot = null;
 const activityUtilization = /*UTILIZATION_PLACEHOLDER*/null;
 const integrationDurations = /*INTEGRATION_DURATION_PLACEHOLDER*/null;
 const createChartTimeRange = /*TIME_RANGE_PLACEHOLDER*/null;
-const aggregateExplorationYield = /*EXPLORATION_AGGREGATE_PLACEHOLDER*/null;
-const renderExplorationYield = /*EXPLORATION_RENDER_PLACEHOLDER*/null;
 // Main and Prep are stored ledger keys; role names change only at presentation.
 const agentName = value => value === 'Main' ? 'Work lead' : value === 'Prep' ? 'Challenge lead'
   : /^Worker-[1-3]$/.test(value) ? value.replace('-', ' ') : value;
@@ -1338,13 +1318,10 @@ function workerSnapshotText(iso) {
   return 'Snapshot ' + new Date(at).toISOString().replace('T', ' ').replace('Z', ' UTC')
     + ' · ' + age + '. Not live: workers and claims may have changed.';
 }
-document.getElementById('assignmentQueueSnapshotTime').textContent = workerSnapshotText(activityAsOf);
 document.getElementById('updated').textContent = activityAsOf
   ? 'Activity snapshot ' + relativeTime(activityAsOf) : 'Activity snapshot unavailable';
 document.getElementById('updated').title = (activityAsOf ? 'Activity as of ' + activityAsOf + '. ' : '')
   + 'Page built ' + DATA.summary.generatedAt + '. Activity updates on publication.';
-renderExplorationYield({payload:DATA.explorationYield,aggregate:aggregateExplorationYield,
-  createRange:createChartTimeRange,document,window,getStyle:getComputedStyle});
 
 // Shared range geometry for the score and activity overview charts.
 function drawRangeSelector(ctx, left, right, height, ink) {
@@ -2019,41 +1996,6 @@ document.getElementById('stats').innerHTML = [
 })();
 
 // --- Observed worker and integration activity ---
-(function renderAssignmentQueue() {
-  const queue = DATA.assignmentQueue;
-  if (!queue) return;
-  document.getElementById('assignmentQueueSection').hidden = false;
-  const container = document.getElementById('assignmentQueue');
-  const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const label = task => task.type === 'rework' ? 'Rework' : task.output === 'exploration' ? 'Exploration' : 'Implementation';
-  const pending = queue.tasks.filter(task => !['completed', 'superseded'].includes(task.status));
-  const owners = new Map((queue.claimed || []).map(row => [row.task, row.worker]));
-  for (const worker of queue.workers || []) if (worker.assignment) owners.set(worker.assignment, worker.worker);
-  const runnable = new Map((queue.ready || []).map((id, index) => [id, index]));
-  const status = task => owners.has(task.id) ? 'claimed' : task.status === 'blocked' ? 'blocked'
-    : queue.readySessions !== null && runnable.has(task.id) ? 'ready' : 'blocked';
-  const rank = task => status(task) === 'claimed' ? 0 : status(task) === 'ready' ? 1 : 2;
-  pending.sort((a, b) => rank(a) - rank(b) || (rank(a) === 0
-    ? owners.get(a.id).localeCompare(owners.get(b.id), 'en', {numeric: true})
-    : rank(a) === 1 ? runnable.get(a.id) - runnable.get(b.id) : a.id.localeCompare(b.id)));
-  const shortName = task => (task.sessions?.[0]?.split('/').at(-1) || task.id)
-    .replace(/^(?:v[0-9]+|support)-/, '').replace(/-cfirst-[0-9]+$/, '').replace(/-[0-9]{8}$/, '').replaceAll('-', ' ');
-  const idle = (queue.workers || []).filter(worker => worker.state === 'idle' && !worker.assignment)
-    .map(worker => worker.worker.replace('-', ' '));
-  container.innerHTML = '<p>Idle at snapshot: ' + (idle.length ? idle.map(esc).join(', ') : 'None') + '</p>'
-    + (queue.readySessions === null ? '<p>Queue evidence needs refresh</p>' : '')
-    + (pending.length ? '<table class="assignment-table"><thead><tr><th>Type</th><th>Task</th><th>Status</th><th>Claimed by</th></tr></thead><tbody>'
-      + pending.map(task => '<tr><td>' + esc(label(task)) + '</td><td><details><summary title="' + esc(task.id) + '">' + esc(shortName(task))
-        + '</summary><p>' + esc(task.id) + '</p><p>Producer ' + esc(agentName(task.producer))
-        + ' · result to ' + esc(agentName(task.recipient)) + (task.batch ? ' · batch ' + esc(task.batch) : '') + '</p>'
-        + (status(task) === 'blocked' ? '<p>' + esc(queue.blocked.find(row => row.task === task.id)?.reason
-          || 'Waiting for producer, current evidence, dependencies or reservations.') + '</p>' : '')
-        + '</details></td><td>' + esc(status(task)) + '</td><td>' + esc(owners.get(task.id)?.replace('-', ' ') || 'Unassigned') + '</td></tr>').join('')
-      + '</tbody></table>' : '<p>No pending assignments.</p>')
-    + '<details><summary>Dispatch details</summary><p>' + esc(queue.reason) + '</p></details>';
-})();
-
 (function() {
   const container = document.getElementById('pendingMainWork');
   const backlog = DATA.pendingMainWork;
@@ -2107,7 +2049,7 @@ document.getElementById('stats').innerHTML = [
 
 })();
 
-(function() {
+(function initializeTimeline() {
   const container = document.getElementById('timeline');
   const readout = document.getElementById('timelineReadout');
   const metrics = document.getElementById('activityMetrics');
@@ -2173,6 +2115,12 @@ document.getElementById('stats').innerHTML = [
     durationReadout.textContent = 'Integration time is unavailable until completed stages are recorded.';
     container.textContent = 'No worker activity snapshot is available.';
     readout.innerHTML = '<section><h4>Task details</h4><p>No recorded activity.</p></section><section></section>';
+    const awaitActivity = () => {
+      if (!singleWorkerSnapshot?.segments?.length) return;
+      window.removeEventListener('single-worker-status', awaitActivity);
+      initializeTimeline();
+    };
+    window.addEventListener('single-worker-status', awaitActivity);
     return;
   }
   const hourMs = 3600000;

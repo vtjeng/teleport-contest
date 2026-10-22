@@ -7,8 +7,8 @@ baseline remains frozen: 13 accepted repairs, one carry-in, 3.25/hour including
 it and 3.00/hour excluding it. These are elapsed wall-time observations.
 
 The current lane selects repairs with `window: "single-worker"`. This register
-has partial historical coverage: the two recent repairs and their correction
-are recorded, not the whole earlier single-worker history. Retired worker
+has partial historical coverage: recent repairs and their corrections are
+recorded, not the whole earlier single-worker history. Retired worker
 ledger lanes and their metrics remain separately selectable. Neither missing
 records nor elapsed spans measure active work, idle time or compute.
 
@@ -39,12 +39,17 @@ rewrite or separate publication loop. Update the affected files' `asOf`.
 
 At build time, the existing dashboard embeds both files. Page open and
 **Refresh public status** read their latest Main versions and public GitHub CI.
-They refresh the existing timeline without polling or credentials. Only the
+They refresh the existing timeline without status polling or credentials. The
+existing whole-page reload still runs every 30 minutes. Only the
 selected candidate is enriched with exact final job times. Investigation
 activity, repair identity, correction grouping, evidence paths and candidate
 selection require recorded events; GitHub cannot infer them. API failure keeps
-the last-known snapshot and displays the error. Register age is always shown,
-and activity older than one hour is labeled stale even if the API read worked.
+the last-known snapshot and last successful check time, with a retry message.
+All required reads must succeed before data is applied. Refresh shows loading,
+updated or already-up-to-date feedback; overlapping clicks share no extra work.
+The concise recorded-activity timestamp stays stale after one hour even if the
+API read worked. Missing dates remain unknown. The outdated Exploration yield
+and Shared work queue panels are no longer rendered; historical data is retained.
 
 Checkpoint accepts integration-branch push/dispatch; Lint and Dashboard require
 Main **push** success, all on one exact SHA. All three successful gate completion

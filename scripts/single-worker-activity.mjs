@@ -73,7 +73,7 @@ export function singleWorkerActivity(view) {
     }
   }
   return { tasks, segments, stages: segments,
-    capturedAt: view?.api?.status === 'fresh' ? view.api.checkedAt : view?.registerAsOf,
+    capturedAt: view?.api?.checkedAt ?? view?.registerAsOf,
     acceptedCount: tasks.filter(task => task.publishedAt).length,
   };
 }

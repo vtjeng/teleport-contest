@@ -159,9 +159,8 @@ export function createTrialMonitor(initial, options = {}) {
     };
   }
 
-  async function refresh() {
+  async function performRefresh() {
     const fetchPublic = options.fetchPublic ?? globalThis.fetch;
-    const checkedAt = new Date().toISOString();
     const read = async path => {
       const response = await fetchPublic(`${apiBase}/${path}`, {
         headers: { Accept: 'application/vnd.github+json' }, cache: 'no-store',
@@ -215,7 +214,8 @@ export function createTrialMonitor(initial, options = {}) {
         && run.status === 'completed' && run.conclusion === 'success');
       await Promise.all(currentRuns.map(async run => {
         const jobs = await read(`actions/runs/${run.id}/jobs?per_page=100`);
-        if (!Array.isArray(jobs.jobs)) throw new Error('GitHub jobs response is incomplete');
+        if (!Array.isArray(jobs.jobs) || jobs.total_count !== jobs.jobs.length)
+          throw new Error('GitHub jobs response is incomplete');
         run.completedAt = jobs.jobs.map(job => job.completed_at)
           .filter(value => timestamp(value) !== null).sort().at(-1) ?? null;
       }));
@@ -226,11 +226,16 @@ export function createTrialMonitor(initial, options = {}) {
       const next = { ...current, manifest, register, apiRuns, pageDeployment };
       validate(next);
       current = next;
-      api = { status: 'fresh', checkedAt, error: null };
+      api = { status: 'fresh', checkedAt: new Date(options.now?.() ?? new Date()).toISOString(), error: null };
     } catch (error) {
-      api = { status: 'failed', checkedAt, error: error.message };
+      api = { status: 'failed', checkedAt: api.checkedAt, error: error.message };
     }
     return summarize();
+  }
+  let pending = null;
+  function refresh() {
+    if (!pending) pending = performRefresh().finally(() => { pending = null; });
+    return pending;
   }
   return { summarize, refresh };
 }

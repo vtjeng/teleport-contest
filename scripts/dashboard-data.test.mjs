@@ -81,7 +81,7 @@ function scoreRow(fields) {
 }
 
 // Historical fixtures opt in so their existing interaction coverage remains useful.
-function renderDashboard(data, queue = null, {showHistorical = true, singleWorkerData = null} = {}) {
+function renderDashboard(data, queue = null, {showHistorical = true, singleWorkerData = null, fetchPublic = async () => { throw new Error('Offline fixture'); }} = {}) {
     const elements = new Map();
     // Every canvas call lands in canvasOps, and also in the drawn element's
     // own ops, so a test can ask what one canvas drew.
@@ -164,7 +164,8 @@ function renderDashboard(data, queue = null, {showHistorical = true, singleWorke
     const window = {
         listeners: {},
         addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); },
-        dispatchEvent(event) { for (const handler of this.listeners[event.type] || []) handler(event); },
+        removeEventListener(type, handler) { this.listeners[type] = (this.listeners[type] || []).filter(item => item !== handler); },
+        dispatchEvent(event) { for (const handler of [...(this.listeners[event.type] || [])]) handler(event); },
         matchMedia: () => ({ addEventListener() {} }),
         devicePixelRatio: 1,
         innerWidth: 1200,
@@ -172,7 +173,7 @@ function renderDashboard(data, queue = null, {showHistorical = true, singleWorke
     const sandbox = {
         document,
         window, Event,
-        fetch: async () => { throw new Error('Offline fixture'); },
+        fetch: fetchPublic, AbortSignal, atob, TextDecoder, Uint8Array,
         getComputedStyle: () => ({
             getPropertyValue: (property) => property,
         }),
@@ -227,23 +228,18 @@ test('missing integration history is unavailable, not a zero-time average', () =
     assert.match(rendered.get('integrationDurationReadout').textContent, /unavailable/u);
 });
 
-test('exploration chart embeds its real aggregator and separates snapshot freshness from build time', () => {
-    const data=sourceDashboardData();
-    data.activity={capturedAt:'2026-10-16T14:00:00Z',tasks:[],segments:[]};
-    data.explorationYield={schemaVersion:1,asOf:'2026-10-16T14:00:00Z',coverage:{notes:['Historical attempts unavailable.']},
-        records:[{id:'original',kind:'discovery',claimedAt:'2026-10-16T12:00:00Z',closedAt:'2026-10-16T13:00:00Z',
-            usable:'yes',classification:'qualified-mismatch',qualifyingSessionIds:['new-case'],bugFamilyIds:['cause']}],
-        markers:[{at:'2026-10-16T12:30:00Z',label:'Operational change',causality:'unmeasured'}]};
-    const rendered=renderDashboard(data);
-    assert.match(rendered.get('yieldSummary').textContent,/1 qualified session/);
-    assert.match(rendered.get('yieldSummary').textContent,/1 distinct supported first cause/);
-    assert.match(rendered.get('yieldMarkerNote').textContent,/no measured strategy shift/);
-    assert.match(rendered.get('updated').textContent,/Activity snapshot/);
-    assert.match(rendered.get('updated').title,/2026-10-16T14:00:00Z/);
-    assert.match(rendered.get('updated').title,/Page built 2026-01-01/);
-    assert.ok(rendered.get('yieldChart').ops.some(op=>op[0]==='arc'));
-    rendered.get('yieldChart').listeners.keydown[0]({key:'End',preventDefault(){}});
-    assert.match(rendered.get('yieldReadout').textContent,/1 qualified discovery among 1 closed task/);
+test('outdated exploration and shared queue panels are absent without changing historical data', () => {
+    const data = sourceDashboardData();
+    data.explorationYield = {records: [{id: 'historical'}]};
+    data.assignmentQueue = {tasks: [{id: 'historical'}]};
+    const before = JSON.stringify(data);
+    const rendered = renderDashboard(data);
+    const template = readFileSync(TEMPLATE, 'utf8');
+    assert.doesNotMatch(template, /Exploration yield|Shared work queue|id="yieldChart"|id="assignmentQueue"/u);
+    assert.equal(rendered.has('yieldChart'), false);
+    assert.equal(rendered.has('assignmentQueue'), false);
+    assert.equal(JSON.stringify(data), before);
+    assert.match(template, /Work lead backlog/u);
 });
 
 test('worker status prominently dates its snapshot and never presents old idle rows as live', () => {
@@ -254,23 +250,22 @@ test('worker status prominently dates its snapshot and never presents old idle r
         workers: [{worker: 'Worker-3', state: 'idle', assignment: null}]};
     const rendered = renderDashboard(data);
     const exactTime = capturedAt.replace('T', ' ').replace('Z', ' UTC');
-    for (const id of ['assignmentQueueSnapshotTime', 'activitySnapshotTime']) {
+    for (const id of ['activitySnapshotTime']) {
         const text = rendered.get(id).textContent;
         assert.ok(text.includes(exactTime), 'exact UTC capture time is visible, not only a tooltip');
         assert.match(text, /21m ago at page load/u);
         assert.match(text, /Not live: workers and claims may have changed/u);
     }
-    assert.match(rendered.get('assignmentQueue').innerHTML, /Idle at snapshot: Worker 3/u);
     for (const capturedAt of [undefined, 'invalid']) {
         data.activity.capturedAt = capturedAt;
         const missing = renderDashboard(data);
-        for (const id of ['assignmentQueueSnapshotTime', 'activitySnapshotTime'])
+        for (const id of ['activitySnapshotTime'])
             assert.match(missing.get(id).textContent, /Snapshot time unavailable.*cannot establish current activity/u);
     }
     data.activity.capturedAt = new Date(Date.now() + 60000).toISOString();
     assert.match(renderDashboard(data).get('activitySnapshotTime').textContent, /clock ahead; age unavailable/u);
     const template = readFileSync(TEMPLATE, 'utf8');
-    for (const id of ['assignmentQueueSnapshotTime', 'activitySnapshotTime'])
+    for (const id of ['activitySnapshotTime'])
         assert.ok(template.includes(`class="snapshot-status" id="${id}" role="note"`));
 });
 
@@ -776,10 +771,6 @@ test('legacy queue identities display current role names without changing stored
                 producer: 'Main', recipient: 'Main', sessions: ['synthetic/v90/case']},
         ]};
     const before = JSON.stringify(data), rendered = renderDashboard(data);
-    const queue = rendered.get('assignmentQueue').innerHTML;
-    assert.match(queue, /Producer Challenge lead · result to Challenge lead/u);
-    assert.match(queue, /Producer Work lead · result to Work lead/u);
-    assert.doesNotMatch(queue, /Producer (?:Main|Prep)\b/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-label">Challenge lead/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-label">Work lead/u);
     assert.match(rendered.get('activityMetrics').innerHTML, /Challenge lead[\s\S]*Work lead/u);
@@ -809,34 +800,6 @@ test('worker activity hides historical lanes and their utilization until request
     assert.match(rendered.get('timeline').innerHTML, /activity-label">A</u);
     assert.match(rendered.get('timeline').innerHTML, /activity-label">P1</u);
     assert.match(rendered.get('activityMetrics').innerHTML, /A\/B\/C|Prep lanes/u);
-});
-
-test('shared queue table orders eligible tasks and derives current owners without stale claims', () => {
-    const data = sourceDashboardData();
-    const task = (id, status = 'ready') => ({id, status, type: 'exploration', output: 'exploration',
-        producer: 'Prep', recipient: 'Prep', batch: 'v91', sessions: []});
-    data.assignmentQueue = {readySessions: 0, threshold: 5, reason: 'Prefer exploration.',
-        ready: ['second', 'first'], claimed: [{task: 'active', worker: 'Worker-1'}],
-        workers: [{worker: 'Worker-1', state: 'active', assignment: 'active'},
-            {worker: 'Worker-2', state: 'idle', assignment: null},
-            {worker: 'Worker-3', state: 'offline', assignment: null}],
-        blocked: [{task: 'old-lamp', reason: 'Waiting for producer or dependencies.'}],
-        tasks: [task('first'), task('old-lamp', 'blocked'), task('second'), task('active', 'claimed'),
-            task('not-runnable'), task('finished', 'completed')]};
-    data.assignmentQueue.tasks[1].worker = 'Worker-1';
-    const html = renderDashboard(data).get('assignmentQueue').innerHTML;
-    assert.match(html, /Type<\/th><th>Task<\/th><th>Status<\/th><th>Claimed by/u);
-    assert.ok(html.indexOf('title="active"') < html.indexOf('title="second"'));
-    assert.ok(html.indexOf('title="second"') < html.indexOf('title="first"'));
-    assert.ok(html.indexOf('title="first"') < html.indexOf('title="old-lamp"'));
-    assert.match(html, /title="old-lamp"[\s\S]*?<td>blocked<\/td><td>Unassigned/u);
-    assert.match(html, /Idle at snapshot: Worker 2<\/p>/u);
-    assert.doesNotMatch(html, /title="finished"/u);
-    assert.equal((html.match(/Prefer exploration\./gu) || []).length, 1);
-    data.assignmentQueue.readySessions = null;
-    const stale = renderDashboard(data).get('assignmentQueue').innerHTML;
-    assert.match(stale, /Queue evidence needs refresh/u);
-    assert.doesNotMatch(stale, /<td>ready<\/td>/u);
 });
 
 test('Work lead backlog distinguishes unmerged deliveries, accepted reserve batches, and parked records', () => {
@@ -1582,4 +1545,101 @@ test('single engineer renders and refreshes in the existing timeline without ena
     assert.match(timeline.innerHTML, /Recorded investigation for Dismiss/);
     assert.equal((timeline.innerHTML.match(/activity-row/g) || []).length, 1);
     assert.equal(timeline.listeners.click.length, 1, 'refresh does not duplicate handlers');
+});
+
+function refreshTestSnapshot() {
+    const manifest = JSON.parse(readFileSync(join(PROJECT_ROOT, 'trial-monitor/manifest.json'), 'utf8'));
+    const sha = 'a'.repeat(40);
+    manifest.operations.currentCandidate = {repairId: 'refresh-evidence', sha};
+    return {manifest, buildSha: 'f'.repeat(40), builtAt: '2026-01-01T00:00:00Z',
+        register: {version: 1, asOf: '2026-01-01T00:00:00Z', repairs: [{
+            id: 'refresh-evidence', title: 'Refresh evidence', kind: 'parity-repair', window: 'single-worker',
+            evidence: {source: ['source'], witness: ['witness'], test: ['test']},
+            candidates: [{sha, runs: []}],
+        }]}};
+}
+
+function refreshTestResponse(url, snapshot) {
+    const encode = value => ({encoding: 'base64', content: Buffer.from(JSON.stringify(value)).toString('base64')});
+    const payload = url.includes('/manifest.json?') ? encode(snapshot.manifest)
+        : url.includes('/repairs.json?') ? encode(snapshot.register)
+            : {workflow_runs: [{id: 900, name: 'Checkpoint', head_sha: 'a'.repeat(40),
+                run_attempt: 1, event: 'push', head_branch: 'integration-checkpoint/test',
+                status: 'queued', conclusion: null, created_at: '2026-01-01T00:00:00Z'}]};
+    return {ok: true, json: async () => payload};
+}
+const finishRefresh = () => new Promise(resolve => setImmediate(resolve));
+
+test('real refresh handler fetches, applies, reports unchanged, and ignores repeated clicks', async () => {
+    const snapshot = refreshTestSnapshot();
+    const calls = [];
+    let release;
+    const held = new Promise(resolve => { release = resolve; });
+    const rendered = renderDashboard(sourceDashboardData(), null, {
+        showHistorical: false, singleWorkerData: snapshot,
+        fetchPublic: async (url, init) => {
+            calls.push({url, init});
+            await held;
+            return refreshTestResponse(url, snapshot);
+        },
+    });
+    const button = rendered.get('trialRefresh');
+    const click = button.listeners.click[0];
+    assert.equal(button.disabled, true);
+    assert.equal(button.textContent, 'Refreshing…');
+    assert.match(rendered.get('trialRefreshStatus').textContent, /Checking/u);
+    await click();
+    await click();
+    assert.equal(calls.length, 3, 'repeated clicks do not duplicate the page-open transaction');
+    release();
+    await finishRefresh();
+    assert.equal(button.disabled, false);
+    assert.equal(rendered.get('trialRefreshStatus').textContent, 'Status updated.');
+    assert.match(rendered.get('timeline').innerHTML, /CI validation for Refresh evidence/u);
+    assert.match(rendered.get('trialFreshness').textContent, /stale/u, 'successful fetch does not freshen old activity');
+    assert.doesNotMatch(rendered.get('trialFreshness').textContent, /last-known/u);
+    await click();
+    assert.equal(calls.length, 6);
+    assert.equal(rendered.get('trialRefreshStatus').textContent, 'Already up to date.');
+    assert.equal(button.listeners.click.length, 1);
+    assert.ok(calls.every(({init}) => init.cache === 'no-store' && !('Authorization' in init.headers)));
+    assert.equal(rendered.has('trialApiFresh'), false);
+    assert.equal(rendered.has('trialBuildFresh'), false);
+    assert.equal(rendered.has('trialManifestFresh'), false);
+});
+
+test('refresh retains rendered evidence when any required source fails and permits recovery', async () => {
+    for (const failedPath of ['/manifest.json?', '/repairs.json?', '/actions/runs?']) {
+        const snapshot = refreshTestSnapshot();
+        let failed = false;
+        const rendered = renderDashboard(sourceDashboardData(), null, {
+            showHistorical: false, singleWorkerData: snapshot,
+            fetchPublic: async url => failed && url.includes(failedPath)
+                ? {ok: false, status: 503} : refreshTestResponse(url, snapshot),
+        });
+        await finishRefresh();
+        const before = rendered.get('timeline').innerHTML;
+        snapshot.register.repairs[0].title = 'Must not partially apply';
+        failed = true;
+        await rendered.get('trialRefresh').listeners.click[0]();
+        assert.equal(rendered.get('timeline').innerHTML, before);
+        assert.match(rendered.get('trialFreshness').textContent, /stale.*last-known snapshot/u);
+        assert.match(rendered.get('trialRefreshStatus').textContent, /Could not refresh.*Try again or reload/u);
+        assert.equal(rendered.get('trialRefresh').disabled, false);
+        failed = false;
+        await rendered.get('trialRefresh').listeners.click[0]();
+        assert.match(rendered.get('timeline').innerHTML, /Must not partially apply/u);
+        assert.equal(rendered.get('trialRefreshStatus').textContent, 'Status updated.');
+    }
+});
+
+test('unknown activity dates stay unknown and missing register disables misleading refresh', async () => {
+    const snapshot = refreshTestSnapshot();
+    snapshot.register.asOf = null;
+    const rendered = renderDashboard(sourceDashboardData(), null, {singleWorkerData: snapshot});
+    await finishRefresh();
+    assert.match(rendered.get('trialFreshness').textContent, /Recorded activity: unknown/u);
+    const missing = renderDashboard(sourceDashboardData());
+    assert.equal(missing.get('trialRefresh').disabled, true);
+    assert.match(missing.get('trialRefreshStatus').textContent, /unavailable.*Reload/u);
 });

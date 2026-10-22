@@ -9,8 +9,6 @@ import { fileURLToPath } from 'node:url';
 import { activityUtilization, integrationDurations } from './dashboard-activity.mjs';
 import { workerWork } from './worker-backlog.mjs';
 import { createChartTimeRange } from './dashboard-time-range.mjs';
-import { aggregateExplorationYield } from './exploration-yield.mjs';
-import { renderExplorationYield } from './dashboard-exploration.mjs';
 import { singleWorkerActivity } from './single-worker-activity.mjs';
 import { createTrialMonitor } from './trial-monitor.mjs';
 
@@ -45,8 +43,6 @@ export function injectDashboardData(template, data, queueData, commit, trialData
     .replace('/*SINGLE_WORKER_PLACEHOLDER*/null', () => singleWorkerActivity.toString())
     .replace('/*UTILIZATION_PLACEHOLDER*/null', () => activityUtilization.toString())
     .replace('/*TIME_RANGE_PLACEHOLDER*/null', () => createChartTimeRange.toString())
-    .replace('/*EXPLORATION_AGGREGATE_PLACEHOLDER*/null', () => aggregateExplorationYield.toString())
-    .replace('/*EXPLORATION_RENDER_PLACEHOLDER*/null', () => renderExplorationYield.toString())
     .replace('/*INTEGRATION_DURATION_PLACEHOLDER*/null', () => integrationDurations.toString());
   if (commit === undefined) return html;
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Expected a full dashboard commit SHA');
@@ -74,8 +70,7 @@ function main() {
   const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');
 
   const commit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
-  // Commit time is deterministic for a given build. The panel labels it as
-  // page-source freshness rather than claiming it is a live observation.
+  // Retain deterministic build metadata; recorded activity has its own timestamp.
   const builtAt = execSync('git show -s --format=%cI HEAD', { encoding: 'utf8' }).trim();
   const trialData = JSON.stringify({
     builtAt, buildSha: commit,
