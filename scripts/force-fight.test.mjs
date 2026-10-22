@@ -558,22 +558,17 @@ test('an unseen empty square is thin air, not an unknown obstacle', async () => 
     assert.equal(toplines(state), 'You attack thin air.');
 });
 
-// ── hack.c domove_fight_empty(), the arms that stop ──
-
-test('force-fight routes digging tools to use_pick_axe2 and installs its occupation', async () => {
+test('force-fight leaves unseen solid terrain unidentified', async () => {
     // hack.c:2302-2305's else. Terrain that is neither remembered nor rock
     // nor a secret door is "an unknown obstacle".
     const unseen = await heroInARoom();
     targetTerrain(unseen, POOL, { seenv: 0 });
-    // C reaches its "an unknown obstacle" arm after unmap_object() and
-    // newsym() have run. The port refuses instead, so the test has to run
-    // first: a refusal placed where C puts the test would fire with map memory
-    // and the display buffer already rewritten, ending the segment on a screen
-    // the port had diverged from. Assert the square is untouched.
-    const painted = target(unseen).remembered_glyph;
-    await refusedWest(unseen, /no remembered appearance/u);
-    assert.equal(target(unseen).remembered_glyph, painted);
-    assert.equal(toplines(unseen), '');
+    await forceFightWest(unseen);
+    assert.equal(toplines(unseen), 'You harmlessly attack an unknown obstacle.');
+    assert.equal(target(unseen).seenv, 0);
+});
+
+test('force-fight routes digging tools to use_pick_axe2 and installs its occupation', async () => {
 
     // hack.c:2255-2260 and 2314. C always starts with a boulder, but only
     // replaces it with a statue when the drawn glyph says statue (or

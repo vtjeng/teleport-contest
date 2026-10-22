@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first unseen-stairs force-fight witness. Wear towel, enter a new level blind, approach unremembered downstairs and attack without revealing terrain.",
+  "segments": [
+    {
+      "seed": 840151,
+      "datetime": "20541022071000",
+      "nethackrc": "OPTIONS=name:BlindSwing,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizwish\nuncursed towel\n    Po #wizlevelport\n2\n   hhhjFj   "
+    }
+  ]
+}

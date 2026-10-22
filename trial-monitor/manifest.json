@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T06:30:31.834Z",
+  "asOf": "2026-10-22T06:47:27.229Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "hero-postmove-gas",
-      "sha": "2f37736466ff622bcc4040138f20baa69076000c",
+      "repairId": "displacer-monster-initiated-swap",
+      "sha": "9a07085b1fa9079d6b60567d842be809845bb54d",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T06:30:31.834Z"
+    "asOf": "2026-10-22T06:47:27.229Z"
   }
 }
