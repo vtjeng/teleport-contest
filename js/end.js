@@ -1307,7 +1307,7 @@ async function really_done(how, state) {
         ? false
         : await paybill(how === ESCAPED ? -1 : (how !== QUIT), silently, state);
     if (how !== PANICKED) {
-        paygd(silently, state);
+        await paygd(silently, state);
         await clearpriests(state);
     }
 

@@ -18,7 +18,7 @@ import { NON_PM, PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { COIN_CLASS } from '../js/objects.js';
 import { clearpriests } from '../js/priest.js';
 import { paybill, UnsupportedShopError } from '../js/shk.js';
-import { findgd, paygd, UnsupportedVaultGuardError } from '../js/vault.js';
+import { findgd, paygd } from '../js/vault.js';
 
 // The hero's level. Room 0 is the shop, room 1 an ordinary room, so a
 // no_charge object can be placed inside or outside the shopkeeper's claim.
@@ -218,7 +218,7 @@ test('paybill refuses a hero who dies inside the shop', async () => {
     );
 });
 
-test('paygd returns when no vault guard is on the level', () => {
+test('paygd returns when no vault guard is on the level', async () => {
     // C ref: vault.c paygd():1215-1216. findgd() answers null, so the
     // function returns before touching the hero's gold.
     const state = makeState();
@@ -226,28 +226,13 @@ test('paygd returns when no vault guard is on the level', () => {
     state.invent = { oclass: COIN_CLASS, quan: 300, nobj: null };
 
     assert.equal(findgd(state), null);
-    assert.equal(paygd(true, state), undefined);
+    assert.equal(await paygd(true, state), undefined);
 });
 
-test('paygd refuses a guard while the hero carries gold', () => {
-    // C ref: vault.c paygd():1218-1246. Every remaining arm moves coins into
-    // the vault or a grave and then mongone()s the guard.
-    const state = makeState();
-    const guard = {
-        isgd: true, mhp: 12, mhpmax: 12, mx: 8, my: 8, nmon: null,
-        mextra: { egd: { gddone: 0, gdlevel: { dnum: 0, dlevel: 2 } } },
-    };
-    state.level.monlist = guard;
-    state.invent = { oclass: COIN_CLASS, quan: 300, nobj: null };
-
-    assert.equal(findgd(state), guard);
-    assert.throws(
-        () => paygd(true, state),
-        (err) => err instanceof UnsupportedVaultGuardError,
-    );
-});
-
-test('paygd returns for a broke hero even with a guard on the level', () => {
+// The former nonempty-gold refusal is covered by the four live public-input
+// settlement regressions in vault-settlement.test.mjs, including retention by
+// a peaceful guard outside the vault.
+test('paygd returns for a broke hero even with a guard on the level', async () => {
     // C ref: vault.c paygd():1215-1216 `if (!umoney || !grd) return;`. The
     // guard fixture above is kept and the pack emptied, so `!umoney` is the
     // disjunct that returns: the only input that tells it from `!grd`.
@@ -260,7 +245,7 @@ test('paygd returns for a broke hero even with a guard on the level', () => {
     state.invent = null;
 
     assert.equal(findgd(state), guard);
-    assert.equal(paygd(true, state), undefined);
+    assert.equal(await paygd(true, state), undefined);
     assert.equal(findgd(state), guard);
     assert.equal(state.level.monlist, guard);
 });

@@ -19,6 +19,7 @@ import {
     DOOR,
     EGD,
     FCSIZ,
+    FEMALE,
     GD_DESTROYGOLD,
     GD_EATGOLD,
     HWALL,
@@ -29,6 +30,7 @@ import {
     IS_STWALL,
     IS_WALL,
     M_AP_OBJECT,
+    MALE,
     MELT_ICE_AWAY,
     MM_EGD,
     MM_NOMSG,
@@ -60,7 +62,7 @@ import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { nomul } from './hack.js';
-import { add_to_minv, money_cnt, obj_extract_self, obfree, sobj_at, stackobj } from './invent.js';
+import { add_to_minv, currency, freeinv, money_cnt, obj_extract_self, obfree, sobj_at, stackobj } from './invent.js';
 import { set_malign } from './makemon.js';
 import { gender, is_silent, mhe, noit_mhis, sticks } from './mondata.js';
 import { PM_CROESUS, PM_GUARD } from './monsters.js';
@@ -83,7 +85,7 @@ import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
 import { carried, g_at, hasContents, place_object, remove_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { BOULDER, GOLD_PIECE, ROCK, TIN_WHISTLE } from './objects.js';
+import { BOULDER, COIN_CLASS, GOLD_PIECE, ROCK, TIN_WHISTLE } from './objects.js';
 import { an, mimic_obj_name, simpleonames } from './objnam.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';
@@ -103,6 +105,8 @@ import { getlin } from './windows.js';
 import { canspotmon, mon_visible } from './display.js';
 import { set_voice } from './sounds.js';
 import { fracture_rock } from './zap.js';
+import { make_grave } from './grave.js';
+import { d, rn1, rn2, rnd, rne } from './rng.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -1349,20 +1353,43 @@ export async function invault(state, env = {}) {
     EGD(guard).warncnt = 1;
 }
 
-// C ref: vault.c paygd() (1204-1247). Called from end.c really_done(). Only
-// the early return is ported: with no gold, or no guard on the level, the
-// function has nothing to settle. Every other arm moves the hero's gold to the
-// vault or a grave and then removes the guard, which needs mnexto(),
-// make_grave(), freeinv(), place_object() and stackobj() on a guard mongone()
-// itself refuses; those stop here.
-export function paygd(_silently, state = game) {
+// C ref: vault.c paygd() (1204-1247), called before end.c disclosure.
+export async function paygd(silently, state = game, rawEnv = {}) {
     const grd = findgd(state);
     const umoney = money_cnt(state.invent);
 
     if (!umoney || !grd) return;
-    throw new UnsupportedVaultGuardError(
-        'paygd() surrendering the hero\'s gold to a vault guard',
-    );
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne };
+    const message = rawEnv.message ?? ttyPline;
+    const env = objectGenerationEnv({ ...rawEnv, state, random, message });
+    let gdx, gdy;
+    if (state.u.uinvault) {
+        if (!silently) await message(
+            `Your ${umoney} ${currency(umoney, state, { random: random.rn2 })} goes into the Magic Memory Vault.`, state);
+        gdx = state.u.ux;
+        gdy = state.u.uy;
+    } else {
+        if (grd.mpeaceful) {
+            await mongone(grd, env);
+            return;
+        }
+        await mnexto(grd, RLOC_NOMSG, env);
+        if (!silently) await message(`${Monnam(grd, state)} remits your gold to the vault.`, state);
+        const room = state.level.rooms[EGD(grd).vroom];
+        gdx = room.lx + random.rn2(2);
+        gdy = room.ly + random.rn2(2);
+        const role = pmname(state.mons[state.u.umonster], state.flags.female ? FEMALE : MALE);
+        make_grave(gdx, gdy, `To Croesus: here's the gold recovered from ${state.plname} the ${role}.`, env);
+    }
+    for (let coins = state.invent, nextcoins; coins; coins = nextcoins) {
+        nextcoins = coins.nobj;
+        if (state.objects[coins.otyp].oc_class === COIN_CLASS) {
+            await freeinv(coins, env);
+            await place_object(coins, gdx, gdy, env);
+            stackobj(coins, env);
+        }
+    }
+    await mongone(grd, env);
 }
 
 // C ref: vault.c hidden_gold(). `even_if_unknown` false counts only gold in

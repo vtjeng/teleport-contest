@@ -734,7 +734,10 @@ export function vision_recalc(control = 0, env = {}) {
     const u = state.u;
     if (!u || !state.level) return;
     state.vision_full_recalc = 0;
-    if (state.in_mklev) return;
+    // C vision.c:vision_recalc stops while loading or after end.c shuts
+    // vision down; cleanup map writes must not redraw the hero afterward.
+    if (state.in_mklev || state.program_state?.in_getlev
+        || !state.iflags?.vision_inited) return;
 
     // Swap to unused buffer
     const buffers = visionBuffers(state);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first hostile paygd outside vault: continue the qualified hostile warning route by teleporting to the ordinary room with gold and quitting before disclosure.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021141800",
+      "nethackrc": "OPTIONS=name:VaultWarning,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........zn.  ..................... VaultWarning\n,........   zn.  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh.   #quit\nyn "
+    }
+  ]
+}

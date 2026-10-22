@@ -87,6 +87,23 @@ test('vision_reset publishes the source ready and deferred recalculation flags',
     assert.equal(state.vision_full_recalc, 1);
 });
 
+test('vision_recalc preserves the map after vision shutdown or during level loading', () => {
+    assert.match(VISION_C, /if \(gi\.in_mklev \|\| program_state\.in_getlev \|\| !iflags\.vision_inited\)\s*return;/u);
+    for (const loading of [false, true]) {
+        const state = { level: new GameMap(), u: { ux: 10, uy: 10 },
+            iflags: { vision_inited: loading }, program_state: { in_getlev: loading },
+            vision_full_recalc: 1, viz_array: [] };
+        vision_reset(state);
+        state.iflags.vision_inited = loading;
+        const original = state.viz_array;
+        const redrawn = [];
+        vision_recalc(0, { state, redraw: (x, y) => redrawn.push([x, y]) });
+        assert.equal(state.vision_full_recalc, 0, 'C clears the pending flag before returning');
+        assert.equal(state.viz_array, original);
+        assert.deepEqual(redrawn, []);
+    }
+});
+
 test('See Invisible toggle updates light blocking for living invisible boulder mimics', () => {
     const source = readFileSync(new URL('../nethack-c/upstream/src/display.c',
         import.meta.url), 'utf8');

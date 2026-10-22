@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T04:04:25.340Z",
+  "asOf": "2026-10-22T04:20:01.477Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1521,8 +1521,93 @@
           "scripts/vault-wall-gold.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "2b07637893a4599e1ed2ab309badc625506a41ba",
+          "committedAt": "2026-10-22T04:04:51Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39720363917,
+              "name": "Checkpoint",
+              "sha": "2b07637893a4599e1ed2ab309badc625506a41ba",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-wall-gold-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:04:59Z",
+              "completedAt": "2026-10-22T04:10:45Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39720363917"
+            },
+            {
+              "id": 39720994881,
+              "name": "Lint",
+              "sha": "2b07637893a4599e1ed2ab309badc625506a41ba",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:11:35Z",
+              "completedAt": "2026-10-22T04:12:33Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39720994881"
+            },
+            {
+              "id": 39720994911,
+              "name": "Dashboard",
+              "sha": "2b07637893a4599e1ed2ab309badc625506a41ba",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T04:11:35Z",
+              "completedAt": "2026-10-22T04:14:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39720994911"
+            }
+          ]
+        }
+      ],
+      "note": "Single/two-pile C witnesses match after fail-before move_gold refusal. Rejected first setup omitted an item-pile acknowledgement and did not reach guard cleanup. Exact-SHA Checkpoint and Main push Lint/Pages passed on attempt 1; fixed and synthetic results unchanged."
+    },
+    {
+      "id": "vault-guard-settlement",
+      "kind": "parity-repair",
+      "title": "Settle vault guard gold when the game ends",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T04:15:20.678Z",
+          "end": "2026-10-22T04:20:01.477Z",
+          "note": "Recorded implementation and focused/C checks, including vision-shutdown dependency. Earlier scratch qualification timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "nethack-c/upstream/src/vision.c",
+          "js/vault.js",
+          "js/end.js",
+          "js/vision.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-settlement-inside.session.json",
+          "recipes/vault.c/guard-settlement-silentInside.session.json",
+          "recipes/vault.c/guard-settlement-hostileOutside.session.json",
+          "recipes/vault.c/guard-settlement-peacefulOutside.session.json"
+        ],
+        "test": [
+          "scripts/vault-settlement.test.mjs",
+          "scripts/paybill-end-cleanup.test.mjs",
+          "scripts/vision.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Single/two-pile fresh C witnesses match after fail-before move_gold refusal. The first setup omitted an item-pile acknowledgement and did not reach the guard; corrected setup reaches actual wall repair. Candidate identity and final gates not yet recorded; acceptance unknown."
+      "note": "Four C witnesses cover normal/silent payment in vault, hostile remittance outside and peaceful outside retention. Peaceful cleanup exposed a missing vision-shutdown guard, corrected within this repair. Candidate identity and final gates not yet recorded; acceptance unknown."
     }
   ]
 }

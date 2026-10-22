@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first paygd silent settlement at debug quit with live guard and gold; q declines further disclosure.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541022040500",
+      "nethackrc": "OPTIONS=name:VaultCfirst,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........................................ VaultCfirst\n   #wizwish\n100 gold pieces\n   #quit\nyq"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first peaceful outside-vault paygd probe: follow guard another corridor step, wish gold without waiting, then quit.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021180500",
+      "nethackrc": "OPTIONS=name:VaultCarry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........zn.  ..................... VaultCarry\n...hh#wizwish\n100 gold pieces\n#quit\nyn "
+    }
+  ]
+}
