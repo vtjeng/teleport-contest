@@ -117,6 +117,7 @@ import { Boots_on } from '../js/do_wear.js';
 import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
+import { vision_reset } from '../js/vision.js';
 import {
     M1_FLY, M2_ROCKTHROW, PM_CAVE_SPIDER, PM_COCKATRICE, PM_GRID_BUG, PM_HUMAN,
     PM_LURKER_ABOVE,
@@ -642,6 +643,8 @@ test('pooleffects rereads levitation and flight after leaving water', async () =
     state.flags = { terrainstatus: false };
     state.iflags = { in_lava_effects: 1 };
     state.unported = new Set();
+    // A live level has completed vision_reset before pooleffects redraws it.
+    vision_reset(state);
 
     await pooleffects(false, state, { message: async () => {} });
 

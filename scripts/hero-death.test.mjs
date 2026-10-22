@@ -37,7 +37,7 @@ import {
     TRICKED,
     TURNED_SLIME,
 } from '../js/const.js';
-import { moveloop_core, UnsupportedTurnBoundaryError } from '../js/allmain.js';
+import { moveloop_core } from '../js/allmain.js';
 import { can_make_bones } from '../js/bones.js';
 import {
     cmdq_add_dir,
@@ -52,6 +52,7 @@ import { game } from '../js/gstate.js';
 import { losehp, unmul } from '../js/hack.js';
 import { encodeUtf8Text } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
+import { money_cnt } from '../js/invent.js';
 import { GameDisplay } from '../js/game_display.js';
 import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
@@ -70,7 +71,7 @@ import {
     PM_WRAITH,
 } from '../js/monsters.js';
 import { UnsupportedShopError } from '../js/shk.js';
-import { UnsupportedVaultGuardError } from '../js/vault.js';
+import { findgd, UnsupportedVaultGuardError } from '../js/vault.js';
 import {
     EXPLORE_CASE,
     HERO_DEATH_CASES,
@@ -1302,18 +1303,13 @@ test('done_in_by uses STONING message and killer for a stoning death',
     assert.equal(game.killer.format, KILLED_BY_AN);
 });
 
-// ── really_done() boundaries below a monster's killing blow ──
+// ── really_done() settlement below a monster's killing blow ──
 // A monster's killing blow reaches end.c really_done() from inside the live
 // monster scan, where paybill() and paygd() settle with the level's
-// shopkeepers and vault guard before disclosure. The arms js/shk.js
-// inherits() and js/vault.js paygd() leave unported refuse there, one frame
-// below done_in_by(). The planning pass never runs really_done(), so the live
-// scan's catch in js/allmain.js advanceElapsedTurn() is the only conversion
-// between that refusal and js/jsmain.js. Each case below appends a bystander
-// to the recorded water-demon death's monster chain and replays its lethal
-// command; the refusal must leave moveloop_core() as the turn boundary
-// js/jsmain.js stops on, with the death entry already written, rather than
-// as the raw class that would discard the segment's matched screens.
+// shopkeepers and vault guard before disclosure. Each case appends a
+// bystander to the recorded water-demon death's monster chain and replays its
+// lethal command. Payment must finish before disclosure asks for more input,
+// with the death entry intact and the source-selected inventory disposition.
 
 // The recorded death one command short of the killing blow: the water demon
 // stands adjacent and the hero holds two hit points, as the recipe's comment
@@ -1384,13 +1380,9 @@ async function lethalTurnRefusal() {
     return null;
 }
 
-function assertLethalTurnBoundary(error, arm) {
-    assert.ok(
-        error instanceof UnsupportedTurnBoundaryError,
-        `${error?.name}: ${error?.message}`,
-    );
-    assert.match(error.message, arm);
-    // The death entry precedes the refusal, as it does in the recipe verifier.
+function assertLethalDisclosure(error) {
+    assert.match(error?.message ?? '', /Input queue empty/u);
+    // Payment has finished and the next disclosure question needs input.
     assert.deepEqual(game.killer, {
         name: MONSTER_DEATH_CASE.killer,
         format: MONSTER_DEATH_CASE.format,
@@ -1436,7 +1428,7 @@ test('a pursuing shopkeeper takes the inventory before disclosure',
     assert.equal(game.program_state.gameover, 1);
 });
 
-test('a vault guard owed gold stops a monster kill at the turn boundary',
+test('a peaceful vault guard leaves the dead hero gold outside the vault',
      async () => {
     await gameBeforeLethalMonsterTurn();
     // u_init.c gives every Tourist gold, which is the `umoney` half of
@@ -1446,10 +1438,11 @@ test('a vault guard owed gold stops a monster kill at the turn boundary',
         isgd: true,
         mextra: { egd: { gddone: 0, gdlevel: { ...game.u.uz } } },
     });
-    assertLethalTurnBoundary(
-        await lethalTurnRefusal(),
-        /paygd\(\) surrendering the hero's gold to a vault guard/u,
-    );
+    const gold = money_cnt(game.invent);
+    assert.equal(game.u.uinvault, 0);
+    assertLethalDisclosure(await lethalTurnRefusal());
+    assert.equal(findgd(game), null);
+    assert.equal(money_cnt(game.invent), gold);
 });
 
 // The hero's own command reaches the same really_done() through losehp(), so

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T04:20:01.477Z",
+  "asOf": "2026-10-22T04:29:05.487Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1606,8 +1606,29 @@
           "scripts/vision.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Four C witnesses cover normal/silent payment in vault, hostile remittance outside and peaceful outside retention. Peaceful cleanup exposed a missing vision-shutdown guard, corrected within this repair. Candidate identity and final gates not yet recorded; acceptance unknown."
+      "candidates": [
+        {
+          "sha": "093e2da3d57458e7f30c5515e9a4a271071efa85",
+          "committedAt": "2026-10-22T04:20:33Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39721847966,
+              "name": "Checkpoint",
+              "sha": "093e2da3d57458e7f30c5515e9a4a271071efa85",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-paygd-20261022",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-22T04:20:41Z",
+              "completedAt": "2026-10-22T04:26:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39721847966"
+            }
+          ]
+        }
+      ],
+      "note": "Four C witnesses match after paygd and vision-shutdown fixes. First Checkpoint failed in shard 2. Local reproduction found a stale paygd refusal expectation and an uninitialized vision fixture; both corrected. Hosted failure log download was denied, so individual hosted assertions are unverified. Corrected candidate identity and final gates not yet recorded; not accepted."
     }
   ]
 }

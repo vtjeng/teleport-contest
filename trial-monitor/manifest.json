@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T04:20:01.477Z",
+  "asOf": "2026-10-22T04:29:05.487Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "vault-wall-gold",
-      "sha": "2b07637893a4599e1ed2ab309badc625506a41ba",
+      "repairId": "vault-guard-settlement",
+      "sha": "093e2da3d57458e7f30c5515e9a4a271071efa85",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T04:20:01.477Z"
+    "asOf": "2026-10-22T04:29:05.487Z"
   }
 }
