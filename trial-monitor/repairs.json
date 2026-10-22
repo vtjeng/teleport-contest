@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T08:55:56.781Z",
+  "asOf": "2026-10-22T09:13:56.730Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2482,8 +2482,80 @@
           "scripts/trap-float-selftouch.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "cfdcc985c6c57f3c5159540414c3d550d79de5a1",
+          "committedAt": "2026-10-22T08:58:03Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39751774051,
+              "name": "Checkpoint",
+              "sha": "cfdcc985c6c57f3c5159540414c3d550d79de5a1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/completed-sokoban-traps-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T08:58:15Z",
+              "completedAt": "2026-10-22T09:03:41Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39751774051"
+            },
+            {
+              "id": 39752643126,
+              "name": "Lint",
+              "sha": "cfdcc985c6c57f3c5159540414c3d550d79de5a1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:04:56Z",
+              "completedAt": "2026-10-22T09:05:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39752643126"
+            },
+            {
+              "id": 39752643068,
+              "name": "Dashboard",
+              "sha": "cfdcc985c6c57f3c5159540414c3d550d79de5a1",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T09:04:55Z",
+              "completedAt": "2026-10-22T09:07:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39752643068"
+            }
+          ]
+        }
+      ],
+      "note": "Independent live C landing and flying escape witnesses match after current-level rules correction; active-rule countercase matches.139 focused,2534 local shard,64 register/startup tests and lint passed. Full exact Checkpoint and push Lint/Pages passed attempt 1;fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence recorded and carried in this ordinary repair commit."
+    },
+    {
+      "id": "sokoban-final-trap-replacement",
+      "kind": "parity-repair",
+      "title": "Complete Sokoban when the last pit is replaced",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/trap.c",
+          "js/trap.js"
+        ],
+        "witness": [
+          "recipes/trap.c/sokoban-final-trap-replacement.session.json"
+        ],
+        "test": [
+          "scripts/sokoban-trap-replacement.test.mjs",
+          "scripts/trap-generation.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent live C landing and flying pit-escape witnesses fail before the current-level rules correction. Investigation timestamps unknown. Full acceptance gates pending; not accepted."
+      "note": "Public C wizard trap replacement of all ten pits permits the next diagonal boulder push; JS retained rules because maketrap skipped the existing completion helper. Live witness fails before and matches after:3407 RNG,454 screens/cursors,6 frames. Investigation timestamps unknown. Acceptance gates pending; not accepted."
     }
   ]
 }

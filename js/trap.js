@@ -1015,9 +1015,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         if (!oldplace) {
             state.level.traps.unshift(trap);
         } else if (state.level?.flags?.sokoban_rules) {
-            // C's maybe_finish_sokoban() result is discarded. Keep its prize
-            // and luck side effects visible as an unported source boundary.
-            note_unported('trap.c maybe_finish_sokoban');
+            maybe_finish_sokoban(state);
         }
         return trap;
     };

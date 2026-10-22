@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first witness: public wizard teleport and wishes replace all ten pits with squeaky boards, then test diagonal boulder push on the completed level.",
+  "segments": [
+    {
+      "seed": 840191,
+      "datetime": "20541022075000",
+      "nethackrc": "OPTIONS=name:TrapChange,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizlevelport\n?\n>E\n   #polyself\nsilver dragon\n    \u0014   lllllkkkk.    #wizwish\nsqueaky board\n    \u0014l.    #wizwish\nsqueaky board\n    \u0014l.    #wizwish\nsqueaky board\n    \u0014l.    #wizwish\nsqueaky board\n    \u0014l.    #wizwish\nsqueaky board\n    \u0014jj.    #wizwish\nsqueaky board\n    \u0014j.    #wizwish\nsqueaky board\n    \u0014j.    #wizwish\nsqueaky board\n    \u0014j.    #wizwish\nsqueaky board\n    \u0014j.    #wizwish\nsqueaky board\n    \u0014hhhhhhhhhhhkkkkk.    #wizwish\nboulder\n    hju    "
+    }
+  ]
+}
