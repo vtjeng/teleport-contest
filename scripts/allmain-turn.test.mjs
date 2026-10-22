@@ -2488,7 +2488,7 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
 
 // The remaining burdened planning stops are source-owned refusals unrelated to
 // region upkeep, which now runs on the projected level before them.
-test('burdened multi-cycle upkeep stops before search and overexertion work',
+test('burdened multi-cycle upkeep stops before automatic search work',
     async () => {
         for (const [name, reason, install] of [
             [
@@ -2505,32 +2505,6 @@ test('burdened multi-cycle upkeep stops before search and overexertion work',
                     };
                     game.level.flags.noautosearch = false;
                     game.multi = 0;
-                },
-            ],
-            [
-                'overexertion',
-                'overexertion hit point loss',
-                () => {
-                    // allmain.c runs overexert_hp() only above MOD_ENCUMBER.
-                    // calc_capacity() returns excess * 2 / wc + 1, so an
-                    // inventory of twice the carrying capacity leaves an
-                    // excess of one capacity and lands on HVY_ENCUMBER.
-                    game.invent = {
-                        oclass: TOOL_CLASS,
-                        otyp: SACK,
-                        owt: weight_cap(game) * 2,
-                        nobj: null,
-                    };
-                    assert.equal(near_capacity(game), HVY_ENCUMBER);
-                    // Below EXT_ENCUMBER the cadence is svm.moves % 30, read
-                    // after the increment, and the hero must have moved.
-                    game.moves = 29;
-                    game.hero_seq = game.moves * 8;
-                    game.u.umoved = true;
-                    // One hit point is hack.c overexert_hp()'s unported arm,
-                    // the one that prints and faints; above it the hero just
-                    // pays and plays on.
-                    game.u.uhp = 1;
                 },
             ],
         ]) {
@@ -3660,11 +3634,11 @@ test('the overexertion cadence follows both of allmain.c\'s divisors',
     // another.
     //
     // The first three rows put the hero at one hit point, where hack.c
-    // overexert_hp() would faint and the port stops; the fourth leaves her at
+    // overexert_hp() faints at the paying point; the fourth leaves her at
     // full health and watches the hit point actually go. Full health also
     // keeps regen_hp() out of the way: allmain.c runs it just above this
     // block, and it returns at once while uhp is uhpmax.
-    for (const [name, install, expectStop] of [
+    for (const [name, install, expectFaint] of [
         // HVY_ENCUMBER at moves reaching 30 is the paying point.
         ['heavy, 30th turn', (state) => {
             state.moves = 29;
@@ -3685,7 +3659,7 @@ test('the overexertion cadence follows both of allmain.c\'s divisors',
             state.u.umoved = false;
             state.u.uhp = state.u.uhpmax;
         }, false],
-        // The same stopping row with a hit point to spare plays on.
+        // The same paying row with a hit point to spare plays on.
         ['heavy, 30th turn, healthy', (state) => {
             state.moves = 29;
             state.u.uhp = state.u.uhpmax;
@@ -3720,14 +3694,13 @@ test('the overexertion cadence follows both of allmain.c\'s divisors',
         const startingMoves = game.moves;
         const startingHp = game.u.uhp;
 
-        if (expectStop) {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => error instanceof UnsupportedTurnBoundaryError
-                    && /overexertion hit point loss/u.test(error.message),
-                name,
-            );
-            assert.equal(game.moves, startingMoves, name);
+        if (expectFaint) {
+            for (const key of '      .') game.nhDisplay.pushKey(key.charCodeAt(0));
+            await moveloop_core();
+            assert.ok(game.moves > startingMoves, name);
+            assert.ok(game.multi < 0, name);
+            assert.equal(game.u.usleep, startingMoves + 1, name);
+            assert.equal(game.multi_reason, 'sleeping');
             assert.equal(game.u.uhp, startingHp, name);
         } else {
             // The turn's encumbrance message raises a More prompt, and

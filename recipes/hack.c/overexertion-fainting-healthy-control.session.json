@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C hack.c overexert_hp/overexertion witness: healthy-control. A full-health one-HP grid bug can move under load, then faints; the healthy control spends HP instead.",
+  "segments": [
+    {
+      "seed": 8410931,
+      "datetime": "20261022120000",
+      "nethackrc": "OPTIONS=name:FaintProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nring of levitation\n#wizwish\n210 rocks\n,y   Pel   #polyself\ngrid bug\n   lhlhlhlhlhlh          "
+    }
+  ]
+}

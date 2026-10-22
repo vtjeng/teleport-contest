@@ -6,8 +6,8 @@ import {createScoringWorkspace, removeScoringWorkspace} from './scoring-workspac
 import {overexert_hp} from '../js/hack.js';
 import {PM_STONE_GOLEM, PM_VALKYRIE} from '../js/monsters.js';
 
-test('overexertion threshold reads only the active form HP', () => {
-    for (const [polymorphed, humanHp, formHp, refused] of [
+test('overexertion threshold reads only the active form HP', async () => {
+    for (const [polymorphed, humanHp, formHp, faints] of [
         [true, 1, 20, false],
         [true, 20, 1, true],
         [false, 20, 1, false],
@@ -18,13 +18,25 @@ test('overexertion threshold reads only the active form HP', () => {
             umonnum: polymorphed ? PM_STONE_GOLEM : PM_VALKYRIE,
             uhp: humanHp,
             mh: formHp,
-        }, disp: {botl: false}};
-        let calls = 0;
-        overexert_hp(state, () => { ++calls; });
-        assert.equal(calls, refused ? 1 : 0);
-        assert.equal(state.u.uhp, humanHp - (!polymorphed && !refused ? 1 : 0));
-        assert.equal(state.u.mh, formHp - (polymorphed && !refused ? 1 : 0));
-        assert.equal(state.disp.botl, !refused);
+        }, disp: {botl: false}, context: {}, moves: 4, multi: 0};
+        const messages = [];
+        let draws = 0;
+        await overexert_hp(state, {
+            message: async text => messages.push(text),
+            random: {rn2: bound => { assert.equal(bound, 2); ++draws; return 1; }},
+            encumberMessage: async () => {},
+        });
+        assert.deepEqual(messages, faints ? ['You pass out from exertion!'] : []);
+        assert.equal(draws, faints && !polymorphed ? 1 : 0);
+        assert.equal(state.u.uhp, humanHp - (!polymorphed && !faints ? 1 : 0));
+        assert.equal(state.u.mh, formHp - (polymorphed && !faints ? 1 : 0));
+        assert.equal(state.disp.botl, true);
+        assert.equal(state.multi, faints ? -10 : 0);
+        if (faints) {
+            assert.equal(state.u.usleep, state.moves);
+            assert.equal(state.multi_reason, 'sleeping');
+            assert.equal(state.nomovemsg, 'You can move again.');
+        }
     }
 });
 

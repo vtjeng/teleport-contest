@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T21:49:28.247Z",
+  "asOf": "2026-10-22T22:07:24.474Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3903,8 +3903,87 @@
           "scripts/allmain-turn.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "c3edea4b5608ec9d68dee0dfe2a877f7437e3221",
+          "runs": [
+            {
+              "id": 39860430978,
+              "name": "Checkpoint",
+              "sha": "c3edea4b5608ec9d68dee0dfe2a877f7437e3221",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/polymorph-overexert-hp-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:50:21Z",
+              "completedAt": "2026-10-22T21:58:20Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39860430978"
+            },
+            {
+              "id": 39861575491,
+              "name": "Lint",
+              "sha": "c3edea4b5608ec9d68dee0dfe2a877f7437e3221",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:59:36Z",
+              "completedAt": "2026-10-22T22:00:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39861575491"
+            },
+            {
+              "id": 39861575516,
+              "name": "Dashboard",
+              "sha": "c3edea4b5608ec9d68dee0dfe2a877f7437e3221",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:59:36Z",
+              "completedAt": "2026-10-22T22:03:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39861575516"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted with exact-SHA Checkpoint, Main push Lint and Dashboard success on attempt 1. Fixed 44 and synthetic 98/2055 unchanged. Stone/iron golem heavy movement and human control match live C through rehumanization; 154 focused/affected tests plus active-form threshold test, 12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "overexertion-fainting",
+      "kind": "parity-repair",
+      "title": "Complete exertion fainting and combat interruption",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "nethack-c/upstream/src/allmain.c",
+          "nethack-c/upstream/src/uhitm.c",
+          "nethack-c/upstream/src/timeout.c",
+          "js/hack.js",
+          "js/allmain.js"
+        ],
+        "witness": [
+          "recipes/hack.c/overexertion-fainting-movement.session.json",
+          "recipes/hack.c/overexertion-fainting-combat.session.json",
+          "recipes/hack.c/overexertion-fainting-healthy-control.session.json"
+        ],
+        "test": [
+          "scripts/overexertion-fainting.test.mjs",
+          "scripts/polymorph-overexert-hp.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/melee-upkeep.test.mjs",
+          "scripts/timeout.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C stone/iron golem heavy movement spends form HP and preserves human HP through rehumanization; both failed before selecting the source-defined HP pointer, human control passed. 154 focused/affected tests passed; additional active-form threshold test covers inactive low HP. Existing fainting boundary retained. Hosted gates pending; investigation start time not captured."
+      "note": "Live C one-HP full-health grid bug faints under heavy movement and before forced combat, then wakes; both stopped at the old refusal, healthy-form control passed. Await message, Constitution exercise and fall_asleep; combat returns the resulting negative-multi status. Planning uses cloned RNG and silent owners. All three complete replays and 256 focused/affected tests pass. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

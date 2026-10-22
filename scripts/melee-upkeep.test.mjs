@@ -13,7 +13,6 @@ import { game } from '../js/gstate.js';
 import {
     near_capacity,
     overexertion,
-    UnsupportedHeroMoveBoundaryError,
     weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
@@ -53,9 +52,8 @@ function loadTo(wanted) {
 }
 
 // hack.c:3055-3057 and overexert_hp() at 3035-3047. A heavily loaded hero
-// pays a hit point on two turns out of three; only the arm that has none to
-// spare stops, because that one prints, exercises Constitution and calls
-// fall_asleep(). The guard has two terms and both matter.
+// pays a hit point on two turns out of three, or faints when none is spare.
+// The cadence and capacity guard has two terms and both matter.
 test('overexertion costs a heavily loaded hero a hit point off the third turn',
     async () => {
         await hero();
@@ -81,17 +79,14 @@ test('overexertion costs a heavily loaded hero a hit point off the third turn',
         assert.deepEqual([game.u.uhp, game.disp.botl], [11, false]);
 
         // hack.c:3043-3045. At one hit point there is nothing to spend, so
-        // the hero would pass out and the port stops instead.
+        // the hero passes out and overexertion tells do_attack not to swing.
         game.moves = 4;
         game.u.uhp = 1;
-        await assert.rejects(
-            overexertion(game),
-            (error) => (
-                error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'overexertion hit points'
-            ),
-        );
+        for (const key of '   ') game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await overexertion(game), true);
         assert.equal(game.u.uhp, 1);
+        assert.equal(game.multi, -10);
+        assert.equal(game.multi_reason, 'sleeping');
     });
 
 // engrave.c:266. A square with nothing engraved on it costs nothing, and a
