@@ -56,6 +56,8 @@ import {
     LEVITATION,
     IRONBARS,
     MAGIC_PORTAL,
+    MIGR_RANDOM,
+    MON_MIGRATING,
     IS_WALL,
     OBJ_DELETED,
     OBJ_BURIED,
@@ -1675,7 +1677,7 @@ test('digactualhole releases solid-floor entrapment before trapping the hero in 
     assert.equal(state.vision_full_recalc, 1);
 });
 
-test('real nonhero HOLE settles the shopkeeper before the unchanged migration refusal', async () => {
+test('real nonhero HOLE settles the shopkeeper before migrating it downward', async () => {
     const recipe = JSON.parse(readFileSync(
         'recipes/do.c/dodrop-in-generated-shop-cancel-9701133.session.json',
         'utf8',
@@ -1758,22 +1760,20 @@ test('real nonhero HOLE settles the shopkeeper before the unchanged migration re
             screen, waitEpoch: display.waitEpoch });
         return 32;
     };
-    let refusal;
     try {
-        await assert.rejects(
-            digactualhole(target.x, target.y, maker, HOLE, state),
-            (error) => {
-                refusal = { name: error.name, message: error.message };
-                return error instanceof RangeError
-                    && error.message === 'shopkeeper migration is future work';
-            },
-        );
+        await digactualhole(target.x, target.y, maker, HOLE, state);
     } finally {
         display.onEmptyQueue = oldOnEmptyQueue;
     }
-    assert.deepEqual(refusal, {
-        name: 'RangeError', message: 'shopkeeper migration is future work',
-    });
+    // C dig.c digactualhole() settles the bill, then uses MIGR_RANDOM on
+    // the next dungeon level. The shared migration owner clears residency.
+    assert.equal(state.gm.migrating_mons, keeper);
+    assert.equal(keeper.mstate & MON_MIGRATING, MON_MIGRATING);
+    assert.deepEqual([keeper.mx, keeper.my], [0, 0]);
+    assert.deepEqual([keeper.mux, keeper.muy],
+        [state.u.uz.dnum, state.u.uz.dlevel + 1]);
+    assert.equal(keeper.mtrack[0].x, MIGR_RANDOM);
+    assert.equal(state.level.rooms[roomNo - ROOMOFFSET].resident, null);
     assert.equal(eshk.billct, 0);
     assert.equal(eshk.robbed, before.robbed + 6);
     assert.equal(eshk.debit, 0);

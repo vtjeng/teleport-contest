@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T10:03:08.208Z",
+  "asOf": "2026-10-22T10:18:05.604Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2702,8 +2702,84 @@
           "scripts/dig.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "ab245da18fcaf9654913effbd20245554f0d4974",
+          "committedAt": "2026-10-22T10:05:03Z",
+          "runs": [
+            {
+              "id": 39760433811,
+              "name": "Checkpoint",
+              "sha": "ab245da18fcaf9654913effbd20245554f0d4974",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/monster-door-tunneling-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:05:18Z",
+              "completedAt": "2026-10-22T10:11:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39760433811"
+            },
+            {
+              "id": 39761296151,
+              "name": "Lint",
+              "sha": "ab245da18fcaf9654913effbd20245554f0d4974",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:12:04Z",
+              "completedAt": "2026-10-22T10:12:51Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39761296151"
+            },
+            {
+              "id": 39761296104,
+              "name": "Dashboard",
+              "sha": "ab245da18fcaf9654913effbd20245554f0d4974",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:12:04Z",
+              "completedAt": "2026-10-22T10:14:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39761296104"
+            }
+          ]
+        }
+      ],
+      "note": "Live C witness matches9752 RNG145 screens/cursors; setup control matches.333 focused,46 register/activity,52 dashboard startup tests and lint passed. Local shard2507 pass and one missing-clang environment failure; complete hosted Checkpoint passed. Exact Checkpoint and push Lint/Pages passed attempt1; fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "shopkeeper-return-migration",
+      "kind": "parity-repair",
+      "title": "Return compensated shopkeepers to their home level",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/shk.c",
+          "nethack-c/upstream/src/dog.c",
+          "js/shk.js",
+          "js/dog.js"
+        ],
+        "witness": [
+          "recipes/shk.c/shopkeeper-return-migration.session.json",
+          "recipes/shk.c/shopkeeper-same-level-settlement.session.json"
+        ],
+        "test": [
+          "scripts/shopkeeper-return-migration.test.mjs",
+          "scripts/dog-migrate.test.mjs",
+          "scripts/shk.test.mjs",
+          "scripts/dog.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Live C Minetown dwarf exposes movement preflight refusing ordinary door tunneling before existing mdig_tunnel owner. Short witness9752 RNG145 screens/cursors. Investigation timestamps unknown; validation and acceptance pending."
+      "note": "Independent C cross-level compensation exposes omitted migration: C removes Izchak, JS retains him. Existing migration adapter now owns departure/return. Same-level control matches. Investigation timestamps unknown; validation and acceptance pending."
     }
   ]
 }

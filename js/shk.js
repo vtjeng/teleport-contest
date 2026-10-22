@@ -22,6 +22,7 @@ import {
     ARTICLE_THE,
     BILLSZ,
     BOLT_LIM,
+    MIGR_APPROX_XY,
     CANDLESHOP,
     ANY_SHOP,
     ACH_SHOP,
@@ -115,7 +116,8 @@ import { acurr, adjalign, exercise } from './attrib.js';
 import { arti_cost } from './artifacts.js';
 import { y_n, yn_function } from './cmd.js';
 import { bot, map_invisible, newsym } from './display.js';
-import { assign_level, depth, mapseen_room, on_level } from './dungeon.js';
+import { assign_level, depth, ledger_no, mapseen_room, on_level } from './dungeon.js';
+import { migrate_to_level } from './dog.js';
 import { um_dist } from './apply.js';
 import { game } from './gstate.js';
 import { del_engr_at } from './engrave.js';
@@ -2859,7 +2861,7 @@ export async function make_happy_shoppers(
 }
 
 // C ref: shk.c make_happy_shk() (1394-1436). Covers payment and taming
-// callers; shopkeeper migration to another level remains unported.
+// callers, including returning a settled shopkeeper to another level.
 export async function make_happy_shk(
     shopkeeper,
     silentKops = false,
@@ -2891,7 +2893,9 @@ export async function make_happy_shk(
             if (sensemon(shopkeeper, state)) vanished = true;
             const dropping = mdrop_special_objs(shopkeeper, { ...env, state });
             if (dropping && typeof dropping.then === 'function') await dropping;
-            note_unported('dog.c migrate_to_level');
+            await migrate_to_level(shopkeeper,
+                ledger_no(eshk.shoplevel, state), MIGR_APPROX_XY, eshk.shd,
+                { ...env, state });
             eshk.dismiss_kops = true;
         }
         if (vanished)

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7003,
+      "datetime": "20541022100000",
+      "nethackrc": "OPTIONS=name:ReturnShop,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": ".#wizlevelport\n?\n>w\n    #wizmap\n    \u0017blessed +50 ring of protection\n    Pol    \u00175000 gold pieces\n    \u0014lllllljjjjj.    #chat\nk    \u0017apple\n    ,    \u0014jjjj.          m.m.m.m.m.m.        #wizlevelport\n4\n        p        #wizlevelport\n5\n        #wizmap\n        "
+    }
+  ],
+  "comment": "Independent live C witness: Wizard compensates a following Minetown shopkeeper on another level, then returns to the home level. Verify migration, arrival, and dismissal bookkeeping."
+}

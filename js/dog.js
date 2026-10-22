@@ -1422,8 +1422,6 @@ export async function migrate_to_level(
                 rawEnv,
             );
     }
-    if (monster.isshk)
-        throw new RangeError('shopkeeper migration is future work');
     if (monster.wormno)
         throw new RangeError('long-worm migration is future work');
     const appearance = monster.m_ap_type & M_AP_TYPMASK;

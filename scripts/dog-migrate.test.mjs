@@ -21,6 +21,7 @@ import {
     MM_NOMSG,
     NO_MINVENT,
     ROOM,
+    ROOMOFFSET,
     ZAP_POS,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
@@ -47,6 +48,7 @@ import {
     PM_LITTLE_DOG,
     PM_KITTEN,
     PM_SEWER_RAT,
+    PM_SHOPKEEPER,
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     monst_globals_init,
@@ -282,9 +284,26 @@ test('migration releases a leashed monster before moving it', async () => {
     assert.deepEqual([monster.mx, monster.my], [0, 0]);
 });
 
+test('shopkeeper migration clears its home resident and preserves its destination', async () => {
+    const state = migrationState();
+    const { monster } = onMapMonster(state, PM_SHOPKEEPER);
+    monster.isshk = true;
+    monster.mextra = { eshk: {
+        shoplevel: { ...CURRENT_LEVEL }, shoproom: ROOMOFFSET,
+    } };
+    state.level.rooms[0] = { resident: monster };
+    const destination = { x: 5, y: 6 };
+    await migrate_to_level(monster, ledger_no(UPWARD_DESTINATION, state),
+        MIGR_APPROX_XY, destination, { state, newsym: () => {} });
+    assert.equal(state.level.rooms[0].resident, null);
+    assert.equal(state.gm.migrating_mons, monster);
+    assert.equal(monster.mstate & MON_MIGRATING, MON_MIGRATING);
+    assert.deepEqual([monster.mx, monster.my], [0, 0]);
+    assert.deepEqual(monster.mtrack[1], destination);
+});
+
 test('migration rejects other future lifecycle owners before item mutation', async () => {
     for (const [property, value, message] of [
-        ['isshk', true, /shopkeeper migration/u],
         ['wormno', 1, /long-worm migration/u],
         ['m_ap_type', 1, /disguised monster migration/u],
     ]) {
