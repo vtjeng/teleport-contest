@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T20:55:33.358Z",
+  "asOf": "2026-10-22T21:10:11.808Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "monster-secret-corridor-tunneling",
-      "sha": "af5e20c4751b03ddb6a4b8cb5c0748c8e6231685",
+      "repairId": "sleeping-tame-pet-actions",
+      "sha": "b7e545ab6166450ab6e2af0cf4c6449427653d15",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T20:55:33.358Z"
+    "asOf": "2026-10-22T21:10:11.808Z"
   }
 }

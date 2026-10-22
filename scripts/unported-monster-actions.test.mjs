@@ -6235,13 +6235,10 @@ test('visible sleeping leprechaun reaches the Stealth disturb gate', async () =>
     assert.equal(target.replay.getScreens().length, screensBefore);
 });
 
-// C ref: monmove.c:341-358 and :726-731. The sleeping killer-bee guard must
-// admit the ordinary no-op whenever disturb()'s first conjunction fails: an
-// unseen bee returns before RNG, and a visible bee beyond mdistu 100 does the
-// same. A visible bee inside that range remains behind the special-action
-// boundary because it can consume the wakeup roll and continue to
-// bee_eat_jelly().
-test('sleeping killer bees admit only disturb no-op states', async () => {
+// C ref: monmove.c:341-358 and :726-731. Unseen, distant and Stealth cases
+// return before wakeup RNG. A nearby visible bee reaches the wakeup roll;
+// planning must preserve live state in both paths.
+test('sleeping killer bee planning isolates wakeup and no-op states', async () => {
     const cases = [
         { label: 'unseen within wake range', distant: false, visible: false },
         { label: 'visible beyond wake range', distant: true, visible: true },
@@ -6282,7 +6279,7 @@ test('sleeping killer bees admit only disturb no-op states', async () => {
             screensBefore,
             `${testCase.label}: no display work`,
         );
-    assert.equal(target.monster.msleeping, true, testCase.label);
+        assert.equal(target.monster.msleeping, true, testCase.label);
     }
 
     const stealth = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
@@ -6301,13 +6298,12 @@ test('sleeping killer bees admit only disturb no-op states', async () => {
     const visible = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
     visible.monster.msleeping = true;
     game.viz_array[visible.heroY][visible.monsterX] |= COULD_SEE;
-    await assert.rejects(
-        preflightSimpleMonsterActions(game),
-        (error) => (
-            error instanceof UnsupportedSimpleMonsterActionError
-            && error.reason === 'a special monster action'
-        ),
-        'visible bee within wake range remains fail-closed',
+    const visibleBefore = completeSecondTurnSnapshot(game, visible.replay);
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, visible.replay),
+        visibleBefore,
+        'visible bee wakeup planning leaves live state and RNG unchanged',
     );
 });
 

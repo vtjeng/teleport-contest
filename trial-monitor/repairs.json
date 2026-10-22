@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T20:55:33.358Z",
+  "asOf": "2026-10-22T21:10:11.808Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3602,8 +3602,82 @@
           "scripts/wizard-genesis.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "b7e545ab6166450ab6e2af0cf4c6449427653d15",
+          "runs": [
+            {
+              "id": 39853073363,
+              "name": "Checkpoint",
+              "sha": "b7e545ab6166450ab6e2af0cf4c6449427653d15",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/sleeping-tame-pet-actions-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T20:56:03Z",
+              "completedAt": "2026-10-22T21:02:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39853073363"
+            },
+            {
+              "id": 39854040245,
+              "name": "Lint",
+              "sha": "b7e545ab6166450ab6e2af0cf4c6449427653d15",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:03:01Z",
+              "completedAt": "2026-10-22T21:03:56Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39854040245"
+            },
+            {
+              "id": 39854040101,
+              "name": "Dashboard",
+              "sha": "b7e545ab6166450ab6e2af0cf4c6449427653d15",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T21:03:01Z",
+              "completedAt": "2026-10-22T21:05:36Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39854040101"
+            }
+          ]
+        }
+      ],
+      "note": "Accepted after original Checkpoint attempt 1 and exact-SHA push Lint/Dashboard passed. Transient annotations HTTP 401 interrupted monitoring; the same endpoint recovered without credential changes or CI reruns. Fixed44 and synthetic98/2055 comparison unchanged. Four failing C sleep/wake witnesses and awake control now match;392 focused/affected tests,12 timeline tests and lint passed. Complete cohort recorded for next ordinary repair."
+    },
+    {
+      "id": "sleeping-killer-bee-actions",
+      "kind": "parity-repair",
+      "title": "Allow sleeping killer bees to reach source wakeup logic",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/monmove.c",
+          "js/monmove.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/sleeping-killer-bee-visible.session.json",
+          "recipes/monmove.c/sleeping-killer-bee-stealth.session.json",
+          "recipes/monmove.c/sleeping-killer-bee-awake-control.session.json"
+        ],
+        "test": [
+          "scripts/sleeping-killer-bee.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Original movement adapter refused all sleeping tame pets before dochug/disturb. Four C witnesses pin random continued sleep, dog and newt wakeup, and Stealth suppression; awake control passed originally. Remove the obsolete guard and route through existing cloned wakeup logic. Hosted validation and publication pending; investigation start time not captured."
+      "note": "Visible sleeping-bee live C witness stopped at obsolete preflight guard before disturb; Stealth and awake controls already matched. Remove guard now that wakeup and jelly-at-square paths are ported. Existing planning test now checks live state/RNG preservation instead of expecting refusal. Initial equipment and wait probes missed target; final C routes verify wakeup, forced rests and message acknowledgement. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840819,
+      "datetime": "20541022160000",
+      "nethackrc": "OPTIONS=name:SleepBee,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": "\u0017blessed +50 ring of protection\nPpl#wizgenesis\nhostile sleeping killer bee\nm.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  m.  "
+    }
+  ]
+}

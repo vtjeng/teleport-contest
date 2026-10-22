@@ -35,7 +35,6 @@ import {
     SDOOR,
     SCORR,
     SLP_GAS_TRAP,
-    STEALTH,
     FIRE_TRAP,
     ANTI_MAGIC,
     Upolyd,
@@ -127,7 +126,6 @@ import {
     AD_SPEL,
     AT_MAGC,
     PM_FLOATING_EYE,
-    PM_KILLER_BEE,
     S_EEL,
 } from './monsters.js';
 import {
@@ -163,7 +161,6 @@ import {
 import { observe_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { potionhit } from './potion.js';
-import { dist2 } from './hacklib.js';
 import {
     create_gas_cloud,
     inside_region,
@@ -317,34 +314,9 @@ function assertSimpleActionState(monster, state) {
     // unported callees record their own gaps without stopping the turn.
     // Awake and sleeping leprechauns now reach canonical dochug(), including
     // its gold movement term, leppie_avoidance(), and AD_SGLD dispatch.
-    // C monmove.c:341-358 evaluates couldsee(), mdistu(), and Stealth before
-    // any wakeup RNG. A sleeping killer bee therefore takes dochug()'s
-    // ordinary no-op return when it is unseen, farther than ten squares, or
-    // the hero is stealthy; the later bee_eat_jelly() branch is unreachable on
-    // those turns. Keep a sleeping bee that may wake behind the special-action
-    // boundary. Awake bees enter dochug(), whose jelly-at-square condition
-    // already decides whether bee_eat_jelly() consumes the move or normal
-    // movement and attacks continue.
-    const sleepingOutOfWakeRangeKillerBee =
-        monster.data?.pmidx === PM_KILLER_BEE
-        && monster.msleeping
-        && (activeProperty(state, STEALTH)
-            || !couldsee(monster.mx, monster.my, state)
-            || dist2(
-                monster.mx,
-                monster.my,
-                state.u?.ux,
-                state.u?.uy,
-            ) > 100);
-    // monmove.c m_move() consumes Tengu's natural-teleport roll before
-    // tele_restrict() rejects it on a no-teleport level. m_move now admits
-    // the permitted relocation path through rloc()/mnexto(); sleeping-bee
-    // actions remain behind their own boundary.
-    if ((monster.data?.pmidx === PM_KILLER_BEE
-            && monster.msleeping
-            && !sleepingOutOfWakeRangeKillerBee)) {
-        unsupported('a special monster action');
-    }
+    // C dochug() owns sleeping-bee wakeup through disturb(), then checks
+    // the bee's square for royal jelly before ordinary movement and attacks.
+    // Both paths run against the planning clone before the live action.
 }
 
 function clonedRandom(state) {
