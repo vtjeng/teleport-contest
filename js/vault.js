@@ -32,6 +32,7 @@ import {
     MELT_ICE_AWAY,
     MM_EGD,
     MM_NOMSG,
+    NEED_HTH_WEAPON,
     RLOC_ERR,
     RLOC_MSG,
     RLOC_NOMSG,
@@ -66,7 +67,8 @@ import { PM_CROESUS, PM_GUARD } from './monsters.js';
 import {
     m_at, mon_track_clear, place_monster, remove_monster,
 } from './monst.js';
-import { m_carrying, m_into_limbo, mnexto, mongone, mpickgold } from './mon.js';
+import { m_carrying, m_into_limbo, mnexto, mongone, mpickgold, setmangry } from './mon.js';
+import { mon_wield_item } from './weapon.js';
 import {
     capitalizedAlwaysVisibleMonsterName,
     alwaysVisibleMonsterName,
@@ -1233,9 +1235,22 @@ export async function invault(state, env = {}) {
             await mongone(guard, { state });
             return;
         }
-        throw new UnsupportedVaultGuardError(
-            'invault() Croesus is dead and guard turns hostile',
-        );
+        const guardEnv = { ...env, state, random, message };
+        await setmangry(guard, false, guardEnv);
+        if (Deaf(state)) {
+            if (!Blind(state))
+                await message(`${noit_Monnam(guard, state)} mouths something and looks very angry!`);
+        } else {
+            set_voice(guard, 0, 80, 0, state);
+            await verbalize("Back from the dead, are you?  I'll remedy that!",
+                state, { message });
+        }
+        // C arms the guard now so it does not spend its next turn wielding.
+        if (!guard.mw) {
+            guard.weapon_check = NEED_HTH_WEAPON;
+            await mon_wield_item(guard, guardEnv);
+        }
+        return;
     }
 
     if (Deaf(state)) {

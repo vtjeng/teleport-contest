@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T03:02:50.568Z",
+  "asOf": "2026-10-22T03:24:46.016Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1206,9 +1206,86 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39713096956"
             }
           ]
+        },
+        {
+          "sha": "3cc65f566c4c226607a01f07253482b8de85a576",
+          "committedAt": "2026-10-22T03:03:09Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39714733301,
+              "name": "Checkpoint",
+              "sha": "3cc65f566c4c226607a01f07253482b8de85a576",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-swallowed-hero-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:03:18Z",
+              "completedAt": "2026-10-22T03:15:44Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39714733301"
+            },
+            {
+              "id": 39715993286,
+              "name": "Lint",
+              "sha": "3cc65f566c4c226607a01f07253482b8de85a576",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:17:09Z",
+              "completedAt": "2026-10-22T03:18:00Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39715993286"
+            },
+            {
+              "id": 39715993288,
+              "name": "Dashboard",
+              "sha": "3cc65f566c4c226607a01f07253482b8de85a576",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:17:09Z",
+              "completedAt": "2026-10-22T03:19:39Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39715993288"
+            }
+          ]
         }
       ],
-      "note": "Fresh C hearing/deaf witnesses each match 6413 RNG calls and 250 screens/cursors after fail-before unsupported-boundary evidence. Candidate SHA and final gates are not yet recorded; this entry cannot count as accepted. Initial C setup failed because level-up prompts consumed the summon input; that probe was rejected. Checkpoint 39713096956 attempt 1 failed in shard 3: an older fainting fixture expected the removed refusal and injected only rn2. Local reproduction: 2623/2624; corrected full RNG fixture plus guard-removal assertion: 2624/2624. Game code and C witnesses unchanged. Corrected candidate gates remain unrecorded."
+      "note": "Hearing/deaf live C witnesses each match 6413 RNG calls and 250 screens/cursors. Initial setup consumed summon input in level-up prompts and was rejected. Checkpoint 39713096956 failed on the old fainting fixture: expected refusal and incomplete injected RNG. Corrected fixture retained revival assertions and added guard removal; local shard 2624/2624, corrected Checkpoint plus Main push Lint/Pages all passed. Same repair ID; no additional repair for the correction."
+    },
+    {
+      "id": "vault-dead-croesus",
+      "kind": "parity-repair",
+      "title": "Anger and arm the guard when Croesus is dead",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T03:22:30.553Z",
+          "end": "2026-10-22T03:24:46.016Z",
+          "note": "Recorded hearing/deaf C qualification, source implementation and focused checks; earlier scratch scouting timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/croesus-dead-guard-hearing.session.json",
+          "recipes/vault.c/croesus-dead-guard-deaf.session.json"
+        ],
+        "test": [
+          "scripts/vault-dead-croesus.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Fresh hearing/deaf C witnesses each match 6396 RNG calls and 182 screens/cursors after fail-before named refusal. First setup created a named doppelganger and was rejected; explicit unique-monster confirmation reaches actual Croesus death. Candidate identity and final gates are not yet recorded; acceptance remains unknown."
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first new condition: summon and kill Croesus inside the vault before giving his name to the guard. Preserve current candidate; no implementation changes.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021124500",
+      "nethackrc": "OPTIONS=name:VaultCroesus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=permadeaf\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. \u0007peaceful Croesus\ny  #wizkill\nm.\u001b ........................................ Croesus\n   "
+    }
+  ]
+}
