@@ -1255,9 +1255,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && ptr?.pmidx === PM_HIGH_CLERIC
         && !randomCoordinates
         && mmflags === MM_EPRI;
+    // C mon.c mondead() can recreate a Kop with its explicit species and
+    // (0, 0, NO_MM_FLAGS). makemon_rnd_goodpos() handles that shape as well
+    // as random species; the normal runtime tail owns construction.
     const runtimeRandomCall = !state.in_mklev
         && randomCoordinates
-        && !ptr
         && mmflags === 0;
     // wizcmds.c uses makemon(ptr/null, 0, 0, MM_NOMSG). C makemon.c
     // 1172-1179 passes either species shape through makemon_rnd_goodpos;
@@ -1633,6 +1635,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // C makemon() has no species allowlist for explicit runtime
         // pointer/coordinate/flag shapes admitted above.
         if (!revivalCall
+            && !runtimeRandomCall
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall

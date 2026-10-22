@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T10:18:05.604Z",
+  "asOf": "2026-10-22T10:34:06.392Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2778,8 +2778,83 @@
           "scripts/dog.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "dcb02d3e564b963e075d362fd04dfe02d8f548c6",
+          "committedAt": "2026-10-22T10:21:14Z",
+          "runs": [
+            {
+              "id": 39762478430,
+              "name": "Checkpoint",
+              "sha": "dcb02d3e564b963e075d362fd04dfe02d8f548c6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/shopkeeper-return-migration-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:21:24Z",
+              "completedAt": "2026-10-22T10:26:58Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39762478430"
+            },
+            {
+              "id": 39763325111,
+              "name": "Lint",
+              "sha": "dcb02d3e564b963e075d362fd04dfe02d8f548c6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:28:13Z",
+              "completedAt": "2026-10-22T10:29:12Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39763325111"
+            },
+            {
+              "id": 39763324681,
+              "name": "Dashboard",
+              "sha": "dcb02d3e564b963e075d362fd04dfe02d8f548c6",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T10:28:12Z",
+              "completedAt": "2026-10-22T10:30:55Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39763324681"
+            }
+          ]
+        }
+      ],
+      "note": "Live C return matches14021 RNG255screens/cursors21frames; same-level control11181RNG191screens/cursors21frames.76 focused,38 corrected existing dig tests,98 register/startup and lint passed. Local shard found old migration-refusal fixture, corrected before hosted CI; missing local clang resolved by complete passing hosted Checkpoint. Exact Checkpoint and push Lint/Pages passed attempt1; fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "kop-random-return",
+      "kind": "parity-repair",
+      "title": "Allow a dead Kop to return at random coordinates",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/makemon.c",
+          "js/makemon_create.js"
+        ],
+        "witness": [
+          "recipes/mon.c/kop-random-return.session.json"
+        ],
+        "test": [
+          "scripts/kop-random-return.test.mjs",
+          "scripts/makemon-create.test.mjs",
+          "scripts/mon-kill.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/allmain-turn.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent C cross-level compensation exposes omitted migration: C removes Izchak, JS retains him. Existing migration adapter now owns departure/return. Same-level control matches. Investigation timestamps unknown; validation and acceptance pending."
+      "note": "Independent live C Kop death/return witness exposes explicit-species random-coordinate creation refusal. Existing placement/runtime tail used without changing RNG algorithm. Investigation timestamps unknown; validation and acceptance pending."
     }
   ]
 }

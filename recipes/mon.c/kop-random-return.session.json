@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7003,
+      "datetime": "20541022100000",
+      "nethackrc": "OPTIONS=name:ReturnShop,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics,!tips\n",
+      "moves": ".#wizlevelport\n?\n>w\n    #wizmap\n    \u0017blessed +50 ring of protection\n    Pol    \u00175000 gold pieces\n    \u0014lllllljjjjj.    #chat\nk    ,    \u0014jjjj.        "
+    }
+  ],
+  "comment": "Independent live C witness: after shop theft, a watch captain knife kills a Kop and mondead recreates its species at random coordinates. Stops before later pursuit and settlement."
+}

@@ -1058,25 +1058,27 @@ test('mkswamp admits its complete explicit initial-level pool species family', a
     assert.equal(runtimeEel.data, runtimeState.mons[PM_GIANT_EEL]);
 
     for (const mndx of [PM_PIRANHA, PM_ELECTRIC_EEL]) {
-        const runtimeState = initialLevelState();
-        runtimeState.in_mklev = false;
-        // C's (0, 0) request asks makemon to find a square; unlike an explicit
-        // valid coordinate, it still exercises JavaScript's species gate.
-        await assert.rejects(
-            makemon_runtime(
-                runtimeState.mons[mndx],
-                0,
-                0,
-                NO_MM_FLAGS,
-                {
-                    state: runtimeState,
-                    random: recordingRandom().random,
-                    _mkswampPoolSpecies: true,
-                },
-            ),
-            (error) => error instanceof UnsupportedMonsterCreationError,
-            `mkswamp marker must not admit runtime species ${mndx}`,
-        );
+        let unmarkedCalls;
+        for (const marked of [false, true]) {
+            const runtimeState = initialLevelState();
+            runtimeState.in_mklev = false;
+            runtimeState.level.at(MON_X, MON_Y).typ = POOL;
+            const random = recordingRandom();
+            // C admits the runtime species independently of mkswamp's
+            // marker; random placement must still find suitable terrain.
+            const eel = await makemon_runtime(runtimeState.mons[mndx],
+                0, 0, NO_MM_FLAGS, {
+                    state: runtimeState, random: random.random,
+                    _mkswampPoolSpecies: marked,
+                });
+            assert.ok(eel);
+            assert.equal(eel.data, runtimeState.mons[mndx]);
+            assert.equal(runtimeState.level.at(eel.mx, eel.my).typ, POOL);
+            assert.equal(eel.mgenmklev, false);
+            assert.equal(runtimeState.mvitals[mndx].born, 1);
+            if (marked) assert.deepEqual(random.calls, unmarkedCalls);
+            else unmarkedCalls = random.calls;
+        }
     }
 });
 
@@ -8399,5 +8401,24 @@ test('makemon admits migratemons random-coordinate MM_NOMSG calls on tutorial le
             MM_NOMSG | MM_NOCOUNTBIRTH, { state, random: random.random }),
         /unsupported tutorial monster creation/u);
         assert.deepEqual(random.calls, [], 'other flag shapes retain tutorial refusal before RNG');
+    }
+});
+
+// C mon.c mondead() uses an explicit species at (0,0) with NO_MM_FLAGS.
+// Its destination sampling is the same source path as random-species calls.
+test('runtime random-coordinate creation admits explicit species without extra flags', async () => {
+    for (const species of [PM_NEWT, PM_KEYSTONE_KOP]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.viz_array = Array.from({ length: ROWNO }, () => new Uint8Array(COLNO));
+        const random = recordingRandom();
+        const monster = await makemon_runtime(state.mons[species], 0, 0, NO_MM_FLAGS,
+            { state, random: random.random, message: async () => {}, norepMessage: async () => {} });
+        assert.ok(monster);
+        assert.equal(monster.data, state.mons[species]);
+        assert.notEqual(monster.mx, 0);
+        assert.equal(state.level.monlist, monster);
+        assert.deepEqual(random.calls.slice(0, 2).map(({ kind, args }) => [kind, ...args]),
+            [['rn1', COLNO - 3, 2], ['rn2', ROWNO]]);
     }
 });
