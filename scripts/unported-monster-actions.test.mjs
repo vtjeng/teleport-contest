@@ -119,6 +119,7 @@ import {
     PM_GIANT_RAT,
     PM_ASMODEUS,
     PM_GNOME,
+    PM_HILL_GIANT,
     PM_GRID_BUG,
     PM_GREMLIN,
     PM_HUMAN,
@@ -3115,6 +3116,34 @@ test('simple movement opens a closed door and names the opener', async () => {
     assert.equal(target.location.doormask, D_ISOPEN);
     assert.equal(doorLetsLightThrough(target), 1);
     assert.deepEqual(messages, ['The gnome opens a door.']);
+});
+
+test('giant locked-door planning preserves live terrain and vision before smashing', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_HILL_GIANT });
+    const location = game.level.at(target.destinationX, target.heroY);
+    location.typ = DOOR;
+    location.flags = location.doormask = D_LOCKED;
+    recalc_block_point(target.destinationX, target.heroY, game);
+    const before = preflightSnapshot();
+    const vision = visionSnapshot();
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(preflightSnapshot(), before);
+        assert.deepEqual(visionSnapshot(), vision);
+        assert.equal(location.flags, D_LOCKED);
+        assert.equal(doorLetsLightThrough(target), 0);
+    }
+    const messages = [];
+    await runSimpleMonsterAction(target.monster, {
+        state: game,
+        message: (text) => { messages.push(text); },
+    });
+    assert.deepEqual([target.monster.mx, target.monster.my],
+        [target.destinationX, target.heroY]);
+    assert.ok([D_NODOOR, D_BROKEN].includes(location.flags));
+    assert.equal(location.doormask, location.flags);
+    assert.equal(doorLetsLightThrough(target), 1);
+    assert.deepEqual(messages, ['The hill giant smashes down a door.']);
 });
 
 // The same opening with the hero blind. vision_recalc()'s Blind branch grants

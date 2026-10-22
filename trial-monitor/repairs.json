@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T11:05:21.857Z",
+  "asOf": "2026-10-22T11:19:20.350Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3000,8 +3000,82 @@
           "scripts/wiz-terrain.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "11575b715e6b15f37eae3eb40920194e3bc79c23",
+          "committedAt": "2026-10-22T11:06:50Z",
+          "runs": [
+            {
+              "id": 39769008076,
+              "name": "Dashboard",
+              "sha": "11575b715e6b15f37eae3eb40920194e3bc79c23",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T11:13:51Z",
+              "completedAt": "2026-10-22T11:16:16Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39769008076"
+            },
+            {
+              "id": 39769008092,
+              "name": "Lint",
+              "sha": "11575b715e6b15f37eae3eb40920194e3bc79c23",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T11:13:51Z",
+              "completedAt": "2026-10-22T11:14:50Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39769008092"
+            },
+            {
+              "id": 39768179367,
+              "name": "Checkpoint",
+              "sha": "11575b715e6b15f37eae3eb40920194e3bc79c23",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/wished-door-flags-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T11:07:09Z",
+              "completedAt": "2026-10-22T11:12:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39768179367"
+            }
+          ]
+        }
+      ],
+      "note": "Locked/closed C witnesses match 2585 RNG/100screens each after synchronizing flags; open and secret controls remain matched.102 focused tests,2245 affected local shard tests,70 register/startup and lint passed. Exact Checkpoint and push Lint/Pages passed attempt1; fixed44 and synthetic98/2055 unchanged. Accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "giant-locked-door",
+      "kind": "parity-repair",
+      "title": "Admit giant locked-door smashing with isolated planning",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/monmove.c",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/giant-locked-door-hill.session.json",
+          "recipes/monmove.c/giant-locked-door-stone.session.json"
+        ],
+        "test": [
+          "scripts/giant-locked-door.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent locked/closed door C witnesses expose stale open-door flags after a terrain wish; open and secret-door controls matched before correction. Discovered during giant-door setup, not evidence that giant door movement is fixed. Investigation timestamps unknown; validation and acceptance pending."
+      "note": "Independent hill/stone giant C witnesses smash locked doors where JS admission stopped. Closed-door opening control already matched. Keep planning terrain/vision isolated; source postmov smashing behavior unchanged. Investigation timestamps unknown; exact validation and acceptance pending."
     }
   ]
 }

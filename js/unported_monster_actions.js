@@ -104,6 +104,7 @@ import {
 } from './mon.js';
 import {
     defended,
+    is_giant,
     is_swimmer,
     likes_lava,
     monsndx,
@@ -1023,6 +1024,10 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const inertDoorway = location?.typ === DOOR
         && INERT_DOOR_MASKS.has(doorMask);
     const opensDoor = opensClosedDoor(monster, location, doorMask);
+    // C mon.c mon_allowflags() gives giants BUSTDOOR, so mfndpos()
+    // selects locked doors for monmove.c postmov() to smash.
+    const breaksDoor = location?.typ === DOOR
+        && is_giant(monster.data) && (doorMask & D_LOCKED);
     // mon.c:mfndpos() sets `thrudoor` when ALLOW_WALL is present, so a
     // wall-walker may follow its target through a closed doorway. postmov()
     // skips the ordinary door-opening block for that monster.
@@ -1067,6 +1072,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             || location.typ === IRONBARS
             || inertDoorway
             || opensDoor
+            || breaksDoor
             || passWallDoorway
             || trappedDoor
             || passwallDestination
@@ -1099,7 +1105,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             unsupported('a region transition');
     }
     // Last, so that a destination another guard rejects prepares nothing.
-    if (opensDoor || digsWall) admitTerrainChange(x, y, env);
+    if (opensDoor || breaksDoor || digsWall) admitTerrainChange(x, y, env);
     return m_in_out_region(monster, x, y, env);
 }
 
