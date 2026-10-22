@@ -682,10 +682,20 @@ export async function gd_move(grd, env = {}) {
 
         if (!u_in_vault) {
             if (u_carry_gold) {
-                // Hero teleported out with gold
-                throw new UnsupportedVaultGuardError(
-                    'gd_move() hero teleported out of vault carrying gold',
-                );
+                // C vault.c:986-997. Leaving before the first corridor
+                // extension restores the doorway and sets the guard loose.
+                const m = grd.mx;
+                const n = grd.my;
+                await rloc(grd, RLOC_MSG, { ...env, state });
+                const entry = state.level.at(m, n);
+                entry.typ = egrd.fakecorr[0].ftyp;
+                entry.flags = egrd.fakecorr[0].flags;
+                recalc_block_point(m, n, state);
+                del_engr_at(m, n, state);
+                newsym(m, n);
+                grd.mpeaceful = 0;
+                await gd_letknow(grd, state, gdEnv);
+                return -1;
             } else {
                 if (!Deaf(state)) {
                     await message('"Well, begone."', state, gdEnv);

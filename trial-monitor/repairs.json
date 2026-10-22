@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T04:43:41.084Z",
+  "asOf": "2026-10-22T05:00:36.008Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1675,6 +1675,37 @@
         }
       ],
       "note": "Four C witnesses match after paygd and vision-shutdown fixes. Failed first Checkpoint retained; local shard reproduction corrected stale death/vision fixtures. Corrected full Checkpoint and push Lint/Pages passed; imported evidence compared against accepted 2b07637893a4599e1ed2ab309badc625506a41ba with fixed 44 sessions and 98 synthetic batches/2055 cases unchanged. Hosted failed-run log download denied; individual original hosted assertions unverified."
+    },
+    {
+      "id": "vault-initial-gold-escape",
+      "kind": "parity-repair",
+      "title": "Release the guard when gold leaves the initial vault corridor",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T04:57:04.527Z",
+          "end": "2026-10-22T05:00:36.007Z",
+          "note": "Recorded C witness qualification, source translation and focused comparison. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/vault.c",
+          "js/vault.js"
+        ],
+        "witness": [
+          "recipes/vault.c/guard-initial-gold-escape-hearing.session.json",
+          "recipes/vault.c/guard-initial-gold-escape-deaf.session.json"
+        ],
+        "test": [
+          "scripts/vault-initial-gold-escape.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Hearing/deaf C witnesses qualify fcend=1, peaceful guard and gold carried before arrival; north wall escape fails before, matches after. Westward setup hit the guard and was rejected as escape evidence. Candidate identity and final gates not yet recorded; not accepted."
     }
   ]
 }

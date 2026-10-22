@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first vault.c gd_move initial corridor escape with carried gold: xorn leaves through north wall before corridor extension; deaf message variant.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541022045600",
+      "nethackrc": "OPTIONS=name:VaultCfirst,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,acoustics\nOPTIONS=permadeaf\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #polyself\nxorn\n    #wizwish\n100 gold pieces\n........................................ VaultCfirst\n   kk     ....    "
+    }
+  ]
+}
