@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T05:53:40.173Z",
+  "asOf": "2026-10-22T06:00:23.430Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -21,13 +21,13 @@
   },
   "operations": {
     "currentCandidate": {
-      "repairId": "invocation-walk-clue",
-      "sha": "df4bea8845d59c928ebd48d65c2341dbd19d1ff8",
+      "repairId": "mimic-movement-disguise",
+      "sha": "c12455861067468ff8b68a23199b9b170c98b737",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T05:53:40.173Z"
+    "asOf": "2026-10-22T06:00:23.430Z"
   }
 }

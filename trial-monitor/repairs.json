@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T05:53:40.173Z",
+  "asOf": "2026-10-22T06:00:23.430Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1981,8 +1981,29 @@
           "scripts/mimic-movement.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Giant/large mimic movement fails before missing appearance-clear branch, matches C after. Waiting countercase matches before/after and is not another repair. Full candidate gates not yet recorded; not accepted."
+      "candidates": [
+        {
+          "sha": "c12455861067468ff8b68a23199b9b170c98b737",
+          "committedAt": "2026-10-22T05:54:03Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39730684751,
+              "name": "Checkpoint",
+              "sha": "c12455861067468ff8b68a23199b9b170c98b737",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mimic-movement-20261022",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-22T05:54:14Z",
+              "completedAt": "2026-10-22T05:59:40Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39730684751"
+            }
+          ]
+        }
+      ],
+      "note": "Both movement witnesses match C; waiting countercase remains matched. First full Checkpoint failed shard3: local reproduction found stale source adjacency assertion disallowing C mimic branch before check_leash. Corrected C/JS ordering assertion; runtime checks retained. Corrected candidate awaits full gates; not accepted."
     }
   ]
 }

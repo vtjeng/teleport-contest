@@ -286,10 +286,10 @@ test('apply.c check_leash follows its distance gate and all three production cal
     assert.match(jsBody, /random\.rn2\(3\)/u);
     assert.match(jsBody, /await xkilled\(monster, XKILL_NOMSG/u);
 
-    assert.match(HACK_C, /check_leash\(u\.ux0, u\.uy0\);\s*if \(u\.ux0 != u\.ux \|\| u\.uy0 != u\.uy\) \{/u);
+    assert.match(HACK_C, /gy\.youmonst\.m_ap_type = M_AP_NOTHING;\s*check_leash\(u\.ux0, u\.uy0\);\s*if \(u\.ux0 != u\.ux \|\| u\.uy0 != u\.uy\) \{/u);
     assert.match(TRAP_C, /vision_recalc\(1\);\s*check_leash\(u\.ux0, u\.uy0\);\s*if \(Punished\)/u);
     assert.match(ALLMAIN_C, /if \(!next_to_u\(\)\) \{\s*check_leash\(old_ux, old_uy\);/u);
-    assert.match(HACK_JS, /hideunder\(state\.youmonst, \{ state \}\);\s*\}\s*\/\/ C ref: hack\.c domove_core\(\):2962[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);[\s\S]*?if \(u\.ux0 !== u\.ux \|\| u\.uy0 !== u\.uy\) \{[\s\S]*?newsym/u);
+    assert.match(HACK_JS, /hideunder\(state\.youmonst, \{ state \}\);[\s\S]*?state\.youmonst\.m_ap_type = M_AP_NOTHING;\s*\}[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);[\s\S]*?if \(u\.ux0 !== u\.ux \|\| u\.uy0 !== u\.uy\) \{[\s\S]*?newsym/u);
     assert.match(TRAP_JS, /vision_recalc\(1, \{ state \}\);\s*\/\/ C ref: trap\.c move_into_trap\(\):5413[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);\s*if \(Punished/u);
     assert.match(ALLMAIN_JS, /teleport\.c:tele\(\) is a discarded void call[\s\S]*?note_unported\('teleport\.c tele'\);[\s\S]*?await check_leash\(oldUx, oldUy/u);
 
