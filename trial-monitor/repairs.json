@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T17:52:36.137Z",
+  "asOf": "2026-10-22T18:07:08.959Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -3223,8 +3223,83 @@
           "scripts/monmove.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "a6727b1386f905208ca8bb4403f35fdda9208adb",
+          "committedAt": "2026-10-22T17:53:47Z",
+          "runs": [
+            {
+              "id": 39827718869,
+              "name": "Dashboard",
+              "sha": "a6727b1386f905208ca8bb4403f35fdda9208adb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:01:16Z",
+              "completedAt": "2026-10-22T18:03:52Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39827718869"
+            },
+            {
+              "id": 39827718818,
+              "name": "Lint",
+              "sha": "a6727b1386f905208ca8bb4403f35fdda9208adb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T18:01:15Z",
+              "completedAt": "2026-10-22T18:02:06Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39827718818"
+            },
+            {
+              "id": 39826695047,
+              "name": "Checkpoint",
+              "sha": "a6727b1386f905208ca8bb4403f35fdda9208adb",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vampire-door-passage-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T17:54:07Z",
+              "completedAt": "2026-10-22T18:00:02Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39826695047"
+            }
+          ]
+        }
+      ],
+      "note": "Vampire/closed-door C witnesses match3047RNG172screens; vampire-lord2716RNG177screens; open control2680RNG170screens.348 focused tests including frozen-state form-change planning,70 register/startup and lint passed. Affected shard3044pass with only local missingclang; exact hosted Checkpoint and push Lint/Pages passed attempt1. Fixed44 and synthetic98/2055 unchanged; accepted synthetic evidence carried in this ordinary commit."
+    },
+    {
+      "id": "monster-door-unlock",
+      "kind": "parity-repair",
+      "title": "Admit ordinary monster door unlocking",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/mon.c",
+          "nethack-c/upstream/src/monmove.c",
+          "js/monmove.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/monmove.c/monster-door-unlock-rider.session.json",
+          "recipes/monmove.c/monster-door-unlock-famine.session.json"
+        ],
+        "test": [
+          "scripts/monster-door-unlock.test.mjs",
+          "scripts/unported-monster-actions.test.mjs",
+          "scripts/monmove.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Independent vampire/vampire-lord C recordings start in bat form and expose admission refusal before existing door-triggered fog form change. Open-door control matched. Preserve can_fog blockers, source sequence and planning isolation. Investigation timestamps unknown; exact validation and acceptance pending."
+      "note": "Independent Death/Famine C witnesses unlock doors where JavaScript admission stopped. Pass captured canUnlock into ordinary movement admission and isolate planned terrain/vision. Closed-door control matched; earlier shopkeeper probe did not establish unlocking. Pet path remains outside qualified scope. Investigation timestamps unknown; exact validation and acceptance pending."
     }
   ]
 }

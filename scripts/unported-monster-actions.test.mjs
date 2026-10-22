@@ -103,6 +103,7 @@ import {
     AT_NONE,
     AT_WEAP,
     PM_COBRA,
+    PM_DEATH,
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
     PM_DISPLACER_BEAST,
@@ -198,6 +199,7 @@ import {
     ROCK,
     RUNESWORD,
     SHIELD_OF_REFLECTION,
+    SKELETON_KEY,
     SCR_SCARE_MONSTER,
     SPE_BOOK_OF_THE_DEAD,
     WAX_CANDLE,
@@ -3137,6 +3139,57 @@ for (const mask of [D_CLOSED, D_LOCKED]) {
         assert.equal(location.flags, mask);
         assert.equal(location.doormask, mask);
         assert.equal(doorLetsLightThrough(target), 0);
+    });
+}
+
+async function prepareUnlockingArrival(pmidx, carriesKey) {
+    const target = await prepareSelectedAction({ pmidx });
+    if (carriesKey) {
+        target.monster.minvent = monsterObject(SKELETON_KEY);
+        target.monster.minvent.ocarry = target.monster;
+    }
+    const location = game.level.at(target.destinationX, target.heroY);
+    location.typ = DOOR;
+    location.flags = location.doormask = D_LOCKED;
+    recalc_block_point(target.destinationX, target.heroY, game);
+    return { ...target, location };
+}
+
+for (const [label, pmidx, carriesKey, message] of [
+    ['Rider', PM_DEATH, false, 'Death unlocks and opens a door.'],
+    ['key-bearing gnome', PM_GNOME, true, 'The gnome unlocks and opens a door.'],
+]) {
+    test(label + ' unlocks a door after isolated planning', async () => {
+        const target = await prepareUnlockingArrival(pmidx, carriesKey);
+        const before = preflightSnapshot();
+        const vision = visionSnapshot();
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(preflightSnapshot(), before);
+            assert.deepEqual(visionSnapshot(), vision);
+            assert.equal(target.location.flags, D_LOCKED);
+            assert.equal(doorLetsLightThrough(target), 0);
+        }
+        const messages = [];
+        await runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: (text) => { messages.push(text); },
+        });
+        assert.deepEqual([target.monster.mx, target.monster.my],
+            [target.destinationX, target.heroY]);
+        assert.equal(target.location.flags, D_ISOPEN);
+        assert.equal(target.location.doormask, D_ISOPEN);
+        assert.equal(doorLetsLightThrough(target), 1);
+        assert.deepEqual(messages, [message]);
+    });
+
+    test(label + ' unlocking writes nothing to frozen live state', async () => {
+        const target = await prepareUnlockingArrival(pmidx, carriesKey);
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
+        await preflightSimpleMonsterActions(game);
+        guard.assertNoLeak(assert);
+        assert.equal(target.location.flags, D_LOCKED);
     });
 }
 

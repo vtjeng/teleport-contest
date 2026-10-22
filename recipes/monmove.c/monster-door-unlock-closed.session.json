@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840321,
+      "datetime": "20541022110000",
+      "nethackrc": "OPTIONS=name:DoorGiant,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": ".#wizmap\n    \u0017blessed +50 ring of protection\n    Pol    \u0014hhhj.    oh    hh\u0017closed door\n    #wizgenesis\nhostile Death\n    \u0014hh.    m.m.m.m."
+    }
+  ],
+  "comment": "Independent public-input C witness for ordinary monster door movement. Closed-door control already matched."
+}

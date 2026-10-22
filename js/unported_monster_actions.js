@@ -1026,6 +1026,10 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const inertDoorway = location?.typ === DOOR
         && INERT_DOOR_MASKS.has(doorMask);
     const opensDoor = opensClosedDoor(monster, location, doorMask);
+    // C mon.c mfndpos admits UNLOCKDOOR. m_move supplies the same captured
+    // can_unlock that its existing postmov door-opening branch consumes.
+    const unlocksDoor = location?.typ === DOOR
+        && (doorMask & D_LOCKED) && env.canUnlock;
     // C mon.c mon_allowflags() gives giants BUSTDOOR, so mfndpos()
     // selects locked doors for monmove.c postmov() to smash.
     const breaksDoor = location?.typ === DOOR
@@ -1080,6 +1084,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             || location.typ === IRONBARS
             || inertDoorway
             || opensDoor
+            || unlocksDoor
             || breaksDoor
             || flowsUnderDoor
             || passWallDoorway
@@ -1114,7 +1119,7 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             unsupported('a region transition');
     }
     // Last, so that a destination another guard rejects prepares nothing.
-    if (opensDoor || breaksDoor || digsWall) admitTerrainChange(x, y, env);
+    if (opensDoor || unlocksDoor || breaksDoor || digsWall) admitTerrainChange(x, y, env);
     return m_in_out_region(monster, x, y, env);
 }
 

@@ -4219,10 +4219,10 @@ export async function m_move(monster, rawEnv = {}) {
         return MMOVE_DONE;
     }
     const mayCrossRegion = rawEnv.mayCrossRegion ?? m_in_out_region;
-    // canTunnel travels with the destination because postmov() reads this same
-    // local when it decides whether to dig the square (C:1643-1645); the
-    // admission guard needs it to tell a dig destination from an unported one.
-    if (!await mayCrossRegion(monster, nextX, nextY, { ...env, canTunnel }))
+    // Carry the same capabilities postmov() reads when it unlocks a door or
+    // digs the square. Admission must use those captured values, rather than
+    // recomputing them after the intervening inventory actions.
+    if (!await mayCrossRegion(monster, nextX, nextY, { ...env, canTunnel, canUnlock }))
         return MMOVE_DONE;
     if ((data.info[chosen] & ALLOW_ROCK) && m_can_break_boulder(monster)) {
         await m_break_boulder(monster, nextX, nextY, env);
