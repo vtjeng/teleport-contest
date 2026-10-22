@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first invocation walk flying variation: red dragon has capacity for retained inventory; giant-bat scout collapsed under load and did not reach square.",
+  "segments": [
+    {
+      "seed": 840031,
+      "datetime": "20541022051500",
+      "nethackrc": "OPTIONS=name:InvocationScout,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,!tips\n",
+      "moves": " #wizlevelport\n48\n       #wizlevelport\n50\n       #wizwhere\n     #polyself\nred dragon\n    \u0014kkkkkkkkk.  l    "
+    }
+  ]
+}

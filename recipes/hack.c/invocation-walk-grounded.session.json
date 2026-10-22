@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first invocation walk with tips disabled so first getpos hint cannot consume the planned cursor keys.",
+  "segments": [
+    {
+      "seed": 840031,
+      "datetime": "20541022051500",
+      "nethackrc": "OPTIONS=name:InvocationScout,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!debug_mongen,!tips\n",
+      "moves": " #wizlevelport\n48\n       #wizlevelport\n50\n       #wizwhere\n     \u0014kkkkkkkkk.  l    "
+    }
+  ]
+}

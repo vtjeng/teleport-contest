@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T05:23:00.878Z",
+  "asOf": "2026-10-22T05:34:58.217Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1804,9 +1804,86 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39727044445"
             }
           ]
+        },
+        {
+          "sha": "616c2132a4347fe464c2b5136d9ae7faa5f3acd0",
+          "committedAt": "2026-10-22T05:23:24Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39727756223,
+              "name": "Checkpoint",
+              "sha": "616c2132a4347fe464c2b5136d9ae7faa5f3acd0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/refused-swap-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:23:32Z",
+              "completedAt": "2026-10-22T05:29:21Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39727756223"
+            },
+            {
+              "id": 39728421149,
+              "name": "Lint",
+              "sha": "616c2132a4347fe464c2b5136d9ae7faa5f3acd0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:30:31Z",
+              "completedAt": "2026-10-22T05:31:30Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39728421149"
+            },
+            {
+              "id": 39728421219,
+              "name": "Dashboard",
+              "sha": "616c2132a4347fe464c2b5136d9ae7faa5f3acd0",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T05:30:31Z",
+              "completedAt": "2026-10-22T05:33:03Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39728421219"
+            }
+          ]
         }
       ],
-      "note": "Normal and xorn forms match C after actual-movement guards. First Checkpoint failed in shards3/4; local reproduction found an old unconditional-redraw source assertion and one shared pre-startup shop fixture. Corrected to C guarded ordering and completed startup; focused corrections pass. Final corrected SHA/gates not yet recorded; not accepted."
+      "note": "Both C witnesses match. Failed first candidate retained with its correction under the same repair. Corrected exact-SHA Checkpoint passed; imported comparison shows fixed44 and synthetic98/2055 unchanged, and push Lint/Pages passed."
+    },
+    {
+      "id": "invocation-walk-clue",
+      "kind": "parity-repair",
+      "title": "Report the invocation clue when walking onto its square",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T05:33:54.369Z",
+          "end": "2026-10-22T05:34:58.217Z",
+          "note": "Recorded implementation and focused validation after qualified live C probes. Earlier read-only probe timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "js/hack.js"
+        ],
+        "witness": [
+          "recipes/hack.c/invocation-walk-grounded.session.json",
+          "recipes/hack.c/invocation-walk-flying.session.json"
+        ],
+        "test": [
+          "scripts/invocation-walk.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Grounded and flying live C witnesses fail before the missing domove_core call, fully match after. Bat probe rejected because encumbrance prevented arrival. Candidate SHA/full gates not yet recorded; not accepted."
     }
   ]
 }

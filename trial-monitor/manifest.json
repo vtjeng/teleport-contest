@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "vtjeng/teleport-contest",
-  "asOf": "2026-10-22T05:23:00.878Z",
+  "asOf": "2026-10-22T05:34:58.217Z",
   "baseline": {
     "status": "completed",
     "start": "2026-10-21T11:50:00Z",
@@ -22,12 +22,12 @@
   "operations": {
     "currentCandidate": {
       "repairId": "refused-swap-arrival-effects",
-      "sha": "b2df773589688aa14670b93c23942e0af365e408",
+      "sha": "616c2132a4347fe464c2b5136d9ae7faa5f3acd0",
       "origin": "sole-standard-engineer",
       "investigator": null
     },
     "investigators": null,
     "waitingHandoffs": null,
-    "asOf": "2026-10-22T05:23:00.878Z"
+    "asOf": "2026-10-22T05:34:58.217Z"
   }
 }

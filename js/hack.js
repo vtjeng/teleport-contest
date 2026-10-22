@@ -4611,6 +4611,7 @@ async function domove_core(state = game) {
         newsym(oldx, oldy);
         vision_recalc(1);
         newsym(newx, newy);
+        await invocation_message(state);
     }
     // C ref: hack.c domove_core():2976-2987. The attached objects return
     // before pickup effects, and dragging interrupts the next two moves only
@@ -5750,9 +5751,9 @@ export function invocation_pos(x, y, state = game) {
         && y === state.inv_pos?.y;
 }
 
-// C ref: hack.c invocation_message() (3064-3085). This runs after teleds()
-// finishes destination effects. C interrupts travel before its vibration
-// message, sets uvibrated after that message, then reports a lit, fully charged
+// C ref: hack.c invocation_message() (3064-3085). Walking calls this before
+// destination effects; teleds() calls it afterward. C interrupts travel before
+// its vibration message, sets uvibrated afterward, then reports a lit, fully charged
 // Candelabrum.
 export async function invocation_message(state = game, env = {}) {
     const { u } = state;
