@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T02:44:38.958Z",
+  "asOf": "2026-10-22T03:02:50.568Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1186,8 +1186,29 @@
           "scripts/vault-guard-swallowed.test.mjs"
         ]
       },
-      "candidates": [],
-      "note": "Fresh C hearing/deaf witnesses each match 6413 RNG calls and 250 screens/cursors after fail-before unsupported-boundary evidence. Candidate SHA and final gates are not yet recorded; this entry cannot count as accepted. Initial C setup failed because level-up prompts consumed the summon input; that probe was rejected."
+      "candidates": [
+        {
+          "sha": "1572b1c3142a515fd5f92a7cddd00358af33a08d",
+          "committedAt": "2026-10-22T02:44:54Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39713096956,
+              "name": "Checkpoint",
+              "sha": "1572b1c3142a515fd5f92a7cddd00358af33a08d",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-swallowed-hero-20261022",
+              "status": "completed",
+              "conclusion": "failure",
+              "createdAt": "2026-10-22T02:45:09Z",
+              "completedAt": "2026-10-22T02:57:38Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39713096956"
+            }
+          ]
+        }
+      ],
+      "note": "Fresh C hearing/deaf witnesses each match 6413 RNG calls and 250 screens/cursors after fail-before unsupported-boundary evidence. Candidate SHA and final gates are not yet recorded; this entry cannot count as accepted. Initial C setup failed because level-up prompts consumed the summon input; that probe was rejected. Checkpoint 39713096956 attempt 1 failed in shard 3: an older fainting fixture expected the removed refusal and injected only rn2. Local reproduction: 2623/2624; corrected full RNG fixture plus guard-removal assertion: 2624/2624. Game code and C witnesses unchanged. Corrected candidate gates remain unrecorded."
     }
   ]
 }

@@ -197,8 +197,11 @@ test('invault wakes a fainted hero when a guard is created', async () => {
     game.u.ustuck = { data: game.mons[0] };
     const messages = [];
     let guardCreated = false;
-    await assert.rejects(invault(game, {
-        random: { rn2: () => 0 },
+    // invault now completes the swallowed-hero mongone path. Supply the full
+    // cleanup RNG contract instead of stopping at the former refusal.
+    await invault(game, {
+        random: { d: () => 1, rn1: (_range, base) => base,
+            rn2: () => 0, rnd: () => 1, rne: () => 1 },
         message: async (line) => messages.push(line),
         makemon_runtime: async (_species, x, y) => {
             const guard = { data: game.mons[PM_GUARD], mx: x, my: y,
@@ -210,8 +213,9 @@ test('invault wakes a fainted hero when a guard is created', async () => {
             guardCreated = true;
             return guard;
         },
-    }), /invault\(\) removing guard while hero is swallowed/u);
+    });
     assert.equal(guardCreated, true);
+    assert.equal(findgd(game), null, 'the swallowed hero is not interrogated');
     assert.equal(game.multi, 0);
     assert.equal(game.afternmv, null);
     assert.equal(game.u.uhs, FAINTING);
