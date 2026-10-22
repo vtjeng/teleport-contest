@@ -2486,14 +2486,12 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
     assert.equal(dismissalSegments, 1);
 });
 
-// The remaining burdened planning stops are source-owned refusals unrelated to
-// region upkeep, which now runs on the projected level before them.
-test('burdened multi-cycle upkeep stops before automatic search work',
+// Automatic discovery runs live after a nonmutating planning handoff.
+test('burdened multi-cycle upkeep hands automatic search to the live turn',
     async () => {
-        for (const [name, reason, install] of [
+        for (const [name, install] of [
             [
                 'automatic search',
-                'burdened multi-cycle automatic search',
                 () => {
                     // FROMOUTSIDE rather than a small integer: the low bits
                     // of intrinsic are nh_timeout()'s property countdown, and
@@ -2541,15 +2539,12 @@ test('burdened multi-cycle upkeep stops before automatic search work',
 
             for (let attempt = 0; attempt < 2; ++attempt) {
                 game.context.move = 1;
-                await assert.rejects(
-                    () => moveloop_core(),
-                    (error) => (
-                        error instanceof UnsupportedTurnBoundaryError
-                        && error.message === `elapsed turn reached ${reason}`
-                    ),
-                    `${name}, attempt ${attempt}`,
-                );
-                // The dry run refuses before any live state moves.
+                const plan = await preflightSimpleMonsterActions(game, {
+                    advanceRound: (planned, random) =>
+                        finishElapsedTurn(planned, random, { planning: true }),
+                });
+                assert.equal(plan.beforeSearch, true, `${name}, attempt ${attempt}`);
+                // The dry run hands off before any live state moves.
                 assert.deepEqual(
                     completeSecondTurnSnapshot(game, replay),
                     before,

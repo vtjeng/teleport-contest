@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C allmain.c:342-346 automatic-search witness: archeologist. Public wishes establish load; no explicit search commands are used.",
+  "segments": [
+    {
+      "seed": 8411081,
+      "datetime": "20261022140000",
+      "nethackrc": "OPTIONS=name:BurdenSearch,role:Archeologist,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen\n",
+      "moves": " l #wizwish\nheavy iron ball\n  #wizwish\nheavy iron ball\n    l   .........."
+    }
+  ]
+}

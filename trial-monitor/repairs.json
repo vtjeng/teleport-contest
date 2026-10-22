@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T22:54:56.577562Z",
+  "asOf": "2026-10-22T23:09:40.913906Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -4155,9 +4155,85 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39867425539"
             }
           ]
+        },
+        {
+          "sha": "46338453844176a3279243113c143250e2c03b8f",
+          "runs": [
+            {
+              "id": 39868385564,
+              "name": "Checkpoint",
+              "sha": "46338453844176a3279243113c143250e2c03b8f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/periodic-teleport-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T22:55:42Z",
+              "completedAt": "2026-10-22T23:01:28Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39868385564"
+            },
+            {
+              "id": 39869144182,
+              "name": "Lint",
+              "sha": "46338453844176a3279243113c143250e2c03b8f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:02:35Z",
+              "completedAt": "2026-10-22T23:03:31Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39869144182"
+            },
+            {
+              "id": 39869144193,
+              "name": "Dashboard",
+              "sha": "46338453844176a3279243113c143250e2c03b8f",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T23:02:35Z",
+              "completedAt": "2026-10-22T23:05:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39869144193"
+            }
+          ]
         }
       ],
-      "note": "Initial Checkpoint passed fixed sessions, all recording groups and all synthetic groups but failed test shard 4. Local reproduction identified a stale leash wiring assertion requiring the removed tele() placeholder; correction now asserts actual tele -> changed coordinates -> next_to_u -> check_leash order. All 31 apply tests pass. Hosted job-log retrieval was Forbidden; not retried or bypassed. Corrected candidate awaits full gates."
+      "note": "Accepted corrected candidate with full Checkpoint, exact-SHA Main push Lint and Dashboard success. Fixed 44 and synthetic 98/2055 unchanged. Initial candidate failed a stale leash assertion requiring the replaced placeholder; local shard 4 reproduced exactly that failure (2666/2667 passed), corrected apply tests passed 31/31, and corrected full hosted Checkpoint passed. Four live C replays and planning isolation passed. Failed-run job-log retrieval was Forbidden and was not retried or bypassed. Complete cohort recorded for next ordinary repair; both commits count as one repair."
+    },
+    {
+      "id": "burdened-automatic-search",
+      "kind": "parity-repair",
+      "title": "Resume burdened automatic searching through live discoveries",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/allmain.c",
+          "nethack-c/upstream/src/detect.c",
+          "js/allmain.js",
+          "js/unported_monster_actions.js"
+        ],
+        "witness": [
+          "recipes/allmain.c/burdened-automatic-search-ranger-pit.session.json",
+          "recipes/allmain.c/burdened-automatic-search-archeologist.session.json",
+          "recipes/allmain.c/burdened-automatic-search-light-control.session.json"
+        ],
+        "test": [
+          "scripts/burdened-automatic-search.test.mjs",
+          "scripts/allmain-turn.test.mjs",
+          "scripts/full-health-interrupt.test.mjs",
+          "scripts/automatic-search.test.mjs",
+          "scripts/explicit-search.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Live C burdened Ranger finds an adjacent pit; stressed Archeologist continues waiting. Both stopped at the prior planning refusal while unburdened control passed. Run discovery live, then plan remaining upkeep from the changed map; preserve nonmutating planning and silent regeneration checks. Hosted gates pending; investigation start time not captured."
     }
   ]
 }

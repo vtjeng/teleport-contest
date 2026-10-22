@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { moveloop_core, UnsupportedTurnBoundaryError } from '../js/allmain.js';
+import { finishElapsedTurn, moveloop_core } from '../js/allmain.js';
 import { rhack } from '../js/cmd.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import {
@@ -13,6 +13,7 @@ import {
 import { game } from '../js/gstate.js';
 import { projected_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { ttyPline } from '../js/tty_message.js';
 import {
     loadFullHealthInterruptRecipe,
@@ -179,15 +180,11 @@ test('a planned top-up announces nothing', async () => {
     const before = completeSecondTurnSnapshot(game, replay);
     for (let attempt = 0; attempt < 2; ++attempt) {
         game.context.move = 1;
-        await assert.rejects(
-            () => moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedTurnBoundaryError
-                && error.message === 'elapsed turn reached '
-                    + 'burdened multi-cycle automatic search'
-            ),
-            `attempt ${attempt}`,
-        );
+        const plan = await preflightSimpleMonsterActions(game, {
+            advanceRound: (planned, random) =>
+                finishElapsedTurn(planned, random, { planning: true }),
+        });
+        assert.equal(plan.beforeSearch, true, `attempt ${attempt}`);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, replay),
             before,
@@ -195,11 +192,8 @@ test('a planned top-up announces nothing', async () => {
         );
     }
 
-    // The snapshot is the detector; this is what shows the case arrives. With
-    // the search property gone the plan runs to the end and the live pass takes
-    // the same turn for real: the hero tops up, the count ends, and the line
-    // reaches a top row no key bounds.
-    game.u.uprops[SEARCHING].intrinsic = 0;
+    // The live turn now completes the supported search handoff: the hero
+    // tops up, the count ends, and the line reaches the real top row.
     game.context.move = 1;
     await moveloop_core();
     assert.equal(game.u.uhp, game.u.uhpmax);

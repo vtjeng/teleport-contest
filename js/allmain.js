@@ -1030,7 +1030,6 @@ async function finishElapsedTurnAfterTimeout(
 // The live destination determines delayed changes and the remaining upkeep.
 async function finishElapsedTurnAfterTeleport(state, random, { planning = false } = {}) {
     const turnMessage = planning ? async () => {} : ttyPline;
-    const turnStatusRefresh = planning ? async () => {} : () => bot();
     if (!state.u.uinvulnerable) {
         // C ref: allmain.c moveloop_core():322-339. `mvl_change` is a C static,
         // so keep its per-game, nonsaved value on the game object. planningState()
@@ -1072,40 +1071,35 @@ async function finishElapsedTurnAfterTeleport(state, random, { planning = false 
 
     }
 
-    // C ref: allmain.c moveloop_core():342-346. A Ranger or an Archeologist
-    // holds SEARCHING from experience level 1 (js/attrib.js ran_abil and
-    // arc_abil), so automatic searching runs on every turn that hero takes;
-    // the following Warning arm then reveals nearby hidden threats through
-    // detect.c warnreveal(). UnsupportedSearchError remains limited to the
-    // explicit `s` command's unported terrain/trap branches and is converted
-    // by js/cmd.js at that command boundary.
-    //
-    // detect.c:2079-2088, the trap block, is the one C does not gate on aflag,
-    // and js/detect.js preflightTrap() refuses its two unported branches --
-    // activate_statue_trap() and find_trap()'s hallucinatory display -- as
-    // plain Errors that would escape runSegment(). Neither is recordable yet:
-    // a statue trap needs level_difficulty() >= 8 (js/mktrap.js traptype_rnd())
-    // or a Statuary theme room, and across seeds 1-6000 no D:1 Statuary placed
-    // an unseen statue trap within a ten-step same-room walk of a Ranger's
-    // arrival square, while hallucination has no D:1 source this port reaches.
-    // Give them the boundary class, and this seam its catch, when a recorded
-    // case reaches one.
-    const searchEnv = {
-        state,
-        random,
-        planning,
-        // A planning clone must not repaint the live terminal.  The
-        // discovery state changes still run on the clone through
-        // detect.c's mfind0() and warning reveal path.
-        newSym: planning ? () => {} : (x, y) => newsym(x, y),
-    };
+    // C allmain.c:342-346. Search can reveal terrain, display a found trap,
+    // or animate a statue. Run those effects live and plan remaining upkeep
+    // from the resulting map rather than letting the clone consume input.
     if (propertyActive(state, SEARCHING)
         && !state.level.flags?.noautosearch
         && (state.multi ?? 0) >= 0) {
-        if (planning)
-            elapsedTurnBoundary('burdened multi-cycle automatic search');
-        await automatic_search(searchEnv);
+        if (planning) return { beforeSearch: true };
+        await automatic_search({ state, random });
+        if (state.program_state?.gameover) return { afterSearch: true };
+        const tailPlan = await preflightElapsedTurnTail(state,
+            (planned, planningRandom) => finishElapsedTurnAfterSearch(
+                planned, planningRandom, { planning: true },
+            ));
+        const result = await finishElapsedTurnAfterSearch(state, random);
+        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+            throw new Error('elapsed-turn search tail disagreed with live delayed action');
+        return { ...result, afterSearch: true };
     }
+    return finishElapsedTurnAfterSearch(state, random, { planning });
+}
+
+// C allmain.c moveloop_core(), after automatic searching and before warning.
+async function finishElapsedTurnAfterSearch(state, random, { planning = false } = {}) {
+    const turnMessage = planning ? async () => {} : ttyPline;
+    const turnStatusRefresh = planning ? async () => {} : () => bot();
+    const searchEnv = {
+        state, random, planning,
+        newSym: planning ? () => {} : (x, y) => newsym(x, y),
+    };
     if (propertyActive(state, WARNING)) {
         await warnreveal({
             ...searchEnv,
@@ -1531,12 +1525,14 @@ async function advanceElapsedTurn(state) {
             let afterTimeout;
             let afterHunger;
             let afterTeleport;
+            let afterSearch;
             try {
                 const result = await finishElapsedTurn(state, random);
                 afterUnmul = result?.afterUnmul;
                 afterTimeout = result?.afterTimeout;
                 afterHunger = result?.afterHunger;
                 afterTeleport = result?.afterTeleport;
+                afterSearch = result?.afterSearch;
             } catch (error) {
                 // A live-only timeout and its fresh tail can reach existing
                 // command or upkeep refusals after the prefix has completed.
@@ -1569,12 +1565,16 @@ async function advanceElapsedTurn(state) {
                 && upkeepCount === preflight.upkeepCount && !afterTeleport) {
                 throw new Error('elapsed-turn preflight disagreed with live teleport');
             }
+            if (preflight.beforeSearch
+                && upkeepCount === preflight.upkeepCount && !afterSearch) {
+                throw new Error('elapsed-turn preflight disagreed with live search');
+            }
             if (preflight.beforeHunger
                 && upkeepCount === preflight.upkeepCount && !afterHunger) {
                 throw new Error('elapsed-turn preflight disagreed with live hunger');
             }
             if (!pendingDeathReplan
-                && (afterUnmul || afterTimeout || afterHunger || afterTeleport)
+                && (afterUnmul || afterTimeout || afterHunger || afterTeleport || afterSearch)
                 && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,

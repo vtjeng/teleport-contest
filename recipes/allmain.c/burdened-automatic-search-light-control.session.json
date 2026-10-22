@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C allmain.c:342-346 automatic-search witness: light-control. Public wishes establish load; no explicit search commands are used.",
+  "segments": [
+    {
+      "seed": 8411081,
+      "datetime": "20261022140000",
+      "nethackrc": "OPTIONS=name:BurdenSearch,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics,!debug_mongen\n",
+      "moves": " l     #wizwish\npit\n  l   .........."
+    }
+  ]
+}
