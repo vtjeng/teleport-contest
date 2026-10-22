@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T03:37:54.293Z",
+  "asOf": "2026-10-22T03:53:43.827Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -1363,8 +1363,88 @@
           "scripts/vault-guard-boulder.test.mjs"
         ]
       },
+      "candidates": [
+        {
+          "sha": "e96f997e8e67cdf44e1fdfff1dd7312c3fe74a46",
+          "committedAt": "2026-10-22T03:41:14Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39718211661,
+              "name": "Checkpoint",
+              "sha": "e96f997e8e67cdf44e1fdfff1dd7312c3fe74a46",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/vault-boulder-entry-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:41:21Z",
+              "completedAt": "2026-10-22T03:47:14Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39718211661"
+            },
+            {
+              "id": 39718877782,
+              "name": "Lint",
+              "sha": "e96f997e8e67cdf44e1fdfff1dd7312c3fe74a46",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:48:35Z",
+              "completedAt": "2026-10-22T03:49:29Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39718877782"
+            },
+            {
+              "id": 39718877739,
+              "name": "Dashboard",
+              "sha": "e96f997e8e67cdf44e1fdfff1dd7312c3fe74a46",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T03:48:35Z",
+              "completedAt": "2026-10-22T03:52:10Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39718877739"
+            }
+          ]
+        }
+      ],
+      "note": "Single, multiple and blind/hearing C witnesses match completely. The earlier solid-rock drop setup was rejected for an unrelated refusal; a dug entrance isolates this branch. Exact-SHA Checkpoint and Main push Lint/Pages passed on attempt 1; fixed and synthetic results unchanged. Watcher HTTP 503 was reconciled using the existing completed run, without a duplicate dispatch."
+    },
+    {
+      "id": "solid-rock-drop",
+      "kind": "parity-repair",
+      "title": "Allow object drops inside stone and walls",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T03:52:52.113Z",
+          "end": "2026-10-22T03:53:43.827Z",
+          "note": "Recorded implementation and focused/C checks; earlier scratch qualification timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/do.c",
+          "nethack-c/upstream/src/invent.c",
+          "js/do.js"
+        ],
+        "witness": [
+          "recipes/do.c/drop-solid-rock-boulder.session.json",
+          "recipes/do.c/drop-solid-rock-staff.session.json",
+          "recipes/do.c/drop-solid-rock-stone.session.json"
+        ],
+        "test": [
+          "scripts/drop-solid-rock.test.mjs"
+        ]
+      },
       "candidates": [],
-      "note": "Single, multiple and blind/hearing fresh C comparisons match after fail-before guard-entry refusal. The solid-rock drop setup was rejected for an earlier unrelated refusal; a dug entrance isolates this branch. Candidate identity and final gates are not yet recorded; acceptance remains unknown."
+      "note": "Automatic boulder drops in wall/stone and an explicit quarterstaff drop in a wall failed before the terrain admission correction and now match C completely. Candidate identity and final gates not yet recorded; acceptance unknown."
     }
   ]
 }

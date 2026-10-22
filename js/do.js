@@ -62,6 +62,7 @@ import {
     HAND,
     HALF_PHDAM,
     IS_ALTAR,
+    IS_STWALL,
     IS_WATERWALL,
     IS_SINK,
     Is_airlevel,
@@ -1992,11 +1993,12 @@ export function preflight_dropx(obj, env = {}) {
     // do.c:flooreffects leaves a boulder intact on dry terrain without a
     // pit or hole. The trap and liquid guards above bound this floor path.
     // Doorways, thrones and stairways add no flooreffects() branch when
-    // shipping leaves the object on this level.
+    // shipping leaves the object on this level. Neither do stone and walls:
+    // a wall-passing hero can drop there through drop() or hold_another_object().
     if (location.typ !== ROOM && location.typ !== CORR
         && location.typ !== DOOR && location.typ !== SINK
         && location.typ !== THRONE && location.typ !== FOUNTAIN
-        && !IS_ALTAR(location.typ) && !stway
+        && !IS_ALTAR(location.typ) && !IS_STWALL(location.typ) && !stway
         && !ordinaryLiquid) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }

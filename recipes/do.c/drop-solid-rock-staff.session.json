@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first explicit quarterstaff drop while a xorn stands inside the vault wall.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021124500",
+      "nethackrc": "OPTIONS=name:VaultCroesus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #polyself\nxorn\n    hda   "
+    }
+  ]
+}

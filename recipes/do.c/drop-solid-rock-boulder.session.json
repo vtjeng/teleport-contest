@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first solid-rock automatic drop: wall-passing xorn wishes a boulder inside the wall. Stop before vault guard logic.",
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021124500",
+      "nethackrc": "OPTIONS=name:VaultCroesus,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. #polyself\nxorn\n    h#wizwish\nboulder\n   "
+    }
+  ]
+}
