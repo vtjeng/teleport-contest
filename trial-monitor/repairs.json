@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "asOf": "2026-10-22T06:00:23.430Z",
+  "asOf": "2026-10-22T06:12:56.507Z",
   "repairs": [
     {
       "id": "trapper-expulsion",
@@ -2001,9 +2001,95 @@
               "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39730684751"
             }
           ]
+        },
+        {
+          "sha": "06c679c4f770a51cc687f3a1e1d5c79b81895c6b",
+          "committedAt": "2026-10-22T06:00:45Z",
+          "startedAt": null,
+          "runs": [
+            {
+              "id": 39731330991,
+              "name": "Checkpoint",
+              "sha": "06c679c4f770a51cc687f3a1e1d5c79b81895c6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "integration-checkpoint/mimic-movement-20261022",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T06:00:53Z",
+              "completedAt": "2026-10-22T06:06:09Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39731330991"
+            },
+            {
+              "id": 39731957780,
+              "name": "Lint",
+              "sha": "06c679c4f770a51cc687f3a1e1d5c79b81895c6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T06:07:00Z",
+              "completedAt": "2026-10-22T06:07:53Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39731957780"
+            },
+            {
+              "id": 39731957801,
+              "name": "Dashboard",
+              "sha": "06c679c4f770a51cc687f3a1e1d5c79b81895c6b",
+              "attempt": 1,
+              "event": "push",
+              "branch": "main",
+              "status": "completed",
+              "conclusion": "success",
+              "createdAt": "2026-10-22T06:07:00Z",
+              "completedAt": "2026-10-22T06:09:19Z",
+              "url": "https://github.com/vtjeng/teleport-contest/actions/runs/39731957801"
+            }
+          ]
         }
       ],
-      "note": "Both movement witnesses match C; waiting countercase remains matched. First full Checkpoint failed shard3: local reproduction found stale source adjacency assertion disallowing C mimic branch before check_leash. Corrected C/JS ordering assertion; runtime checks retained. Corrected candidate awaits full gates; not accepted."
+      "note": "Both moving C witnesses and unchanged waiting countercase match. First failed checkpoint retained with source-assertion correction under same repair. Corrected exact Checkpoint imported and compared without fixed/synthetic changes; push Lint/Pages passed. Optional watcher annotation401 did not indicate a test failure; combined evidence import succeeded."
+    },
+    {
+      "id": "hero-postmove-gas",
+      "kind": "parity-repair",
+      "title": "Leave polymorphed hero gas clouds at the previous square",
+      "window": "single-worker",
+      "origin": "sole-standard-engineer",
+      "investigator": null,
+      "carryIn": false,
+      "investigations": [
+        {
+          "start": "2026-10-22T06:10:10.990Z",
+          "end": "2026-10-22T06:12:56.507Z",
+          "note": "Recorded implementation, live C verification, existing affected tests and local shard. Earlier read-only probe timestamps unknown. Elapsed span only."
+        }
+      ],
+      "evidence": {
+        "source": [
+          "nethack-c/upstream/src/hack.c",
+          "nethack-c/upstream/src/monmove.c",
+          "js/hack.js",
+          "js/monmove.js"
+        ],
+        "witness": [
+          "recipes/hack.c/hero-postmove-gas-hezrou.session.json",
+          "recipes/hack.c/hero-postmove-gas-steam-vortex.session.json"
+        ],
+        "test": [
+          "scripts/hero-postmove-gas.test.mjs",
+          "scripts/hack.test.mjs",
+          "scripts/cmd.test.mjs",
+          "scripts/rooms.test.mjs",
+          "scripts/apply.test.mjs",
+          "scripts/mounted-move.test.mjs",
+          "scripts/region.test.mjs",
+          "scripts/unported-monster-actions.test.mjs"
+        ]
+      },
+      "candidates": [],
+      "note": "Hezrou and steam-vortex C witnesses fail before missing hero caller, match after using existing helper. 423 targeted tests and 3247 affected local shard tests pass without fixture changes. Full candidate gates pending; not accepted."
     }
   ]
 }

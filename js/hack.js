@@ -415,6 +415,7 @@ import {
     can_fog,
     closed_door,
     dissolve_bars,
+    m_postmove_effect,
     onscary,
     set_apparxy,
     wormCross,
@@ -4516,11 +4517,13 @@ async function domove_core(state = game) {
     u.ux = newx;
     u.uy = newy;
 
+    // C hack.c:2877. The polymorphed hero leaves gas at the old square,
+    // after its tentative move and before the steed follows.
+    const postmoveEffect = m_postmove_effect(state.youmonst, { state });
+    if (postmoveEffect) await postmoveEffect;
+
     // C ref: domove_core():2879-2884. A ridden steed rides along on the
-    // tentative move. C's m_postmove_effect(&gy.youmonst) between the two is
-    // unported and empty for the hero: monmove.c gives it a body only for a
-    // hezrou or an uncancelled steam vortex, and no ported path polymorphs the
-    // hero into either.
+    // tentative move.
     if (u.usteed) {
         u.usteed.mx = u.ux;
         u.usteed.my = u.uy;

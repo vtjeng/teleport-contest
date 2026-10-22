@@ -830,7 +830,7 @@ export async function m_everyturn_effect(monster, env = {}) {
 // Returns a promise only when a gas cloud is actually created; returns
 // undefined (synchronously) for all other species to avoid an extra
 // microtask yield on the common path.
-function m_postmove_effect(mtmp, env = {}) {
+export function m_postmove_effect(mtmp, env = {}) {
     const state = env.state ?? game;
     const isHero = mtmp === state.youmonst;
     const x = isHero ? (state.u?.ux0 ?? state.u?.ux) : mtmp.mx;
